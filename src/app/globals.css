@@ -369,6 +369,11 @@ input {
   transform: translateY(0) scale(1);
 }
 
+/* Closed dropdown: links must not intercept clicks on page content below header */
+.nav-dropdown:not(:hover):not(:focus-within) .nav-dropdown-panel * {
+  pointer-events: none;
+}
+
 .nav-dropdown-menu {
   position: relative;
   background: linear-gradient(
@@ -476,26 +481,36 @@ input {
 
 .mobile-menu-backdrop {
   opacity: 0;
+  visibility: hidden;
   pointer-events: none;
   transition: opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .mobile-menu-backdrop--open {
   opacity: 1;
+  visibility: visible;
   pointer-events: auto;
 }
 
 .mobile-menu-panel {
   transform: translateY(-12px);
   opacity: 0;
+  visibility: hidden;
   pointer-events: none;
   transition:
     transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .mobile-menu-panel--open {
   transform: translateY(0);
   opacity: 1;
+  visibility: visible;
   pointer-events: auto;
+}
+
+/* Closed menu: block all nav links underneath (parent pointer-events:none is not enough) */
+.mobile-menu-panel:not(.mobile-menu-panel--open) * {
+  pointer-events: none;
 }
 
 .mobile-accordion-grid {
@@ -556,10 +571,16 @@ input {
     opacity: 1;
     visibility: visible;
   }
-  .nav-dropdown-panel,
-  .nav-dropdown-item,
-  .mobile-menu-panel,
-  .mobile-nav-item {
+  .mobile-menu-panel--open,
+  .mobile-menu-panel--open .mobile-nav-item {
+    animation: none;
+    transition: none;
+    transform: none;
+  }
+  .nav-dropdown:hover .nav-dropdown-panel,
+  .nav-dropdown:focus-within .nav-dropdown-panel,
+  .nav-dropdown:hover .nav-dropdown-item,
+  .nav-dropdown:focus-within .nav-dropdown-item {
     animation: none;
     transition: none;
     transform: none;

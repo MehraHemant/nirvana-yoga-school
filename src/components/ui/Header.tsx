@@ -340,12 +340,13 @@ export default function Header() {
         </div>
       </header>
 
-      {/* Mobile overlay + panel — always mounted for smooth transitions */}
+      {/* Mobile overlay + panel — inert when closed so links cannot intercept clicks */}
       <div
         className={`xl:hidden mobile-menu-backdrop fixed inset-0 z-40 bg-ink/40 backdrop-blur-[2px] ${
           mobileOpen ? "mobile-menu-backdrop--open" : ""
         }`}
         aria-hidden={!mobileOpen}
+        inert={!mobileOpen ? true : undefined}
         onClick={() => setMobileOpen(false)}
       />
 
@@ -354,6 +355,7 @@ export default function Header() {
           mobileOpen ? "mobile-menu-panel--open" : ""
         }`}
         aria-hidden={!mobileOpen}
+        inert={!mobileOpen ? true : undefined}
       >
         <nav
           className="mx-auto max-w-7xl px-4 py-5 flex flex-col"
