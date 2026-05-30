@@ -151,9 +151,9 @@ function StatIcon({
     );
   }
   if (type === "cert") {
-    return <BadgeStar className="text-white/75" />;
+    return <BadgeStar className="text-white/75 w-4 h-4 sm:w-5 sm:h-5" />;
   }
-  return <Users className="text-white/75" />;
+  return <Users className="text-white/75 w-4 h-4 sm:w-5 sm:h-5" />;
 }
 
 export default function WelcomeSection() {
@@ -255,16 +255,16 @@ export default function WelcomeSection() {
         duration: 0.7,
         ease: EASE_OUT,
       })}
-      className="bg-paper py-14 md:py-16 lg:py-0 lg:min-h-[calc(100svh-5.5rem)] lg:flex lg:items-center overflow-hidden"
+      className="bg-paper py-12 sm:py-14 md:py-16 lg:py-0 lg:min-h-[calc(100svh-5.5rem)] lg:flex lg:items-center overflow-hidden"
     >
       <Container size="2xl" className="w-full lg:py-10">
-        <div className="grid lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] xl:grid-cols-[minmax(0,1fr)_minmax(0,0.95fr)] gap-10 lg:gap-12 xl:gap-14 items-center">
+        <div className="grid lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] xl:grid-cols-[minmax(0,1fr)_minmax(0,0.95fr)] gap-6 sm:gap-8 lg:gap-12 xl:gap-14 items-center">
           {/* Copy */}
-          <div className="flex flex-col gap-4 lg:gap-5 order-2 lg:order-1 lg:pr-4 xl:pr-8 border-l border-primary/15 pl-5 md:pl-6 lg:pl-8">
+          <div className="flex flex-col gap-3 sm:gap-4 lg:gap-5 order-2 lg:order-1 lg:pr-4 xl:pr-8 border-l border-primary/15 pl-4 sm:pl-5 md:pl-6 lg:pl-8">
             <Pill>Yoga Alliance Certified · India</Pill>
 
-            <div className="space-y-4">
-              <h2 className="font-serif font-medium text-3xl sm:text-4xl lg:text-5xl leading-[1.1] text-ink text-balance tracking-tight">
+            <div className="space-y-3 sm:space-y-4">
+              <h2 className="font-serif font-medium text-[1.625rem] leading-[1.12] sm:text-3xl md:text-4xl lg:text-5xl sm:leading-[1.1] text-ink text-balance tracking-tight">
                 Welcome to Nirvana — a{" "}
                 <span className="text-primary italic font-normal">
                   sanctuary for the soul
@@ -278,11 +278,11 @@ export default function WelcomeSection() {
             </div>
 
             {/* Tabs */}
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               <div
                 role="tablist"
                 aria-label="About Nirvana Yoga School"
-                className="flex flex-wrap gap-x-6 gap-y-1 border-b border-ink/10"
+                className="flex flex-wrap gap-x-4 sm:gap-x-6 gap-y-1 border-b border-ink/10"
               >
                 {TABS.map((tab) => {
                   const selected = activeTab === tab.id;
@@ -295,7 +295,7 @@ export default function WelcomeSection() {
                       aria-controls={`welcome-panel-${tab.id}`}
                       id={`welcome-tab-${tab.id}`}
                       onClick={() => setActiveTab(tab.id)}
-                      className={`relative pb-3 font-sans text-sm tracking-wide transition-colors duration-300 ${
+                      className={`relative pb-2.5 sm:pb-3 font-sans text-xs sm:text-sm tracking-wide transition-colors duration-300 ${
                         selected
                           ? "text-primary font-medium"
                           : "text-muted hover:text-ink/80"
@@ -320,7 +320,7 @@ export default function WelcomeSection() {
                     id={`welcome-panel-${activeTab}`}
                     role="tabpanel"
                     aria-labelledby={`welcome-tab-${activeTab}`}
-                    className="border-l-2 border-accent/35 pl-4 md:pl-5 space-y-3"
+                    className="border-l-2 border-accent/35 pl-3 sm:pl-4 md:pl-5 space-y-2.5 sm:space-y-3"
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -6 }}
@@ -332,7 +332,7 @@ export default function WelcomeSection() {
                     {activeTabContent.paragraphs.map((paragraph) => (
                       <p
                         key={paragraph.slice(0, 32)}
-                        className="type-body text-ink/80"
+                        className="text-sm leading-relaxed sm:text-base sm:leading-[1.65] text-ink/80 font-sans"
                       >
                         {paragraph}
                       </p>
@@ -343,11 +343,11 @@ export default function WelcomeSection() {
             </div>
 
             {/* Highlights — single row on desktop */}
-            <ul className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-2.5 pt-3 border-t border-ink/8">
+            <ul className="grid grid-cols-2 lg:grid-cols-4 gap-x-3 sm:gap-x-4 gap-y-2 sm:gap-y-2.5 pt-2.5 sm:pt-3 border-t border-ink/8">
               {HIGHLIGHTS.map((item) => (
                 <li
                   key={item}
-                  className="flex items-start gap-2 font-sans text-xs leading-snug text-ink/70"
+                  className="flex items-start gap-1.5 sm:gap-2 font-sans text-[0.6875rem] sm:text-xs leading-snug text-ink/70"
                 >
                   <span
                     className="mt-2 w-3 h-px bg-accent shrink-0"
@@ -358,19 +358,19 @@ export default function WelcomeSection() {
               ))}
             </ul>
 
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-wrap gap-2.5">
-                <Button href="#courses" variant="primary" size="md">
+            <div className="flex flex-col gap-3 sm:gap-4">
+              <div className="flex flex-wrap gap-2 sm:gap-2.5">
+                <Button href="#courses" variant="primary" size="sm" responsive>
                   View Courses
                 </Button>
-                <Button href="#contact" variant="ghost" size="md">
+                <Button href="#contact" variant="ghost" size="sm" responsive>
                   Speak With Us
                 </Button>
               </div>
 
               {/* Stats — unified strip */}
               <motion.div
-                className="welcome-stats-strip rounded-2xl text-white w-full relative overflow-hidden"
+                className="welcome-stats-strip rounded-xl sm:rounded-2xl text-white w-full relative overflow-hidden"
                 initial="hidden"
                 whileInView="visible"
                 viewport={VIEWPORT_ONCE}
@@ -400,11 +400,11 @@ export default function WelcomeSection() {
                     <motion.div
                       key={stat.label}
                       variants={statItemVariants}
-                      className={`flex flex-col items-center justify-center text-center px-3 py-3.5 sm:px-5 sm:py-4 min-h-[5.5rem] sm:min-h-[5.75rem] ${
+                      className={`flex flex-col items-center justify-center text-center px-2 py-2.5 sm:px-3 sm:py-3.5 md:px-5 md:py-4 min-h-[4.75rem] sm:min-h-[5.5rem] md:min-h-[5.75rem] ${
                         index > 0 ? "border-l border-white/15" : ""
                       }`}
                     >
-                      <div className="font-serif text-xl sm:text-2xl leading-none tabular-nums">
+                      <div className="font-serif text-lg sm:text-xl md:text-2xl leading-none tabular-nums">
                         {stat.value}
                       </div>
                       <div className="flex h-5 items-center justify-center mt-1.5">
@@ -413,10 +413,10 @@ export default function WelcomeSection() {
                           reducedMotion={reducedMotion ?? false}
                         />
                       </div>
-                      <div className="type-eyebrow text-white/70 mt-1.5 leading-tight">
+                      <div className="type-eyebrow text-[0.625rem] sm:text-[0.65rem] md:text-xs text-white/70 mt-1 sm:mt-1.5 leading-tight">
                         {stat.label}
                       </div>
-                      <div className="type-eyebrow text-white/50 mt-0.5 hidden sm:block leading-tight">
+                      <div className="type-eyebrow text-[0.625rem] sm:text-[0.65rem] text-white/50 mt-0.5 hidden sm:block leading-tight">
                         {stat.sub}
                       </div>
                     </motion.div>
@@ -431,7 +431,7 @@ export default function WelcomeSection() {
             <div
               ref={galleryRef}
               aria-live="polite"
-              className="welcome-gallery-frame relative h-[300px] sm:h-[360px] lg:h-[min(calc(100svh-6.5rem),540px)] xl:h-[min(calc(100svh-6rem),560px)] rounded-[1.75rem] lg:rounded-[2rem] overflow-hidden bg-ink/5"
+              className="welcome-gallery-frame relative h-[260px] sm:h-[340px] md:h-[360px] lg:h-[min(calc(100svh-6.5rem),540px)] xl:h-[min(calc(100svh-6rem),560px)] rounded-[1.25rem] sm:rounded-[1.75rem] lg:rounded-[2rem] overflow-hidden bg-ink/5"
             >
               {GALLERY.map((item, i) => (
                 <Image
@@ -452,21 +452,21 @@ export default function WelcomeSection() {
                 aria-hidden="true"
               />
 
-              <div className="absolute top-4 right-4 lg:top-5 lg:right-5 hero-glass rounded-xl px-3 py-2 lg:px-4 lg:py-3 text-white text-center pointer-events-none">
-                <div className="font-serif text-base lg:text-lg leading-none">
+              <div className="absolute top-3 right-3 sm:top-4 sm:right-4 lg:top-5 lg:right-5 hero-glass rounded-lg sm:rounded-xl px-2.5 py-1.5 sm:px-3 sm:py-2 lg:px-4 lg:py-3 text-white text-center pointer-events-none">
+                <div className="font-serif text-sm sm:text-base lg:text-lg leading-none">
                   2012
                 </div>
-                <div className="type-eyebrow text-white/60 mt-1">
+                <div className="type-eyebrow text-white/60 mt-0.5 sm:mt-1">
                   Est. Rishikesh
                 </div>
               </div>
 
-              <div className="absolute bottom-0 inset-x-0 p-5 md:p-6 lg:p-7">
-                <div className="space-y-4">
+              <div className="absolute bottom-0 inset-x-0 p-4 sm:p-5 md:p-6 lg:p-7">
+                <div className="space-y-3 sm:space-y-4">
                   <AnimatePresence mode="wait">
                     <motion.p
                       key={activeGallery.caption}
-                      className="font-serif text-xl md:text-2xl leading-snug text-white max-w-md pointer-events-none"
+                      className="font-serif text-lg sm:text-xl md:text-2xl leading-snug text-white max-w-md pointer-events-none"
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -6 }}

@@ -42,9 +42,9 @@ const TEACHERS: Teacher[] = [
 
 export default function TeachersSection() {
   return (
-    <section id="teachers" className="bg-paper py-20 md:py-28">
+    <section id="teachers" className="bg-paper py-14 md:py-20 lg:py-28">
       <Container size="xl">
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12 md:mb-16">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 sm:gap-6 mb-8 sm:mb-10 md:mb-16">
           <SectionHeader
             eyebrow="Our Spiritual Gurus"
             title={
@@ -58,13 +58,13 @@ export default function TeachersSection() {
           />
           <Link
             href="#"
-            className="text-sm font-semibold text-primary hover:underline whitespace-nowrap"
+            className="text-xs sm:text-sm font-semibold text-primary hover:underline whitespace-nowrap"
           >
             Meet all 12 teachers →
           </Link>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 md:gap-6">
           {TEACHERS.map((t) => (
             <article
               key={t.name}
@@ -79,14 +79,14 @@ export default function TeachersSection() {
                   className="object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
                 />
               </div>
-              <div className="p-5 md:p-6">
+              <div className="p-4 sm:p-5 md:p-6">
                 <h3 className="type-display-sm text-ink leading-tight">
                   {t.name}
                 </h3>
-                <div className="text-sm text-primary font-medium mt-1">
+                <div className="text-xs sm:text-sm text-primary font-medium mt-1">
                   {t.role}
                 </div>
-                <div className="text-xs text-muted mt-3 uppercase tracking-wider">
+                <div className="text-[0.65rem] sm:text-xs text-muted mt-2 sm:mt-3 uppercase tracking-wider">
                   {t.experience}
                 </div>
               </div>

@@ -44,7 +44,7 @@ export default function HeroSection() {
         <Container size="xl">
           <div className="flex items-center justify-center gap-3 text-white/60">
             <span className="h-px w-10 md:w-20 bg-linear-to-r from-transparent to-white/35" />
-            <span className="type-eyebrow text-white/60">
+            <span className="type-eyebrow text-[0.65rem] sm:text-xs text-white/60">
               Est. Rishikesh · 2012
             </span>
             <span className="h-px w-10 md:w-20 bg-linear-to-l from-transparent to-white/35" />
@@ -53,7 +53,7 @@ export default function HeroSection() {
       </div>
 
       {/* Bottom-anchored content */}
-      <div className="relative z-10 min-h-svh flex items-end pb-[4.5rem] md:pb-[5rem]">
+      <div className="relative z-10 min-h-svh flex items-end pb-36 sm:pb-[4.5rem] md:pb-[5rem]">
         <Container size="xl" className="w-full">
           <div className="grid lg:grid-cols-12 gap-10 items-end">
             <div className="lg:col-span-7 xl:col-span-8 relative">
@@ -63,17 +63,17 @@ export default function HeroSection() {
                 aria-hidden="true"
               />
 
-              <div className="animate-fade-up fade-delay-200 inline-flex items-center gap-2.5 hero-glass rounded-full px-4 py-2 mb-6">
-                <span className="relative flex h-2 w-2">
+              <div className="animate-fade-up fade-delay-200 inline-flex items-center gap-2 hero-glass rounded-full px-3 py-1.5 mb-4 sm:gap-2.5 sm:px-4 sm:py-2 sm:mb-6">
+                <span className="relative flex h-1.5 w-1.5 sm:h-2 sm:w-2">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-60" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
+                  <span className="relative inline-flex h-full w-full rounded-full bg-accent" />
                 </span>
-                <span className="type-eyebrow text-white/90">
+                <span className="type-eyebrow text-[0.65rem] sm:text-xs text-white/90">
                   Yoga Alliance Certified · India
                 </span>
               </div>
 
-              <h1 className="animate-fade-up fade-delay-300 font-serif font-medium text-white text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-[1.04] tracking-tight text-balance">
+              <h1 className="animate-fade-up fade-delay-300 font-serif font-medium text-white text-[1.75rem] leading-[1.08] sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl sm:leading-[1.04] tracking-tight text-balance">
                 Where ancient yoga
                 <br className="hidden sm:block" />
                 <span className="text-white/95"> meets the soul of the </span>
@@ -84,37 +84,40 @@ export default function HeroSection() {
                 <span className="text-white/90">.</span>
               </h1>
 
-              <p className="type-lead animate-fade-up fade-delay-400 mt-6 text-white/80 max-w-lg">
+              <p className="animate-fade-up fade-delay-400 mt-4 sm:mt-6 text-sm leading-relaxed sm:text-base sm:leading-normal md:type-lead text-white/80 max-w-lg">
                 <span className="text-white/90">200, 300 &amp; 500-hour</span>{" "}
                 residential teacher trainings on the banks of the sacred Ganga.
               </p>
 
-              <div className="animate-fade-up fade-delay-500 mt-8 flex flex-wrap gap-3">
+              <div className="animate-fade-up fade-delay-500 mt-5 sm:mt-8 flex flex-wrap gap-2 sm:gap-3">
                 <Button
                   href="#courses"
                   variant="primary"
-                  size="lg"
+                  responsive
                   className="group shadow-lg shadow-primary/30 hover:shadow-primary/40"
                 >
                   Explore Courses
-                  <ArrowRight className="transition-transform group-hover:translate-x-1" />
+                  <ArrowRight
+                    size={16}
+                    className="sm:w-[18px] sm:h-[18px] transition-transform group-hover:translate-x-1"
+                  />
                 </Button>
-                <Button href="#contact" variant="outline-light" size="lg">
+                <Button href="#contact" variant="outline-light" responsive>
                   WhatsApp Us
                 </Button>
               </div>
 
               {/* Mobile trust chips */}
-              <div className="animate-fade-up fade-delay-600 lg:hidden mt-8 flex gap-3 overflow-x-auto pb-1">
+              <div className="animate-fade-up fade-delay-600 lg:hidden mt-5 sm:mt-8 flex gap-2 sm:gap-3 overflow-x-auto pb-1">
                 {MOBILE_TRUST.map((item) => (
                   <div
                     key={item.label}
-                    className="hero-glass shrink-0 rounded-2xl px-4 py-3 min-w-[88px] text-center"
+                    className="hero-glass shrink-0 rounded-xl sm:rounded-2xl px-3 py-2 sm:px-4 sm:py-3 min-w-[76px] sm:min-w-[88px] text-center"
                   >
-                    <div className="font-serif text-xl text-white leading-none">
+                    <div className="font-serif text-lg sm:text-xl text-white leading-none">
                       {item.value}
                     </div>
-                    <div className="type-eyebrow text-white/60 mt-1">
+                    <div className="type-eyebrow text-[0.65rem] sm:text-xs text-white/60 mt-1">
                       {item.label}
                     </div>
                   </div>

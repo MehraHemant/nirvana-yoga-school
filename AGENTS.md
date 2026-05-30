@@ -221,6 +221,7 @@ Headline hierarchy (Playfair):
 ```
 - Variants: `primary` (maroon), `secondary` (ink), `ghost` (transparent + ink hover), `outline-light` (translucent over hero/dark).
 - Sizes: `sm` / `md` / `lg`.
+- `responsive` — mobile-first padding/text scale (`px-5 py-2.5 text-sm` → `md:px-8 md:py-4 md:text-base`). Use on hero/section CTAs.
 - If `href` is given → renders `Link`. Otherwise renders `<button>`.
 
 ### `Container`

@@ -30,34 +30,34 @@ const FAQS = [
 
 export default function FAQSection() {
   return (
-    <section id="faq" className="bg-paper py-20 md:py-28">
+    <section id="faq" className="bg-paper py-14 md:py-20 lg:py-28">
       <Container size="md">
         <SectionHeader
           align="center"
           eyebrow="Questions, answered"
           title="Frequently asked"
-          className="mb-12 md:mb-16 mx-auto"
+          className="mb-8 sm:mb-10 md:mb-16 mx-auto"
         />
 
-        <div className="space-y-3">
+        <div className="space-y-2.5 sm:space-y-3">
           {FAQS.map((item, i) => (
             <details
               key={item.q}
-              className="group bg-white rounded-2xl border border-ink/5 shadow-sm hover:shadow-card transition-shadow"
+              className="group bg-white rounded-xl sm:rounded-2xl border border-ink/5 shadow-sm hover:shadow-card transition-shadow"
               open={i === 0}
             >
-              <summary className="flex items-center justify-between gap-4 p-5 md:p-6">
-                <span className="type-display-sm text-ink leading-tight">
+              <summary className="flex items-center justify-between gap-3 sm:gap-4 p-4 sm:p-5 md:p-6">
+                <span className="type-display-sm text-ink leading-tight text-left">
                   {item.q}
                 </span>
                 <span
-                  className="accordion-icon flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center"
+                  className="accordion-icon flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center"
                   aria-hidden="true"
                 >
                   <Plus />
                 </span>
               </summary>
-              <div className="px-5 md:px-6 pb-5 md:pb-6 -mt-1">
+              <div className="px-4 sm:px-5 md:px-6 pb-4 sm:pb-5 md:pb-6 -mt-1">
                 <p className="type-body text-ink/80">{item.a}</p>
               </div>
             </details>

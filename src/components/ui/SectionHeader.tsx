@@ -25,15 +25,17 @@ export default function SectionHeader({
   return (
     <div className={`max-w-3xl ${alignment} ${className}`}>
       {eyebrow && (
-        <div className={`type-eyebrow ${eyebrowColor} mb-4`}>{eyebrow}</div>
+        <div className={`type-eyebrow ${eyebrowColor} mb-3 sm:mb-4`}>
+          {eyebrow}
+        </div>
       )}
       <h2
-        className={`font-serif text-3xl md:text-4xl lg:text-5xl leading-[1.1] ${titleColor}`}
+        className={`font-serif text-[1.625rem] leading-[1.12] sm:text-3xl md:text-4xl lg:text-5xl sm:leading-[1.1] ${titleColor}`}
       >
         {title}
       </h2>
       {description && (
-        <p className={`type-lead mt-5 ${descColor}`}>{description}</p>
+        <p className={`type-lead mt-4 sm:mt-5 ${descColor}`}>{description}</p>
       )}
     </div>
   );

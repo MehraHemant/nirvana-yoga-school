@@ -40,7 +40,10 @@ const FEATURES: Feature[] = [
 
 export default function ExperienceSection() {
   return (
-    <section id="experience" className="bg-ink py-20 md:py-28 text-white">
+    <section
+      id="experience"
+      className="bg-ink py-14 md:py-20 lg:py-28 text-white"
+    >
       <Container size="xl">
         <SectionHeader
           invert
@@ -52,10 +55,10 @@ export default function ExperienceSection() {
             </>
           }
           description="Every detail is held with care — from the food on your plate to the chants at twilight. This is yoga as a way of being, not a class on a schedule."
-          className="mb-14 md:mb-20 mx-auto"
+          className="mb-10 sm:mb-12 md:mb-20 mx-auto"
         />
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 md:gap-6">
           {FEATURES.map((f) => (
             <div
               key={f.title}
@@ -72,9 +75,11 @@ export default function ExperienceSection() {
                 className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent"
                 aria-hidden="true"
               />
-              <div className="absolute inset-0 flex flex-col justify-end p-6 md:p-7">
-                <h3 className="font-serif text-2xl text-white">{f.title}</h3>
-                <p className="mt-2 text-sm text-white/80 leading-relaxed">
+              <div className="absolute inset-0 flex flex-col justify-end p-4 sm:p-5 md:p-7">
+                <h3 className="font-serif text-xl sm:text-2xl text-white">
+                  {f.title}
+                </h3>
+                <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm text-white/80 leading-relaxed">
                   {f.description}
                 </p>
               </div>

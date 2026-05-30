@@ -28,16 +28,16 @@ export default function RishikeshSection() {
         </div>
 
         {/* Copy side */}
-        <div className="flex items-center px-6 md:px-12 lg:px-16 py-16 md:py-24 lg:py-32">
+        <div className="flex items-center px-5 sm:px-6 md:px-12 lg:px-16 py-12 sm:py-16 md:py-24 lg:py-32">
           <Container size="sm" className="!px-0 !mx-0">
-            <Pill invert className="mb-6">
+            <Pill invert className="mb-4 sm:mb-6">
               Why Rishikesh
             </Pill>
-            <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl leading-[1.05] tracking-tight">
+            <h2 className="font-serif text-[1.75rem] leading-[1.08] sm:text-3xl md:text-4xl lg:text-6xl sm:leading-[1.05] tracking-tight">
               Where earth, sky, and{" "}
               <span className="italic text-accent">spirit</span> meet.
             </h2>
-            <p className="type-lead mt-6 text-white/85">
+            <p className="type-lead mt-4 sm:mt-6 text-white/85">
               There is a sacred rhythm in Rishikesh that cannot be explained —
               only felt. It lives in the silence between temple bells, in the
               flow of the Ganga, in the stillness of the Himalayas. To learn
@@ -45,11 +45,14 @@ export default function RishikeshSection() {
               inner peace.
             </p>
 
-            <ul className="mt-8 space-y-3">
+            <ul className="mt-6 sm:mt-8 space-y-2.5 sm:space-y-3">
               {BENEFITS.map((b) => (
-                <li key={b} className="flex items-start gap-3 text-white/90">
+                <li
+                  key={b}
+                  className="flex items-start gap-2.5 sm:gap-3 text-white/90"
+                >
                   <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-accent flex-shrink-0" />
-                  <span className="type-body">{b}</span>
+                  <span className="type-body text-sm sm:text-base">{b}</span>
                 </li>
               ))}
             </ul>

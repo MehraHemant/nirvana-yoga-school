@@ -86,7 +86,7 @@ function MetaRow({
 }) {
   return (
     <motion.div
-      className={`flex items-center justify-between gap-4 px-4 py-3 ${
+      className={`flex items-center justify-between gap-3 sm:gap-4 px-3 py-2.5 sm:px-4 sm:py-3 ${
         accent ? "bg-primary/6" : "bg-white even:bg-sand/40"
       }`}
       variants={metaRowVariants}
@@ -101,7 +101,7 @@ function MetaRow({
       <span
         className={`text-right leading-snug ${
           accent
-            ? "font-serif text-lg font-medium text-primary"
+            ? "font-serif text-base sm:text-lg font-medium text-primary"
             : "type-ui text-ink/90"
         }`}
       >
@@ -178,7 +178,7 @@ export default function CourseCard({
           />
 
           {hours && (
-            <div className="type-eyebrow absolute top-4 left-4 rounded-full bg-primary px-3.5 py-1.5 text-white shadow-lg shadow-primary/30">
+            <div className="type-eyebrow absolute top-3 left-3 sm:top-4 sm:left-4 rounded-full bg-primary px-2.5 py-1 sm:px-3.5 sm:py-1.5 text-white shadow-lg shadow-primary/30">
               {hours}
             </div>
           )}
@@ -195,7 +195,7 @@ export default function CourseCard({
               delay: revealDelay / 1000 + 0.15,
             })}
           >
-            <div className="relative h-14 w-14 overflow-hidden rounded-full ring-2 ring-white/90 shadow-lg">
+            <div className="relative h-11 w-11 sm:h-14 sm:w-14 overflow-hidden rounded-full ring-2 ring-white/90 shadow-lg">
               <Image
                 src={certBadge}
                 alt={certification}
@@ -206,29 +206,29 @@ export default function CourseCard({
             </div>
           </motion.div>
 
-          <div className="absolute inset-x-0 bottom-0 p-4 md:p-5">
-            <div className="hero-glass inline-flex flex-col rounded-2xl px-4 py-2.5">
+          <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4 md:p-5">
+            <div className="hero-glass inline-flex flex-col rounded-xl sm:rounded-2xl px-3 py-2 sm:px-4 sm:py-2.5">
               <span className="type-eyebrow text-white/60">
                 Residential · All-inclusive
               </span>
-              <span className="font-serif text-2xl leading-none text-white">
+              <span className="font-serif text-xl sm:text-2xl leading-none text-white">
                 {fee}
               </span>
             </div>
           </div>
         </div>
 
-        <div className="flex flex-1 flex-col p-5 md:p-6">
+        <div className="flex flex-1 flex-col p-4 sm:p-5 md:p-6">
           <p className="type-eyebrow text-accent">
             {certShort(certification)} · Yoga Alliance
           </p>
 
-          <h3 className="type-display-sm mt-2 line-clamp-3 text-ink transition-colors duration-300 group-hover:text-primary">
+          <h3 className="type-display-sm mt-1.5 sm:mt-2 line-clamp-3 text-ink transition-colors duration-300 group-hover:text-primary">
             {title}
           </h3>
 
           <motion.div
-            className="mt-5 overflow-hidden rounded-2xl border border-ink/8"
+            className="mt-4 sm:mt-5 overflow-hidden rounded-xl sm:rounded-2xl border border-ink/8"
             variants={metaRevealVariants}
             initial="hidden"
             whileInView="visible"
@@ -245,7 +245,7 @@ export default function CourseCard({
           </motion.div>
 
           <motion.div
-            className="mt-5"
+            className="mt-4 sm:mt-5"
             whileHover={prefersReduced ? undefined : { y: -2 }}
             transition={{ duration: 0.3, ease: EASE_OUT }}
           >
@@ -253,6 +253,7 @@ export default function CourseCard({
               href={href}
               variant="primary"
               size="sm"
+              responsive
               className="w-full shadow-primary/25 group/btn hover:shadow-lg hover:shadow-primary/30"
               target="_blank"
               rel="noopener noreferrer"

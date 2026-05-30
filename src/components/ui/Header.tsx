@@ -256,7 +256,7 @@ export default function Header() {
             className="flex items-center shrink-0 group"
             aria-label="Nirvana Yoga School home"
           >
-            <div className="relative h-12 md:h-20 w-[168px] md:w-[196px]">
+            <div className="relative h-16 md:h-20 w-[168px] md:w-[196px]">
               <Image
                 src={logo_white}
                 alt=""

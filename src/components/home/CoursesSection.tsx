@@ -79,10 +79,10 @@ const COURSES: CourseCardProps[] = [
 
 export default function CoursesSection() {
   return (
-    <section id="courses" className="bg-paper py-20 md:py-28">
+    <section id="courses" className="bg-paper py-14 md:py-20 lg:py-28">
       <Container size="2xl">
         <motion.div
-          className="mb-12 flex flex-col gap-6 md:mb-14 lg:flex-row lg:items-end lg:justify-between"
+          className="mb-8 flex flex-col gap-4 sm:mb-10 md:mb-14 lg:flex-row lg:items-end lg:justify-between"
           initial="hidden"
           whileInView="visible"
           viewport={VIEWPORT_ONCE}
@@ -102,7 +102,7 @@ export default function CoursesSection() {
             href={`${SITE}/yoga-teacher-training-in-rishikesh-india`}
             target="_blank"
             rel="noopener noreferrer"
-            className="group inline-flex items-center gap-2 whitespace-nowrap text-sm font-semibold text-primary transition-colors hover:text-primary-dark"
+            className="group inline-flex items-center gap-2 whitespace-nowrap text-xs sm:text-sm font-semibold text-primary transition-colors hover:text-primary-dark"
           >
             View all courses
             <motion.span aria-hidden="true" whileHover={{ x: 4 }}>

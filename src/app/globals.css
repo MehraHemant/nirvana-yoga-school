@@ -54,11 +54,17 @@ input {
  */
 .type-eyebrow {
   font-family: var(--font-sans);
-  font-size: 0.75rem;
+  font-size: 0.65rem;
   font-weight: 600;
   letter-spacing: 0.2em;
   line-height: 1.25;
   text-transform: uppercase;
+}
+
+@media (min-width: 640px) {
+  .type-eyebrow {
+    font-size: 0.75rem;
+  }
 }
 
 .type-ui {
@@ -69,14 +75,26 @@ input {
 
 .type-body {
   font-family: var(--font-sans);
-  font-size: 1rem;
+  font-size: 0.875rem;
   line-height: 1.65;
+}
+
+@media (min-width: 640px) {
+  .type-body {
+    font-size: 1rem;
+  }
 }
 
 .type-lead {
   font-family: var(--font-sans);
-  font-size: 1.125rem;
+  font-size: 0.875rem;
   line-height: 1.65;
+}
+
+@media (min-width: 640px) {
+  .type-lead {
+    font-size: 1.125rem;
+  }
 }
 
 @media (min-width: 768px) {
@@ -87,9 +105,15 @@ input {
 
 .type-display-sm {
   font-family: var(--font-serif);
-  font-size: 1.125rem;
+  font-size: 1rem;
   font-weight: 500;
   line-height: 1.3;
+}
+
+@media (min-width: 640px) {
+  .type-display-sm {
+    font-size: 1.125rem;
+  }
 }
 
 @media (min-width: 768px) {

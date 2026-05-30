@@ -79,7 +79,7 @@ function SourceBadge({ source }: { source: Testimonial["source"] }) {
 
 export default function TestimonialsSection() {
   return (
-    <section id="reviews" className="bg-sand py-20 md:py-28">
+    <section id="reviews" className="bg-sand py-14 md:py-20 lg:py-28">
       <Container size="xl">
         <SectionHeader
           align="center"
@@ -91,14 +91,14 @@ export default function TestimonialsSection() {
             </>
           }
           description="Words from yogis who walked the path with us — from Denmark to Ghana, India to the USA."
-          className="mb-14 md:mb-20 mx-auto"
+          className="mb-10 sm:mb-12 md:mb-20 mx-auto"
         />
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
           {REVIEWS.map((r) => (
             <figure
               key={r.name}
-              className="flex flex-col bg-white rounded-3xl p-6 md:p-7 shadow-card"
+              className="flex flex-col bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-5 md:p-7 shadow-card"
             >
               <div className="flex items-center justify-between mb-4">
                 <div
@@ -117,12 +117,14 @@ export default function TestimonialsSection() {
                 <SourceBadge source={r.source} />
               </div>
 
-              <blockquote className="type-lead text-ink/85 flex-1">
+              <blockquote className="text-sm sm:text-base md:type-lead text-ink/85 flex-1 leading-relaxed">
                 &ldquo;{r.quote}&rdquo;
               </blockquote>
 
-              <figcaption className="mt-5 pt-5 border-t border-ink/10">
-                <div className="font-serif text-ink">{r.name}</div>
+              <figcaption className="mt-4 sm:mt-5 pt-4 sm:pt-5 border-t border-ink/10">
+                <div className="font-serif text-base sm:text-lg text-ink">
+                  {r.name}
+                </div>
                 <div className="text-xs text-muted mt-1 uppercase tracking-wider">
                   {r.country} · {r.course}
                 </div>

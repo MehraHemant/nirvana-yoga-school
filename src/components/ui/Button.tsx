@@ -16,6 +16,9 @@ const variants: Record<Variant, string> = {
     "bg-white/10 text-white backdrop-blur-sm border border-white/30 hover:bg-white/20",
 };
 
+const responsiveSize =
+  "px-5 py-2.5 text-sm sm:px-6 sm:py-3 md:px-8 md:py-4 md:text-base";
+
 const sizes: Record<Size, string> = {
   sm: "px-4 py-2 text-sm",
   md: "px-6 py-3 text-sm",
@@ -25,6 +28,7 @@ const sizes: Record<Size, string> = {
 type CommonProps = {
   variant?: Variant;
   size?: Size;
+  responsive?: boolean;
   children: ReactNode;
   className?: string;
 };
@@ -44,12 +48,13 @@ export default function Button(props: LinkProps | ButtonProps) {
   const {
     variant = "primary",
     size = "md",
+    responsive = false,
     className = "",
     children,
     ...rest
   } = props;
 
-  const classes = `${base} ${variants[variant]} ${sizes[size]} ${className}`;
+  const classes = `${base} ${variants[variant]} ${responsive ? responsiveSize : sizes[size]} ${className}`;
 
   if ("href" in props && props.href) {
     const { href, ...linkRest } = rest as LinkProps;
