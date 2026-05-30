@@ -1,0 +1,18 @@
+export { default as ArrowRight } from "./ArrowRight";
+export { default as BadgeStar } from "./BadgeStar";
+export { default as Check } from "./Check";
+export { default as ChevronDown } from "./ChevronDown";
+export { default as Facebook } from "./Facebook";
+export { default as Google } from "./Google";
+export { default as HeroFlourish } from "./HeroFlourish";
+export { default as HeroUnderline } from "./HeroUnderline";
+export { default as Instagram } from "./Instagram";
+export { default as Logo } from "./Logo";
+export { default as MenuIcon } from "./MenuIcon";
+export { default as Plus } from "./Plus";
+export { default as Star } from "./Star";
+export { default as Tripadvisor } from "./Tripadvisor";
+export type { IconProps } from "./types";
+export { default as Users } from "./Users";
+export { default as WhatsApp } from "./WhatsApp";
+export { default as YouTube } from "./YouTube";
