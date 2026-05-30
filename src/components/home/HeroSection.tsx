@@ -1,7 +1,6 @@
-import Image from "next/image";
-import { banner_1 } from "@/assets";
 import { Button, Container } from "@/components/ui";
 import { ArrowRight, HeroFlourish, HeroUnderline } from "@/icons";
+import HeroBackgroundVideo from "./HeroBackgroundVideo";
 
 const MARQUEE_ITEMS = [
   "5.0 ★ Google Reviews",
@@ -22,31 +21,7 @@ const MOBILE_TRUST = [
 export default function HeroSection() {
   return (
     <section className="relative min-h-svh w-full overflow-hidden bg-ink">
-      <Image
-        src={banner_1}
-        alt=""
-        fill
-        priority
-        sizes="100vw"
-        className="object-cover object-center opacity-90"
-      />
-
-      <video
-        className="absolute inset-0 h-full w-full object-cover animate-hero-zoom"
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="metadata"
-        tabIndex={-1}
-      >
-        <source
-          src="/videos/videomobile.mp4"
-          type="video/mp4"
-          media="(max-width: 768px)"
-        />
-        <source src="/videos/videodesktop.mp4" type="video/mp4" />
-      </video>
+      <HeroBackgroundVideo />
 
       {/* Cinematic overlays — video stays clear in the upper half */}
       <div

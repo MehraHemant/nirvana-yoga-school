@@ -66,7 +66,7 @@ src/
       logo.png          # Dark logo (light bg)
       logo_white.png    # Light logo (dark bg / hero)
       home/
-        banner_1.webp   # Used in welcome collage + hero fallback
+        banner_1.webp   # Used in welcome collage
         banner_2.webp
         banner_3.webp
     video/              # (currently empty; hero videos live in /public/videos/)
@@ -74,6 +74,7 @@ src/
   components/
     home/               # Home page sections (one file per section)
       HeroSection.tsx
+      HeroBackgroundVideo.tsx  # Client: responsive poster + single video with media sources
       WelcomeSection.tsx
       CoursesSection.tsx
       ExperienceSection.tsx
@@ -123,8 +124,10 @@ src/
     morph.svg           # Source asset (unused)
 public/
   videos/
-    videodesktop.mp4    # Hero video (desktop)
-    videomobile.mp4     # Hero video (mobile)
+    videodesktop.mp4           # Hero video (desktop)
+    videodesktop-poster.webp   # First-frame poster (desktop)
+    videomobile.mp4            # Hero video (mobile)
+    videomobile-poster.webp    # First-frame poster (mobile)
   favicon.png
 ```
 
@@ -292,7 +295,7 @@ Section IDs used by nav anchors: `#about`, `#courses`, `#experience`, `#teachers
 
 ### Local assets
 - `banner_1.webp` / `banner_2.webp` / `banner_3.webp` — welcome collage.
-- `/public/videos/videodesktop.mp4` and `/videos/videomobile.mp4` — hero video.
+- `/public/videos/videodesktop.mp4` and `/videos/videomobile.mp4` — hero video (H.264, **50fps**, no audio, `faststart`). Desktop ~6.4 MB 1080p, mobile ~1.9 MB 720p. Matching `*-poster.webp` first-frame posters. Preloaded from `page.tsx`.
 - `logo.png` for light bg, `logo_white.png` for dark bg.
 
 ### Placeholders (Unsplash) — **TO BE REPLACED with real assets**

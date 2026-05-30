@@ -40,7 +40,8 @@ body {
 }
 
 button,
-a, textarea,
+a,
+textarea,
 input {
   pointer-events: auto;
 }

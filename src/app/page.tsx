@@ -82,6 +82,35 @@ const jsonLd = {
 export default function Home() {
   return (
     <>
+      {/* Hero LCP — poster + video start downloading before paint */}
+      <link
+        rel="preload"
+        as="image"
+        href="/videos/videomobile-poster.webp"
+        media="(max-width: 767px)"
+        fetchPriority="high"
+      />
+      <link
+        rel="preload"
+        as="image"
+        href="/videos/videodesktop-poster.webp"
+        media="(min-width: 768px)"
+        fetchPriority="high"
+      />
+      <link
+        rel="preload"
+        href="/videos/videomobile.mp4"
+        as="video"
+        type="video/mp4"
+        media="(max-width: 767px)"
+      />
+      <link
+        rel="preload"
+        href="/videos/videodesktop.mp4"
+        as="video"
+        type="video/mp4"
+        media="(min-width: 768px)"
+      />
       <JsonLd data={jsonLd} />
       <HeroSection />
       <WelcomeSection />
