@@ -76,6 +76,9 @@ src/
       HeroSection.tsx
       HeroBackgroundVideo.tsx  # Client: responsive poster + single video with media sources
       WelcomeSection.tsx
+      VideoSection.tsx          # Async server: oEmbed fetch → VideoSectionPlayer
+      VideoSectionPlayer.tsx    # Client: playlist + YouTube iframe
+      WhyRishikeshSection.tsx   # Async server: live-site copy + YouTube embed (single file)
       CoursesSection.tsx
       ExperienceSection.tsx
       TeachersSection.tsx
@@ -277,18 +280,20 @@ Headline hierarchy (Playfair):
 
 1. `HeroSection` — full-bleed video with ken-burns zoom. **Bottom-anchored composition**: upper ~55% of viewport is intentionally pure video. Top hairlined eyebrow ("Est. Rishikesh · 2012"). Bottom-left: glass certification pill, Playfair H1 with animated SVG underline on italic accent, `type-lead` subcopy, CTAs with primary glow shadow. Desktop: editorial vertical accent line + floating `hero-glass` rating card (`animate-float-subtle`). Mobile: horizontal glass trust chips under CTAs. Subtle botanical SVG flourish upper-right. Thin marquee with `marquee-mask` edge fade at bottom.
 2. `WelcomeSection` (`#about`) — client component, **one-viewport on desktop** (`lg:min-h-[calc(100svh-5.5rem)]`), **`Container size="2xl"`**. Compact editorial left column; CTAs + stats strip share one row on lg; highlights in 4-col row. Sticky-free gallery capped to viewport height; auto-loop 4.5s.
-3. `CoursesSection` (`#courses`) — client component, **`Container size="2xl"`**. 6 residential YTT programs from live site (200h×4, 300h, 500h) with real titles, pricing, images, and course URLs.
-4. `ExperienceSection` — dark, 4 immersive image cards
-5. `TeachersSection` — 4 teacher cards
-6. `RishikeshSection` — split: full-bleed image + secondary-bg copy
-7. `TestimonialsSection` — 6 review cards
-8. `FAQSection` — `<details>` accordion
-9. `FinalCTASection` — full-bleed CTA band
-10. `Footer` (rendered from `layout.tsx`)
+3. `VideoSection` (`#video`) — server fetch + client player: 4 student-review YouTube videos, playlist left / player right on desktop.
+4. `WhyRishikeshSection` (`#why-rishikesh`) — server fetch + client embed. Full live-site copy + Gurudev Dhruvaji video (`_NOezBf-LYs`). Prose left, sticky video right on lg; stacked on mobile.
+5. `CoursesSection` (`#courses`) — client component, **`Container size="2xl"`**. 6 residential YTT programs from live site (200h×4, 300h, 500h) with real titles, pricing, images, and course URLs.
+6. `ExperienceSection` — dark, 4 immersive image cards
+7. `TeachersSection` — 4 teacher cards
+8. `RishikeshSection` — split: full-bleed image + secondary-bg copy
+9. `TestimonialsSection` — 6 review cards
+10. `FAQSection` — `<details>` accordion
+11. `FinalCTASection` — full-bleed CTA band
+12. `Footer` (rendered from `layout.tsx`)
 
 Floating: `WhatsAppFab`, `MobileStickyBar` — both mounted globally in `layout.tsx`.
 
-Section IDs used by nav anchors: `#about`, `#courses`, `#experience`, `#teachers`, `#reviews`, `#faq`, `#contact`.
+Section IDs used by nav anchors: `#about`, `#video`, `#why-rishikesh`, `#courses`, `#experience`, `#teachers`, `#reviews`, `#faq`, `#contact`.
 
 ---
 

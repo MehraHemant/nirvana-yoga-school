@@ -56,12 +56,12 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className="h-full antialiased"
+      className="h-full antialiased scroll-smooth"
       data-scroll-behavior="smooth"
     >
-      <body className="min-h-full flex flex-col bg-sand text-ink">
+      <body className="flex min-h-full flex-col bg-sand text-ink">
         <Header />
-        <main className="flex-1">{children}</main>
+        <main className="relative z-0 flex-1">{children}</main>
         <Footer />
         <WhatsAppFab phone="919876543210" />
         <MobileStickyBar />
