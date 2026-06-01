@@ -42,7 +42,7 @@ export default function ExperienceSection() {
   return (
     <section
       id="experience"
-      className="bg-ink py-14 md:py-20 lg:py-28 text-white"
+      className="bg-primary py-14 md:py-16 lg:py-20 text-white"
     >
       <Container size="xl">
         <SectionHeader

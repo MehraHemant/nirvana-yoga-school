@@ -9,6 +9,7 @@ export { default as HeroUnderline } from "./HeroUnderline";
 export { default as Instagram } from "./Instagram";
 export { default as Logo } from "./Logo";
 export { default as MenuIcon } from "./MenuIcon";
+export { default as Play } from "./Play";
 export { default as Plus } from "./Plus";
 export { default as Star } from "./Star";
 export { default as Tripadvisor } from "./Tripadvisor";

@@ -8,7 +8,9 @@ import {
   RishikeshSection,
   TeachersSection,
   TestimonialsSection,
+  VideoSection,
   WelcomeSection,
+  WhyRishikeshSection,
 } from "@/components";
 
 const jsonLd = {
@@ -114,10 +116,12 @@ export default function Home() {
       <JsonLd data={jsonLd} />
       <HeroSection />
       <WelcomeSection />
+      <VideoSection />
+      <WhyRishikeshSection />
       <CoursesSection />
       <ExperienceSection />
-      <TeachersSection />
-      <RishikeshSection />
+      {/* <TeachersSection /> */}
+      {/* <RishikeshSection /> */}
       <TestimonialsSection />
       <FAQSection />
       <FinalCTASection />
