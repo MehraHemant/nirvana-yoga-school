@@ -7,3 +7,5 @@ export { default as RishikeshSection } from "./RishikeshSection";
 export { default as TeachersSection } from "./TeachersSection";
 export { default as TestimonialsSection } from "./TestimonialsSection";
 export { default as WelcomeSection } from "./WelcomeSection";
+export { default as WhyRishikeshSection } from "./WhyRishikeshSection";
+export { default as VideoSection } from "./VideoSection";

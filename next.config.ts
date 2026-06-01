@@ -13,6 +13,14 @@ const nextConfig: NextConfig = {
         hostname: "www.nirvanayogaschoolindia.com",
         pathname: "/img/**",
       },
+      {
+        protocol: "https",
+        hostname: "img.youtube.com",
+      },
+      {
+        protocol: "https",
+        hostname: "i.ytimg.com",
+      },
     ],
   },
 };

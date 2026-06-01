@@ -247,7 +247,7 @@ export default function Header() {
         }`}
       >
         <div
-          className={`header-inner mx-auto max-w-7xl px-5 md:px-8 flex items-center justify-between gap-4 ${
+          className={`header-inner mx-auto max-w-[92rem] px-5 md:px-8 flex items-center justify-between gap-4 ${
             scrolled ? "h-[4.5rem] md:h-[5rem]" : "h-[4.75rem] md:h-[5.5rem]"
           }`}
         >
@@ -340,72 +340,73 @@ export default function Header() {
         </div>
       </header>
 
-      {/* Mobile overlay + panel — inert when closed so links cannot intercept clicks */}
-      <div
-        className={`xl:hidden mobile-menu-backdrop fixed inset-0 z-40 bg-ink/40 backdrop-blur-[2px] ${
-          mobileOpen ? "mobile-menu-backdrop--open" : ""
-        }`}
-        aria-hidden={!mobileOpen}
-        inert={!mobileOpen ? true : undefined}
-        onClick={() => setMobileOpen(false)}
-      />
-
-      <div
-        className={`xl:hidden mobile-menu-panel fixed inset-x-0 ${headerTop} bottom-0 z-40 bg-sand/97 backdrop-blur-xl border-t border-ink/5 overflow-y-auto ${
-          mobileOpen ? "mobile-menu-panel--open" : ""
-        }`}
-        aria-hidden={!mobileOpen}
-        inert={!mobileOpen ? true : undefined}
-      >
-        <nav
-          className="mx-auto max-w-7xl px-4 py-5 flex flex-col"
-          aria-label="Mobile"
-        >
-          {PRIMARY_NAV.map((item, i) => (
-            <MobileNavItem
-              key={item.label}
-              item={item}
-              index={i}
-              onNavigate={() => setMobileOpen(false)}
-            />
-          ))}
-
-          <Link
-            href={SIGN_IN_URL}
-            target="_blank"
-            rel="noopener noreferrer"
+      {/* Mobile overlay + panel — mount only when open (avoids blocking clicks / inspect) */}
+      {mobileOpen && (
+        <>
+          <button
+            type="button"
+            aria-label="Close menu"
+            className="xl:hidden mobile-menu-backdrop mobile-menu-backdrop--open fixed inset-0 z-40 border-0 bg-ink/40 backdrop-blur-[2px] p-0 cursor-default"
             onClick={() => setMobileOpen(false)}
-            style={{ animationDelay: `${0.05 + PRIMARY_NAV.length * 0.04}s` }}
-            className="mobile-nav-item py-3.5 px-3 text-base font-semibold text-ink/90 hover:text-primary border-b border-ink/5 tracking-wide"
-          >
-            Sign in
-          </Link>
+          />
 
           <div
-            className="mobile-nav-item mt-8 flex flex-col gap-3 pb-10 px-1"
-            style={{
-              animationDelay: `${0.05 + (PRIMARY_NAV.length + 1) * 0.04}s`,
-            }}
+            className={`xl:hidden mobile-menu-panel mobile-menu-panel--open fixed inset-x-0 ${headerTop} bottom-0 z-40 bg-sand/97 backdrop-blur-xl border-t border-ink/5 overflow-y-auto`}
+            aria-hidden={false}
           >
-            <Button
-              href="#contact"
-              variant="ghost"
-              size="md"
-              onClick={() => setMobileOpen(false)}
+            <nav
+              className="mx-auto max-w-7xl px-4 py-5 flex flex-col"
+              aria-label="Mobile"
             >
-              Contact
-            </Button>
-            <Button
-              href="#courses"
-              variant="primary"
-              size="md"
-              onClick={() => setMobileOpen(false)}
-            >
-              Enquire Now
-            </Button>
+              {PRIMARY_NAV.map((item, i) => (
+                <MobileNavItem
+                  key={item.label}
+                  item={item}
+                  index={i}
+                  onNavigate={() => setMobileOpen(false)}
+                />
+              ))}
+
+              <Link
+                href={SIGN_IN_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setMobileOpen(false)}
+                style={{
+                  animationDelay: `${0.05 + PRIMARY_NAV.length * 0.04}s`,
+                }}
+                className="mobile-nav-item py-3.5 px-3 text-base font-semibold text-ink/90 hover:text-primary border-b border-ink/5 tracking-wide"
+              >
+                Sign in
+              </Link>
+
+              <div
+                className="mobile-nav-item mt-8 flex flex-col gap-3 pb-10 px-1"
+                style={{
+                  animationDelay: `${0.05 + (PRIMARY_NAV.length + 1) * 0.04}s`,
+                }}
+              >
+                <Button
+                  href="#contact"
+                  variant="ghost"
+                  size="md"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  Contact
+                </Button>
+                <Button
+                  href="#courses"
+                  variant="primary"
+                  size="md"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  Enquire Now
+                </Button>
+              </div>
+            </nav>
           </div>
-        </nav>
-      </div>
+        </>
+      )}
     </>
   );
 }
