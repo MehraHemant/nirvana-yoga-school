@@ -79,7 +79,8 @@ const YOUTUBE_METADATA_REGISTRY: Record<
     durationSeconds: 93,
   },
   TYal8a3zGow: {
-    title: "Unplugged: Real Student Reviews of 200-Hour Yoga Training in Rishikesh l Nirvana Yoga School",
+    title:
+      "Unplugged: Real Student Reviews of 200-Hour Yoga Training in Rishikesh l Nirvana Yoga School",
     author_name: "Nirvana Yoga School",
     author_url: "https://www.youtube.com/@NirvanaYogaSchool",
     thumbnail_url: "https://i.ytimg.com/vi/TYal8a3zGow/hqdefault.jpg",

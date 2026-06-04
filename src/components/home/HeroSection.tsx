@@ -41,7 +41,7 @@ export default function HeroSection() {
 
       {/* Top eyebrow */}
       <div className="absolute top-20 md:top-24 inset-x-0 z-10 animate-fade-up fade-delay-100">
-        <Container size="xl">
+        <Container size="2xl">
           <div className="flex items-center justify-center gap-3 text-white/60">
             <span className="h-px w-10 md:w-20 bg-linear-to-r from-transparent to-white/35" />
             <span className="type-eyebrow text-[0.65rem] sm:text-xs text-white/60">
@@ -54,7 +54,7 @@ export default function HeroSection() {
 
       {/* Bottom-anchored content */}
       <div className="relative z-10 min-h-svh flex items-end pb-36 sm:pb-[4.5rem] md:pb-[5rem]">
-        <Container size="xl" className="w-full">
+        <Container size="2xl" className="w-full">
           <div className="grid lg:grid-cols-12 gap-10 items-end">
             <div className="lg:col-span-7 xl:col-span-8 relative">
               {/* Editorial accent line */}

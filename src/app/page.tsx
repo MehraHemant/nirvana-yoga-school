@@ -5,8 +5,6 @@ import {
   FinalCTASection,
   HeroSection,
   JsonLd,
-  RishikeshSection,
-  TeachersSection,
   TestimonialsSection,
   VideoSection,
   WelcomeSection,
