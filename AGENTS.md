@@ -78,6 +78,7 @@ src/
       WelcomeSection.tsx
       VideoSection.tsx          # Async server: oEmbed fetch → VideoSectionPlayer
       VideoSectionPlayer.tsx    # Client: playlist + YouTube iframe
+      GallerySection.tsx        # Client: responsive categorized drag carousel with progress bar & lightbox modal
       WhyRishikeshSection.tsx   # Async server: oEmbed fetch → WhyRishikeshClient
       WhyRishikeshClient.tsx    # Client: timeline sutras accordion + unified player card
       CoursesSection.tsx
@@ -111,6 +112,9 @@ src/
     BadgeStar.tsx
     Check.tsx
     ChevronDown.tsx
+    ChevronLeft.tsx
+    ChevronRight.tsx
+    Close.tsx
     Facebook.tsx
     Google.tsx
     HeroFlourish.tsx    # Hero decorative flourish
@@ -282,19 +286,20 @@ Headline hierarchy (Playfair):
 1. `HeroSection` — full-bleed video with ken-burns zoom. **Bottom-anchored composition**: upper ~55% of viewport is intentionally pure video. Top hairlined eyebrow ("Est. Rishikesh · 2012"). Bottom-left: glass certification pill, Playfair H1 with animated SVG underline on italic accent, `type-lead` subcopy, CTAs with primary glow shadow. Desktop: editorial vertical accent line + floating `hero-glass` rating card (`animate-float-subtle`). Mobile: horizontal glass trust chips under CTAs. Subtle botanical SVG flourish upper-right. Thin marquee with `marquee-mask` edge fade at bottom.
 2. `WelcomeSection` (`#about`) — client component, **one-viewport on desktop** (`lg:min-h-[calc(100svh-5.5rem)]`), **`Container size="2xl"`**. Compact editorial left column; CTAs + stats strip share one row on lg; highlights in 4-col row. Sticky-free gallery capped to viewport height; auto-loop 4.5s.
 3. `VideoSection` (`#video`) — server fetch + client player: 4 student-review YouTube videos, playlist left / player right on desktop.
-4. `WhyRishikeshSection` (`#why-rishikesh`) — server fetch + client embed. Full live-site copy + Gurudev Dhruvaji video (`_NOezBf-LYs`). Prose left, sticky video right on lg; stacked on mobile.
-5. `CoursesSection` (`#courses`) — client component, **`Container size="2xl"`**. 6 residential YTT programs from live site (200h×4, 300h, 500h) with real titles, pricing, images, and course URLs.
-6. `ExperienceSection` — dark, 4 immersive image cards
-7. `TeachersSection` — 4 teacher cards
-8. `RishikeshSection` — split: full-bleed image + secondary-bg copy
-9. `TestimonialsSection` — 6 review cards
-10. `FAQSection` — `<details>` accordion
-11. `FinalCTASection` — full-bleed CTA band
-12. `Footer` (rendered from `layout.tsx`)
+4. `GallerySection` (`#gallery`) — client component: premium categorized drag carousel with scroll progress tracker & fullscreen animated lightbox modal.
+5. `WhyRishikeshSection` (`#why-rishikesh`) — server fetch + client embed. Full live-site copy + Gurudev Dhruvaji video (`_NOezBf-LYs`). Prose left, sticky video right on lg; stacked on mobile.
+6. `CoursesSection` (`#courses`) — client component, **`Container size="2xl"`**. 6 residential YTT programs from live site (200h×4, 300h, 500h) with real titles, pricing, images, and course URLs.
+7. `ExperienceSection` — dark, 4 immersive image cards
+8. `TeachersSection` — 4 teacher cards
+9. `RishikeshSection` — split: full-bleed image + secondary-bg copy
+10. `TestimonialsSection` — 6 review cards
+11. `FAQSection` — `<details>` accordion
+12. `FinalCTASection` — full-bleed CTA band
+13. `Footer` (rendered from `layout.tsx`)
 
 Floating: `WhatsAppFab`, `MobileStickyBar` — both mounted globally in `layout.tsx`.
 
-Section IDs used by nav anchors: `#about`, `#video`, `#why-rishikesh`, `#courses`, `#experience`, `#teachers`, `#reviews`, `#faq`, `#contact`.
+Section IDs used by nav anchors: `#about`, `#video`, `#gallery`, `#why-rishikesh`, `#courses`, `#experience`, `#teachers`, `#reviews`, `#faq`, `#contact`.
 
 ---
 
@@ -399,3 +404,5 @@ Last meaningful update: 2026-05-26 — initial rebuild scaffolded (design system
 2026-06-02 — **WhyRishikeshSection split header**: Converted the section header container in `WhyRishikeshClient.tsx` into a desktop-split 2-column grid layout (`grid-cols-1 lg:grid-cols-[1.25fr_1fr]`). Positioned the title on the left and the lead paragraph/decorative rule on the right, aligning them at the bottom baseline. This utilizes the full width of the `2xl` container, eliminating the empty white space on the right of the header.
 2026-06-02 — **Global font swap**: Swapped global Google Fonts import and theme variables in `globals.css` to Cormorant Garamond (display serif headings) and Outfit (body sans-serif). This updates the typography globally across all sections, establishing a professional and cool luxury-editorial design system.
 2026-06-02 — **CourseCard UI polishing**: Simplified course titles in `CoursesSection.tsx` by removing duplicate location suffix strings ("in Rishikesh India"). Redesigned `CourseCard.tsx` to remove the heavy meta-table grid, replacing it with a clean ticket-style details strip (Duration and Level). Shifted certification info to the eyebrow, deleted duplicate fee copy (which is already displayed in the image overlay), and polished the course title typography. Implemented a 3D overlapping card layout featuring a sanctuary arched cover frame with a thick white gallery inner border (`ring-4 ring-white/95`) and a floating card details box. Programmed custom spring hover physics (`stiffness: 350, damping: 12`) to wobble-rotate the overlapping RYT certification stamp. Added a soft warm radial glow (`from-primary/5`) that fades in behind the text card on hover, and an expanding Maroon-Sage-Teal brand highlight line at the bottom. Implemented a vertical column stagger in `CoursesSection.tsx` (`lg:translate-y-12` and `lg:translate-y-6`) to break grid lines and form a wave visual flow.
+2026-06-04 — **GallerySection integration**: Added a premium responsive categorized image carousel (`GallerySection.tsx`) loading 28 real webp images from the live site's homepage slider. The carousel features a spring-based filter menu (All, Practice, Campus, Life), a touch-pan/drag track with inertia limits and arrow navigators, a dynamic line progress bar, and a fullscreen animated lightbox modal supporting keyboard slide/close controls. Created new SVG TSX primitives (`ChevronLeft`, `ChevronRight`, `Close`).
+2026-06-04 — **Testimonials/Reviews exact content alignment & layout redesign**: Redesigned `TestimonialsSection.tsx` to stack reviews under Google Reviews (1,200+) and TripAdvisor (800+) tabs using a Stripe-style sliding spring pill. Loaded the exact word-for-word quotes for Usha Singh, Ole Netek, Niall Phelan, Joan Nakazono, Beatrice Ani-Asamoah, and Eve Lesage from the live website. Displayed the reviews in a beautiful 3-column card grid, centered inside a single desktop viewport (`lg:min-h-screen`) with spring hover lifts. Updated `TeachersSection.tsx` to render name, role/subject, and experience to match the live site data exactly. Complete typescript and Next.js builds compiled successfully.

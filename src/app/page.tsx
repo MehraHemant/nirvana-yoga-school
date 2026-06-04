@@ -1,14 +1,16 @@
 import {
   CoursesSection,
-  ExperienceSection,
   FAQSection,
   FinalCTASection,
+  GallerySection,
   HeroSection,
   JsonLd,
+  TeachersSection,
   TestimonialsSection,
   VideoSection,
   WelcomeSection,
   WhyRishikeshSection,
+  YogaAllianceSection,
 } from "@/components";
 
 const jsonLd = {
@@ -115,10 +117,11 @@ export default function Home() {
       <HeroSection />
       <WelcomeSection />
       <VideoSection />
+      <GallerySection />
       <WhyRishikeshSection />
       <CoursesSection />
-      <ExperienceSection />
-      {/* <TeachersSection /> */}
+      <YogaAllianceSection />
+      <TeachersSection />
       {/* <RishikeshSection /> */}
       <TestimonialsSection />
       <FAQSection />

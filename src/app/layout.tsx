@@ -61,7 +61,7 @@ export default function RootLayout({
     >
       <body className="flex min-h-full flex-col bg-sand text-ink">
         <Header />
-        <main className="relative z-0 flex-1">{children}</main>
+        <main className="relative flex-1">{children}</main>
         <Footer />
         <WhatsAppFab phone="919876543210" />
         <MobileStickyBar />
