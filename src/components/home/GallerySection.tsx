@@ -1,16 +1,9 @@
 "use client";
 
-import {
-  AnimatePresence,
-  animate,
-  motion,
-  useMotionValue,
-  useReducedMotion,
-} from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Container, SectionHeader } from "@/components/ui";
-import { ChevronLeft, ChevronRight, Close } from "@/icons";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 
 interface GalleryItem {
@@ -227,195 +220,87 @@ const CATEGORIES = [
   { id: "life", label: "Excursions & Life" },
 ] as const;
 
-const slideVariants = {
-  enter: (dir: number) => ({
-    x: dir > 0 ? "100%" : "-100%",
-    opacity: 0,
-  }),
-  center: {
-    x: 0,
-    opacity: 1,
-  },
-  exit: (dir: number) => ({
-    x: dir < 0 ? "100%" : "-100%",
-    opacity: 0,
-  }),
-};
+const SLOT_ASPECTS = [
+  "aspect-[2/3]", // Very Tall portrait
+  "aspect-[16/10]", // Wide landscape
+  "aspect-square", // Square
+  "aspect-[3/4]", // Tall portrait
+  "aspect-[4/5]", // Medium portrait
+  "aspect-[16/9]", // Very Wide landscape
+  "aspect-[2/3]", // Very Tall portrait
+  "aspect-square", // Square
+  "aspect-[4/3]", // Landscape
+  "aspect-[3/4]", // Tall portrait
+  "aspect-[2/3]", // Very Tall portrait
+  "aspect-[16/10]", // Wide landscape
+] as const;
 
 export default function GallerySection() {
   const [selectedCategory, setSelectedCategory] = useState<
     "all" | "practice" | "campus" | "life"
   >("all");
-  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
-  const [lightboxDirection, setLightboxDirection] = useState<number>(0);
-
-  const viewportRef = useRef<HTMLDivElement>(null);
-  const trackRef = useRef<HTMLDivElement | null>(null);
-  const x = useMotionValue(0);
   const prefersReduced = useReducedMotion() ?? false;
 
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [maxScroll, setMaxScroll] = useState(0);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
-
   // Filter items based on selected category
-  const filteredItems = GALLERY_ITEMS.filter(
-    (item) => selectedCategory === "all" || item.category === selectedCategory,
-  );
-
-  // Helper to recalculate carousel bounds based on current layout state
-  const updateConstraints = useCallback(() => {
-    if (viewportRef.current && trackRef.current) {
-      const viewportWidth = viewportRef.current.clientWidth;
-      const trackWidth = trackRef.current.scrollWidth;
-      const maxScrollVal = Math.max(0, trackWidth - viewportWidth);
-      setMaxScroll(maxScrollVal);
-
-      // Reset x value if out of bounds after resize
-      const currentX = x.get();
-      if (currentX < -maxScrollVal) {
-        x.set(-maxScrollVal);
-      }
-
-      // Update boundaries
-      const tolerance = 5;
-      setCanScrollLeft(x.get() < -tolerance);
-      setCanScrollRight(x.get() > -maxScrollVal + tolerance);
-
-      // Update progress
-      if (maxScrollVal > 0) {
-        setScrollProgress(
-          Math.min(1, Math.max(0, Math.abs(x.get()) / maxScrollVal)),
-        );
-      } else {
-        setScrollProgress(0);
-      }
-    }
-  }, [x]);
-
-  // Ref callback to measure the track width immediately on category mount
-  const trackRefCallback = useCallback(
-    (node: HTMLDivElement | null) => {
-      trackRef.current = node;
-      if (node && viewportRef.current) {
-        const viewportWidth = viewportRef.current.clientWidth;
-        const trackWidth = node.scrollWidth;
-        const maxScrollVal = Math.max(0, trackWidth - viewportWidth);
-        setMaxScroll(maxScrollVal);
-
-        const tolerance = 5;
-        setCanScrollLeft(x.get() < -tolerance);
-        setCanScrollRight(x.get() > -maxScrollVal + tolerance);
-
-        if (maxScrollVal > 0) {
-          setScrollProgress(
-            Math.min(1, Math.max(0, Math.abs(x.get()) / maxScrollVal)),
-          );
-        } else {
-          setScrollProgress(0);
-        }
-      }
-    },
-    [x],
-  );
-
-  // Track position changes for progress bar and navigation buttons
-  useEffect(() => {
-    updateConstraints();
-
-    const unsubscribe = x.on("change", (latestX) => {
-      if (maxScroll > 0) {
-        setScrollProgress(
-          Math.min(1, Math.max(0, Math.abs(latestX) / maxScroll)),
-        );
-      } else {
-        setScrollProgress(0);
-      }
-      const tolerance = 5;
-      setCanScrollLeft(latestX < -tolerance);
-      setCanScrollRight(latestX > -maxScroll + tolerance);
-    });
-
-    window.addEventListener("resize", updateConstraints);
-
-    return () => {
-      unsubscribe();
-      window.removeEventListener("resize", updateConstraints);
-    };
-  }, [maxScroll, x, updateConstraints]);
-
-  // Handle category changes
-  useEffect(() => {
-    // Reset track position to 0 with a spring animation when changing category
-    if (prefersReduced) {
-      x.set(0);
-    } else {
-      animate(x, 0, { type: "spring", stiffness: 220, damping: 25 });
-    }
-
-    // Explicitly reference selectedCategory to satisfy dependency rules
-    const _cat = selectedCategory;
-    const timer = setTimeout(updateConstraints, 50);
-    return () => clearTimeout(timer);
-  }, [selectedCategory, prefersReduced, x, updateConstraints]);
-
-  // Navigate carousel by buttons
-  const handleScroll = (direction: "left" | "right") => {
-    if (maxScroll <= 0) return;
-
-    const viewportWidth = viewportRef.current?.clientWidth ?? 350;
-    const scrollStep = viewportWidth * 0.75; // Scroll 75% of viewport width per click
-    const currentX = x.get();
-
-    let targetX =
-      direction === "left" ? currentX + scrollStep : currentX - scrollStep;
-    targetX = Math.min(0, Math.max(-maxScroll, targetX));
-
-    if (prefersReduced) {
-      x.set(targetX);
-    } else {
-      animate(x, targetX, { type: "spring", stiffness: 120, damping: 22 });
-    }
-  };
-
-  const handleLightboxPrev = useCallback(() => {
-    setLightboxDirection(-1);
-    setLightboxIndex((prev) =>
-      prev === null || prev === 0 ? filteredItems.length - 1 : prev - 1,
+  const filteredItems = useMemo(() => {
+    return GALLERY_ITEMS.filter(
+      (item) =>
+        selectedCategory === "all" || item.category === selectedCategory,
     );
-  }, [filteredItems.length]);
+  }, [selectedCategory]);
 
-  const handleLightboxNext = useCallback(() => {
-    setLightboxDirection(1);
-    setLightboxIndex((prev) =>
-      prev === null || prev === filteredItems.length - 1 ? 0 : prev + 1,
-    );
-  }, [filteredItems.length]);
+  const [visibleItems, setVisibleItems] = useState<GalleryItem[]>([]);
 
-  // Lightbox keyboard and body scroll handling
+  // Initialize visible items whenever category changes
   useEffect(() => {
-    if (lightboxIndex === null) return;
+    let slotsCount = 12;
+    if (selectedCategory === "practice") {
+      slotsCount = 11;
+    } else if (selectedCategory === "life") {
+      slotsCount = 8;
+    } else if (selectedCategory === "campus") {
+      slotsCount = 6;
+    }
+    slotsCount = Math.min(slotsCount, filteredItems.length);
+    setVisibleItems(filteredItems.slice(0, slotsCount));
+  }, [selectedCategory, filteredItems]);
 
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setLightboxIndex(null);
-      if (e.key === "ArrowLeft") handleLightboxPrev();
-      if (e.key === "ArrowRight") handleLightboxNext();
-    };
+  // Shuffling auto-transition timer
+  // biome-ignore lint/correctness/useExhaustiveDependencies: visibleItems is evaluated dynamically in the functional state updater to avoid resetting the interval
+  useEffect(() => {
+    if (prefersReduced) return;
 
-    document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", handleKeyDown);
+    const pool = filteredItems.filter(
+      (item) => !visibleItems.some((vis) => vis.id === item.id),
+    );
 
-    return () => {
-      document.body.style.overflow = "unset";
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [lightboxIndex, handleLightboxPrev, handleLightboxNext]);
+    if (pool.length === 0 || visibleItems.length === 0) return;
+
+    const interval = setInterval(() => {
+      // Pick a random slot to replace
+      const slotIndex = Math.floor(Math.random() * visibleItems.length);
+
+      setVisibleItems((currentVisible) => {
+        const currentPool = filteredItems.filter(
+          (item) => !currentVisible.some((vis) => vis.id === item.id),
+        );
+        if (currentPool.length === 0) return currentVisible;
+
+        const randomPoolItem =
+          currentPool[Math.floor(Math.random() * currentPool.length)];
+        const nextVisible = [...currentVisible];
+        nextVisible[slotIndex] = randomPoolItem;
+        return nextVisible;
+      });
+    }, 3500); // Transition every 3.5 seconds
+
+    return () => clearInterval(interval);
+  }, [filteredItems, visibleItems.length, prefersReduced]);
 
   return (
     <section
       id="gallery"
-      className="relative w-full overflow-hidden bg-sand py-20 md:py-28"
+      className="relative w-full overflow-hidden bg-sand py-12 sm:py-16 md:py-20"
     >
       <Container size="2xl" className="relative">
         <motion.div
@@ -437,44 +322,14 @@ export default function GallerySection() {
               }
               description="A glimpse into the daily rhythm, organic meals, clean accommodations, sacred ceremonies, and outdoor excursions that make up your yoga teacher training journey."
               align="left"
-              className="max-w-2xl !mb-0"
+              className="max-w-2xl mb-0!"
             />
-
-            {/* Navigation buttons */}
-            <div className="flex items-center gap-3 self-start md:self-end">
-              <button
-                type="button"
-                onClick={() => handleScroll("left")}
-                disabled={!canScrollLeft}
-                aria-label="Scroll left"
-                className={`flex h-11 w-11 items-center justify-center rounded-full border border-ink/8 bg-white text-ink shadow-sm transition-all duration-300 ${
-                  canScrollLeft
-                    ? "hover:border-primary hover:bg-primary hover:text-white hover:shadow-soft"
-                    : "opacity-40 cursor-not-allowed"
-                }`}
-              >
-                <ChevronLeft size={16} />
-              </button>
-              <button
-                type="button"
-                onClick={() => handleScroll("right")}
-                disabled={!canScrollRight}
-                aria-label="Scroll right"
-                className={`flex h-11 w-11 items-center justify-center rounded-full border border-ink/8 bg-white text-ink shadow-sm transition-all duration-300 ${
-                  canScrollRight
-                    ? "hover:border-primary hover:bg-primary hover:text-white hover:shadow-soft"
-                    : "opacity-40 cursor-not-allowed"
-                }`}
-              >
-                <ChevronRight size={16} />
-              </button>
-            </div>
           </div>
         </motion.div>
 
         {/* Categories Tab Bar */}
         <motion.div
-          className="mb-8"
+          className="mb-10"
           initial="hidden"
           whileInView="visible"
           viewport={VIEWPORT_ONCE}
@@ -497,7 +352,7 @@ export default function GallerySection() {
                   {isActive && (
                     <motion.div
                       layoutId="activeCategoryUnderline"
-                      className="absolute bottom-0 left-0 right-0 h-[2px] bg-primary"
+                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"
                       transition={{
                         type: "spring",
                         stiffness: 350,
@@ -511,197 +366,70 @@ export default function GallerySection() {
           </div>
         </motion.div>
 
-        {/* Carousel Container with Crossfade Category Transition */}
-        <div
-          ref={viewportRef}
-          className="relative w-full overflow-visible select-none"
-        >
+        {/* Masonry Columns Container */}
+        <div className="relative w-full">
           <AnimatePresence mode="wait">
             <motion.div
               key={selectedCategory}
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.3, ease: "easeInOut" }}
-              className="w-full cursor-grab active:cursor-grabbing"
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.4, ease: "easeInOut" }}
+              className="columns-2 sm:columns-3 lg:columns-4 gap-5"
             >
-              <motion.div
-                ref={trackRefCallback}
-                drag="x"
-                dragConstraints={{ left: -maxScroll, right: 0 }}
-                dragElastic={0.15}
-                dragTransition={{ power: 0.25, timeConstant: 250 }}
-                style={{ x }}
-                className="flex gap-6 w-max touch-pan-y"
-              >
-                {filteredItems.map((item, index) => (
-                  <motion.div
-                    key={item.id}
-                    onClick={() => {
-                      setLightboxDirection(0);
-                      setLightboxIndex(index);
-                    }}
-                    className="group relative h-[210px] w-[280px] sm:h-[270px] sm:w-[360px] shrink-0 overflow-hidden rounded-3xl bg-ink/5 shadow-card transition-shadow duration-300 hover:shadow-soft"
-                  >
-                    <Image
-                      src={item.src}
-                      alt={item.alt}
-                      fill
-                      sizes="(max-width: 640px) 280px, 360px"
-                      draggable={false}
-                      className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                    />
+              {visibleItems.map((item, index) => {
+                const aspect = SLOT_ASPECTS[index % SLOT_ASPECTS.length];
 
-                    {/* Overlay details */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/35 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 flex flex-col justify-end p-6">
-                      <span className="type-eyebrow text-[10px] text-accent tracking-widest mb-1.5">
+                return (
+                  <div
+                    key={item.id}
+                    className="w-full text-left break-inside-avoid mb-6 group block rounded-3xl"
+                  >
+                    {/* Image Card Frame */}
+                    <div
+                      className={`relative w-full ${aspect} overflow-hidden rounded-3xl bg-ink/5 border border-ink/5 group-hover:border-primary/15 shadow-card hover:shadow-soft transition-all duration-300`}
+                    >
+                      <AnimatePresence mode="popLayout">
+                        <motion.div
+                          key={item.id} // item key drives the smooth crossfade transition on slot updates
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.8, ease: "easeInOut" }}
+                          className="absolute inset-0 w-full h-full"
+                        >
+                          <Image
+                            src={item.src}
+                            alt={item.alt}
+                            fill
+                            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                            draggable={false}
+                            className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                          />
+                        </motion.div>
+                      </AnimatePresence>
+                    </div>
+
+                    {/* Pinterest Style Caption below Card */}
+                    <div className="mt-3 px-2">
+                      <span className="type-eyebrow text-[9px] text-primary tracking-widest block font-bold">
                         {item.category === "practice"
                           ? "Yoga Practice"
                           : item.category === "campus"
                             ? "Campus Life"
                             : "Excursion"}
                       </span>
-                      <h3 className="font-serif text-lg text-white font-medium leading-snug">
+                      <h4 className="font-serif text-sm sm:text-base font-semibold text-ink leading-tight mt-1 transition-colors duration-300">
                         {item.title}
-                      </h3>
+                      </h4>
                     </div>
-                  </motion.div>
-                ))}
-              </motion.div>
+                  </div>
+                );
+              })}
             </motion.div>
           </AnimatePresence>
         </div>
-
-        {/* Progress bar tracker */}
-        {maxScroll > 0 && (
-          <motion.div
-            className="mt-8 flex justify-center"
-            initial="hidden"
-            whileInView="visible"
-            viewport={VIEWPORT_ONCE}
-            custom={0.18}
-            variants={fadeUp}
-          >
-            <div className="relative h-1 w-48 rounded-full bg-ink/8 overflow-hidden">
-              <motion.div
-                className="absolute top-0 bottom-0 left-0 bg-primary rounded-full origin-left"
-                style={{ width: `${scrollProgress * 100}%` }}
-              />
-            </div>
-          </motion.div>
-        )}
       </Container>
-
-      {/* Fullscreen Lightbox Modal */}
-      <AnimatePresence>
-        {lightboxIndex !== null && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            onClick={(e) => {
-              if (e.target === e.currentTarget) {
-                setLightboxIndex(null);
-              }
-            }}
-            className="fixed inset-0 z-[100] flex flex-col items-center justify-between bg-black/80 backdrop-blur-xl p-4 sm:p-8"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Gallery lightbox"
-          >
-            {/* Top Bar Header */}
-            <div className="w-full max-w-6xl flex items-center justify-between gap-4 pb-4 border-b border-white/10 z-50">
-              <div>
-                <p className="type-eyebrow text-accent tracking-widest text-[10px] sm:text-xs">
-                  {filteredItems[lightboxIndex].category === "practice"
-                    ? "Yoga Practice"
-                    : filteredItems[lightboxIndex].category === "campus"
-                      ? "Campus Life"
-                      : "Excursion & Culture"}
-                </p>
-                <h2 className="font-serif text-base sm:text-xl text-white font-medium mt-1">
-                  {filteredItems[lightboxIndex].title}
-                </h2>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="type-ui text-white/50 text-[10px] sm:text-xs bg-white/5 px-3 py-1 rounded-full border border-white/5">
-                  {lightboxIndex + 1} / {filteredItems.length}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setLightboxIndex(null)}
-                  aria-label="Close gallery"
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 active:scale-95 transition-all cursor-pointer border border-white/5"
-                >
-                  <Close size={18} />
-                </button>
-              </div>
-            </div>
-
-            {/* Middle Image Area */}
-            <div className="relative w-full max-w-6xl flex-1 flex items-center justify-center py-4 my-2">
-              {/* Prev Navigation Button */}
-              <button
-                type="button"
-                onClick={handleLightboxPrev}
-                aria-label="Previous image"
-                className="absolute left-2 sm:left-4 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white border border-white/10 transition-all hover:scale-105 active:scale-95 cursor-pointer"
-              >
-                <ChevronLeft size={20} />
-              </button>
-
-              {/* Image Frame with explicit, non-collapsible size */}
-              <div className="relative w-full h-[55vh] sm:h-[65vh] md:h-[70vh] overflow-hidden flex items-center justify-center select-none">
-                <AnimatePresence initial={false} custom={lightboxDirection}>
-                  <motion.div
-                    key={lightboxIndex}
-                    custom={lightboxDirection}
-                    variants={slideVariants}
-                    initial="enter"
-                    animate="center"
-                    exit="exit"
-                    transition={{
-                      x: { type: "spring", stiffness: 260, damping: 28 },
-                      opacity: { duration: 0.2 },
-                    }}
-                    className="absolute inset-0 h-full w-full flex items-center justify-center"
-                  >
-                    <div className="relative w-full h-full">
-                      <Image
-                        src={filteredItems[lightboxIndex].src}
-                        alt={filteredItems[lightboxIndex].alt}
-                        fill
-                        priority
-                        className="object-contain select-none"
-                        sizes="(max-width: 1024px) 100vw, 1024px"
-                        draggable={false}
-                      />
-                    </div>
-                  </motion.div>
-                </AnimatePresence>
-              </div>
-
-              {/* Next Navigation Button */}
-              <button
-                type="button"
-                onClick={handleLightboxNext}
-                aria-label="Next image"
-                className="absolute right-2 sm:right-4 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white border border-white/10 transition-all hover:scale-105 active:scale-95 cursor-pointer"
-              >
-                <ChevronRight size={20} />
-              </button>
-            </div>
-
-            {/* Bottom Caption Description Area */}
-            <div className="w-full max-w-2xl text-center pb-2 z-50">
-              <p className="type-body text-white/70 text-xs sm:text-sm italic leading-relaxed">
-                {filteredItems[lightboxIndex].alt}
-              </p>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </section>
   );
 }

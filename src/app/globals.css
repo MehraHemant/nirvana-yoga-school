@@ -20,7 +20,7 @@
 }
 
 :root {
-  --background: #faf7f2;
+  --background: #fffdf9;
   --foreground: #1a1410;
 }
 
@@ -154,6 +154,21 @@ body {
 
 .animate-marquee {
   animation: marquee 40s linear infinite;
+}
+
+.animate-marquee-slow {
+  animation: marquee 60s linear infinite;
+}
+
+.animate-marquee-slow:hover,
+.marquee-hover-pause:hover .animate-marquee-slow {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee-slow {
+    animation: none;
+  }
 }
 
 /* Slow ken-burns zoom for hero video */
