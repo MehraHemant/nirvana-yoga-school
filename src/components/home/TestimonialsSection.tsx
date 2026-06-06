@@ -351,7 +351,7 @@ export default function TestimonialsSection() {
         duration: 0.6,
         ease: EASE_OUT,
       })}
-      className="relative overflow-hidden bg-sand py-16 sm:py-20 lg:py-0 lg:h-[calc(100svh-5.5rem)] lg:min-h-[680px] lg:max-h-[880px] lg:flex lg:items-center w-full"
+      className="relative overflow-hidden bg-sand py-16 sm:py-20 lg:py-24 w-full"
     >
       <div
         className="absolute -top-32 right-1/4 w-[500px] h-[500px] bg-primary/3 blur-[120px] rounded-full pointer-events-none"

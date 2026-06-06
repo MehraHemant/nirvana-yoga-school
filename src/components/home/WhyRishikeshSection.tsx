@@ -20,7 +20,7 @@ export default async function WhyRishikeshSection() {
   return (
     <section
       id="why-rishikesh"
-      className="relative overflow-hidden bg-paper py-12 sm:py-16 md:py-20 lg:py-0 lg:h-[calc(100svh-5.5rem)] lg:min-h-[680px] lg:max-h-[850px] lg:flex lg:items-center"
+      className="relative overflow-hidden bg-paper py-12 sm:py-16 md:py-20 lg:py-24"
     >
       <WhyRishikeshClient
         videoId={videoId}

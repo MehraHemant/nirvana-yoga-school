@@ -131,10 +131,10 @@ export default function TeachersSection() {
                   href="https://www.nirvanayogaschoolindia.com/teacher"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group bg-white rounded-[32px] p-4 shadow-card border border-ink/5 flex flex-col w-[280px] shrink-0 overflow-hidden hover:border-primary/20 hover:shadow-soft transition-all duration-500 cursor-pointer"
+                  className="group bg-white rounded-4xl p-4 shadow-card border border-ink/5 flex flex-col w-[280px] shrink-0 overflow-hidden hover:border-primary/20 hover:shadow-soft transition-all duration-500 cursor-pointer"
                 >
                   {/* Portrait Image Frame */}
-                  <div className="relative w-full aspect-[4/5] rounded-2xl overflow-hidden bg-sand border border-ink/5 shadow-2xs">
+                  <div className="relative w-full aspect-4/5 rounded-2xl overflow-hidden bg-sand border border-ink/5 shadow-2xs">
                     <Image
                       src={teacher.image}
                       alt={teacher.name}

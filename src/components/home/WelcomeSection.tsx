@@ -113,7 +113,7 @@ export default function WelcomeSection() {
         duration: 0.6,
         ease: EASE_OUT,
       })}
-      className="bg-paper py-16 sm:py-20 lg:py-0 lg:min-h-[calc(100svh-5.5rem)] lg:flex lg:items-center overflow-hidden"
+      className="bg-paper py-16 sm:py-20 lg:py-24 relative overflow-hidden"
     >
       <Container size="2xl" className="w-full lg:py-10">
         <div className="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] gap-10 lg:gap-14 xl:gap-16 items-center">

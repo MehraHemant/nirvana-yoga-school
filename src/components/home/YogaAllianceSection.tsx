@@ -56,7 +56,7 @@ const cardVariants = {
 
 export default function YogaAllianceSection() {
   return (
-    <section className="relative w-full overflow-hidden bg-linear-to-br from-primary to-primary-dark py-16 md:py-20 lg:py-0 lg:min-h-screen lg:flex lg:items-center text-white">
+    <section className="relative w-full overflow-hidden bg-linear-to-br from-primary to-primary-dark py-16 md:py-20 lg:py-24 text-white">
       {/* Background Soft Glow / Radial highlights */}
       <div
         className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-accent/8 blur-[130px] rounded-full pointer-events-none"
