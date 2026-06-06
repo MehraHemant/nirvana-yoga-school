@@ -1,11 +1,8 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
-import { useState } from "react";
 import { Container, SectionHeader } from "@/components/ui";
 import { Google, Star, Tripadvisor } from "@/icons";
-import { EASE_OUT, reducedTransition, VIEWPORT_ONCE } from "@/lib/motion";
 
 type Testimonial = {
   name: string;
@@ -142,105 +139,16 @@ const REVIEWS: Testimonial[] = [
   },
 ];
 
-function PlatformHeader({
-  source,
-  count,
-  rating,
-}: {
-  source: Testimonial["source"];
-  count: string;
-  rating: string;
-}) {
-  if (source === "Google") {
-    return (
-      <div className="flex items-center justify-between w-full bg-white/80 backdrop-blur-xs border border-ink/5 rounded-2xl p-3.5 shadow-xs mb-4 select-none">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-full bg-red-50 flex items-center justify-center border border-red-100">
-            <Google size={16} className="text-red-500" />
-          </div>
-          <div className="text-left">
-            <h4 className="type-ui font-bold text-ink leading-tight">
-              Google Reviews
-            </h4>
-            <p className="text-[10px] text-muted">{count}</p>
-          </div>
-        </div>
-        <div className="flex flex-col items-end shrink-0">
-          <span className="type-ui font-bold text-ink text-xs">{rating}</span>
-          <div className="flex gap-0.5 mt-0.5">
-            {[0, 1, 2, 3, 4].map((starIdx) => (
-              <Star
-                key={starIdx}
-                size={8}
-                className="text-[#facc15] fill-[#facc15] shrink-0"
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (source === "Tripadvisor") {
-    return (
-      <div className="flex items-center justify-between w-full bg-white/80 backdrop-blur-xs border border-ink/5 rounded-2xl p-3.5 shadow-xs mb-4 select-none">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center border border-emerald-100">
-            <Tripadvisor size={16} className="text-emerald-600" />
-          </div>
-          <div className="text-left">
-            <h4 className="type-ui font-bold text-ink leading-tight">
-              Tripadvisor
-            </h4>
-            <p className="text-[10px] text-muted">{count}</p>
-          </div>
-        </div>
-        <div className="flex flex-col items-end shrink-0">
-          <span className="type-ui font-bold text-ink text-xs">{rating}</span>
-          <div className="flex gap-0.5 mt-0.5">
-            {[0, 1, 2, 3, 4].map((starIdx) => (
-              <Star
-                key={starIdx}
-                size={8}
-                className="text-emerald-500 fill-emerald-500 shrink-0"
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex items-center justify-between w-full bg-white/80 backdrop-blur-xs border border-ink/5 rounded-2xl p-3.5 shadow-xs mb-4 select-none">
-      <div className="flex items-center gap-2.5">
-        <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center border border-emerald-100">
-          <span className="w-5.5 h-5.5 rounded-full bg-[#00a568] flex items-center justify-center text-[9px] text-white font-bold">
-            ★
-          </span>
-        </div>
-        <div className="text-left">
-          <h4 className="type-ui font-bold text-ink leading-tight">
-            Trustpilot
-          </h4>
-          <p className="text-[10px] text-muted">{count}</p>
-        </div>
-      </div>
-      <div className="flex flex-col items-end shrink-0">
-        <span className="type-ui font-bold text-ink text-xs">{rating}</span>
-        <div className="flex gap-0.5 mt-0.5">
-          {[0, 1, 2, 3, 4].map((starIdx) => (
-            <Star
-              key={starIdx}
-              size={8}
-              className="text-[#00a568] fill-[#00a568] shrink-0"
-            />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
+const FLAG_MAP: Record<string, string> = {
+  India: "🇮🇳",
+  Denmark: "🇩🇰",
+  Ireland: "🇮🇪",
+  Italy: "🇮🇹",
+  USA: "🇺🇸",
+  Ghana: "🇬🇭",
+  France: "🇫🇷",
+  Switzerland: "🇨🇭",
+};
 
 function SourceBadge({ source }: { source: Testimonial["source"] }) {
   if (source === "Google") {
@@ -269,97 +177,117 @@ function SourceBadge({ source }: { source: Testimonial["source"] }) {
   );
 }
 
-export default function TestimonialsSection() {
-  const prefersReduced = useReducedMotion() ?? false;
+function TestimonialCard({
+  r,
+  platformId,
+}: {
+  r: Testimonial;
+  platformId: string;
+}) {
+  return (
+    <figure
+      className={`flex flex-col justify-between bg-white rounded-[24px] p-5 sm:p-6 shadow-card border w-[360px] sm:w-[420px] h-[340px] shrink-0 relative overflow-hidden select-none ${
+        platformId === "Google"
+          ? "border-primary/10 bg-linear-to-br from-white via-white to-sand/20"
+          : platformId === "Tripadvisor"
+            ? "border-secondary/10 bg-linear-to-br from-white via-white to-[#f0f6f6]/25"
+            : "border-emerald-500/10 bg-linear-to-br from-white via-white to-[#f2f6f1]/25"
+      }`}
+    >
+      {/* Decorative quote mark */}
+      <span
+        className={`absolute top-2 right-4 font-serif text-7xl select-none pointer-events-none ${
+          platformId === "Google"
+            ? "text-primary/5"
+            : platformId === "Tripadvisor"
+              ? "text-secondary/5"
+              : "text-emerald-500/5"
+        }`}
+        aria-hidden="true"
+      >
+        “
+      </span>
 
+      {/* Header Info */}
+      <div>
+        <div className="flex items-center justify-between pb-3 border-b border-ink/5 mb-3">
+          <div
+            className="flex gap-0.5"
+            role="img"
+            aria-label="5 out of 5 stars"
+          >
+            {[0, 1, 2, 3, 4].map((starIdx) => (
+              <Star
+                key={starIdx}
+                size={11}
+                className={`${
+                  platformId === "Google"
+                    ? "text-[#facc15] fill-[#facc15]"
+                    : platformId === "Tripadvisor"
+                      ? "text-emerald-500 fill-emerald-500"
+                      : "text-[#00a568] fill-[#00a568]"
+                } shrink-0`}
+              />
+            ))}
+          </div>
+          <SourceBadge source={r.source} />
+        </div>
+
+        {/* Quote Text */}
+        <blockquote
+          className={`font-serif italic text-[12px] sm:text-[13px] md:text-[14px] text-ink/80 leading-relaxed text-left pl-3 border-l-2 ${
+            platformId === "Google"
+              ? "border-primary/20"
+              : platformId === "Tripadvisor"
+                ? "border-secondary/20"
+                : "border-emerald-500/20"
+          }`}
+        >
+          &ldquo;{r.quote}&rdquo;
+        </blockquote>
+      </div>
+
+      {/* Author layout */}
+      <figcaption className="pt-3 border-t border-ink/5 flex items-center gap-3.5">
+        <div
+          className={`h-10 w-10 rounded-full overflow-hidden shrink-0 border relative bg-sand/80 shadow-2xs ${
+            platformId === "Google"
+              ? "border-primary/10 ring-2 ring-primary/5"
+              : platformId === "Tripadvisor"
+                ? "border-secondary/10 ring-2 ring-secondary/5"
+                : "border-emerald-500/10 ring-2 ring-emerald-500/5"
+          }`}
+        >
+          <Image
+            src={r.avatar}
+            alt={r.name}
+            fill
+            sizes="40px"
+            className="object-cover"
+          />
+        </div>
+        <div className="min-w-0 text-left">
+          <h4 className="font-serif text-[14px] font-bold text-ink leading-tight">
+            {r.name}
+          </h4>
+          <div className="text-[9px] text-muted uppercase tracking-wider font-semibold truncate mt-0.5">
+            {FLAG_MAP[r.country] || "🌐"} {r.country} · {r.course}
+          </div>
+        </div>
+      </figcaption>
+    </figure>
+  );
+}
+
+export default function TestimonialsSection() {
   // Grouped reviews
   const googleReviews = REVIEWS.filter((r) => r.source === "Google");
   const tripadvisorReviews = REVIEWS.filter((r) => r.source === "Tripadvisor");
   const trustpilotReviews = REVIEWS.filter((r) => r.source === "Trustpilot");
 
-  // Stack orders per platform
-  const [stackOrders, setStackOrders] = useState<{
-    Google: number[];
-    Tripadvisor: number[];
-    Trustpilot: number[];
-  }>({
-    Google: googleReviews.map((_, i) => i),
-    Tripadvisor: tripadvisorReviews.map((_, i) => i),
-    Trustpilot: trustpilotReviews.map((_, i) => i),
-  });
-
-  const [swipingCardIndex, setSwipingCardIndex] = useState<{
-    Google: number | null;
-    Tripadvisor: number | null;
-    Trustpilot: number | null;
-  }>({
-    Google: null,
-    Tripadvisor: null,
-    Trustpilot: null,
-  });
-
-  const handleCardClick = (
-    platform: "Google" | "Tripadvisor" | "Trustpilot",
-    reviewIndex: number,
-    arrayIndex: number,
-  ) => {
-    if (prefersReduced) {
-      setStackOrders((prev) => {
-        const order = prev[platform];
-        const newOrder = [...order.slice(1), order[0]];
-        return { ...prev, [platform]: newOrder };
-      });
-      return;
-    }
-
-    if (arrayIndex !== 0 || swipingCardIndex[platform] !== null) return;
-
-    setSwipingCardIndex((prev) => ({ ...prev, [platform]: reviewIndex }));
-
-    setTimeout(() => {
-      setStackOrders((prev) => {
-        const order = prev[platform];
-        const newOrder = [...order.slice(1), order[0]];
-        return {
-          ...prev,
-          [platform]: newOrder,
-        };
-      });
-      setSwipingCardIndex((prev) => ({ ...prev, [platform]: null }));
-    }, 300);
-  };
-
-  const platforms = [
-    {
-      id: "Google" as const,
-      reviews: googleReviews,
-      count: "1,200+ Reviews",
-      rating: "4.9/5.0",
-    },
-    {
-      id: "Tripadvisor" as const,
-      reviews: tripadvisorReviews,
-      count: "800+ Reviews",
-      rating: "5.0/5.0",
-    },
-    {
-      id: "Trustpilot" as const,
-      reviews: trustpilotReviews,
-      count: "500+ Reviews",
-      rating: "4.8/5.0",
-    },
-  ];
-
   return (
-    <motion.section
+    <section
       id="reviews"
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={VIEWPORT_ONCE}
-      transition={reducedTransition(prefersReduced, {
-        duration: 0.6,
-        ease: EASE_OUT,
-      })}
       className="relative overflow-hidden bg-sand py-16 sm:py-20 lg:py-24 w-full"
     >
       <div
@@ -371,9 +299,9 @@ export default function TestimonialsSection() {
         aria-hidden="true"
       />
 
-      <Container size="2xl" className="w-full relative z-10 lg:py-4">
+      <Container size="2xl" className="w-full relative z-10">
         {/* Section Header */}
-        <div className="w-full text-center mb-8">
+        <div className="w-full text-center mb-10 sm:mb-16">
           <SectionHeader
             align="center"
             eyebrow="Student Testimonials"
@@ -388,208 +316,83 @@ export default function TestimonialsSection() {
             description="Read the authentic journeys of practitioners from all corners of the globe who trained at our sanctuary."
             className="mx-auto"
           />
-
-          <p className="type-ui text-muted inline-flex items-center gap-2 mt-3 bg-white/60 px-3.5 py-1.5 rounded-full border border-ink/5 shadow-xs animate-pulse text-[11px]">
-            <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-            Tap the top card of any stack to cycle reviews
-          </p>
         </div>
 
-        {/* Multi-Stack Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-10 mt-2 items-start w-full">
-          {platforms.map((platform) => {
-            const currentOrder = stackOrders[platform.id];
-            const isPlatformSwiping = swipingCardIndex[platform.id] !== null;
-
-            return (
-              <div
-                key={platform.id}
-                className="flex flex-col items-center w-full"
-              >
-                {/* Platform Header */}
-                <PlatformHeader
-                  source={platform.id}
-                  count={platform.count}
-                  rating={platform.rating}
-                />
-
-                {/* Stack Container */}
-                <div className="relative w-full max-w-[360px] h-[340px] sm:h-[380px] lg:h-[340px] flex items-center justify-center px-4 sm:px-0">
-                  <AnimatePresence mode="popLayout">
-                    {platform.reviews.map((r, i) => {
-                      const pos = currentOrder.indexOf(i);
-                      if (pos === -1) return null;
-
-                      const isSwiping = swipingCardIndex[platform.id] === i;
-
-                      // Shift positions up by 1 if a card is currently flying out
-                      const displayPos = isPlatformSwiping
-                        ? pos > 0
-                          ? pos - 1
-                          : 0
-                        : pos;
-
-                      // 3D positioning styles
-                      const zIndex = isSwiping ? 40 : 30 - displayPos * 10;
-                      const scale = isSwiping ? 0.95 : 1 - displayPos * 0.05;
-                      const y = isSwiping ? 0 : displayPos * 14;
-                      // Organic rotation
-                      const rotate = isSwiping
-                        ? 12
-                        : displayPos === 0
-                          ? 0
-                          : displayPos === 1
-                            ? -2
-                            : 2;
-                      const opacity = isSwiping
-                        ? 0
-                        : displayPos === 0
-                          ? 1
-                          : displayPos === 1
-                            ? 0.85
-                            : 0.6;
-                      // Fly out direction
-                      const x = isSwiping ? 380 : 0;
-
-                      return (
-                        <motion.figure
-                          key={r.name}
-                          style={{ zIndex, originX: 0.5, originY: 0.5 }}
-                          initial={
-                            prefersReduced
-                              ? false
-                              : { opacity: 0, scale: 0.8, y: 50 }
-                          }
-                          animate={{
-                            x,
-                            y,
-                            scale,
-                            rotate,
-                            opacity,
-                            transition: {
-                              type: "spring",
-                              stiffness: 280,
-                              damping: 24,
-                              mass: 1,
-                            },
-                          }}
-                          whileHover={
-                            !prefersReduced &&
-                            pos === 0 &&
-                            swipingCardIndex[platform.id] === null
-                              ? { y: -6, scale: 1.015 }
-                              : undefined
-                          }
-                          onClick={() => handleCardClick(platform.id, i, pos)}
-                          className={`group absolute inset-x-4 sm:inset-x-0 top-0 bottom-6 flex flex-col justify-between bg-white rounded-3xl p-5 sm:p-6 shadow-card border border-ink/5 hover:border-primary/10 transition-colors duration-500 overflow-hidden cursor-pointer select-none ${
-                            pos !== 0
-                              ? "pointer-events-none"
-                              : "pointer-events-auto"
-                          }`}
-                        >
-                          {/* Decorative double quote mark SVG */}
-                          <span
-                            className="absolute top-3 right-5 font-serif text-5xl text-primary/5 select-none pointer-events-none transition-colors duration-500 group-hover:text-primary/10"
-                            aria-hidden="true"
-                          >
-                            “
-                          </span>
-
-                          {/* Header Info */}
-                          <div>
-                            <div className="flex items-center justify-between pb-2.5 border-b border-ink/5 mb-3">
-                              <div
-                                className="flex gap-0.5"
-                                role="img"
-                                aria-label="5 out of 5 stars"
-                              >
-                                {[0, 1, 2, 3, 4].map((starIdx) => (
-                                  <Star
-                                    key={starIdx}
-                                    size={10}
-                                    className={`${
-                                      platform.id === "Google"
-                                        ? "text-[#facc15] fill-[#facc15]"
-                                        : platform.id === "Tripadvisor"
-                                          ? "text-emerald-500 fill-emerald-500"
-                                          : "text-[#00a568] fill-[#00a568]"
-                                    } shrink-0`}
-                                  />
-                                ))}
-                              </div>
-                              <SourceBadge source={r.source} />
-                            </div>
-
-                            {/* Quote Text */}
-                            <blockquote className="text-[11px] sm:text-xs text-ink/85 leading-relaxed font-sans font-medium italic mt-1.5">
-                              &ldquo;{r.quote}&rdquo;
-                            </blockquote>
-                          </div>
-
-                          {/* Author layout */}
-                          <figcaption className="mt-3 pt-3 border-t border-ink/5 flex items-center gap-2.5">
-                            <div className="h-8 w-8 rounded-full overflow-hidden shrink-0 border border-ink/5 relative bg-sand/80">
-                              <Image
-                                src={r.avatar}
-                                alt={r.name}
-                                fill
-                                sizes="32px"
-                                className="object-cover"
-                              />
-                            </div>
-                            <div className="min-w-0">
-                              <div className="font-serif text-[13px] font-bold text-ink truncate">
-                                {r.name}
-                              </div>
-                              <div className="text-[9px] text-muted uppercase tracking-wider font-semibold truncate mt-0.5">
-                                {r.country} · {r.course}
-                              </div>
-                            </div>
-                          </figcaption>
-                        </motion.figure>
-                      );
-                    })}
-                  </AnimatePresence>
-                </div>
-
-                {/* Pagination Dots */}
-                <div className="flex items-center justify-center gap-2 select-none relative z-10 -mt-2">
-                  {platform.reviews.map((r, idx) => {
-                    const isCurrent = currentOrder[0] === idx;
-                    return (
-                      <button
-                        key={r.name}
-                        type="button"
-                        onClick={() => {
-                          if (swipingCardIndex[platform.id] !== null) return;
-                          const clickedPos = currentOrder.indexOf(idx);
-                          if (clickedPos === 0) return;
-
-                          setStackOrders((prev) => {
-                            const order = prev[platform.id];
-                            const clickIdx = order.indexOf(idx);
-                            const newOrder = [
-                              ...order.slice(clickIdx),
-                              ...order.slice(0, clickIdx),
-                            ];
-                            return { ...prev, [platform.id]: newOrder };
-                          });
-                        }}
-                        className={`h-1.5 transition-all duration-300 rounded-full cursor-pointer ${
-                          isCurrent
-                            ? "bg-primary w-5"
-                            : "bg-ink/20 w-1.5 hover:bg-ink/40"
-                        }`}
-                        aria-label={`Go to review ${idx + 1}`}
-                      />
-                    );
-                  })}
-                </div>
+        {/* Triple Marquee Rivers */}
+        <div className="space-y-6 sm:space-y-8 mt-2 w-full relative">
+          {/* Row 1: Google Reviews (Scroll Left) */}
+          <div className="flex overflow-hidden w-full select-none py-1.5 marquee-mask marquee-hover-pause">
+            <div className="flex w-max gap-6 shrink-0 animate-marquee">
+              <div className="flex gap-6 shrink-0">
+                {googleReviews.map((r) => (
+                  <TestimonialCard
+                    key={`g1-${r.name}`}
+                    r={r}
+                    platformId="Google"
+                  />
+                ))}
               </div>
-            );
-          })}
+              <div className="flex gap-6 shrink-0" aria-hidden="true">
+                {googleReviews.map((r) => (
+                  <TestimonialCard
+                    key={`g2-${r.name}`}
+                    r={r}
+                    platformId="Google"
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Row 2: Tripadvisor Reviews (Scroll Right) */}
+          <div className="flex overflow-hidden w-full select-none py-1.5 marquee-mask marquee-hover-pause">
+            <div className="flex w-max gap-6 shrink-0 animate-marquee-reverse">
+              <div className="flex gap-6 shrink-0">
+                {tripadvisorReviews.map((r) => (
+                  <TestimonialCard
+                    key={`t1-${r.name}`}
+                    r={r}
+                    platformId="Tripadvisor"
+                  />
+                ))}
+              </div>
+              <div className="flex gap-6 shrink-0" aria-hidden="true">
+                {tripadvisorReviews.map((r) => (
+                  <TestimonialCard
+                    key={`t2-${r.name}`}
+                    r={r}
+                    platformId="Tripadvisor"
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Row 3: Trustpilot Reviews (Scroll Left) */}
+          <div className="flex overflow-hidden w-full select-none py-1.5 marquee-mask marquee-hover-pause">
+            <div className="flex w-max gap-6 shrink-0 animate-marquee-slow">
+              <div className="flex gap-6 shrink-0">
+                {trustpilotReviews.map((r) => (
+                  <TestimonialCard
+                    key={`tp1-${r.name}`}
+                    r={r}
+                    platformId="Trustpilot"
+                  />
+                ))}
+              </div>
+              <div className="flex gap-6 shrink-0" aria-hidden="true">
+                {trustpilotReviews.map((r) => (
+                  <TestimonialCard
+                    key={`tp2-${r.name}`}
+                    r={r}
+                    platformId="Trustpilot"
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </Container>
-    </motion.section>
+    </section>
   );
 }

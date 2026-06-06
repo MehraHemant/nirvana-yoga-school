@@ -153,20 +153,40 @@ body {
 }
 
 .animate-marquee {
-  animation: marquee 40s linear infinite;
+  animation: marquee 45s linear infinite;
 }
 
 .animate-marquee-slow {
   animation: marquee 60s linear infinite;
 }
 
+@keyframes marquee-reverse {
+  from {
+    transform: translateX(-50%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-marquee-reverse {
+  animation: marquee-reverse 50s linear infinite;
+}
+
+.animate-marquee:hover,
 .animate-marquee-slow:hover,
-.marquee-hover-pause:hover .animate-marquee-slow {
+.animate-marquee-reverse:hover,
+.marquee-hover-pause:hover .animate-marquee,
+.marquee-hover-pause:hover .animate-marquee-slow,
+.marquee-hover-pause:hover .animate-marquee-reverse {
   animation-play-state: paused;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-marquee-slow {
+  .animate-marquee,
+  .animate-marquee-slow,
+  .animate-marquee-reverse {
     animation: none;
   }
 }
@@ -683,4 +703,32 @@ details > summary::-webkit-details-marker {
 
 details[open] .accordion-icon {
   transform: rotate(45deg);
+}
+
+/* Custom Scrollbar Utility */
+.scrollbar-thin-primary {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-primary) transparent;
+}
+
+.scrollbar-thin-primary::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+.scrollbar-thin-primary::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin-primary::-webkit-scrollbar-thumb {
+  background-color: var(--color-primary);
+  border: 1.5px solid transparent;
+  background-clip: padding-box;
+  border-radius: 9999px;
+}
+
+.scrollbar-thin-primary::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-primary-dark);
+  border: 1.5px solid transparent;
+  background-clip: padding-box;
 }
