@@ -113,7 +113,7 @@ export default function WelcomeSection() {
         duration: 0.6,
         ease: EASE_OUT,
       })}
-      className="bg-paper py-16 sm:py-20 lg:py-24 relative overflow-hidden"
+      className="bg-paper py-12 sm:py-14 lg:py-16 relative overflow-hidden"
     >
       <Container size="2xl" className="w-full lg:py-10">
         <div className="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] gap-10 lg:gap-14 xl:gap-16 items-center">
@@ -140,11 +140,11 @@ export default function WelcomeSection() {
                       prefersReduced
                         ? {}
                         : {
-                            repeat: Infinity,
-                            repeatType: "reverse",
-                            duration: 3,
-                            ease: "easeInOut",
-                          }
+                          repeat: Infinity,
+                          repeatType: "reverse",
+                          duration: 3,
+                          ease: "easeInOut",
+                        }
                     }
                     style={{
                       transformStyle: "preserve-3d",
@@ -190,12 +190,12 @@ export default function WelcomeSection() {
                       prefersReduced
                         ? {}
                         : {
-                            repeat: Infinity,
-                            repeatType: "reverse",
-                            duration: 2.6,
-                            ease: "easeInOut",
-                            delay: 0.4,
-                          }
+                          repeat: Infinity,
+                          repeatType: "reverse",
+                          duration: 2.6,
+                          ease: "easeInOut",
+                          delay: 0.4,
+                        }
                     }
                     style={{
                       transformStyle: "preserve-3d",
@@ -259,12 +259,12 @@ export default function WelcomeSection() {
                       prefersReduced
                         ? {}
                         : {
-                            repeat: Infinity,
-                            repeatType: "reverse",
-                            duration: 2.8,
-                            ease: "easeInOut",
-                            delay: 0.2,
-                          }
+                          repeat: Infinity,
+                          repeatType: "reverse",
+                          duration: 2.8,
+                          ease: "easeInOut",
+                          delay: 0.2,
+                        }
                     }
                     style={{
                       transformStyle: "preserve-3d",
@@ -305,12 +305,12 @@ export default function WelcomeSection() {
                       prefersReduced
                         ? {}
                         : {
-                            repeat: Infinity,
-                            repeatType: "reverse",
-                            duration: 3.2,
-                            ease: "easeInOut",
-                            delay: 0.6,
-                          }
+                          repeat: Infinity,
+                          repeatType: "reverse",
+                          duration: 3.2,
+                          ease: "easeInOut",
+                          delay: 0.6,
+                        }
                     }
                     style={{
                       transformStyle: "preserve-3d",

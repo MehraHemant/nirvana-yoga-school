@@ -58,7 +58,7 @@ export default function FAQSection() {
   return (
     <section
       id="faq"
-      className="bg-paper py-16 md:py-24 lg:py-28 overflow-hidden"
+      className="bg-paper py-12 sm:py-14 lg:py-16 overflow-hidden"
     >
       <Container size="lg">
         <SectionHeader
@@ -74,11 +74,10 @@ export default function FAQSection() {
             return (
               <div
                 key={item.q}
-                className={`group relative rounded-2xl md:rounded-3xl border overflow-hidden bg-gray transition-all duration-500 ${
-                  isActive
+                className={`group relative rounded-2xl md:rounded-3xl border overflow-hidden bg-gray transition-all duration-500 ${isActive
                     ? "border-primary/30 shadow-soft ring-1 ring-primary/10"
                     : "border-white/10 hover:border-white/20 hover:shadow-card"
-                }`}
+                  }`}
               >
                 {/* Background Image Container */}
                 <div className="absolute inset-0 w-full h-full pointer-events-none select-none overflow-hidden z-0">
@@ -87,20 +86,18 @@ export default function FAQSection() {
                     alt=""
                     fill
                     sizes="(max-width: 1024px) 100vw, 900px"
-                    className={`object-cover transition-all duration-700 ease-out ${
-                      isActive
+                    className={`object-cover transition-all duration-700 ease-out ${isActive
                         ? "grayscale-0 scale-105 opacity-45"
                         : "grayscale opacity-25 scale-100 group-hover:grayscale-0 group-hover:scale-102 group-hover:opacity-40"
-                    }`}
+                      }`}
                     priority={i === 0}
                   />
                   {/* Linear gradient overlay for absolute text contrast */}
                   <div
-                    className={`absolute inset-0 transition-colors duration-500 ${
-                      isActive
+                    className={`absolute inset-0 transition-colors duration-500 ${isActive
                         ? "bg-linear-to-r from-gray/50 via-gray/35 to-gray/10"
                         : "bg-linear-to-r from-gray/45 via-gray/30 to-gray/5 group-hover:from-gray/35 group-hover:via-gray/20"
-                    }`}
+                      }`}
                   />
                 </div>
 
@@ -116,11 +113,10 @@ export default function FAQSection() {
                     {item.q}
                   </span>
                   <span
-                    className={`accordion-icon flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-300 ${
-                      isActive
+                    className={`accordion-icon flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-300 ${isActive
                         ? "bg-primary text-black"
                         : "bg-white/10 text-black group-hover:bg-primary group-hover:text-black"
-                    }`}
+                      }`}
                   >
                     <motion.span
                       animate={{ rotate: isActive ? 45 : 0 }}

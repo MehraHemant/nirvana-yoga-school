@@ -43,11 +43,10 @@ function VideoPlaylistItem({
       type="button"
       onClick={() => onSelect(video.id)}
       aria-current={isActive ? "true" : undefined}
-      className={`group flex h-full w-full min-w-0 overflow-hidden rounded-2xl border text-left transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 max-md:flex-col md:flex-row md:items-stretch md:gap-3 md:p-2.5 ${
-        isActive
-          ? "border-primary/30 bg-white shadow-soft ring-1 ring-primary/20 md:border-l-[3px] md:border-l-primary md:pl-[calc(0.625rem-2px)]"
-          : "border-ink/8 bg-white shadow-card hover:border-primary/20 hover:bg-white hover:shadow-soft md:border-l-[3px] md:border-l-transparent"
-      }`}
+      className={`group flex h-full w-full min-w-0 overflow-hidden rounded-2xl border text-left transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 max-md:flex-col md:flex-row md:items-stretch md:gap-3 md:p-2.5 ${isActive
+        ? "border-primary/30 bg-white shadow-soft ring-1 ring-primary/20 md:border-l-[3px] md:border-l-primary md:pl-[calc(0.625rem-2px)]"
+        : "border-ink/8 bg-white shadow-card hover:border-primary/20 hover:bg-white hover:shadow-soft md:border-l-[3px] md:border-l-transparent"
+        }`}
     >
       <div className="relative aspect-video w-full shrink-0 overflow-hidden bg-ink/10 max-md:rounded-t-2xl md:w-[38%] md:rounded-xl lg:w-[40%]">
         <Image
@@ -55,14 +54,12 @@ function VideoPlaylistItem({
           alt=""
           fill
           sizes="(max-width: 768px) 72vw, (max-width: 1024px) 140px, 160px"
-          className={`object-cover transition-transform duration-500 ${
-            isActive ? "scale-100" : "group-hover:scale-105"
-          }`}
+          className={`object-cover transition-transform duration-500 ${isActive ? "scale-100" : "group-hover:scale-105"
+            }`}
         />
         <div
-          className={`absolute inset-0 transition-colors duration-300 ${
-            isActive ? "bg-primary/15" : "bg-ink/10 group-hover:bg-ink/5"
-          }`}
+          className={`absolute inset-0 transition-colors duration-300 ${isActive ? "bg-primary/15" : "bg-ink/10 group-hover:bg-ink/5"
+            }`}
           aria-hidden="true"
         />
         {!isActive && (
@@ -87,16 +84,14 @@ function VideoPlaylistItem({
 
       <div className="flex min-w-0 flex-1 flex-col justify-center gap-1 p-3 md:py-1 md:pr-1 md:pl-0">
         <span
-          className={`type-eyebrow text-[10px] sm:text-xs ${
-            isActive ? "text-primary" : "text-muted"
-          }`}
+          className={`type-eyebrow text-[10px] sm:text-xs ${isActive ? "text-primary" : "text-muted"
+            }`}
         >
           {isActive ? "Now playing" : video.channel}
         </span>
         <span
-          className={`type-ui line-clamp-2 font-medium leading-snug md:line-clamp-3 md:text-[0.9375rem] ${
-            isActive ? "text-primary" : "text-ink group-hover:text-primary"
-          }`}
+          className={`type-ui line-clamp-2 font-medium leading-snug md:line-clamp-3 md:text-[0.9375rem] ${isActive ? "text-primary" : "text-ink group-hover:text-primary"
+            }`}
         >
           {video.title}
         </span>
@@ -153,7 +148,7 @@ export default function VideoSectionPlayer({
     <section
       id="video"
       ref={sectionRef}
-      className="relative w-full overflow-hidden bg-paper py-12 sm:py-16 lg:py-20"
+      className="relative w-full overflow-hidden bg-paper py-12 sm:py-14 lg:py-16"
     >
       <Container size="2xl" className="relative min-w-0">
         <motion.div

@@ -109,7 +109,7 @@ const COURSES: (CourseCardProps & { highlights: string[] })[] = [
 
 export default function CoursesSection() {
   return (
-    <section id="courses" className="bg-paper py-16 sm:py-20 lg:py-24 lg:pb-40">
+    <section id="courses" className="bg-paper py-12 sm:py-14 lg:py-16">
       <Container size="2xl">
         <motion.div
           className="mb-8 flex flex-col gap-4 sm:mb-10 md:mb-14 lg:flex-row lg:items-end lg:justify-between"

@@ -186,23 +186,21 @@ function TestimonialCard({
 }) {
   return (
     <figure
-      className={`flex flex-col justify-between bg-white rounded-[24px] p-5 sm:p-6 shadow-card border w-[360px] sm:w-[420px] h-[340px] shrink-0 relative overflow-hidden select-none ${
-        platformId === "Google"
+      className={`flex flex-col justify-between bg-white rounded-[24px] p-5 sm:p-6 shadow-card border w-[360px] sm:w-[420px] h-[340px] shrink-0 relative overflow-hidden select-none ${platformId === "Google"
           ? "border-primary/10 bg-linear-to-br from-white via-white to-sand/20"
           : platformId === "Tripadvisor"
             ? "border-secondary/10 bg-linear-to-br from-white via-white to-[#f0f6f6]/25"
             : "border-emerald-500/10 bg-linear-to-br from-white via-white to-[#f2f6f1]/25"
-      }`}
+        }`}
     >
       {/* Decorative quote mark */}
       <span
-        className={`absolute top-2 right-4 font-serif text-7xl select-none pointer-events-none ${
-          platformId === "Google"
+        className={`absolute top-2 right-4 font-serif text-7xl select-none pointer-events-none ${platformId === "Google"
             ? "text-primary/5"
             : platformId === "Tripadvisor"
               ? "text-secondary/5"
               : "text-emerald-500/5"
-        }`}
+          }`}
         aria-hidden="true"
       >
         “
@@ -220,13 +218,12 @@ function TestimonialCard({
               <Star
                 key={starIdx}
                 size={11}
-                className={`${
-                  platformId === "Google"
+                className={`${platformId === "Google"
                     ? "text-[#facc15] fill-[#facc15]"
                     : platformId === "Tripadvisor"
                       ? "text-emerald-500 fill-emerald-500"
                       : "text-[#00a568] fill-[#00a568]"
-                } shrink-0`}
+                  } shrink-0`}
               />
             ))}
           </div>
@@ -235,13 +232,12 @@ function TestimonialCard({
 
         {/* Quote Text */}
         <blockquote
-          className={`font-serif italic text-[12px] sm:text-[13px] md:text-[14px] text-ink/80 leading-relaxed text-left pl-3 border-l-2 ${
-            platformId === "Google"
+          className={`font-serif italic text-[12px] sm:text-[13px] md:text-[14px] text-ink/80 leading-relaxed text-left pl-3 border-l-2 ${platformId === "Google"
               ? "border-primary/20"
               : platformId === "Tripadvisor"
                 ? "border-secondary/20"
                 : "border-emerald-500/20"
-          }`}
+            }`}
         >
           &ldquo;{r.quote}&rdquo;
         </blockquote>
@@ -250,13 +246,12 @@ function TestimonialCard({
       {/* Author layout */}
       <figcaption className="pt-3 border-t border-ink/5 flex items-center gap-3.5">
         <div
-          className={`h-10 w-10 rounded-full overflow-hidden shrink-0 border relative bg-sand/80 shadow-2xs ${
-            platformId === "Google"
+          className={`h-10 w-10 rounded-full overflow-hidden shrink-0 border relative bg-sand/80 shadow-2xs ${platformId === "Google"
               ? "border-primary/10 ring-2 ring-primary/5"
               : platformId === "Tripadvisor"
                 ? "border-secondary/10 ring-2 ring-secondary/5"
                 : "border-emerald-500/10 ring-2 ring-emerald-500/5"
-          }`}
+            }`}
         >
           <Image
             src={r.avatar}
@@ -288,7 +283,7 @@ export default function TestimonialsSection() {
   return (
     <section
       id="reviews"
-      className="relative overflow-hidden bg-sand py-16 sm:py-20 lg:py-24 w-full"
+      className="relative overflow-hidden bg-sand py-12 sm:py-14 lg:py-16 w-full"
     >
       <div
         className="absolute -top-32 right-1/4 w-[500px] h-[500px] bg-primary/3 blur-[120px] rounded-full pointer-events-none"

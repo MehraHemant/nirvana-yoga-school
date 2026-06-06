@@ -300,7 +300,7 @@ export default function GallerySection() {
   return (
     <section
       id="gallery"
-      className="relative w-full overflow-hidden bg-sand py-12 sm:py-16 md:py-20"
+      className="relative w-full overflow-hidden bg-sand py-12 sm:py-14 lg:py-16"
     >
       <Container size="2xl" className="relative">
         <motion.div
@@ -344,9 +344,8 @@ export default function GallerySection() {
                   key={category.id}
                   type="button"
                   onClick={() => setSelectedCategory(category.id)}
-                  className={`type-ui relative px-4 py-2 font-medium transition-colors duration-300 focus-visible:outline-none ${
-                    isActive ? "text-primary" : "text-muted hover:text-ink"
-                  }`}
+                  className={`type-ui relative px-4 py-2 font-medium transition-colors duration-300 focus-visible:outline-none ${isActive ? "text-primary" : "text-muted hover:text-ink"
+                    }`}
                 >
                   {category.label}
                   {isActive && (
