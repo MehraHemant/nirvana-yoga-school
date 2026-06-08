@@ -253,13 +253,13 @@ export default function GallerySection() {
 
   // Initialize visible items whenever category changes
   useEffect(() => {
-    let slotsCount = 12;
+    let slotsCount = 15;
     if (selectedCategory === "practice") {
-      slotsCount = 11;
+      slotsCount = 12;
     } else if (selectedCategory === "life") {
-      slotsCount = 8;
+      slotsCount = 7;
     } else if (selectedCategory === "campus") {
-      slotsCount = 6;
+      slotsCount = 7;
     }
     slotsCount = Math.min(slotsCount, filteredItems.length);
     setVisibleItems(filteredItems.slice(0, slotsCount));
@@ -344,9 +344,8 @@ export default function GallerySection() {
                   key={category.id}
                   type="button"
                   onClick={() => setSelectedCategory(category.id)}
-                  className={`type-ui relative px-4 py-2 font-medium transition-colors duration-300 focus-visible:outline-none ${
-                    isActive ? "text-primary" : "text-muted hover:text-ink"
-                  }`}
+                  className={`type-ui relative px-4 py-2 font-medium transition-colors duration-300 focus-visible:outline-none ${isActive ? "text-primary" : "text-muted hover:text-ink"
+                    }`}
                 >
                   {category.label}
                   {isActive && (
@@ -375,7 +374,7 @@ export default function GallerySection() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -15 }}
               transition={{ duration: 0.4, ease: "easeInOut" }}
-              className="columns-2 sm:columns-3 lg:columns-4 gap-5"
+              className="columns-2 sm:columns-4 lg:columns-5 gap-5"
             >
               {visibleItems.map((item, index) => {
                 const aspect = SLOT_ASPECTS[index % SLOT_ASPECTS.length];
