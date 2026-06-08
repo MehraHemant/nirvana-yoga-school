@@ -17,196 +17,196 @@ interface GalleryItem {
 const GALLERY_ITEMS: GalleryItem[] = [
   {
     id: 1,
-    src: "https://www.nirvanayogaschoolindia.com/img/gallery/home_slider/1.webp",
+    src: "https://images.unsplash.com/photo-1501555088652-021faa106b9b?w=800&auto=format&fit=crop&q=80",
     alt: "Excursion in 200-Hour YTTC",
     title: "Weekend Excursions",
     category: "life",
   },
   {
     id: 2,
-    src: "https://www.nirvanayogaschoolindia.com/img/gallery/home_slider/2.webp",
+    src: "https://images.unsplash.com/photo-1561336313-0bd5e0b27ec8?w=800&auto=format&fit=crop&q=80",
     alt: "Opening ceremony of yoga teacher training course",
     title: "Opening Fire Ceremony (Havan)",
     category: "life",
   },
   {
     id: 3,
-    src: "https://www.nirvanayogaschoolindia.com/img/gallery/home_slider/3.webp",
+    src: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800&auto=format&fit=crop&q=80",
     alt: "Beach yoga in Rishikesh",
     title: "Ganga Beach Yoga Sessions",
     category: "practice",
   },
   {
     id: 4,
-    src: "https://www.nirvanayogaschoolindia.com/img/gallery/home_slider/4.webp",
+    src: "https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=800&auto=format&fit=crop&q=80",
     alt: "Food at Nirvana yoga school, Rishikesh",
     title: "Nourishing Sattvic Food",
     category: "campus",
   },
   {
     id: 5,
-    src: "https://www.nirvanayogaschoolindia.com/img/gallery/home_slider/5.webp",
+    src: "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=800&auto=format&fit=crop&q=80",
     alt: "Hatha yoga class of 200-hour yoga teacher training",
     title: "Traditional Hatha Yoga Class",
     category: "practice",
   },
   {
     id: 6,
-    src: "https://www.nirvanayogaschoolindia.com/img/gallery/home_slider/6.webp",
+    src: "https://images.unsplash.com/photo-1508672019048-805c876b67e2?w=800&auto=format&fit=crop&q=80",
     alt: "Pranayama (breathwork) practice class",
     title: "Pranayama & Breathwork",
     category: "practice",
   },
   {
     id: 7,
-    src: "https://www.nirvanayogaschoolindia.com/img/gallery/home_slider/7.webp",
+    src: "https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=800&auto=format&fit=crop&q=80",
     alt: "Trataka meditation",
     title: "Trataka (Candle Gazing)",
     category: "practice",
   },
   {
     id: 8,
-    src: "https://www.nirvanayogaschoolindia.com/img/gallery/home_slider/8.webp",
+    src: "https://images.unsplash.com/photo-1590490360182-c33d57733427?w=800&auto=format&fit=crop&q=80",
     alt: "Private balcony room accommodation at Nirvana yoga school",
     title: "Private Balcony Room",
     category: "campus",
   },
   {
     id: 9,
-    src: "https://www.nirvanayogaschoolindia.com/img/gallery/home_slider/9.webp",
+    src: "https://images.unsplash.com/photo-1519817650390-64a93db51149?w=800&auto=format&fit=crop&q=80",
     alt: "Shatkarma practice in 200 hour Yoga TTC",
     title: "Shatkarma (Yogic Cleansing)",
     category: "practice",
   },
   {
     id: 10,
-    src: "https://www.nirvanayogaschoolindia.com/img/gallery/home_slider/10.webp",
+    src: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=800&auto=format&fit=crop&q=80",
     alt: "Student celebration at Nirvana yoga school",
     title: "Kirtan & Celebration",
     category: "life",
   },
   {
     id: 11,
-    src: "https://www.nirvanayogaschoolindia.com/img/gallery/home_slider/11.webp",
+    src: "https://images.unsplash.com/photo-1598387993441-a364f854c3e1?w=800&auto=format&fit=crop&q=80",
     alt: "Sound healing session",
     title: "Sacred Sound Healing",
     category: "practice",
   },
   {
     id: 12,
-    src: "https://www.nirvanayogaschoolindia.com/img/gallery/home_slider/12.webp",
+    src: "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=800&auto=format&fit=crop&q=80",
     alt: "Dinner at Nirvana yoga school",
     title: "Sattvic Vegetarian Buffet",
     category: "campus",
   },
   {
     id: 13,
-    src: "https://www.nirvanayogaschoolindia.com/img/gallery/home_slider/13.webp",
+    src: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&auto=format&fit=crop&q=80",
     alt: "Sunrise excursion during yoga course in Rishikesh",
     title: "Himalayan Sunrise Excursion",
     category: "life",
   },
   {
     id: 14,
-    src: "https://www.nirvanayogaschoolindia.com/img/gallery/home_slider/14.webp",
+    src: "https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?w=800&auto=format&fit=crop&q=80",
     alt: "Outdoor yoga class",
     title: "Outdoor Yoga Sessions",
     category: "practice",
   },
   {
     id: 15,
-    src: "https://www.nirvanayogaschoolindia.com/img/gallery/home_slider/15.webp",
+    src: "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=800&auto=format&fit=crop&q=80",
     alt: "4-sharing dorm accommodation",
     title: "Spacious Dorm Accommodation",
     category: "campus",
   },
   {
     id: 16,
-    src: "https://www.nirvanayogaschoolindia.com/img/gallery/home_slider/16.webp",
+    src: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800&auto=format&fit=crop&q=80",
     alt: "Yoga philosophy class",
     title: "Yoga Philosophy & Satsang",
     category: "practice",
   },
   {
     id: 17,
-    src: "https://www.nirvanayogaschoolindia.com/img/gallery/home_slider/17.webp",
+    src: "https://images.unsplash.com/photo-1531545514256-b1400bc00f31?w=800&auto=format&fit=crop&q=80",
     alt: "Certification ceremony of yoga teacher training course",
     title: "Graduation Ceremony",
     category: "life",
   },
   {
     id: 18,
-    src: "https://www.nirvanayogaschoolindia.com/img/gallery/home_slider/18.webp",
+    src: "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?w=800&auto=format&fit=crop&q=80",
     alt: "Outdoor yoga philosophy class",
     title: "Outdoor Philosophy Discussion",
     category: "practice",
   },
   {
     id: 19,
-    src: "https://www.nirvanayogaschoolindia.com/img/gallery/home_slider/19.webp",
+    src: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&auto=format&fit=crop&q=80",
     alt: "Candle light dinner at Nirvana yoga school",
     title: "Special Candlelight Dinner",
     category: "campus",
   },
   {
     id: 20,
-    src: "https://www.nirvanayogaschoolindia.com/img/gallery/home_slider/20.webp",
+    src: "https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?w=800&auto=format&fit=crop&q=80",
     alt: "Ganga beach yoga",
     title: "Yoga by the River Ganges",
     category: "practice",
   },
   {
     id: 21,
-    src: "https://www.nirvanayogaschoolindia.com/img/gallery/home_slider/21.webp",
+    src: "https://images.unsplash.com/photo-1533777857889-4be7c70b33f7?w=800&auto=format&fit=crop&q=80",
     alt: "Dining hall of Nirvana yoga school, Rishikesh",
     title: "Community Dining Hall",
     category: "campus",
   },
   {
     id: 22,
-    src: "https://www.nirvanayogaschoolindia.com/img/gallery/home_slider/22.webp",
+    src: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&auto=format&fit=crop&q=80",
     alt: "Certification ceremony of 300-hour yoga teacher training",
     title: "Graduation Celebration",
     category: "life",
   },
   {
     id: 23,
-    src: "https://www.nirvanayogaschoolindia.com/img/gallery/home_slider/23.webp",
+    src: "https://images.unsplash.com/photo-1512438248247-f0f2a5a8b7f0?w=800&auto=format&fit=crop&q=80",
     alt: "Yoga Nidra session",
     title: "Yoga Nidra & Relaxation",
     category: "practice",
   },
   {
     id: 24,
-    src: "https://www.nirvanayogaschoolindia.com/img/gallery/home_slider/24.webp",
+    src: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800&auto=format&fit=crop&q=80",
     alt: "Ashtanga Vinyasa yoga practice session",
     title: "Ashtanga Vinyasa Flow",
     category: "practice",
   },
   {
     id: 25,
-    src: "https://www.nirvanayogaschoolindia.com/img/gallery/home_slider/25.webp",
+    src: "https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=800&auto=format&fit=crop&q=80",
     alt: "2-sharing balcony room accommodation",
     title: "Shared Room with Balcony",
     category: "campus",
   },
   {
     id: 26,
-    src: "https://www.nirvanayogaschoolindia.com/img/gallery/home_slider/26.webp",
+    src: "https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=800&auto=format&fit=crop&q=80",
     alt: "Students of Nirvana yoga school, India",
     title: "Global Yogic Community",
     category: "life",
   },
   {
     id: 27,
-    src: "https://www.nirvanayogaschoolindia.com/img/gallery/home_slider/27.webp",
+    src: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&auto=format&fit=crop&q=80",
     alt: "Students of Nirvana yoga school, Rishikesh",
     title: "Lifetime Connections",
     category: "life",
   },
   {
     id: 28,
-    src: "https://www.nirvanayogaschoolindia.com/img/gallery/home_slider/28.webp",
+    src: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800&auto=format&fit=crop&q=80",
     alt: "Yoga anatomy class",
     title: "Functional Yoga Anatomy",
     category: "practice",
@@ -292,7 +292,7 @@ export default function GallerySection() {
         nextVisible[slotIndex] = randomPoolItem;
         return nextVisible;
       });
-    }, 3500); // Transition every 3.5 seconds
+    }, 2500); // Transition every 2.5 seconds
 
     return () => clearInterval(interval);
   }, [filteredItems, visibleItems.length, prefersReduced]);
@@ -344,8 +344,9 @@ export default function GallerySection() {
                   key={category.id}
                   type="button"
                   onClick={() => setSelectedCategory(category.id)}
-                  className={`type-ui relative px-4 py-2 font-medium transition-colors duration-300 focus-visible:outline-none ${isActive ? "text-primary" : "text-muted hover:text-ink"
-                    }`}
+                  className={`type-ui relative px-4 py-2 font-medium transition-colors duration-300 focus-visible:outline-none ${
+                    isActive ? "text-primary" : "text-muted hover:text-ink"
+                  }`}
                 >
                   {category.label}
                   {isActive && (

@@ -23,7 +23,7 @@ const REVIEWS: Testimonial[] = [
     quote:
       "My experience at Nirvana Yoga School has been beyond what I ever expected. This place felt more like a family than just a school. Guru Dhruvji paid special attention to our comfort, making sure every student had a calming environment both in the classroom and in our rooms. The food was prepared with utmost care, ensuring it was sattvic and made with cold-pressed sunflower oil, which made the experience feel holistic.",
     avatar:
-      "https://images.unsplash.com/photo-1589156280159-27698a70f29e?w=150&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1607746882042-944635dfe10e?w=150&auto=format&fit=crop&q=80",
   },
   {
     name: "Ole Netek",
@@ -33,7 +33,7 @@ const REVIEWS: Testimonial[] = [
     quote:
       "Namaste! 🙏🏼 I’ve just completed the 200/500 hours Hatha Ashtanga Teacher training. The program was well organized & the school is very professional in terms of structure, responding & helping out. I am really thankful for the dedicated & passionate teachers at Nirvana! Overall I can really recommend this school to everyone! It's located in one of the quieter & greener parts of upper Tapovan.",
     avatar:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80",
   },
   {
     name: "Niall Phelan",
@@ -43,7 +43,7 @@ const REVIEWS: Testimonial[] = [
     quote:
       "Best investment I have ever made, both in terms of my own wellbeing and in that I will be able to impart on others through the teaching knowledge and skills. Guru Dhruvaji made the experience especially magical and informative.",
     avatar:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=150&auto=format&fit=crop&q=80",
   },
   {
     name: "Valentina Catenacci",
@@ -53,7 +53,7 @@ const REVIEWS: Testimonial[] = [
     quote:
       "Nirvana Yoga school is an amazing place where you will learn so much more than what they state in their program! An amazing place to make meaningful connections and grow as a person. Highly recommended!",
     avatar:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80",
   },
   // Tripadvisor
   {
@@ -64,7 +64,7 @@ const REVIEWS: Testimonial[] = [
     quote:
       "Once-in-a-lifetime Experience. I feel incredibly fortunate to have completed my 200-hour Yoga Teacher Training at Nirvana Yoga School. From the start, the professionalism, expertise, and unwavering support of the teachers truly stood out. Each instructor brought a deep understanding of yoga, and their guidance was invaluable throughout the course.",
     avatar:
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1554151228-14d9def656e4?w=150&auto=format&fit=crop&q=80",
   },
   {
     name: "Beatrice Ani-Asamoah",
@@ -74,7 +74,7 @@ const REVIEWS: Testimonial[] = [
     quote:
       "Incredible & Life Changing Experience. Nirvana Yoga School was an incredible experience for me, more than I ever imagined it would be. I spent a month in the 200 TTC focusing on yoga Nidra (and also Hatha, Philosophy, and more). It was my first time both in India and doing a TTC and I felt completely supported. The management and teachers are wonderful, patient, and very experienced.",
     avatar:
-      "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=150&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=150&auto=format&fit=crop&q=80",
   },
   {
     name: "Eve Lesage",
@@ -84,7 +84,7 @@ const REVIEWS: Testimonial[] = [
     quote:
       "Very grateful for this training. I recently completed 300 hour Yoga Teacher Training at Nirvana, and it was an incredible journey. The instructors were so supportive, and truly passionate about yoga. I look up to them not only for their expertise but also for their genuine care in guiding us us through the journey.",
     avatar:
-      "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=150&auto=format&fit=crop&q=80",
   },
   {
     name: "Agathe De Vargas",
@@ -94,7 +94,7 @@ const REVIEWS: Testimonial[] = [
     quote:
       "Je souhaite prendre le temps de détailler mon avis sur Nirvana. Les professeurs sont de grande qualité, à l'écoute et enseignent le yoga traditionnellement. Les shalas sont grands et lumineux, et le bâtiment est calme, situé à la fin de Tapovan. La nourriture est saine et délicieuse.",
     avatar:
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80",
   },
   // Trustpilot
   {
@@ -105,7 +105,7 @@ const REVIEWS: Testimonial[] = [
     quote:
       "I am so lucky and grateful to have been able to learn at such an incredible yoga school. The combination courses is what truly caught my eye at Nirvana and then everything that followed was just magical. The rooms, classes, and especially the kitchen staff for feeding us such nutritional meals. Can't wait to be back!",
     avatar:
-      "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80",
   },
   {
     name: "Laetitia Haziza",
@@ -115,7 +115,7 @@ const REVIEWS: Testimonial[] = [
     quote:
       "I had a great time at Nirvana school that I will never, never forget! The teachers are very professional and sweet. The Guru is so generous and I learned so much there. Be ready to be disciplined, ready to learn, and ready for a transformative experience!",
     avatar:
-      "https://images.unsplash.com/photo-1544717305-2782549b5136?w=150&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
   },
   {
     name: "Swati Snigdha",
@@ -125,7 +125,7 @@ const REVIEWS: Testimonial[] = [
     quote:
       "Joining Nirvana Yoga School has been nothing short of life-changing. The 500-hour teacher training pushed me out of my comfort zone while helping me connect deeper with myself physically, mentally, and spiritually. The teachers were super supportive, blending traditional yoga practices with real-world insights.",
     avatar:
-      "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?w=150&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1548142813-c348350df52b?w=150&auto=format&fit=crop&q=80",
   },
   {
     name: "Corinne Germann",
@@ -135,7 +135,7 @@ const REVIEWS: Testimonial[] = [
     quote:
       "Im April 2025 war ich hier für das 200h Kundalini TTC. Eine Schule, die sich mit Herz für das Weitergeben des Wissens einsetzt. Lehrer:innen, die mit Elan und hoher Professionalität Erfahrungen weitergeben. Räume, in denen du dich wohlzustimmen, und ein traditionelles Kundalini-Yoga, das den Stamm und die Lineage aufzeigt.",
     avatar:
-      "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=150&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1544717305-2782549b5136?w=150&auto=format&fit=crop&q=80",
   },
 ];
 
@@ -186,21 +186,23 @@ function TestimonialCard({
 }) {
   return (
     <figure
-      className={`flex flex-col justify-between bg-white rounded-[24px] p-5 sm:p-6 shadow-card border w-[360px] sm:w-[420px] h-[340px] shrink-0 relative overflow-hidden select-none ${platformId === "Google"
+      className={`flex flex-col justify-between bg-white rounded-[24px] p-5 sm:p-6 shadow-card border w-[360px] sm:w-[420px] h-[340px] shrink-0 relative overflow-hidden select-none ${
+        platformId === "Google"
           ? "border-primary/10 bg-linear-to-br from-white via-white to-sand/20"
           : platformId === "Tripadvisor"
             ? "border-secondary/10 bg-linear-to-br from-white via-white to-[#f0f6f6]/25"
             : "border-emerald-500/10 bg-linear-to-br from-white via-white to-[#f2f6f1]/25"
-        }`}
+      }`}
     >
       {/* Decorative quote mark */}
       <span
-        className={`absolute top-2 right-4 font-serif text-7xl select-none pointer-events-none ${platformId === "Google"
+        className={`absolute top-2 right-4 font-serif text-7xl select-none pointer-events-none ${
+          platformId === "Google"
             ? "text-primary/5"
             : platformId === "Tripadvisor"
               ? "text-secondary/5"
               : "text-emerald-500/5"
-          }`}
+        }`}
         aria-hidden="true"
       >
         “
@@ -218,12 +220,13 @@ function TestimonialCard({
               <Star
                 key={starIdx}
                 size={11}
-                className={`${platformId === "Google"
+                className={`${
+                  platformId === "Google"
                     ? "text-[#facc15] fill-[#facc15]"
                     : platformId === "Tripadvisor"
                       ? "text-emerald-500 fill-emerald-500"
                       : "text-[#00a568] fill-[#00a568]"
-                  } shrink-0`}
+                } shrink-0`}
               />
             ))}
           </div>
@@ -232,12 +235,13 @@ function TestimonialCard({
 
         {/* Quote Text */}
         <blockquote
-          className={`font-serif italic text-[12px] sm:text-[13px] md:text-[14px] text-ink/80 leading-relaxed text-left pl-3 border-l-2 ${platformId === "Google"
+          className={`font-serif italic text-[12px] sm:text-[13px] md:text-[14px] text-ink/80 leading-relaxed text-left pl-3 border-l-2 ${
+            platformId === "Google"
               ? "border-primary/20"
               : platformId === "Tripadvisor"
                 ? "border-secondary/20"
                 : "border-emerald-500/20"
-            }`}
+          }`}
         >
           &ldquo;{r.quote}&rdquo;
         </blockquote>
@@ -246,12 +250,13 @@ function TestimonialCard({
       {/* Author layout */}
       <figcaption className="pt-3 border-t border-ink/5 flex items-center gap-3.5">
         <div
-          className={`h-10 w-10 rounded-full overflow-hidden shrink-0 border relative bg-sand/80 shadow-2xs ${platformId === "Google"
+          className={`h-10 w-10 rounded-full overflow-hidden shrink-0 border relative bg-sand/80 shadow-2xs ${
+            platformId === "Google"
               ? "border-primary/10 ring-2 ring-primary/5"
               : platformId === "Tripadvisor"
                 ? "border-secondary/10 ring-2 ring-secondary/5"
                 : "border-emerald-500/10 ring-2 ring-emerald-500/5"
-            }`}
+          }`}
         >
           <Image
             src={r.avatar}

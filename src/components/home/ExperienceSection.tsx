@@ -13,28 +13,28 @@ const FEATURES: Feature[] = [
     description:
       "Three nourishing vegetarian meals daily, prepared with Ayurvedic balance and cold-pressed oils.",
     image:
-      "https://images.unsplash.com/photo-1505253758473-96b7015fcd40?w=1200&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=1200&auto=format&fit=crop&q=80",
   },
   {
     title: "Riverside Ashram",
     description:
       "A serene residence in upper Tapovan, footsteps from the Ganga and the Himalayan foothills.",
     image:
-      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&auto=format&fit=crop&q=80",
   },
   {
     title: "Daily Kirtan & Aarti",
     description:
       "Begin and end your days in devotional song, chanting, and the ancient Ganga aarti ceremony.",
     image:
-      "https://images.unsplash.com/photo-1532798442725-41036acc7489?w=1200&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1561336313-0bd5e0b27ec8?w=1200&auto=format&fit=crop&q=80",
   },
   {
     title: "Sacred Excursions",
     description:
       "Sunday visits to temples, waterfalls, sound healing sessions, and acro-yoga on the riverbank.",
     image:
-      "https://images.unsplash.com/photo-1591291621164-2c6367723315?w=1200&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1200&auto=format&fit=crop&q=80",
   },
 ];
 

@@ -15,7 +15,8 @@ const COURSES: (CourseCardProps & { highlights: string[] })[] = [
     level: "Beginner to Intermediate",
     certification: "RYT-200, Yoga Alliance",
     fee: "From 649 USD",
-    image: `${SITE}/img/service-1.webp`,
+    image:
+      "https://images.unsplash.com/photo-1599447421416-3414500d18a5?w=800&auto=format&fit=crop&q=80",
     certBadge: `${SITE}/img/ryt200.webp`,
     href: `${SITE}/200-hour-yoga-teacher-training-in-rishikesh-india`,
     highlights: [
@@ -31,7 +32,8 @@ const COURSES: (CourseCardProps & { highlights: string[] })[] = [
     level: "Beginner to Intermediate",
     certification: "RYT-200, Yoga Alliance",
     fee: "From 649 USD",
-    image: `${SITE}/img/auv.webp`,
+    image:
+      "https://images.unsplash.com/photo-1612817288484-6f916006741a?w=800&auto=format&fit=crop&q=80",
     certBadge: `${SITE}/img/ryt200.webp`,
     href: `${SITE}/200-hour-ayurveda-yoga-teacher-training-in-rishikesh-india`,
     highlights: [
@@ -47,7 +49,8 @@ const COURSES: (CourseCardProps & { highlights: string[] })[] = [
     level: "Beginner to Intermediate",
     certification: "RYT-200, Yoga Alliance",
     fee: "From 649 USD",
-    image: `${SITE}/img/med.webp`,
+    image:
+      "https://images.unsplash.com/photo-1528319725582-ddc096101511?w=800&auto=format&fit=crop&q=80",
     certBadge: `${SITE}/img/ryt200.webp`,
     href: `${SITE}/200-hour-meditation-teacher-training-in-rishikesh-india`,
     highlights: [
@@ -63,7 +66,8 @@ const COURSES: (CourseCardProps & { highlights: string[] })[] = [
     level: "Beginner to Intermediate",
     certification: "RYT-200, Yoga Alliance",
     fee: "From 649 USD",
-    image: `${SITE}/img/service-4.webp`,
+    image:
+      "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800&auto=format&fit=crop&q=80",
     certBadge: `${SITE}/img/ryt200.webp`,
     href: `${SITE}/200-hour-kundalini-yoga-teacher-training-in-rishikesh-india`,
     highlights: [
@@ -79,7 +83,8 @@ const COURSES: (CourseCardProps & { highlights: string[] })[] = [
     level: "Intermediate to Advanced",
     certification: "RYT-300, Yoga Alliance",
     fee: "From 899 USD",
-    image: `${SITE}/img/service-2.webp`,
+    image:
+      "https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?w=800&auto=format&fit=crop&q=80",
     certBadge: `${SITE}/img/ryt300.webp`,
     href: `${SITE}/300-hour-yoga-teacher-training-in-rishikesh-india`,
     highlights: [
@@ -95,7 +100,8 @@ const COURSES: (CourseCardProps & { highlights: string[] })[] = [
     level: "Beginner to Advanced",
     certification: "RYT-500, Yoga Alliance",
     fee: "From 1449 USD",
-    image: `${SITE}/img/service-3.webp`,
+    image:
+      "https://images.unsplash.com/photo-1508672019048-805c876b67e2?w=800&auto=format&fit=crop&q=80",
     certBadge: `${SITE}/img/ryt500.webp`,
     href: `${SITE}/500-hour-yoga-teacher-training-in-rishikesh-india`,
     highlights: [

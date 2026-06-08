@@ -2,7 +2,6 @@
 
 import { motion, useReducedMotion, type Variants } from "framer-motion";
 import Image from "next/image";
-import { banner_1, banner_2, banner_3 } from "@/assets";
 import { Button, Container, Pill } from "@/components/ui";
 import { BadgeStar, Check } from "@/icons";
 import { EASE_OUT, reducedTransition, VIEWPORT_ONCE } from "@/lib/motion";
@@ -140,11 +139,11 @@ export default function WelcomeSection() {
                       prefersReduced
                         ? {}
                         : {
-                          repeat: Infinity,
-                          repeatType: "reverse",
-                          duration: 3,
-                          ease: "easeInOut",
-                        }
+                            repeat: Infinity,
+                            repeatType: "reverse",
+                            duration: 3,
+                            ease: "easeInOut",
+                          }
                     }
                     style={{
                       transformStyle: "preserve-3d",
@@ -153,7 +152,7 @@ export default function WelcomeSection() {
                     className="aspect-[4/5] relative rounded-3xl overflow-hidden shadow-card border border-ink/5 group cursor-default"
                   >
                     <Image
-                      src={banner_3}
+                      src="https://images.unsplash.com/photo-1603988363607-e1e4a66962c6?w=800&auto=format&fit=crop&q=80"
                       alt="Yoga practice at Nirvana Yoga School"
                       fill
                       sizes="(max-width: 1024px) 50vw, 320px"
@@ -190,12 +189,12 @@ export default function WelcomeSection() {
                       prefersReduced
                         ? {}
                         : {
-                          repeat: Infinity,
-                          repeatType: "reverse",
-                          duration: 2.6,
-                          ease: "easeInOut",
-                          delay: 0.4,
-                        }
+                            repeat: Infinity,
+                            repeatType: "reverse",
+                            duration: 2.6,
+                            ease: "easeInOut",
+                            delay: 0.4,
+                          }
                     }
                     style={{
                       transformStyle: "preserve-3d",
@@ -259,12 +258,12 @@ export default function WelcomeSection() {
                       prefersReduced
                         ? {}
                         : {
-                          repeat: Infinity,
-                          repeatType: "reverse",
-                          duration: 2.8,
-                          ease: "easeInOut",
-                          delay: 0.2,
-                        }
+                            repeat: Infinity,
+                            repeatType: "reverse",
+                            duration: 2.8,
+                            ease: "easeInOut",
+                            delay: 0.2,
+                          }
                     }
                     style={{
                       transformStyle: "preserve-3d",
@@ -273,7 +272,7 @@ export default function WelcomeSection() {
                     className="aspect-square relative rounded-3xl overflow-hidden shadow-card border border-ink/5 group cursor-default"
                   >
                     <Image
-                      src={banner_2}
+                      src="https://images.unsplash.com/photo-1499209974431-9dddcece7f88?w=800&auto=format&fit=crop&q=80"
                       alt="Sunrise yoga by the Ganges"
                       fill
                       sizes="(max-width: 1024px) 50vw, 320px"
@@ -305,12 +304,12 @@ export default function WelcomeSection() {
                       prefersReduced
                         ? {}
                         : {
-                          repeat: Infinity,
-                          repeatType: "reverse",
-                          duration: 3.2,
-                          ease: "easeInOut",
-                          delay: 0.6,
-                        }
+                            repeat: Infinity,
+                            repeatType: "reverse",
+                            duration: 3.2,
+                            ease: "easeInOut",
+                            delay: 0.6,
+                          }
                     }
                     style={{
                       transformStyle: "preserve-3d",
@@ -319,7 +318,7 @@ export default function WelcomeSection() {
                     className="aspect-[4/5] relative rounded-3xl overflow-hidden shadow-card border border-ink/5 group cursor-default"
                   >
                     <Image
-                      src={banner_1}
+                      src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800&auto=format&fit=crop&q=80"
                       alt="Meditation session at Nirvana Yoga School"
                       fill
                       sizes="(max-width: 1024px) 50vw, 320px"

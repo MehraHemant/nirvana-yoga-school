@@ -19,7 +19,8 @@ const TEACHERS: Teacher[] = [
   {
     name: "Jitendra Singh Bhandari",
     experienceSummary: "20+ Years Experience",
-    image: "https://www.nirvanayogaschoolindia.com/img/teacher/jitendra1.webp",
+    image:
+      "https://images.unsplash.com/photo-1614283233556-f35b0c801ef1?w=600&auto=format&fit=crop&q=80",
     bio: "Born in the Uttarakhand Himalayas, Jitendra Singh Bhandari started his yoga journey with Sivananda Ashram, Rishikesh, in 2000. After practicing in the ashram, he completed the Yoga and Vedanta Course there, and later obtained a Master's degree in Yogic Science.",
     education: [
       "Yoga & Vedanta Course from Sivananda Ashram, Rishikesh",
@@ -35,7 +36,7 @@ const TEACHERS: Teacher[] = [
     name: "Jeet Thapliyal",
     experienceSummary: "9 Years Experience",
     image:
-      "https://www.nirvanayogaschoolindia.com/img/teacher/jeet-thapliyal.webp",
+      "https://images.unsplash.com/photo-1619380061814-58f03707f082?w=600&auto=format&fit=crop&q=80",
     bio: "At the tender age of twelve, Jeet began his journey into the depths of Yoga, seeking solace for his partially deaf ears and hyper-acidic body. Through dedicated practice, his hearing mended, and his body found balance once more, marking a transformative progress in his life. Now, with over a decade of personal practice and formal teaching, Jeet teaches students Vinyasa Flow, Hatha Yoga, and Mantra Chanting.",
     education: [
       "Masters in English Literature",
@@ -59,7 +60,8 @@ const TEACHERS: Teacher[] = [
   {
     name: "Bhawana Bulatia",
     experienceSummary: "12+ Years Experience",
-    image: "https://www.nirvanayogaschoolindia.com/img/teacher/bhawana.webp",
+    image:
+      "https://images.unsplash.com/photo-1589156280159-27698a70f29e?w=600&auto=format&fit=crop&q=80",
     bio: "Bhawana was born and brought up in Nainital (Uttarakhand), and was associated with the yogic lifestyle from childhood due to family beliefs. She has lived and worked all around the world, experiencing that the true meaning of life lies in having a spiritual connection and growth.",
     education: [
       "Bachelor of Science",
@@ -81,7 +83,8 @@ const TEACHERS: Teacher[] = [
   {
     name: "Amit Rana",
     experienceSummary: "12+ Years Experience",
-    image: "https://www.nirvanayogaschoolindia.com/img/teacher/amit.webp",
+    image:
+      "https://images.unsplash.com/photo-1513956589380-bad6acb9b9d4?w=600&auto=format&fit=crop&q=80",
     bio: "An individual who has a great passion for spreading positivity and wellness through the art of yoga. With a warm and charming personality, he creates a nurturing space where students feel not just heard, but truly understood. For him, it's about empowering individuals to cultivate a deeper connection between mind, body, and soul.",
     education: [
       "Masters in Yoga from University of Sanskrit Vishwa Vidyalaya, Haridwar",
@@ -104,7 +107,8 @@ const TEACHERS: Teacher[] = [
   {
     name: "Kanna",
     experienceSummary: "10+ Years Experience",
-    image: "https://www.nirvanayogaschoolindia.com/img/teacher/kanna.webp",
+    image:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&auto=format&fit=crop&q=80",
     bio: "Kanna is a devoted teacher, a certified Alternative Medicine Practitioner, a trained Homeopath, a licensed Acupuncturist, a skilled Marma Therapist, and an Ayurvedic Lifestyle Consultant. He is also trained in the ancient South Indian martial art of Kalaripayattu and Mudgar training.",
     education: [
       "E. Homeopath",
@@ -125,7 +129,8 @@ const TEACHERS: Teacher[] = [
   {
     name: "Om Prakash",
     experienceSummary: "10+ Years Experience",
-    image: "https://www.nirvanayogaschoolindia.com/img/teacher/omprakash1.webp",
+    image:
+      "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=600&auto=format&fit=crop&q=80",
     bio: "Om Prakash is a yoga educator born and raised in Rishikesh, India. With over 10 years of teaching experience, he specializes in Applied Yoga Anatomy, Biomechanics, and Functional Movement, helping practitioners and teachers understand the mechanics of the body within yoga practice.",
     education: [
       "500-Hour Yoga Teacher Training",
@@ -150,7 +155,8 @@ const TEACHERS: Teacher[] = [
   {
     name: "Naveen Mingwal",
     experienceSummary: "8+ Years Experience",
-    image: "https://www.nirvanayogaschoolindia.com/img/teacher/naveen1.webp",
+    image:
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600&auto=format&fit=crop&q=80",
     bio: "Dedicated and passionate Yoga Teacher Trainer with a wealth of experience in the field. With a strong background in yogic science, he has been actively involved in teaching yoga teachers since 2015. He has trained over 1,000 teachers in India and abroad, with a significant expertise in Ashtanga and Hatha Yoga.",
     education: [
       "500-RYT Certified Yoga Teacher",
@@ -169,7 +175,8 @@ const TEACHERS: Teacher[] = [
   {
     name: "Yogi Mahesh ji",
     experienceSummary: "12+ Years Experience",
-    image: "https://www.nirvanayogaschoolindia.com/img/teacher/mannji1.webp",
+    image:
+      "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=600&auto=format&fit=crop&q=80",
     bio: "Yogi Mahesh ji is a very calm and humble yoga practitioner who is always ready to help others in whatever way he can, be it guiding or counseling, teaching the techniques of pranayama and meditation or teaching the therapeutic effects of Yoga. His main intention is to share with others the real essence of Yoga by which we can make the best use of this human form of life.",
     education: [
       "E-RYT 500 registered with Yoga Alliance, USA",
@@ -190,7 +197,8 @@ const TEACHERS: Teacher[] = [
   {
     name: "Dr. Akshay Vashisht",
     experienceSummary: "7+ Years Experience",
-    image: "https://www.nirvanayogaschoolindia.com/img/teacher/akshay.webp",
+    image:
+      "https://images.unsplash.com/photo-1566753323558-f4e0952af115?w=600&auto=format&fit=crop&q=80",
     bio: "Dr. Akshay Vashisht is a young and dynamic teacher. After continuously experiencing, practicing, and gaining Yogic knowledge from his Guru, he finally started his teaching in yoga in 2016. He loves teaching and sharing the deeper aspects he has gone through in his life in subjects such as Pranayama, Meditation, Yoga Philosophy, and Yoga Therapy.",
     education: [
       "PhD from the University of Patanjali",
@@ -214,7 +222,8 @@ const TEACHERS: Teacher[] = [
   {
     name: "Meghna Banerjee",
     experienceSummary: "7+ Years Experience",
-    image: "https://www.nirvanayogaschoolindia.com/img/teacher/meghna1.webp",
+    image:
+      "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&auto=format&fit=crop&q=80",
     bio: "Meghna Banerjee is a yoga teacher, habit coach, and psychologist. Over the years she has gained 6+ years of experience in the health and well-being field. She has worked on psychiatric cases in rehabilitation centers and has conducted corporate yoga, meditation, and mental health sessions.",
     education: [
       "B.A. Applied Psychology from Amity University",
@@ -238,7 +247,8 @@ const TEACHERS: Teacher[] = [
   {
     name: "Shubham Tadiyal",
     experienceSummary: "7+ Years Experience",
-    image: "https://www.nirvanayogaschoolindia.com/img/teacher/shubham.webp",
+    image:
+      "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=600&auto=format&fit=crop&q=80",
     bio: "As a highly qualified and energetic teacher with a keen eye for detail, he has extensive experience working with individuals of all ages. He takes great care in planning his classes, incorporating intention, asana, pranayama, and meditation to ensure participants feel reconnected with their inner energy.",
     education: [
       "Certified as a Panchakarma Technician",
@@ -261,7 +271,8 @@ const TEACHERS: Teacher[] = [
   {
     name: "Ajay Pandey",
     experienceSummary: "8+ Years Experience",
-    image: "https://www.nirvanayogaschoolindia.com/img/teacher/ajay.webp",
+    image:
+      "https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=600&auto=format&fit=crop&q=80",
     bio: "Ajay Pandey is a dedicated and experienced yoga teacher with over 8 years of continuous teaching experience, deeply rooted in traditional yogic practices and modern alignment-based methodologies. He emphasizes correct alignment, safe adjustments, and intelligent use of props.",
     education: [
       "Master’s Degree in Yogic Science",
@@ -342,7 +353,7 @@ export default function TeachersSection() {
         <div
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
-          className="hidden lg:grid grid-cols-[1fr_2.2fr] gap-8 items-start lg:h-[480px]"
+          className="hidden lg:grid grid-cols-[1fr_2.2fr] gap-8 items-start lg:min-h-[480px]"
         >
           {/* List Selector (Left) */}
           <div className="flex flex-col gap-2.5 bg-white/50 p-3.5 pr-2.5 rounded-2xl border border-ink/5 lg:h-[480px] overflow-y-auto scrollbar-thin-primary shrink-0 w-full lg:max-w-md">
@@ -356,10 +367,11 @@ export default function TeachersSection() {
                   key={`spotlight-btn-${teacher.name}`}
                   onClick={() => setSelectedIdx(index)}
                   type="button"
-                  className={`relative w-full p-4 rounded-xl flex items-center gap-4.5 transition-all duration-300 border text-left cursor-pointer ${isSelected
-                    ? "text-white border-secondary shadow-sm scale-102"
-                    : "bg-white text-ink border-ink/5 hover:border-secondary/20 hover:scale-[1.01]"
-                    }`}
+                  className={`relative w-full p-4 rounded-xl flex items-center gap-4.5 transition-all duration-300 border text-left cursor-pointer ${
+                    isSelected
+                      ? "text-white border-secondary shadow-sm scale-102"
+                      : "bg-white text-ink border-ink/5 hover:border-secondary/20 hover:scale-[1.01]"
+                  }`}
                   style={{
                     transform:
                       isSelected && !prefersReducedMotion
@@ -388,8 +400,9 @@ export default function TeachersSection() {
                       {teacher.name}
                     </h4>
                     <p
-                      className={`text-[10px] sm:text-[11px] font-sans uppercase font-extrabold tracking-wider mt-1.5 truncate ${isSelected ? "text-white/80" : "text-secondary"
-                        }`}
+                      className={`text-[10px] sm:text-[11px] font-sans uppercase font-extrabold tracking-wider mt-1.5 truncate ${
+                        isSelected ? "text-white/80" : "text-secondary"
+                      }`}
                     >
                       {teacher.experienceSummary}
                     </p>
@@ -400,9 +413,9 @@ export default function TeachersSection() {
           </div>
 
           {/* Tabular Spotlight Details Card (Right) */}
-          <div className="bg-white rounded-3xl p-6 md:p-8 shadow-card border border-ink/5 hover:border-primary/10 transition-colors duration-500 w-full min-w-0 lg:h-[480px] flex flex-col lg:flex-row gap-6 md:gap-8">
+          <div className="bg-white rounded-3xl p-6 md:p-8 shadow-card border border-ink/5 hover:border-primary/10 transition-colors duration-500 w-full min-w-0 lg:min-h-[480px] flex flex-col lg:flex-row gap-6 md:gap-8">
             {/* Left side inside details card: Image */}
-            <div className="relative w-full lg:w-[290px] aspect-[4/5] rounded-2xl overflow-hidden bg-sand border border-ink/5 shrink-0 shadow-2xs">
+            <div className="relative w-full lg:w-[220px] aspect-[4/5] rounded-2xl overflow-hidden bg-sand border border-ink/5 shrink-0 shadow-2xs">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={selectedIdx}
@@ -416,7 +429,7 @@ export default function TeachersSection() {
                     src={TEACHERS[selectedIdx].image}
                     alt={TEACHERS[selectedIdx].name}
                     fill
-                    sizes="(max-width: 1024px) 350px, 290px"
+                    sizes="(max-width: 1024px) 350px, 220px"
                     className="object-cover"
                     priority
                   />
@@ -424,7 +437,7 @@ export default function TeachersSection() {
               </AnimatePresence>
             </div>
 
-            {/* Right side inside details card: Scrollable details */}
+            {/* Right side inside details card: Details & Biography */}
             <div className="flex-1 min-w-0">
               <AnimatePresence mode="wait">
                 <motion.div
@@ -433,30 +446,33 @@ export default function TeachersSection() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -15 }}
                   transition={{ duration: 0.3, ease: "easeOut" }}
-                  className="flex flex-col gap-6 text-left"
+                  className="w-full h-full flex flex-col justify-between text-left"
                 >
                   <div>
-                    <h3 className="font-serif text-2xl md:text-3xl font-bold text-ink leading-tight mb-4">
+                    <h3 className="font-serif text-xl md:text-2xl font-bold text-ink leading-tight">
                       {TEACHERS[selectedIdx].name}
                     </h3>
+                    <p className="text-[10px] font-sans uppercase font-extrabold tracking-wider text-secondary mt-1 mb-2.5">
+                      {TEACHERS[selectedIdx].experienceSummary}
+                    </p>
 
                     {/* Credentials Table */}
                     <div className="border border-ink/5 rounded-2xl overflow-hidden bg-sand/20">
-                      <div className="flex flex-col border-b border-ink/5 p-3.5">
-                        <span className="text-[10px] uppercase tracking-wider text-muted font-bold mb-1.5">
+                      <div className="flex flex-col border-b border-ink/5 p-2 md:p-2.5">
+                        <span className="text-[9px] uppercase tracking-wider text-muted font-bold mb-0.5">
                           Education
                         </span>
-                        <ul className="list-disc pl-4 text-xs text-ink font-medium space-y-1">
+                        <ul className="grid grid-cols-2 gap-x-6 gap-y-0.5 list-disc pl-4 text-[10px] md:text-[11px] text-ink font-medium">
                           {TEACHERS[selectedIdx].education.map((edu) => (
                             <li key={edu}>{edu}</li>
                           ))}
                         </ul>
                       </div>
-                      <div className="flex flex-col border-b border-ink/5 p-3.5">
-                        <span className="text-[10px] uppercase tracking-wider text-muted font-bold mb-1.5">
+                      <div className="flex flex-col border-b border-ink/5 p-2 md:p-2.5">
+                        <span className="text-[9px] uppercase tracking-wider text-muted font-bold mb-0.5">
                           Experience Details
                         </span>
-                        <ul className="list-disc pl-4 text-xs text-ink font-medium space-y-1">
+                        <ul className="list-disc pl-4 text-[10px] md:text-[11px] text-ink font-medium space-y-0.5">
                           {TEACHERS[selectedIdx].detailedExperience.map(
                             (exp) => (
                               <li key={exp}>{exp}</li>
@@ -464,15 +480,15 @@ export default function TeachersSection() {
                           )}
                         </ul>
                       </div>
-                      <div className="flex flex-col p-3.5">
-                        <span className="text-[10px] uppercase tracking-wider text-muted font-bold mb-2">
+                      <div className="flex flex-col p-2 md:p-2.5">
+                        <span className="text-[9px] uppercase tracking-wider text-muted font-bold mb-1">
                           Area of Expertise
                         </span>
-                        <div className="flex flex-wrap gap-1.5">
+                        <div className="flex flex-wrap gap-1">
                           {TEACHERS[selectedIdx].expertise.map((exp) => (
                             <span
                               key={exp}
-                              className="bg-primary/5 text-primary text-[9px] uppercase font-bold tracking-widest px-2.5 py-1 rounded-full border border-primary/10"
+                              className="bg-primary/5 text-primary text-[8px] uppercase font-bold tracking-widest px-2.5 py-0.5 rounded-full border border-primary/10"
                             >
                               {exp}
                             </span>
@@ -480,17 +496,17 @@ export default function TeachersSection() {
                         </div>
                       </div>
                     </div>
+                    <div className="border-t border-ink/5 mt-2.5 pt-1">
+                      <span className="text-[9px] uppercase tracking-wider text-muted font-bold block mb-1">
+                        Biography
+                      </span>
+                      <p className="text-xs text-muted leading-relaxed line-clamp-3">
+                        {TEACHERS[selectedIdx].bio}
+                      </p>
+                    </div>
                   </div>
 
                   {/* Biography */}
-                  {/* <div className="border-t border-ink/5 pt-4">
-                    <span className="text-[10px] uppercase tracking-wider text-muted font-bold block mb-2">
-                      Biography
-                    </span>
-                    <p className="type-body text-muted leading-relaxed">
-                      {TEACHERS[selectedIdx].bio}
-                    </p>
-                  </div> */}
                 </motion.div>
               </AnimatePresence>
             </div>
@@ -510,10 +526,11 @@ export default function TeachersSection() {
                 <button
                   onClick={() => setSelectedIdx(isOpen ? -1 : index)}
                   type="button"
-                  className={`w-full p-4 flex items-center justify-between text-left cursor-pointer transition-colors duration-300 ${isOpen
-                    ? "bg-secondary text-white border-b border-ink/5"
-                    : "bg-white text-ink"
-                    }`}
+                  className={`w-full p-4 flex items-center justify-between text-left cursor-pointer transition-colors duration-300 ${
+                    isOpen
+                      ? "bg-secondary text-white border-b border-ink/5"
+                      : "bg-white text-ink"
+                  }`}
                 >
                   <div className="flex items-center gap-4.5">
                     <div className="relative w-12 h-12 rounded-full overflow-hidden shrink-0 border border-ink/10 shadow-2xs">
@@ -532,8 +549,9 @@ export default function TeachersSection() {
                         {teacher.name}
                       </h4>
                       <p
-                        className={`text-[10px] sm:text-[11px] font-sans uppercase font-extrabold tracking-wider mt-1.5 truncate ${isOpen ? "text-white/80" : "text-secondary"
-                          }`}
+                        className={`text-[10px] sm:text-[11px] font-sans uppercase font-extrabold tracking-wider mt-1.5 truncate ${
+                          isOpen ? "text-white/80" : "text-secondary"
+                        }`}
                       >
                         {teacher.experienceSummary}
                       </p>
@@ -549,10 +567,11 @@ export default function TeachersSection() {
 
                 {/* Collapsible Content */}
                 <div
-                  className={`transition-all duration-500 ease-in-out overflow-hidden ${isOpen
-                    ? "max-h-[1600px] opacity-100 p-5 border-t border-ink/5"
-                    : "max-h-0 opacity-0 pointer-events-none"
-                    }`}
+                  className={`transition-all duration-500 ease-in-out overflow-hidden ${
+                    isOpen
+                      ? " opacity-100 p-5 border-t border-ink /5"
+                      : "max-h-0 opacity-0 pointer-events-none"
+                  }`}
                 >
                   <div className="flex flex-col gap-6">
                     {/* Portrait */}
@@ -573,7 +592,7 @@ export default function TeachersSection() {
                           <span className="text-[10px] uppercase tracking-wider text-muted font-bold mb-1.5">
                             Education
                           </span>
-                          <ul className="list-disc pl-4 text-xs text-ink font-medium space-y-1">
+                          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 list-disc pl-4 text-xs text-ink font-medium">
                             {teacher.education.map((edu) => (
                               <li key={edu}>{edu}</li>
                             ))}
@@ -611,7 +630,7 @@ export default function TeachersSection() {
                         <span className="text-[10px] uppercase tracking-wider text-muted font-bold block mb-1.5">
                           Biography
                         </span>
-                        <p className="type-body text-muted leading-relaxed text-sm">
+                        <p className="text-xs sm:text-sm text-muted leading-relaxed">
                           {teacher.bio}
                         </p>
                       </div>
