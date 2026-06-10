@@ -344,8 +344,9 @@ export default function GallerySection() {
                   key={category.id}
                   type="button"
                   onClick={() => setSelectedCategory(category.id)}
-                  className={`type-ui relative px-4 py-2 font-medium transition-colors duration-300 focus-visible:outline-none ${isActive ? "text-primary" : "text-muted hover:text-ink"
-                    }`}
+                  className={`type-ui relative px-4 py-2 font-medium transition-colors duration-300 focus-visible:outline-none ${
+                    isActive ? "text-primary" : "text-muted hover:text-ink"
+                  }`}
                 >
                   {category.label}
                   {isActive && (

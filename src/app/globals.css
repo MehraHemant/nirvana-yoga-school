@@ -4,11 +4,13 @@
 @theme {
   --color-primary: #a32432;
   --color-primary-dark: #7d1a25;
-  --color-secondary: #041417;
+  --color-secondary: #0e4956;
   --color-accent: #a6b5a2;
   --color-sand: #faf7f2;
   --color-ink: #1a1410;
   --color-muted: #6b5e57;
+  --color-light-gray: #f5f4f0;
+  --color-dark: #041417;
 
   /* Two-font system: Playfair (display) + Outfit (body/UI) */
   --font-serif: "Playfair Display", Georgia, serif;
@@ -656,8 +658,10 @@ body {
   .animate-fade-up,
   .animate-scroll-bob,
   .animate-float-subtle,
-  .hero-underline {
+  .hero-underline,
+  .animate-glow-primary {
     animation: none;
+    text-shadow: none;
     transition: none;
     transform: none;
     opacity: 1;
@@ -731,4 +735,35 @@ details[open] .accordion-icon {
   background-color: var(--color-primary-dark);
   border: 1.5px solid transparent;
   background-clip: padding-box;
+}
+
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+/* Premium course card transition: transition only styles, NEVER transform to keep 3D tilt reactive and instant */
+.course-card-transition {
+  transition-property:
+    border-color, box-shadow, background-color, outline-color, ring-color;
+  transition-duration: 300ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Infinite soft pulse text-glow shifting between primary brand maroon and warm gold */
+@keyframes text-glow-pulse {
+  0%,
+  100% {
+    text-shadow:
+      0 0 10px rgb(163 36 50 / 0.4),
+      0 0 3px rgb(163 36 50 / 0.15);
+  }
+  50% {
+    text-shadow:
+      0 0 14px rgb(212 175 55 / 0.55),
+      0 0 5px rgb(212 175 55 / 0.25);
+  }
+}
+
+.animate-glow-primary {
+  animation: text-glow-pulse 4s ease-in-out infinite;
 }

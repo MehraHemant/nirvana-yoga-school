@@ -359,7 +359,7 @@ export default function WelcomeSection() {
             >
               <h2 className="font-serif font-medium text-[1.75rem] leading-[1.12] sm:text-3xl md:text-4xl lg:text-5xl sm:leading-[1.1] text-ink text-balance tracking-tight">
                 Welcome to Nirvana — a{" "}
-                <span className="text-primary italic font-normal">
+                <span className="text-primary italic font-normal animate-glow-primary">
                   sanctuary for the soul
                 </span>{" "}
                 in Rishikesh

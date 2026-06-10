@@ -153,7 +153,7 @@ export default function VideoSectionPlayer({
     <section
       id="video"
       ref={sectionRef}
-      className="relative w-full overflow-hidden bg-paper py-12 sm:py-14 lg:py-16"
+      className="relative w-full overflow-hidden bg-light-gray py-12 sm:py-14 lg:py-16"
     >
       <Container size="2xl" className="relative min-w-0">
         <motion.div

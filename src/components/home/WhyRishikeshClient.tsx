@@ -159,8 +159,10 @@ export default function WhyRishikeshClient({
           <Pill>The Yoga Capital of the World</Pill>
           <h2 className="font-serif font-medium text-[1.625rem] leading-[1.12] sm:text-3xl md:text-4xl lg:text-[2.25rem] lg:leading-[1.1] text-ink mt-3 sm:mt-4 text-balance">
             Why learn yoga in{" "}
-            <span className="italic font-normal text-primary">Rishikesh</span> —
-            where earth, sky, and spirit meet
+            <span className="italic font-normal text-primary animate-glow-primary">
+              Rishikesh
+            </span>{" "}
+            — where earth, sky, and spirit meet
           </h2>
         </div>
 

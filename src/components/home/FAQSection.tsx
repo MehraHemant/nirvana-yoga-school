@@ -58,7 +58,7 @@ export default function FAQSection() {
   return (
     <section
       id="faq"
-      className="bg-paper py-12 sm:py-14 lg:py-16 overflow-hidden"
+      className="bg-light-gray py-12 sm:py-14 lg:py-16 overflow-hidden"
     >
       <Container size="lg">
         <SectionHeader

@@ -317,7 +317,7 @@ export default function TeachersSection() {
   return (
     <section
       id="teachers"
-      className="relative overflow-x-hidden bg-sand py-12 sm:py-14 lg:py-16 w-full"
+      className="relative overflow-x-hidden bg-light-gray py-12 sm:py-14 lg:py-16 w-full"
     >
       {/* Decorative background glows */}
       <div

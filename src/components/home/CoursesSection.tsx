@@ -129,7 +129,9 @@ export default function CoursesSection() {
             title={
               <>
                 Yoga Teacher Training in{" "}
-                <span className="text-primary italic">Rishikesh.</span>
+                <span className="text-primary italic animate-glow-primary">
+                  Rishikesh.
+                </span>
               </>
             }
             description="Beyond mere certifications — life-changing journeys into the heart of yoga. Yoga Alliance-accredited programs blending ancient wisdom with holistic guidance."
@@ -161,6 +163,7 @@ export default function CoursesSection() {
               <CourseCard
                 key={course.href}
                 {...course}
+                index={index}
                 revealDelay={index * 100}
                 className={staggerClass}
               />

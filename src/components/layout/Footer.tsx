@@ -62,7 +62,7 @@ const SCHOOL_LINKS = [
 
 export default function Footer() {
   return (
-    <footer className="bg-secondary text-white pt-10 pb-5 relative overflow-hidden border-t border-white/10">
+    <footer className="bg-dark text-white pt-10 pb-5 relative overflow-hidden border-t border-white/10">
       {/* Background Soft Glow / Radial highlights */}
       <div
         className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-white/5 blur-[120px] rounded-full pointer-events-none"
