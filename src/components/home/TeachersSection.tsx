@@ -319,16 +319,6 @@ export default function TeachersSection() {
       id="teachers"
       className="relative overflow-x-hidden bg-light-gray py-12 sm:py-14 lg:py-16 w-full"
     >
-      {/* Decorative background glows */}
-      <div
-        className="absolute -top-32 right-1/4 w-[500px] h-[500px] bg-primary/3 blur-[120px] rounded-full pointer-events-none"
-        aria-hidden="true"
-      />
-      <div
-        className="absolute bottom-0 left-1/4 w-[400px] h-[400px] bg-secondary/3 blur-[100px] rounded-full pointer-events-none"
-        aria-hidden="true"
-      />
-
       <Container size="2xl" className="w-full relative z-10">
         {/* Section Header */}
         <div className="w-full text-center mb-12 sm:mb-16 lg:mb-10">
@@ -337,7 +327,7 @@ export default function TeachersSection() {
             title={
               <>
                 Lineage Teachers,{" "}
-                <span className="italic font-normal text-accent font-serif">
+                <span className="font-normal text-muted font-serif">
                   Guided by Compassion
                 </span>
               </>
@@ -400,7 +390,7 @@ export default function TeachersSection() {
                       {teacher.name}
                     </h4>
                     <p
-                      className={`text-[10px] sm:text-[11px] font-sans uppercase font-extrabold tracking-wider mt-1.5 truncate ${
+                      className={`text-[10px] sm:text-[11px] font-sans uppercase font-semibold tracking-wider mt-1.5 truncate ${
                         isSelected ? "text-white/80" : "text-secondary"
                       }`}
                     >
@@ -528,7 +518,7 @@ export default function TeachersSection() {
                   type="button"
                   className={`w-full p-4 flex items-center justify-between text-left cursor-pointer transition-colors duration-300 ${
                     isOpen
-                      ? "bg-secondary text-white border-b border-ink/5"
+                      ? "bg-secondary/70 text-white border-b border-ink/5"
                       : "bg-white text-ink"
                   }`}
                 >
@@ -549,7 +539,7 @@ export default function TeachersSection() {
                         {teacher.name}
                       </h4>
                       <p
-                        className={`text-[10px] sm:text-[11px] font-sans uppercase font-extrabold tracking-wider mt-1.5 truncate ${
+                        className={`text-[10px] sm:text-[11px] font-sans uppercase font-normal tracking-wider mt-1.5 truncate ${
                           isOpen ? "text-white/80" : "text-secondary"
                         }`}
                       >

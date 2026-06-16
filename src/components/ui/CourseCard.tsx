@@ -193,12 +193,12 @@ export default function CourseCard({
           }}
         >
           {/* Eyebrow */}
-          <div className="type-eyebrow text-accent font-semibold tracking-widest text-secondary mb-1.5">
+          <div className="type-eyebrow text-secondary mb-1.5">
             {certShort(certification)} · YOGA ALLIANCE
           </div>
 
           {/* Title */}
-          <h3 className="font-serif text-lg sm:text-xl font-bold mt-1 mb-3 text-ink group-hover:text-primary transition-colors duration-300 line-clamp-2 leading-snug">
+          <h3 className="type-display-sm font-semibold mt-1 mb-3 text-ink group-hover:text-primary transition-colors duration-300 line-clamp-2 leading-snug">
             {title}
           </h3>
 

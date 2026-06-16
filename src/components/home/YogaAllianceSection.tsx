@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Button, Container, Pill } from "@/components/ui";
+import { Button, Container, Heading, Pill } from "@/components/ui";
 import { ArrowRight, YogaAllianceSeal } from "@/icons";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 
@@ -84,20 +84,20 @@ export default function YogaAllianceSection() {
               >
                 Yoga Alliance USA
               </Pill>
-              <span className="type-eyebrow text-accent tracking-widest text-[10px] sm:text-xs">
+              <span className="type-eyebrow text-accent">
                 Globally Accredited RYS
               </span>
             </div>
-            <h2 className="font-serif text-2xl sm:text-4xl lg:text-5xl font-medium leading-[1.1] text-sand">
+            <Heading as="h2" align="left" font="serif" size="h2" invert>
               Yoga Alliance Certification – Globally Recognized Yoga Training
-            </h2>
+            </Heading>
             <div className="flex items-center gap-4 pt-1">
               <YogaAllianceSeal size={56} className="text-accent shrink-0" />
               <div>
-                <p className="type-eyebrow text-accent tracking-wider mb-0.5 text-[9px] sm:text-[10px]">
+                <p className="type-eyebrow text-accent mb-0.5">
                   Certified Standards
                 </p>
-                <p className="type-ui text-sand font-medium text-xs sm:text-sm">
+                <p className="type-ui text-sand font-medium">
                   RYS 200 · RYS 300 · RYS 500
                 </p>
               </div>
@@ -112,11 +112,11 @@ export default function YogaAllianceSection() {
             variants={fadeUp}
             className="space-y-3"
           >
-            <p className="type-lead text-sand font-light leading-relaxed text-sm sm:text-base md:text-lg">
+            <p className="type-lead text-sand font-light leading-relaxed">
               Nirvana Yoga School is a registered yoga school (RYS 200, 300,
               500) situated in Rishikesh, certified by Yoga Alliance USA.
             </p>
-            <p className="type-body text-sand/90 leading-relaxed text-xs sm:text-sm">
+            <p className="type-body text-sand/90 leading-relaxed">
               Our credentials allow you to teach yoga with confidence anywhere
               in the world. Each curriculum is designed carefully with proper
               traditional knowledge, safety standards, and personal
@@ -145,19 +145,17 @@ export default function YogaAllianceSection() {
 
               <div>
                 <div className="flex items-baseline justify-between mb-4 lg:mb-6">
-                  <span className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-accent/40 group-hover:text-accent/65 transition-colors duration-500">
+                  <span className="type-h1 font-bold text-accent/40 group-hover:text-accent/65 transition-colors duration-500">
                     {cert.hours}
                   </span>
-                  <span className="type-eyebrow text-accent bg-white/5 px-2.5 py-0.5 rounded-full border border-white/5 text-[9px]">
+                  <span className="type-eyebrow text-accent bg-white/5 px-2.5 py-0.5 rounded-full border border-white/5">
                     {cert.level}
                   </span>
                 </div>
 
-                <h3 className="font-serif text-lg sm:text-xl lg:text-2xl text-sand font-medium mb-2 lg:mb-3">
-                  {cert.title}
-                </h3>
+                <h3 className="type-h3 text-sand mb-2 lg:mb-3">{cert.title}</h3>
 
-                <p className="type-body text-sand/90 leading-relaxed mb-6 lg:mb-8 text-xs sm:text-sm">
+                <p className="type-body text-sand/90 leading-relaxed mb-6 lg:mb-8">
                   {cert.description}
                 </p>
               </div>

@@ -167,7 +167,7 @@ export default function VideoSectionPlayer({
             title={
               <>
                 Stories from{" "}
-                <span className="italic font-normal text-accent">
+                <span className="font-normal text-muted font-serif">
                   Rishikesh
                 </span>
               </>
@@ -189,7 +189,7 @@ export default function VideoSectionPlayer({
           >
             <div className="relative w-full min-w-0">
               <div
-                className="pointer-events-none absolute -inset-2 rounded-[1.5rem] bg-linear-to-br from-primary/12 via-transparent to-accent/12 blur-md sm:-inset-3 sm:rounded-[1.75rem]"
+                className="pointer-events-none absolute -inset-2 rounded-3xl bg-linear-to-br from-primary/12 via-transparent to-accent/12 blur-md sm:-inset-3 sm:rounded-[1.75rem]"
                 aria-hidden="true"
               />
               <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl">

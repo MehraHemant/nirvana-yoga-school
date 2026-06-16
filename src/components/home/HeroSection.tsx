@@ -1,4 +1,4 @@
-import { Button, Container } from "@/components/ui";
+import { Button, Container, Heading } from "@/components/ui";
 import { ArrowRight, HeroFlourish, HeroUnderline } from "@/icons";
 import HeroBackgroundVideo from "./HeroBackgroundVideo";
 
@@ -8,7 +8,6 @@ const MARQUEE_ITEMS = [
   "5,000+ Students Trained",
   "50+ Countries Reached",
   "5.0 ★ Tripadvisor",
-  "Since 2012 · Rishikesh",
   "RYT 200 · 300 · 500",
 ];
 
@@ -40,7 +39,7 @@ export default function HeroSection() {
       <HeroFlourish className="absolute top-28 right-6 md:right-12 w-24 md:w-32 h-24 md:h-32 text-white/10 pointer-events-none" />
 
       {/* Top eyebrow */}
-      <div className="absolute top-20 md:top-24 inset-x-0 z-10 animate-fade-up fade-delay-100">
+      {/* <div className="absolute top-20 md:top-24 inset-x-0 z-10 animate-fade-up fade-delay-100">
         <Container size="2xl">
           <div className="flex items-center justify-center gap-3 text-white/60">
             <span className="h-px w-10 md:w-20 bg-linear-to-r from-transparent to-white/35" />
@@ -50,7 +49,7 @@ export default function HeroSection() {
             <span className="h-px w-10 md:w-20 bg-linear-to-l from-transparent to-white/35" />
           </div>
         </Container>
-      </div>
+      </div> */}
 
       {/* Bottom-anchored content */}
       <div className="relative z-10 min-h-svh flex items-end pb-36 sm:pb-[4.5rem] md:pb-[5rem]">
@@ -68,27 +67,30 @@ export default function HeroSection() {
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-60" />
                   <span className="relative inline-flex h-full w-full rounded-full bg-accent" />
                 </span>
-                <span className="type-eyebrow text-[0.65rem] sm:text-xs text-white/90">
+                <span className="type-eyebrow text-white/90">
                   Yoga Alliance Certified · India
                 </span>
               </div>
 
-              <h1 className="animate-fade-up fade-delay-300 font-serif font-medium text-white text-[1.75rem] leading-[1.08] sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl sm:leading-[1.04] tracking-tight text-balance">
+              <Heading
+                as="h1"
+                align="left"
+                invert
+                size="h1"
+                className="animate-fade-up fade-delay-300 text-balance"
+              >
                 Where ancient yoga
                 <br className="hidden sm:block" />
                 <span className="text-white/95"> meets the soul of the </span>
+                <br />
                 <span className="relative inline-block whitespace-nowrap">
-                  <span className=" text-accent font-normal">Himalayas</span>
+                  <span className="font-serif italic font-normal text-accent">
+                    Himalayas
+                  </span>
                   <HeroUnderline className="absolute -bottom-1 md:-bottom-2 left-0 w-full text-accent" />
                 </span>
                 <span className="text-white/90">.</span>
-              </h1>
-
-              <p className="animate-fade-up fade-delay-400 mt-4 sm:mt-6 text-sm leading-relaxed sm:text-base sm:leading-normal md:type-lead text-white/80 max-w-lg">
-                <span className="text-white/90">200, 300 &amp; 500-hour</span>{" "}
-                residential teacher trainings on the banks of the sacred Ganga.
-              </p>
-
+              </Heading>
               <div className="animate-fade-up fade-delay-500 mt-5 sm:mt-8 flex flex-wrap gap-2 sm:gap-3">
                 <Button
                   href="#courses"
@@ -102,9 +104,6 @@ export default function HeroSection() {
                     className="sm:w-[18px] sm:h-[18px] transition-transform group-hover:translate-x-1"
                   />
                 </Button>
-                <Button href="#contact" variant="outline-light" responsive>
-                  WhatsApp Us
-                </Button>
               </div>
 
               {/* Mobile trust chips */}
@@ -114,10 +113,10 @@ export default function HeroSection() {
                     key={item.label}
                     className="hero-glass shrink-0 rounded-xl sm:rounded-2xl px-3 py-2 sm:px-4 sm:py-3 min-w-[76px] sm:min-w-[88px] text-center"
                   >
-                    <div className="font-serif text-lg sm:text-xl text-white leading-none">
+                    <div className="type-display-sm font-semibold text-white leading-none">
                       {item.value}
                     </div>
-                    <div className="type-eyebrow text-[0.65rem] sm:text-xs text-white/60 mt-1">
+                    <div className="type-eyebrow text-white/60 mt-1">
                       {item.label}
                     </div>
                   </div>

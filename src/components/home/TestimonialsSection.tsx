@@ -1,258 +1,270 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 import { Container, SectionHeader } from "@/components/ui";
-import { Google, Star, Tripadvisor } from "@/icons";
+import { REVIEWS, type Testimonial } from "@/data/reviews";
+import { ChevronLeft, ChevronRight, Google, Star, Tripadvisor } from "@/icons";
 
-type Testimonial = {
-  name: string;
-  country: string;
-  course: string;
-  source: "Google" | "Tripadvisor" | "Trustpilot";
-  title: string;
-  quote: string;
-  avatar: string;
+const getStarColorClass = (source: string) => {
+  if (source === "Google") return "text-[#facc15] fill-[#facc15]";
+  if (source === "Tripadvisor") return "text-[#00af87] fill-[#00af87]";
+  return "text-[#00b67a] fill-[#00b67a]";
 };
 
-const REVIEWS: Testimonial[] = [
-  // Google
-  {
-    name: "Usha Singh",
-    country: "India",
-    course: "200hr Yoga Nidra TTC",
-    source: "Google",
-    title: "Felt More Like a Family",
-    quote:
-      "My experience at Nirvana Yoga School has been beyond what I ever expected. This place felt more like a family than just a school. Guru Dhruvji paid special attention to our comfort, making sure every student had a calming environment both in the classroom and in our rooms. The food was prepared with utmost care, ensuring it was sattvic and made with cold-pressed sunflower oil, which made the experience feel holistic.",
-    avatar:
-      "https://images.unsplash.com/photo-1607746882042-944635dfe10e?w=150&auto=format&fit=crop&q=80",
+// Slider transition animation configurations
+const slideVariants = {
+  enter: (direction: number) => ({
+    x: direction > 0 ? 100 : -100,
+    opacity: 0,
+  }),
+  center: {
+    x: 0,
+    opacity: 1,
+    transition: {
+      x: { type: "spring" as const, stiffness: 300, damping: 32 },
+      opacity: { duration: 0.25 },
+    },
   },
-  {
-    name: "Ole Netek",
-    country: "Denmark",
-    course: "500hr Hatha Ashtanga YTT",
-    source: "Google",
-    title: "Well Organized & Very Professional",
-    quote:
-      "I've just completed the 200 hours Hatha Ashtanga Teacher training. The program was well organized & the school is very professional in terms of structure and responding. I am really thankful for the dedicated & passionate teachers at Nirvana! I can really recommend this school to everyone.",
-    avatar:
-      "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80",
-  },
-  {
-    name: "Niall Phelan",
-    country: "Ireland",
-    course: "500hr Advanced YTT",
-    source: "Google",
-    title: "Best Investment I Have Ever Made",
-    quote:
-      "Best investment I have ever made, both in terms of my own wellbeing and in that I will be able to impart on others through the teaching knowledge and skills. Guru Dhruvaji made the experience especially magical and informative.",
-    avatar:
-      "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=150&auto=format&fit=crop&q=80",
-  },
-  {
-    name: "Valentina Catenacci",
-    country: "Italy",
-    course: "200hr Kundalini YTT",
-    source: "Google",
-    title: "An Amazing Place to Grow",
-    quote:
-      "Nirvana Yoga school is an amazing place where you will learn so much more than what they state in their program! An amazing place to make meaningful connections and grow as a person. Highly recommended!",
-    avatar:
-      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80",
-  },
-  // Tripadvisor
-  {
-    name: "Joan Nakazono",
-    country: "USA",
-    course: "200hr Yoga Teacher Training",
-    source: "Tripadvisor",
-    title: "Once-in-a-lifetime Experience",
-    quote:
-      "I feel incredibly fortunate to have completed my 200-hour Yoga Teacher Training at Nirvana Yoga School. From the start, the professionalism, expertise, and unwavering support of the teachers truly stood out. Each instructor brought a deep understanding of yoga, and their guidance was invaluable throughout the course.",
-    avatar:
-      "https://images.unsplash.com/photo-1554151228-14d9def656e4?w=150&auto=format&fit=crop&q=80",
-  },
-  {
-    name: "Beatrice Ani-Asamoah",
-    country: "Ghana",
-    course: "200hr Yoga Nidra TTC",
-    source: "Tripadvisor",
-    title: "Incredible & Life Changing Experience",
-    quote:
-      "Nirvana Yoga School was an incredible experience for me, more than I ever imagined it would be. I spent a month in the 200 TTC focusing on yoga Nidra (and also Hatha, Philosophy, and more). It was my first time both in India and doing a TTC and I felt completely supported. The management and teachers are wonderful, patient, and very experienced.",
-    avatar:
-      "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=150&auto=format&fit=crop&q=80",
-  },
-  {
-    name: "Eve Lesage",
-    country: "France",
-    course: "300hr Advanced YTT",
-    source: "Tripadvisor",
-    title: "Very Grateful for This Training",
-    quote:
-      "I recently completed 300 hour Yoga Teacher Training at Nirvana, and it was an incredible journey. The instructors were so supportive, and truly passionate about yoga. I look up to them not only for their expertise but also for their genuine care in guiding us us through the journey.",
-    avatar:
-      "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=150&auto=format&fit=crop&q=80",
-  },
-  {
-    name: "Agathe De Vargas",
-    country: "France",
-    course: "200hr Yoga Teacher Training",
-    source: "Tripadvisor",
-    title: "Professeurs de Grande Qualité",
-    quote:
-      "Je souhaite prendre le temps de détailler mon avis sur Nirvana. Les professeurs sont de grande qualité, à l'écoute et enseignent le yoga traditionnellement. Les shalas sont grands et lumineux, et le bâtiment est calme, situé à la fin de Tapovan. La nourriture est saine et délicieuse.",
-    avatar:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80",
-  },
-  // Trustpilot
-  {
-    name: "Ujjwala Prasad",
-    country: "India",
-    course: "200hr Ayurveda Yoga TTC",
-    source: "Trustpilot",
-    title: "Lucky & Grateful to Learn Here",
-    quote:
-      "I am so lucky and grateful to have been able to learn at such an incredible yoga school. The combination courses is what truly caught my eye at Nirvana and then everything that followed was just magical. The rooms, classes, and especially the kitchen staff for feeding us such nutritional meals. Can't wait to be back!",
-    avatar:
-      "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80",
-  },
-  {
-    name: "Laetitia Haziza",
-    country: "France",
-    course: "300hr Advanced YTT",
-    source: "Trustpilot",
-    title: "Transformative Experience",
-    quote:
-      "I had a great time at Nirvana school that I will never, never forget! The teachers are very professional and sweet. The Guru is so generous and I learned so much there. Be ready to be disciplined, ready to learn, and ready for a transformative experience!",
-    avatar:
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
-  },
-  {
-    name: "Swati Snigdha",
-    country: "India",
-    course: "500hr Yoga Teacher Training",
-    source: "Trustpilot",
-    title: "Nothing Short of Life-Changing",
-    quote:
-      "Joining Nirvana Yoga School has been nothing short of life-changing. The 500-hour teacher training pushed me out of my comfort zone while helping me connect deeper with myself physically, mentally, and spiritually. The teachers were super supportive, blending traditional yoga practices with real-world insights.",
-    avatar:
-      "https://images.unsplash.com/photo-1548142813-c348350df52b?w=150&auto=format&fit=crop&q=80",
-  },
-  {
-    name: "Corinne Germann",
-    country: "Switzerland",
-    course: "200hr Kundalini Yoga TTC",
-    source: "Trustpilot",
-    title: "Schule mit Herz",
-    quote:
-      "Im April 2025 war ich hier für das 200h Kundalini TTC. Eine Schule, die sich mit Herz für das Weitergeben des Wissens einsetzt. Lehrer:innen, die mit Elan und hoher Professionalität Erfahrungen weitergeben. Räume, in denen du dich wohlzustimmen, und ein traditionelles Kundalini-Yoga, das den Stamm und die Lineage aufzeigt.",
-    avatar:
-      "https://images.unsplash.com/photo-1544717305-2782549b5136?w=150&auto=format&fit=crop&q=80",
-  },
-];
+  exit: (direction: number) => ({
+    x: direction < 0 ? 100 : -100,
+    opacity: 0,
+    transition: {
+      x: { type: "spring" as const, stiffness: 300, damping: 32 },
+      opacity: { duration: 0.25 },
+    },
+  }),
+};
 
-function SourceBadge({ source }: { source: Testimonial["source"] }) {
-  if (source === "Google") {
-    return (
-      <div className="flex items-center gap-1 text-[9px] font-semibold text-muted bg-neutral-50 px-1.5 py-0.5 rounded-full border border-neutral-100">
-        <Google size={9} className="text-neutral-500" />
-        <span className="font-sans">Google</span>
-      </div>
-    );
-  }
-  if (source === "Tripadvisor") {
-    return (
-      <div className="flex items-center gap-1 text-[9px] font-semibold text-muted bg-neutral-50 px-1.5 py-0.5 rounded-full border border-neutral-100">
-        <Tripadvisor size={9} className="text-neutral-500" />
-        <span className="font-sans">Tripadvisor</span>
-      </div>
-    );
-  }
+interface TestimonialCardProps {
+  review: Testimonial;
+}
+
+function TestimonialCard({ review }: TestimonialCardProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const isLong = review.message.length > 280;
+
   return (
-    <div className="flex items-center gap-1 text-[9px] font-semibold text-muted bg-neutral-50 px-1.5 py-0.5 rounded-full border border-neutral-100">
-      <span className="w-2.5 h-2.5 rounded-full bg-[#00a568] flex items-center justify-center text-[6px] text-white font-bold font-sans">
-        ★
-      </span>
-      <span className="font-sans">Trustpilot</span>
+    <div className="flex flex-col md:flex-row bg-white rounded-3xl overflow-hidden border border-ink/5 shadow-card h-full min-h-[380px] md:min-h-[290px]">
+      {/* Practitioner Portrait */}
+      <div className="w-full md:w-2/5 relative min-h-[220px] md:min-h-full bg-sand/20">
+        <Image
+          src={review.image}
+          alt={`${review.name} - Testimonial`}
+          fill
+          sizes="(max-width: 768px) 100vw, 40vw"
+          className="object-cover"
+          priority={false}
+        />
+        <div className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent md:hidden pointer-events-none" />
+      </div>
+
+      {/* Review text content */}
+      <div className="w-full md:w-3/5 p-6 md:p-8 flex flex-col justify-center select-text">
+        <div className="flex justify-between items-start mb-2">
+          <div>
+            <h4 className="font-sans text-base md:text-lg font-bold text-ink leading-tight">
+              {review.name}
+            </h4>
+            <div className="flex gap-0.5 mt-1" role="img" aria-label="5 stars">
+              {[0, 1, 2, 3, 4].map((num) => (
+                <Star
+                  key={`card-star-${num}`}
+                  size={12}
+                  className={`${getStarColorClass(review.source)} shrink-0`}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <h5 className="type-display-sm font-semibold text-ink leading-snug mb-3">
+          {review.title}
+        </h5>
+
+        <p className="type-body text-ink/75 leading-relaxed">
+          {isLong && !isExpanded ? (
+            <>
+              &ldquo;{review.message.slice(0, 260)}...&rdquo;
+              <button
+                type="button"
+                onClick={() => setIsExpanded(true)}
+                className="text-primary font-semibold hover:underline ml-1.5 focus:outline-hidden cursor-pointer"
+              >
+                Read more
+              </button>
+            </>
+          ) : (
+            <>
+              &ldquo;{review.message}&rdquo;
+              {isLong && isExpanded && (
+                <button
+                  type="button"
+                  onClick={() => setIsExpanded(false)}
+                  className="text-primary font-semibold hover:underline ml-1.5 focus:outline-hidden cursor-pointer"
+                >
+                  Read less
+                </button>
+              )}
+            </>
+          )}
+        </p>
+      </div>
     </div>
   );
 }
 
-function TestimonialCard({
-  r,
-  platformId,
-}: {
-  r: Testimonial;
-  platformId: string;
-}) {
+interface TestimonialSliderProps {
+  reviews: Testimonial[];
+  autoplayInterval: number;
+}
+
+function TestimonialSlider({
+  reviews,
+  autoplayInterval,
+}: TestimonialSliderProps) {
+  const [[page, direction], setPage] = useState([0, 0]);
+  const [isHovered, setIsHovered] = useState(false);
+
+  const activeIndex = Math.abs(page % reviews.length);
+
+  const paginate = (newDirection: number) => {
+    setPage([page + newDirection, newDirection]);
+  };
+
+  useEffect(() => {
+    if (isHovered) return;
+    const interval = setInterval(() => {
+      setPage(([prevPage, _]) => [prevPage + 1, 1]);
+    }, autoplayInterval);
+    return () => clearInterval(interval);
+  }, [isHovered, autoplayInterval]);
+
+  const activeReview = reviews[activeIndex];
+
   return (
-    <figure className="flex flex-col bg-white rounded-3xl p-6 sm:p-7 shadow-card border border-ink/5 w-[360px] sm:w-[420px] h-[340px] shrink-0 select-none text-left relative overflow-hidden">
-      {/* Top Section: Avatar left, Name & Stars right, Platform badge absolute top-right */}
-      <div className="flex items-center gap-3.5 mb-5 relative z-10">
-        <div
-          className={`h-11 w-11 rounded-full overflow-hidden shrink-0 border relative bg-sand/80 shadow-2xs ${
-            platformId === "Google"
-              ? "border-primary/10 ring-2 ring-primary/5"
-              : platformId === "Tripadvisor"
-                ? "border-secondary/10 ring-2 ring-secondary/5"
-                : "border-emerald-500/10 ring-2 ring-emerald-500/5"
-          }`}
-        >
-          <Image
-            src={r.avatar}
-            alt={r.name}
-            fill
-            sizes="44px"
-            className="object-cover"
-          />
-        </div>
-        <div className="flex-1 min-w-0">
-          <h4 className="font-sans text-[14px] sm:text-base font-bold text-ink leading-tight">
-            {r.name}
-          </h4>
-          <div
-            className="flex gap-0.5 mt-1"
-            role="img"
-            aria-label="5 out of 5 stars"
+    <section
+      aria-label="Testimonial slider"
+      className="relative w-full"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <div className="overflow-hidden min-h-[380px] md:min-h-[290px] w-full relative rounded-3xl">
+        <AnimatePresence initial={false} custom={direction} mode="wait">
+          <motion.div
+            key={page}
+            custom={direction}
+            variants={slideVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            className="w-full h-full"
           >
-            {[0, 1, 2, 3, 4].map((starIdx) => (
-              <Star
-                key={starIdx}
-                size={11}
-                className={`${
-                  platformId === "Google"
-                    ? "text-[#facc15] fill-[#facc15]"
-                    : platformId === "Tripadvisor"
-                      ? "text-emerald-500 fill-emerald-500"
-                      : "text-[#00a568] fill-[#00a568]"
-                } shrink-0`}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* Small source badge at top right */}
-        <div className="absolute top-0 right-0">
-          <SourceBadge source={r.source} />
-        </div>
+            <TestimonialCard review={activeReview} />
+          </motion.div>
+        </AnimatePresence>
       </div>
 
-      {/* Review Content: Title and Quote */}
-      <div className="flex flex-col flex-1 min-h-0 relative z-10">
-        <h3 className="font-serif text-[15px] sm:text-base md:text-lg font-semibold text-ink leading-tight mb-2.5">
-          {r.title}
-        </h3>
-        <blockquote className="font-sans text-xs sm:text-sm text-ink/75 leading-relaxed overflow-y-auto pr-1">
-          &ldquo;{r.quote}&rdquo;
-        </blockquote>
+      {/* Action Arrows */}
+      <button
+        type="button"
+        onClick={() => paginate(-1)}
+        className="absolute left-3 md:-left-6 top-1/2 -translate-y-1/2 z-20 p-2.5 rounded-full bg-white shadow-soft border border-ink/5 text-ink/75 hover:bg-primary hover:text-white transition-all cursor-pointer flex items-center justify-center"
+        aria-label="Previous review"
+      >
+        <ChevronLeft size={16} />
+      </button>
+      <button
+        type="button"
+        onClick={() => paginate(1)}
+        className="absolute right-3 md:-right-6 top-1/2 -translate-y-1/2 z-20 p-2.5 rounded-full bg-white shadow-soft border border-ink/5 text-ink/75 hover:bg-primary hover:text-white transition-all cursor-pointer flex items-center justify-center"
+        aria-label="Next review"
+      >
+        <ChevronRight size={16} />
+      </button>
+    </section>
+  );
+}
+
+interface RatingCardProps {
+  platform: "Google" | "Tripadvisor" | "Trustpilot";
+  title: string;
+  ratingText: string;
+  link: string;
+  ratingValue: number;
+}
+
+function RatingCard({
+  platform,
+  title,
+  ratingText,
+  ratingValue,
+}: RatingCardProps) {
+  const getBrandLogo = () => {
+    if (platform === "Google") {
+      return <Google size={32} />;
+    }
+    if (platform === "Tripadvisor") {
+      return <Tripadvisor size={32} className="text-[#00af87]" />;
+    }
+    return (
+      <div className="flex items-center justify-center bg-[#00b67a] rounded-full p-2 text-white shadow-xs">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          className="w-5 h-5"
+          aria-hidden="true"
+        >
+          <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+        </svg>
       </div>
-    </figure>
+    );
+  };
+
+  return (
+    <div className="bg-white rounded-3xl p-6 md:p-8 border border-ink/5 shadow-card hover:shadow-soft transition-all duration-300 flex flex-col justify-between h-full group">
+      <div>
+        <div className="flex justify-between items-center mb-6">
+          {getBrandLogo()}
+          <span className="type-eyebrow text-muted bg-sand px-2.5 py-1 rounded-full font-bold">
+            Verified
+          </span>
+        </div>
+
+        <h3 className="type-display-sm font-bold text-ink mb-1">{title}</h3>
+        <p className="font-sans text-xs text-muted mb-4">
+          Official Student Reviews
+        </p>
+
+        <hr className="border-ink/5 my-4" />
+
+        <div className="flex items-center gap-0.5 mb-2">
+          {[0, 1, 2, 3, 4].map((num) => (
+            <Star
+              key={`rating-star-${num}`}
+              size={16}
+              className={`${
+                num < Math.floor(ratingValue)
+                  ? getStarColorClass(platform)
+                  : "text-ink/10 fill-transparent"
+              } shrink-0`}
+            />
+          ))}
+        </div>
+        <p className="font-sans text-2xl font-black text-ink">
+          {ratingText}{" "}
+          <span className="text-xs font-normal text-muted uppercase tracking-wider">
+            rating
+          </span>
+        </p>
+      </div>
+    </div>
   );
 }
 
 export default function TestimonialsSection() {
-  // Grouped reviews
   const googleReviews = REVIEWS.filter((r) => r.source === "Google");
   const tripadvisorReviews = REVIEWS.filter((r) => r.source === "Tripadvisor");
   const trustpilotReviews = REVIEWS.filter((r) => r.source === "Trustpilot");
@@ -260,107 +272,92 @@ export default function TestimonialsSection() {
   return (
     <section
       id="reviews"
-      className="relative overflow-hidden bg-sand py-12 sm:py-14 lg:py-16 w-full"
+      className="relative bg-sand py-20 md:py-28 overflow-hidden w-full"
     >
+      {/* Decorative radial gradients */}
       <div
-        className="absolute -top-32 right-1/4 w-[500px] h-[500px] bg-primary/3 blur-[120px] rounded-full pointer-events-none"
+        className="absolute -top-32 right-1/4 w-[600px] h-[600px] bg-primary/3 blur-[140px] rounded-full pointer-events-none"
         aria-hidden="true"
       />
       <div
-        className="absolute bottom-0 left-1/4 w-[400px] h-[400px] bg-secondary/3 blur-[100px] rounded-full pointer-events-none"
+        className="absolute bottom-0 left-1/4 w-[500px] h-[500px] bg-secondary/3 blur-[120px] rounded-full pointer-events-none"
         aria-hidden="true"
       />
 
-      <Container size="2xl" className="w-full relative z-10">
-        {/* Section Header */}
-        <div className="w-full text-center mb-10 sm:mb-16">
+      <Container size="2xl" className="relative z-10 w-full">
+        {/* Header */}
+        <div className="w-full text-center mb-16 max-w-2xl mx-auto">
           <SectionHeader
             align="center"
-            eyebrow="Student Testimonials"
+            eyebrow="Testimonials"
             title={
               <>
-                Global Lineage.{" "}
-                <span className="italic text-primary font-serif font-medium animate-glow-primary">
-                  5,000+ Five-Star Reviews.
+                What Students Say About{" "}
+                <span className="text-muted font-serif font-medium">
+                  Nirvana Yoga School
                 </span>
               </>
             }
-            description="Read the authentic journeys of practitioners from all corners of the globe who trained at our sanctuary."
-            className="mx-auto"
+            description="Read the authentic transformation stories of practitioners from all corners of the globe who completed their lineages here."
           />
         </div>
 
-        {/* Triple Marquee Rivers */}
-        <div className="space-y-6 sm:space-y-8 mt-2 w-full relative">
-          {/* Row 1: Google Reviews (Scroll Left) */}
-          <div className="flex overflow-hidden w-full select-none py-1.5 marquee-mask marquee-hover-pause">
-            <div className="flex w-max gap-6 shrink-0 animate-marquee">
-              <div className="flex gap-6 shrink-0">
-                {googleReviews.map((r) => (
-                  <TestimonialCard
-                    key={`g1-${r.name}`}
-                    r={r}
-                    platformId="Google"
-                  />
-                ))}
-              </div>
-              <div className="flex gap-6 shrink-0" aria-hidden="true">
-                {googleReviews.map((r) => (
-                  <TestimonialCard
-                    key={`g2-${r.name}`}
-                    r={r}
-                    platformId="Google"
-                  />
-                ))}
-              </div>
+        {/* 3 Rows corresponding to platforms */}
+        <div className="space-y-12 md:space-y-16 w-full">
+          {/* Row 1: Google Reviews */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch w-full">
+            <div className="lg:col-span-1">
+              <RatingCard
+                platform="Google"
+                title="Google Reviews"
+                ratingText="5.0 / 5.0"
+                ratingValue={5}
+                link="https://g.co/kgs/cftBiC3"
+              />
+            </div>
+            <div className="lg:col-span-2 relative">
+              <TestimonialSlider
+                reviews={googleReviews}
+                autoplayInterval={3200}
+              />
             </div>
           </div>
 
-          {/* Row 2: Tripadvisor Reviews (Scroll Right) */}
-          <div className="flex overflow-hidden w-full select-none py-1.5 marquee-mask marquee-hover-pause">
-            <div className="flex w-max gap-6 shrink-0 animate-marquee-reverse">
-              <div className="flex gap-6 shrink-0">
-                {tripadvisorReviews.map((r) => (
-                  <TestimonialCard
-                    key={`t1-${r.name}`}
-                    r={r}
-                    platformId="Tripadvisor"
-                  />
-                ))}
-              </div>
-              <div className="flex gap-6 shrink-0" aria-hidden="true">
-                {tripadvisorReviews.map((r) => (
-                  <TestimonialCard
-                    key={`t2-${r.name}`}
-                    r={r}
-                    platformId="Tripadvisor"
-                  />
-                ))}
-              </div>
+          {/* Row 2: TripAdvisor Reviews */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch w-full">
+            <div className="lg:col-span-1">
+              <RatingCard
+                platform="Tripadvisor"
+                title="TripAdvisor Reviews"
+                ratingText="5.0 / 5.0"
+                ratingValue={5}
+                link="https://www.tripadvisor.com/Attraction_Review-g580106-d27745947-Reviews-Nirvana_Yoga_School-Rishikesh_Dehradun_District_Uttarakhand.html"
+              />
+            </div>
+            <div className="lg:col-span-2 relative">
+              <TestimonialSlider
+                reviews={tripadvisorReviews}
+                autoplayInterval={4200}
+              />
             </div>
           </div>
 
-          {/* Row 3: Trustpilot Reviews (Scroll Left) */}
-          <div className="flex overflow-hidden w-full select-none py-1.5 marquee-mask marquee-hover-pause">
-            <div className="flex w-max gap-6 shrink-0 animate-marquee-slow">
-              <div className="flex gap-6 shrink-0">
-                {trustpilotReviews.map((r) => (
-                  <TestimonialCard
-                    key={`tp1-${r.name}`}
-                    r={r}
-                    platformId="Trustpilot"
-                  />
-                ))}
-              </div>
-              <div className="flex gap-6 shrink-0" aria-hidden="true">
-                {trustpilotReviews.map((r) => (
-                  <TestimonialCard
-                    key={`tp2-${r.name}`}
-                    r={r}
-                    platformId="Trustpilot"
-                  />
-                ))}
-              </div>
+          {/* Row 3: Trustpilot Reviews */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch w-full">
+            <div className="lg:col-span-1">
+              <RatingCard
+                platform="Trustpilot"
+                title="Trustpilot Reviews"
+                ratingText="4.7 / 5.0"
+                ratingValue={4.7}
+                link="https://www.trustpilot.com/review/nirvanayogaschoolindia.com"
+              />
+            </div>
+            <div className="lg:col-span-2 relative">
+              <TestimonialSlider
+                reviews={trustpilotReviews}
+                autoplayInterval={3500}
+              />
             </div>
           </div>
         </div>

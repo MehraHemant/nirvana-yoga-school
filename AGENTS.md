@@ -87,6 +87,7 @@ src/
       RishikeshSection.tsx
       TestimonialsSection.tsx
       FAQSection.tsx
+      FAQItem.tsx       # Client: single self-contained FAQ item accordion card
       FinalCTASection.tsx
       index.ts          # Barrel
     layout/
@@ -95,6 +96,7 @@ src/
     ui/                 # Reusable primitives — used across sections
       Button.tsx        # 4 variants × 3 sizes, polymorphic Link/<button>
       Container.tsx     # max-width wrapper with sm/md/lg/xl
+      Heading.tsx       # Reusable heading component with alignment, font, and size controls
       SectionHeader.tsx # eyebrow + title + description pattern
       Pill.tsx          # rounded label with optional invert
       Header.tsx        # client component: transparent→solid on scroll, full live-site nav with dropdowns + mobile accordion
@@ -165,8 +167,8 @@ Use Tailwind v4 utility form: `bg-primary`, `text-ink`, `border-accent`, etc.
 
 | Role | Font | Class |
 | ---- | ---- | ----- |
-| Display (headings, prices, stats) | **Playfair Display** | `font-serif` |
-| Body + UI (everything else) | **Outfit** | `font-sans` (body default) |
+| Primary Display (headings, prices, stats) | **Noe Display** | `font-serif` / `font-noe` |
+| Primary Body + UI (default sans) | **Poppins** | `font-sans` / `font-poppins` |
 
 Semantic utilities in `globals.css` — **always prefer these over arbitrary px sizes**:
 
@@ -238,6 +240,19 @@ Headline hierarchy (Playfair):
 ```
 - Defaults to `xl` (max-w-7xl). Use `md` (5xl) for prose-heavy sections, `sm` (3xl) for FAQ, `2xl` (92rem) for full-bleed editorial sections like Welcome.
 
+### `Heading`
+```tsx
+<Heading as="h1" align="left" font="serif" size="h1" invert>Title</Heading>
+<Heading as="h3" align="center" font="poppins" size="display-sm">Subheading</Heading>
+```
+- Props:
+  - `as` (default `"h2"`): `"h1" | "h2" | "h3" | "h4" | "h5" | "h6"`
+  - `align` (default `"left"`): `"left" | "center" | "end"`
+  - `font` (default `"serif"`): `"serif" | "sans" | "poppins" | "noe"`
+  - `size` (optional): `"h1" | "h2" | "h3" | "h4" | "display-sm" | "none"`
+  - `invert` (default `false`): `boolean`
+  - `className` (optional): `string`
+
 ### `SectionHeader`
 ```tsx
 <SectionHeader
@@ -292,7 +307,7 @@ Headline hierarchy (Playfair):
 7. `ExperienceSection` — dark, 4 immersive image cards
 8. `TeachersSection` — 4 teacher cards
 9. `RishikeshSection` — split: full-bleed image + secondary-bg copy
-10. `TestimonialsSection` — 6 review cards
+10. `TestimonialsSection` — 3 platform split rows (Google, TripAdvisor, Trustpilot)
 11. `FAQSection` — `<details>` accordion
 12. `FinalCTASection` — full-bleed CTA band
 13. `Footer` (rendered from `layout.tsx`)
@@ -431,4 +446,9 @@ Last meaningful update: 2026-05-26 — initial rebuild scaffolded (design system
 2026-06-08 — **Footer bg-primary & max-w-7xl Sizing**: Updated `Footer.tsx` to use the Brand Maroon background (`bg-primary`) and locked the container width to `max-w-7xl` (`size="xl"`). Re-styled the newsletter form input and button to a high-contrast white-out pattern to ensure readability and usability on the new background. Verified all typescript check, lint check, and production build tasks succeed with zero errors.
 2026-06-08 — **Footer Compacted & Deep Teal Background Update**: Compacted the footer by reducing vertical paddings (`pt-10 pb-5`), margin gaps, list item spacings (`space-y-1.5`), and logo/icon sizes. Changed the background color from brand maroon to deep teal (`bg-secondary`) to match the theme color preference, and aligned the newsletter form buttons and social hover colors to `text-secondary` and `hover:text-secondary`. Verified that all Biome lint checks and TypeScript compiles pass without any errors.
 2026-06-10 — **CourseCard 3D Hover & Reset Responsiveness Fix**: Fixed lag/reset delay in CourseCard 3D tilt by adding a custom `.course-card-transition` class in `globals.css` that transitions only styling properties (border-color, box-shadow, background-color, outline-color, ring-color) and explicitly excludes `transform`. This ensures spring-driven rotation and mouse tracking react instantly without browser interpolation delays.
-
+2026-06-13 — **Font loading bug fix & Playfair selection**: Resolved a self-referential custom property naming bug in Tailwind CSS v4 `@theme` that broke Poppins and display serif font loading. Renamed Next.js font variable outputs to `--font-poppins` and `--font-playfair`, and mapped them cleanly inside `globals.css` and `layout.tsx`. Cleaned up all preview fonts and removed the `<FontSelector />` widget completely, locking in Playfair Display as the primary serif font across all sections. Checked formatting and compiled successfully.
+2026-06-14 — **Re-integrate TestimonialsSection**: Replaced the previous slider playground experiments with the exact layout structure (3 split rows for Google, TripAdvisor, Trustpilot) and exact content data (12 student reviews and actual portraits) matching the live website, fully responsive and styled premium with Framer Motion.
+2026-06-14 — **Font loading and Heading Primitive**: Created a highly reusable `<Heading>` component supporting `left`, `center`, and `end` alignments, and custom fonts. Refactored `HeroSection`, `WelcomeSection`, `WhyRishikeshClient`, `RishikeshSection`, `YogaAllianceSection`, `FinalCTASection`, and `SectionHeader` to use the `<Heading>` component.
+2026-06-14 — **Noe Display and Poppins Core Typography**: Cleaned up the entire project's typography to retain only **Poppins** (sans-serif) and the premium local web font **Noe Display** (serif). Downloaded the Noe Display `.woff2` font file, registered its `@font-face` bindings inside `layout.tsx` (via `next/font/local`) and `globals.css` (via `--font-noe`), and deleted all other unused local and Google fonts (`Plus Jakarta Sans`, `Cormorant Garamond`, `Outfit`, and `Eksell Display`).
+2026-06-14 — **Two-Column FAQ Grid & FAQItem Primitive**: Created a standalone `<FAQItem>` component under `src/components/home/FAQItem.tsx` to encapsulate local open/close state, background image hover transitions, and animated accordion content. Refactored `FAQSection.tsx` to render these items in a two-column grid (`grid-cols-1 lg:grid-cols-2`) for better screen utilization.
+2026-06-15 — **CourseHero Banner Slider**: Replaced the vertical selector dots in `CourseHero.tsx` with a horizontal, infinite-scroll image card slider at the bottom. Clicking cards updates the active background banner with a crossfade, and the marquee pauses on hover. Removed the details card on the right, freed up port 3000, cleaned up unused imports/parameters, and restricted the section to a viewport-bounded height (`h-screen max-h-screen`). Checked lint, format, and production compile successfully.

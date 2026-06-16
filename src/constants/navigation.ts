@@ -23,53 +23,57 @@ const SITE = "https://www.nirvanayogaschoolindia.com";
 
 /** Primary nav — mirrored from nirvanayogaschoolindia.com header (2026-05-26). */
 export const PRIMARY_NAV: NavItem[] = [
-  { type: "link", label: "Home", href: "/" },
+  { type: "link", label: "HOME", href: "/" },
   {
     type: "dropdown",
-    label: "Yoga Courses",
+    label: "YOGA COURSES",
     items: [
       {
-        label: "200 Hour Hatha Ashtanga Vinyasa YTT",
-        href: `${SITE}/200-hour-yoga-teacher-training-in-rishikesh-india`,
+        label:
+          "200 Hour Hatha Ashtanga Vinyasa Yoga Teacher Training in Rishikesh India",
+        href: "/200-hour-yoga-teacher-training-in-rishikesh-india",
+      },
+      {
+        label:
+          "200 Hour Ayurveda Hatha Yoga Teacher Training in Rishikesh, India",
+        href: "/200-hour-ayurveda-yoga-teacher-training-in-rishikesh-india",
+      },
+      {
+        label:
+          "200 Hour Meditation Yoga Nidra & Hatha Yoga Teacher Training in Rishikesh India",
+        href: "/200-hour-meditation-teacher-training-in-rishikesh-india",
+      },
+      {
+        label:
+          "200 Hour Kundalini Hatha Yoga Teacher Training in Rishikesh India",
+        href: "/200-hour-kundalini-yoga-teacher-training-in-rishikesh-india",
+      },
+      {
+        label:
+          "300 Hour Hatha Ashtanga Vinyasa Ayurveda Yoga Therapy Teacher Training In Rishikesh India",
+        href: "/300-hour-yoga-teacher-training-in-rishikesh-india",
+      },
+      {
+        label:
+          "500 Hour Hatha Ashtanga Vinyasa Ayurveda Yoga Therapy Teacher Training in Rishikesh, India",
+        href: "/500-hour-yoga-teacher-training-in-rishikesh-india",
+      },
+      {
+        label: "Yin Yoga Teacher Training in Rishikesh India",
+        href: "/yin-yoga-teacher-training-in-rishikesh-india",
+      },
+      {
+        label: "Sound Healing Course in Rishikesh India",
+        href: "/sound-healing-course-in-rishikesh-india",
+      },
+      {
+        label:
+          "Kirtan, Vocal & Instrumental Music Training in Rishikesh, India",
+        href: `${SITE}/kirtan-vocal-and-instrumental-music-training`,
         external: true,
       },
       {
-        label: "200 Hour Ayurveda & Hatha YTT",
-        href: `${SITE}/200-hour-ayurveda-yoga-teacher-training-in-rishikesh-india`,
-        external: true,
-      },
-      {
-        label: "200 Hour Meditation, Yoga Nidra & Hatha YTT",
-        href: `${SITE}/200-hour-meditation-teacher-training-in-rishikesh-india`,
-        external: true,
-      },
-      {
-        label: "200 Hour Kundalini & Hatha YTT",
-        href: `${SITE}/200-hour-kundalini-yoga-teacher-training-in-rishikesh-india`,
-        external: true,
-      },
-      {
-        label: "300 Hour Advanced YTT",
-        href: `${SITE}/300-hour-yoga-teacher-training-in-rishikesh-india`,
-        external: true,
-      },
-      {
-        label: "500 Hour Master's YTT",
-        href: `${SITE}/500-hour-yoga-teacher-training-in-rishikesh-india`,
-        external: true,
-      },
-      {
-        label: "Yin Yoga Teacher Training",
-        href: `${SITE}/yin-yoga-teacher-training-in-rishikesh-india`,
-        external: true,
-      },
-      {
-        label: "Sound Healing Course",
-        href: `${SITE}/sound-healing-course-in-rishikesh-india`,
-        external: true,
-      },
-      {
-        label: "See all other courses",
+        label: "SEE ALL OTHER COURSES",
         href: `${SITE}/yoga-teacher-training-in-rishikesh-india`,
         external: true,
       },
@@ -77,32 +81,34 @@ export const PRIMARY_NAV: NavItem[] = [
   },
   {
     type: "dropdown",
-    label: "Online Courses",
+    label: "ONLINE COURSES",
     href: `${SITE}/online-yoga-teacher-training-courses`,
     external: true,
     items: [
       {
-        label: "200 Hour Online Hatha Ashtanga Vinyasa YTT",
+        label:
+          "200 Hour Online Hatha Ashtanga Vinyasa Yoga Teacher Training Course",
         href: `${SITE}/200-hour-online-yoga-teacher-training`,
         external: true,
       },
       {
-        label: "200 Hour Online Ayurveda & Hatha YTT",
+        label: "200 Hour Online Ayurveda & Hatha Yoga Teacher Training Course",
         href: `${SITE}/online-200-hour-ayurveda-yoga-teacher-training-course`,
         external: true,
       },
       {
-        label: "200 Hour Online Meditation & Yoga Nidra YTT",
+        label:
+          "200 Hour Online Meditation Yoga Nidra & Hatha Yoga Teacher Training Course",
         href: `${SITE}/online-200-hour-meditation-yoga-nidra-teacher-training-course`,
         external: true,
       },
       {
-        label: "100 Hour Online Yin Yoga YTT",
+        label: "100 Hour Online Yin Yoga Teacher Training Course",
         href: `${SITE}/online-100-hour-yin-yoga-teacher-training-course`,
         external: true,
       },
       {
-        label: "See all other online courses",
+        label: "SEE ALL OTHER ONLINE COURSES",
         href: `${SITE}/online-yoga-teacher-training-courses`,
         external: true,
       },
@@ -110,7 +116,7 @@ export const PRIMARY_NAV: NavItem[] = [
   },
   {
     type: "dropdown",
-    label: "Retreats",
+    label: "RETREATS",
     items: [
       {
         label: "3-Day Yoga Meditation Ayurveda Wellness Retreat",
@@ -129,10 +135,15 @@ export const PRIMARY_NAV: NavItem[] = [
       },
     ],
   },
-  { type: "link", label: "Teachers", href: "#teachers" },
+  {
+    type: "link",
+    label: "TEACHERS",
+    href: `${SITE}/teacher`,
+    external: true,
+  },
   {
     type: "dropdown",
-    label: "Venue",
+    label: "VENUE",
     items: [
       {
         label: "Course Venue",
@@ -148,11 +159,16 @@ export const PRIMARY_NAV: NavItem[] = [
   },
   {
     type: "link",
-    label: "Blog",
+    label: "BLOG",
     href: `${SITE}/blog`,
     external: true,
   },
-  { type: "link", label: "Contact", href: "#contact" },
+  {
+    type: "link",
+    label: "CONTACT",
+    href: `${SITE}/contact`,
+    external: true,
+  },
 ];
 
 export const SIGN_IN_URL =

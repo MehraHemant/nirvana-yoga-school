@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Container, Pill } from "@/components/ui";
+import { Container, Heading, Pill } from "@/components/ui";
 
 const BENEFITS = [
   "The birthplace of yoga, blessed by the Ganga",
@@ -33,10 +33,13 @@ export default function RishikeshSection() {
             <Pill invert className="mb-4 sm:mb-6">
               Why Rishikesh
             </Pill>
-            <h2 className="font-serif text-[1.75rem] leading-[1.08] sm:text-3xl md:text-4xl lg:text-6xl sm:leading-[1.05] tracking-tight">
+            <Heading as="h2" align="left" font="serif" size="h2" invert>
               Where earth, sky, and{" "}
-              <span className="italic text-accent">spirit</span> meet.
-            </h2>
+              <span className="font-serif italic font-normal text-accent">
+                spirit
+              </span>{" "}
+              meet.
+            </Heading>
             <p className="type-lead mt-4 sm:mt-6 text-white/85">
               There is a sacred rhythm in Rishikesh that cannot be explained —
               only felt. It lives in the silence between temple bells, in the
@@ -52,7 +55,7 @@ export default function RishikeshSection() {
                   className="flex items-start gap-2.5 sm:gap-3 text-white/90"
                 >
                   <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-accent flex-shrink-0" />
-                  <span className="type-body text-sm sm:text-base">{b}</span>
+                  <span className="type-body">{b}</span>
                 </li>
               ))}
             </ul>

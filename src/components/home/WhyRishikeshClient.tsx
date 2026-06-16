@@ -8,7 +8,7 @@ import {
 } from "framer-motion";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { Container, Pill } from "@/components/ui";
+import { Container, Heading, Pill } from "@/components/ui";
 import { Play } from "@/icons";
 import { EASE_OUT, fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 
@@ -63,7 +63,7 @@ const playerCardVariants: Variants = {
   },
 };
 
-const pillContainerVariants: Variants = {
+const _pillContainerVariants: Variants = {
   hidden: {},
   visible: {
     transition: {
@@ -73,7 +73,7 @@ const pillContainerVariants: Variants = {
   },
 };
 
-const pillVariants: Variants = {
+const _pillVariants: Variants = {
   hidden: { opacity: 0, y: 8 },
   visible: {
     opacity: 1,
@@ -157,13 +157,17 @@ export default function WhyRishikeshClient({
       >
         <div>
           <Pill>The Yoga Capital of the World</Pill>
-          <h2 className="font-serif font-medium text-[1.625rem] leading-[1.12] sm:text-3xl md:text-4xl lg:text-[2.25rem] lg:leading-[1.1] text-ink mt-3 sm:mt-4 text-balance">
+          <Heading
+            as="h2"
+            align="left"
+            font="serif"
+            size="h2"
+            className="mt-3 sm:mt-4 text-balance"
+          >
             Why learn yoga in{" "}
-            <span className="italic font-normal text-primary animate-glow-primary">
-              Rishikesh
-            </span>{" "}
-            — where earth, sky, and spirit meet
-          </h2>
+            <span className="text-muted font-medium">Rishikesh</span> — where
+            earth, sky, and spirit meet
+          </Heading>
         </div>
 
         <div className="flex flex-col items-start gap-3">
@@ -254,7 +258,7 @@ export default function WhyRishikeshClient({
 
                       {/* Sutra Title */}
                       <h3
-                        className={`font-serif text-base sm:text-lg transition-colors duration-300 ${
+                        className={`type-display-sm transition-colors duration-300 ${
                           isActive ? "text-ink font-semibold" : "text-ink/75"
                         }`}
                       >
@@ -267,9 +271,7 @@ export default function WhyRishikeshClient({
                           animate={{ rotate: isActive ? 45 : 0 }}
                           transition={{ duration: 0.25 }}
                           className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-semibold ${
-                            isActive
-                              ? "bg-primary/10 text-primary"
-                              : "bg-ink/5 text-ink/40"
+                            isActive ? "hidden" : "bg-ink/5 text-ink/40"
                           }`}
                         >
                           ＋
@@ -311,7 +313,7 @@ export default function WhyRishikeshClient({
 
           {/* ── Closing Pull Quote ── */}
           <div className="border-l border-primary/20 pl-4 py-1 mt-4">
-            <p className="font-serif italic sm:text-lg  text-ink/65">
+            <p className="font-poppins italic text-base sm:text-lg md:text-lg font-normal leading-snug text-ink/65">
               "{CLOSING_INVITATION}"
             </p>
           </div>
@@ -331,14 +333,14 @@ export default function WhyRishikeshClient({
             <div>
               <div className="flex items-center gap-2">
                 <span className="type-eyebrow text-primary tracking-wider">
-                  Founder's Wisdom
+                  Guru Ji's Wisdom
                 </span>
                 <span
                   className="flex h-1.5 w-1.5 rounded-full bg-primary animate-pulse"
                   aria-hidden="true"
                 />
               </div>
-              <h3 className="font-serif text-lg sm:text-xl mt-1 text-ink leading-tight">
+              <h3 className="type-display-sm font-semibold mt-1 text-ink leading-tight">
                 Spiritual Guidance with Gurudev
               </h3>
             </div>
@@ -406,35 +408,6 @@ export default function WhyRishikeshClient({
               <p className="type-eyebrow text-muted mt-1 text-[9px]">
                 Founder & Spiritual Master · Nirvana Yoga School
               </p>
-            </div>
-
-            {/* Highlights Horizontal Pills */}
-            <div>
-              <h4 className="type-eyebrow text-ink/45 mb-2.5 tracking-wider text-[9px]">
-                Why Rishikesh?
-              </h4>
-              <motion.div
-                className="flex flex-wrap gap-2"
-                variants={pillContainerVariants}
-                initial="hidden"
-                whileInView="visible"
-                viewport={VIEWPORT_ONCE}
-              >
-                {[
-                  "Birthplace of Yoga",
-                  "River Ganga Energy",
-                  "Himalayan Stillness",
-                  "Lineage Masters",
-                ].map((item) => (
-                  <motion.span
-                    key={item}
-                    variants={pillVariants}
-                    className="type-ui text-[11px] font-semibold bg-sand/60 border border-ink/5 px-2.5 py-1 rounded-full text-ink/75 hover:bg-white hover:shadow-xs transition-all duration-300"
-                  >
-                    {item}
-                  </motion.span>
-                ))}
-              </motion.div>
             </div>
           </motion.div>
         </div>

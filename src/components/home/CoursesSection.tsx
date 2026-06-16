@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Link from "next/link";
 import { Container, CourseCard, SectionHeader } from "@/components/ui";
 import type { CourseCardProps } from "@/components/ui/CourseCard";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
@@ -18,7 +17,7 @@ const COURSES: (CourseCardProps & { highlights: string[] })[] = [
     image:
       "https://images.unsplash.com/photo-1599447421416-3414500d18a5?w=800&auto=format&fit=crop&q=80",
     certBadge: `${SITE}/img/ryt200.webp`,
-    href: `${SITE}/200-hour-yoga-teacher-training-in-rishikesh-india`,
+    href: "/200-hour-yoga-teacher-training-in-rishikesh-india",
     highlights: [
       "Ashtanga Primary Series",
       "Traditional Hatha",
@@ -35,7 +34,7 @@ const COURSES: (CourseCardProps & { highlights: string[] })[] = [
     image:
       "https://images.unsplash.com/photo-1612817288484-6f916006741a?w=800&auto=format&fit=crop&q=80",
     certBadge: `${SITE}/img/ryt200.webp`,
-    href: `${SITE}/200-hour-ayurveda-yoga-teacher-training-in-rishikesh-india`,
+    href: "/200-hour-ayurveda-yoga-teacher-training-in-rishikesh-india",
     highlights: [
       "Ayurvedic Constitution (Prakriti)",
       "Panchakarma Basics",
@@ -52,7 +51,7 @@ const COURSES: (CourseCardProps & { highlights: string[] })[] = [
     image:
       "https://images.unsplash.com/photo-1528319725582-ddc096101511?w=800&auto=format&fit=crop&q=80",
     certBadge: `${SITE}/img/ryt200.webp`,
-    href: `${SITE}/200-hour-meditation-teacher-training-in-rishikesh-india`,
+    href: "/200-hour-meditation-teacher-training-in-rishikesh-india",
     highlights: [
       "Meditation Techniques",
       "Yoga Nidra Scripting",
@@ -69,7 +68,7 @@ const COURSES: (CourseCardProps & { highlights: string[] })[] = [
     image:
       "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800&auto=format&fit=crop&q=80",
     certBadge: `${SITE}/img/ryt200.webp`,
-    href: `${SITE}/200-hour-kundalini-yoga-teacher-training-in-rishikesh-india`,
+    href: "/200-hour-kundalini-yoga-teacher-training-in-rishikesh-india",
     highlights: [
       "Kriya & Energy Channels",
       "Chakra Activation",
@@ -86,7 +85,7 @@ const COURSES: (CourseCardProps & { highlights: string[] })[] = [
     image:
       "https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?w=800&auto=format&fit=crop&q=80",
     certBadge: `${SITE}/img/ryt300.webp`,
-    href: `${SITE}/300-hour-yoga-teacher-training-in-rishikesh-india`,
+    href: "/300-hour-yoga-teacher-training-in-rishikesh-india",
     highlights: [
       "Advanced Asanas & Adjustments",
       "Advanced Ayurveda Therapy",
@@ -103,7 +102,7 @@ const COURSES: (CourseCardProps & { highlights: string[] })[] = [
     image:
       "https://images.unsplash.com/photo-1508672019048-805c876b67e2?w=800&auto=format&fit=crop&q=80",
     certBadge: `${SITE}/img/ryt500.webp`,
-    href: `${SITE}/500-hour-yoga-teacher-training-in-rishikesh-india`,
+    href: "/500-hour-yoga-teacher-training-in-rishikesh-india",
     highlights: [
       "Master Class Pedagogy",
       "Complete Sanskrit Studies",
@@ -126,17 +125,18 @@ export default function CoursesSection() {
         >
           <SectionHeader
             eyebrow="Residential YTT in Rishikesh, India"
+            // align="center"
             title={
               <>
                 Yoga Teacher Training in{" "}
-                <span className="text-primary italic animate-glow-primary">
+                <span className="font-normal text-muted font-serif">
                   Rishikesh.
                 </span>
               </>
             }
             description="Beyond mere certifications — life-changing journeys into the heart of yoga. Yoga Alliance-accredited programs blending ancient wisdom with holistic guidance."
           />
-          <Link
+          {/* <Link
             href={`${SITE}/yoga-teacher-training-in-rishikesh-india`}
             target="_blank"
             rel="noopener noreferrer"
@@ -146,7 +146,7 @@ export default function CoursesSection() {
             <motion.span aria-hidden="true" whileHover={{ x: 4 }}>
               →
             </motion.span>
-          </Link>
+          </Link> */}
         </motion.div>
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-7 items-start">

@@ -300,7 +300,7 @@ export default function GallerySection() {
   return (
     <section
       id="gallery"
-      className="relative w-full overflow-hidden bg-sand py-12 sm:py-14 lg:py-16"
+      className="relative w-full bg-sand py-12 sm:py-14 lg:py-16"
     >
       <Container size="2xl" className="relative">
         <motion.div
@@ -315,9 +315,7 @@ export default function GallerySection() {
               title={
                 <>
                   Life at{" "}
-                  <span className="italic font-normal text-accent">
-                    Nirvana
-                  </span>
+                  <span className="font-medium text-muted">Nirvana</span>
                 </>
               }
               description="A glimpse into the daily rhythm, organic meals, clean accommodations, sacred ceremonies, and outdoor excursions that make up your yoga teacher training journey."
@@ -329,14 +327,14 @@ export default function GallerySection() {
 
         {/* Categories Tab Bar */}
         <motion.div
-          className="mb-10"
+          className="sticky top-18 md:top-20 z-30 bg-sand/95 backdrop-blur-md py-4 mb-10 -mx-5 px-5 md:-mx-8 md:px-8 border-b border-ink/8"
           initial="hidden"
           whileInView="visible"
           viewport={VIEWPORT_ONCE}
           custom={0.06}
           variants={fadeUp}
         >
-          <div className="flex flex-wrap gap-2 border-b border-ink/8 pb-4">
+          <div className="flex flex-wrap gap-2">
             {CATEGORIES.map((category) => {
               const isActive = selectedCategory === category.id;
               return (
@@ -419,7 +417,7 @@ export default function GallerySection() {
                             ? "Campus Life"
                             : "Excursion"}
                       </span>
-                      <h4 className="font-serif text-sm sm:text-base font-semibold text-ink leading-tight mt-1 transition-colors duration-300">
+                      <h4 className="font-serif text-sm sm:text-base font-medium text-ink leading-tight tracking-wide mt-1 transition-colors duration-300">
                         {item.title}
                       </h4>
                     </div>

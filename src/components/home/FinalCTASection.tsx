@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Button, Container, Pill } from "@/components/ui";
+import { Button, Container, Heading, Pill } from "@/components/ui";
 import { ArrowRight, WhatsApp } from "@/icons";
 
 export default function FinalCTASection() {
@@ -24,11 +24,13 @@ export default function FinalCTASection() {
         <Pill invert className="mb-4 sm:mb-6 mx-auto">
           Limited spots · 25% early-bird saving
         </Pill>
-        <h2 className="font-serif text-white text-[1.75rem] leading-[1.08] sm:text-3xl md:text-4xl lg:text-6xl sm:leading-[1.05] tracking-tight">
+        <Heading as="h2" align="center" font="serif" size="h2" invert>
           Your journey begins
           <br />
-          <span className="italic text-accent">when you arrive.</span>
-        </h2>
+          <span className="font-serif italic font-normal text-accent">
+            when you arrive.
+          </span>
+        </Heading>
         <p className="type-lead mt-4 sm:mt-6 text-white/85 max-w-2xl mx-auto">
           Reach out today &mdash; we&apos;ll answer every question and help you
           choose the path that&apos;s right for you. No pressure, only presence.
@@ -49,7 +51,7 @@ export default function FinalCTASection() {
           </Button>
         </div>
 
-        <p className="mt-6 sm:mt-8 text-white/60 text-[0.65rem] sm:text-xs uppercase tracking-widest">
+        <p className="mt-6 sm:mt-8 type-eyebrow text-white/60">
           Save 25% when you book by 25 July 2026
         </p>
       </Container>

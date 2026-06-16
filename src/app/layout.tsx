@@ -1,8 +1,29 @@
 import type { Metadata } from "next";
+import { Poppins } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { Footer, Header } from "@/components";
 import MobileStickyBar from "@/components/ui/MobileStickyBar";
 import WhatsAppFab from "@/components/ui/WhatsAppFab";
+
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  variable: "--font-poppins",
+  display: "swap",
+});
+
+const noeDisplay = localFont({
+  src: [
+    {
+      path: "../../public/fonts/NoeDisplay-Regular.woff2",
+      weight: "400",
+      style: "normal",
+    },
+  ],
+  variable: "--font-noe",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.nirvanayogaschoolindia.com"),
@@ -56,7 +77,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className="h-full antialiased scroll-smooth"
+      className={`${poppins.variable} ${noeDisplay.variable} h-full antialiased scroll-smooth`}
       data-scroll-behavior="smooth"
     >
       <body className="flex min-h-full flex-col bg-sand text-ink">
