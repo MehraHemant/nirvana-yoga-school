@@ -315,7 +315,7 @@ export default function GallerySection() {
               title={
                 <>
                   Life at{" "}
-                  <span className="font-medium text-muted">Nirvana</span>
+                  <span className="font-medium text-primary">Nirvana</span>
                 </>
               }
               description="A glimpse into the daily rhythm, organic meals, clean accommodations, sacred ceremonies, and outdoor excursions that make up your yoga teacher training journey."
@@ -342,9 +342,8 @@ export default function GallerySection() {
                   key={category.id}
                   type="button"
                   onClick={() => setSelectedCategory(category.id)}
-                  className={`type-ui relative px-4 py-2 font-medium transition-colors duration-300 focus-visible:outline-none ${
-                    isActive ? "text-primary" : "text-muted hover:text-ink"
-                  }`}
+                  className={`type-ui relative px-4 py-2 font-medium transition-colors duration-300 focus-visible:outline-none ${isActive ? "text-primary" : "text-muted hover:text-ink"
+                    }`}
                 >
                   {category.label}
                   {isActive && (
