@@ -27,7 +27,7 @@ export default function FinalCTASection() {
         <Heading as="h2" align="center" font="serif" size="h2" invert>
           Your journey begins
           <br />
-          <span className="font-serif italic font-normal text-accent">
+          <span className="font-serif font-medium text-accent">
             when you arrive.
           </span>
         </Heading>

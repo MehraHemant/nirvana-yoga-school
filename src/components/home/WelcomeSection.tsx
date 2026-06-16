@@ -152,12 +152,12 @@ export default function WelcomeSection() {
                     prefersReduced
                       ? {}
                       : {
-                          repeat: Infinity,
-                          repeatType: "reverse",
-                          duration: 3,
-                          ease: "easeInOut",
-                          delay: 0.2,
-                        }
+                        repeat: Infinity,
+                        repeatType: "reverse",
+                        duration: 3,
+                        ease: "easeInOut",
+                        delay: 0.2,
+                      }
                   }
                   style={{
                     transformStyle: "preserve-3d",
@@ -188,12 +188,12 @@ export default function WelcomeSection() {
                     prefersReduced
                       ? {}
                       : {
-                          repeat: Infinity,
-                          repeatType: "reverse",
-                          duration: 2.8,
-                          ease: "easeInOut",
-                          delay: 0.4,
-                        }
+                        repeat: Infinity,
+                        repeatType: "reverse",
+                        duration: 2.8,
+                        ease: "easeInOut",
+                        delay: 0.4,
+                      }
                   }
                   style={{
                     transformStyle: "preserve-3d",
@@ -223,12 +223,12 @@ export default function WelcomeSection() {
                     prefersReduced
                       ? {}
                       : {
-                          repeat: Infinity,
-                          repeatType: "reverse",
-                          duration: 3.2,
-                          ease: "easeInOut",
-                          delay: 0.6,
-                        }
+                        repeat: Infinity,
+                        repeatType: "reverse",
+                        duration: 3.2,
+                        ease: "easeInOut",
+                        delay: 0.6,
+                      }
                   }
                   style={{
                     transformStyle: "preserve-3d",
@@ -272,7 +272,7 @@ export default function WelcomeSection() {
                 className="text-balance"
               >
                 Welcome to Nirvana — a{" "}
-                <span className="text-primary italic font-medium animate-glow-primary">
+                <span className="text-primary font-medium">
                   sanctuary for the soul
                 </span>{" "}
                 in Rishikesh

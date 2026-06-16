@@ -165,7 +165,7 @@ export default function WhyRishikeshClient({
             className="mt-3 sm:mt-4 text-balance"
           >
             Why learn yoga in{" "}
-            <span className="text-muted font-medium">Rishikesh</span> — where
+            <span className="text-primary font-medium">Rishikesh</span> — where
             earth, sky, and spirit meet
           </Heading>
         </div>
@@ -228,11 +228,10 @@ export default function WhyRishikeshClient({
                     onFocus={() => setIsPaused(true)}
                     onBlur={() => setIsPaused(false)}
                     variants={itemVariants}
-                    className={`w-full text-left rounded-3xl p-4 sm:p-5 transition-all duration-300 border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 cursor-pointer relative overflow-hidden ${
-                      isActive
+                    className={`w-full text-left rounded-3xl p-4 sm:p-5 transition-all duration-300 border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 cursor-pointer relative overflow-hidden ${isActive
                         ? "bg-white shadow-soft border-primary/20 ring-1 ring-primary/10"
                         : "bg-white/40 border-ink/5 hover:bg-white/80 hover:border-ink/10"
-                    }`}
+                      }`}
                   >
                     {/* Time Progress Line (Above/Top of Card) */}
                     {isActive && !prefersReduced && (
@@ -249,18 +248,16 @@ export default function WhyRishikeshClient({
                     <div className="flex gap-4 items-center">
                       {/* Indicator Number */}
                       <span
-                        className={`font-serif text-xl sm:text-2xl leading-none transition-colors duration-300 select-none ${
-                          isActive ? "text-primary font-medium" : "text-ink/30"
-                        }`}
+                        className={`font-serif text-xl sm:text-2xl leading-none transition-colors duration-300 select-none ${isActive ? "text-primary font-medium" : "text-ink/30"
+                          }`}
                       >
                         {String(i + 1).padStart(2, "0")}
                       </span>
 
                       {/* Sutra Title */}
                       <h3
-                        className={`type-display-sm transition-colors duration-300 ${
-                          isActive ? "text-ink font-semibold" : "text-ink/75"
-                        }`}
+                        className={`type-display-sm transition-colors duration-300 ${isActive ? "text-ink font-semibold" : "text-ink/75"
+                          }`}
                       >
                         {sutra.title}
                       </h3>
@@ -270,9 +267,8 @@ export default function WhyRishikeshClient({
                         <motion.span
                           animate={{ rotate: isActive ? 45 : 0 }}
                           transition={{ duration: 0.25 }}
-                          className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-semibold ${
-                            isActive ? "hidden" : "bg-ink/5 text-ink/40"
-                          }`}
+                          className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-semibold ${isActive ? "hidden" : "bg-ink/5 text-ink/40"
+                            }`}
                         >
                           ＋
                         </motion.span>

@@ -91,9 +91,6 @@ export default function Footer() {
                   className="h-20 w-auto object-contain transition-transform duration-500 group-hover:scale-[1.02]"
                 />
               </Link>
-              <p className="font-serif italic text-accent font-light text-[11px] mt-1 tracking-wide">
-                Lineage, Tradition, and Tapasya since 2012
-              </p>
               <p className="mt-2 text-white/80 max-w-sm leading-relaxed text-sm/snug">
                 An authentic, Yoga Alliance certified school on the banks of the
                 Ganga in Rishikesh. Providing traditional education, ayurvedic

@@ -245,11 +245,10 @@ function RatingCard({
             <Star
               key={`rating-star-${num}`}
               size={16}
-              className={`${
-                num < Math.floor(ratingValue)
+              className={`${num < Math.floor(ratingValue)
                   ? getStarColorClass(platform)
                   : "text-ink/10 fill-transparent"
-              } shrink-0`}
+                } shrink-0`}
             />
           ))}
         </div>
@@ -293,7 +292,7 @@ export default function TestimonialsSection() {
             title={
               <>
                 What Students Say About{" "}
-                <span className="text-muted font-serif font-medium">
+                <span className="text-primary font-medium">
                   Nirvana Yoga School
                 </span>
               </>

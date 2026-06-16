@@ -129,7 +129,7 @@ export default function CoursesSection() {
             title={
               <>
                 Yoga Teacher Training in{" "}
-                <span className="font-normal text-muted font-serif">
+                <span className="font-normal text-primary">
                   Rishikesh.
                 </span>
               </>

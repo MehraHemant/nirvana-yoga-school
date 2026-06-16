@@ -327,7 +327,7 @@ export default function TeachersSection() {
             title={
               <>
                 Lineage Teachers,{" "}
-                <span className="font-normal text-muted font-serif">
+                <span className="font-normal text-primary">
                   Guided by Compassion
                 </span>
               </>
@@ -357,11 +357,10 @@ export default function TeachersSection() {
                   key={`spotlight-btn-${teacher.name}`}
                   onClick={() => setSelectedIdx(index)}
                   type="button"
-                  className={`relative w-full p-4 rounded-xl flex items-center gap-4.5 transition-all duration-300 border text-left cursor-pointer ${
-                    isSelected
+                  className={`relative w-full p-4 rounded-xl flex items-center gap-4.5 transition-all duration-300 border text-left cursor-pointer ${isSelected
                       ? "text-white border-secondary shadow-sm scale-102"
                       : "bg-white text-ink border-ink/5 hover:border-secondary/20 hover:scale-[1.01]"
-                  }`}
+                    }`}
                   style={{
                     transform:
                       isSelected && !prefersReducedMotion
@@ -390,9 +389,8 @@ export default function TeachersSection() {
                       {teacher.name}
                     </h4>
                     <p
-                      className={`text-[10px] sm:text-[11px] font-sans uppercase font-semibold tracking-wider mt-1.5 truncate ${
-                        isSelected ? "text-white/80" : "text-secondary"
-                      }`}
+                      className={`text-[10px] sm:text-[11px] font-sans uppercase font-semibold tracking-wider mt-1.5 truncate ${isSelected ? "text-white/80" : "text-secondary"
+                        }`}
                     >
                       {teacher.experienceSummary}
                     </p>
@@ -516,11 +514,10 @@ export default function TeachersSection() {
                 <button
                   onClick={() => setSelectedIdx(isOpen ? -1 : index)}
                   type="button"
-                  className={`w-full p-4 flex items-center justify-between text-left cursor-pointer transition-colors duration-300 ${
-                    isOpen
+                  className={`w-full p-4 flex items-center justify-between text-left cursor-pointer transition-colors duration-300 ${isOpen
                       ? "bg-secondary/70 text-white border-b border-ink/5"
                       : "bg-white text-ink"
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center gap-4.5">
                     <div className="relative w-12 h-12 rounded-full overflow-hidden shrink-0 border border-ink/10 shadow-2xs">
@@ -539,9 +536,8 @@ export default function TeachersSection() {
                         {teacher.name}
                       </h4>
                       <p
-                        className={`text-[10px] sm:text-[11px] font-sans uppercase font-normal tracking-wider mt-1.5 truncate ${
-                          isOpen ? "text-white/80" : "text-secondary"
-                        }`}
+                        className={`text-[10px] sm:text-[11px] font-sans uppercase font-normal tracking-wider mt-1.5 truncate ${isOpen ? "text-white/80" : "text-secondary"
+                          }`}
                       >
                         {teacher.experienceSummary}
                       </p>
@@ -557,11 +553,10 @@ export default function TeachersSection() {
 
                 {/* Collapsible Content */}
                 <div
-                  className={`transition-all duration-500 ease-in-out overflow-hidden ${
-                    isOpen
+                  className={`transition-all duration-500 ease-in-out overflow-hidden ${isOpen
                       ? " opacity-100 p-5 border-t border-ink /5"
                       : "max-h-0 opacity-0 pointer-events-none"
-                  }`}
+                    }`}
                 >
                   <div className="flex flex-col gap-6">
                     {/* Portrait */}
