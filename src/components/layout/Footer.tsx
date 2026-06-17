@@ -144,7 +144,7 @@ export default function Footer() {
                           ? "noopener noreferrer"
                           : undefined
                       }
-                      className="text-white/75 hover:text-accent text-xs font-medium transition-colors duration-300 font-sans"
+                      className="text-white/75 hover:text-white text-xs font-medium transition-all duration-300 font-sans rounded-xl px-3 py-2 -ml-3 border-l-2 border-transparent hover:border-primary hover:bg-primary/10"
                     >
                       {l.label}
                     </Link>
@@ -168,7 +168,7 @@ export default function Footer() {
                           ? "noopener noreferrer"
                           : undefined
                       }
-                      className="text-white/75 hover:text-accent text-xs font-medium transition-colors duration-300 font-sans"
+                      className="text-white/75 hover:text-white text-xs font-medium transition-all duration-300 font-sans rounded-xl px-3 py-2 -ml-3 border-l-2 border-transparent hover:border-primary hover:bg-primary/10"
                     >
                       {l.label}
                     </Link>

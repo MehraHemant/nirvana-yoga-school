@@ -277,22 +277,33 @@ export default function GallerySection() {
     if (pool.length === 0 || visibleItems.length === 0) return;
 
     const interval = setInterval(() => {
-      // Pick a random slot to replace
-      const slotIndex = Math.floor(Math.random() * visibleItems.length);
-
       setVisibleItems((currentVisible) => {
         const currentPool = filteredItems.filter(
           (item) => !currentVisible.some((vis) => vis.id === item.id),
         );
         if (currentPool.length === 0) return currentVisible;
 
-        const randomPoolItem =
-          currentPool[Math.floor(Math.random() * currentPool.length)];
+        // Pick up to 3 unique random slots to replace
+        const slotCount = Math.min(
+          3,
+          currentVisible.length,
+          currentPool.length,
+        );
+        const slotIndices = new Set<number>();
+        while (slotIndices.size < slotCount) {
+          slotIndices.add(Math.floor(Math.random() * currentVisible.length));
+        }
+
+        // Pick unique random pool items for each slot
+        const shuffledPool = [...currentPool].sort(() => Math.random() - 0.5);
         const nextVisible = [...currentVisible];
-        nextVisible[slotIndex] = randomPoolItem;
+        let poolIdx = 0;
+        for (const slotIndex of slotIndices) {
+          nextVisible[slotIndex] = shuffledPool[poolIdx++];
+        }
         return nextVisible;
       });
-    }, 2500); // Transition every 2.5 seconds
+    }, 2000); // Swap 3 images every 2 seconds
 
     return () => clearInterval(interval);
   }, [filteredItems, visibleItems.length, prefersReduced]);
@@ -342,8 +353,9 @@ export default function GallerySection() {
                   key={category.id}
                   type="button"
                   onClick={() => setSelectedCategory(category.id)}
-                  className={`type-ui relative px-4 py-2 font-medium transition-colors duration-300 focus-visible:outline-none ${isActive ? "text-primary" : "text-muted hover:text-ink"
-                    }`}
+                  className={`type-ui relative px-4 py-2 font-medium transition-colors duration-300 focus-visible:outline-none ${
+                    isActive ? "text-primary" : "text-muted hover:text-ink"
+                  }`}
                 >
                   {category.label}
                   {isActive && (

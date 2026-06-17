@@ -152,12 +152,12 @@ export default function WelcomeSection() {
                     prefersReduced
                       ? {}
                       : {
-                        repeat: Infinity,
-                        repeatType: "reverse",
-                        duration: 3,
-                        ease: "easeInOut",
-                        delay: 0.2,
-                      }
+                          repeat: Infinity,
+                          repeatType: "reverse",
+                          duration: 3,
+                          ease: "easeInOut",
+                          delay: 0.2,
+                        }
                   }
                   style={{
                     transformStyle: "preserve-3d",
@@ -188,12 +188,12 @@ export default function WelcomeSection() {
                     prefersReduced
                       ? {}
                       : {
-                        repeat: Infinity,
-                        repeatType: "reverse",
-                        duration: 2.8,
-                        ease: "easeInOut",
-                        delay: 0.4,
-                      }
+                          repeat: Infinity,
+                          repeatType: "reverse",
+                          duration: 2.8,
+                          ease: "easeInOut",
+                          delay: 0.4,
+                        }
                   }
                   style={{
                     transformStyle: "preserve-3d",
@@ -223,12 +223,12 @@ export default function WelcomeSection() {
                     prefersReduced
                       ? {}
                       : {
-                        repeat: Infinity,
-                        repeatType: "reverse",
-                        duration: 3.2,
-                        ease: "easeInOut",
-                        delay: 0.6,
-                      }
+                          repeat: Infinity,
+                          repeatType: "reverse",
+                          duration: 3.2,
+                          ease: "easeInOut",
+                          delay: 0.6,
+                        }
                   }
                   style={{
                     transformStyle: "preserve-3d",
@@ -285,7 +285,7 @@ export default function WelcomeSection() {
 
             {/* Lead Story Paragraph */}
             <motion.div variants={rightColumnItem}>
-              <p className="type-lead text-ink/85">
+              <p className="text-base md:text-lg leading-snug font-medium text-ink/85">
                 Nirvana Yoga School is more than a teacher training — it is an
                 ancient healing art set in the heart of Rishikesh along the
                 sacred Ganges, elevated by the spirit of Himalayan stillness.
@@ -301,10 +301,10 @@ export default function WelcomeSection() {
               className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2"
             >
               <div className="space-y-2 border-t border-ink/5 pt-4">
-                <span className="text-primary font-bold text-xs uppercase tracking-widest block">
+                <span className="text-primary font-bold text-sm uppercase tracking-wide block">
                   01 / Our Vision
                 </span>
-                <p className="text-xs sm:text-sm text-ink/75 leading-relaxed font-sans font-normal">
+                <p className="text-sm sm:text-sm md:text-base text-ink/75 leading-snug font-sans font-normal">
                   Our vision is to share timeless yogic wisdom with sincerity,
                   care, and devotion. From every breath, posture, and chant, we
                   invite you into a life that feels complete, serene, and deeply
@@ -314,10 +314,10 @@ export default function WelcomeSection() {
               </div>
 
               <div className="space-y-2 border-t border-ink/5 pt-4">
-                <span className="text-primary font-bold text-xs uppercase tracking-widest block">
+                <span className="text-primary font-bold text-sm uppercase tracking-wide block">
                   02 / Our Promise
                 </span>
-                <p className="text-xs sm:text-sm text-ink/75 leading-relaxed font-sans font-normal">
+                <p className="text-sm sm:text-sm md:text-base leading-snug font-sans font-normal">
                   Whether you join us for a foundational training or a deeper
                   immersion, our intention remains steady: to hold the space for
                   meaningful transformation. We welcome seekers from around the

@@ -99,8 +99,8 @@ export default function CourseHero({
           </motion.div>
         </AnimatePresence>
         {/* Cinematic gradients */}
-        <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/75 to-transparent z-10" />
-        <div className="absolute inset-0 bg-gradient-to-r from-ink/90 via-ink/40 to-transparent z-10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/65 to-transparent z-10" />
+        <div className="absolute inset-0 bg-gradient-to-r from-ink/80 via-ink/30 to-transparent z-10" />
         <div className="absolute inset-0 bg-radial-gradient(circle at 30% 50%, transparent 20%, rgba(26,20,16,0.8) 100%) z-10" />
       </div>
 

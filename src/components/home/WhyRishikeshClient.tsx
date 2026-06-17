@@ -170,17 +170,40 @@ export default function WhyRishikeshClient({
           </Heading>
         </div>
 
-        <div className="flex flex-col items-start gap-3">
-          <p className="text-muted text-base sm:text-lg leading-7">
-            For centuries, seekers have been drawn to this sacred land at the
-            foothills of the Himalayas. Here, yoga is not just practised — it is
-            lived, breathed, and remembered.
-          </p>
-          {/* Decorative rule */}
-          <div
-            className="w-12 h-px bg-linear-to-r from-primary/40 to-transparent"
-            aria-hidden="true"
-          />
+        <div className="flex items-start justify-center">
+          {/* Trust logos */}
+          <div className="flex items-center gap-6 sm:gap-8 pt-2">
+            <div className="relative w-24 h-24 sm:w-36 sm:h-36 transition-transform duration-300 hover:scale-105">
+              <Image
+                src="/images/logos/yoga-alliance.png"
+                alt="Yoga Alliance Certified"
+                fill
+                sizes="(max-width: 640px) 96px, 128px"
+                className="object-contain"
+                priority
+              />
+            </div>
+            <div className="relative w-24 h-24 sm:w-36 sm:h-36 transition-transform duration-300 hover:scale-105">
+              <Image
+                src="/images/logos/ayush.png"
+                alt="Ministry of AYUSH, Government of India"
+                fill
+                sizes="(max-width: 640px) 96px, 128px"
+                className="object-contain"
+                priority
+              />
+            </div>
+            <div className="relative w-24 h-24 sm:w-36 sm:h-36 transition-transform duration-300 hover:scale-105">
+              <Image
+                src="/images/logos/yai.png"
+                alt="Yoga Alliance International"
+                fill
+                sizes="(max-width: 640px) 96px, 128px"
+                className="object-contain"
+                priority
+              />
+            </div>
+          </div>
         </div>
       </motion.div>
 
@@ -229,8 +252,8 @@ export default function WhyRishikeshClient({
                     onBlur={() => setIsPaused(false)}
                     variants={itemVariants}
                     className={`w-full text-left rounded-3xl p-4 sm:p-5 transition-all duration-300 border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 cursor-pointer relative overflow-hidden ${isActive
-                        ? "bg-white shadow-soft border-primary/20 ring-1 ring-primary/10"
-                        : "bg-white/40 border-ink/5 hover:bg-white/80 hover:border-ink/10"
+                      ? "bg-white shadow-soft border-primary/20 ring-1 ring-primary/10"
+                      : "bg-white/40 border-ink/5 hover:bg-white/80 hover:border-ink/10"
                       }`}
                   >
                     {/* Time Progress Line (Above/Top of Card) */}

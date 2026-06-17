@@ -84,7 +84,7 @@ export default function HeroSection() {
                 <span className="text-white/95"> meets the soul of the </span>
                 <br />
                 <span className="relative inline-block whitespace-nowrap">
-                  <span className="font-serif italic font-normal text-accent">
+                  <span className="font-serif font-normal text-accent">
                     Himalayas
                   </span>
                   <HeroUnderline className="absolute -bottom-1 md:-bottom-2 left-0 w-full text-accent" />

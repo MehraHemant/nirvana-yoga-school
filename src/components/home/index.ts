@@ -4,6 +4,7 @@ export { default as FAQSection } from "./FAQSection";
 export { default as FinalCTASection } from "./FinalCTASection";
 export { default as GallerySection } from "./GallerySection";
 export { default as HeroSection } from "./HeroSection";
+export { default as MapSection } from "./MapSection";
 export { default as RishikeshSection } from "./RishikeshSection";
 export { default as TeachersSection } from "./TeachersSection";
 export { default as TestimonialsSection } from "./TestimonialsSection";

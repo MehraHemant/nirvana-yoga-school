@@ -125,13 +125,11 @@ export default function CoursesSection() {
         >
           <SectionHeader
             eyebrow="Residential YTT in Rishikesh, India"
-            // align="center"
+            align="center"
             title={
               <>
                 Yoga Teacher Training in{" "}
-                <span className="font-normal text-primary">
-                  Rishikesh.
-                </span>
+                <span className="font-normal text-primary">Rishikesh.</span>
               </>
             }
             description="Beyond mere certifications — life-changing journeys into the heart of yoga. Yoga Alliance-accredited programs blending ancient wisdom with holistic guidance."

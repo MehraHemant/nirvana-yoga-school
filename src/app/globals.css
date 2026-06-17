@@ -880,3 +880,75 @@ details[open] .accordion-icon {
 .animate-glow-primary {
   animation: text-glow-pulse 4s ease-in-out infinite;
 }
+
+/* ── Yoga Alliance Section ── */
+
+/* Card with animated gradient border */
+.ya-card {
+  position: relative;
+  background: rgb(255 255 255 / 0.04);
+  border: 1px solid rgb(255 255 255 / 0.08);
+  transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.ya-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    160deg,
+    rgb(166 181 162 / 0.3),
+    transparent 40%,
+    transparent 60%,
+    rgb(163 36 50 / 0.2)
+  );
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+
+.ya-card:hover::before {
+  opacity: 1;
+}
+
+.ya-card:hover {
+  background: rgb(255 255 255 / 0.08);
+  border-color: rgb(255 255 255 / 0.15);
+  box-shadow:
+    0 16px 48px -12px rgb(163 36 50 / 0.18),
+    0 0 0 1px rgb(166 181 162 / 0.06);
+}
+
+/* Pulsing glow ring around seal */
+@keyframes seal-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 0 rgb(166 181 162 / 0.15),
+      0 0 24px -4px rgb(166 181 162 / 0.1);
+  }
+  50% {
+    box-shadow:
+      0 0 0 8px rgb(166 181 162 / 0),
+      0 0 32px -4px rgb(166 181 162 / 0.2);
+  }
+}
+
+.ya-seal-ring {
+  animation: seal-pulse 3.5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ya-seal-ring {
+    animation: none;
+  }
+  .ya-card::before {
+    transition: none;
+  }
+}

@@ -123,7 +123,7 @@ export default function CourseCard({
         variants={cardVariants}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
-        className={`${className} group relative flex flex-col h-full bg-white border border-ink/5 p-5 rounded-3xl course-card-transition shadow-card hover:border-primary/30 hover:ring-1 hover:ring-primary/20 hover:shadow-[0_30px_60px_-15px_rgba(163,36,50,0.16)]`}
+        className={`${className} group relative flex flex-col h-full bg-sand border border-ink/5 rounded-3xl course-card-transition shadow-card hover:border-primary/30 hover:ring-1 hover:ring-primary/20 hover:shadow-[0_30px_60px_-15px_rgba(163,36,50,0.16)]`}
         style={{
           rotateX: prefersReduced ? 0 : rotateXSpring,
           rotateY: prefersReduced ? 0 : rotateYSpring,
@@ -140,24 +140,26 @@ export default function CourseCard({
 
         {/* Course image container with transformZ for a layers/depth pop out */}
         <div
-          className="relative aspect-[16/10] w-full overflow-hidden mb-5 rounded-2xl border border-ink/5 bg-sand"
+          className="relative aspect-[16/10] p-4 w-full overflow-hidden mb-1"
           style={{
-            transform: prefersReduced ? "none" : "translateZ(30px)",
+            // transform: prefersReduced ? "none" : "translateZ(40px)",
             transformStyle: "preserve-3d",
           }}
         >
-          <Image
-            src={image}
-            alt={title}
-            fill
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            className="object-cover transition-transform duration-700 group-hover:scale-105"
-            priority={revealDelay === 0}
-          />
+          <div className="relative w-full h-full overflow-hidden rounded-xl">
+            <Image
+              src={image}
+              alt={title}
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              className="object-cover transition-transform duration-700 group-hover:scale-105"
+              priority={revealDelay === 0}
+            />
+          </div>
 
           {/* Floating Certification Seal Logo (Top-Right) */}
           <div
-            className="absolute top-3.5 right-3.5 z-30 h-10 w-10 rounded-full bg-white/90 p-1 border border-white/20 shadow-sm flex items-center justify-center pointer-events-none select-none backdrop-blur-xs"
+            className="absolute top-6 right-6 z-30 h-10 w-10 rounded-full bg-white/90 p-1 border border-white/20 shadow-sm flex items-center justify-center pointer-events-none select-none backdrop-blur-xs"
             style={{
               transform: prefersReduced ? "none" : "translateZ(15px)",
             }}
@@ -175,7 +177,7 @@ export default function CourseCard({
 
           {/* Floating Glassmorphic Fee Tag (Bottom-Left) */}
           <span
-            className="absolute bottom-3.5 left-3.5 z-30 backdrop-blur-md bg-secondary/80 text-sand text-[10px] sm:text-[11px] px-3.5 py-1.5 rounded-full border border-secondary/20 shadow-xs font-semibold tracking-wide select-none"
+            className="absolute bottom-6 left-6 z-30 backdrop-blur-md bg-secondary/80 text-sand text-[10px] sm:text-[11px] px-3.5 py-1.5 rounded-full border border-secondary/20 shadow-xs font-semibold tracking-wide select-none"
             style={{
               transform: prefersReduced ? "none" : "translateZ(15px)",
             }}
@@ -186,7 +188,7 @@ export default function CourseCard({
 
         {/* Content section with translateZ for layered parallax */}
         <div
-          className="flex flex-col flex-1 px-1"
+          className="flex flex-col flex-1 px-5"
           style={{
             transform: prefersReduced ? "none" : "translateZ(20px)",
             transformStyle: "preserve-3d",
@@ -247,15 +249,15 @@ export default function CourseCard({
           )}
 
           {/* Bottom CTA Link */}
-          <div className="mt-auto pt-4 border-t border-ink/5 flex items-center justify-between group-hover:border-t-primary/15 transition-colors duration-300">
-            <span className="font-serif italic text-sm text-ink/80 group-hover:text-primary transition-colors duration-300 pb-0.5">
-              Explore Syllabus & Details
-            </span>
-            <ArrowRight
-              size={14}
-              className="text-accent group-hover:text-primary transition-colors duration-300"
-            />
-          </div>
+        </div>
+        <div className="mt-auto p-4 rounded-b-2xl border-t border-ink/5 flex items-center justify-between group-hover:bg-primary group-hover:border-t-primary/15 transition-colors duration-300">
+          <span className="font-serif tracking-wider font-medium text-sm text-ink/80 group-hover:text-white transition-colors duration-300 pb-0.5">
+            Explore Syllabus & Details
+          </span>
+          <ArrowRight
+            size={14}
+            className="text-accent group-hover:text-white  transition-colors duration-300"
+          />
         </div>
 
         {/* Card clickable anchor overlay */}
@@ -263,7 +265,7 @@ export default function CourseCard({
           href={href}
           target="_blank"
           rel="noopener noreferrer"
-          className="absolute inset-0 z-30 rounded-3xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 cursor-pointer"
+          className="absolute inset-0 z-30 rounded-3xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 cursor-pointer "
           aria-label={`View details for ${title}`}
         />
       </motion.div>

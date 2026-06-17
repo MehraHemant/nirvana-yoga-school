@@ -5,6 +5,7 @@ import {
   GallerySection,
   HeroSection,
   JsonLd,
+  MapSection,
   TeachersSection,
   TestimonialsSection,
   VideoSection,
@@ -122,8 +123,8 @@ export default function Home() {
       <CoursesSection />
       <YogaAllianceSection />
       <TeachersSection />
-      {/* <RishikeshSection /> */}
       <TestimonialsSection />
+      <MapSection />
       <FAQSection />
       <FinalCTASection />
     </>
