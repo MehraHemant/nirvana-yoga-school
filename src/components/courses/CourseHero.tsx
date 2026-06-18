@@ -148,7 +148,7 @@ export default function CourseHero({
               className="type-h1 text-white mb-6"
             >
               {remainingTitle}{" "}
-              <span className="relative inline-block text-accent font-serif italic font-normal">
+              <span className="relative inline-block text-accent font-serif font-normal">
                 {lastWord}
                 <HeroUnderline className="absolute left-0 right-0 -bottom-2 w-full text-accent opacity-80 h-3" />
               </span>

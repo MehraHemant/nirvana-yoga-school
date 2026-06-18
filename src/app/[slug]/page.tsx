@@ -15,6 +15,8 @@ import {
   WhatIsIncluded,
 } from "@/components";
 import { COURSES_DATA } from "@/data/coursesData";
+import { COURSES_MEDIA } from "@/data/coursesMedia";
+import { fetchYouTubeVideos } from "@/lib/youtube";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -66,6 +68,11 @@ export default async function CourseDetailPage({ params }: PageProps) {
     notFound();
   }
 
+  const media = COURSES_MEDIA[slug] || { images: [], videos: [] };
+  const videos = await fetchYouTubeVideos(
+    media.videos.map((id: string) => `https://www.youtube.com/watch?v=${id}`),
+  );
+
   return (
     <article className="min-h-screen bg-sand">
       {/* 1. Hero banner section with details card */}
@@ -87,9 +94,11 @@ export default async function CourseDetailPage({ params }: PageProps) {
       {/* 2. Overview description and key outcomes */}
       <CourseOverview
         overview={course.overview}
-        highlights={course.highlights}
         level={course.level}
         duration={course.duration}
+        certification={course.certification}
+        fee={course.fee}
+        videos={videos}
       />
 
       {/* 3. Inclusions & Exclusions card blocks */}

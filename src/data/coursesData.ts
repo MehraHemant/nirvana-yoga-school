@@ -1619,6 +1619,11 @@ export const COURSES_DATA: Record<string, CourseData> = {
         answer:
           "Yes. Sound healing is highly safe, but direct placements of bowls should be avoided on individuals with cardiac pacemakers, severe epilepsy, metallic implants, or during the first trimester of pregnancy. We cover these safety precautions in detail.",
       },
+      {
+        question: "Are there any contraindications?",
+        answer:
+          "Yes. Sound healing is highly safe, but direct placements of bowls should be avoided on individuals with cardiac pacemakers, severe epilepsy, metallic implants, or during the first trimester of pregnancy. We cover these safety precautions in detail.",
+      },
     ],
   },
 };

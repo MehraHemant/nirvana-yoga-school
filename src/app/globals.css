@@ -13,7 +13,8 @@
 
   /* Fonts config */
   --font-sans: var(--font-poppins), system-ui, sans-serif;
-  --font-serif: var(--font-noe), Georgia, serif; /* Noe Display Heading Font */
+  --font-serif: var(--font-noe), Georgia, serif;
+  /* Noe Display Heading Font */
 
   --font-poppins: var(--font-poppins), sans-serif;
   --font-noe: var(--font-noe), Georgia, serif;
@@ -71,36 +72,12 @@ body {
   line-height: 1.5;
 }
 
-.type-body {
-  font-family: var(--font-sans);
-  font-size: 0.875rem;
-  line-height: 1.65;
-  font-weight: 400;
+@utility type-body {
+  @apply font-sans font-normal text-sm leading-[1.65] sm:text-base;
 }
 
-@media (min-width: 640px) {
-  .type-body {
-    font-size: 1rem;
-  }
-}
-
-.type-lead {
-  font-family: var(--font-sans);
-  font-size: 0.95rem;
-  line-height: 1.6;
-  font-weight: 400;
-}
-
-@media (min-width: 640px) {
-  .type-lead {
-    font-size: 1.125rem;
-  }
-}
-
-@media (min-width: 768px) {
-  .type-lead {
-    font-size: 1.25rem;
-  }
+@utility type-lead {
+  @apply font-sans font-medium text-sm leading-normal sm:text-base md:text-lg;
 }
 
 .type-display-sm {
@@ -128,30 +105,35 @@ body {
   font-weight: 500;
   line-height: 1.06;
   letter-spacing: -0.01em;
-  font-size: 1.75rem; /* 28px */
+  font-size: 1.75rem;
+  /* 28px */
 }
 
 @media (min-width: 640px) {
   .type-h1 {
-    font-size: 2.5rem; /* 40px */
+    font-size: 2.5rem;
+    /* 40px */
   }
 }
 
 @media (min-width: 768px) {
   .type-h1 {
-    font-size: 3rem; /* 48px */
+    font-size: 3rem;
+    /* 48px */
   }
 }
 
 @media (min-width: 1024px) {
   .type-h1 {
-    font-size: 3.5rem; /* 56px */
+    font-size: 3.5rem;
+    /* 56px */
   }
 }
 
 @media (min-width: 1280px) {
   .type-h1 {
-    font-size: 4rem; /* 64px */
+    font-size: 4rem;
+    /* 64px */
   }
 }
 
@@ -160,30 +142,35 @@ body {
   font-weight: 500;
   line-height: 1.12;
   letter-spacing: -0.01em;
-  font-size: 1.625rem; /* 26px */
+  font-size: 1.625rem;
+  /* 26px */
 }
 
 @media (min-width: 640px) {
   .type-h2 {
-    font-size: 2rem; /* 32px */
+    font-size: 2rem;
+    /* 32px */
   }
 }
 
 @media (min-width: 768px) {
   .type-h2 {
-    font-size: 2.25rem; /* 36px */
+    font-size: 2.25rem;
+    /* 36px */
   }
 }
 
 @media (min-width: 1024px) {
   .type-h2 {
-    font-size: 2.75rem; /* 44px */
+    font-size: 2.75rem;
+    /* 44px */
   }
 }
 
 @media (min-width: 1280px) {
   .type-h2 {
-    font-size: 3.25rem; /* 52px */
+    font-size: 3.25rem;
+    /* 52px */
   }
 }
 
@@ -191,24 +178,28 @@ body {
   font-family: var(--font-serif);
   font-weight: 500;
   line-height: 1.18;
-  font-size: 1.375rem; /* 22px */
+  font-size: 1.375rem;
+  /* 22px */
 }
 
 @media (min-width: 640px) {
   .type-h3 {
-    font-size: 1.625rem; /* 26px */
+    font-size: 1.625rem;
+    /* 26px */
   }
 }
 
 @media (min-width: 768px) {
   .type-h3 {
-    font-size: 1.75rem; /* 28px */
+    font-size: 1.75rem;
+    /* 28px */
   }
 }
 
 @media (min-width: 1024px) {
   .type-h3 {
-    font-size: 2rem; /* 32px */
+    font-size: 2rem;
+    /* 32px */
   }
 }
 
@@ -216,18 +207,21 @@ body {
   font-family: var(--font-serif);
   font-weight: 600;
   line-height: 1.22;
-  font-size: 1.125rem; /* 18px */
+  font-size: 1.125rem;
+  /* 18px */
 }
 
 @media (min-width: 640px) {
   .type-h4 {
-    font-size: 1.25rem; /* 20px */
+    font-size: 1.25rem;
+    /* 20px */
   }
 }
 
 @media (min-width: 768px) {
   .type-h4 {
-    font-size: 1.375rem; /* 22px */
+    font-size: 1.375rem;
+    /* 22px */
   }
 }
 
@@ -933,6 +927,7 @@ details[open] .accordion-icon {
       0 0 0 0 rgb(166 181 162 / 0.15),
       0 0 24px -4px rgb(166 181 162 / 0.1);
   }
+
   50% {
     box-shadow:
       0 0 0 8px rgb(166 181 162 / 0),
@@ -948,6 +943,7 @@ details[open] .accordion-icon {
   .ya-seal-ring {
     animation: none;
   }
+
   .ya-card::before {
     transition: none;
   }
