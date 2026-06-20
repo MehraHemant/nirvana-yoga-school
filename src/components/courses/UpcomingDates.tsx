@@ -110,7 +110,7 @@ export default function UpcomingDates({
       id="pricing"
       className="py-20 sm:py-28 bg-paper border-t border-ink/5 relative"
     >
-      <Container size="xl">
+      <Container size="2xl">
         <motion.div
           initial="hidden"
           whileInView="visible"
@@ -152,11 +152,10 @@ export default function UpcomingDates({
                     key={batch.dates}
                     type="button"
                     onClick={() => setSelectedBatch(batch.dates)}
-                    className={`w-full flex flex-col sm:flex-row sm:items-center justify-between text-left p-4 rounded-2xl border transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 ${
-                      isSelected
+                    className={`w-full flex flex-col sm:flex-row sm:items-center justify-between text-left p-4 rounded-2xl border transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 ${isSelected
                         ? "border-primary bg-primary/[0.03] shadow-xs"
                         : "border-ink/10 bg-white hover:border-primary/50"
-                    }`}
+                      }`}
                   >
                     <div className="space-y-1">
                       <span className="font-sans font-semibold text-sm sm:text-base text-ink">
@@ -214,11 +213,10 @@ export default function UpcomingDates({
                 return (
                   <div
                     key={option.roomType}
-                    className={`bg-white rounded-3xl overflow-hidden shadow-card border flex flex-col justify-between hover:shadow-soft transition-all duration-300 relative ${
-                      isPopular
+                    className={`bg-white rounded-3xl overflow-hidden shadow-card border flex flex-col justify-between hover:shadow-soft transition-all duration-300 relative ${isPopular
                         ? "border-primary/40 ring-1 ring-primary/10"
                         : "border-ink/5"
-                    }`}
+                      }`}
                   >
                     {isPopular && (
                       <div className="absolute top-4 right-4 bg-primary text-white type-eyebrow px-3 py-1 rounded-full z-20 shadow-sm">

@@ -124,9 +124,9 @@ export default function Home() {
       <YogaAllianceSection />
       <TeachersSection />
       <TestimonialsSection />
-      <MapSection />
       <FAQSection />
       <FinalCTASection />
+      <MapSection />
     </>
   );
 }

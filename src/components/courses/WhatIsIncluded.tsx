@@ -202,7 +202,7 @@ export default function WhatIsIncluded({
   return (
     <section
       id="inclusions"
-      className="py-16 lg:py-0 lg:min-h-[calc(100svh-4rem)] lg:flex lg:items-center bg-paper relative overflow-hidden border-b border-ink/5"
+      className="py-16 lg:py-0 lg:min-h-[calc(100svh-4rem)] lg:flex lg:items-center bg-white relative overflow-hidden border-b border-ink/5"
     >
       {/* Background ambient glows */}
       <div className="absolute right-[-10%] top-[-10%] w-[500px] h-[500px] rounded-full bg-primary/5 blur-[100px] pointer-events-none" />
@@ -230,8 +230,8 @@ export default function WhatIsIncluded({
               eyebrow="Fine Print"
               title={
                 <>
-                  What is <span className="text-primary">Included</span>{" "}
-                  in Your Fee
+                  What is <span className="text-primary">Included</span> in Your
+                  Fee
                 </>
               }
               align="left"

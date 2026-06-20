@@ -46,14 +46,14 @@ function TestimonialCard({ review }: TestimonialCardProps) {
   const isLong = review.message.length > 280;
 
   return (
-    <div className="flex flex-col md:flex-row bg-white rounded-3xl overflow-hidden border border-ink/5 shadow-card h-full min-h-[380px] md:min-h-[290px]">
+    <div className="flex flex-col md:flex-row h-full min-h-[380px] md:min-h-[240px] pr-3 items-stretch gap-6 md:gap-8">
       {/* Practitioner Portrait */}
-      <div className="w-full md:w-2/5 relative min-h-[220px] md:min-h-full bg-sand/20">
+      <div className="w-full md:w-1/3 relative min-h-[220px] md:min-h-full rounded-2xl overflow-hidden bg-sand/20 shrink-0">
         <Image
           src={review.image}
           alt={`${review.name} - Testimonial`}
           fill
-          sizes="(max-width: 768px) 100vw, 40vw"
+          sizes="(max-width: 768px) 100vw, 25vw"
           className="object-cover"
           priority={false}
         />
@@ -61,7 +61,7 @@ function TestimonialCard({ review }: TestimonialCardProps) {
       </div>
 
       {/* Review text content */}
-      <div className="w-full md:w-3/5 p-6 md:p-8 flex flex-col justify-center select-text">
+      <div className="w-full md:w-2/3 py-4 md:py-6 flex flex-col justify-center select-text">
         <div className="flex justify-between items-start mb-2">
           <div>
             <h4 className="font-sans text-base md:text-lg font-bold text-ink leading-tight">
@@ -150,7 +150,7 @@ function TestimonialSlider({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="overflow-hidden min-h-[380px] md:min-h-[290px] w-full relative rounded-3xl">
+      <div className="overflow-hidden min-h-[380px] md:min-h-[240px] w-full relative">
         <AnimatePresence initial={false} custom={direction} mode="wait">
           <motion.div
             key={page}
@@ -224,11 +224,11 @@ function RatingCard({
   };
 
   return (
-    <div className="bg-white rounded-3xl p-6 md:p-8 border border-ink/5 shadow-card hover:shadow-soft transition-all duration-300 flex flex-col justify-between h-full group">
+    <div className="flex flex-col justify-between h-full py-4">
       <div>
         <div className="flex justify-between items-center mb-6">
           {getBrandLogo()}
-          <span className="type-eyebrow text-muted bg-sand px-2.5 py-1 rounded-full font-bold">
+          <span className="type-eyebrow text-muted bg-white/60 px-2.5 py-1 rounded-full font-bold">
             Verified
           </span>
         </div>
@@ -237,8 +237,6 @@ function RatingCard({
         <p className="font-sans text-xs text-muted mb-4">
           Official Student Reviews
         </p>
-
-        <hr className="border-ink/5 my-4" />
 
         <div className="flex items-center gap-0.5 mb-2">
           {[0, 1, 2, 3, 4].map((num) => (
@@ -305,7 +303,7 @@ export default function TestimonialsSection() {
         {/* 3 Rows corresponding to platforms */}
         <div className="space-y-12 md:space-y-16 w-full">
           {/* Row 1: Google Reviews */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-stretch w-full pt-12 md:pt-16 first:pt-0">
             <div className="lg:col-span-1">
               <RatingCard
                 platform="Google"
@@ -315,7 +313,7 @@ export default function TestimonialsSection() {
                 link="https://g.co/kgs/cftBiC3"
               />
             </div>
-            <div className="lg:col-span-2 relative">
+            <div className="lg:col-span-3 relative">
               <TestimonialSlider
                 reviews={googleReviews}
                 autoplayInterval={3200}
@@ -324,7 +322,7 @@ export default function TestimonialsSection() {
           </div>
 
           {/* Row 2: TripAdvisor Reviews */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-stretch w-full pt-12 md:pt-16 first:pt-0">
             <div className="lg:col-span-1">
               <RatingCard
                 platform="Tripadvisor"
@@ -334,7 +332,7 @@ export default function TestimonialsSection() {
                 link="https://www.tripadvisor.com/Attraction_Review-g580106-d27745947-Reviews-Nirvana_Yoga_School-Rishikesh_Dehradun_District_Uttarakhand.html"
               />
             </div>
-            <div className="lg:col-span-2 relative">
+            <div className="lg:col-span-3 relative">
               <TestimonialSlider
                 reviews={tripadvisorReviews}
                 autoplayInterval={4200}
@@ -343,7 +341,7 @@ export default function TestimonialsSection() {
           </div>
 
           {/* Row 3: Trustpilot Reviews */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-stretch w-full pt-12 md:pt-16 first:pt-0">
             <div className="lg:col-span-1">
               <RatingCard
                 platform="Trustpilot"
@@ -353,7 +351,7 @@ export default function TestimonialsSection() {
                 link="https://www.trustpilot.com/review/nirvanayogaschoolindia.com"
               />
             </div>
-            <div className="lg:col-span-2 relative">
+            <div className="lg:col-span-3 relative">
               <TestimonialSlider
                 reviews={trustpilotReviews}
                 autoplayInterval={3500}

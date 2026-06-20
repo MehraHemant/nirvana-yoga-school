@@ -86,6 +86,8 @@ export default async function CourseDetailPage({ params }: PageProps) {
         image={course.image}
         certBadge={course.certBadge}
         heroImages={course.heroImages}
+        images={media.images}
+        videos={media.videos}
       />
 
       {/* Sticky Sub-Navigation */}

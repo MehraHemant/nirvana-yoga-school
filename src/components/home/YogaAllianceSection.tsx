@@ -1,285 +1,225 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
-import Image from "next/image";
-import Link from "next/link";
-import { Container, Pill } from "@/components/ui";
-import { ArrowRight, Check, YogaAllianceSeal } from "@/icons";
+import { motion } from "framer-motion";
+import { Button, Container, Pill } from "@/components/ui";
+import {
+  ArrowRight,
+  Certificate,
+  Compass,
+  Leaf,
+  YogaAllianceSeal,
+} from "@/icons";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 
-const CERTS = [
+const CERTIFICATIONS = [
   {
     hours: "200",
-    label: "RYS 200",
-    title: "Foundational Teacher Training",
-    level: "Foundation",
-    desc: "Build your teaching foundation with philosophy, anatomy, asana, pranayama & methodology.",
-    points: ["Philosophy & Ethics", "Anatomy", "Pranayama", "Teaching Methods"],
+    title: "RYS 200 Certification",
+    level: "Foundational Path",
+    description:
+      "Ideal for students who are new to yoga or wish to expand their knowledge of the discipline. The principles of yoga philosophy, anatomy, asana, pranayama, meditation, and teaching methodology are covered. Build a safe, effective, and confidence-driven teaching foundation.",
     href: "https://www.nirvanayogaschoolindia.com/200-hour-yoga-teacher-training-in-rishikesh-india",
+    icon: Leaf,
   },
   {
     hours: "300",
-    label: "RYS 300",
-    title: "Advanced Teacher Training",
-    level: "Advanced",
-    desc: "Deepen mastery with advanced sequencing, therapeutic applications, adjustments & alignment.",
-    points: ["Sequencing", "Therapeutics", "Adjustments", "Mastery"],
+    title: "RYS 300 Certification",
+    level: "Advanced Training",
+    description:
+      "For yogis who have already completed an RYS 200 course and wish to deepen their teaching skills. This curriculum delves into advanced yoga sequencing, adjustments, therapeutic applications, and alignment, enabling you to teach with deep authority and experience.",
     href: "https://www.nirvanayogaschoolindia.com/300-hour-yoga-teacher-training-in-rishikesh-india",
+    icon: Compass,
   },
   {
     hours: "500",
-    label: "RYS 500",
-    title: "Master Teacher Certification",
-    level: "Master",
-    desc: "The highest credential — complete RYS 200 + 300 curriculum. Teach with authority worldwide.",
-    points: [
-      "Full Curriculum",
-      "Global Credentials",
-      "Master Practice",
-      "Lifetime Cert",
-    ],
+    title: "RYS 500 Certification",
+    level: "Master Teacher Path",
+    description:
+      "A comprehensive combination of RYS 200 and RYS 300 courses. This course offers extensive study and practice covering beginner to advanced levels. Graduate with the highest level of yoga teacher credentials possible and be fully prepared to teach globally.",
     href: "https://www.nirvanayogaschoolindia.com/500-hour-yoga-teacher-training-in-rishikesh-india",
+    icon: Certificate,
   },
 ];
 
-const stagger = {
+const containerVariants = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.15, delayChildren: 0.3 } },
+  visible: {
+    transition: {
+      staggerChildren: 0.15,
+    },
+  },
 } as const;
 
-const cardPop = {
-  hidden: { opacity: 0, y: 40, rotateX: 8, scale: 0.94 },
+const cardVariants = {
+  hidden: { opacity: 0, y: 25 },
   visible: {
     opacity: 1,
     y: 0,
-    rotateX: 0,
-    scale: 1,
-    transition: { type: "spring", stiffness: 90, damping: 14 },
+    transition: {
+      type: "spring",
+      stiffness: 150,
+      damping: 20,
+    },
   },
 } as const;
 
 export default function YogaAllianceSection() {
-  const _prefersReduced = useReducedMotion() ?? false;
-
   return (
-    <section className="relative w-full overflow-hidden lg:min-h-[calc(100svh-5.5rem)] flex items-center text-white py-16 sm:py-20 lg:py-0">
-      {/* ── BG ── */}
-      <Image
-        src="https://www.nirvanayogaschoolindia.com/img/banner.webp"
-        alt=""
-        fill
-        sizes="100vw"
-        className="object-cover"
-        quality={85}
-      />
-      <div className="absolute inset-0 bg-ink/60" aria-hidden="true" />
+    <section className="relative w-full overflow-hidden bg-primary py-20 md:py-28 text-white">
+      {/* Background Soft Glows & Radial Highlights */}
       <div
-        className="absolute inset-0 bg-linear-to-br from-primary/15 via-transparent to-secondary/10"
+        className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-primary/10 blur-[130px] rounded-full pointer-events-none"
+        aria-hidden="true"
+      />
+      <div
+        className="absolute top-1/2 left-1/3 w-[500px] h-[500px] bg-secondary/15 blur-[120px] rounded-full pointer-events-none"
+        aria-hidden="true"
+      />
+      <div
+        className="absolute -bottom-40 -right-40 w-[600px] h-[600px] bg-accent/8 blur-[130px] rounded-full pointer-events-none"
         aria-hidden="true"
       />
 
-      {/* Decorative mandala-like ring — top-left */}
-      <div
-        className="absolute -left-32 top-1/2 -translate-y-1/2 w-[420px] h-[420px] rounded-full border border-dashed border-accent/[0.07] pointer-events-none hidden lg:block"
-        aria-hidden="true"
-      />
-      <div
-        className="absolute -left-28 top-1/2 -translate-y-1/2 w-[340px] h-[340px] rounded-full border border-accent/[0.05] pointer-events-none hidden lg:block"
-        aria-hidden="true"
-      />
-      <div
-        className="absolute -left-24 top-1/2 -translate-y-1/2 w-[260px] h-[260px] rounded-full border border-dashed border-accent/[0.04] pointer-events-none hidden lg:block"
-        aria-hidden="true"
-      />
-
-      {/* Ambient glows */}
-      <div
-        className="absolute top-0 left-0 w-[500px] h-[500px] bg-primary/10 blur-[180px] rounded-full pointer-events-none -translate-x-1/3 -translate-y-1/4"
-        aria-hidden="true"
-      />
-      <div
-        className="absolute bottom-0 right-1/4 w-[400px] h-[300px] bg-accent/6 blur-[140px] rounded-full pointer-events-none"
-        aria-hidden="true"
-      />
-
-      <Container size="2xl" className="relative z-10 w-full py-4 lg:py-8">
-        {/* ═══ TOP ROW: Hero numbers + Seal ═══ */}
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={VIEWPORT_ONCE}
-          variants={fadeUp}
-          className="flex flex-col lg:flex-row items-center lg:items-end justify-between gap-6 lg:gap-8 mb-8 lg:mb-10"
-        >
-          {/* Left: Seal + text */}
-          <div className="flex items-center gap-4 lg:gap-5">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.3, rotate: -30 }}
-              whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
-              viewport={{ once: true }}
-              transition={{
-                type: "spring",
-                stiffness: 60,
-                damping: 10,
-              }}
-              className="shrink-0"
-            >
-              <div className="relative">
-                <div className="absolute -inset-2.5 rounded-full border border-dashed border-accent/15" />
-                <div className="p-3.5 rounded-full bg-white/[0.04] border border-white/10 backdrop-blur-md ya-seal-ring">
-                  <YogaAllianceSeal size={52} className="text-accent" />
-                </div>
-              </div>
-            </motion.div>
-            <div>
+      <Container size="2xl" className="relative z-10 w-full">
+        {/* Header Split Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1.3fr_1.1fr] gap-8 lg:gap-16 items-start border-b border-white/10 pb-12 mb-12 lg:mb-16">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={VIEWPORT_ONCE}
+            variants={fadeUp}
+            className="space-y-5"
+          >
+            {/* Pill & Subtitle */}
+            <div className="flex flex-wrap items-center gap-3">
               <Pill
                 invert
-                className="!bg-white/6 !text-accent !border-white/10 backdrop-blur-sm mb-1"
+                className="!bg-white/10 !text-accent !border-white/10"
               >
                 Yoga Alliance USA
               </Pill>
-              <p className="type-eyebrow text-sand/35 tracking-[0.25em] text-[9px]">
-                Registered Yoga School · Rishikesh
-              </p>
+              <span className="type-eyebrow text-accent tracking-widest text-[10px] sm:text-xs">
+                Globally Accredited RYS
+              </span>
             </div>
-          </div>
 
-          {/* Center/Right: Giant hero numbers */}
-          <div className="flex items-baseline gap-3 sm:gap-4 lg:gap-6">
-            {["200", "300", "500"].map((n, i) => (
+            {/* Main Title */}
+            <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-medium leading-[1.1] text-sand">
+              Yoga Alliance Certification — Globally Recognized Credentials
+            </h2>
+
+            {/* Seal Ring Panel */}
+            <div className="flex items-center gap-4 pt-2 bg-white/5 border border-white/10 rounded-2xl p-4 w-fit backdrop-blur-md shadow-lg">
+              <div className="relative w-14 h-14 bg-white rounded-full flex items-center justify-center p-2 shadow-md">
+                <YogaAllianceSeal className="text-primary w-10 h-10" />
+              </div>
+              <div>
+                <p className="type-eyebrow text-accent tracking-widest text-[9px] mb-0.5">
+                  Official Standards
+                </p>
+                <p className="type-ui text-sand font-semibold text-xs sm:text-sm">
+                  RYS 200 • RYS 300 • RYS 500 Registered
+                </p>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Description Column */}
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={VIEWPORT_ONCE}
+            custom={0.12}
+            variants={fadeUp}
+            className="space-y-4 lg:pt-4"
+          >
+            <p className="type-lead text-accent font-light leading-relaxed text-sm sm:text-base md:text-lg">
+              Nirvana Yoga School is a registered yoga school (RYS 200, 300,
+              500) situated in Rishikesh, certified by Yoga Alliance USA.
+            </p>
+            <p className="type-body text-sand/80 leading-relaxed text-xs sm:text-sm">
+              Our credentials allow you to teach yoga with confidence anywhere
+              in the world. Each curriculum is designed carefully with proper
+              traditional knowledge, safety standards, and personal
+              transformation. Here, certification is more than just paper—you
+              truly live and become a yogi.
+            </p>
+          </motion.div>
+        </div>
+
+        {/* Certification Cards Grid */}
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={VIEWPORT_ONCE}
+          className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8"
+        >
+          {CERTIFICATIONS.map((cert) => {
+            const WatermarkIcon = cert.icon;
+            return (
               <motion.div
-                key={n}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{
-                  type: "spring",
-                  stiffness: 80,
-                  damping: 14,
-                  delay: 0.15 + i * 0.1,
-                }}
-                className="flex items-baseline"
+                key={cert.hours}
+                variants={cardVariants}
+                className="group relative overflow-hidden rounded-3xl bg-white/5 border border-white/10 p-6 lg:p-8 flex flex-col justify-between min-h-[360px] hover:bg-white/10 hover:border-accent/30 hover:-translate-y-2 transition-all duration-500 hover:shadow-soft"
               >
-                <span className="text-5xl sm:text-6xl lg:text-8xl font-serif font-bold leading-none bg-linear-to-b from-accent/50 to-accent/15 bg-clip-text text-transparent select-none">
-                  {n}
-                </span>
-                {i < 2 && (
-                  <span className="text-2xl sm:text-3xl lg:text-5xl text-accent/15 font-light ml-3 sm:ml-4 lg:ml-6 select-none">
-                    ·
-                  </span>
-                )}
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* ═══ Heading ═══ */}
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={VIEWPORT_ONCE}
-          variants={fadeUp}
-          custom={0.1}
-          className="mb-8 lg:mb-10 max-w-2xl"
-        >
-          <h2 className="font-serif font-medium text-[clamp(1.5rem,3.5vw,2.5rem)] leading-[1.12] text-white mb-2.5">
-            Globally{" "}
-            <span className="font-normal text-primary">Recognized</span> Yoga
-            Certification
-          </h2>
-          <p className="type-body text-sand/45 leading-relaxed max-w-lg">
-            Our Yoga Alliance USA credentials let you teach with confidence
-            anywhere in the world. Choose your path below.
-          </p>
-        </motion.div>
-
-        {/* ═══ 3 Cards ═══ */}
-        <motion.div
-          variants={stagger}
-          initial="hidden"
-          whileInView="visible"
-          viewport={VIEWPORT_ONCE}
-          className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-5 perspective-1000"
-        >
-          {CERTS.map((c, _i) => (
-            <motion.div key={c.hours} variants={cardPop}>
-              <Link
-                href={c.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="ya-card group relative block overflow-hidden rounded-2xl lg:rounded-3xl backdrop-blur-md h-full"
-              >
-                {/* Giant bg watermark */}
+                {/* Ambient light reflection overlay */}
                 <div
-                  className="absolute -right-3 -top-6 text-[8rem] lg:text-[9rem] font-serif font-bold leading-none text-white/[0.015] group-hover:text-white/[0.045] transition-all duration-700 select-none pointer-events-none"
-                  aria-hidden="true"
-                >
-                  {c.hours}
-                </div>
-
-                {/* Top gradient accent */}
-                <div className="absolute top-0 inset-x-0 h-[2px] bg-linear-to-r from-accent/40 via-primary/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-                {/* Corner sparkle */}
-                <div
-                  className="absolute -top-8 -right-8 w-24 h-24 bg-accent/[0.04] blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
+                  className="absolute inset-0 bg-gradient-to-tr from-accent/0 via-accent/5 to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-0"
                   aria-hidden="true"
                 />
 
-                <div className="relative p-5 lg:p-6 flex flex-col h-full">
-                  {/* Top: label + level badge */}
-                  <div className="flex items-center justify-between mb-3 lg:mb-4">
-                    <span className="type-eyebrow text-[10px] tracking-[0.25em] text-accent/55">
-                      {c.label} · YOGA ALLIANCE
-                    </span>
-                    <span className="text-[9px] font-semibold tracking-[0.2em] uppercase text-accent bg-accent/[0.08] px-2.5 py-1 rounded-full border border-accent/12">
-                      {c.level}
+                {/* Giant background hour numeral watermark */}
+                <div
+                  className="absolute -right-2 top-0 select-none text-[8.5rem] sm:text-[9.5rem] font-serif font-bold text-accent/5 pointer-events-none leading-none z-0"
+                  aria-hidden="true"
+                >
+                  {cert.hours}
+                </div>
+
+                {/* Faint watermark outline icon */}
+                <div className="absolute -left-6 -bottom-6 w-32 h-32 text-accent/4 pointer-events-none z-0">
+                  <WatermarkIcon className="w-full h-full object-contain" />
+                </div>
+
+                {/* Card Top Row details */}
+                <div className="relative z-10">
+                  <div className="flex items-baseline justify-between mb-4 lg:mb-6">
+                    <span className="type-eyebrow text-accent bg-accent/10 border border-accent/25 rounded-full px-3 py-1 text-[10px] uppercase font-bold tracking-wider">
+                      {cert.level}
                     </span>
                   </div>
 
-                  {/* Title */}
-                  <h3 className="font-serif text-lg lg:text-xl text-sand font-medium leading-snug mb-2 group-hover:text-white transition-colors duration-300">
-                    {c.title}
+                  <h3 className="font-serif text-xl sm:text-2xl text-sand font-medium mb-3 mt-4">
+                    {cert.title}
                   </h3>
 
-                  {/* Description */}
-                  <p className="text-[13px] text-sand/40 leading-relaxed mb-4 lg:mb-5 flex-grow">
-                    {c.desc}
+                  <p className="type-body text-sand/80 leading-relaxed mb-6 text-sm">
+                    {cert.description}
                   </p>
-
-                  {/* Highlights */}
-                  <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 mb-4 lg:mb-5">
-                    {c.points.map((p) => (
-                      <span
-                        key={p}
-                        className="flex items-center gap-1.5 text-[10px] sm:text-[11px] text-sand/35 font-medium"
-                      >
-                        <Check
-                          size={8}
-                          strokeWidth={4}
-                          className="text-accent/45 shrink-0"
-                        />
-                        {p}
-                      </span>
-                    ))}
-                  </div>
-
-                  {/* CTA row */}
-                  <div className="flex items-center justify-between pt-3 lg:pt-4 border-t border-white/[0.06] mt-auto">
-                    <span className="text-[11px] sm:text-xs font-semibold tracking-wide text-accent/50 group-hover:text-accent transition-colors duration-300 uppercase">
-                      Explore Course
-                    </span>
-                    <div className="w-7 h-7 rounded-full bg-white/[0.04] border border-white/8 flex items-center justify-center group-hover:bg-accent/25 group-hover:border-accent/30 transition-all duration-300">
-                      <ArrowRight
-                        size={11}
-                        className="text-sand/25 group-hover:text-white transition-all duration-300 group-hover:translate-x-0.5"
-                      />
-                    </div>
-                  </div>
                 </div>
-              </Link>
-            </motion.div>
-          ))}
+
+                {/* Card Bottom CTA Button */}
+                <div className="relative z-10">
+                  <Button
+                    href={cert.href}
+                    variant="outline-light"
+                    size="md"
+                    responsive
+                    className="w-full justify-between group/btn border-white/20 hover:border-accent hover:bg-accent hover:text-ink transition-all duration-300"
+                  >
+                    <span className="flex items-center gap-2">
+                      Course Details
+                    </span>
+                    <ArrowRight
+                      size={14}
+                      className="transition-transform duration-300 group-hover/btn:translate-x-1"
+                    />
+                  </Button>
+                </div>
+              </motion.div>
+            );
+          })}
         </motion.div>
       </Container>
     </section>
