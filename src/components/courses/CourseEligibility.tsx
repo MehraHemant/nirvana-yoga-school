@@ -1,9 +1,48 @@
 "use client";
 
 import { motion } from "framer-motion";
+import type { ElementType } from "react";
 import { Container, SectionHeader } from "@/components/ui";
 import { BookOpen, Check, Compass, Shield, YogaAllianceSeal } from "@/icons";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
+
+type PrerequisiteCardProps = {
+  title: string;
+  desc: string;
+  num: string;
+  icon: ElementType;
+  delay: number;
+};
+
+function PrerequisiteCard({
+  title,
+  desc,
+  num,
+  icon: IconComponent,
+  delay,
+}: PrerequisiteCardProps) {
+  return (
+    <motion.div
+      initial="hidden"
+      whileInView="visible"
+      viewport={VIEWPORT_ONCE}
+      variants={fadeUp}
+      transition={{ duration: 0.4, delay }}
+      className="space-y-3"
+    >
+      <div className="flex items-center gap-3">
+        <div className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+          <IconComponent size={14} />
+        </div>
+        <span className="font-serif font-semibold tracking-wide text-sm text-muted">
+          Prerequisite {num}
+        </span>
+      </div>
+      <h4 className="font-serif text-lg font-semibold tracking-wider text-ink">{title}</h4>
+      <p className="text-sm text-muted leading-relaxed font-sans">{desc}</p>
+    </motion.div>
+  );
+}
 
 export default function CourseEligibility() {
   const requirements = [
@@ -38,7 +77,7 @@ export default function CourseEligibility() {
       id="eligibility"
       className="py-20 sm:py-28 bg-sand border-b border-ink/5 overflow-hidden"
     >
-      <Container size="xl">
+      <Container size="2xl">
         <div className="grid gap-12 lg:grid-cols-12 lg:gap-16 items-start">
           {/* Column 1 (Left 4-cols): Header & Intro */}
           <div className="lg:col-span-4 space-y-6">
@@ -71,68 +110,30 @@ export default function CourseEligibility() {
 
           {/* Column 2 (Middle 4-cols): Req 1 & 2 */}
           <div className="lg:col-span-4 space-y-10 lg:border-l lg:border-ink/10 lg:pl-10">
-            {requirements.slice(0, 2).map((req, index) => {
-              const IconComponent = req.icon;
-              return (
-                <motion.div
-                  key={req.title}
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={VIEWPORT_ONCE}
-                  variants={fadeUp}
-                  transition={{ duration: 0.4, delay: index * 0.1 }}
-                  className="space-y-3"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                      <IconComponent size={14} />
-                    </div>
-                    <span className="font-serif font-semibold text-xs text-accent italic">
-                      Prerequisite {req.num}
-                    </span>
-                  </div>
-                  <h4 className="font-serif text-lg font-semibold text-ink">
-                    {req.title}
-                  </h4>
-                  <p className="text-sm text-muted leading-relaxed font-sans">
-                    {req.desc}
-                  </p>
-                </motion.div>
-              );
-            })}
+            {requirements.slice(0, 2).map((req, index) => (
+              <PrerequisiteCard
+                key={req.title}
+                title={req.title}
+                desc={req.desc}
+                num={req.num}
+                icon={req.icon}
+                delay={index * 0.1}
+              />
+            ))}
           </div>
 
           {/* Column 3 (Right 4-cols): Req 3 & 4 */}
           <div className="lg:col-span-4 space-y-10 lg:border-l lg:border-ink/10 lg:pl-10">
-            {requirements.slice(2, 4).map((req, index) => {
-              const IconComponent = req.icon;
-              return (
-                <motion.div
-                  key={req.title}
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={VIEWPORT_ONCE}
-                  variants={fadeUp}
-                  transition={{ duration: 0.4, delay: (index + 2) * 0.1 }}
-                  className="space-y-3"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                      <IconComponent size={14} />
-                    </div>
-                    <span className="font-serif font-semibold text-xs text-accent italic">
-                      Prerequisite {req.num}
-                    </span>
-                  </div>
-                  <h4 className="font-serif text-lg font-semibold text-ink">
-                    {req.title}
-                  </h4>
-                  <p className="text-sm text-muted leading-relaxed font-sans">
-                    {req.desc}
-                  </p>
-                </motion.div>
-              );
-            })}
+            {requirements.slice(2, 4).map((req, index) => (
+              <PrerequisiteCard
+                key={req.title}
+                title={req.title}
+                desc={req.desc}
+                num={req.num}
+                icon={req.icon}
+                delay={(index + 2) * 0.1}
+              />
+            ))}
           </div>
         </div>
       </Container>
