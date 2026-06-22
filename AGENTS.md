@@ -86,8 +86,6 @@ src/
       TeachersSection.tsx
       RishikeshSection.tsx
       TestimonialsSection.tsx
-      FAQSection.tsx
-      FAQItem.tsx       # Client: single self-contained FAQ item accordion card
       FinalCTASection.tsx
       index.ts          # Barrel
     layout/
@@ -99,6 +97,10 @@ src/
       Heading.tsx       # Reusable heading component with alignment, font, and size controls
       SectionHeader.tsx # eyebrow + title + description pattern
       Pill.tsx          # rounded label with optional invert
+      MediaLightbox.tsx # client component: reusable high-fidelity swipeable gallery lightbox modal
+      PlatformReviewsRows.tsx # client: Google/TripAdvisor/Trustpilot rating cards + testimonial sliders (REVIEWS)
+      FAQSection.tsx     # client: shared FAQ section — `variant="image"` or `"plain"`, optional category tabs
+      FAQItem.tsx        # client: single FAQ accordion card (used by FAQSection)
       Header.tsx        # client component: transparent→solid on scroll, full live-site nav with dropdowns + mobile accordion
       Card.tsx          # (legacy "Expanding Yoga's Reach" card, not currently used)
       CourseCard.tsx    # Interactive animated YTT course card
@@ -292,6 +294,36 @@ Headline hierarchy (Playfair):
 ```
 - Client component. Premium editorial card: image overlay with hour pill + RYT badge + glass fee tag; eyebrow cert line; invoice-style meta table (Duration/Level/Certification/Fee); Course Details CTA. **Framer Motion**: lift, shine, image zoom, staggered meta rows, spring badge. Respects `useReducedMotion`.
 
+### `PlatformReviewsRows`
+```tsx
+<PlatformReviewsRows className="..." />
+```
+- Client component: three stacked platform rows (Google, TripAdvisor, Trustpilot) with `RatingCard` + autoplay `TestimonialSlider`, fed by `REVIEWS` from `@/data/reviews`. Used in `TestimonialsSection` and `WhyNirvana`.
+
+### `FAQSection`
+```tsx
+<FAQSection
+  faqs={[{ question, answer, image?, tag?, category? }]}
+  categories={COURSE_FAQ_CATEGORIES} // optional filter tabs
+  eyebrow="Questions, answered"
+  title="Frequently asked"
+/>
+```
+- Client component: two-column FAQ grid (homepage layout). Card uses photo background when `image` is provided, otherwise white card. Pass `categories` to enable filter tabs.
+
+### `MediaLightbox`
+```tsx
+<MediaLightbox
+  isOpen={isLightboxOpen}
+  onClose={() => setIsLightboxOpen(false)}
+  items={[{ type: "image", url: "https://example.com/image.jpg" }]}
+  activeIndex={activeIndex}
+  onChangeActiveIndex={setActiveIndex}
+  title="Media Gallery"
+/>
+```
+- Client component: premium modal lightbox containing touch swipe capabilities (`framer-motion` dragging), keyboard hook listeners (`Escape`, `ArrowLeft`, `ArrowRight`), layout transition animation, backdrop click target closure, dynamic title, and auto-centering thumbnails panel strip.
+
 ---
 
 ## 6. Page composition (home)
@@ -454,3 +486,11 @@ Last meaningful update: 2026-05-26 — initial rebuild scaffolded (design system
 2026-06-15 — **CourseHero Banner Slider**: Replaced the vertical selector dots in `CourseHero.tsx` with a horizontal, infinite-scroll image card slider at the bottom. Clicking cards updates the active background banner with a crossfade, and the marquee pauses on hover. Removed the details card on the right, freed up port 3000, cleaned up unused imports/parameters, and restricted the section to a viewport-bounded height (`h-screen max-h-screen`). Checked lint, format, and production compile successfully.
 2026-06-20 — **CourseHero Interactive Redesign**: Redesigned `CourseHero.tsx` into a modern split layout. The text description and a new, comprehensive metadata card reside on a clear background on the left, while the right features a high-opacity interactive media frame. Added dynamic active media background mirroring (crossfading the active image or video in full bleed behind the content), image and video filtering tabs, previous/next controls, a touch-friendly thumbnail scroll strip, support for both YouTube IDs and native HTML5 direct videos, and a keyboard-navigable fullscreen lightbox modal. Verified all compiler and Biome lint tests pass successfully.
 2026-06-20 — **YogaAllianceSection Editorial Redesign**: Completely redesigned the certification credentials component. Set the background to the primary brand maroon color (`bg-primary`) paired with ambient multicolor radial glows. Realigned the header into an asymmetric split-grid, created a floating glassmorphic Yoga Alliance seal panel, and upgraded the certification path cards into interactive certificates displaying giant hour numerals, watermarked path SVGs (Leaf, Compass, Certificate), glass tags, and smooth lift/glow transitions. Verified all compiler and Biome lint tests pass successfully.
+2026-06-21 — **Exam & Certification Page & Accordion**: Created the `/yoga-exam-and-certification` sub-page route. Implemented a split-screen interactive accordion of evaluation parameters with dynamic image swap on desktop, a showcase of Yoga Alliance USA RYT badges, sample certificates grid, and a full-screen blurred lightbox preview modal. Refactored the Course Page's Exam & Certification section component (`ExamCertification.tsx`) into a dynamic slide-down accordion using Framer Motion.
+2026-06-21 — **Layout Selection (Asymmetric Magazine Collage) & MediaLightbox Integration**: Finalized the selection of **Layout Option 9 (Asymmetric Magazine Collage)** for the Exam & Certification process, removing all alternative layouts and design switcher toolbars from both [`ExamCertification.tsx`](file:///home/hp/Desktop/nirvana-yoga-school/src/components/courses/ExamCertification.tsx) and the `/yoga-exam-and-certification` playground page. Kept the left certificates column sticky and integrated the new unified [`MediaLightbox.tsx`](file:///home/hp/Desktop/nirvana-yoga-school/src/components/ui/MediaLightbox.tsx) component. All lints, TypeScript compilation, and production builds pass cleanly.
+2026-06-21 — **Route Cleanup & Accommodation Redesign & Prerequisite Extraction**: Removed the `/yoga-exam-and-certification` playground sub-page route completely from files, directory maps, and website footer. Redesigned `AccommodationFood.tsx` to display Ashram Accommodation and Sattvic Cuisine as side-by-side editorial cards on desktop and integrated `MediaLightbox` click-to-zoom for all room and food photo grids. Refactored `CourseEligibility.tsx` to extract a clean, reusable `PrerequisiteCard` sub-component to dry up the prerequisite items list columns. Checked type safety, Biome formats, and Next.js builds successfully.
+2026-06-21 — **Footer Split Brand Finalization**: Selected **Split Brand** layout from the footer playground and promoted it to production `Footer.tsx`. Removed `FooterShowcase.tsx` and the floating variant switcher. Split layout: gradient brand panel left (logo, trust badges, social), programs/school links + contact card right on `bg-dark`.
+2026-06-21 — **Footer Sanctuary Finalization**: Selected **Sanctuary** layout — accent-line brand column left, three link columns + contact right on `bg-dark`. Removed footer showcase playground and variant switcher.
+2026-06-21 — **Accommodation & Food Live Content**: Rebuilt `AccommodationFood.tsx` with full copy, facilities list, and all room/food images scraped from the live site (`private`×17, `2-shared`×19, `3-shared`×5, `4-shared`×18, dining×17 + admin uploads). Tabbed galleries with `MediaLightbox` zoom; content in `src/data/accommodationFood.ts`.
+2026-06-21 — **PlatformReviewsRows & Why Nirvana Reviews**: Extracted shared `PlatformReviewsRows.tsx` from `TestimonialsSection` (rating cards + testimonial sliders). `WhyNirvana.tsx` now reuses it with `REVIEWS` from `reviews.ts`; removed duplicate review data from `whyNirvana.ts`.
+2026-06-21 — **Unified FAQSection**: Merged home `FAQSection`/`FAQItem` and `CourseFAQ` into shared `src/components/ui/FAQSection.tsx` + `FAQItem.tsx`. `variant="image"` (photo card backgrounds, two-column) or `variant="plain"` (white cards + category tabs). Home data in `src/data/homeFaqs.ts`.
