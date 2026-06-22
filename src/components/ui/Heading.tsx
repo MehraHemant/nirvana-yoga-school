@@ -32,11 +32,12 @@ export default function Heading({
     end: "text-right",
   };
 
-  const fontClasses = {
+  const fontClasses: Record<HeadingFont, string> = {
     serif: "font-serif",
-    sans: "font-sans",
-    poppins: "font-poppins",
-    noe: "font-noe",
+    // type-h* / type-display-sm bake in serif — !important lets font prop win
+    sans: "!font-sans",
+    poppins: "!font-poppins",
+    noe: "!font-noe",
   };
 
   // Determine size
