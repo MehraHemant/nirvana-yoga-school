@@ -1,136 +1,197 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 import { Container } from "@/components/ui";
 
 const NAV_ITEMS = [
-  { label: "Overview", href: "#overview" },
-  { label: "Inclusions", href: "#inclusions" },
-  { label: "Eligibility", href: "#eligibility" },
-  { label: "Syllabus", href: "#syllabus" },
-  { label: "Schedule", href: "#schedule" },
-  { label: "Exam", href: "#exam" },
-  { label: "Lodging & Food", href: "#accommodation" },
-  { label: "Dates & Fees", href: "#pricing" },
-  { label: "Travel Guide", href: "#travel" },
-  { label: "FAQ", href: "#faq" },
-];
+  { id: "#overview", label: "Overview", shortLabel: "Overview" },
+  { id: "#inclusions", label: "Inclusions", shortLabel: "Include" },
+  { id: "#eligibility", label: "Eligibility", shortLabel: "Eligible" },
+  { id: "#syllabus", label: "Syllabus", shortLabel: "Syllabus" },
+  { id: "#schedule", label: "Schedule", shortLabel: "Schedule" },
+  { id: "#exam", label: "Exam", shortLabel: "Exam" },
+  { id: "#accommodation", label: "Lodging", shortLabel: "Lodging" },
+  { id: "#pricing", label: "Dates & Fees", shortLabel: "Dates" },
+  { id: "#why-nirvana", label: "Why Nirvana", shortLabel: "Why" },
+  { id: "#travel", label: "Travel", shortLabel: "Travel" },
+  { id: "#faq", label: "FAQ", shortLabel: "FAQ" },
+] as const;
+
+type NavSectionId = (typeof NAV_ITEMS)[number]["id"];
+
+const NAV_LOCK_MS = 1200;
+
+function getScrollOffset(navHeight: number): number {
+  const header = document.querySelector("header");
+  const headerHeight = header?.getBoundingClientRect().height ?? 80;
+  return headerHeight + navHeight + 16;
+}
+
+function resolveActiveSection(offset: number): NavSectionId {
+  const nearBottom =
+    window.scrollY + window.innerHeight >=
+    document.documentElement.scrollHeight - 120;
+
+  if (nearBottom) {
+    return NAV_ITEMS[NAV_ITEMS.length - 1].id;
+  }
+
+  let active: NavSectionId = NAV_ITEMS[0].id;
+
+  for (const item of NAV_ITEMS) {
+    const el = document.getElementById(item.id.slice(1));
+    if (!el) continue;
+
+    if (el.getBoundingClientRect().top <= offset) {
+      active = item.id;
+    }
+  }
+
+  return active;
+}
 
 export default function CourseStickyNav() {
-  const [activeSection, setActiveSection] = useState<string>("#overview");
-  const [isSticky, setIsSticky] = useState<boolean>(false);
+  const prefersReduced = useReducedMotion() ?? false;
+  const barRef = useRef<HTMLDivElement>(null);
+  const [activeSection, setActiveSection] = useState<NavSectionId>(
+    NAV_ITEMS[0].id,
+  );
+  const [isScrolled, setIsScrolled] = useState(false);
+  const isNavigatingRef = useRef(false);
+  const navLockTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    const handleScroll = () => {
-      // Sticky state when scrolled past the hero area
-      if (window.scrollY > 400) {
-        setIsSticky(true);
-      } else {
-        setIsSticky(false);
+    for (const item of NAV_ITEMS) {
+      const el = document.getElementById(item.id.slice(1));
+      if (el) {
+        el.style.scrollMarginTop = "7.5rem";
       }
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    }
   }, []);
 
   useEffect(() => {
-    const observerOptions = {
-      root: null,
-      rootMargin: "-20% 0px -60% 0px", // High-contrast active boundary
-      threshold: 0,
+    let raf = 0;
+
+    const onScroll = () => {
+      setIsScrolled(window.scrollY > 400);
+
+      if (isNavigatingRef.current) return;
+
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const navHeight = barRef.current?.getBoundingClientRect().height ?? 52;
+        const offset = getScrollOffset(navHeight);
+
+        setActiveSection((prev) => {
+          const next = resolveActiveSection(offset);
+          return prev === next ? prev : next;
+        });
+      });
     };
 
-    const observerCallback = (entries: IntersectionObserverEntry[]) => {
-      for (const entry of entries) {
-        if (entry.isIntersecting) {
-          setActiveSection(`#${entry.target.id}`);
-        }
-      }
-    };
-
-    const observer = new IntersectionObserver(
-      observerCallback,
-      observerOptions,
-    );
-
-    const sections = NAV_ITEMS.map((item) =>
-      document.getElementById(item.href.replace("#", "")),
-    );
-
-    for (const section of sections) {
-      if (section) observer.observe(section);
-    }
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
 
     return () => {
-      for (const section of sections) {
-        if (section) observer.unobserve(section);
-      }
+      window.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(raf);
     };
   }, []);
+
+  useEffect(
+    () => () => {
+      if (navLockTimerRef.current) clearTimeout(navLockTimerRef.current);
+    },
+    [],
+  );
 
   const handleClick = (
     e: React.MouseEvent<HTMLAnchorElement>,
     href: string,
   ) => {
     e.preventDefault();
+
     const targetId = href.replace("#", "");
     const element = document.getElementById(targetId);
-    if (element) {
-      const headerOffset = 160; // Offset for header + sticky subnav
-      const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.scrollY - headerOffset;
+    if (!element) return;
 
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: "smooth",
-      });
-      setActiveSection(href);
-    }
+    if (navLockTimerRef.current) clearTimeout(navLockTimerRef.current);
+
+    isNavigatingRef.current = true;
+    setActiveSection(href as NavSectionId);
+
+    const navHeight = barRef.current?.getBoundingClientRect().height ?? 52;
+    const offset = getScrollOffset(navHeight);
+    const top = element.getBoundingClientRect().top + window.scrollY - offset;
+
+    window.scrollTo({
+      top: Math.max(0, top),
+      behavior: prefersReduced ? "auto" : "smooth",
+    });
+
+    navLockTimerRef.current = setTimeout(() => {
+      isNavigatingRef.current = false;
+      const nextOffset = getScrollOffset(
+        barRef.current?.getBoundingClientRect().height ?? 52,
+      );
+      setActiveSection(resolveActiveSection(nextOffset));
+    }, NAV_LOCK_MS);
   };
 
   return (
     <div
-      className={`w-full z-30 transition-all duration-300 ${
-        isSticky
-          ? "sticky top-20 bg-white/90 backdrop-blur-md border-b border-ink/5 shadow-soft py-0"
-          : "relative bg-sand border-b border-ink/5 py-2"
+      ref={barRef}
+      className={`sticky top-20 z-30 w-full max-w-full transition-[background,box-shadow,border-color] duration-300 ${
+        isScrolled
+          ? "border-b border-ink/8 bg-white/90 shadow-soft backdrop-blur-md"
+          : "border-b border-ink/5 bg-sand"
       }`}
     >
-      <Container size="xl">
-        <div className="flex items-center justify-between overflow-x-auto scrollbar-none py-1">
-          <nav className="flex items-center gap-1 sm:gap-2 md:gap-4 w-full justify-start md:justify-center">
-            {NAV_ITEMS.map((item) => {
-              const isActive = activeSection === item.href;
-              return (
-                <a
-                  key={item.href}
-                  href={item.href}
-                  onClick={(e) => handleClick(e, item.href)}
-                  className={`relative px-4 py-3 text-xs sm:text-sm font-medium tracking-wide font-sans whitespace-nowrap transition-colors rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 ${
-                    isActive
-                      ? "text-primary font-semibold"
-                      : "text-muted hover:text-ink"
-                  }`}
-                >
-                  {isActive && (
-                    <motion.span
-                      layoutId="activeSubNavTab"
-                      transition={{
-                        type: "spring",
-                        stiffness: 380,
-                        damping: 30,
-                      }}
-                      className="absolute inset-0 bg-primary/5 rounded-full z-0"
-                    />
-                  )}
-                  <span className="relative z-10">{item.label}</span>
-                </a>
-              );
-            })}
-          </nav>
-        </div>
+      <Container size="2xl">
+        <nav
+          aria-label="Course sections"
+          className="flex w-full items-stretch gap-0.5 py-2 sm:gap-1 sm:py-2.5"
+        >
+          {NAV_ITEMS.map((item) => {
+            const isActive = activeSection === item.id;
+
+            return (
+              <a
+                key={item.id}
+                href={item.id}
+                title={item.label}
+                onClick={(e) => handleClick(e, item.id)}
+                aria-current={isActive ? "location" : undefined}
+                className={`relative flex min-w-0 flex-1 basis-0 items-center justify-center rounded-full px-0.5 py-2 text-center font-sans text-[9px] font-semibold leading-tight tracking-wide transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 min-[390px]:text-[10px] sm:px-1 sm:py-2.5 sm:text-xs md:text-sm ${
+                  isActive
+                    ? "text-primary"
+                    : "text-muted hover:bg-ink/4 hover:text-ink"
+                }`}
+              >
+                {isActive && (
+                  <motion.span
+                    layoutId="courseStickyNavActive"
+                    transition={
+                      prefersReduced
+                        ? { duration: 0 }
+                        : {
+                            type: "spring",
+                            stiffness: 380,
+                            damping: 30,
+                          }
+                    }
+                    className="absolute inset-0 rounded-full border border-primary/15 bg-primary/8"
+                  />
+                )}
+                <span className="relative z-10 block w-full truncate px-0.5 sm:px-1">
+                  <span className="sm:hidden">{item.shortLabel}</span>
+                  <span className="hidden sm:inline">{item.label}</span>
+                </span>
+              </a>
+            );
+          })}
+        </nav>
       </Container>
     </div>
   );
