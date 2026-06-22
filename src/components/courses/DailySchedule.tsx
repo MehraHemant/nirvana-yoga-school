@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
-import { Container, SectionHeader } from "@/components/ui";
+import { Container, SectionHeader, TabSwitcher } from "@/components/ui";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 
 interface ScheduleItem {
@@ -177,8 +177,11 @@ export default function DailySchedule({
   ];
 
   return (
-    <section id="schedule" className="py-20 sm:py-28 bg-paper relative">
-      <Container size="xl">
+    <section
+      id="schedule"
+      className="relative overflow-x-clip bg-paper py-20 sm:py-28"
+    >
+      <Container size="2xl">
         <motion.div
           initial="hidden"
           whileInView="visible"
@@ -190,8 +193,7 @@ export default function DailySchedule({
             eyebrow="Timetable"
             title={
               <>
-                A Day in the{" "}
-                <span className="text-primary italic">Yogic Life</span>
+                A Day in the <span className="text-primary">Yogic Life</span>
               </>
             }
             align="center"
@@ -202,36 +204,13 @@ export default function DailySchedule({
         </motion.div>
 
         {/* Tab filters */}
-        <div className="flex justify-center mb-12 overflow-x-auto scrollbar-none pb-2 px-4">
-          <div className="inline-flex bg-white/70 p-1.5 rounded-full border border-ink/5 shadow-xs">
-            {tabs.map((tab) => {
-              const isActive = activeTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`relative px-4 sm:px-6 py-2.5 rounded-full text-xs font-semibold font-sans tracking-wide transition-colors whitespace-nowrap cursor-pointer focus:outline-none ${
-                    isActive ? "text-primary" : "text-muted hover:text-ink"
-                  }`}
-                >
-                  {isActive && (
-                    <motion.span
-                      layoutId="activeScheduleTab"
-                      transition={{
-                        type: "spring",
-                        stiffness: 350,
-                        damping: 28,
-                      }}
-                      className="absolute inset-0 bg-primary/5 rounded-full"
-                    />
-                  )}
-                  <span className="relative z-10">{tab.label}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
+        <TabSwitcher
+          tabs={tabs}
+          activeId={activeTab}
+          onChange={setActiveTab}
+          layoutId="activeScheduleTab"
+          className="mb-12"
+        />
 
         {/* Dynamic Schedule Feed */}
         <div className="relative max-w-3xl mx-auto min-h-[400px]">

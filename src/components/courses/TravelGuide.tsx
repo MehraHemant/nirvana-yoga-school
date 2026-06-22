@@ -46,7 +46,7 @@ export default function TravelGuide() {
   return (
     <section
       id="travel"
-      className="py-20 sm:py-28 bg-sand border-b border-ink/5"
+      className="py-20 sm:py-28 bg-white border-b border-ink/5"
     >
       <Container size="xl">
         <motion.div

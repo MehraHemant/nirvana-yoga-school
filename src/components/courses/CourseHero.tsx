@@ -4,8 +4,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Button, Container } from "@/components/ui";
-import { ChevronLeft, ChevronRight, Close, HeroUnderline, Play } from "@/icons";
+import { Button, Container, MediaLightbox } from "@/components/ui";
+import { ChevronLeft, ChevronRight, HeroUnderline, Play } from "@/icons";
 import { fadeUp } from "@/lib/motion";
 
 interface CourseHeroProps {
@@ -218,7 +218,7 @@ export default function CourseHero({
           {/* Left Column: Course Metadata & Details */}
           <div className="lg:col-span-5 flex flex-col items-start w-full">
             {/* Breadcrumbs */}
-            <nav className="mb-6 flex items-center gap-2 text-xs sm:text-sm text-white/50 font-medium tracking-wide">
+            {/* <nav className="mb-6 flex items-center gap-2 text-xs sm:text-sm text-white/50 font-medium tracking-wide">
               <Link href="/" className="hover:text-accent transition-colors">
                 Home
               </Link>
@@ -233,7 +233,7 @@ export default function CourseHero({
               <span className="text-accent truncate max-w-[200px] sm:max-w-none">
                 {title}
               </span>
-            </nav>
+            </nav> */}
 
             {/* Certification Badge Pill */}
             <motion.div
@@ -361,45 +361,6 @@ export default function CourseHero({
 
           {/* Right Column: Premium Active Viewer + Thumbnails Carousel */}
           <div className="lg:col-span-7 flex flex-col w-full">
-            {/* Filter Tabs */}
-            <div className="flex gap-1.5 mb-4 bg-white/5 border border-white/10 p-1 rounded-full w-fit self-center lg:self-start">
-              <button
-                type="button"
-                onClick={() => handleFilterChange("all")}
-                className={`px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all cursor-pointer ${
-                  activeFilter === "all"
-                    ? "bg-accent text-ink"
-                    : "text-white/70 hover:text-white"
-                }`}
-              >
-                All ({mediaItems.length})
-              </button>
-              <button
-                type="button"
-                onClick={() => handleFilterChange("photos")}
-                className={`px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all cursor-pointer ${
-                  activeFilter === "photos"
-                    ? "bg-accent text-ink"
-                    : "text-white/70 hover:text-white"
-                }`}
-              >
-                Photos ({mediaItems.filter((i) => i.type === "image").length})
-              </button>
-              {mediaItems.some((i) => i.type === "video") && (
-                <button
-                  type="button"
-                  onClick={() => handleFilterChange("videos")}
-                  className={`px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all cursor-pointer ${
-                    activeFilter === "videos"
-                      ? "bg-accent text-ink"
-                      : "text-white/70 hover:text-white"
-                  }`}
-                >
-                  Videos ({mediaItems.filter((i) => i.type === "video").length})
-                </button>
-              )}
-            </div>
-
             {/* Main Player Display */}
             <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] lg:aspect-[4/3] rounded-3xl overflow-hidden border border-white/10 bg-black/60 shadow-2xl mb-4">
               <AnimatePresence mode="popLayout">
@@ -543,11 +504,10 @@ export default function CourseHero({
                         <button
                           type="button"
                           onClick={() => setActiveIndex(idx)}
-                          className={`relative w-28 h-18 sm:w-32 sm:h-20 rounded-xl overflow-hidden border-2 transition-all cursor-pointer block ${
-                            isActive
-                              ? "border-accent shadow-[0_0_10px_rgba(166,181,162,0.6)] z-10"
-                              : "border-white/10 opacity-60 hover:opacity-100 hover:border-white/30"
-                          }`}
+                          className={`relative w-28 h-18 sm:w-32 sm:h-20 rounded-xl overflow-hidden border-2 transition-all cursor-pointer block ${isActive
+                            ? "border-accent shadow-[0_0_10px_rgba(166,181,162,0.6)] z-10"
+                            : "border-white/10 opacity-60 hover:opacity-100 hover:border-white/30"
+                            }`}
                           aria-label={`Select media slide ${idx + 1}`}
                         >
                           {item.type === "image" ? (
@@ -587,144 +547,14 @@ export default function CourseHero({
       </Container>
 
       {/* Lightbox / Fullscreen Modal Overlay */}
-      <AnimatePresence>
-        {isLightboxOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/95 p-4 md:p-8"
-          >
-            {/* Close button */}
-            <button
-              type="button"
-              onClick={() => setIsLightboxOpen(false)}
-              className="absolute top-6 right-6 z-50 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
-              aria-label="Close Fullscreen"
-            >
-              <Close size={24} />
-            </button>
-
-            {/* Main Lightbox Frame */}
-            <div className="relative w-full max-w-5xl aspect-[16/9] flex items-center justify-center">
-              {/* Left Arrow */}
-              {filteredItems.length > 1 && (
-                <button
-                  type="button"
-                  onClick={handlePrev}
-                  className="absolute left-4 z-50 p-3.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
-                  aria-label="Previous Media"
-                >
-                  <ChevronLeft size={24} />
-                </button>
-              )}
-
-              {/* Right Arrow */}
-              {filteredItems.length > 1 && (
-                <button
-                  type="button"
-                  onClick={handleNext}
-                  className="absolute right-4 z-50 p-3.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
-                  aria-label="Next Media"
-                >
-                  <ChevronRight size={24} />
-                </button>
-              )}
-
-              {/* Active Media Inside Lightbox */}
-              <div className="w-full h-full relative">
-                {activeItem.type === "image" ? (
-                  <Image
-                    src={activeItem.url}
-                    alt={title}
-                    fill
-                    className="object-contain"
-                    priority
-                  />
-                ) : (
-                  (() => {
-                    const isYouTube =
-                      !activeItem.url.includes("/") &&
-                      activeItem.url.length <= 12;
-                    return isYouTube ? (
-                      <iframe
-                        src={`https://www.youtube.com/embed/${activeItem.url}?autoplay=1&rel=0`}
-                        title="Course Video"
-                        className="w-full h-full border-0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                      />
-                    ) : (
-                      // biome-ignore lint/a11y/useMediaCaption: custom fullscreen preview video
-                      <video
-                        src={activeItem.url}
-                        className="w-full h-full object-contain"
-                        controls
-                        autoPlay
-                        playsInline
-                      />
-                    );
-                  })()
-                )}
-              </div>
-            </div>
-
-            {/* Lightbox Thumbnails selection strip */}
-            {filteredItems.length > 1 && (
-              <div className="mt-6 w-full max-w-4xl overflow-x-auto py-2 flex gap-3 justify-start sm:justify-center scrollbar-thin">
-                {filteredItems.map((item, idx) => {
-                  const isActive = idx === activeIndex;
-                  return (
-                    <button
-                      // biome-ignore lint/suspicious/noArrayIndexKey: indices are stable for media files
-                      key={idx}
-                      type="button"
-                      onClick={() => {
-                        setActiveIndex(idx);
-                        if (scrollContainerRef.current) {
-                          scrollContainerRef.current.scrollTo({
-                            left: idx * 128 - 20,
-                            behavior: "smooth",
-                          });
-                        }
-                      }}
-                      className={`relative shrink-0 w-16 h-10 rounded-lg overflow-hidden border-2 transition-all cursor-pointer ${
-                        isActive
-                          ? "border-accent scale-105"
-                          : "border-white/10 opacity-55 hover:opacity-100"
-                      }`}
-                      aria-label={`Go to slide ${idx + 1}`}
-                    >
-                      {item.type === "image" ? (
-                        <Image
-                          src={item.url}
-                          alt=""
-                          fill
-                          sizes="64px"
-                          className="object-cover"
-                        />
-                      ) : (
-                        <div className="relative w-full h-full bg-black/50">
-                          <Image
-                            src={getYouTubeThumbnail(item.url)}
-                            alt=""
-                            fill
-                            sizes="64px"
-                            className="object-cover opacity-80"
-                          />
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <Play size={12} className="text-white fill-white" />
-                          </div>
-                        </div>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <MediaLightbox
+        isOpen={isLightboxOpen}
+        onClose={() => setIsLightboxOpen(false)}
+        items={filteredItems}
+        activeIndex={activeIndex}
+        onChangeActiveIndex={setActiveIndex}
+        title={title}
+      />
     </section>
   );
 }

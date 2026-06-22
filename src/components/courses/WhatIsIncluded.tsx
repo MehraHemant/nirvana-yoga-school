@@ -222,7 +222,7 @@ export default function WhatIsIncluded({
         <HeroFlourish size={400} />
       </div>
 
-      <Container size="xl" className="w-full">
+      <Container size="2xl" className="w-full">
         <div className="grid gap-10 lg:grid-cols-12 lg:gap-14 items-center">
           {/* Left Column: Section Header & Info (col-span-5) */}
           <div className="lg:col-span-5 space-y-6">
