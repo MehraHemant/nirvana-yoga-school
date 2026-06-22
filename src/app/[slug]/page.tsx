@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import {
   AccommodationFood,
   CourseEligibility,
-  CourseFAQ,
   CourseHero,
   CourseOverview,
   CourseStickyNav,
@@ -13,7 +12,9 @@ import {
   TravelGuide,
   UpcomingDates,
   WhatIsIncluded,
+  WhyNirvana,
 } from "@/components";
+import { COURSE_FAQ_CATEGORIES, FAQSection } from "@/components/ui";
 import { COURSES_DATA } from "@/data/coursesData";
 import { COURSES_MEDIA } from "@/data/coursesMedia";
 import { fetchYouTubeVideos } from "@/lib/youtube";
@@ -74,8 +75,7 @@ export default async function CourseDetailPage({ params }: PageProps) {
   );
 
   return (
-    <article className="min-h-screen bg-sand">
-      {/* 1. Hero banner section with details card */}
+    <>
       <CourseHero
         title={course.title}
         subtitle={course.subtitle}
@@ -90,58 +90,70 @@ export default async function CourseDetailPage({ params }: PageProps) {
         videos={media.videos}
       />
 
-      {/* Sticky Sub-Navigation */}
       <CourseStickyNav />
 
-      {/* 2. Overview description and key outcomes */}
-      <CourseOverview
-        overview={course.overview}
-        level={course.level}
-        duration={course.duration}
-        certification={course.certification}
-        fee={course.fee}
-        videos={videos}
-      />
+      <article className="min-h-screen max-w-full overflow-x-clip bg-sand">
+        <CourseOverview
+          overview={course.overview}
+          level={course.level}
+          duration={course.duration}
+          certification={course.certification}
+          fee={course.fee}
+          videos={videos}
+        />
 
-      {/* 3. Inclusions & Exclusions card blocks */}
-      <WhatIsIncluded
-        inclusions={course.inclusions}
-        exclusions={course.exclusions}
-      />
+        {/* 3. Inclusions & Exclusions card blocks */}
+        <WhatIsIncluded
+          inclusions={course.inclusions}
+          exclusions={course.exclusions}
+        />
 
-      {/* 4. Eligibility rules */}
-      <CourseEligibility />
+        {/* 4. Eligibility rules */}
+        <CourseEligibility />
 
-      {/* 5. Syllabus detail accordions */}
-      <CourseSyllabus
-        description={course.syllabusDescription}
-        syllabus={course.syllabus}
-      />
+        {/* 5. Syllabus detail accordions */}
+        <CourseSyllabus
+          description={course.syllabusDescription}
+          syllabus={course.syllabus}
+        />
 
-      {/* 6. Timetable stepper timeline */}
-      <DailySchedule
-        description={course.scheduleDescription}
-        schedule={course.schedule}
-      />
+        {/* 6. Timetable stepper timeline */}
+        <DailySchedule
+          description={course.scheduleDescription}
+          schedule={course.schedule}
+        />
 
-      {/* 7. Exam and certification details */}
-      <ExamCertification />
+        {/* 7. Exam and certification details */}
+        <ExamCertification />
 
-      {/* 8. Ashram accommodation & organic food display */}
-      <AccommodationFood />
+        {/* 8. Ashram accommodation & organic food display */}
+        <AccommodationFood />
 
-      {/* 9. Upcoming calendar dates & Room package selection */}
-      <UpcomingDates
-        duration={course.duration}
-        pricing={course.pricing}
-        pricingDescription={course.pricingDescription}
-      />
+        {/* 9. Upcoming calendar dates & Room package selection */}
+        <UpcomingDates
+          duration={course.duration}
+          pricing={course.pricing}
+          pricingDescription={course.pricingDescription}
+        />
 
-      {/* 10. Travel guide logistics */}
-      <TravelGuide />
+        {/* 10. Why Nirvana — live-site editorial layout */}
+        <WhyNirvana />
 
-      {/* 11. Course FAQ accordion */}
-      <CourseFAQ faqs={course.faqs} />
-    </article>
+        {/* 11. Travel guide logistics */}
+        <TravelGuide />
+
+        {/* 11. Course FAQ accordion */}
+        <FAQSection
+          faqs={course.faqs}
+          categories={COURSE_FAQ_CATEGORIES}
+          eyebrow="Got Questions?"
+          title={
+            <>
+              Course <span className="text-primary italic">FAQs</span>
+            </>
+          }
+        />
+      </article>
+    </>
   );
 }
