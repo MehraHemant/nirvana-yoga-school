@@ -1,6 +1,5 @@
 export { default as CoursesSection } from "./CoursesSection";
 export { default as ExperienceSection } from "./ExperienceSection";
-export { default as FAQSection } from "./FAQSection";
 export { default as FinalCTASection } from "./FinalCTASection";
 export { default as GallerySection } from "./GallerySection";
 export { default as HeroSection } from "./HeroSection";

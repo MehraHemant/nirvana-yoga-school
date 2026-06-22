@@ -1,6 +1,5 @@
 import {
   CoursesSection,
-  FAQSection,
   FinalCTASection,
   GallerySection,
   HeroSection,
@@ -13,6 +12,8 @@ import {
   WhyRishikeshSection,
   YogaAllianceSection,
 } from "@/components";
+import { FAQSection } from "@/components/ui";
+import { HOME_FAQS } from "@/data/homeFaqs";
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -124,7 +125,11 @@ export default function Home() {
       <YogaAllianceSection />
       <TeachersSection />
       <TestimonialsSection />
-      <FAQSection />
+      <FAQSection
+        faqs={HOME_FAQS}
+        eyebrow="Questions, answered"
+        title="Frequently asked"
+      />
       <FinalCTASection />
       <MapSection />
     </>

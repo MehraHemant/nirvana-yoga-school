@@ -3,7 +3,7 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
-import { Container, SectionHeader } from "@/components/ui";
+import { Container, MediaLightbox, SectionHeader } from "@/components/ui";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 
 interface GalleryItem {
@@ -250,6 +250,15 @@ export default function GallerySection() {
   }, [selectedCategory]);
 
   const [visibleItems, setVisibleItems] = useState<GalleryItem[]>([]);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+
+  const lightboxItems = useMemo(() => {
+    return visibleItems.map((item) => ({
+      type: "image" as const,
+      url: item.src,
+    }));
+  }, [visibleItems]);
 
   // Initialize visible items whenever category changes
   useEffect(() => {
@@ -395,8 +404,13 @@ export default function GallerySection() {
                     className="w-full text-left break-inside-avoid mb-6 group block rounded-3xl"
                   >
                     {/* Image Card Frame */}
-                    <div
-                      className={`relative w-full ${aspect} overflow-hidden rounded-3xl bg-ink/5 border border-ink/5 group-hover:border-primary/15 shadow-card hover:shadow-soft transition-all duration-300`}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActiveImageIndex(index);
+                        setIsLightboxOpen(true);
+                      }}
+                      className={`relative w-full ${aspect} overflow-hidden rounded-3xl bg-ink/5 border border-ink/5 group-hover:border-primary/15 shadow-card hover:shadow-soft transition-all duration-300 cursor-zoom-in block`}
                     >
                       <AnimatePresence mode="popLayout">
                         <motion.div
@@ -413,11 +427,11 @@ export default function GallerySection() {
                             fill
                             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                             draggable={false}
-                            className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                            className="object-cover transition-transform duration-700 ease-out group-hover:scale-105 pointer-events-none"
                           />
                         </motion.div>
                       </AnimatePresence>
-                    </div>
+                    </button>
 
                     {/* Pinterest Style Caption below Card */}
                     <div className="mt-3 px-2">
@@ -439,6 +453,15 @@ export default function GallerySection() {
           </AnimatePresence>
         </div>
       </Container>
+
+      <MediaLightbox
+        isOpen={isLightboxOpen}
+        onClose={() => setIsLightboxOpen(false)}
+        items={lightboxItems}
+        activeIndex={activeImageIndex}
+        onChangeActiveIndex={setActiveImageIndex}
+        title="Life at Nirvana"
+      />
     </section>
   );
 }
