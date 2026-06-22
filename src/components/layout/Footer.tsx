@@ -2,11 +2,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { logo_white } from "@/assets";
 import { Container } from "@/components/ui";
-import { Facebook, Instagram, YouTube } from "@/icons";
+import { Facebook, Instagram, WhatsApp, YouTube } from "@/icons";
 
 const SITE = "https://www.nirvanayogaschoolindia.com";
 
-const SOCIAL_LINKS = [
+const SOCIAL = [
   {
     label: "Instagram",
     href: "https://www.instagram.com/nirvanayogaschool",
@@ -22,20 +22,21 @@ const SOCIAL_LINKS = [
     href: "https://www.facebook.com/nirvanayogaschool",
     Icon: Facebook,
   },
+  { label: "WhatsApp", href: "https://wa.me/919876543210", Icon: WhatsApp },
 ] as const;
 
-const COURSE_LINKS = [
+const PROGRAMS = [
   {
     href: `${SITE}/200-hour-yoga-teacher-training-in-rishikesh-india`,
-    label: "200hr Yoga Teacher Training",
+    label: "200-Hour YTT",
   },
   {
     href: `${SITE}/300-hour-yoga-teacher-training-in-rishikesh-india`,
-    label: "300hr Advanced YTT",
+    label: "300-Hour YTT",
   },
   {
     href: `${SITE}/500-hour-yoga-teacher-training-in-rishikesh-india`,
-    label: "500hr Master's YTT",
+    label: "500-Hour YTT",
   },
   {
     href: `${SITE}/200-hour-kundalini-yoga-teacher-training-in-rishikesh-india`,
@@ -45,206 +46,163 @@ const COURSE_LINKS = [
     href: `${SITE}/online-yoga-teacher-training-courses`,
     label: "Online Courses",
   },
-  {
-    href: `${SITE}/3-day-yoga-retreat-in-rishikesh-india`,
-    label: "Retreats",
-  },
+  { href: `${SITE}/3-day-yoga-retreat-in-rishikesh-india`, label: "Retreats" },
 ];
 
-const SCHOOL_LINKS = [
-  { href: "#about", label: "About Us" },
-  { href: "#teachers", label: "Teachers" },
-  { href: "#reviews", label: "Reviews" },
-  { href: "#faq", label: "FAQ" },
-  { href: `${SITE}/blog`, label: "Blog" },
-  { href: "#contact", label: "Contact Us" },
+const SCHOOL = [
+  { href: "/#about", label: "About" },
+  { href: "/#teachers", label: "Teachers" },
+  { href: "/#reviews", label: "Reviews" },
+  { href: "/#gallery", label: "Gallery" },
+  { href: `${SITE}/blog`, label: "Journal" },
+  { href: "/#faq", label: "FAQ" },
 ];
+
+const LEGAL = [
+  { href: "#", label: "Privacy" },
+  { href: "#", label: "Terms" },
+  { href: "#", label: "Sitemap" },
+];
+
+const CREDENTIALS = "Yoga Alliance RYS · Est. 2012 · Tapovan, Rishikesh";
+
+function BrandLogo() {
+  return (
+    <Link
+      href="/"
+      aria-label="Nirvana Yoga School home"
+      className="inline-block"
+    >
+      <Image
+        src={logo_white}
+        alt="Nirvana Yoga School"
+        width={144}
+        height={58}
+        className="h-auto object-contain"
+        style={{ maxWidth: 144 }}
+      />
+    </Link>
+  );
+}
+
+function ColHeading({ children }: { children: string }) {
+  return (
+    <p className="type-eyebrow text-[10px] tracking-[0.22em] text-accent mb-5">
+      {children}
+    </p>
+  );
+}
+
+function NavLinks({ links }: { links: { href: string; label: string }[] }) {
+  return (
+    <ul className="space-y-3">
+      {links.map((l) => (
+        <li key={l.label}>
+          <Link
+            href={l.href}
+            target={l.href.startsWith("http") ? "_blank" : undefined}
+            rel={l.href.startsWith("http") ? "noopener noreferrer" : undefined}
+            className="text-[13px] text-white/55 hover:text-white transition-colors duration-300 font-sans"
+          >
+            {l.label}
+          </Link>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function SocialIcons() {
+  return (
+    <div className="flex items-center gap-3">
+      {SOCIAL.map(({ label, href, Icon }) => (
+        <a
+          key={label}
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={label}
+          className="text-white/40 hover:text-white transition-colors duration-300"
+        >
+          <Icon size={16} />
+        </a>
+      ))}
+    </div>
+  );
+}
+
+function ContactLines() {
+  return (
+    <address className="not-italic space-y-2 font-sans text-[13px] leading-relaxed">
+      <p className="text-white/45">
+        Tapovan, Rishikesh
+        <br />
+        Uttarakhand 249192, India
+      </p>
+      <a
+        href="mailto:hello@nirvanayogaschoolindia.com"
+        className="block text-white/55 hover:text-white transition-colors"
+      >
+        hello@nirvanayogaschoolindia.com
+      </a>
+      <a
+        href="https://wa.me/919876543210"
+        className="block text-white/55 hover:text-white transition-colors"
+      >
+        +91 98765 43210
+      </a>
+    </address>
+  );
+}
 
 export default function Footer() {
   return (
-    <footer className="bg-dark text-white pt-10 pb-5 relative overflow-hidden border-t border-white/10">
-      {/* Background Soft Glow / Radial highlights */}
-      <div
-        className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-white/5 blur-[120px] rounded-full pointer-events-none"
-        aria-hidden="true"
-      />
-      <div
-        className="absolute -top-40 -left-40 w-[300px] h-[300px] bg-accent/8 blur-[100px] rounded-full pointer-events-none"
-        aria-hidden="true"
-      />
-
-      <Container size="2xl" className="relative z-10">
-        <div className="grid lg:grid-cols-12 gap-6 lg:gap-8">
-          {/* Brand + newsletter */}
-          <div className="lg:col-span-5 flex flex-col gap-4">
-            <div>
-              <Link
-                href="/"
-                aria-label="Nirvana Yoga School home"
-                className="inline-block group"
-              >
-                <Image
-                  src={logo_white}
-                  alt="Nirvana Yoga School"
-                  width={160}
-                  height={64}
-                  className="h-20 w-auto object-contain transition-transform duration-500 group-hover:scale-[1.02]"
-                />
-              </Link>
-              <p className="mt-2 text-white/80 max-w-sm leading-relaxed text-sm/snug">
-                An authentic, Yoga Alliance certified school on the banks of the
-                Ganga in Rishikesh. Providing traditional education, ayurvedic
-                nutrition, and modern alignment tools.
-              </p>
-            </div>
-
-            {/* <div className="mt-1">
-              <h4 className="font-serif text-xs text-white font-medium mb-1">
-                Subscribe to the Nirvana Journal
-              </h4>
-              <p className="text-[10px] text-white/60 leading-relaxed max-w-sm mb-2 font-sans">
-                Monthly notes on classical practice, seasonal retreats, and
-                wisdom from Rishikesh. No spam.
-              </p>
-              <form className="flex flex-col sm:flex-row gap-2 max-w-md">
-                <label htmlFor="newsletter" className="sr-only">
-                  Your email
-                </label>
-                <input
-                  id="newsletter"
-                  type="email"
-                  required
-                  placeholder="your@email.com"
-                  className="flex-1 px-4 py-1.5 rounded-full bg-white/10 border border-white/15 text-white placeholder-white/45 focus:outline-none focus:border-white hover:border-white/30 transition-all duration-300 font-sans text-[11px]"
-                />
-                <button
-                  type="submit"
-                  className="px-4 py-1.5 rounded-full bg-white hover:bg-sand text-secondary font-semibold transition-all duration-300 font-sans text-[11px] shadow-md shrink-0 cursor-pointer"
-                >
-                  Subscribe
-                </button>
-              </form>
-            </div> */}
+    <footer className="bg-dark text-white">
+      <Container size="2xl" className="pt-20 pb-10">
+        <div className="grid lg:grid-cols-[1fr_1.4fr] gap-16">
+          <div className="border-l-2 border-primary/40 pl-6 lg:pl-8">
+            <BrandLogo />
+            <p className="mt-6 text-[14px] text-white/55 font-sans leading-[1.7] max-w-sm">
+              A residential sanctuary for seekers — where classical Hatha,
+              philosophy, and meditation converge on the sacred banks of the
+              Ganga.
+            </p>
+            <p className="mt-5 type-eyebrow text-white/35">{CREDENTIALS}</p>
           </div>
-
-          {/* Links */}
-          <div className="lg:col-span-7 grid sm:grid-cols-3 gap-6">
-            <div>
-              <h3 className="type-eyebrow text-[9px] tracking-widest text-accent font-bold mb-2.5">
-                Courses
-              </h3>
-              <ul className="space-y-1.5">
-                {COURSE_LINKS.map((l) => (
-                  <li key={l.label}>
-                    <Link
-                      href={l.href}
-                      target={l.href.startsWith("http") ? "_blank" : undefined}
-                      rel={
-                        l.href.startsWith("http")
-                          ? "noopener noreferrer"
-                          : undefined
-                      }
-                      className="text-white/75 hover:text-white text-xs font-medium transition-all duration-300 font-sans rounded-xl px-3 py-2 -ml-3 border-l-2 border-transparent hover:border-primary hover:bg-primary/10"
-                    >
-                      {l.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="type-eyebrow text-[9px] tracking-widest text-accent font-bold mb-2.5">
-                School
-              </h3>
-              <ul className="space-y-1.5">
-                {SCHOOL_LINKS.map((l) => (
-                  <li key={l.label}>
-                    <Link
-                      href={l.href}
-                      target={l.href.startsWith("http") ? "_blank" : undefined}
-                      rel={
-                        l.href.startsWith("http")
-                          ? "noopener noreferrer"
-                          : undefined
-                      }
-                      className="text-white/75 hover:text-white text-xs font-medium transition-all duration-300 font-sans rounded-xl px-3 py-2 -ml-3 border-l-2 border-transparent hover:border-primary hover:bg-primary/10"
-                    >
-                      {l.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="type-eyebrow text-[9px] tracking-widest text-accent font-bold mb-2.5">
-                Visit Us
-              </h3>
-              <address className="not-italic text-white/75 text-xs leading-relaxed space-y-1.5 font-sans">
-                <p className="font-semibold text-white/90">Course Campus</p>
-                <p className="text-white/70 -mt-1">
-                  Tapovan, Rishikesh, Uttarakhand 249192, India
-                </p>
-                <div className="pt-1.5 space-y-1">
-                  <p className="flex flex-wrap items-center gap-1.5">
-                    <span className="text-[9px] text-accent font-bold uppercase tracking-wider">
-                      Email:
-                    </span>
-                    <a
-                      href="mailto:hello@nirvanayogaschoolindia.com"
-                      className="text-white/90 hover:text-accent transition-colors duration-300"
-                    >
-                      hello@nirvanayogaschoolindia.com
-                    </a>
-                  </p>
-                  <p className="flex flex-wrap items-center gap-1.5">
-                    <span className="text-[9px] text-accent font-bold uppercase tracking-wider">
-                      Phone:
-                    </span>
-                    <a
-                      href="https://wa.me/919876543210"
-                      className="text-white/90 hover:text-accent transition-colors duration-300"
-                    >
-                      +91 98765 43210
-                    </a>
-                  </p>
-                </div>
-              </address>
-
-              <div className="mt-4 flex gap-2.5">
-                {SOCIAL_LINKS.map(({ label, href, Icon }) => (
-                  <a
-                    key={label}
-                    href={href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-7.5 h-7.5 rounded-full bg-white/10 border border-white/10 hover:border-white hover:bg-white hover:text-secondary flex items-center justify-center transition-all duration-300 text-white/80"
-                  >
-                    <span className="sr-only">{label}</span>
-                    <Icon size={13} />
-                  </a>
-                ))}
+          <div>
+            <div className="grid sm:grid-cols-3 gap-10">
+              <div>
+                <ColHeading>Programs</ColHeading>
+                <NavLinks links={PROGRAMS} />
               </div>
+              <div>
+                <ColHeading>School</ColHeading>
+                <NavLinks links={SCHOOL} />
+              </div>
+              <div>
+                <ColHeading>Contact</ColHeading>
+                <ContactLines />
+              </div>
+            </div>
+            <div className="mt-12">
+              <SocialIcons />
             </div>
           </div>
         </div>
-
-        <div className="mt-8 pt-4 border-t border-white/10 flex flex-col md:flex-row md:items-center md:justify-between gap-3 text-[10px] text-white/45 font-sans">
-          <p>
-            © {new Date().getFullYear()} Nirvana Yoga School India. All rights
-            reserved.
-          </p>
-          <div className="flex gap-4">
-            <Link href="#" className="hover:text-white transition-colors">
-              Privacy Policy
-            </Link>
-            <Link href="#" className="hover:text-white transition-colors">
-              Terms of Service
-            </Link>
-            <Link href="#" className="hover:text-white transition-colors">
-              Sitemap
-            </Link>
+        <div className="mt-16 pt-8 border-t border-white/8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-[11px] font-sans text-white/30">
+            <p>© {new Date().getFullYear()} Nirvana Yoga School India</p>
+            <div className="flex gap-5">
+              {LEGAL.map((l) => (
+                <Link
+                  key={l.label}
+                  href={l.href}
+                  className="hover:text-white/60 transition-colors"
+                >
+                  {l.label}
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       </Container>
