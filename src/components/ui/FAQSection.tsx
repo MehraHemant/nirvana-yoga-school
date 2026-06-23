@@ -116,7 +116,7 @@ export default function FAQSection({
   return (
     <section
       id={id}
-      className={`overflow-hidden bg-light-gray py-12 sm:py-14 lg:py-16 ${sectionClassName}`}
+      className={`overflow-hidden py-12 sm:py-14 lg:py-16 ${sectionClassName || "bg-light-gray"}`}
     >
       <Container size="2xl">
         <motion.div

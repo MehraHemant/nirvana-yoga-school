@@ -129,6 +129,7 @@ export default function Home() {
         faqs={HOME_FAQS}
         eyebrow="Questions, answered"
         title="Frequently asked"
+        sectionClassName="bg-white"
       />
       <FinalCTASection />
       <MapSection />

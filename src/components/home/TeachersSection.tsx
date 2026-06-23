@@ -317,7 +317,7 @@ export default function TeachersSection() {
   return (
     <section
       id="teachers"
-      className="relative overflow-x-hidden bg-light-gray py-12 sm:py-14 lg:py-16 w-full"
+      className="relative overflow-x-hidden bg-white py-12 sm:py-14 lg:py-16 w-full"
     >
       <Container size="2xl" className="w-full relative z-10">
         {/* Section Header */}
