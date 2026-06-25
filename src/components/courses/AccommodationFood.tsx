@@ -18,7 +18,7 @@ import {
   FOOD_GALLERY,
   type GalleryImage,
 } from "@/data/accommodationFood";
-import { Check, ChevronLeft, ChevronRight, HeroFlourish } from "@/icons";
+import { Check, ChevronLeft, ChevronRight } from "@/icons";
 import {
   EASE_OUT,
   fadeUp,
@@ -89,10 +89,10 @@ function ImageGalleryPanel({
   if (!active) return null;
 
   return (
-    <div className="flex flex-col gap-4 min-w-0">
+    <div className="flex flex-col gap-3 min-w-0">
       <div className="relative">
         <div
-          className={`absolute -inset-2 rounded-[1.75rem] bg-linear-to-br ${
+          className={`absolute -inset-1.5 rounded-2xl bg-linear-to-br ${
             accent === "secondary"
               ? "from-secondary/10 via-transparent to-accent/10"
               : "from-primary/10 via-transparent to-accent/10"
@@ -101,7 +101,7 @@ function ImageGalleryPanel({
         />
 
         <div
-          className={`relative aspect-[5/4] lg:aspect-[4/3] rounded-3xl overflow-hidden bg-ink shadow-card ring-1 group ${accentRing}`}
+          className={`relative aspect-[5/3] rounded-3xl overflow-hidden bg-ink shadow-card ring-1 group ${accentRing}`}
         >
           <AnimatePresence mode="wait">
             <motion.button
@@ -128,14 +128,14 @@ function ImageGalleryPanel({
 
           <div className="absolute inset-0 bg-linear-to-t from-black/75 via-black/10 to-transparent pointer-events-none" />
 
-          <div className="absolute top-4 left-4 pointer-events-none">
-            <span className="hero-glass px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider text-white">
+          <div className="absolute top-3 left-3 pointer-events-none">
+            <span className="hero-glass px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider text-white">
               {label}
             </span>
           </div>
 
-          <div className="absolute top-4 right-4 pointer-events-none">
-            <span className="px-2.5 py-1 rounded-full bg-black/45 border border-white/10 text-[10px] text-white font-semibold backdrop-blur-sm tabular-nums">
+          <div className="absolute top-3 right-3 pointer-events-none">
+            <span className="px-2 py-0.5 rounded-full bg-black/45 border border-white/10 text-[9px] text-white font-semibold backdrop-blur-sm tabular-nums">
               {activeIndex + 1} / {images.length}
             </span>
           </div>
@@ -148,10 +148,10 @@ function ImageGalleryPanel({
                   e.stopPropagation();
                   goPrev();
                 }}
-                className="absolute left-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-black/45 hover:bg-black/70 border border-white/15 text-white backdrop-blur-sm transition-all cursor-pointer opacity-100 sm:opacity-0 sm:group-hover:opacity-100 hover:scale-105"
+                className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/45 hover:bg-black/70 border border-white/15 text-white backdrop-blur-sm transition-all cursor-pointer opacity-100 sm:opacity-0 sm:group-hover:opacity-100 hover:scale-105"
                 aria-label="Previous photo"
               >
-                <ChevronLeft size={18} />
+                <ChevronLeft size={16} />
               </button>
               <button
                 type="button"
@@ -159,16 +159,16 @@ function ImageGalleryPanel({
                   e.stopPropagation();
                   goNext();
                 }}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-black/45 hover:bg-black/70 border border-white/15 text-white backdrop-blur-sm transition-all cursor-pointer opacity-100 sm:opacity-0 sm:group-hover:opacity-100 hover:scale-105"
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/45 hover:bg-black/70 border border-white/15 text-white backdrop-blur-sm transition-all cursor-pointer opacity-100 sm:opacity-0 sm:group-hover:opacity-100 hover:scale-105"
                 aria-label="Next photo"
               >
-                <ChevronRight size={18} />
+                <ChevronRight size={16} />
               </button>
             </>
           )}
 
-          <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 pointer-events-none">
-            <p className="font-serif text-lg text-white leading-tight truncate mb-2">
+          <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4 pointer-events-none">
+            <p className="font-serif text-base text-white leading-tight truncate mb-1.5">
               {active.title}
             </p>
             <div className="h-0.5 rounded-full bg-white/20 overflow-hidden">
@@ -184,17 +184,17 @@ function ImageGalleryPanel({
         <button
           type="button"
           onClick={() => onOpenLightbox(activeIndex)}
-          className="absolute -bottom-3 right-4 sm:right-6 px-4 py-2 rounded-full bg-white border border-ink/8 text-[11px] font-semibold text-ink shadow-soft hover:shadow-md hover:border-primary/20 transition-all cursor-pointer font-sans"
+          className="absolute -bottom-2.5 right-3 sm:right-4 px-3 py-1.5 rounded-full bg-white border border-ink/8 text-[10px] font-semibold text-ink shadow-soft hover:shadow-md hover:border-primary/20 transition-all cursor-pointer font-sans"
         >
           Open full gallery
         </button>
       </div>
 
       {images.length > 1 && (
-        <div className="rounded-2xl border border-ink/6 bg-white/80 backdrop-blur-sm p-3 shadow-xs overflow-hidden">
+        <div className="rounded-xl border border-ink/6 bg-white/80 backdrop-blur-sm p-2 shadow-xs overflow-hidden">
           <ul
             ref={scrollRef}
-            className="flex gap-2.5 overflow-x-auto overscroll-x-contain scrollbar-none snap-x snap-mandatory py-0.5 max-w-full"
+            className="flex gap-2 overflow-x-auto overscroll-x-contain scrollbar-none snap-x snap-mandatory py-0.5 max-w-full"
             aria-label={`${label} thumbnails`}
           >
             {images.map((item, index) => {
@@ -204,7 +204,7 @@ function ImageGalleryPanel({
                   <button
                     type="button"
                     onClick={() => setActiveIndex(index)}
-                    className={`relative w-[4.25rem] h-[4.25rem] sm:w-[5rem] sm:h-[5rem] rounded-xl overflow-hidden border-2 transition-all duration-300 cursor-pointer ${
+                    className={`relative w-14 h-14 sm:w-16 sm:h-16 rounded-lg overflow-hidden border-2 transition-all duration-300 cursor-pointer ${
                       isActive
                         ? `${accentThumb} shadow-sm scale-[1.02]`
                         : "border-transparent opacity-55 hover:opacity-100 hover:scale-[1.02]"
@@ -238,7 +238,7 @@ function RoomTypeSelector({
   onChange: (id: AccommodationGalleryId) => void;
 }) {
   return (
-    <div className="grid grid-cols-2 gap-2 sm:gap-2.5 mb-5">
+    <div className="grid grid-cols-2 gap-1.5 sm:gap-2 mb-3">
       {ACCOMMODATION_GALLERIES.map((room) => {
         const isActive = room.id === activeId;
         return (
@@ -246,7 +246,7 @@ function RoomTypeSelector({
             key={room.id}
             type="button"
             onClick={() => onChange(room.id)}
-            className={`text-left rounded-2xl border px-3.5 py-3 transition-all duration-300 cursor-pointer ${
+            className={`text-left rounded-xl border px-2.5 py-2 transition-all duration-300 cursor-pointer ${
               isActive
                 ? "border-primary/30 bg-white shadow-soft ring-1 ring-primary/10"
                 : "border-ink/6 bg-white/50 hover:bg-white hover:border-ink/12"
@@ -294,27 +294,26 @@ export default function AccommodationFood() {
   return (
     <section
       id="accommodation"
-      className="relative py-14 sm:py-16 lg:py-4 lg:min-h-[calc(100svh-5.5rem)] lg:flex lg:items-center bg-paper overflow-hidden"
+      className="relative border-b border-ink/5 bg-paper overflow-hidden py-10 sm:py-12"
     >
       <div
-        className="absolute left-[-8%] top-[40%] w-[320px] h-[320px] rounded-full bg-secondary/5 blur-[100px] pointer-events-none"
+        className="absolute left-[-8%] top-[40%] w-[240px] h-[240px] rounded-full bg-secondary/5 blur-[80px] pointer-events-none"
         aria-hidden="true"
       />
 
-      <Container size="2xl" className="relative w-full py-6 lg:py-8">
+      <Container size="2xl" className="relative w-full">
         <motion.div
           initial="hidden"
           whileInView="visible"
           viewport={VIEWPORT_ONCE}
           variants={fadeUp}
-          className="text-center max-w-2xl mx-auto mb-8 lg:mb-10"
+          className="text-center max-w-2xl mx-auto mb-5 lg:mb-6"
         >
           <SectionHeader
             eyebrow="Residential Life"
             title={
               <>
-                Accommodation &{" "}
-                <span className="text-primary">Food</span>
+                Accommodation & <span className="text-primary">Food</span>
               </>
             }
             description="Clean ashram lodging and organic sattvic meals — everything you need to rest, restore, and focus fully on your training."
@@ -330,7 +329,7 @@ export default function AccommodationFood() {
           activeId={mainTab}
           onChange={(id) => setMainTab(id as MainTab)}
           layoutId="accommodationMainTabs"
-          className="mb-8 lg:mb-10"
+          className="mb-5 lg:mb-6"
         />
 
         <AnimatePresence mode="wait">
@@ -345,20 +344,18 @@ export default function AccommodationFood() {
                 duration: 0.35,
                 ease: EASE_OUT,
               })}
-              className="grid lg:grid-cols-12 gap-10 lg:gap-12 xl:gap-14 items-start"
+              className="grid lg:grid-cols-12 gap-6 lg:gap-8 items-start"
             >
               <div className="lg:col-span-5 order-2 lg:order-1 min-w-0">
-                <div className="border-l-2 border-primary/30 pl-5 sm:pl-6 mb-6">
-                  <p className="type-eyebrow text-primary mb-2">
+                <div className="border-l-2 border-primary/30 pl-4 sm:pl-5 mb-4">
+                  <p className="type-eyebrow text-primary mb-1.5">
                     Ashram Accommodation
                   </p>
-                  <h3 className="font-serif text-xl md:text-2xl text-ink leading-tight mb-3">
+                  <h3 className="font-serif text-lg md:text-xl text-ink leading-tight mb-2">
                     Comfortable stay in the{" "}
-                    <span className="text-primary">
-                      heart of Rishikesh
-                    </span>
+                    <span className="text-primary">heart of Rishikesh</span>
                   </h3>
-                  <p className="text-sm text-muted font-sans leading-relaxed">
+                  <p className="text-xs sm:text-sm text-muted font-sans leading-relaxed">
                     {COMFORTABLE_STAY.description}
                   </p>
                 </div>
@@ -375,24 +372,24 @@ export default function AccommodationFood() {
                       duration: 0.28,
                       ease: EASE_OUT,
                     })}
-                    className="text-sm text-muted font-sans leading-relaxed mb-5"
+                    className="text-sm text-muted font-sans leading-relaxed mb-3"
                   >
                     {activeRoom.description}
                   </motion.p>
                 </AnimatePresence>
 
-                <div className="rounded-3xl bg-white/70 border border-ink/6 p-4 sm:p-5 shadow-xs">
-                  <p className="type-eyebrow text-secondary mb-3">
+                <div className="rounded-2xl bg-white/70 border border-ink/6 p-3 sm:p-4 shadow-xs">
+                  <p className="type-eyebrow text-secondary mb-2">
                     Campus facilities
                   </p>
-                  <ul className="grid grid-cols-2 gap-x-3 gap-y-2">
+                  <ul className="grid grid-cols-2 gap-x-2 gap-y-1.5">
                     {FACILITIES.map((facility) => (
                       <li
                         key={facility}
-                        className="flex items-center gap-2 text-[11px] sm:text-xs text-ink/75 font-sans"
+                        className="flex items-center gap-1.5 text-[10px] sm:text-[11px] text-ink/75 font-sans"
                       >
-                        <span className="w-4 h-4 rounded-full bg-primary/8 text-primary flex items-center justify-center shrink-0">
-                          <Check size={9} className="stroke-[3]" />
+                        <span className="w-3.5 h-3.5 rounded-full bg-primary/8 text-primary flex items-center justify-center shrink-0">
+                          <Check size={8} className="stroke-[3]" />
                         </span>
                         {facility}
                       </li>
@@ -428,7 +425,7 @@ export default function AccommodationFood() {
                 duration: 0.35,
                 ease: EASE_OUT,
               })}
-              className="grid lg:grid-cols-12 gap-10 lg:gap-12 xl:gap-14 items-start"
+              className="grid lg:grid-cols-12 gap-6 lg:gap-8 items-start"
             >
               <div className="lg:col-span-7 min-w-0">
                 <ImageGalleryPanel
@@ -442,40 +439,40 @@ export default function AccommodationFood() {
               </div>
 
               <div className="lg:col-span-5 min-w-0">
-                <div className="border-l-2 border-secondary/40 pl-5 sm:pl-6 mb-6">
-                  <p className="type-eyebrow text-secondary mb-2">
+                <div className="border-l-2 border-secondary/40 pl-4 sm:pl-5 mb-4">
+                  <p className="type-eyebrow text-secondary mb-1.5">
                     Sattvic Cuisine
                   </p>
-                  <h3 className="font-serif text-xl md:text-2xl text-ink leading-tight mb-3">
+                  <h3 className="font-serif text-lg md:text-xl text-ink leading-tight mb-2">
                     Nourishing meals for a{" "}
                     <span className="text-primary">yogic life</span>
                   </h3>
-                  <p className="text-sm text-muted font-sans leading-relaxed">
+                  <p className="text-xs sm:text-sm text-muted font-sans leading-relaxed">
                     {FOOD_CONTENT.description}
                   </p>
                 </div>
 
-                <ul className="space-y-3 mb-5">
+                <ul className="space-y-2 mb-3">
                   {FOOD_CONTENT.points.map((point) => (
                     <li
                       key={point}
-                      className="flex gap-3 rounded-2xl bg-white/70 border border-ink/5 p-3.5"
+                      className="flex gap-2.5 rounded-xl bg-white/70 border border-ink/5 p-2.5"
                     >
-                      <span className="w-7 h-7 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center shrink-0 border border-secondary/10">
-                        <Check size={13} className="stroke-[2.5]" />
+                      <span className="w-6 h-6 rounded-lg bg-secondary/10 text-secondary flex items-center justify-center shrink-0 border border-secondary/10">
+                        <Check size={11} className="stroke-[2.5]" />
                       </span>
-                      <span className="text-sm text-ink/80 font-sans leading-relaxed pt-0.5">
+                      <span className="text-xs sm:text-sm text-ink/80 font-sans leading-snug pt-0.5">
                         {point}
                       </span>
                     </li>
                   ))}
                 </ul>
 
-                <div className="rounded-3xl border border-secondary/15 bg-white p-4 sm:p-5 shadow-xs">
-                  <p className="type-eyebrow text-secondary mb-2">
+                <div className="rounded-2xl border border-secondary/15 bg-white p-3 sm:p-4 shadow-xs">
+                  <p className="type-eyebrow text-secondary mb-1.5">
                     Something in particular?
                   </p>
-                  <p className="text-sm text-muted font-sans leading-relaxed">
+                  <p className="text-xs sm:text-sm text-muted font-sans leading-relaxed">
                     {FOOD_CONTENT.dietaryNote}
                   </p>
                 </div>
