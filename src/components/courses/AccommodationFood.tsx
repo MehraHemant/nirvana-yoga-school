@@ -1,6 +1,11 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import {
+  AnimatePresence,
+  motion,
+  useInView,
+  useReducedMotion,
+} from "framer-motion";
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -47,7 +52,10 @@ function ImageGalleryPanel({
 }) {
   const prefersReduced = useReducedMotion() ?? false;
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
   const scrollRef = useRef<HTMLUListElement>(null);
+  const panelRef = useRef<HTMLElement>(null);
+  const isInView = useInView(panelRef, { amount: 0.2 });
 
   const active = images[activeIndex] ?? images[0];
   const progress =
@@ -71,6 +79,16 @@ function ImageGalleryPanel({
     setActiveIndex((i) => (i + 1) % images.length);
   }, [images.length]);
 
+  // Auto-advance the gallery — only while in view; pauses on hover/focus and
+  // respects reduced motion.
+  useEffect(() => {
+    if (!isInView || isPaused || prefersReduced || images.length <= 1) return;
+    const interval = setInterval(() => {
+      setActiveIndex((i) => (i + 1) % images.length);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [isInView, isPaused, prefersReduced, images.length]);
+
   useEffect(() => {
     const list = scrollRef.current;
     if (!list) return;
@@ -89,7 +107,15 @@ function ImageGalleryPanel({
   if (!active) return null;
 
   return (
-    <div className="flex flex-col gap-3 min-w-0">
+    <section
+      ref={panelRef}
+      aria-label={`${label} gallery`}
+      className="flex flex-col gap-3 min-w-0"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+      onFocusCapture={() => setIsPaused(true)}
+      onBlurCapture={() => setIsPaused(false)}
+    >
       <div className="relative">
         <div
           className={`absolute -inset-1.5 rounded-2xl bg-linear-to-br ${
@@ -226,7 +252,7 @@ function ImageGalleryPanel({
           </ul>
         </div>
       )}
-    </div>
+    </section>
   );
 }
 

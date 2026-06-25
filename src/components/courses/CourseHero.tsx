@@ -1,6 +1,11 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import {
+  AnimatePresence,
+  motion,
+  useInView,
+  useReducedMotion,
+} from "framer-motion";
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button, Container, MediaLightbox } from "@/components/ui";
@@ -66,6 +71,8 @@ export default function CourseHero({
   videos,
 }: CourseHeroProps) {
   const scrollContainerRef = useRef<HTMLUListElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  const isInView = useInView(sectionRef, { amount: 0.3 });
 
   // Combine all images and videos into a single mediaItems list
   const mediaItems = useMemo(() => {
@@ -93,18 +100,22 @@ export default function CourseHero({
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const prefersReduced = useReducedMotion() ?? false;
 
-  // Auto-scroll active thumbnail into view
+  // Center the active thumbnail by scrolling only the strip (never the page)
   useEffect(() => {
-    const activeThumb = document.getElementById(`thumb-${activeIndex}`);
-    if (activeThumb) {
-      activeThumb.scrollIntoView({
-        behavior: "smooth",
-        block: "nearest",
-        inline: "center",
-      });
-    }
-  }, [activeIndex]);
+    const list = scrollContainerRef.current;
+    if (!list) return;
+    const thumb = list.children[activeIndex] as HTMLElement | undefined;
+    if (!thumb) return;
+    const targetScroll =
+      thumb.offsetLeft - list.clientWidth / 2 + thumb.offsetWidth / 2;
+    list.scrollTo({
+      left: Math.max(0, targetScroll),
+      behavior: prefersReduced ? "auto" : "smooth",
+    });
+  }, [activeIndex, prefersReduced]);
 
   const filteredItems = mediaItems;
 
@@ -130,6 +141,32 @@ export default function CourseHero({
       (prev) => (prev - 1 + filteredItems.length) % filteredItems.length,
     );
   }, [filteredItems.length]);
+
+  // Auto-advance the media slider — only while in view; pauses on hover,
+  // lightbox, video, and reduced motion.
+  useEffect(() => {
+    if (
+      !isInView ||
+      isPaused ||
+      isLightboxOpen ||
+      prefersReduced ||
+      filteredItems.length <= 1 ||
+      activeItem.type === "video"
+    ) {
+      return;
+    }
+    const interval = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % filteredItems.length);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [
+    isInView,
+    isPaused,
+    isLightboxOpen,
+    prefersReduced,
+    filteredItems.length,
+    activeItem.type,
+  ]);
 
   const scrollLeft = () => {
     if (scrollContainerRef.current) {
@@ -161,7 +198,10 @@ export default function CourseHero({
   const remainingTitle = titleParts.join(" ");
 
   return (
-    <section className="relative w-full h-svh max-h-svh overflow-hidden bg-ink text-white">
+    <section
+      ref={sectionRef}
+      className="relative w-full h-svh max-h-svh overflow-hidden bg-ink text-white"
+    >
       {/* Dynamic Background Image/Video mirroring active item */}
       <div className="absolute inset-0 w-full h-full pointer-events-none select-none z-0 overflow-hidden opacity-25">
         <AnimatePresence mode="popLayout">
@@ -347,7 +387,12 @@ export default function CourseHero({
           {/* Right Column: Premium Active Viewer + Thumbnails Carousel */}
           <div className="flex min-h-0 w-full flex-col lg:col-span-7 lg:h-full lg:justify-center lg:py-3">
             {/* Main Player Display */}
-            <div className="relative mb-3 h-[min(42svh,24rem)] w-full min-h-[15rem] shrink-0 overflow-hidden rounded-3xl border border-white/10 bg-black/60 shadow-2xl sm:h-[min(48svh,28rem)] lg:mb-4 lg:h-auto lg:min-h-0 lg:flex-1">
+            <section
+              aria-label="Course media gallery"
+              className="relative mb-3 h-[min(42svh,24rem)] w-full min-h-[15rem] shrink-0 overflow-hidden rounded-3xl border border-white/10 bg-black/60 shadow-2xl sm:h-[min(48svh,28rem)] lg:mb-4 lg:h-auto lg:min-h-0 lg:flex-1"
+              onMouseEnter={() => setIsPaused(true)}
+              onMouseLeave={() => setIsPaused(false)}
+            >
               <AnimatePresence mode="popLayout">
                 <motion.div
                   key={activeItem.url}
@@ -442,7 +487,7 @@ export default function CourseHero({
                   {activeIndex + 1} / {filteredItems.length}
                 </span>
               </div>
-            </div>
+            </section>
 
             {/* Thumbnail Slider Header & Scrollstrip */}
             {filteredItems.length > 1 && (

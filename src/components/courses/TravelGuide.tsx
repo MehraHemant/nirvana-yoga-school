@@ -1,8 +1,13 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import {
+  AnimatePresence,
+  motion,
+  useInView,
+  useReducedMotion,
+} from "framer-motion";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Container, Heading, Pill, SectionHeader } from "@/components/ui";
 import { EASE_OUT } from "@/lib/motion";
 import {
@@ -84,14 +89,38 @@ function HeroBanner({ topic }: { topic: TravelTopic }) {
 
 export default function TravelGuide() {
   const [activeId, setActiveId] = useState(TRAVEL_TOPICS[0].id);
+  const [isPaused, setIsPaused] = useState(false);
   const prefersReduced = useReducedMotion() ?? false;
+  const sectionRef = useRef<HTMLElement>(null);
+  const isInView = useInView(sectionRef, { amount: 0.3 });
   const active =
     TRAVEL_TOPICS.find((topic) => topic.id === activeId) ?? TRAVEL_TOPICS[0];
 
+  // Auto-advance topics — only while in view; pauses on hover/focus and
+  // respects reduced motion.
+  useEffect(() => {
+    if (!isInView || isPaused || prefersReduced || TRAVEL_TOPICS.length <= 1) {
+      return;
+    }
+    const interval = setInterval(() => {
+      setActiveId((current) => {
+        const idx = TRAVEL_TOPICS.findIndex((topic) => topic.id === current);
+        return TRAVEL_TOPICS[(idx + 1) % TRAVEL_TOPICS.length].id;
+      });
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [isInView, isPaused, prefersReduced]);
+
   return (
     <section
+      ref={sectionRef}
       id="travel"
+      aria-label="Guide to travelling to India"
       className="relative overflow-x-clip border-b border-ink/5 bg-white py-20 sm:py-28"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+      onFocusCapture={() => setIsPaused(true)}
+      onBlurCapture={() => setIsPaused(false)}
     >
       <div
         className="pointer-events-none absolute -right-24 top-0 h-[360px] w-[360px] rounded-full bg-secondary/5 blur-[100px]"
