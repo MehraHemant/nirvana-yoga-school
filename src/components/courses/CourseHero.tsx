@@ -2,7 +2,6 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
-import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button, Container, MediaLightbox } from "@/components/ui";
 import { ChevronLeft, ChevronRight, HeroUnderline, Play } from "@/icons";
@@ -92,9 +91,6 @@ export default function CourseHero({
     return list;
   }, [heroImages, videos]);
 
-  const [activeFilter, setActiveFilter] = useState<"all" | "photos" | "videos">(
-    "all",
-  );
   const [activeIndex, setActiveIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
@@ -110,14 +106,7 @@ export default function CourseHero({
     }
   }, [activeIndex]);
 
-  // Filter items based on active tab
-  const filteredItems = useMemo(() => {
-    return mediaItems.filter((item) => {
-      if (activeFilter === "photos") return item.type === "image";
-      if (activeFilter === "videos") return item.type === "video";
-      return true;
-    });
-  }, [mediaItems, activeFilter]);
+  const filteredItems = mediaItems;
 
   // Safeguard activeIndex when filter changes
   const activeItem = filteredItems[activeIndex] ||
@@ -129,14 +118,6 @@ export default function CourseHero({
     const firstImg = mediaItems.find((item) => item.type === "image");
     return firstImg ? firstImg.url : image;
   }, [activeItem, mediaItems, image]);
-
-  const handleFilterChange = (filter: "all" | "photos" | "videos") => {
-    setActiveFilter(filter);
-    setActiveIndex(0);
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollTo({ left: 0, behavior: "smooth" });
-    }
-  };
 
   const handleNext = useCallback(() => {
     if (filteredItems.length <= 1) return;
@@ -180,7 +161,7 @@ export default function CourseHero({
   const remainingTitle = titleParts.join(" ");
 
   return (
-    <section className="relative min-h-screen lg:h-screen lg:max-h-[900px] flex items-center pt-28 pb-16 lg:py-0 overflow-hidden bg-ink text-white">
+    <section className="relative w-full h-svh max-h-svh overflow-hidden bg-ink text-white">
       {/* Dynamic Background Image/Video mirroring active item */}
       <div className="absolute inset-0 w-full h-full pointer-events-none select-none z-0 overflow-hidden opacity-25">
         <AnimatePresence mode="popLayout">
@@ -205,6 +186,10 @@ export default function CourseHero({
         {/* Dark overlay gradients to ensure readability and cinematic vibe */}
         <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/60 to-ink/30 z-10" />
         <div className="absolute inset-0 bg-gradient-to-t from-ink via-transparent to-transparent z-10" />
+        <div
+          className="absolute inset-x-0 top-0 h-24 md:h-28 bg-linear-to-b from-black/55 to-transparent z-10"
+          aria-hidden="true"
+        />
       </div>
 
       {/* Dynamic Background Radial Glow */}
@@ -212,11 +197,11 @@ export default function CourseHero({
 
       <Container
         size="2xl"
-        className="relative z-20 lg:pt-8 w-full h-full flex flex-col justify-center"
+        className="relative z-20 w-full h-full overflow-hidden pt-[4.75rem] md:pt-[5.5rem]"
       >
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center w-full">
+        <div className="grid h-[calc(100svh-4.75rem)] min-h-0 grid-cols-1 items-start gap-5 overflow-y-auto md:h-[calc(100svh-5.5rem)] lg:grid-cols-12 lg:items-stretch lg:gap-10 lg:overflow-hidden">
           {/* Left Column: Course Metadata & Details */}
-          <div className="lg:col-span-5 flex flex-col items-start w-full">
+          <div className="flex min-h-0 w-full flex-col items-start pb-4 lg:col-span-5 lg:justify-center lg:pb-0">
             {/* Breadcrumbs */}
             {/* <nav className="mb-6 flex items-center gap-2 text-xs sm:text-sm text-white/50 font-medium tracking-wide">
               <Link href="/" className="hover:text-accent transition-colors">
@@ -267,7 +252,7 @@ export default function CourseHero({
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="type-lead text-white/80 max-w-xl mb-6 text-sm md:text-base leading-relaxed"
+              className="type-lead mb-5 max-w-xl text-sm leading-relaxed text-white/80 md:text-base"
             >
               {subtitle}
             </motion.p>
@@ -277,7 +262,7 @@ export default function CourseHero({
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.25 }}
-              className="bg-white/5 border border-white/10 rounded-2xl p-4 md:p-6 mb-6 font-sans w-full relative overflow-hidden"
+              className="relative mb-5 w-full overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-4 font-sans md:p-5"
             >
               <div className="absolute top-0 right-0 w-24 h-24 bg-accent/5 rounded-full blur-xl pointer-events-none" />
 
@@ -360,9 +345,9 @@ export default function CourseHero({
           </div>
 
           {/* Right Column: Premium Active Viewer + Thumbnails Carousel */}
-          <div className="lg:col-span-7 flex flex-col w-full">
+          <div className="flex min-h-0 w-full flex-col lg:col-span-7 lg:h-full lg:justify-center lg:py-3">
             {/* Main Player Display */}
-            <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] lg:aspect-[4/3] rounded-3xl overflow-hidden border border-white/10 bg-black/60 shadow-2xl mb-4">
+            <div className="relative mb-3 h-[min(42svh,24rem)] w-full min-h-[15rem] shrink-0 overflow-hidden rounded-3xl border border-white/10 bg-black/60 shadow-2xl sm:h-[min(48svh,28rem)] lg:mb-4 lg:h-auto lg:min-h-0 lg:flex-1">
               <AnimatePresence mode="popLayout">
                 <motion.div
                   key={activeItem.url}
@@ -461,7 +446,7 @@ export default function CourseHero({
 
             {/* Thumbnail Slider Header & Scrollstrip */}
             {filteredItems.length > 1 && (
-              <div className="relative w-full flex flex-col bg-white/5 border border-white/10 rounded-2xl p-3 backdrop-blur-md">
+              <div className="relative flex w-full shrink-0 flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-2.5 backdrop-blur-md lg:p-3">
                 {/* Scroll Control Arrows */}
                 <div className="flex justify-between items-center mb-2 px-1 select-none">
                   <span className="text-[10px] text-white/50 font-bold uppercase tracking-wider">
@@ -490,7 +475,7 @@ export default function CourseHero({
                 {/* Thumbnails Row */}
                 <ul
                   ref={scrollContainerRef}
-                  className="overflow-x-auto scrollbar-none py-1 flex gap-3 scroll-smooth snap-x snap-mandatory"
+                  className="flex gap-3 overflow-x-auto py-1 scrollbar-none snap-x snap-mandatory scroll-smooth"
                 >
                   {filteredItems.map((item, idx) => {
                     const isActive = idx === activeIndex;
@@ -504,10 +489,11 @@ export default function CourseHero({
                         <button
                           type="button"
                           onClick={() => setActiveIndex(idx)}
-                          className={`relative w-28 h-18 sm:w-32 sm:h-20 rounded-xl overflow-hidden border-2 transition-all cursor-pointer block ${isActive
-                            ? "border-accent shadow-[0_0_10px_rgba(166,181,162,0.6)] z-10"
-                            : "border-white/10 opacity-60 hover:opacity-100 hover:border-white/30"
-                            }`}
+                          className={`relative w-28 h-18 sm:w-32 sm:h-20 rounded-xl overflow-hidden border-2 transition-all cursor-pointer block ${
+                            isActive
+                              ? "border-accent shadow-[0_0_10px_rgba(166,181,162,0.6)] z-10"
+                              : "border-white/10 opacity-60 hover:opacity-100 hover:border-white/30"
+                          }`}
                           aria-label={`Select media slide ${idx + 1}`}
                         >
                           {item.type === "image" ? (
