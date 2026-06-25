@@ -186,7 +186,10 @@ function RoomCard({
           sizes="(max-width: 640px) 100vw, 400px"
           className="object-cover transition-transform duration-700 group-hover:scale-105"
         />
-        <div className="absolute inset-0 bg-black/30 pointer-events-none" aria-hidden="true" />
+        <div
+          className="absolute inset-0 bg-black/30 pointer-events-none"
+          aria-hidden="true"
+        />
         <div
           className="absolute inset-x-0 bottom-0 h-[78%] bg-linear-to-t from-ink from-40% via-ink/95 to-transparent pointer-events-none"
           aria-hidden="true"
