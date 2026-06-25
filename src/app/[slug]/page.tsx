@@ -149,7 +149,7 @@ export default async function CourseDetailPage({ params }: PageProps) {
           eyebrow="Got Questions?"
           title={
             <>
-              Course <span className="text-primary italic">FAQs</span>
+              Course <span className="text-primary">FAQs</span>
             </>
           }
         />

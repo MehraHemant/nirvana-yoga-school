@@ -105,7 +105,7 @@ export default function TravelGuide() {
             title={
               <>
                 Guide to Travelling to{" "}
-                <span className="text-primary italic">India</span>
+                <span className="text-primary">India</span>
               </>
             }
           />
