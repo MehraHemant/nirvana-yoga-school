@@ -3,6 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 import { Container, SectionHeader, TabSwitcher } from "@/components/ui";
+import { BookOpen, Bowl, Clock, Lotus, Sunrise } from "@/icons";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 
 interface ScheduleItem {
@@ -15,90 +16,33 @@ interface DailyScheduleProps {
   schedule: ScheduleItem[];
 }
 
-// Custom icons as helper components to ensure we satisfy Biome lint rules
-function ScheduleIcon({ type }: { type: string }) {
-  if (type === "morning" || type === "sun") {
-    return (
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className="w-5 h-5 text-amber-500"
-        aria-hidden="true"
-      >
-        <circle cx="12" cy="12" r="4" />
-        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
-      </svg>
-    );
-  }
-  if (type === "meal" || type === "bowl") {
-    return (
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className="w-5 h-5 text-primary"
-        aria-hidden="true"
-      >
-        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-      </svg>
-    );
-  }
-  if (type === "study" || type === "book") {
-    return (
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className="w-5 h-5 text-secondary"
-        aria-hidden="true"
-      >
-        <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z" />
-        <path d="M6 6h10M6 10h10" />
-      </svg>
-    );
-  }
-  if (type === "yoga" || type === "lotus") {
-    return (
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className="w-5 h-5 text-accent"
-        aria-hidden="true"
-      >
-        <path d="M12 3a3 3 0 0 0-3 3v12a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Z" />
-        <path d="M9 12H3a3 3 0 0 0 0 6h6M15 12h6a3 3 0 0 1 0 6h-6" />
-      </svg>
-    );
-  }
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="w-5 h-5 text-muted"
-      aria-hidden="true"
-    >
-      <circle cx="12" cy="12" r="10" />
-      <polyline points="12 6 12 12 16 14" />
-    </svg>
-  );
+type ScheduleIconType = "morning" | "meal" | "study" | "yoga" | "default";
+
+const SCHEDULE_ICON_META: Record<
+  ScheduleIconType,
+  { color: string; caption: string }
+> = {
+  morning: {
+    color: "text-amber-500",
+    caption: "Spiritual morning purification",
+  },
+  meal: { color: "text-primary", caption: "Nutritional Ayurvedic meal" },
+  study: {
+    color: "text-secondary",
+    caption: "Traditional philosophy & lecture",
+  },
+  yoga: { color: "text-accent", caption: "Hatha / Vinyasa deep practice" },
+  default: { color: "text-muted", caption: "Experiential study group" },
+};
+
+function ScheduleIcon({ type }: { type: ScheduleIconType }) {
+  const className = `w-5 h-5 ${SCHEDULE_ICON_META[type].color}`;
+
+  if (type === "morning") return <Sunrise size={20} className={className} />;
+  if (type === "meal") return <Bowl size={20} className={className} />;
+  if (type === "study") return <BookOpen size={20} className={className} />;
+  if (type === "yoga") return <Lotus size={20} className={className} />;
+  return <Clock size={20} className={className} />;
 }
 
 export default function DailySchedule({
@@ -108,7 +52,7 @@ export default function DailySchedule({
   const [activeTab, setActiveTab] = useState<string>("full");
 
   // Determine icon type based on activity name or time
-  const getIconType = (activity: string, time: string) => {
+  const getIconType = (activity: string, time: string): ScheduleIconType => {
     const actLower = activity.toLowerCase();
     const timeLower = time.toLowerCase();
 
@@ -264,16 +208,7 @@ export default function DailySchedule({
                             {item.activity}
                           </h4>
                           <span className="text-xs text-muted block font-sans font-medium">
-                            {iconType === "meal" &&
-                              "🍲 Nutritional Ayurvedic meal"}
-                            {iconType === "study" &&
-                              "📖 Traditional philosophy & lecture"}
-                            {iconType === "yoga" &&
-                              "🧘 Hatha / Vinyasa deep practice"}
-                            {iconType === "morning" &&
-                              "🌅 Spiritual morning purification"}
-                            {iconType === "default" &&
-                              "✨ Experiential study group"}
+                            {SCHEDULE_ICON_META[iconType].caption}
                           </span>
                         </div>
                       </div>
