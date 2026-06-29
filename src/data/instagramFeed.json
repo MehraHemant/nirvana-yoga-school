@@ -1,0 +1,156 @@
+{
+  "username": "nirvanayogaschool",
+  "displayName": "Nirvana Yoga School",
+  "bio": "Yoga Alliance Registered School\n200 · 300 · 500 Hour YTT in Rishikesh\nSilent Hill · Upper Tapovan\nTraditional Hatha · Ashtanga · Vinyasa\nTransform through lineage-rooted practice",
+  "website": "www.nirvanayogaschoolindia.com",
+  "profileUrl": "https://www.instagram.com/nirvanayogaschool/",
+  "postsCount": 8,
+  "followersCount": 12400,
+  "followingCount": 842,
+  "media": [
+    {
+      "id": "fallback-practice-01",
+      "caption": "Morning sadhana in Rishikesh — breath, discipline, and a quiet start to the yogic day.",
+      "image": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=1600&q=85",
+      "images": [
+        "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=1600&q=85"
+      ],
+      "mediaType": "IMAGE",
+      "isVideo": false,
+      "isMultipleImages": false,
+      "mediaCount": 1,
+      "likesCount": 284,
+      "commentsCount": 18,
+      "permalink": "https://www.instagram.com/nirvanayogaschool/",
+      "timestamp": "2026-06-01T06:00:00+0000",
+      "username": "nirvanayogaschool"
+    },
+    {
+      "id": "fallback-practice-02",
+      "caption": "Alignment, adjustment, and mindful sequencing inside our Yoga Alliance teacher training.",
+      "image": "https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&w=1600&q=85",
+      "images": [
+        "https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&w=1600&q=85"
+      ],
+      "mediaType": "IMAGE",
+      "isVideo": false,
+      "isMultipleImages": false,
+      "mediaCount": 1,
+      "likesCount": 412,
+      "commentsCount": 27,
+      "permalink": "https://www.instagram.com/nirvanayogaschool/",
+      "timestamp": "2026-06-02T06:00:00+0000",
+      "username": "nirvanayogaschool"
+    },
+    {
+      "id": "fallback-campus-01",
+      "caption": "Life at the school — simple rooms, focused practice, sattvic meals, and the rhythm of Tapovan.",
+      "image": "https://images.unsplash.com/photo-1508672019048-805c876b67e2?auto=format&fit=crop&w=1600&q=85",
+      "images": [
+        "https://images.unsplash.com/photo-1508672019048-805c876b67e2?auto=format&fit=crop&w=1600&q=85",
+        "https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?auto=format&fit=crop&w=1600&q=85",
+        "https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=1200&q=85",
+        "https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&w=1600&q=85"
+      ],
+      "mediaType": "CAROUSEL_ALBUM",
+      "isVideo": false,
+      "isMultipleImages": true,
+      "mediaCount": 4,
+      "likesCount": 531,
+      "commentsCount": 34,
+      "permalink": "https://www.instagram.com/nirvanayogaschool/",
+      "timestamp": "2026-06-03T06:00:00+0000",
+      "username": "nirvanayogaschool"
+    },
+    {
+      "id": "fallback-food-01",
+      "caption": "Fresh sattvic food prepared daily to support practice, digestion, and steady energy.",
+      "image": "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=1600&q=85",
+      "images": [
+        "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=1600&q=85",
+        "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=1600&q=85",
+        "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=1600&q=85"
+      ],
+      "mediaType": "CAROUSEL_ALBUM",
+      "isVideo": false,
+      "isMultipleImages": true,
+      "mediaCount": 3,
+      "likesCount": 367,
+      "commentsCount": 21,
+      "permalink": "https://www.instagram.com/nirvanayogaschool/",
+      "timestamp": "2026-06-04T06:00:00+0000",
+      "username": "nirvanayogaschool"
+    },
+    {
+      "id": "fallback-rishikesh-01",
+      "caption": "Rishikesh evenings — Ganga, mountains, and the atmosphere that makes practice feel alive.",
+      "image": "https://images.unsplash.com/photo-1545389336-cf090694435e?w=900&auto=format&fit=crop&q=80",
+      "images": [
+        "https://images.unsplash.com/photo-1545389336-cf090694435e?w=900&auto=format&fit=crop&q=80"
+      ],
+      "mediaType": "IMAGE",
+      "isVideo": false,
+      "isMultipleImages": false,
+      "mediaCount": 1,
+      "likesCount": 498,
+      "commentsCount": 29,
+      "permalink": "https://www.instagram.com/nirvanayogaschool/",
+      "timestamp": "2026-06-05T06:00:00+0000",
+      "username": "nirvanayogaschool"
+    },
+    {
+      "id": "fallback-teacher-01",
+      "caption": "Traditional teaching, small corrections, and personal guidance from experienced Indian teachers.",
+      "image": "https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?auto=format&fit=crop&w=1600&q=85",
+      "images": [
+        "https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?auto=format&fit=crop&w=1600&q=85"
+      ],
+      "videoUrl": "/videos/videomobile.mp4",
+      "mediaType": "VIDEO",
+      "isVideo": true,
+      "isMultipleImages": false,
+      "mediaCount": 1,
+      "likesCount": 623,
+      "commentsCount": 41,
+      "permalink": "https://www.instagram.com/nirvanayogaschool/",
+      "timestamp": "2026-06-06T06:00:00+0000",
+      "username": "nirvanayogaschool"
+    },
+    {
+      "id": "fallback-campus-02",
+      "caption": "Shared rooms, open halls, and quiet corners for self-study between classes.",
+      "image": "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=1600&q=85",
+      "images": [
+        "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=1600&q=85",
+        "https://images.unsplash.com/photo-1508672019048-805c876b67e2?auto=format&fit=crop&w=1600&q=85",
+        "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1600&q=85"
+      ],
+      "mediaType": "CAROUSEL_ALBUM",
+      "isVideo": false,
+      "isMultipleImages": true,
+      "mediaCount": 3,
+      "likesCount": 445,
+      "commentsCount": 22,
+      "permalink": "https://www.instagram.com/nirvanayogaschool/",
+      "timestamp": "2026-06-07T06:00:00+0000",
+      "username": "nirvanayogaschool"
+    },
+    {
+      "id": "fallback-practice-03",
+      "caption": "Sun salutations at dawn — the day begins with movement, breath, and intention.",
+      "image": "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=1600&q=85",
+      "images": [
+        "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=1600&q=85"
+      ],
+      "mediaType": "IMAGE",
+      "isVideo": false,
+      "isMultipleImages": false,
+      "mediaCount": 1,
+      "likesCount": 389,
+      "commentsCount": 16,
+      "permalink": "https://www.instagram.com/nirvanayogaschool/",
+      "timestamp": "2026-06-08T06:00:00+0000",
+      "username": "nirvanayogaschool"
+    }
+  ]
+}
