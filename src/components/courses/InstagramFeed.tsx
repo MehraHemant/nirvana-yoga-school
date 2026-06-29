@@ -491,7 +491,7 @@ export default function InstagramFeed() {
   return (
     <section
       id="instagram"
-      className="relative overflow-x-clip bg-paper py-20 sm:py-28"
+      className="relative overflow-x-clip bg-white py-20 sm:py-28"
     >
       <Container size="2xl">
         <div className="mb-10 flex items-center gap-3">

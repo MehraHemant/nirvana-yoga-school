@@ -297,7 +297,7 @@ export default async function CourseDetailPage({ params }: PageProps) {
         <FAQSection
           faqs={course.faqs}
           categories={COURSE_FAQ_CATEGORIES}
-          sectionClassName="bg-white"
+          sectionClassName="bg-paper"
           eyebrow="Got Questions?"
           title={
             <>
