@@ -1,14 +1,10 @@
 "use client";
 
-import {
-  AnimatePresence,
-  motion,
-  useInView,
-  useReducedMotion,
-} from "framer-motion";
+import { AnimatePresence, motion, useInView, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { Container, Heading, Pill, SectionHeader } from "@/components/ui";
+import { ChevronDown } from "@/icons";
 import { EASE_OUT } from "@/lib/motion";
 import {
   TRAVEL_INTRO,
@@ -16,48 +12,11 @@ import {
   type TravelTopic,
 } from "./travelGuideShared";
 
-function TopicCallout({ topic }: { topic: TravelTopic }) {
-  if (topic.id === "reach") {
-    return (
-      <div className="rounded-2xl border border-primary/10 bg-primary/4 px-5 py-4">
-        <p className="type-eyebrow text-primary">Airport transfer</p>
-        <p className="mt-2 type-body font-sans text-ink/85">
-          Complimentary pick-up from Dehradun Airport for all registered
-          students. Delhi Airport transfers available for $80 USD.
-        </p>
-      </div>
-    );
-  }
-  if (topic.id === "visa") {
-    return (
-      <div className="rounded-2xl border border-secondary/10 bg-secondary/4 px-5 py-4">
-        <p className="type-eyebrow text-secondary">Apply early</p>
-        <p className="mt-2 type-body font-sans text-ink/85">
-          Submit your e-Tourist Visa application 15–30 days before departure for
-          the smoothest processing timeline.
-        </p>
-      </div>
-    );
-  }
-  return null;
-}
-
-function DetailPanel({ topic }: { topic: TravelTopic }) {
-  return (
-    <div className="space-y-5">
-      <p className="type-body font-sans leading-relaxed text-muted">
-        {topic.content}
-      </p>
-      <TopicCallout topic={topic} />
-    </div>
-  );
-}
-
 function HeroBanner({ topic }: { topic: TravelTopic }) {
   const prefersReduced = useReducedMotion() ?? false;
 
   return (
-    <div className="relative min-h-[220px] flex-1 overflow-hidden rounded-3xl bg-ink shadow-card sm:min-h-[260px]">
+    <div className="relative h-full w-full overflow-hidden rounded-3xl bg-ink shadow-card">
       <AnimatePresence mode="wait">
         <motion.div
           key={topic.id}
@@ -88,26 +47,27 @@ function HeroBanner({ topic }: { topic: TravelTopic }) {
 }
 
 export default function TravelGuide() {
-  const [activeId, setActiveId] = useState(TRAVEL_TOPICS[0].id);
+  const [activeId, setActiveId] = useState<string | null>(TRAVEL_TOPICS[0].id);
   const [isPaused, setIsPaused] = useState(false);
   const prefersReduced = useReducedMotion() ?? false;
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { amount: 0.3 });
+  // Banner always shows the last selected topic even when accordion is closed
   const active =
     TRAVEL_TOPICS.find((topic) => topic.id === activeId) ?? TRAVEL_TOPICS[0];
 
-  // Auto-advance topics — only while in view; pauses on hover/focus and
-  // respects reduced motion.
+  // Auto-advance topics — only while in view; pauses on hover/focus
   useEffect(() => {
     if (!isInView || isPaused || prefersReduced || TRAVEL_TOPICS.length <= 1) {
       return;
     }
     const interval = setInterval(() => {
       setActiveId((current) => {
+        if (current === null) return TRAVEL_TOPICS[0].id;
         const idx = TRAVEL_TOPICS.findIndex((topic) => topic.id === current);
         return TRAVEL_TOPICS[(idx + 1) % TRAVEL_TOPICS.length].id;
       });
-    }, 2000);
+    }, 4500);
     return () => clearInterval(interval);
   }, [isInView, isPaused, prefersReduced]);
 
@@ -116,7 +76,7 @@ export default function TravelGuide() {
       ref={sectionRef}
       id="travel"
       aria-label="Guide to travelling to India"
-      className="relative overflow-x-clip border-b border-ink/5 bg-white py-20 sm:py-28"
+      className="relative overflow-x-clip bg- py-20 sm:py-28"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       onFocusCapture={() => setIsPaused(true)}
@@ -128,6 +88,7 @@ export default function TravelGuide() {
       />
 
       <Container size="2xl" className="relative">
+        {/* Split header */}
         <div className="grid grid-cols-1 items-end gap-8 lg:grid-cols-[1.15fr_1fr] lg:gap-14">
           <SectionHeader
             eyebrow="Logistics"
@@ -143,57 +104,99 @@ export default function TravelGuide() {
           </p>
         </div>
 
-        <div className="mt-12 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_380px] lg:items-stretch">
-          <div className="flex min-h-[220px] flex-col sm:min-h-[260px]">
+        {/* Main grid: banner left (fixed height), accordion right (free height) */}
+        <div className="mt-12 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_380px] lg:items-start">
+          {/* Hero banner — fixed height so accordion expanding never resizes it */}
+          <div className="h-[260px] sm:h-[340px] lg:h-[520px]">
             <HeroBanner topic={active} />
           </div>
-          <aside className="flex flex-col gap-2" aria-label="Travel topics">
+
+          {/* Topic accordion */}
+          <aside
+            className="flex flex-col gap-2"
+            aria-label="Travel topics"
+          >
             {TRAVEL_TOPICS.map((topic) => {
               const isActive = activeId === topic.id;
+              const { Icon } = topic;
               return (
-                <button
-                  key={topic.id}
-                  type="button"
-                  onClick={() => setActiveId(topic.id)}
-                  aria-current={isActive ? "true" : undefined}
-                  className={`cursor-pointer rounded-2xl border px-4 py-3.5 text-left transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 ${
-                    isActive
-                      ? "border-primary bg-primary text-white shadow-md"
-                      : "border-ink/8 bg-sand/40 hover:border-primary/30"
-                  }`}
-                >
-                  <p
-                    className={`type-eyebrow ${isActive ? "text-accent" : "text-primary"}`}
+                <div key={topic.id} className="overflow-hidden rounded-2xl border border-ink/8 transition-colors duration-200">
+                  <button
+                    type="button"
+                    onClick={() => setActiveId(isActive ? null : topic.id)}
+                    aria-expanded={isActive}
+                    aria-current={isActive ? "true" : undefined}
+                    className={`flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 ${
+                      isActive
+                        ? "bg-primary text-white"
+                        : "bg-sand/40 hover:bg-sand"
+                    }`}
                   >
-                    {topic.tag}
-                  </p>
-                  <p
-                    className={`mt-1 font-sans text-sm font-semibold ${isActive ? "text-white" : "text-ink"}`}
-                  >
-                    {topic.title}
-                  </p>
-                </button>
+                    {/* icon */}
+                    <span
+                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl transition-colors duration-200 ${
+                        isActive ? "bg-white/15" : "bg-secondary/10"
+                      }`}
+                      aria-hidden="true"
+                    >
+                      <Icon
+                        size={15}
+                        className={isActive ? "text-white" : "text-secondary"}
+                      />
+                    </span>
+
+                    {/* labels */}
+                    <span className="min-w-0 flex-1">
+                      <span
+                        className={`type-eyebrow block ${isActive ? "text-accent" : "text-primary"}`}
+                      >
+                        {topic.tag}
+                      </span>
+                      <span
+                        className={`block font-sans text-sm font-semibold ${isActive ? "text-white" : "text-ink"}`}
+                      >
+                        {topic.title}
+                      </span>
+                    </span>
+
+                    {/* chevron */}
+                    <ChevronDown
+                      size={14}
+                      className={`shrink-0 transition-transform duration-300 ${
+                        isActive
+                          ? "rotate-180 text-white/70"
+                          : "text-ink/30"
+                      }`}
+                    />
+                  </button>
+
+                  {/* Inline detail panel — expands below the active button */}
+                  <AnimatePresence initial={false}>
+                    {isActive && (
+                      <motion.div
+                        key="detail"
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{
+                          height: { duration: 0.3, ease: EASE_OUT },
+                          opacity: { duration: 0.2 },
+                        }}
+                        className="overflow-hidden"
+                      >
+                        <div className="space-y-3 bg-paper px-4 py-4">
+                          <p className="font-sans text-xs leading-relaxed text-muted sm:text-[13px]">
+                            {topic.content}
+                          </p>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
               );
             })}
           </aside>
         </div>
-
-        <AnimatePresence mode="wait">
-          <motion.article
-            key={active.id}
-            initial={prefersReduced ? false : { opacity: 0, x: 24 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={prefersReduced ? { opacity: 0 } : { opacity: 0, x: -24 }}
-            transition={
-              prefersReduced
-                ? { duration: 0 }
-                : { duration: 0.35, ease: EASE_OUT }
-            }
-            className="mt-6 rounded-3xl border border-ink/8 bg-paper p-6 sm:p-8"
-          >
-            <DetailPanel topic={active} />
-          </motion.article>
-        </AnimatePresence>
       </Container>
     </section>
   );
