@@ -47,7 +47,7 @@ export function youTubeWatchUrl(videoId: string) {
 const LENGTH_SECONDS_PATTERN = /"lengthSeconds":"(\d+)"/;
 
 // Registry of static video metadata to speed up builds and avoid prerender/scraping errors
-const YOUTUBE_METADATA_REGISTRY: Record<
+export const YOUTUBE_METADATA_REGISTRY: Record<
   string,
   {
     title: string;

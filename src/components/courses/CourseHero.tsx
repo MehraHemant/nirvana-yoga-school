@@ -1,29 +1,33 @@
 "use client";
 
-import {
-  AnimatePresence,
-  motion,
-  useInView,
-  useReducedMotion,
-} from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Button, Container, MediaLightbox } from "@/components/ui";
-import { ChevronLeft, ChevronRight, HeroUnderline, Play } from "@/icons";
-import { fadeUp } from "@/lib/motion";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Button, Heading, MediaLightbox } from "@/components/ui";
+import { ChevronLeft, ChevronRight, Play } from "@/icons";
+import { YOUTUBE_METADATA_REGISTRY } from "@/lib/youtube";
+
+// ─── Props ───────────────────────────────────────────────────────────────────
 
 interface CourseHeroProps {
   title: string;
-  subtitle: string;
-  duration: string;
-  level: string;
-  certification: string;
-  fee: string;
+  subtitle?: string;
   image: string;
-  certBadge: string;
+  variant?: "course" | "page";
+  eyebrow?: string;
+  duration?: string;
+  level?: string;
+  certification?: string;
+  fee?: string;
+  certBadge?: string;
   heroImages?: string[];
   images?: string[];
   videos?: string[];
+  metaItems?: { label: string; value: string }[];
+  ctaPrimary?: string;
+  ctaSecondary?: string;
+  ctaPrimaryHref?: string;
+  ctaSecondaryHref?: string;
 }
 
 interface MediaItem {
@@ -31,23 +35,50 @@ interface MediaItem {
   url: string;
 }
 
-function MaximizeIcon({
-  size = 16,
-  className = "",
-}: {
-  size?: number;
-  className?: string;
-}) {
+// ─── Supplemental photos (Yoga / Rishikesh — shown when course has few images) ─
+
+const SUPPLEMENTAL = [
+  "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=1200&auto=format&fit=crop&q=85",
+  "https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=1200&auto=format&fit=crop&q=85",
+  "https://images.unsplash.com/photo-1599447421416-3414500d18a5?w=1200&auto=format&fit=crop&q=85",
+  "https://images.unsplash.com/photo-1593811160657-8443f7660669?w=1200&auto=format&fit=crop&q=85",
+  "https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?w=1200&auto=format&fit=crop&q=85",
+  "https://images.unsplash.com/photo-1508672019048-805c876b67e2?w=1200&auto=format&fit=crop&q=85",
+  "https://images.unsplash.com/photo-1528319725582-ddc096101511?w=1200&auto=format&fit=crop&q=85",
+  "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=1200&auto=format&fit=crop&q=85",
+  "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=1200&auto=format&fit=crop&q=85",
+  "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=1200&auto=format&fit=crop&q=85",
+  "https://images.unsplash.com/photo-1501555088652-021faa106b9b?w=1200&auto=format&fit=crop&q=85",
+  "https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=1200&auto=format&fit=crop&q=85",
+];
+
+const MIN_PHOTOS = 12;
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+function ytThumb(id: string) {
+  return (
+    YOUTUBE_METADATA_REGISTRY[id]?.thumbnail_url ??
+    `https://img.youtube.com/vi/${id}/hqdefault.jpg`
+  );
+}
+
+function ytTitle(id: string, fallbackIdx: number) {
+  const t = YOUTUBE_METADATA_REGISTRY[id]?.title;
+  if (!t) return `Video ${fallbackIdx + 1}`;
+  return t.length > 60 ? `${t.slice(0, 57)}…` : t;
+}
+
+function MaximizeIcon() {
   return (
     <svg
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2.5"
+      strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className={className}
-      style={{ width: size, height: size }}
+      className="h-3 w-3"
       aria-hidden="true"
     >
       <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
@@ -55,535 +86,508 @@ function MaximizeIcon({
   );
 }
 
-const getYouTubeThumbnail = (videoId: string) =>
-  `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+// ─── Main component ───────────────────────────────────────────────────────────
 
 export default function CourseHero({
   title,
-  subtitle,
-  duration,
-  level,
-  certification,
-  fee,
   image,
-  certBadge,
   heroImages,
+  images,
   videos,
+  fee,
+  duration,
+  certification,
+  ctaPrimary,
+  ctaPrimaryHref,
+  ctaSecondary,
+  ctaSecondaryHref,
 }: CourseHeroProps) {
-  const scrollContainerRef = useRef<HTMLUListElement>(null);
-  const sectionRef = useRef<HTMLElement>(null);
-  const isInView = useInView(sectionRef, { amount: 0.3 });
-
-  // Combine all images and videos into a single mediaItems list
-  const mediaItems = useMemo(() => {
-    const list: MediaItem[] = [];
-
-    // Prioritize passed images array, fall back to heroImages, then single image prop
-    const baseImages = heroImages || [];
-
-    for (const img of baseImages) {
-      if (img) {
-        list.push({ type: "image", url: img });
-      }
-    }
-
-    if (videos && videos.length > 0) {
-      for (const vid of videos) {
-        if (vid) {
-          list.push({ type: "video", url: vid });
-        }
-      }
-    }
-
-    return list;
-  }, [heroImages, videos]);
-
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
   const prefersReduced = useReducedMotion() ?? false;
+  const stripRef = useRef<HTMLDivElement>(null);
 
-  // Center the active thumbnail by scrolling only the strip (never the page)
+  // ── Build photo list ──────────────────────────────────────────────────────
+  const photos = useMemo<string[]>(() => {
+    const seen = new Set<string>();
+    const all: string[] = [];
+    for (const src of [...(heroImages ?? []), ...(images ?? [])]) {
+      if (src && !seen.has(src)) {
+        seen.add(src);
+        all.push(src);
+      }
+    }
+    if (all.length === 0 && image) {
+      all.push(image);
+      seen.add(image);
+    }
+    for (const src of SUPPLEMENTAL) {
+      if (all.length >= MIN_PHOTOS) break;
+      if (!seen.has(src)) {
+        seen.add(src);
+        all.push(src);
+      }
+    }
+    return all;
+  }, [heroImages, images, image]);
+
+  // ── Build video list ──────────────────────────────────────────────────────
+  const videoIds = useMemo(() => (videos ?? []).filter(Boolean), [videos]);
+
+  // ── All items for lightbox ────────────────────────────────────────────────
+  const allItems = useMemo<MediaItem[]>(
+    () => [
+      ...photos.map((url) => ({ type: "image" as const, url })),
+      ...videoIds.map((url) => ({ type: "video" as const, url })),
+    ],
+    [photos, videoIds],
+  );
+
+  // ── State ─────────────────────────────────────────────────────────────────
+  const [photoIdx, setPhotoIdx] = useState(0);
+  const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
+  const [hovered, setHovered] = useState(false);
+  const [lightboxIdx, setLightboxIdx] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+
+  // ── Auto-advance ──────────────────────────────────────────────────────────
   useEffect(() => {
-    const list = scrollContainerRef.current;
-    if (!list) return;
-    const thumb = list.children[activeIndex] as HTMLElement | undefined;
+    if (prefersReduced || hovered || activeVideoId || photos.length <= 1)
+      return;
+    const t = setInterval(
+      () => setPhotoIdx((p) => (p + 1) % photos.length),
+      2000,
+    );
+    return () => clearInterval(t);
+  }, [prefersReduced, hovered, activeVideoId, photos.length]);
+
+  // ── Preload adjacent images ───────────────────────────────────────────────
+  useEffect(() => {
+    const toLoad = [
+      (photoIdx + 1) % photos.length,
+      (photoIdx + 2) % photos.length,
+      (photoIdx - 1 + photos.length) % photos.length,
+    ];
+    for (const i of new Set(toLoad)) {
+      const url = photos[i];
+      if (url) {
+        const img = new window.Image();
+        img.src = url;
+      }
+    }
+  }, [photoIdx, photos]);
+
+  // ── Filmstrip centering ───────────────────────────────────────────────────
+  useEffect(() => {
+    const el = stripRef.current;
+    if (!el) return;
+    const thumb = el.children[photoIdx] as HTMLElement | undefined;
     if (!thumb) return;
-    const targetScroll =
-      thumb.offsetLeft - list.clientWidth / 2 + thumb.offsetWidth / 2;
-    list.scrollTo({
-      left: Math.max(0, targetScroll),
+    el.scrollTo({
+      left: Math.max(
+        0,
+        thumb.offsetLeft - el.clientWidth / 2 + thumb.offsetWidth / 2,
+      ),
       behavior: prefersReduced ? "auto" : "smooth",
     });
-  }, [activeIndex, prefersReduced]);
+  }, [photoIdx, prefersReduced]);
 
-  const filteredItems = mediaItems;
-
-  // Safeguard activeIndex when filter changes
-  const activeItem = filteredItems[activeIndex] ||
-    filteredItems[0] || { type: "image", url: image };
-
-  // Fallback background image when active media is a video
-  const bgImageSrc = useMemo(() => {
-    if (activeItem.type === "image") return activeItem.url;
-    const firstImg = mediaItems.find((item) => item.type === "image");
-    return firstImg ? firstImg.url : image;
-  }, [activeItem, mediaItems, image]);
-
-  const handleNext = useCallback(() => {
-    if (filteredItems.length <= 1) return;
-    setActiveIndex((prev) => (prev + 1) % filteredItems.length);
-  }, [filteredItems.length]);
-
-  const handlePrev = useCallback(() => {
-    if (filteredItems.length <= 1) return;
-    setActiveIndex(
-      (prev) => (prev - 1 + filteredItems.length) % filteredItems.length,
-    );
-  }, [filteredItems.length]);
-
-  // Auto-advance the media slider — only while in view; pauses on hover,
-  // lightbox, video, and reduced motion.
+  // ── Lightbox keyboard nav ─────────────────────────────────────────────────
   useEffect(() => {
-    if (
-      !isInView ||
-      isPaused ||
-      isLightboxOpen ||
-      prefersReduced ||
-      filteredItems.length <= 1 ||
-      activeItem.type === "video"
-    ) {
-      return;
-    }
-    const interval = setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % filteredItems.length);
-    }, 2000);
-    return () => clearInterval(interval);
-  }, [
-    isInView,
-    isPaused,
-    isLightboxOpen,
-    prefersReduced,
-    filteredItems.length,
-    activeItem.type,
-  ]);
-
-  const scrollLeft = () => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({ left: -240, behavior: "smooth" });
-    }
-  };
-
-  const scrollRight = () => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({ left: 240, behavior: "smooth" });
-    }
-  };
-
-  // Keyboard navigation for Lightbox
-  useEffect(() => {
-    if (!isLightboxOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setIsLightboxOpen(false);
-      if (e.key === "ArrowRight") handleNext();
-      if (e.key === "ArrowLeft") handlePrev();
+    if (!lightboxOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setLightboxOpen(false);
+      if (e.key === "ArrowRight")
+        setLightboxIdx((i) => (i + 1) % allItems.length);
+      if (e.key === "ArrowLeft")
+        setLightboxIdx((i) => (i - 1 + allItems.length) % allItems.length);
     };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isLightboxOpen, handleNext, handlePrev]);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [lightboxOpen, allItems.length]);
 
-  // Extract the last word of title for italic decoration
-  const titleParts = title.split(" ");
-  const lastWord = titleParts.pop() || "";
-  const remainingTitle = titleParts.join(" ");
+  // ── Handlers ──────────────────────────────────────────────────────────────
+  const prev = () => {
+    setActiveVideoId(null);
+    setPhotoIdx((p) => (p - 1 + photos.length) % photos.length);
+  };
+  const next = () => {
+    setActiveVideoId(null);
+    setPhotoIdx((p) => (p + 1) % photos.length);
+  };
+  const pickPhoto = (i: number) => {
+    setActiveVideoId(null);
+    setPhotoIdx(i);
+    setHovered(true);
+  };
+  const playVideo = (id: string) => {
+    setActiveVideoId(id);
+    setHovered(true);
+  };
+  const openLightbox = (idx: number) => {
+    setLightboxIdx(idx);
+    setLightboxOpen(true);
+  };
+
+  // ── Bento cell definitions ────────────────────────────────────────────────
+  // 4-col, 2-row grid: large featured (2×2) + 4 smaller cells
+  const smallCells: {
+    offset: number;
+    type: "photo" | "video";
+    vidIdx: number;
+  }[] = [
+    { offset: 1, type: "photo", vidIdx: -1 },
+    { offset: 0, type: "video", vidIdx: 0 },
+    { offset: 2, type: "photo", vidIdx: -1 },
+    { offset: 1, type: "video", vidIdx: 1 },
+  ];
+
+  const hasMeta = !!(duration || certification || fee);
+  const hasCTA = !!(ctaPrimary || ctaSecondary);
 
   return (
-    <section
-      ref={sectionRef}
-      className="relative w-full h-svh max-h-svh overflow-hidden bg-ink text-white"
-    >
-      {/* Dynamic Background Image/Video mirroring active item */}
-      <div className="absolute inset-0 w-full h-full pointer-events-none select-none z-0 overflow-hidden opacity-25">
-        <AnimatePresence mode="popLayout">
-          <motion.div
-            key={bgImageSrc}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.8 }}
-            className="absolute inset-0 w-full h-full z-0"
-          >
-            <Image
-              src={bgImageSrc}
-              alt=""
-              fill
-              priority
-              sizes="100vw"
-              className="object-cover object-center animate-hero-zoom"
-            />
-          </motion.div>
-        </AnimatePresence>
-        {/* Dark overlay gradients to ensure readability and cinematic vibe */}
-        <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/60 to-ink/30 z-10" />
-        <div className="absolute inset-0 bg-gradient-to-t from-ink via-transparent to-transparent z-10" />
-        <div
-          className="absolute inset-x-0 top-0 h-24 md:h-28 bg-linear-to-b from-black/55 to-transparent z-10"
-          aria-hidden="true"
-        />
-      </div>
+    <section className="relative h-svh max-h-svh w-full overflow-hidden bg-white">
+      {/* Ambient glow */}
+      <div
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_10%_0%,rgb(166_181_162/0.12),transparent_55%)]"
+        aria-hidden="true"
+      />
 
-      {/* Dynamic Background Radial Glow */}
-      <div className="absolute left-[-10%] top-[20%] w-[50%] h-[60%] rounded-full bg-accent/10 blur-[120px] pointer-events-none z-0" />
-
-      <Container
-        size="2xl"
-        className="relative z-20 w-full h-full overflow-hidden pt-[4.75rem] md:pt-[5.5rem]"
-      >
-        <div className="grid h-[calc(100svh-4.75rem)] min-h-0 grid-cols-1 items-start gap-5 overflow-y-auto md:h-[calc(100svh-5.5rem)] lg:grid-cols-12 lg:items-stretch lg:gap-10 lg:overflow-hidden">
-          {/* Left Column: Course Metadata & Details */}
-          <div className="flex min-h-0 w-full flex-col items-start pb-4 lg:col-span-5 lg:justify-center lg:pb-0">
-            {/* Breadcrumbs */}
-            {/* <nav className="mb-6 flex items-center gap-2 text-xs sm:text-sm text-white/50 font-medium tracking-wide">
-              <Link href="/" className="hover:text-accent transition-colors">
-                Home
-              </Link>
-              <span>/</span>
-              <Link
-                href="/#courses"
-                className="hover:text-accent transition-colors"
-              >
-                Courses
-              </Link>
-              <span>/</span>
-              <span className="text-accent truncate max-w-[200px] sm:max-w-none">
-                {title}
-              </span>
-            </nav> */}
-
-            {/* Certification Badge Pill */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5 }}
-              className="inline-flex items-center gap-2.5 px-3 py-1 rounded-full bg-accent/15 border border-accent/30 text-accent mb-4 w-fit"
+      <div className="relative flex h-full min-h-0 flex-col overflow-hidden px-4 pt-19 pb-3 md:px-6 md:pt-22 md:pb-4">
+        {/* ── Header row ─────────────────────────────────────────────────── */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.25, 0, 0, 1] }}
+          className="mb-3 flex shrink-0 items-end justify-between gap-4 pt-4"
+        >
+          <div className="min-w-0">
+            <Heading
+              as="h1"
+              size="h2"
+              className="line-clamp-2 max-w-4xl font-medium leading-tightest! text-ink/90 text-xl sm:text-2xl md:text-3xl lg:text-[2.2rem]"
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-              <span className="type-eyebrow tracking-wider text-[10px]">
-                Yoga Alliance Certified RYS
-              </span>
-            </motion.div>
-
-            {/* Title */}
-            <motion.h1
-              initial="hidden"
-              animate="visible"
-              variants={fadeUp}
-              className="type-h1 text-white mb-4 leading-tight"
-            >
-              {remainingTitle}{" "}
-              <span className="relative inline-block text-accent font-serif font-normal">
-                {lastWord}
-                <HeroUnderline className="absolute left-0 right-0 -bottom-2 w-full text-accent opacity-80 h-3" />
-              </span>
-            </motion.h1>
-
-            {/* Subtitle */}
-            <motion.p
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="type-lead mb-5 max-w-xl text-sm leading-relaxed text-white/80 md:text-base"
-            >
-              {subtitle}
-            </motion.p>
-
-            {/* Summary Metadata Card */}
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.25 }}
-              className="relative mb-5 w-full overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-4 font-sans md:p-5"
-            >
-              <div className="absolute top-0 right-0 w-24 h-24 bg-accent/5 rounded-full blur-xl pointer-events-none" />
-
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
-                <div className="grid grid-cols-2 gap-x-6 gap-y-4 w-full">
-                  <div>
-                    <span className="block text-[10px] text-white/40 font-bold uppercase tracking-wider mb-0.5">
-                      Duration
-                    </span>
-                    <span className="text-sm font-semibold text-white/90">
-                      {duration}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="block text-[10px] text-white/40 font-bold uppercase tracking-wider mb-0.5">
-                      Level
-                    </span>
-                    <span className="text-sm font-semibold text-white/90">
-                      {level}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="block text-[10px] text-white/40 font-bold uppercase tracking-wider mb-0.5">
-                      Certification
-                    </span>
-                    <span className="text-sm font-semibold text-white/90">
-                      {certification}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="block text-[10px] text-white/40 font-bold uppercase tracking-wider mb-0.5">
-                      Course Fee
-                    </span>
-                    <span className="text-sm font-bold text-accent font-serif text-base">
-                      {fee}
-                    </span>
-                  </div>
-                </div>
-
-                {certBadge && (
-                  <div className="relative w-16 h-16 shrink-0 bg-white rounded-xl p-1 flex items-center justify-center shadow-lg border border-white/20 select-none self-center sm:self-auto">
-                    <Image
-                      src={certBadge}
-                      alt="Yoga Alliance Certification"
-                      width={60}
-                      height={60}
-                      className="object-contain"
-                    />
-                  </div>
-                )}
-              </div>
-            </motion.div>
-
-            {/* CTAs */}
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto"
-            >
-              <Button
-                href="#pricing"
-                variant="primary"
-                size="lg"
-                responsive
-                className="w-full sm:w-auto text-center justify-center"
-              >
-                Select Batch &amp; Book
-              </Button>
-              <Button
-                href="#syllabus"
-                variant="outline-light"
-                size="lg"
-                responsive
-                className="w-full sm:w-auto text-center justify-center"
-              >
-                View Syllabus
-              </Button>
-            </motion.div>
+              {title}
+            </Heading>
+            <p className="mt-1 text-[11px] font-semibold uppercase tracking-widest text-accent/80">
+              {photos.length} photos
+              {videoIds.length > 0 ? ` · ${videoIds.length} videos` : ""}
+            </p>
           </div>
 
-          {/* Right Column: Premium Active Viewer + Thumbnails Carousel */}
-          <div className="flex min-h-0 w-full flex-col lg:col-span-7 lg:h-full lg:justify-center lg:py-3">
-            {/* Main Player Display */}
-            <section
-              aria-label="Course media gallery"
-              className="relative mb-3 h-[min(42svh,24rem)] w-full min-h-[15rem] shrink-0 overflow-hidden rounded-3xl border border-white/10 bg-black/60 shadow-2xl sm:h-[min(48svh,28rem)] lg:mb-4 lg:h-auto lg:min-h-0 lg:flex-1"
-              onMouseEnter={() => setIsPaused(true)}
-              onMouseLeave={() => setIsPaused(false)}
-            >
-              <AnimatePresence mode="popLayout">
-                <motion.div
-                  key={activeItem.url}
-                  initial={{ opacity: 0, scale: 0.98 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.98 }}
-                  transition={{ duration: 0.3 }}
-                  className="absolute inset-0 w-full h-full flex items-center justify-center"
-                >
-                  {activeItem.type === "image" ? (
-                    <Image
-                      src={activeItem.url}
-                      alt={title}
-                      fill
-                      sizes="100vw"
-                      className="object-cover animate-hero-zoom"
-                      priority
-                    />
-                  ) : (
-                    // Display YouTube video or fallback HTML5 video player
-                    (() => {
-                      const isYouTube =
-                        !activeItem.url.includes("/") &&
-                        activeItem.url.length <= 12;
-                      return isYouTube ? (
-                        <iframe
-                          src={`https://www.youtube.com/embed/${activeItem.url}?autoplay=1&mute=1&controls=1&rel=0`}
-                          title="Course Video"
-                          className="absolute inset-0 w-full h-full border-0 z-10"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowFullScreen
-                        />
-                      ) : (
-                        <video
-                          src={activeItem.url}
-                          className="absolute inset-0 w-full h-full object-cover z-10"
-                          controls
-                          autoPlay
-                          muted
-                          playsInline
-                        />
-                      );
-                    })()
-                  )}
-                </motion.div>
-              </AnimatePresence>
-
-              {/* Navigation Arrows */}
-              {filteredItems.length > 1 && (
-                <>
-                  <button
-                    type="button"
-                    onClick={handlePrev}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 z-30 p-2.5 rounded-full bg-black/50 hover:bg-black/80 border border-white/10 text-white transition-all cursor-pointer hover:scale-105"
-                    aria-label="Previous Media"
-                  >
-                    <ChevronLeft size={18} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleNext}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 z-30 p-2.5 rounded-full bg-black/50 hover:bg-black/80 border border-white/10 text-white transition-all cursor-pointer hover:scale-105"
-                    aria-label="Next Media"
-                  >
-                    <ChevronRight size={18} />
-                  </button>
-                </>
-              )}
-
-              {/* Lightbox Trigger Button */}
-              <button
-                type="button"
-                onClick={() => setIsLightboxOpen(true)}
-                className="absolute top-4 right-4 z-30 p-2.5 rounded-full bg-black/50 hover:bg-black/80 border border-white/10 text-white transition-all cursor-pointer"
-                aria-label="View Fullscreen"
-              >
-                <MaximizeIcon size={16} />
-              </button>
-
-              {/* Media Status Pill */}
-              <div className="absolute top-4 left-4 z-30 px-3 py-1.5 rounded-full bg-black/50 border border-white/10 text-white text-[10px] font-semibold tracking-wider flex items-center gap-1.5 backdrop-blur-md">
-                {activeItem.type === "video" ? (
-                  <>
-                    <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-                    <span>VIDEO</span>
-                  </>
-                ) : (
-                  <span>PHOTO</span>
-                )}
-                <span className="text-white/60">•</span>
-                <span>
-                  {activeIndex + 1} / {filteredItems.length}
-                </span>
-              </div>
-            </section>
-
-            {/* Thumbnail Slider Header & Scrollstrip */}
-            {filteredItems.length > 1 && (
-              <div className="relative flex w-full shrink-0 flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-2.5 backdrop-blur-md lg:p-3">
-                {/* Scroll Control Arrows */}
-                <div className="flex justify-between items-center mb-2 px-1 select-none">
-                  <span className="text-[10px] text-white/50 font-bold uppercase tracking-wider">
-                    Gallery Carousel ({filteredItems.length} items)
-                  </span>
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={scrollLeft}
-                      className="p-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-white transition-all cursor-pointer"
-                      aria-label="Scroll thumbnails left"
-                    >
-                      <ChevronLeft size={12} />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={scrollRight}
-                      className="p-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-white transition-all cursor-pointer"
-                      aria-label="Scroll thumbnails right"
-                    >
-                      <ChevronRight size={12} />
-                    </button>
+          {/* Meta chips + CTA — desktop only */}
+          <div className="hidden shrink-0 items-center gap-3 md:flex">
+            {hasMeta && (
+              <div className="flex items-center gap-3 rounded-2xl bg-white/60 px-4 py-2 backdrop-blur-sm ring-1 ring-ink/6">
+                {duration && (
+                  <div>
+                    <p className="text-[9px] font-semibold uppercase tracking-widest text-muted/60">
+                      Duration
+                    </p>
+                    <p className="text-xs font-semibold text-ink">{duration}</p>
                   </div>
-                </div>
-
-                {/* Thumbnails Row */}
-                <ul
-                  ref={scrollContainerRef}
-                  className="flex gap-3 overflow-x-auto py-1 scrollbar-none snap-x snap-mandatory scroll-smooth"
-                >
-                  {filteredItems.map((item, idx) => {
-                    const isActive = idx === activeIndex;
-                    return (
-                      <li
-                        // biome-ignore lint/suspicious/noArrayIndexKey: indices are stable for media list
-                        key={idx}
-                        id={`thumb-${idx}`}
-                        className="snap-start shrink-0"
-                      >
-                        <button
-                          type="button"
-                          onClick={() => setActiveIndex(idx)}
-                          className={`relative w-28 h-18 sm:w-32 sm:h-20 rounded-xl overflow-hidden border-2 transition-all cursor-pointer block ${
-                            isActive
-                              ? "border-accent shadow-[0_0_10px_rgba(166,181,162,0.6)] z-10"
-                              : "border-white/10 opacity-60 hover:opacity-100 hover:border-white/30"
-                          }`}
-                          aria-label={`Select media slide ${idx + 1}`}
-                        >
-                          {item.type === "image" ? (
-                            <Image
-                              src={item.url}
-                              alt=""
-                              fill
-                              sizes="128px"
-                              className="object-cover"
-                            />
-                          ) : (
-                            <div className="relative w-full h-full bg-ink">
-                              <Image
-                                src={getYouTubeThumbnail(item.url)}
-                                alt=""
-                                fill
-                                sizes="128px"
-                                className="object-cover opacity-80"
-                              />
-                              <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                                <Play
-                                  size={16}
-                                  className="text-white fill-white drop-shadow-md"
-                                />
-                              </div>
-                            </div>
-                          )}
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ul>
+                )}
+                {certification && (
+                  <>
+                    <div className="h-6 w-px bg-ink/8" />
+                    <div>
+                      <p className="text-[9px] font-semibold uppercase tracking-widest text-muted/60">
+                        Certification
+                      </p>
+                      <p className="text-xs font-semibold text-ink">
+                        {certification}
+                      </p>
+                    </div>
+                  </>
+                )}
+                {fee && (
+                  <>
+                    <div className="h-6 w-px bg-ink/8" />
+                    <div>
+                      <p className="text-[9px] font-semibold uppercase tracking-widest text-muted/60">
+                        Fee
+                      </p>
+                      <p className="text-xs font-semibold text-primary">
+                        {fee}
+                      </p>
+                    </div>
+                  </>
+                )}
               </div>
             )}
-          </div>
-        </div>
-      </Container>
 
-      {/* Lightbox / Fullscreen Modal Overlay */}
+          </div>
+        </motion.div>
+
+        {/* ── Bento grid ─────────────────────────────────────────────────── */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.55, delay: 0.08, ease: [0.25, 0, 0, 1] }}
+          // biome-ignore lint/a11y/noStaticElementInteractions: hover pause for autoplay
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+          className="grid min-h-0 flex-1 grid-cols-4 grid-rows-2 gap-2 overflow-hidden rounded-3xl md:gap-2.5"
+        >
+          {/* ── Large featured cell (2×2) ─────────────────────────────── */}
+          <div className="relative col-span-2 row-span-2 overflow-hidden rounded-3xl bg-sand/70">
+            <AnimatePresence mode="wait">
+              {activeVideoId ? (
+                <motion.iframe
+                  key={`v-${activeVideoId}`}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  src={`https://www.youtube.com/embed/${activeVideoId}?autoplay=1&rel=0&modestbranding=1`}
+                  title={ytTitle(activeVideoId, 0)}
+                  allow="autoplay; fullscreen; encrypted-media"
+                  allowFullScreen
+                  className="absolute inset-0 h-full w-full border-0 bg-ink"
+                />
+              ) : (
+                <motion.div
+                  key={photoIdx}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="absolute inset-0"
+                >
+                  <Image
+                    src={photos[photoIdx]}
+                    alt={title}
+                    fill
+                    priority
+                    sizes="(max-width:768px)100vw,50vw"
+                    className="object-cover"
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Back-to-photos button (shown while video plays) */}
+            {activeVideoId && (
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveVideoId(null);
+                  setHovered(false);
+                }}
+                className="absolute top-3 left-3 z-20 flex cursor-pointer items-center gap-1.5 rounded-full bg-ink/60 px-3 py-1.5 text-[11px] font-medium text-white backdrop-blur-sm transition-colors hover:bg-ink/80"
+              >
+                ← Photos
+              </button>
+            )}
+
+            {/* Nav controls (shown while browsing photos) */}
+            {!activeVideoId && (
+              <>
+                {/* Full-cover click → lightbox */}
+                <button
+                  type="button"
+                  onClick={() => openLightbox(photoIdx)}
+                  className="absolute inset-0 z-10 cursor-zoom-in"
+                  aria-label={`View photo ${photoIdx + 1} fullscreen`}
+                />
+
+                {/* Bottom control bar — always visible */}
+                <div className="absolute inset-x-0 bottom-0 z-20 flex items-center justify-between bg-linear-to-t from-ink/35 to-transparent px-3 pb-3 pt-10">
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        prev();
+                      }}
+                      className="cursor-pointer rounded-full bg-white/85 p-1.5 text-ink/70 shadow-soft backdrop-blur-sm transition-colors hover:bg-white hover:text-ink"
+                      aria-label="Previous photo"
+                    >
+                      <ChevronLeft size={16} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        next();
+                      }}
+                      className="cursor-pointer rounded-full bg-white/85 p-1.5 text-ink/70 shadow-soft backdrop-blur-sm transition-colors hover:bg-white hover:text-ink"
+                      aria-label="Next photo"
+                    >
+                      <ChevronRight size={16} />
+                    </button>
+                  </div>
+                  <span className="rounded-full bg-white/85 px-3 py-0.5 text-[11px] tabular-nums text-muted shadow-soft backdrop-blur-sm">
+                    {photoIdx + 1} / {photos.length}
+                  </span>
+                </div>
+
+                {/* Expand to lightbox */}
+                <button
+                  type="button"
+                  onClick={() => openLightbox(photoIdx)}
+                  className="absolute top-3 right-3 z-20 cursor-pointer rounded-full bg-white/80 p-1.5 text-ink/50 backdrop-blur-sm transition-colors hover:text-ink"
+                  aria-label="Open fullscreen"
+                >
+                  <MaximizeIcon />
+                </button>
+              </>
+            )}
+          </div>
+
+          {/* ── 4 small cells ─────────────────────────────────────────── */}
+          {smallCells.map((cell, ci) => (
+            <div
+              // biome-ignore lint/suspicious/noArrayIndexKey: bento cells, stable order
+              key={ci}
+              className="relative overflow-hidden rounded-2xl"
+            >
+              {cell.type === "video" && videoIds[cell.vidIdx] ? (
+                /* Video cell */
+                <button
+                  type="button"
+                  onClick={() => playVideo(videoIds[cell.vidIdx])}
+                  className={`group h-full w-full overflow-hidden rounded-2xl bg-ink ${
+                    activeVideoId === videoIds[cell.vidIdx]
+                      ? "ring-2 ring-primary"
+                      : ""
+                  }`}
+                  aria-label={`Play: ${ytTitle(videoIds[cell.vidIdx], cell.vidIdx)}`}
+                >
+                  <div className="relative h-full w-full">
+                    <Image
+                      src={ytThumb(videoIds[cell.vidIdx])}
+                      alt={ytTitle(videoIds[cell.vidIdx], cell.vidIdx)}
+                      fill
+                      sizes="18vw"
+                      className="object-cover opacity-70 transition-opacity group-hover:opacity-85"
+                    />
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-ink/25 transition-colors group-hover:bg-ink/15">
+                      <span
+                        className={`flex h-9 w-9 items-center justify-center rounded-full shadow-soft backdrop-blur-sm transition-all group-hover:scale-105 ${
+                          activeVideoId === videoIds[cell.vidIdx]
+                            ? "bg-primary"
+                            : "bg-white/90"
+                        }`}
+                      >
+                        <Play
+                          size={13}
+                          className={
+                            activeVideoId === videoIds[cell.vidIdx]
+                              ? "fill-white text-white"
+                              : "fill-ink/70 text-ink/70"
+                          }
+                        />
+                      </span>
+                      <p className="mx-2 line-clamp-2 text-center text-[10px] font-medium leading-tight text-white">
+                        {ytTitle(videoIds[cell.vidIdx], cell.vidIdx)}
+                      </p>
+                    </div>
+                    <span className="absolute top-2 left-2 rounded-full bg-primary px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-white">
+                      {activeVideoId === videoIds[cell.vidIdx]
+                        ? "Playing"
+                        : "Video"}
+                    </span>
+                  </div>
+                </button>
+              ) : cell.type === "photo" ? (
+                /* Photo cell */
+                <button
+                  type="button"
+                  onClick={() =>
+                    openLightbox((photoIdx + cell.offset) % photos.length)
+                  }
+                  className="group relative h-full w-full cursor-zoom-in overflow-hidden rounded-2xl"
+                  aria-label="View photo"
+                >
+                  <Image
+                    src={photos[(photoIdx + cell.offset) % photos.length]}
+                    alt=""
+                    fill
+                    sizes="18vw"
+                    className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                  />
+                </button>
+              ) : (
+                /* Fallback: extra photo when no video available */
+                <div className="relative h-full w-full overflow-hidden rounded-2xl">
+                  <Image
+                    src={photos[(photoIdx + cell.offset) % photos.length]}
+                    alt=""
+                    fill
+                    sizes="18vw"
+                    className="object-cover"
+                  />
+                </div>
+              )}
+            </div>
+          ))}
+        </motion.div>
+
+        {/* ── Bottom filmstrip ───────────────────────────────────────────── */}
+        {photos.length > 1 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.15 }}
+            // biome-ignore lint/a11y/noStaticElementInteractions: hover pause for autoplay
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+            className="mt-2 shrink-0 overflow-hidden rounded-2xl bg-white/50 px-3 pt-2.5 pb-2 backdrop-blur-sm"
+          >
+            <div
+              ref={stripRef}
+              className="no-scrollbar flex gap-2 overflow-x-auto scroll-smooth"
+            >
+              {photos.map((url, i) => {
+                const isActive = i === photoIdx && !activeVideoId;
+                return (
+                  <button
+                    // biome-ignore lint/suspicious/noArrayIndexKey: stable filmstrip
+                    key={i}
+                    type="button"
+                    onClick={() => pickPhoto(i)}
+                    className={`relative h-13 w-[4.5rem] shrink-0 cursor-pointer overflow-hidden rounded-xl transition-all duration-500 sm:h-14 sm:w-20 ${
+                      isActive
+                        ? "scale-[1.06] opacity-100 ring-1 ring-accent/70 ring-offset-1 ring-offset-white/50"
+                        : "opacity-45 hover:opacity-80"
+                    }`}
+                    aria-label={`Photo ${i + 1}`}
+                    aria-current={isActive ? "true" : undefined}
+                  >
+                    <Image
+                      src={url}
+                      alt=""
+                      fill
+                      sizes="80px"
+                      className="object-cover"
+                    />
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Progress bar */}
+            <div className="mt-2 h-px overflow-hidden rounded-full bg-ink/8">
+              <motion.div
+                className="h-full bg-accent/55"
+                animate={{
+                  width:
+                    photos.length > 1
+                      ? `${(photoIdx / (photos.length - 1)) * 100}%`
+                      : "100%",
+                }}
+                transition={{ duration: 1.92, ease: "linear" }}
+              />
+            </div>
+          </motion.div>
+        )}
+      </div>
+
       <MediaLightbox
-        isOpen={isLightboxOpen}
-        onClose={() => setIsLightboxOpen(false)}
-        items={filteredItems}
-        activeIndex={activeIndex}
-        onChangeActiveIndex={setActiveIndex}
+        isOpen={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+        items={allItems}
+        activeIndex={lightboxIdx}
+        onChangeActiveIndex={setLightboxIdx}
         title={title}
       />
     </section>
