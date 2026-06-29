@@ -2,9 +2,6 @@ import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
-import { Footer, Header } from "@/components";
-import MobileStickyBar from "@/components/ui/MobileStickyBar";
-import WhatsAppFab from "@/components/ui/WhatsAppFab";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -81,11 +78,7 @@ export default function RootLayout({
       data-scroll-behavior="smooth"
     >
       <body className="flex min-h-full flex-col bg-sand text-ink">
-        <Header />
-        <main className="relative flex-1">{children}</main>
-        <Footer />
-        <WhatsAppFab phone="919876543210" />
-        <MobileStickyBar />
+        {children}
       </body>
     </html>
   );

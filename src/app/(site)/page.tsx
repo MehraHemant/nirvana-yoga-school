@@ -125,6 +125,7 @@ export default function Home() {
       <YogaAllianceSection />
       <TeachersSection />
       <TestimonialsSection />
+      <MapSection />
       <FAQSection
         faqs={HOME_FAQS}
         eyebrow="Questions, answered"
@@ -132,7 +133,6 @@ export default function Home() {
         sectionClassName="bg-white"
       />
       <FinalCTASection />
-      <MapSection />
     </>
   );
 }
