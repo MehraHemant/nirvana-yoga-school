@@ -6,12 +6,15 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "images.unsplash.com",
+        hostname: "www.nirvanayogaschoolindia.com",
       },
       {
         protocol: "https",
-        hostname: "www.nirvanayogaschoolindia.com",
-        pathname: "/**",
+        hostname: "onlinecourses.nirvanayogaschoolindia.com",
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
       },
       {
         protocol: "https",

@@ -1,0 +1,94 @@
+/** Scraped / CMS site page document (retreats, hubs, about, etc.). */
+
+export type SitePageCard = {
+  title: string;
+  description: string;
+  href?: string;
+};
+
+export type SitePageSubsection = {
+  title: string;
+  body?: string;
+  items?: string[];
+  image?: string;
+};
+
+/** Dynamic content block inside a section — preferred CMS format. */
+export type SectionContentBlock =
+  | { type: "paragraph"; text: string }
+  | { type: "lead"; text: string }
+  | { type: "bullets"; items: string[] }
+  | { type: "faq"; items: { question: string; answer: string }[] }
+  | {
+      type: "cta";
+      label: string;
+      href: string;
+      variant?: "primary" | "secondary" | "outline";
+      openInNewTab?: boolean;
+    }
+  | { type: "image"; url: string; alt?: string; caption?: string }
+  | { type: "gallery"; urls: string[] }
+  | {
+      type: "subsection";
+      title: string;
+      paragraph?: string;
+      imageUrl?: string;
+      bullets?: string[];
+    }
+  | { type: "video"; url: string; caption?: string };
+
+export type SitePageSection = {
+  title: string;
+  eyebrow?: string;
+  /** Dynamic blocks — rendered when present (CMS). */
+  blocks?: SectionContentBlock[];
+  body?: string;
+  items?: string[];
+  subsections?: SitePageSubsection[];
+  layout?: "default" | "timeline" | "split-media" | "faq";
+  image?: string;
+  images?: string[];
+};
+
+export type SitePageHighlight = {
+  title: string;
+  description: string;
+  image?: string;
+};
+
+export type SitePagePerson = {
+  name: string;
+  image?: string;
+  summary?: string;
+  bio?: string;
+  education?: string[];
+  experience?: string[];
+  expertise?: string[];
+};
+
+export type SitePagePackage = {
+  title: string;
+  price: string;
+  image?: string;
+};
+
+export type SitePageGalleryImage = {
+  url: string;
+  category: string;
+};
+
+export type SitePageDocument = {
+  slug: string;
+  eyebrow: string;
+  title: string;
+  description: string;
+  image: string;
+  sections: SitePageSection[];
+  highlights?: SitePageHighlight[];
+  people?: SitePagePerson[];
+  packages?: SitePagePackage[];
+  gallery?: SitePageGalleryImage[];
+  cards?: SitePageCard[];
+  ctaLabel?: string;
+  ctaHref?: string;
+};
