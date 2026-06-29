@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useId, useState } from "react";
 import { logo, logo_white } from "@/assets";
 import { type NavItem, PRIMARY_NAV, SIGN_IN_URL } from "@/constants/navigation";
@@ -37,6 +38,8 @@ function DesktopDropdown({
   solid: boolean;
 }) {
   const menuId = useId();
+  const [open, setOpen] = useState(false);
+  const [forceClosed, setForceClosed] = useState(false);
   const textClass = NavText({
     solid,
     className:
@@ -50,8 +53,33 @@ function DesktopDropdown({
     sub.label.toLowerCase().includes("see all"),
   );
 
+  const closeDropdown = () => {
+    setOpen(false);
+    setForceClosed(true);
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+  };
+
   return (
-    <div className="nav-dropdown relative">
+    // biome-ignore lint/a11y/noStaticElementInteractions: hover/focus dropdown container
+    <div
+      className={`nav-dropdown relative${open && !forceClosed ? " nav-dropdown--open" : ""}${forceClosed ? " nav-dropdown--closed" : ""}`}
+      onMouseEnter={() => {
+        setForceClosed(false);
+        setOpen(true);
+      }}
+      onMouseLeave={() => {
+        setOpen(false);
+        setForceClosed(false);
+      }}
+      onFocus={() => setOpen(true)}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+          setOpen(false);
+        }
+      }}
+    >
       {item.href ? (
         <Link
           {...linkProps(item.href, item.external)}
@@ -95,6 +123,7 @@ function DesktopDropdown({
               <Link
                 key={sub.href}
                 {...linkProps(sub.href, sub.external)}
+                onClick={closeDropdown}
                 className="nav-dropdown-item group/item flex items-start gap-3 rounded-xl px-4 py-3 text-sm text-ink/80 hover:text-primary leading-snug font-sans"
               >
                 <span
@@ -110,6 +139,7 @@ function DesktopDropdown({
             <div className="px-4 pb-4 pt-2 border-t border-ink/5">
               <Link
                 {...linkProps(seeAllItem.href, seeAllItem.external)}
+                onClick={closeDropdown}
                 className="nav-dropdown-cta flex items-center justify-between rounded-2xl bg-primary/5 hover:bg-primary/10 px-4 py-3 text-sm font-semibold text-primary transition-colors font-sans"
               >
                 {seeAllItem.label}
@@ -182,7 +212,10 @@ function MobileNavItem({
               <Link
                 key={sub.href}
                 {...linkProps(sub.href, sub.external)}
-                onClick={onNavigate}
+                onClick={() => {
+                  setOpen(false);
+                  onNavigate();
+                }}
                 className="py-2 px-2 text-sm text-ink/75 hover:text-primary leading-snug font-sans"
               >
                 {sub.label}
@@ -196,6 +229,10 @@ function MobileNavItem({
 }
 
 export default function Header() {
+  const pathname = usePathname();
+  // Only the home page (/) gets a transparent header — all other pages are always solid
+  const isHome = pathname === "/";
+
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -230,7 +267,8 @@ export default function Header() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [mobileOpen]);
 
-  const solid = scrolled || mobileOpen;
+  // Non-home pages: always solid (white bg, dark text) from the first pixel
+  const solid = !isHome || scrolled || mobileOpen;
   const headerTop = scrolled
     ? "top-[4.5rem] md:top-[5rem]"
     : "top-[4.75rem] md:top-[5.5rem]";
