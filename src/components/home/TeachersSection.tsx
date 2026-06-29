@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Button, Container, SectionHeader } from "@/components/ui";
 
-type Teacher = {
+export type TeacherProfile = {
   name: string;
   experienceSummary: string;
   image: string;
@@ -15,7 +15,7 @@ type Teacher = {
   expertise: string[];
 };
 
-const TEACHERS: Teacher[] = [
+const TEACHERS: TeacherProfile[] = [
   {
     name: "Jitendra Singh Bhandari",
     experienceSummary: "20+ Years Experience",
@@ -293,7 +293,12 @@ const TEACHERS: Teacher[] = [
   },
 ];
 
-export default function TeachersSection() {
+export default function TeachersSection({
+  teachers: teachersProp,
+}: {
+  teachers?: TeacherProfile[];
+} = {}) {
+  const teachers = teachersProp ?? TEACHERS;
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const prefersReducedMotion = useReducedMotion();
@@ -307,12 +312,12 @@ export default function TeachersSection() {
 
     const timer = setInterval(() => {
       if (typeof window !== "undefined" && window.innerWidth >= 1024) {
-        setSelectedIdx((prev) => (prev + 1) % TEACHERS.length);
+        setSelectedIdx((prev) => (prev + 1) % teachers.length);
       }
     }, 6000);
 
     return () => clearInterval(timer);
-  }, [isHovered]);
+  }, [isHovered, teachers.length]);
 
   return (
     <section
@@ -332,7 +337,7 @@ export default function TeachersSection() {
                 </span>
               </>
             }
-            description="Meet our twelve experienced, traditional yoga teachers and spiritual guides carrying decades of combined practice directly from traditional Vedic lineages in Rishikesh."
+            description="Meet our experienced, traditional yoga teachers and spiritual guides carrying decades of combined practice directly from traditional Vedic lineages in Rishikesh."
             align="center"
             className="mx-auto max-w-3xl"
           />
@@ -350,7 +355,7 @@ export default function TeachersSection() {
             <span className="type-eyebrow text-muted text-left mb-2 px-2">
               Faculty Directory
             </span>
-            {TEACHERS.map((teacher, index) => {
+            {teachers.map((teacher, index) => {
               const isSelected = selectedIdx === index;
               return (
                 <button
@@ -416,8 +421,8 @@ export default function TeachersSection() {
                   className="absolute inset-0"
                 >
                   <Image
-                    src={TEACHERS[selectedIdx].image}
-                    alt={TEACHERS[selectedIdx].name}
+                    src={teachers[selectedIdx].image}
+                    alt={teachers[selectedIdx].name}
                     fill
                     sizes="(max-width: 1024px) 350px, 220px"
                     className="object-cover"
@@ -440,10 +445,10 @@ export default function TeachersSection() {
                 >
                   <div>
                     <h3 className="font-serif text-xl md:text-2xl font-bold text-ink leading-tight">
-                      {TEACHERS[selectedIdx].name}
+                      {teachers[selectedIdx].name}
                     </h3>
                     <p className="text-[10px] font-sans uppercase font-extrabold tracking-wider text-secondary mt-1 mb-2.5">
-                      {TEACHERS[selectedIdx].experienceSummary}
+                      {teachers[selectedIdx].experienceSummary}
                     </p>
 
                     {/* Credentials Table */}
@@ -453,7 +458,7 @@ export default function TeachersSection() {
                           Education
                         </span>
                         <ul className="grid grid-cols-2 gap-x-6 gap-y-0.5 list-disc pl-4 text-[10px] md:text-[11px] text-ink font-medium">
-                          {TEACHERS[selectedIdx].education.map((edu) => (
+                          {teachers[selectedIdx].education.map((edu) => (
                             <li key={edu}>{edu}</li>
                           ))}
                         </ul>
@@ -463,7 +468,7 @@ export default function TeachersSection() {
                           Experience Details
                         </span>
                         <ul className="list-disc pl-4 text-[10px] md:text-[11px] text-ink font-medium space-y-0.5">
-                          {TEACHERS[selectedIdx].detailedExperience.map(
+                          {teachers[selectedIdx].detailedExperience.map(
                             (exp) => (
                               <li key={exp}>{exp}</li>
                             ),
@@ -475,7 +480,7 @@ export default function TeachersSection() {
                           Area of Expertise
                         </span>
                         <div className="flex flex-wrap gap-1">
-                          {TEACHERS[selectedIdx].expertise.map((exp) => (
+                          {teachers[selectedIdx].expertise.map((exp) => (
                             <span
                               key={exp}
                               className="bg-primary/5 text-primary text-[8px] uppercase font-bold tracking-widest px-2.5 py-0.5 rounded-full border border-primary/10"
@@ -491,7 +496,7 @@ export default function TeachersSection() {
                         Biography
                       </span>
                       <p className="text-xs text-muted leading-relaxed line-clamp-3">
-                        {TEACHERS[selectedIdx].bio}
+                        {teachers[selectedIdx].bio}
                       </p>
                     </div>
                   </div>
@@ -505,7 +510,7 @@ export default function TeachersSection() {
 
         {/* 2. Mobile/Tablet Accordion Layout (lg-hidden): In-place Expanding Details */}
         <div className="flex flex-col gap-4 lg:hidden w-full">
-          {TEACHERS.map((teacher, index) => {
+          {teachers.map((teacher, index) => {
             const isOpen = selectedIdx === index;
             return (
               <div
@@ -635,7 +640,7 @@ export default function TeachersSection() {
         {/* Global Footer Button */}
         <div className="mt-16 lg:mt-8 flex justify-center w-full select-none">
           <Button
-            href="https://www.nirvanayogaschoolindia.com/teacher"
+            href="/teacher"
             variant="secondary"
             size="md"
             responsive

@@ -3,9 +3,10 @@
 import { motion } from "framer-motion";
 import { Container, CourseCard, SectionHeader } from "@/components/ui";
 import type { CourseCardProps } from "@/components/ui/CourseCard";
+import { LIVE_SITE } from "@/lib/live-site";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 
-const SITE = "https://www.nirvanayogaschoolindia.com";
+const SITE = LIVE_SITE;
 
 const COURSES: (CourseCardProps & { highlights: string[] })[] = [
   {

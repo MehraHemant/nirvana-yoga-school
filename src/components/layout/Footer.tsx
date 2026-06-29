@@ -4,8 +4,6 @@ import { logo_white } from "@/assets";
 import { Container } from "@/components/ui";
 import { Facebook, Instagram, WhatsApp, YouTube } from "@/icons";
 
-const SITE = "https://www.nirvanayogaschoolindia.com";
-
 const SOCIAL = [
   {
     label: "Instagram",
@@ -27,26 +25,26 @@ const SOCIAL = [
 
 const PROGRAMS = [
   {
-    href: `${SITE}/200-hour-yoga-teacher-training-in-rishikesh-india`,
+    href: "/200-hour-yoga-teacher-training-in-rishikesh-india",
     label: "200-Hour YTT",
   },
   {
-    href: `${SITE}/300-hour-yoga-teacher-training-in-rishikesh-india`,
+    href: "/300-hour-yoga-teacher-training-in-rishikesh-india",
     label: "300-Hour YTT",
   },
   {
-    href: `${SITE}/500-hour-yoga-teacher-training-in-rishikesh-india`,
+    href: "/500-hour-yoga-teacher-training-in-rishikesh-india",
     label: "500-Hour YTT",
   },
   {
-    href: `${SITE}/200-hour-kundalini-yoga-teacher-training-in-rishikesh-india`,
+    href: "/200-hour-kundalini-yoga-teacher-training-in-rishikesh-india",
     label: "Kundalini YTT",
   },
   {
-    href: `${SITE}/online-yoga-teacher-training-courses`,
+    href: "/online-yoga-teacher-training-courses",
     label: "Online Courses",
   },
-  { href: `${SITE}/3-day-yoga-retreat-in-rishikesh-india`, label: "Retreats" },
+  { href: "/3-day-yoga-retreat-in-rishikesh-india", label: "Retreats" },
 ];
 
 const SCHOOL = [
@@ -54,7 +52,7 @@ const SCHOOL = [
   { href: "/#teachers", label: "Teachers" },
   { href: "/#reviews", label: "Reviews" },
   { href: "/#gallery", label: "Gallery" },
-  { href: `${SITE}/blog`, label: "Journal" },
+  { href: "/blog", label: "Journal" },
   { href: "/#faq", label: "FAQ" },
 ];
 

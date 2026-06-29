@@ -19,8 +19,6 @@ export type NavItem =
       items: NavLink[];
     };
 
-const SITE = "https://www.nirvanayogaschoolindia.com";
-
 /** Primary nav — mirrored from nirvanayogaschoolindia.com header (2026-05-26). */
 export const PRIMARY_NAV: NavItem[] = [
   { type: "link", label: "HOME", href: "/" },
@@ -69,48 +67,40 @@ export const PRIMARY_NAV: NavItem[] = [
       {
         label:
           "Kirtan, Vocal & Instrumental Music Training in Rishikesh, India",
-        href: `${SITE}/kirtan-vocal-and-instrumental-music-training`,
-        external: true,
+        href: "/kirtan-vocal-and-instrumental-music-training",
       },
       {
         label: "SEE ALL OTHER COURSES",
-        href: `${SITE}/yoga-teacher-training-in-rishikesh-india`,
-        external: true,
+        href: "/yoga-teacher-training-in-rishikesh-india",
       },
     ],
   },
   {
     type: "dropdown",
     label: "ONLINE COURSES",
-    href: `${SITE}/online-yoga-teacher-training-courses`,
-    external: true,
+    href: "/online-yoga-teacher-training-courses",
     items: [
       {
         label:
           "200 Hour Online Hatha Ashtanga Vinyasa Yoga Teacher Training Course",
-        href: `${SITE}/200-hour-online-yoga-teacher-training`,
-        external: true,
+        href: "/200-hour-online-yoga-teacher-training",
       },
       {
         label: "200 Hour Online Ayurveda & Hatha Yoga Teacher Training Course",
-        href: `${SITE}/online-200-hour-ayurveda-yoga-teacher-training-course`,
-        external: true,
+        href: "/online-200-hour-ayurveda-yoga-teacher-training-course",
       },
       {
         label:
           "200 Hour Online Meditation Yoga Nidra & Hatha Yoga Teacher Training Course",
-        href: `${SITE}/online-200-hour-meditation-yoga-nidra-teacher-training-course`,
-        external: true,
+        href: "/online-200-hour-meditation-yoga-nidra-teacher-training-course",
       },
       {
         label: "100 Hour Online Yin Yoga Teacher Training Course",
-        href: `${SITE}/online-100-hour-yin-yoga-teacher-training-course`,
-        external: true,
+        href: "/online-100-hour-yin-yoga-teacher-training-course",
       },
       {
         label: "SEE ALL OTHER ONLINE COURSES",
-        href: `${SITE}/online-yoga-teacher-training-courses`,
-        external: true,
+        href: "/online-yoga-teacher-training-courses",
       },
     ],
   },
@@ -120,26 +110,22 @@ export const PRIMARY_NAV: NavItem[] = [
     items: [
       {
         label: "3-Day Yoga Meditation Ayurveda Wellness Retreat",
-        href: `${SITE}/3-day-yoga-retreat-in-rishikesh-india`,
-        external: true,
+        href: "/3-day-yoga-retreat-in-rishikesh-india",
       },
       {
         label: "5-Day Yoga Meditation Ayurveda Wellness Retreat",
-        href: `${SITE}/5-day-yoga-retreat-in-rishikesh-india`,
-        external: true,
+        href: "/5-day-yoga-retreat-in-rishikesh-india",
       },
       {
         label: "7-Day Yoga Meditation Ayurveda Wellness Retreat",
-        href: `${SITE}/7-day-yoga-retreat-in-rishikesh-india`,
-        external: true,
+        href: "/7-day-yoga-retreat-in-rishikesh-india",
       },
     ],
   },
   {
     type: "link",
     label: "TEACHERS",
-    href: `${SITE}/teacher`,
-    external: true,
+    href: "/teacher",
   },
   {
     type: "dropdown",
@@ -147,29 +133,25 @@ export const PRIMARY_NAV: NavItem[] = [
     items: [
       {
         label: "Course Venue",
-        href: `${SITE}/gallery`,
-        external: true,
+        href: "/gallery",
       },
       {
         label: "Retreat Venue",
-        href: `${SITE}/retreat-venue`,
-        external: true,
+        href: "/retreat-venue",
       },
     ],
   },
   {
     type: "link",
     label: "BLOG",
-    href: `${SITE}/blog`,
-    external: true,
+    href: "/blog",
   },
   {
     type: "link",
     label: "CONTACT",
-    href: `${SITE}/contact`,
-    external: true,
+    href: "/contact",
   },
 ];
 
 export const SIGN_IN_URL =
-  "https://onlinecourses.nirvanayogaschoolindia.com/users/sign_in";
+  "https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?auto=format&fit=crop&w=1600&q=85";

@@ -347,7 +347,7 @@ export default function GallerySection() {
 
         {/* Categories Tab Bar */}
         <motion.div
-          className="sticky top-18 md:top-20 z-30 bg-paper/95 backdrop-blur-md py-4 mb-10 -mx-5 px-5 md:-mx-8 md:px-8 border-b border-ink/8"
+          className="sticky top-18 md:top-20 z-30 bg-sand/90 backdrop-blur-md py-4 mb-10 -mx-5 px-5 md:-mx-8 md:px-8 border-b border-ink/8"
           initial="hidden"
           whileInView="visible"
           viewport={VIEWPORT_ONCE}
