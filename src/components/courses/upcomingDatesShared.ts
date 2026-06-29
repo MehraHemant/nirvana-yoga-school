@@ -1,14 +1,19 @@
 export interface PricingOption {
   roomType: string;
   price: string;
+  originalPrice?: string;
   description: string;
   features: string[];
+  image?: string;
 }
 
 export interface UpcomingDatesProps {
   duration: string;
   pricing: PricingOption[];
   pricingDescription: string;
+  batches?: BatchItem[];
+  lodgingTitle?: string;
+  datesTitle?: string;
 }
 
 export type BatchItem = {
@@ -19,69 +24,57 @@ export type BatchItem = {
   tone: "open" | "fast" | "last";
 };
 
-export function getRoomImage(roomType: string) {
+export function getRoomImage(roomType: string, override?: string) {
+  if (override) return override;
   const type = roomType.toLowerCase();
-  if (type.includes("triple")) {
+  if (type.includes("without") || type.includes("no accom")) {
+    return "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&auto=format&fit=crop&q=80";
+  }
+  if (type.includes("4") || type.includes("dorm") || type.includes("four")) {
     return "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=800&auto=format&fit=crop&q=80";
   }
-  if (
-    type.includes("double") ||
-    type.includes("twin") ||
-    type.includes("shared")
-  ) {
+  if (type.includes("double") || type.includes("2") || type.includes("shared") || type.includes("two")) {
     return "https://images.unsplash.com/photo-1598928506311-c55ded91a20c?w=800&auto=format&fit=crop&q=80";
   }
   return "https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=800&auto=format&fit=crop&q=80";
 }
 
-export function getBatchDates(durationStr: string): BatchItem[] {
-  const numDays = Number.parseInt(durationStr.split(" ")[0], 10) || 25;
-  const months = [
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
+// Actual course dates with real seat availability
+export function getBatchDates(_durationStr: string): BatchItem[] {
+  const rawBatches: Array<{ dates: string; seats: number }> = [
+    { dates: "2nd Jul to 26th Jul 2026",   seats: 2 },
+    { dates: "2nd Aug to 26th Aug 2026",   seats: 4 },
+    { dates: "2nd Sep to 26th Sep 2026",   seats: 3 },
+    { dates: "2nd Oct to 26th Oct 2026",   seats: 4 },
+    { dates: "2nd Nov to 26th Nov 2026",   seats: 7 },
+    { dates: "2nd Dec to 26th Dec 2026",   seats: 6 },
+    { dates: "4th Jan to 28th Jan 2027",   seats: 7 },
+    { dates: "2nd Feb to 26th Feb 2027",   seats: 9 },
+    { dates: "2nd Mar to 26th Mar 2027",   seats: 10 },
+    { dates: "2nd Apr to 26th Apr 2027",   seats: 12 },
+    { dates: "2nd May to 26th May 2027",   seats: 12 },
   ];
 
-  return months.map((month, index) => {
-    const startDay = 2;
-    const endDay = startDay + numDays - 1;
-    let endMonth = month;
-    let endDayAdjusted = endDay;
+  return rawBatches.map(({ dates, seats }) => {
+    const spaces = `${seats} seat${seats === 1 ? "" : "s"} left`;
 
-    if (endDay > 30) {
-      if (numDays > 50) {
-        const nextMonthIdx = (months.indexOf(month) + 1) % months.length;
-        endMonth = months[nextMonthIdx];
-        endDayAdjusted = endDay - 30;
-      }
+    if (seats <= 3) {
+      return {
+        dates,
+        status: "Filling Fast",
+        spaces,
+        statusColor: "text-amber-700 bg-amber-50 border-amber-200",
+        tone: "fast" as const,
+      };
     }
 
-    const dateString =
-      numDays > 50
-        ? `${month} 2 – ${endMonth} 30, 2026`
-        : `${month} 2 – ${month} ${endDayAdjusted}, 2026`;
-
-    let status = "Open";
-    let spaces = "Spaces available";
-    let statusColor = "text-emerald-700 bg-emerald-50 border-emerald-200";
-    let tone: BatchItem["tone"] = "open";
-
-    if (index === 0) {
-      status = "Filling Fast";
-      spaces = "Only 3 spots left";
-      statusColor = "text-amber-700 bg-amber-50 border-amber-200";
-      tone = "fast";
-    } else if (index === 1) {
-      status = "Last Call";
-      spaces = "Only 5 spots left";
-      statusColor = "text-rose-700 bg-rose-50 border-rose-200";
-      tone = "last";
-    }
-
-    return { dates: dateString, status, spaces, statusColor, tone };
+    return {
+      dates,
+      status: "Open",
+      spaces,
+      statusColor: "text-emerald-700 bg-emerald-50 border-emerald-200",
+      tone: "open" as const,
+    };
   });
 }
 

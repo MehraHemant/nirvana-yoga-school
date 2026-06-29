@@ -12,8 +12,10 @@ export interface CourseScheduleItem {
 export interface CoursePricingOption {
   roomType: string;
   price: string;
+  originalPrice?: string;
   description: string;
   features: string[];
+  image?: string;
 }
 
 export interface CourseFAQItem {
@@ -338,55 +340,71 @@ export const COURSES_DATA: Record<string, CourseData> = {
       { time: "07:45 PM – 08:30 PM", activity: "Vegetarian Dinner & Rest" },
     ],
     pricingDescription:
-      "We offer all-inclusive packages that cover tuition, certification, excursions, meals, and accommodation. Select the room style that best fits your comfort and budget.",
+      "All-inclusive packages covering tuition, Yoga Alliance certification, meals, accommodation, and excursions. Choose the room style that best fits your comfort and budget.",
     pricing: [
       {
-        roomType: "Triple Sharing Room",
-        price: "$649 USD",
+        roomType: "4-Shared Dorm with Balcony",
+        price: "699 USD",
+        originalPrice: "932 USD",
         description:
-          "Shared room with two fellow students. Ideal for budget-conscious travelers wishing to build strong community bonds.",
+          "Budget-friendly dorm room shared with 3 fellow students. Balcony access, attached bathroom, and all essentials included.",
         features: [
-          "Attached private bathroom",
-          "Free High-speed Wi-Fi",
-          "3 Organic vegetarian meals daily",
-          "Weekly laundry service access",
+          "Shared balcony access",
+          "Attached bathroom",
+          "3 organic vegetarian meals daily",
+          "All course materials included",
         ],
       },
       {
-        roomType: "Double Sharing Room",
-        price: "$749 USD",
+        roomType: "2-Shared Room with Balcony",
+        price: "949 USD",
+        originalPrice: "1265 USD",
         description:
-          "Shared room with one student. Features spacious setup, comfortable beds, and study desks.",
+          "Twin-sharing room with balcony — comfortable beds, spacious layout, and a great community experience.",
         features: [
+          "Private/shared balcony",
           "Attached bathroom with hot shower",
-          "Spacious wardrobe",
-          "3 Organic vegetarian meals daily",
+          "3 organic vegetarian meals daily",
           "Weekly excursions included",
         ],
       },
       {
-        roomType: "Private Standard Room",
-        price: "$899 USD",
+        roomType: "Private Room with Balcony",
+        price: "1249 USD",
+        originalPrice: "1665 USD",
         description:
-          "Your own private room. Perfect for those who value quiet reflection, study, and deep rest after an intensive day.",
+          "Your own private room with balcony. Perfect for quiet reflection and deep rest after intensive training.",
         features: [
-          "Fully private room & bathroom",
-          "Study table and chair",
-          "3 Organic vegetarian meals daily",
-          "All excursions and study kits",
+          "Private balcony",
+          "Fully private bathroom",
+          "3 organic vegetarian meals daily",
+          "All excursions & study kits",
         ],
       },
       {
-        roomType: "Private Deluxe Room (with Balcony)",
-        price: "$1099 USD",
+        roomType: "Private Double Balcony Room (2 people)",
+        price: "1798 USD",
+        originalPrice: "2397 USD",
         description:
-          "Premium private room with an attached balcony offering scenic mountain/river views. Very spacious layout.",
+          "Premium private double room with balcony — ideal for couples or friends attending together.",
         features: [
           "Private balcony with seating",
           "Spacious premium bathroom",
-          "Air conditioning / Heater",
-          "3 Organic vegetarian meals daily",
+          "3 organic vegetarian meals daily",
           "All course materials & activities",
+        ],
+      },
+      {
+        roomType: "Without Accommodation",
+        price: "599 USD",
+        originalPrice: "798 USD",
+        description:
+          "Tuition-only package. Ideal for students arranging their own accommodation nearby in Rishikesh.",
+        features: [
+          "Full course tuition",
+          "Yoga Alliance certification",
+          "All study materials included",
+          "Daily yoga & meditation classes",
         ],
       },
     ],

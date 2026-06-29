@@ -5,7 +5,6 @@ import { useState } from "react";
 import { Button, Container, Heading, SectionHeader } from "@/components/ui";
 import { Check } from "@/icons";
 import {
-  BOOKING_GUARANTEE,
   getBatchDates,
   getRoomImage,
   type PricingOption,
@@ -13,91 +12,119 @@ import {
   whatsAppHref,
 } from "./upcomingDatesShared";
 
-function BookingNote() {
-  return (
-    <div className="rounded-2xl border border-primary/10 bg-primary/[0.03] p-4 sm:p-5 text-xs leading-relaxed font-sans space-y-2 text-muted">
-      <p>
-        <strong className="text-ink">Booking guarantee:</strong>{" "}
-        {BOOKING_GUARANTEE.deposit} deposit secures your spot. Balance due on
-        arrival.
-      </p>
-      <p>{BOOKING_GUARANTEE.lines[1]}</p>
-    </div>
-  );
+
+function savingsPct(price: string, original: string) {
+  const p = Number.parseFloat(price.replace(/[^0-9.]/g, ""));
+  const o = Number.parseFloat(original.replace(/[^0-9.]/g, ""));
+  if (!p || !o || o <= p) return null;
+  return `${Math.round((1 - p / o) * 100)}% off`;
 }
 
-function OverlayRoomCard({
+function RoomCard({
   option,
   idx,
   duration,
   selectedBatch,
+  wide = false,
 }: {
   option: PricingOption;
   idx: number;
   duration: string;
   selectedBatch: string;
+  wide?: boolean;
 }) {
-  const popular = idx === 1;
-  const img = getRoomImage(option.roomType);
+  const popular = false;
+  const noRoom = option.roomType.toLowerCase().includes("without");
+  const img = getRoomImage(option.roomType, option.image);
+  const saving = option.originalPrice
+    ? savingsPct(option.price, option.originalPrice)
+    : null;
 
-  return (
-    <article
-      className={`relative min-h-[480px] overflow-hidden rounded-3xl shadow-card flex flex-col justify-end group ${
-        popular ? "ring-2 ring-primary/45 ring-offset-2 ring-offset-sand" : ""
-      }`}
-    >
-      <Image
-        src={img}
-        alt={option.roomType}
-        fill
-        sizes="(max-width: 640px) 100vw, 400px"
-        className="object-cover transition-transform duration-700 group-hover:scale-105"
-      />
-      {/* Even dim + heavy bottom scrim so copy never sits on bright photo */}
-      <div
-        className="absolute inset-0 bg-black/30 pointer-events-none"
-        aria-hidden="true"
-      />
-      <div
-        className="absolute inset-x-0 bottom-0 h-[78%] bg-linear-to-t from-ink from-40% via-ink/95 to-transparent pointer-events-none"
-        aria-hidden="true"
-      />
-
-      {popular && (
-        <span className="absolute top-4 right-4 z-10 bg-primary text-white type-eyebrow px-3 py-1 rounded-full shadow-md">
-          Most popular
-        </span>
-      )}
-
-      <div className="relative z-10 p-6 pt-16 text-white">
-        <p className="type-eyebrow text-white/90 tracking-widest">
-          {option.roomType}
-        </p>
-        <p className="font-serif text-3xl text-white mt-1 drop-shadow-sm">
-          {option.price}
-        </p>
-        <p className="text-sm text-white/90 mt-2 mb-4 leading-relaxed line-clamp-2">
-          {option.description}
-        </p>
-        <ul className="space-y-2 mb-5 border-t border-white/20 pt-4">
-          {option.features.slice(0, 3).map((feature) => (
-            <li
-              key={feature}
-              className="flex gap-2.5 text-xs sm:text-sm text-white font-sans leading-snug"
-            >
-              <Check size={12} className="text-white mt-0.5 shrink-0" />
-              {feature}
-            </li>
-          ))}
-        </ul>
+  /* ── Without-accommodation: full-width minimal row ── */
+  if (noRoom || wide) {
+    return (
+      <article className="col-span-2 flex items-center justify-between gap-4 rounded-2xl border border-dashed border-ink/12 bg-white/70 px-4 py-3">
+        <div className="min-w-0">
+          <p className="type-eyebrow text-[9px] text-muted mb-0.5">{option.roomType}</p>
+          <div className="flex items-baseline gap-2 flex-wrap">
+            <span className="font-serif text-lg text-ink font-medium">{option.price}</span>
+            {option.originalPrice && (
+              <span className="text-[10px] text-muted/50 line-through tabular-nums">{option.originalPrice}</span>
+            )}
+            {saving && <span className="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full">{saving}</span>}
+          </div>
+          <p className="text-[10px] text-muted font-sans mt-0.5 line-clamp-1">{option.description}</p>
+        </div>
         <Button
           href={whatsAppHref(duration, option.roomType, selectedBatch)}
-          variant={popular ? "primary" : "secondary"}
-          className="w-full"
+          variant="ghost"
+          size="sm"
+          className="shrink-0 text-[11px]"
           target="_blank"
           rel="noopener noreferrer"
         >
-          Reserve via WhatsApp
+          Reserve
+        </Button>
+      </article>
+    );
+  }
+
+  /* ── Regular room card — image on top ── */
+  return (
+    <article
+      className={`relative overflow-hidden rounded-2xl border bg-white shadow-xs transition-all duration-300 hover:shadow-soft group flex flex-col ${
+        popular
+          ? "border-primary/30 ring-1 ring-primary/15"
+          : "border-ink/8 hover:border-ink/12"
+      }`}
+    >
+      {/* Room photo — short strip */}
+      <div className="relative aspect-[16/7] overflow-hidden shrink-0">
+        <Image
+          src={img}
+          alt={option.roomType}
+          fill
+          sizes="(max-width: 640px) 50vw, 200px"
+          className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+        />
+        {saving && (
+          <span className="absolute top-1.5 left-1.5 z-10 text-[7px] font-bold text-emerald-700 bg-white/90 backdrop-blur-sm px-1.5 py-0.5 rounded-full">
+            {saving}
+          </span>
+        )}
+      </div>
+
+      {/* Info */}
+      <div className="flex flex-col flex-1 px-2.5 pt-2 pb-2.5 gap-2">
+        <div>
+          <p className="type-eyebrow text-[8px] text-muted leading-tight truncate mb-0.5">{option.roomType}</p>
+          <div className="flex items-baseline gap-1.5 flex-wrap">
+            <span className="font-serif text-xl text-ink font-medium leading-none">{option.price}</span>
+            {option.originalPrice && (
+              <span className="text-[10px] text-muted/50 line-through tabular-nums">{option.originalPrice}</span>
+            )}
+          </div>
+        </div>
+
+        {/* 2-column USP grid */}
+        <ul className="grid grid-cols-2 gap-x-2 gap-y-1">
+          {option.features.slice(0, 4).map((f) => (
+            <li key={f} className="flex items-start gap-1 text-[9px] text-ink/65 font-sans leading-tight">
+              <Check size={8} className="text-primary shrink-0 mt-0.5" />
+              {f}
+            </li>
+          ))}
+        </ul>
+
+        <Button
+          href={whatsAppHref(duration, option.roomType, selectedBatch)}
+          variant="ghost"
+          size="sm"
+          className="w-full text-[10px] py-1 mt-auto"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Reserve
         </Button>
       </div>
     </article>
@@ -108,17 +135,21 @@ export default function UpcomingDates({
   duration,
   pricing,
   pricingDescription,
+  batches: batchesProp,
+  lodgingTitle = "Lodging packages",
+  datesTitle = "Training dates",
 }: UpcomingDatesProps) {
-  const batches = getBatchDates(duration);
+  const batches = batchesProp?.length ? batchesProp : getBatchDates(duration);
   const [selectedBatch, setSelectedBatch] = useState(batches[0]?.dates ?? "");
 
   return (
     <section
       id="pricing"
-      className="py-20 sm:py-28 bg-white border-b border-ink/5"
+      className="py-8 sm:py-10 bg-paper lg:min-h-[calc(100svh-5.5rem)] lg:flex lg:flex-col lg:justify-center"
     >
       <Container size="2xl">
-        <div className="text-center max-w-2xl mx-auto mb-12 lg:mb-14">
+        {/* Compact split header */}
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-6">
           <SectionHeader
             eyebrow="Schedule & Fees"
             title={
@@ -127,75 +158,98 @@ export default function UpcomingDates({
                 <span className="text-primary">Investment</span>
               </>
             }
-            align="center"
+            align="left"
+            className="mb-0!"
           />
-          <p className="type-lead text-muted mt-5 font-sans text-base">
-            {pricingDescription}
-          </p>
+          {pricingDescription && (
+            <p className="text-xs text-muted font-sans max-w-xs sm:text-right leading-relaxed shrink-0">
+              {pricingDescription}
+            </p>
+          )}
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-14 items-start">
-          <div>
-            <Heading as="h3" size="h4" font="poppins" className="mb-6">
-              Training dates
+        <div className="grid lg:grid-cols-[5fr_7fr] gap-6 lg:gap-10 items-stretch">
+
+          {/* ── Dates column — stretches to match pricing column height ── */}
+          <div className="flex flex-col gap-3">
+            <Heading as="h3" size="h4" font="poppins" className="mb-0">
+              {datesTitle}
             </Heading>
-            <ol className="relative ml-3 space-y-6 border-l border-primary/20">
-              {batches.map((batch) => {
-                const selected = selectedBatch === batch.dates;
-                return (
-                  <li key={batch.dates} className="relative pl-8">
-                    <span
-                      className={`absolute -left-[7px] top-5 h-3.5 w-3.5 rounded-full border-2 ${
-                        selected
-                          ? "bg-primary border-primary"
-                          : "bg-white border-ink/20"
-                      }`}
-                      aria-hidden="true"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setSelectedBatch(batch.dates)}
-                      className={`w-full cursor-pointer rounded-2xl border p-4 text-left transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 ${
-                        selected
-                          ? "border-primary bg-sand shadow-soft"
-                          : "border-transparent bg-sand/40 hover:bg-sand/90"
-                      }`}
-                    >
-                      <p className="font-sans font-semibold text-sm text-ink">
-                        {batch.dates}
-                      </p>
-                      <p className="mt-1 text-[11px] text-muted font-sans">
-                        {batch.spaces} · {duration}
-                      </p>
+
+            {/* Scrollable batch list — fills remaining column height */}
+            <div className="no-scrollbar overflow-y-auto flex-1 min-h-0">
+              <ol className="relative ml-3 space-y-2.5 border-l border-primary/20 pr-1">
+                {batches.map((batch) => {
+                  const selected = selectedBatch === batch.dates;
+                  return (
+                    <li key={batch.dates} className="relative pl-6">
                       <span
-                        className={`type-eyebrow mt-2 inline-block rounded-full border px-2 py-0.5 ${batch.statusColor}`}
+                        className={`absolute -left-[6px] top-4 h-3 w-3 rounded-full border-2 ${
+                          selected
+                            ? "bg-primary border-primary"
+                            : "bg-white border-ink/20"
+                        }`}
+                        aria-hidden="true"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setSelectedBatch(batch.dates)}
+                        className={`w-full cursor-pointer rounded-xl border p-2.5 text-left transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 ${
+                          selected
+                            ? "border-primary bg-white shadow-soft"
+                            : "border-transparent bg-white/50 hover:bg-white/80"
+                        }`}
                       >
-                        {batch.status}
-                      </span>
-                    </button>
-                  </li>
-                );
-              })}
-            </ol>
-            <div className="mt-6">
-              <BookingNote />
+                        <div className="flex items-center justify-between gap-2 flex-wrap">
+                          <p className="font-sans font-semibold text-xs text-ink">
+                            {batch.dates}
+                          </p>
+                          <span
+                            className={`type-eyebrow text-[9px] inline-block rounded-full border px-2 py-0.5 ${batch.statusColor}`}
+                          >
+                            {batch.status}
+                          </span>
+                        </div>
+                        <p className="mt-0.5 text-[10px] text-muted font-sans">
+                          {batch.spaces} · {duration}
+                        </p>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ol>
             </div>
           </div>
 
-          <div>
-            <Heading as="h3" size="h4" font="poppins" className="mb-6">
-              Lodging packages
-            </Heading>
-            <div className="grid gap-5 sm:grid-cols-2">
-              {pricing.map((option, idx) => (
-                <OverlayRoomCard
-                  key={option.roomType}
-                  option={option}
-                  idx={idx}
-                  duration={duration}
-                  selectedBatch={selectedBatch}
-                />
-              ))}
+          {/* ── Pricing column ────────────────────────────────────────── */}
+          <div className="flex flex-col gap-2.5">
+            <div className="flex items-baseline justify-between gap-2 mb-0.5">
+              <Heading as="h3" size="h4" font="poppins" className="mb-0">
+                {lodgingTitle}
+              </Heading>
+              <p className="text-[10px] text-muted font-sans italic shrink-0">
+                Includes room, meals &amp; materials
+              </p>
+            </div>
+            <p className="text-[10px] text-muted/70 font-sans -mt-1 mb-1">
+              Note: Some rooms have private balconies, others shared.
+            </p>
+            {/* 2-col image grid; last card (no accommodation) spans full width */}
+            <div className="grid grid-cols-2 gap-2.5">
+              {pricing.map((option, idx) => {
+                const isLast = idx === pricing.length - 1;
+                const noRoom = option.roomType.toLowerCase().includes("without");
+                return (
+                  <RoomCard
+                    key={option.roomType}
+                    option={option}
+                    idx={idx}
+                    duration={duration}
+                    selectedBatch={selectedBatch}
+                    wide={isLast || noRoom}
+                  />
+                );
+              })}
             </div>
           </div>
         </div>
