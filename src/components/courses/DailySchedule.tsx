@@ -123,7 +123,7 @@ export default function DailySchedule({
   return (
     <section
       id="schedule"
-      className="relative overflow-x-clip bg-paper py-20 sm:py-28"
+      className="relative overflow-x-clip bg-white py-20 sm:py-28"
     >
       <Container size="2xl">
         <motion.div
@@ -179,8 +179,10 @@ export default function DailySchedule({
                   >
                     {/* Left side: Time element */}
                     <div
-                      className={`pl-12 sm:pl-0 w-full sm:w-[44%] text-left sm:text-right ${
-                        isEven ? "sm:order-first" : "sm:order-last sm:text-left"
+                      className={`pl-12 sm:pl-0 w-full sm:w-[44%] ${
+                        isEven
+                          ? "text-left sm:text-right sm:order-first"
+                          : "text-left sm:text-left sm:order-last"
                       }`}
                     >
                       <span className="inline-block type-ui font-semibold text-primary px-3 py-1 bg-primary/5 rounded-full border border-primary/10 sm:border-0 sm:bg-transparent sm:p-0 sm:text-base tracking-wide font-sans">
