@@ -64,7 +64,7 @@ export default function ExamCertification() {
   return (
     <section
       id="exam"
-      className="relative bg-white border-b border-ink/5 py-20 sm:py-28"
+      className="relative bg-paper border-b border-ink/5 py-20 sm:py-28"
     >
       <Container size="2xl">
         <div className="space-y-16">

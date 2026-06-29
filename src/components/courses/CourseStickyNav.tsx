@@ -4,7 +4,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { Container } from "@/components/ui";
 
-const NAV_ITEMS = [
+const DEFAULT_NAV_ITEMS = [
   { id: "#overview", label: "Overview", shortLabel: "Overview" },
   { id: "#inclusions", label: "Inclusions", shortLabel: "Include" },
   { id: "#eligibility", label: "Eligibility", shortLabel: "Eligible" },
@@ -18,7 +18,13 @@ const NAV_ITEMS = [
   { id: "#faq", label: "FAQ", shortLabel: "FAQ" },
 ] as const;
 
-type NavSectionId = (typeof NAV_ITEMS)[number]["id"];
+export type StickyNavItem = {
+  id: `#${string}`;
+  label: string;
+  shortLabel: string;
+};
+
+type NavSectionId = StickyNavItem["id"];
 
 const NAV_LOCK_MS = 1200;
 
@@ -28,18 +34,21 @@ function getScrollOffset(navHeight: number): number {
   return headerHeight + navHeight + 16;
 }
 
-function resolveActiveSection(offset: number): NavSectionId {
+function resolveActiveSection(
+  offset: number,
+  navItems: StickyNavItem[],
+): NavSectionId {
   const nearBottom =
     window.scrollY + window.innerHeight >=
     document.documentElement.scrollHeight - 120;
 
-  if (nearBottom) {
-    return NAV_ITEMS[NAV_ITEMS.length - 1].id;
+  if (nearBottom && navItems.length > 0) {
+    return navItems[navItems.length - 1].id;
   }
 
-  let active: NavSectionId = NAV_ITEMS[0].id;
+  let active: NavSectionId = navItems[0]?.id ?? "#overview";
 
-  for (const item of NAV_ITEMS) {
+  for (const item of navItems) {
     const el = document.getElementById(item.id.slice(1));
     if (!el) continue;
 
@@ -51,24 +60,29 @@ function resolveActiveSection(offset: number): NavSectionId {
   return active;
 }
 
-export default function CourseStickyNav() {
+export default function CourseStickyNav({
+  items,
+}: {
+  items?: StickyNavItem[];
+}) {
+  const navItems = items && items.length > 0 ? items : [...DEFAULT_NAV_ITEMS];
   const prefersReduced = useReducedMotion() ?? false;
   const barRef = useRef<HTMLDivElement>(null);
   const [activeSection, setActiveSection] = useState<NavSectionId>(
-    NAV_ITEMS[0].id,
+    navItems[0]?.id ?? "#overview",
   );
   const [isScrolled, setIsScrolled] = useState(false);
   const isNavigatingRef = useRef(false);
   const navLockTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    for (const item of NAV_ITEMS) {
+    for (const item of navItems) {
       const el = document.getElementById(item.id.slice(1));
       if (el) {
         el.style.scrollMarginTop = "7.5rem";
       }
     }
-  }, []);
+  }, [navItems]);
 
   useEffect(() => {
     let raf = 0;
@@ -84,7 +98,7 @@ export default function CourseStickyNav() {
         const offset = getScrollOffset(navHeight);
 
         setActiveSection((prev) => {
-          const next = resolveActiveSection(offset);
+          const next = resolveActiveSection(offset, navItems);
           return prev === next ? prev : next;
         });
       });
@@ -97,7 +111,7 @@ export default function CourseStickyNav() {
       window.removeEventListener("scroll", onScroll);
       cancelAnimationFrame(raf);
     };
-  }, []);
+  }, [navItems]);
 
   useEffect(
     () => () => {
@@ -135,9 +149,11 @@ export default function CourseStickyNav() {
       const nextOffset = getScrollOffset(
         barRef.current?.getBoundingClientRect().height ?? 52,
       );
-      setActiveSection(resolveActiveSection(nextOffset));
+      setActiveSection(resolveActiveSection(nextOffset, navItems));
     }, NAV_LOCK_MS);
   };
+
+  if (navItems.length === 0) return null;
 
   return (
     <div
@@ -145,7 +161,7 @@ export default function CourseStickyNav() {
       className={`sticky top-20 z-30 w-full max-w-full transition-[background,box-shadow,border-color] duration-300 ${
         isScrolled
           ? "border-b border-ink/8 bg-white/90 shadow-soft backdrop-blur-md"
-          : "border-b border-ink/5 bg-sand"
+          : "bg-white"
       }`}
     >
       <Container size="2xl">
@@ -153,7 +169,7 @@ export default function CourseStickyNav() {
           aria-label="Course sections"
           className="flex w-full items-stretch gap-0.5 py-2 sm:gap-1 sm:py-2.5"
         >
-          {NAV_ITEMS.map((item) => {
+          {navItems.map((item) => {
             const isActive = activeSection === item.id;
 
             return (

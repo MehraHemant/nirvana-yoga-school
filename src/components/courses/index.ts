@@ -1,4 +1,5 @@
 export { default as AccommodationFood } from "./AccommodationFood";
+export { default as CourseBookingFab } from "./CourseBookingFab";
 export { default as CourseEligibility } from "./CourseEligibility";
 export { default as CourseHero } from "./CourseHero";
 export { default as CourseOverview } from "./CourseOverview";
@@ -6,6 +7,10 @@ export { default as CourseStickyNav } from "./CourseStickyNav";
 export { default as CourseSyllabus } from "./CourseSyllabus";
 export { default as DailySchedule } from "./DailySchedule";
 export { default as ExamCertification } from "./ExamCertification";
+export { default as InstagramFeed } from "./InstagramFeed";
+export { default as PageEditorialSection } from "./PageEditorialSection";
+export { default as PageGallerySection } from "./PageGallerySection";
+export { default as PageProgramsSection } from "./PageProgramsSection";
 export { default as TravelGuide } from "./TravelGuide";
 export { default as UpcomingDates } from "./UpcomingDates";
 export { default as WhatIsIncluded } from "./WhatIsIncluded";

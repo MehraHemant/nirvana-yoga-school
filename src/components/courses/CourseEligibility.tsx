@@ -38,7 +38,9 @@ function PrerequisiteCard({
           Prerequisite {num}
         </span>
       </div>
-      <h4 className="font-serif text-lg font-semibold tracking-wider text-ink">{title}</h4>
+      <h4 className="font-serif text-lg font-semibold tracking-wider text-ink">
+        {title}
+      </h4>
       <p className="text-sm text-muted leading-relaxed font-sans">{desc}</p>
     </motion.div>
   );
@@ -75,7 +77,7 @@ export default function CourseEligibility() {
   return (
     <section
       id="eligibility"
-      className="py-20 sm:py-28 bg-sand border-b border-ink/5 overflow-hidden"
+      className="py-20 sm:py-28 bg-white overflow-hidden"
     >
       <Container size="2xl">
         <div className="grid gap-12 lg:grid-cols-12 lg:gap-16 items-start">

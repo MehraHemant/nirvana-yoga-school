@@ -34,10 +34,7 @@ export default function CourseSyllabus({
   ];
 
   return (
-    <section
-      id="syllabus"
-      className="py-20 sm:py-28 bg-white border-y border-ink/5"
-    >
+    <section id="syllabus" className="py-20 sm:py-28 bg-paper">
       <Container size="2xl">
         <motion.div
           initial="hidden"
@@ -50,8 +47,7 @@ export default function CourseSyllabus({
             eyebrow="Curriculum"
             title={
               <>
-                Syllabus &amp;{" "}
-                <span className="text-primary">Structure</span>
+                Syllabus &amp; <span className="text-primary">Structure</span>
               </>
             }
             align="center"
@@ -71,10 +67,11 @@ export default function CourseSyllabus({
               return (
                 <div
                   key={item.title}
-                  className={`rounded-2xl border transition-all duration-300 ${isOpen
-                    ? "border-primary bg-sand/30 shadow-soft"
-                    : "border-ink/10 bg-white hover:border-primary/50 hover:bg-sand/10"
-                    }`}
+                  className={`rounded-2xl border transition-all duration-300 ${
+                    isOpen
+                      ? "border-primary bg-sand/30 shadow-soft"
+                      : "border-ink/10 bg-white hover:border-primary/50 hover:bg-sand/10"
+                  }`}
                 >
                   {/* Accordion header button */}
                   <button
@@ -93,8 +90,9 @@ export default function CourseSyllabus({
                       </span>
                     </div>
                     <span
-                      className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-colors ${isOpen ? "bg-primary text-white" : "bg-ink/5 text-ink"
-                        }`}
+                      className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-colors ${
+                        isOpen ? "bg-primary text-white" : "bg-ink/5 text-ink"
+                      }`}
                     >
                       <motion.span
                         animate={{ rotate: isOpen ? 45 : 0 }}
