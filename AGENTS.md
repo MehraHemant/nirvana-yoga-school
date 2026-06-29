@@ -38,16 +38,35 @@ This document is the source of truth for project context. **Keep it up to date**
 ## 2. Commands
 
 ```bash
-npm run dev              # next dev (turbopack, .next/dev)
+npm run dev              # Next.js on :3000 (website + /admin CMS + /api)
 npm run build            # next build
 npm run start            # next start
 npm run lint             # biome check
 npm run format           # biome format --write
 npx tsc --noEmit         # type-check only
 npx biome check src/ --write   # auto-fix lint + organize imports
+npm run seed:export      # export static JSON → prisma/seed-data.json
+npm run db:up            # PostgreSQL via Docker
+npm run db:setup         # migrate + seed (first time)
+npm run db:down          # stop database container
 ```
 
-The dev server is typically already running in terminal `1.txt`. Check that file before starting a new one.
+### CMS (same app, port 3000)
+
+```bash
+npm run db:up && npm run db:setup   # first time
+npm run dev
+```
+
+| URL | Purpose |
+| --- | ------- |
+| http://localhost:3000 | Website |
+| http://localhost:3000/admin | Content CMS |
+| http://localhost:3000/api/admin/* | Admin API |
+
+Set `DATABASE_URL` in `.env` so repositories read from PostgreSQL (fallback: bundled JSON).
+
+**Admin login:** `admin@nirvanayogaschoolindia.com` / `admin123`
 
 ---
 
@@ -58,9 +77,28 @@ src/
   app/
     layout.tsx          # Root layout: metadata, fonts, Header, Footer, WhatsAppFab, MobileStickyBar
     page.tsx            # Home page — composes all home sections + JSON-LD
+    [slug]/page.tsx     # Dynamic route: course detail pages or migrated themed top-level pages
+    blog/
+      page.tsx          # Blog archive grid generated from live-site sitemap data
+      [slug]/page.tsx   # Blog detail shell generated from live-site blog data
     globals.css         # Tailwind v4 @theme tokens + utility classes
   constants/
     navigation.ts       # PRIMARY_NAV + SIGN_IN_URL — mirrored from live site header
+  data/                 # @deprecated barrels — import from `@/content` instead
+    coursesData.ts      # Residential course data (large hand-authored records)
+    sitePages.ts        # Re-exports site page registry
+    blogPosts.ts        # Re-exports blog registry
+  content/              # Unified content layer — types, data, mappers, repositories
+    types/              # Shared document types (course, site-page, blog-post, page union)
+    data/
+      site-pages/       # site-pages.json + SITE_PAGES registry
+      blog/             # blog-posts.json + BLOG_POSTS registry
+      online-courses/   # ONLINE_COURSES + meta.json + curated 200h
+      residential/      # Residential course static loader
+      media/            # COURSES_MEDIA (images + YouTube IDs)
+    mappers/            # site-page, site-page-copy, online-course transforms
+    repositories/       # getPageBySlug, getBlogPost, getCourseMedia (+ API/live merge)
+    index.ts            # Public API — import pages from here
   assets/               # Local images, video, fonts (re-exported via barrel)
     images/
       logo.png          # Dark logo (light bg)
@@ -72,6 +110,12 @@ src/
     video/              # (currently empty; hero videos live in /public/videos/)
     index.ts            # Barrel: re-exports images
   components/
+    pages/
+      SimplePage.tsx    # Hero shell for migrated live-site pages
+      PageRenderer.tsx  # Client: composes page modules from sitePages data
+      utils.ts          # sectionTone, layoutForSection, shouldSkipSection
+      modules/          # Interactive page blocks (highlights, sections, gallery, etc.)
+      index.ts          # Barrel
     home/               # Home page sections (one file per section)
       HeroSection.tsx
       HeroBackgroundVideo.tsx  # Client: responsive poster + single video with media sources
@@ -141,6 +185,15 @@ public/
     videomobile.mp4            # Hero video (mobile)
     videomobile-poster.webp    # First-frame poster (mobile)
   favicon.png
+docker-compose.yml             # PostgreSQL only (npm run db:up)
+prisma/                        # schema, migrations, seed-data.json
+  lib/
+    db.ts                      # Prisma client + content CRUD
+    cms/                       # admin auth + API handlers
+    admin/api.ts               # admin UI fetch client
+  app/
+    admin/                     # CMS UI at /admin
+    api/admin/                 # CMS REST routes
 ```
 
 ### Path alias
@@ -498,3 +551,12 @@ Last meaningful update: 2026-05-26 — initial rebuild scaffolded (design system
 2026-06-21 — **TravelGuide Magazine Hero Finalization**: Selected **Layout 6 (Magazine Hero)** from the first travel guide playground. Production `TravelGuide.tsx` uses cinematic hero + topic chips + detail card. Shared content in `travelGuideShared.ts`.
 2026-06-21 — **TravelGuide Slide Drawer Finalization**: Selected **Layout 9 (Slide Drawer)** from the v2 playground. Production `TravelGuide.tsx` uses hero banner left, vertical topic drawer right, and sliding detail panel below. Removed showcase route.
 2026-06-21 — **Homepage two-tone backgrounds**: Alternating `bg-paper` and `bg-white` across homepage content sections (Welcome, Video, Gallery, Why Rishikesh, Courses, Teachers, Testimonials, FAQ, Map). Yoga Alliance, Hero, and Final CTA remain accent/dark bands.
+Last meaningful update: 2026-06-28 — **Unified CMS on :3000**: website, `/admin` CMS, and `/api/admin/*` in one Next.js app. PostgreSQL via `docker-compose.yml` only. Repositories read DB when `DATABASE_URL` is set.
+2026-06-28 — **Unified content layer** (`src/content/`): types, JSON data, mappers, repositories. All pages fetch via `getPageBySlug()` / `getBlogPost()` — set `CONTENT_API_URL` for DB/CMS. Legacy `@/data/*` and `@/lib/content` re-export from `@/content`.
+2026-06-28 — **All online course pages**: 14 slugs in `ONLINE_COURSES` via `content/data/online-courses/`.
+2026-06-28 — **Modular SimplePage system**: Refactored `SimplePage` into a thin hero shell + `PageRenderer` composing interactive modules (`HighlightsModule`, `SectionModule`, `TimelineModule`, `TeachersModule`, `PackagesModule`, `GalleryModule`, `CardsModule`). Sections support image carousels + lightbox, timeline accordion, FAQ accordion, category gallery tabs, and teacher selector. Sync script enriches pages with `layout`, `image`, and `images` fields from live-site HTML.
+2026-06-28 — **Site pages use course components**: `SitePageLayout` maps `sitePages` data through `sitePageMapper.ts` and renders the same premium course stack — `CourseHero` (page variant), configurable `CourseStickyNav`, `CourseOverview`, `WhatIsIncluded`, `DailySchedule`, `UpcomingDates`, home `TeachersSection`, plus `PageProgramsSection`, `PageGallerySection`, `PageEditorialSection`, `AccommodationFood`, `WhyNirvana`, `TravelGuide`, `InstagramFeed`, and `FAQSection`.
+2026-06-28 — **Instagram feed + live content sync**: `InstagramFeed.tsx` uses an Instagram-style profile header + 3-column grid with hover likes/comments, video/carousel badges. Post shape: `image`, `caption`, `isVideo`, `isMultipleImages`, `mediaCount`, `likesCount`, `commentsCount`. Fallback in `src/data/instagramFeed.json`; live via `/api/instagram`. Site pages + blog content synced from live site into `src/data/sitePages.json` and `src/data/blogPosts.json` via `npm run sync:content`. API routes: `/api/pages/[slug]`, `/api/blog/[slug]`. Set `LIVE_CONTENT_FETCH=true` to refresh titles/descriptions from live HTML at runtime.
+2026-06-28 — **Rich SimplePage sync**: `scripts/sync-live-content.mjs` now scrapes structured live-site data into `sitePages.json` — h2 sections with lists/subsections (retreat schedules, inclusions), teacher profiles (`people[]` with education/experience/expertise), gallery images, retreat highlights/packages. `SimplePage.tsx` renders alternating `bg-paper`/`bg-white` bands for each block.
+2026-06-28 — **CMS dynamic section builder**: Site page sections in `/admin` use `section-list` + `BlockBuilder` (paragraph, lead, bullets, FAQ, CTA with href/variant, image with preview, gallery, subsection, video). Layout dropdown removed; frontend renders via `SectionBlocksRenderer` when `blocks[]` is present (legacy `body`/`items`/`layout` still supported).
+2026-06-28 — **File-only static site**: Removed PostgreSQL, Docker, admin CMS, all `/api` routes, and live-site sync scripts. Content loads from `src/content/data/` and `src/data/` JSON/TS only. Live-site images replaced with high-res Unsplash stock via `src/lib/stock-images.ts`.
