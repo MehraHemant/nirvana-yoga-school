@@ -59,4 +59,4 @@ export const WHY_NIRVANA_CLOSING =
   "At Nirvana Yoga School, every nook, every morsel, every breath, and every posture is designed to carry you toward your true nature—calm, radiant, and whole. This is not a mere school fussing over certificates; it is a sacred space where transformation happens.";
 
 export const WHY_NIRVANA_BANNER =
-  "https://www.nirvanayogaschoolindia.com/admin/uploads/yoga/img_6821971ac7faf.webp";
+  "https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?auto=format&fit=crop&w=1600&q=85";

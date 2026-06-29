@@ -4,6 +4,19 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { Container, PlatformReviewsRows, SectionHeader } from "@/components/ui";
 import {
+  BadgeStar,
+  Bed,
+  BookOpen,
+  Bowl,
+  Compass,
+  Layers,
+  Leaf,
+  Lotus,
+  Shield,
+  Sunrise,
+  Users,
+} from "@/icons";
+import {
   WHY_NIRVANA_BANNER,
   WHY_NIRVANA_CLOSING,
   WHY_NIRVANA_HIGHLIGHTS,
@@ -11,9 +24,26 @@ import {
 } from "@/data/whyNirvana";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 
+type IconFC = React.FC<{ size?: number; className?: string }>;
+
+// Mapped 1-to-1 with WHY_NIRVANA_HIGHLIGHTS order
+const HIGHLIGHT_ICONS = [
+  BookOpen,   // Quality Education
+  Compass,    // Serene Setting
+  Leaf,       // Fresh Mountain Air
+  BadgeStar,  // Private Balconies
+  Bowl,       // Whole-Food Sattvic Eating
+  Sunrise,    // Sunrise Views
+  Users,      // Easy Movement
+  Bed,        // Deep Sleep
+  Shield,     // Healing Touch
+  Layers,     // State-of-the-Art Equipment
+  Lotus,      // Cultural & Spiritual Events
+] as IconFC[];
+
 export default function WhyNirvana() {
   return (
-    <section id="why-nirvana" className="border-b border-ink/5 bg-white">
+    <section id="why-nirvana" className="bg-white">
       <div className="relative overflow-hidden py-20 sm:py-28 md:py-32">
         <Image
           src={WHY_NIRVANA_BANNER}
@@ -71,19 +101,30 @@ export default function WhyNirvana() {
           </h3>
 
           <ul className="columns-1 gap-x-12 md:columns-2">
-            {WHY_NIRVANA_HIGHLIGHTS.map((item) => (
-              <li
-                key={item.title}
-                className="mb-6 break-inside-avoid border-l-2 border-primary/25 pl-4"
-              >
-                <p className="type-body leading-relaxed text-ink/85">
-                  <strong className="font-sans font-semibold text-ink">
-                    {item.title}:
-                  </strong>{" "}
-                  <span className="text-muted">{item.body}</span>
-                </p>
-              </li>
-            ))}
+            {WHY_NIRVANA_HIGHLIGHTS.map((item, i) => {
+              const Icon = HIGHLIGHT_ICONS[i] ?? BookOpen;
+              return (
+                <li
+                  key={item.title}
+                  className="mb-6 break-inside-avoid"
+                >
+                  <div className="flex items-start gap-3">
+                    <span
+                      className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-secondary/10"
+                      aria-hidden="true"
+                    >
+                      <Icon size={16} className="text-secondary" />
+                    </span>
+                    <p className="type-body leading-relaxed text-ink/85">
+                      <strong className="font-sans font-semibold text-ink">
+                        {item.title}:
+                      </strong>{" "}
+                      <span className="text-muted">{item.body}</span>
+                    </p>
+                  </div>
+                </li>
+              );
+            })}
           </ul>
 
           <p className="mx-auto mt-12 max-w-3xl border-t border-ink/10 pt-10 text-center font-sans text-sm leading-relaxed text-muted sm:text-base">
@@ -92,7 +133,7 @@ export default function WhyNirvana() {
         </motion.div>
       </Container>
 
-      <div className="relative mt-16 overflow-hidden border-t border-ink/10 bg-sand py-16 sm:py-20">
+      <div className="relative mt-16 overflow-hidden bg-white py-16 sm:py-20">
         <div
           className="pointer-events-none absolute -right-20 top-0 h-[320px] w-[320px] rounded-full bg-primary/5 blur-[90px]"
           aria-hidden="true"
