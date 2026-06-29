@@ -129,13 +129,13 @@ function ImageGalleryPanel({
         <div
           className={`relative aspect-[5/3] rounded-3xl overflow-hidden bg-ink shadow-card ring-1 group ${accentRing}`}
         >
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="popLayout">
             <motion.button
               key={active.url}
               type="button"
-              initial={{ opacity: 0, scale: 1.03 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0 }}
+              initial={{ opacity: 1 }}
+              animate={{ opacity: 1 }}
+              // exit={{ opacity: 0 }}
               transition={{ duration: 0.45, ease: EASE_OUT }}
               onClick={() => onOpenLightbox(activeIndex)}
               className="absolute inset-0 w-full h-full cursor-zoom-in"
@@ -152,17 +152,11 @@ function ImageGalleryPanel({
             </motion.button>
           </AnimatePresence>
 
-          <div className="absolute inset-0 bg-linear-to-t from-black/75 via-black/10 to-transparent pointer-events-none" />
+          {/* <div className="absolute inset-0 bg-linear-to-t from-black/55 via-transparent to-transparent pointer-events-none" /> */}
 
           <div className="absolute top-3 left-3 pointer-events-none">
             <span className="hero-glass px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider text-white">
               {label}
-            </span>
-          </div>
-
-          <div className="absolute top-3 right-3 pointer-events-none">
-            <span className="px-2 py-0.5 rounded-full bg-black/45 border border-white/10 text-[9px] text-white font-semibold backdrop-blur-sm tabular-nums">
-              {activeIndex + 1} / {images.length}
             </span>
           </div>
 
@@ -193,18 +187,6 @@ function ImageGalleryPanel({
             </>
           )}
 
-          <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4 pointer-events-none">
-            <p className="font-serif text-base text-white leading-tight truncate mb-1.5">
-              {active.title}
-            </p>
-            <div className="h-0.5 rounded-full bg-white/20 overflow-hidden">
-              <motion.div
-                className={`h-full ${accentBar} rounded-full`}
-                animate={{ width: `${progress}%` }}
-                transition={{ duration: 0.35, ease: EASE_OUT }}
-              />
-            </div>
-          </div>
         </div>
 
         <button
@@ -264,28 +246,60 @@ function RoomTypeSelector({
   onChange: (id: AccommodationGalleryId) => void;
 }) {
   return (
-    <div className="grid grid-cols-2 gap-1.5 sm:gap-2 mb-3">
-      {ACCOMMODATION_GALLERIES.map((room) => {
+    <div className="flex flex-col gap-2.5">
+      {ACCOMMODATION_GALLERIES.map((room, i) => {
         const isActive = room.id === activeId;
+        const thumb = room.images[0]?.url;
         return (
           <button
             key={room.id}
             type="button"
             onClick={() => onChange(room.id)}
-            className={`text-left rounded-xl border px-2.5 py-2 transition-all duration-300 cursor-pointer ${
+            aria-pressed={isActive}
+            className={`group flex items-center gap-3.5 w-full rounded-2xl border p-2.5 text-left cursor-pointer transition-all duration-300 ${
               isActive
-                ? "border-primary/30 bg-white shadow-soft ring-1 ring-primary/10"
-                : "border-ink/6 bg-white/50 hover:bg-white hover:border-ink/12"
+                ? "border-primary/30 bg-white shadow-card ring-1 ring-primary/10"
+                : "border-ink/8 bg-sand/60 hover:bg-white hover:border-ink/15 hover:shadow-xs"
             }`}
           >
-            <span
-              className={`block type-eyebrow text-[9px] mb-0.5 ${isActive ? "text-primary" : "text-muted"}`}
-            >
-              {room.label}
-            </span>
-            <span className="text-[11px] text-muted font-sans tabular-nums">
-              {room.images.length} photos
-            </span>
+            {/* Room photo */}
+            <div className="relative w-[4.5rem] h-[4.5rem] rounded-xl overflow-hidden shrink-0 shadow-xs">
+              {thumb && (
+                <Image
+                  src={thumb}
+                  alt={room.label}
+                  fill
+                  sizes="72px"
+                  className={`object-cover transition-transform duration-500 ${
+                    isActive ? "scale-110" : "group-hover:scale-110"
+                  }`}
+                />
+              )}
+              {isActive && (
+                <div className="absolute inset-0 ring-2 ring-primary/50 ring-inset rounded-xl" />
+              )}
+            </div>
+
+            {/* Text */}
+            <div className="flex-1 min-w-0">
+              <span className={`block type-eyebrow text-[9px] mb-0.5 ${isActive ? "text-primary" : "text-muted/60"}`}>
+                0{i + 1}
+              </span>
+              <p className={`font-serif text-sm sm:text-[15px] leading-snug mb-0.5 ${isActive ? "text-ink font-medium" : "text-ink/70"}`}>
+                {room.label}
+              </p>
+              <p className="text-[10px] text-muted font-sans line-clamp-1 leading-snug">
+                {room.description}
+              </p>
+            </div>
+
+            {/* Photo count + active pulse */}
+            <div className="shrink-0 flex flex-col items-end gap-1.5">
+              {isActive && <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />}
+              <span className={`text-[9px] font-semibold tabular-nums px-2 py-0.5 rounded-full ${isActive ? "bg-primary/10 text-primary" : "bg-ink/6 text-muted"}`}>
+                {room.images.length} photos
+              </span>
+            </div>
           </button>
         );
       })}
@@ -320,7 +334,7 @@ export default function AccommodationFood() {
   return (
     <section
       id="accommodation"
-      className="relative border-b border-ink/5 bg-paper overflow-hidden py-10 sm:py-12"
+      className="relative overflow-hidden bg-white py-8 sm:py-10 lg:min-h-[calc(100svh-5.5rem)] lg:flex lg:flex-col"
     >
       <div
         className="absolute left-[-8%] top-[40%] w-[240px] h-[240px] rounded-full bg-secondary/5 blur-[80px] pointer-events-none"
@@ -328,87 +342,84 @@ export default function AccommodationFood() {
       />
 
       <Container size="2xl" className="relative w-full">
+        {/* Compact header row */}
         <motion.div
           initial="hidden"
           whileInView="visible"
           viewport={VIEWPORT_ONCE}
           variants={fadeUp}
-          className="text-center max-w-2xl mx-auto mb-5 lg:mb-6"
+          className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-4"
         >
           <SectionHeader
             eyebrow="Residential Life"
             title={
               <>
-                Accommodation & <span className="text-primary">Food</span>
+                Accommodation &amp; <span className="text-primary">Food</span>
               </>
             }
-            description="Clean ashram lodging and organic sattvic meals — everything you need to rest, restore, and focus fully on your training."
-            align="center"
+            align="left"
+            className="mb-0!"
+          />
+          <TabSwitcher
+            tabs={[
+              { id: "lodging", label: "Ashram Lodging" },
+              { id: "food", label: "Sattvic Food" },
+            ]}
+            activeId={mainTab}
+            onChange={(id) => setMainTab(id as MainTab)}
+            layoutId="accommodationMainTabs"
+            className="shrink-0"
           />
         </motion.div>
-
-        <TabSwitcher
-          tabs={[
-            { id: "lodging", label: "Ashram Lodging" },
-            { id: "food", label: "Sattvic Food" },
-          ]}
-          activeId={mainTab}
-          onChange={(id) => setMainTab(id as MainTab)}
-          layoutId="accommodationMainTabs"
-          className="mb-5 lg:mb-6"
-        />
 
         <AnimatePresence mode="wait">
           {mainTab === "lodging" ? (
             <motion.div
               key="lodging"
               id="lodging"
-              initial={{ opacity: 0, y: 16 }}
+              initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -12 }}
-              transition={reducedTransition(prefersReduced, {
-                duration: 0.35,
-                ease: EASE_OUT,
-              })}
-              className="grid lg:grid-cols-12 gap-6 lg:gap-8 items-start"
+              exit={{ opacity: 0, y: -8 }}
+              transition={reducedTransition(prefersReduced, { duration: 0.3, ease: EASE_OUT })}
+              className="grid lg:grid-cols-12 gap-5 lg:gap-7 items-start"
             >
-              <div className="lg:col-span-5 order-2 lg:order-1 min-w-0">
-                <div className="border-l-2 border-primary/30 pl-4 sm:pl-5 mb-4">
-                  <p className="type-eyebrow text-primary mb-1.5">
-                    Ashram Accommodation
+              {/* Left: Room selector + facilities */}
+              <div className="lg:col-span-5 order-2 lg:order-1 min-w-0 flex flex-col gap-4">
+                {/* Section intro */}
+                <div>
+                  <p className="font-serif text-base md:text-lg text-ink leading-snug mb-1">
+                    Choose your <span className="text-primary">room type</span>
                   </p>
-                  <h3 className="font-serif text-lg md:text-xl text-ink leading-tight mb-2">
-                    Comfortable stay in the{" "}
-                    <span className="text-primary">heart of Rishikesh</span>
-                  </h3>
-                  <p className="text-xs sm:text-sm text-muted font-sans leading-relaxed">
+                  <p className="text-xs text-muted font-sans leading-relaxed">
                     {COMFORTABLE_STAY.description}
                   </p>
                 </div>
 
+                {/* Room selector cards */}
                 <RoomTypeSelector activeId={roomTab} onChange={setRoomTab} />
 
-                <AnimatePresence mode="wait">
-                  <motion.p
+                {/* Active room description */}
+                {/* <AnimatePresence mode="wait">
+                  <motion.div
                     key={roomTab}
-                    initial={{ opacity: 0, y: 6 }}
+                    initial={{ opacity: 0, y: 4 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0 }}
-                    transition={reducedTransition(prefersReduced, {
-                      duration: 0.28,
-                      ease: EASE_OUT,
-                    })}
-                    className="text-sm text-muted font-sans leading-relaxed mb-3"
+                    transition={reducedTransition(prefersReduced, { duration: 0.22, ease: EASE_OUT })}
+                    className="rounded-xl border border-primary/15 bg-primary/4 px-3.5 py-3"
                   >
-                    {activeRoom.description}
-                  </motion.p>
-                </AnimatePresence>
+                    <p className="text-xs text-ink/75 font-sans leading-relaxed">
+                      {activeRoom.description}
+                    </p>
+                  </motion.div>
+                </AnimatePresence> */}
 
-                <div className="rounded-2xl bg-white/70 border border-ink/6 p-3 sm:p-4 shadow-xs">
+                {/* Campus facilities */}
+                <div className="rounded-2xl bg-white/70 border border-ink/6 p-3 shadow-xs">
                   <p className="type-eyebrow text-secondary mb-2">
                     Campus facilities
                   </p>
-                  <ul className="grid grid-cols-2 gap-x-2 gap-y-1.5">
+                  <ul className="grid grid-cols-2 gap-x-3 gap-y-1.5">
                     {FACILITIES.map((facility) => (
                       <li
                         key={facility}
@@ -424,6 +435,7 @@ export default function AccommodationFood() {
                 </div>
               </div>
 
+              {/* Right: Gallery */}
               <div className="lg:col-span-7 order-1 lg:order-2 min-w-0">
                 <ImageGalleryPanel
                   key={roomTab}
@@ -431,11 +443,7 @@ export default function AccommodationFood() {
                   label={activeRoom.label}
                   accent="primary"
                   onOpenLightbox={(index) =>
-                    openLightbox(
-                      [...activeRoom.images],
-                      index,
-                      activeRoom.label,
-                    )
+                    openLightbox([...activeRoom.images], index, activeRoom.label)
                   }
                 />
               </div>

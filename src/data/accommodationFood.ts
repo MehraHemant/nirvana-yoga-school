@@ -76,23 +76,6 @@ export const ACCOMMODATION_GALLERIES = [
     ),
   },
   {
-    id: "3-shared",
-    label: "3-Shared Room",
-    description:
-      "Triple-sharing rooms — spacious layouts for students seeking an affordable stay.",
-    images: galleryImages(
-      "/img/gallery/webp/3-shared",
-      [
-        "3shared1.webp",
-        "3shared2.webp",
-        "3shared3.webp",
-        "3shared4.webp",
-        "3shared5.webp",
-      ],
-      "3-Shared Room",
-    ),
-  },
-  {
     id: "4-shared",
     label: "4-Shared Room",
     description:
