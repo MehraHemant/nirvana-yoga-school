@@ -18,6 +18,7 @@ import {
 } from "@/components/courses";
 import { COURSE_FAQ_CATEGORIES, FAQSection } from "@/components/ui";
 import type { CoursePageData } from "./types";
+import { MapSection } from "@/components";
 
 export default function CourseClient({
   course,
@@ -86,6 +87,7 @@ export default function CourseClient({
         <TravelGuide />
 
         <InstagramFeed />
+        <MapSection />
 
         <FAQSection
           faqs={course.faqs}

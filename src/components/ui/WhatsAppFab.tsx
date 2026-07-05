@@ -18,7 +18,7 @@ export default function WhatsAppFab({
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      className="fixed bottom-24 right-5 md:bottom-20 md:right-6 z-40 bg-[#25D366] text-white p-4 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-transform duration-200"
+      className="fixed bottom-24 left-5 md:bottom-20 md:left-6 z-40 bg-[#25D366] text-white p-4 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-transform duration-200"
     >
       <span className="sr-only">Chat with us on WhatsApp</span>
       <WhatsApp />
