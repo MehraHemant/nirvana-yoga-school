@@ -33,7 +33,12 @@ export function getRoomImage(roomType: string, override?: string) {
   if (type.includes("4") || type.includes("dorm") || type.includes("four")) {
     return "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=800&auto=format&fit=crop&q=80";
   }
-  if (type.includes("double") || type.includes("2") || type.includes("shared") || type.includes("two")) {
+  if (
+    type.includes("double") ||
+    type.includes("2") ||
+    type.includes("shared") ||
+    type.includes("two")
+  ) {
     return "https://images.unsplash.com/photo-1598928506311-c55ded91a20c?w=800&auto=format&fit=crop&q=80";
   }
   return "https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=800&auto=format&fit=crop&q=80";
@@ -42,17 +47,17 @@ export function getRoomImage(roomType: string, override?: string) {
 // Actual course dates with real seat availability
 export function getBatchDates(_durationStr: string): BatchItem[] {
   const rawBatches: Array<{ dates: string; seats: number }> = [
-    { dates: "2nd Jul to 26th Jul 2026",   seats: 2 },
-    { dates: "2nd Aug to 26th Aug 2026",   seats: 4 },
-    { dates: "2nd Sep to 26th Sep 2026",   seats: 3 },
-    { dates: "2nd Oct to 26th Oct 2026",   seats: 4 },
-    { dates: "2nd Nov to 26th Nov 2026",   seats: 7 },
-    { dates: "2nd Dec to 26th Dec 2026",   seats: 6 },
-    { dates: "4th Jan to 28th Jan 2027",   seats: 7 },
-    { dates: "2nd Feb to 26th Feb 2027",   seats: 9 },
-    { dates: "2nd Mar to 26th Mar 2027",   seats: 10 },
-    { dates: "2nd Apr to 26th Apr 2027",   seats: 12 },
-    { dates: "2nd May to 26th May 2027",   seats: 12 },
+    { dates: "2nd Jul to 26th Jul 2026", seats: 2 },
+    { dates: "2nd Aug to 26th Aug 2026", seats: 4 },
+    { dates: "2nd Sep to 26th Sep 2026", seats: 3 },
+    { dates: "2nd Oct to 26th Oct 2026", seats: 4 },
+    { dates: "2nd Nov to 26th Nov 2026", seats: 7 },
+    { dates: "2nd Dec to 26th Dec 2026", seats: 6 },
+    { dates: "4th Jan to 28th Jan 2027", seats: 7 },
+    { dates: "2nd Feb to 26th Feb 2027", seats: 9 },
+    { dates: "2nd Mar to 26th Mar 2027", seats: 10 },
+    { dates: "2nd Apr to 26th Apr 2027", seats: 12 },
+    { dates: "2nd May to 26th May 2027", seats: 12 },
   ];
 
   return rawBatches.map(({ dates, seats }) => {

@@ -65,7 +65,10 @@ export default function PageGallerySection({
           ))}
         </div>
 
-        <motion.div layout className="columns-2 gap-3 sm:columns-3 lg:columns-4">
+        <motion.div
+          layout
+          className="columns-2 gap-3 sm:columns-3 lg:columns-4"
+        >
           <AnimatePresence mode="popLayout">
             {filtered.map((image, index) => (
               <motion.button
@@ -75,7 +78,9 @@ export default function PageGallerySection({
                 initial={{ opacity: 0, scale: 0.96 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.96 }}
-                transition={reducedTransition(prefersReduced, { duration: 0.25 })}
+                transition={reducedTransition(prefersReduced, {
+                  duration: 0.25,
+                })}
                 onClick={() => {
                   setLightboxIndex(index);
                   setIsLightboxOpen(true);
@@ -102,7 +107,10 @@ export default function PageGallerySection({
       <MediaLightbox
         isOpen={isLightboxOpen}
         onClose={() => setIsLightboxOpen(false)}
-        items={filtered.map((img) => ({ type: "image" as const, url: img.url }))}
+        items={filtered.map((img) => ({
+          type: "image" as const,
+          url: img.url,
+        }))}
         activeIndex={lightboxIndex}
         onChangeActiveIndex={setLightboxIndex}
         title="Campus Gallery"
