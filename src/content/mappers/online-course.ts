@@ -182,7 +182,6 @@ function collectHeroImages(page: SitePageDocument): string[] {
 }
 
 function buildNavItems(options: {
-  hasSchedule: boolean;
   hasTeachers: boolean;
   hasTestimonials: boolean;
 }): StickyNavItem[] {
@@ -191,14 +190,6 @@ function buildNavItems(options: {
     { id: "#inclusions", label: "Inclusions", shortLabel: "Include" },
     { id: "#syllabus", label: "Curriculum", shortLabel: "Curriculum" },
   ];
-
-  if (options.hasSchedule) {
-    items.push({
-      id: "#schedule",
-      label: "Live Classes",
-      shortLabel: "Live",
-    });
-  }
 
   if (options.hasTeachers) {
     items.push({ id: "#teachers", label: "Teachers", shortLabel: "Teachers" });
@@ -307,7 +298,6 @@ export function buildOnlineCourseFromSitePage(
     ctaSecondary: "Free Preview",
     ctaSecondaryHref: `${enrollHref}?et=free_trial`,
     navItems: buildNavItems({
-      hasSchedule: schedule.length > 0,
       hasTeachers: teachers.length > 0,
       hasTestimonials: meta.testimonials.length > 0,
     }),

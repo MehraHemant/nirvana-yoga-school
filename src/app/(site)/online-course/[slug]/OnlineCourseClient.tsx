@@ -1,27 +1,43 @@
 "use client";
 
+import { CourseStickyNav } from "@/components/courses";
 import {
-  CourseHero,
-  CourseOverview,
-  CourseStickyNav,
-  CourseSyllabus,
-  DailySchedule,
-  UpcomingDates,
-  WhatIsIncluded,
-} from "@/components/courses";
-import { TeachersSection } from "@/components/home";
-import { FAQSection } from "@/components/ui";
-import { ONLINE_BATCHES } from "./data";
+  OnlineCourseHero,
+  OnlineCurriculumSection,
+  OnlineFAQSection,
+  OnlineInclusionsSection,
+  OnlineOverviewSection,
+  OnlinePricingCard,
+  OnlineTeachersSection,
+  OnlineTestimonialsSection,
+  OnlineTrustBar,
+} from "@/components/online";
+import { Container } from "@/components/ui";
 import type { OnlineCoursePageData } from "./types";
 
 export default function OnlineCourseClient({
   course,
   media,
-  videos,
 }: OnlineCoursePageData) {
+  const pricing = course.pricing[0];
+  const previewVideoId = media.videos[0];
+
+  const pricingCard = pricing ? (
+    <OnlinePricingCard
+      pricing={pricing}
+      pricingDescription={course.pricingDescription}
+      certification={course.certification}
+      level={course.level}
+      ctaPrimary={course.ctaPrimary}
+      ctaPrimaryHref={course.ctaPrimaryHref}
+      ctaSecondary={course.ctaSecondary}
+      ctaSecondaryHref={course.ctaSecondaryHref}
+    />
+  ) : null;
+
   return (
-    <>
-      <CourseHero
+    <div className="online-course-theme bg-white">
+      <OnlineCourseHero
         title={course.title}
         subtitle={course.subtitle}
         duration={course.duration}
@@ -29,98 +45,48 @@ export default function OnlineCourseClient({
         certification={course.certification}
         fee={course.fee}
         image={course.image}
-        certBadge={course.certBadge}
-        heroImages={course.heroImages}
-        images={media.images}
-        videos={media.videos}
+        previewVideoId={previewVideoId}
         ctaPrimary={course.ctaPrimary}
         ctaPrimaryHref={course.ctaPrimaryHref}
         ctaSecondary={course.ctaSecondary}
         ctaSecondaryHref={course.ctaSecondaryHref}
       />
 
-      <CourseStickyNav items={course.navItems} />
+      <OnlineTrustBar />
 
-      <article className="min-h-screen max-w-full overflow-x-clip">
-        <CourseOverview
-          overview={course.overview}
-          level={course.level}
-          duration={course.duration}
-          certification={course.certification}
-          fee={course.fee}
-          videos={videos}
-          featureImages={course.heroImages?.slice(0, 6)}
-          eyebrow="Online YTT"
-          title={
-            <>
-              Learn at your pace,{" "}
-              <span className="text-primary">certified</span> from home
-            </>
-          }
-          supportingCopy=""
-          quoteText="Traditional yoga wisdom — accessible anywhere in the world."
-          quoteAttribution="Online 200-hour program"
-        />
+      <CourseStickyNav items={course.navItems} variant="online" />
 
-        <WhatIsIncluded
-          inclusions={course.inclusions}
-          exclusions={course.exclusions}
-        />
+      <Container size="2xl">
+        <div className="online-course-layout">
+          <main className="online-course-main min-w-0">
+            <OnlineOverviewSection overview={course.overview} />
+            <OnlineInclusionsSection inclusions={course.inclusions} />
 
-        <CourseSyllabus
-          description={course.syllabusDescription}
-          syllabus={course.syllabus}
-        />
+            {pricingCard && (
+              <div className="border-b border-secondary/10 py-8 lg:hidden">
+                {pricingCard}
+              </div>
+            )}
 
-        {course.schedule.length > 0 && (
-          <DailySchedule
-            description={course.scheduleDescription}
-            schedule={course.schedule}
-          />
-        )}
+            <OnlineCurriculumSection
+              description={course.syllabusDescription}
+              syllabus={course.syllabus}
+            />
 
-        {course.teachers.length > 0 && (
-          <TeachersSection teachers={course.teachers} />
-        )}
+            <OnlineTeachersSection teachers={course.teachers} />
 
-        {course.testimonials.length > 0 && (
-          <FAQSection
-            id="testimonials"
-            faqs={course.testimonials.map((item) => ({
-              question: item.name,
-              answer: item.quote,
-            }))}
-            sectionClassName="bg-paper"
-            eyebrow="Student voices"
-            title={
-              <>
-                Online course <span className="text-primary">reviews</span>
-              </>
-            }
-          />
-        )}
+            <OnlineTestimonialsSection testimonials={course.testimonials} />
 
-        <UpcomingDates
-          duration={course.duration}
-          pricing={course.pricing}
-          pricingDescription={course.pricingDescription}
-          batches={ONLINE_BATCHES}
-          datesTitle="Enrollment"
-          lodgingTitle="Course access"
-        />
+            <OnlineFAQSection faqs={course.faqs} />
+          </main>
 
-        <FAQSection
-          id="faq"
-          faqs={course.faqs}
-          sectionClassName="bg-white"
-          eyebrow="Got Questions?"
-          title={
-            <>
-              Frequently asked <span className="text-primary">questions</span>
-            </>
-          }
-        />
-      </article>
-    </>
+          {pricingCard && (
+            <aside className="online-course-sidebar hidden lg:block">
+              {pricingCard}
+            </aside>
+          )}
+        </div>
+      </Container>
+    </div>
   );
 }

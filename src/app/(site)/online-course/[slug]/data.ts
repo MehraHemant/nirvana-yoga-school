@@ -1,26 +1,30 @@
 import { getCourseMedia } from "@/content";
+import onlineCourseMeta from "@/content/data/online-courses/meta.json";
 import type { OnlineCourseDocument } from "@/content/types";
 import { fetchYouTubeVideos } from "@/lib/youtube";
 import type { OnlineCoursePageData } from "./types";
 
-export const ONLINE_BATCHES = [
-  {
-    dates: "Start anytime",
-    spaces: "Lifetime access · self-paced",
-    status: "Open",
-    statusColor: "text-emerald-700 bg-emerald-50 border-emerald-200",
-    tone: "open" as const,
-  },
-];
+type OnlineMeta = Record<string, { video: string | null }>;
+
+const META = onlineCourseMeta as OnlineMeta;
 
 export async function loadOnlineCoursePageData(
   slug: string,
   course: OnlineCourseDocument,
 ): Promise<OnlineCoursePageData> {
   const media = await getCourseMedia(slug);
+  const previewId = META[slug]?.video ?? null;
+  const videoIds = previewId
+    ? [previewId, ...media.videos.filter((id) => id !== previewId)]
+    : media.videos;
+
   const videos = await fetchYouTubeVideos(
-    media.videos.map((id) => `https://www.youtube.com/watch?v=${id}`),
+    videoIds.map((id) => `https://www.youtube.com/watch?v=${id}`),
   );
 
-  return { course, media, videos };
+  return {
+    course,
+    media: { images: media.images, videos: videoIds },
+    videos,
+  };
 }

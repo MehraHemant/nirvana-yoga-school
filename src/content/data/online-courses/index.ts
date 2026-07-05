@@ -2,7 +2,7 @@ import type { TeacherProfile } from "@/components/home/TeachersSection";
 import { buildAllOnlineCoursesFromSitePages } from "@/content/mappers/online-course";
 import type { OnlineCourseDocument } from "@/content/types";
 
-import { LIVE_SITE } from "@/lib/live-site";
+import { ENROLL_BASE, LIVE_SITE } from "@/lib/live-site";
 
 const SITE = LIVE_SITE;
 
@@ -341,16 +341,13 @@ export const ONLINE_COURSES: Record<string, OnlineCourseDocument> = {
       },
     ],
     ctaPrimary: "Buy Now",
-    ctaPrimaryHref:
-      "https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&w=1600&q=85",
+    ctaPrimaryHref: `${ENROLL_BASE}/3050027`,
     ctaSecondary: "Free Preview",
-    ctaSecondaryHref:
-      "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=1600&q=85",
+    ctaSecondaryHref: `${ENROLL_BASE}/3050027?et=free_trial`,
     navItems: [
       { id: "#overview", label: "Overview", shortLabel: "Overview" },
       { id: "#inclusions", label: "Inclusions", shortLabel: "Include" },
       { id: "#syllabus", label: "Curriculum", shortLabel: "Curriculum" },
-      { id: "#schedule", label: "Live Classes", shortLabel: "Live" },
       { id: "#teachers", label: "Teachers", shortLabel: "Teachers" },
       { id: "#testimonials", label: "Reviews", shortLabel: "Reviews" },
       { id: "#pricing", label: "Pricing", shortLabel: "Pricing" },

@@ -1007,3 +1007,43 @@ details[open] .accordion-icon {
     transition: none;
   }
 }
+
+/* ── Online course product theme ── */
+.online-course-theme {
+  --online-sticky-top: 9rem;
+}
+
+@media (min-width: 1024px) {
+  .online-course-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 360px;
+    gap: 2.5rem;
+    align-items: start;
+  }
+
+  .online-course-sidebar {
+    position: sticky;
+    top: var(--online-sticky-top);
+    padding-top: 1.5rem;
+  }
+}
+
+.online-course-theme .online-course-main {
+  min-width: 0;
+}
+
+.online-course-theme .online-pricing-card {
+  box-shadow:
+    0 2px 8px -2px rgb(14 73 86 / 0.08),
+    0 16px 40px -12px rgb(14 73 86 / 0.16);
+}
+
+.online-course-theme .online-hero {
+  border-bottom: 1px solid rgb(255 255 255 / 0.08);
+}
+
+/* Sticky nav tuned for online pages */
+.online-course-theme + .course-sticky-nav,
+.online-course-theme .sticky.z-30 {
+  background: rgb(255 255 255 / 0.96);
+}
