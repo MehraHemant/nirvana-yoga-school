@@ -97,6 +97,7 @@ src/
   assets/
   components/
     courses/
+    online/             # Online product pages — hero, pricing card, testimonials
     home/               # Home page sections
     layout/
     ui/
@@ -508,4 +509,4 @@ Last meaningful update: 2026-06-28 — **Unified CMS on :3000**: website, `/admi
 2026-06-28 — **Rich SimplePage sync**: `scripts/sync-live-content.mjs` now scrapes structured live-site data into `sitePages.json` — h2 sections with lists/subsections (retreat schedules, inclusions), teacher profiles (`people[]` with education/experience/expertise), gallery images, retreat highlights/packages. `SimplePage.tsx` renders alternating `bg-paper`/`bg-white` bands for each block.
 2026-06-28 — **CMS dynamic section builder**: Site page sections in `/admin` use `section-list` + `BlockBuilder` (paragraph, lead, bullets, FAQ, CTA with href/variant, image with preview, gallery, subsection, video). Layout dropdown removed; frontend renders via `SectionBlocksRenderer` when `blocks[]` is present (legacy `body`/`items`/`layout` still supported).
 2026-06-28 — **File-only static site**: Removed PostgreSQL, Docker, admin CMS, all `/api` routes, and live-site sync scripts. Content loads from `src/content/data/` and `src/data/` JSON/TS only. Live-site images replaced with high-res Unsplash stock via `src/lib/stock-images.ts`.
-2026-07-05 — **Segmented routes**: `/course/[slug]`, `/online-course/[slug]`, `/retreat/[slug]`, `/venue/[slug]`; catch-all `[slug]` for remaining site pages. Path helpers in `constants/routes.ts`; legacy flat URLs redirect in `next.config.ts`.
+2026-07-05 — **Online course product pages**: Dedicated `src/components/online/` theme (teal hero, trust bar, sticky pricing card, review grid). `OnlineCourseClient` uses live-site sections only — no residential lodging, dates, or travel blocks.
