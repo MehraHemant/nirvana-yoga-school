@@ -3,7 +3,7 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Button, Heading, MediaLightbox } from "@/components/ui";
+import { Button, Container, Heading, MediaLightbox } from "@/components/ui";
 import { ChevronLeft, ChevronRight, Play } from "@/icons";
 import { YOUTUBE_METADATA_REGISTRY } from "@/lib/youtube";
 
@@ -244,28 +244,31 @@ export default function CourseHero({
   const hasCTA = !!(ctaPrimary || ctaSecondary);
 
   return (
-    <section className="relative h-svh max-h-svh w-full overflow-hidden bg-white">
+    <section className="relative w-full overflow-hidden bg-white md:h-[calc(100svh-5.5rem)] md:max-h-[880px] lg:h-svh lg:max-h-svh">
       {/* Ambient glow */}
       <div
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_10%_0%,rgb(166_181_162/0.12),transparent_55%)]"
         aria-hidden="true"
       />
 
-      <div className="relative flex h-full min-h-0 flex-col overflow-hidden px-4 pt-19 pb-3 md:px-6 md:pt-22 md:pb-4">
+      <Container
+        size="2xl"
+        className="relative flex min-h-0 flex-col overflow-hidden pt-16 pb-2 md:h-full md:pt-22 md:pb-4"
+      >
         {/* ── Header row ─────────────────────────────────────────────────── */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.25, 0, 0, 1] }}
-          className="w-full flex flex-col items-center justify-center mb-4 mt-6"
+          className="mb-2 mt-1 flex w-full flex-col items-center justify-center sm:mb-3 md:mb-4 md:mt-4"
         >
-            <Heading
-              as="h1"
-              size="h2"
-              className="line-clamp-2 text-center font-medium text-xl md:text-3xl lg:text-4xl"
-            >
-              {title}
-            </Heading>
+          <Heading
+            as="h1"
+            size="h2"
+            className="line-clamp-3 px-1 text-center font-medium text-lg! leading-snug sm:text-xl! md:line-clamp-2 md:text-3xl! lg:text-4xl!"
+          >
+            {title}
+          </Heading>
         </motion.div>
 
         {/* ── Bento grid ─────────────────────────────────────────────────── */}
@@ -276,10 +279,10 @@ export default function CourseHero({
           // biome-ignore lint/a11y/noStaticElementInteractions: hover pause for autoplay
           onMouseEnter={() => setHovered(true)}
           onMouseLeave={() => setHovered(false)}
-          className="grid min-h-0 flex-1 grid-cols-4 grid-rows-2 gap-2 overflow-hidden rounded-3xl md:gap-2.5"
+          className="grid min-h-0 flex-1 grid-cols-1 gap-2 overflow-hidden rounded-2xl sm:rounded-3xl md:grid-cols-4 md:grid-rows-2 md:gap-2.5"
         >
-          {/* ── Large featured cell (2×2) ─────────────────────────────── */}
-          <div className="relative col-span-2 row-span-2 overflow-hidden rounded-3xl bg-sand/70">
+          {/* ── Large featured cell ─────────────────────────────────────── */}
+          <div className="relative aspect-[5/4] min-h-0 overflow-hidden rounded-2xl bg-sand/70 sm:aspect-[16/10] md:col-span-2 md:row-span-2 md:aspect-auto md:h-full md:rounded-3xl">
             <AnimatePresence mode="wait">
               {activeVideoId ? (
                 <motion.iframe
@@ -317,23 +320,28 @@ export default function CourseHero({
 
             {/* Course meta — frosted overlay on main photo */}
             {hasMeta && !activeVideoId && (
-              <div className="pointer-events-none absolute top-3 left-3 z-20 flex items-center gap-3 rounded-2xl bg-ink/45 px-4 py-2 backdrop-blur-md ring-1 ring-white/10">
+              <div className="pointer-events-none absolute right-2 bottom-14 left-2 z-20 flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-2xl bg-ink/45 px-3 py-2 backdrop-blur-md ring-1 ring-white/10 sm:right-auto sm:bottom-auto sm:top-3 sm:left-3 sm:flex-nowrap sm:gap-3 sm:px-4">
                 {duration && (
-                  <div>
-                    <p className="text-[9px] font-semibold uppercase tracking-widest text-white/65">
+                  <div className="min-w-0">
+                    <p className="text-[8px] font-semibold uppercase tracking-widest text-white/65 sm:text-[9px]">
                       Duration
                     </p>
-                    <p className="text-xs font-semibold text-white">{duration}</p>
+                    <p className="truncate text-[11px] font-semibold text-white sm:text-xs">
+                      {duration}
+                    </p>
                   </div>
                 )}
                 {certification && (
                   <>
-                    <div className="h-6 w-px bg-white/25" aria-hidden="true" />
-                    <div>
-                      <p className="text-[9px] font-semibold uppercase tracking-widest text-white/65">
+                    <div
+                      className="hidden h-6 w-px bg-white/25 sm:block"
+                      aria-hidden="true"
+                    />
+                    <div className="min-w-0">
+                      <p className="text-[8px] font-semibold uppercase tracking-widest text-white/65 sm:text-[9px]">
                         Certification
                       </p>
-                      <p className="text-xs font-semibold text-white">
+                      <p className="truncate text-[11px] font-semibold text-white sm:text-xs">
                         {certification}
                       </p>
                     </div>
@@ -341,12 +349,15 @@ export default function CourseHero({
                 )}
                 {fee && (
                   <>
-                    <div className="h-6 w-px bg-white/25" aria-hidden="true" />
-                    <div>
-                      <p className="text-[9px] font-semibold uppercase tracking-widest text-white/65">
+                    <div
+                      className="hidden h-6 w-px bg-white/25 sm:block"
+                      aria-hidden="true"
+                    />
+                    <div className="min-w-0">
+                      <p className="text-[8px] font-semibold uppercase tracking-widest text-white/65 sm:text-[9px]">
                         Fee
                       </p>
-                      <p className="text-xs font-semibold text-accent">
+                      <p className="truncate text-[11px] font-semibold text-accent sm:text-xs">
                         {fee}
                       </p>
                     </div>
@@ -381,15 +392,15 @@ export default function CourseHero({
                 />
 
                 {/* Bottom control bar — always visible */}
-                <div className="absolute inset-x-0 bottom-0 z-20 flex items-center justify-between bg-linear-to-t from-ink/35 to-transparent px-3 pb-3 pt-10">
-                  <div className="flex items-center gap-2">
+                <div className="absolute inset-x-0 bottom-0 z-20 flex items-center justify-between bg-linear-to-t from-ink/35 to-transparent px-2.5 pb-2.5 pt-8 sm:px-3 sm:pb-3 sm:pt-10">
+                  <div className="flex items-center gap-1.5 sm:gap-2">
                     <button
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
                         prev();
                       }}
-                      className="cursor-pointer rounded-full bg-white/85 p-1.5 text-ink/70 shadow-soft backdrop-blur-sm transition-colors hover:bg-white hover:text-ink"
+                      className="cursor-pointer rounded-full bg-white/85 p-2 text-ink/70 shadow-soft backdrop-blur-sm transition-colors hover:bg-white hover:text-ink sm:p-1.5"
                       aria-label="Previous photo"
                     >
                       <ChevronLeft size={16} />
@@ -400,13 +411,13 @@ export default function CourseHero({
                         e.stopPropagation();
                         next();
                       }}
-                      className="cursor-pointer rounded-full bg-white/85 p-1.5 text-ink/70 shadow-soft backdrop-blur-sm transition-colors hover:bg-white hover:text-ink"
+                      className="cursor-pointer rounded-full bg-white/85 p-2 text-ink/70 shadow-soft backdrop-blur-sm transition-colors hover:bg-white hover:text-ink sm:p-1.5"
                       aria-label="Next photo"
                     >
                       <ChevronRight size={16} />
                     </button>
                   </div>
-                  <span className="rounded-full bg-white/85 px-3 py-0.5 text-[11px] tabular-nums text-muted shadow-soft backdrop-blur-sm">
+                  <span className="rounded-full bg-white/85 px-2.5 py-0.5 text-[10px] tabular-nums text-muted shadow-soft backdrop-blur-sm sm:px-3 sm:text-[11px]">
                     {photoIdx + 1} / {photos.length}
                   </span>
                 </div>
@@ -415,7 +426,7 @@ export default function CourseHero({
                 <button
                   type="button"
                   onClick={() => openLightbox(photoIdx)}
-                  className="absolute top-3 right-3 z-20 cursor-pointer rounded-full bg-white/80 p-1.5 text-ink/50 backdrop-blur-sm transition-colors hover:text-ink"
+                  className="absolute top-2.5 right-2.5 z-20 cursor-pointer rounded-full bg-white/80 p-2 text-ink/50 backdrop-blur-sm transition-colors hover:text-ink sm:top-3 sm:right-3 sm:p-1.5"
                   aria-label="Open fullscreen"
                 >
                   <MaximizeIcon />
@@ -429,7 +440,7 @@ export default function CourseHero({
             <div
               // biome-ignore lint/suspicious/noArrayIndexKey: bento cells, stable order
               key={ci}
-              className="relative overflow-hidden rounded-2xl"
+              className="relative hidden min-h-0 overflow-hidden rounded-2xl md:block"
             >
               {cell.type === "video" && videoIds[cell.vidIdx] ? (
                 /* Video cell */
@@ -468,7 +479,7 @@ export default function CourseHero({
                           }
                         />
                       </span>
-                      <p className="mx-2 line-clamp-2 text-center text-[10px] font-medium leading-tight text-white">
+                      <p className="mx-2 line-clamp-2 text-center text-[9px] font-medium leading-tight text-white md:text-[10px]">
                         {ytTitle(videoIds[cell.vidIdx], cell.vidIdx)}
                       </p>
                     </div>
@@ -513,6 +524,46 @@ export default function CourseHero({
           ))}
         </motion.div>
 
+        {/* Mobile / small-tablet video picker (bento cells hidden below md) */}
+        {videoIds.length > 0 && (
+          <div className="mt-2 flex shrink-0 touch-pan-x gap-2 overflow-x-auto px-0.5 no-scrollbar [-webkit-overflow-scrolling:touch] md:hidden">
+            {videoIds.slice(0, 4).map((id, idx) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => playVideo(id)}
+                className={`relative flex min-h-11 min-w-[9.5rem] shrink-0 items-center gap-2.5 overflow-hidden rounded-xl border px-2 py-2 text-left transition-colors ${
+                  activeVideoId === id
+                    ? "border-primary/30 bg-primary/5"
+                    : "border-ink/8 bg-white/80"
+                }`}
+                aria-label={`Play: ${ytTitle(id, idx)}`}
+              >
+                <span className="relative h-10 w-14 shrink-0 overflow-hidden rounded-lg bg-ink">
+                  <Image
+                    src={ytThumb(id)}
+                    alt=""
+                    fill
+                    sizes="56px"
+                    className="object-cover opacity-80"
+                  />
+                  <span className="absolute inset-0 flex items-center justify-center bg-ink/20">
+                    <Play size={12} className="fill-white text-white" />
+                  </span>
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="type-eyebrow block text-[9px] text-primary">
+                    Video
+                  </span>
+                  <span className="line-clamp-2 text-[11px] font-semibold leading-tight text-ink">
+                    {ytTitle(id, idx)}
+                  </span>
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* ── Bottom filmstrip ───────────────────────────────────────────── */}
         {photos.length > 1 && (
           <motion.div
@@ -522,11 +573,11 @@ export default function CourseHero({
             // biome-ignore lint/a11y/noStaticElementInteractions: hover pause for autoplay
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
-            className="mt-2 shrink-0 overflow-hidden rounded-2xl bg-white/50 px-3 pt-2.5 pb-2 backdrop-blur-sm"
+            className="mt-2 shrink-0 overflow-hidden rounded-xl bg-white/50 px-2 pt-2 pb-1.5 backdrop-blur-sm sm:rounded-2xl sm:px-3 sm:pt-2.5 sm:pb-2"
           >
             <div
               ref={stripRef}
-              className="no-scrollbar flex gap-2 overflow-x-auto scroll-smooth"
+              className="no-scrollbar flex touch-pan-x gap-1.5 overflow-x-auto scroll-smooth snap-x snap-mandatory [-webkit-overflow-scrolling:touch] sm:gap-2"
             >
               {photos.map((url, i) => {
                 const isActive = i === photoIdx && !activeVideoId;
@@ -536,10 +587,10 @@ export default function CourseHero({
                     key={i}
                     type="button"
                     onClick={() => pickPhoto(i)}
-                    className={`relative h-13 w-[4.5rem] shrink-0 cursor-pointer overflow-hidden rounded-xl transition-all duration-500 sm:h-14 sm:w-20 ${
+                    className={`relative h-14 w-[4.25rem] shrink-0 snap-start cursor-pointer overflow-hidden rounded-lg transition-all duration-500 sm:h-14 sm:w-20 sm:rounded-xl ${
                       isActive
-                        ? "scale-[1.06] opacity-100 ring-1 ring-accent/70 ring-offset-1 ring-offset-white/50"
-                        : "opacity-45 hover:opacity-80"
+                        ? "scale-[1.04] opacity-100 ring-2 ring-primary/35 ring-offset-1 ring-offset-white/50 sm:scale-[1.06] sm:ring-1 sm:ring-accent/70"
+                        : "opacity-50 hover:opacity-85 sm:opacity-45 sm:hover:opacity-80"
                     }`}
                     aria-label={`Photo ${i + 1}`}
                     aria-current={isActive ? "true" : undefined}
@@ -571,7 +622,7 @@ export default function CourseHero({
             </div>
           </motion.div>
         )}
-      </div>
+      </Container>
 
       <MediaLightbox
         isOpen={lightboxOpen}

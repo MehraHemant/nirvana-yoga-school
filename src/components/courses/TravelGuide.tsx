@@ -76,7 +76,7 @@ export default function TravelGuide() {
       ref={sectionRef}
       id="travel"
       aria-label="Guide to travelling to India"
-      className="relative overflow-x-clip bg- py-20 sm:py-28"
+      className="relative overflow-x-clip bg-paper py-20 sm:py-28"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       onFocusCapture={() => setIsPaused(true)}

@@ -59,15 +59,49 @@ function resolveActiveSection(
   return active;
 }
 
+function scrollActiveTabIntoView(
+  container: HTMLElement | null,
+  sectionId: NavSectionId,
+  behavior: ScrollBehavior,
+) {
+  const activeEl = container?.querySelector<HTMLAnchorElement>(
+    `a[href="${sectionId}"]`,
+  );
+  if (!activeEl || !container) return;
+
+  const containerRect = container.getBoundingClientRect();
+  const activeRect = activeEl.getBoundingClientRect();
+  const isFullyVisible =
+    activeRect.left >= containerRect.left + 8 &&
+    activeRect.right <= containerRect.right - 8;
+
+  if (!isFullyVisible) {
+    activeEl.scrollIntoView({ behavior, inline: "center", block: "nearest" });
+  }
+}
+
 export default function CourseStickyNav({
   items,
+  variant = "residential",
+  solidBar = false,
 }: {
   items?: StickyNavItem[];
+  variant?: "residential" | "online";
+  solidBar?: boolean;
 }) {
   const navItems = items && items.length > 0 ? items : [...DEFAULT_NAV_ITEMS];
+  const isOnline = variant === "online";
+  const activeTextClass = isOnline ? "text-secondary" : "text-primary";
+  const activePillClass = isOnline
+    ? "border-secondary/15 bg-secondary/8"
+    : "border-primary/15 bg-primary/8";
+  const focusRingClass = isOnline
+    ? "focus-visible:ring-secondary/60"
+    : "focus-visible:ring-primary/60";
   const prefersReduced = useReducedMotion() ?? false;
   const sentinelRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLElement>(null);
   const isNavigatingRef = useRef(false);
   const navLockTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -76,6 +110,10 @@ export default function CourseStickyNav({
   );
   const [isPinned, setIsPinned] = useState(false);
   const [stickyTop, setStickyTop] = useState(80);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const scrollBehavior: ScrollBehavior = prefersReduced ? "auto" : "smooth";
 
   const getScrollLine = useCallback(() => {
     const navHeight = barRef.current?.getBoundingClientRect().height ?? 52;
@@ -90,15 +128,27 @@ export default function CourseStickyNav({
     }
   }, [getScrollLine, navItems]);
 
+  const updateScrollFades = useCallback(() => {
+    const container = scrollRef.current;
+    if (!container) return;
+
+    const { scrollLeft, scrollWidth, clientWidth } = container;
+    const maxScroll = scrollWidth - clientWidth;
+    setCanScrollLeft(scrollLeft > 4);
+    setCanScrollRight(maxScroll > 4 && scrollLeft < maxScroll - 4);
+  }, []);
+
   useEffect(() => {
     const syncHeader = () => setStickyTop(getHeaderHeight());
     const onResize = () => {
       syncHeader();
       syncSectionMargins();
+      updateScrollFades();
     };
 
     syncHeader();
     syncSectionMargins();
+    updateScrollFades();
     window.addEventListener("scroll", syncHeader, { passive: true });
     window.addEventListener("resize", onResize);
 
@@ -106,7 +156,19 @@ export default function CourseStickyNav({
       window.removeEventListener("scroll", syncHeader);
       window.removeEventListener("resize", onResize);
     };
-  }, [syncSectionMargins]);
+  }, [syncSectionMargins, updateScrollFades]);
+
+  useEffect(() => {
+    const bar = barRef.current;
+    if (!bar) return;
+
+    const observer = new ResizeObserver(() => {
+      syncSectionMargins();
+      updateScrollFades();
+    });
+    observer.observe(bar);
+    return () => observer.disconnect();
+  }, [syncSectionMargins, updateScrollFades]);
 
   useEffect(() => {
     const sentinel = sentinelRef.current;
@@ -120,6 +182,17 @@ export default function CourseStickyNav({
     observer.observe(sentinel);
     return () => observer.disconnect();
   }, [stickyTop]);
+
+  useEffect(() => {
+    const container = scrollRef.current;
+    if (!container) return;
+
+    const onScroll = () => updateScrollFades();
+    container.addEventListener("scroll", onScroll, { passive: true });
+    updateScrollFades();
+
+    return () => container.removeEventListener("scroll", onScroll);
+  }, [updateScrollFades]);
 
   useEffect(() => {
     let raf = 0;
@@ -141,6 +214,10 @@ export default function CourseStickyNav({
     };
   }, [getScrollLine, navItems]);
 
+  useEffect(() => {
+    scrollActiveTabIntoView(scrollRef.current, activeSection, scrollBehavior);
+  }, [activeSection, scrollBehavior]);
+
   useEffect(
     () => () => {
       if (navLockTimerRef.current) clearTimeout(navLockTimerRef.current);
@@ -161,6 +238,11 @@ export default function CourseStickyNav({
 
     isNavigatingRef.current = true;
     setActiveSection(href as NavSectionId);
+    scrollActiveTabIntoView(
+      scrollRef.current,
+      href as NavSectionId,
+      scrollBehavior,
+    );
 
     const line = getScrollLine();
     window.scrollTo({
@@ -168,7 +250,7 @@ export default function CourseStickyNav({
         0,
         element.getBoundingClientRect().top + window.scrollY - line,
       ),
-      behavior: prefersReduced ? "auto" : "smooth",
+      behavior: scrollBehavior,
     });
 
     navLockTimerRef.current = setTimeout(() => {
@@ -179,22 +261,38 @@ export default function CourseStickyNav({
 
   if (navItems.length === 0) return null;
 
+  const showBarBg = solidBar || isPinned;
+
   return (
     <>
       <div ref={sentinelRef} className="h-px w-full" aria-hidden="true" />
       <div
         ref={barRef}
         style={{ top: stickyTop }}
-        className={`sticky z-30 w-full max-w-full transition-[background,box-shadow,border-color] duration-300 ${
-          isPinned
-            ? "border-b border-ink/8 bg-white/90 shadow-soft backdrop-blur-md"
+        className={`course-sticky-nav sticky z-30 w-full max-w-full transition-[background,box-shadow,border-color] duration-300 ${
+          showBarBg
+            ? "border-b border-ink/8 bg-white/95 shadow-soft backdrop-blur-md"
             : "border-b border-transparent bg-transparent shadow-none"
         }`}
       >
-        <Container size="2xl">
+        <Container size="2xl" className="relative !px-0 sm:!px-5 md:!px-8">
+          <div
+            className={`pointer-events-none absolute inset-y-0 left-0 z-10 w-8 bg-linear-to-r from-white/95 to-transparent transition-opacity duration-200 xl:hidden ${
+              canScrollLeft ? "opacity-100" : "opacity-0"
+            }`}
+            aria-hidden="true"
+          />
+          <div
+            className={`pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-linear-to-l from-white/95 to-transparent transition-opacity duration-200 xl:hidden ${
+              canScrollRight ? "opacity-100" : "opacity-0"
+            }`}
+            aria-hidden="true"
+          />
+
           <nav
+            ref={scrollRef}
             aria-label="Course sections"
-            className="flex w-full items-stretch gap-0.5 py-2 sm:gap-1 sm:py-2.5"
+            className="no-scrollbar flex w-full touch-pan-x items-stretch gap-1 overflow-x-auto scroll-smooth px-3 py-1.5 snap-x snap-mandatory [-webkit-overflow-scrolling:touch] sm:gap-1.5 sm:px-5 sm:py-2 md:px-8 md:py-2.5 xl:snap-none xl:overflow-x-visible xl:px-0 xl:py-2.5"
           >
             {navItems.map((item) => {
               const isActive = activeSection === item.id;
@@ -206,9 +304,9 @@ export default function CourseStickyNav({
                   title={item.label}
                   onClick={(e) => handleClick(e, item.id)}
                   aria-current={isActive ? "location" : undefined}
-                  className={`relative flex min-w-0 flex-1 basis-0 items-center justify-center rounded-full px-0.5 py-2 text-center font-sans text-[9px] font-semibold leading-tight tracking-wide transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 min-[390px]:text-[10px] sm:px-1 sm:py-2.5 sm:text-xs md:text-sm ${
+                  className={`relative flex shrink-0 snap-center items-center justify-center rounded-full px-3 py-2.5 text-center font-sans text-[11px] font-semibold leading-tight tracking-wide whitespace-nowrap transition-colors focus:outline-none focus-visible:ring-2 ${focusRingClass} min-h-11 sm:px-3.5 sm:text-xs md:px-4 md:text-sm xl:min-h-0 xl:min-w-0 xl:flex-1 xl:basis-0 xl:shrink xl:snap-align-none xl:px-1 xl:py-2.5 xl:whitespace-normal xl:text-sm ${
                     isActive
-                      ? "text-primary"
+                      ? activeTextClass
                       : "text-muted hover:bg-ink/4 hover:text-ink"
                   }`}
                 >
@@ -224,12 +322,14 @@ export default function CourseStickyNav({
                               damping: 30,
                             }
                       }
-                      className="absolute inset-0 rounded-full border border-primary/15 bg-primary/8"
+                      className={`absolute inset-0 rounded-full border ${activePillClass}`}
                     />
                   )}
-                  <span className="relative z-10 block w-full truncate px-0.5 sm:px-1">
+                  <span className="relative z-10 block max-w-full truncate px-0.5 sm:px-1">
                     <span className="sm:hidden">{item.shortLabel}</span>
-                    <span className="hidden sm:inline">{item.label}</span>
+                    <span className="hidden sm:inline xl:truncate">
+                      {item.label}
+                    </span>
                   </span>
                 </a>
               );
