@@ -5,7 +5,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useId, useState } from "react";
 import { logo, logo_white } from "@/assets";
-import { type NavItem, PRIMARY_NAV, SIGN_IN_URL } from "@/constants/navigation";
+import {
+  type NavItem,
+  navItemHref,
+  navLinkHref,
+  PRIMARY_NAV,
+  SIGN_IN_URL,
+} from "@/constants/navigation";
 import { ArrowRight, ChevronDown, MenuIcon } from "@/icons";
 import Button from "./Button";
 
@@ -61,6 +67,8 @@ function DesktopDropdown({
     }
   };
 
+  const dropdownHref = navItemHref(item);
+
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: hover/focus dropdown container
     <div
@@ -80,9 +88,9 @@ function DesktopDropdown({
         }
       }}
     >
-      {item.href ? (
+      {dropdownHref ? (
         <Link
-          {...linkProps(item.href, item.external)}
+          {...linkProps(dropdownHref, item.external)}
           className={textClass}
           aria-haspopup="true"
           aria-controls={menuId}
@@ -121,8 +129,11 @@ function DesktopDropdown({
           <div className="overflow-y-auto max-h-[52vh] py-2 px-2">
             {regularItems.map((sub) => (
               <Link
-                key={sub.href}
-                {...linkProps(sub.href, sub.external)}
+                key={navLinkHref(sub)}
+                {...linkProps(
+                  navLinkHref(sub),
+                  "external" in sub ? sub.external : undefined,
+                )}
                 onClick={closeDropdown}
                 className="nav-dropdown-item group/item flex items-start gap-3 rounded-xl px-4 py-3 text-sm text-ink/80 hover:text-primary leading-snug font-sans"
               >
@@ -138,7 +149,10 @@ function DesktopDropdown({
           {seeAllItem && (
             <div className="px-4 pb-4 pt-2 border-t border-ink/5">
               <Link
-                {...linkProps(seeAllItem.href, seeAllItem.external)}
+                {...linkProps(
+                  navLinkHref(seeAllItem),
+                  "external" in seeAllItem ? seeAllItem.external : undefined,
+                )}
                 onClick={closeDropdown}
                 className="nav-dropdown-cta flex items-center justify-between rounded-2xl bg-primary/5 hover:bg-primary/10 px-4 py-3 text-sm font-semibold text-primary transition-colors font-sans"
               >
@@ -167,9 +181,12 @@ function MobileNavItem({
   const style = { animationDelay: `${0.05 + index * 0.04}s` };
 
   if (item.type === "link") {
+    const href = navItemHref(item);
+    if (!href) return null;
+
     return (
       <Link
-        {...linkProps(item.href, item.external)}
+        {...linkProps(href, item.external)}
         onClick={onNavigate}
         style={style}
         className="mobile-nav-item py-3.5 px-3 text-base font-medium text-ink/90 hover:text-primary border-b border-ink/5 font-sans tracking-wide"
@@ -199,9 +216,9 @@ function MobileNavItem({
       >
         <div className="mobile-accordion-inner">
           <div className="pb-3 pl-4 pr-2 flex flex-col gap-0.5">
-            {item.href && (
+            {(item.href || item.page) && (
               <Link
-                {...linkProps(item.href, item.external)}
+                {...linkProps(navItemHref(item) ?? "#", item.external)}
                 onClick={onNavigate}
                 className="py-2 px-2 text-sm font-semibold text-primary tracking-wide"
               >
@@ -210,8 +227,11 @@ function MobileNavItem({
             )}
             {item.items.map((sub) => (
               <Link
-                key={sub.href}
-                {...linkProps(sub.href, sub.external)}
+                key={navLinkHref(sub)}
+                {...linkProps(
+                  navLinkHref(sub),
+                  "external" in sub ? sub.external : undefined,
+                )}
                 onClick={() => {
                   setOpen(false);
                   onNavigate();
@@ -330,7 +350,7 @@ export default function Header() {
               item.type === "link" ? (
                 <Link
                   key={item.label}
-                  {...linkProps(item.href, item.external)}
+                  {...linkProps(navItemHref(item) ?? "#", item.external)}
                   className={linkClass}
                 >
                   {item.label}
