@@ -84,6 +84,34 @@ export default function CourseOverview({
 
   const activeVideoIndex = videos.findIndex((v) => v.id === activeVideoId);
 
+  const overviewSpecs = [
+    {
+      index: "01",
+      label: "Focus Level",
+      value: level,
+      hint: "All training experience welcome",
+    },
+    {
+      index: "02",
+      label: "Immersive Duration",
+      value: duration,
+      hint: "Full-time ashram residency",
+    },
+    {
+      index: "03",
+      label: "Certification",
+      value: certification,
+      hint: "Worldwide standard credentials",
+    },
+    {
+      index: "04",
+      label: "Course Fee",
+      value: fee,
+      hint: "All-inclusive tuition & board",
+      highlight: true,
+    },
+  ] as const;
+
   const prevVideo = () => {
     const idx = (activeVideoIndex - 1 + videos.length) % videos.length;
     setActiveVideoId(videos[idx].id);
@@ -410,64 +438,71 @@ export default function CourseOverview({
             )}
           </div>
 
-          {/* Bottom Specs Ribbon (Anchors the layout full-width) */}
+          {/* Bottom specs — course snapshot card */}
           <motion.div
             initial="hidden"
             whileInView="visible"
             viewport={VIEWPORT_ONCE}
             variants={fadeUp}
-            className="col-span-12 border-y border-y-ink/10 py-8 md:py-10 grid grid-cols-2 md:grid-cols-4 gap-8 mt-12 bg-white/30 backdrop-blur-xs px-6 md:px-12"
+            className="relative mt-12 overflow-hidden rounded-3xl bg-linear-to-br from-white via-white to-sand/50 shadow-card ring-1 ring-ink/6"
           >
-            {/* Spec 1 */}
-            <div className="space-y-2 text-center md:text-left md:border-r md:border-ink/10 pr-4 last:border-r-0">
-              <span className="type-eyebrow text-primary font-semibold uppercase tracking-wider block">
-                Focus Level
-              </span>
-              <span className="font-serif text-xl sm:text-2xl lg:text-3xl text-ink font-medium block leading-tight">
-                {level}
-              </span>
-              <span className="text-xs text-muted block font-sans">
-                All training experience welcome
-              </span>
+            <HeroFlourish
+              className="pointer-events-none absolute -right-10 -top-10 h-44 w-44 text-primary/6"
+              aria-hidden="true"
+            />
+
+            <div className="relative flex flex-col gap-1 border-b border-ink/6 bg-sand/30 px-6 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+              <p className="type-eyebrow font-semibold uppercase tracking-[0.2em] text-primary">
+                Course at a glance
+              </p>
+              <p className="font-sans text-xs text-muted">
+                Residential program essentials
+              </p>
             </div>
 
-            {/* Spec 2 */}
-            <div className="space-y-2 text-center md:text-left md:border-r md:border-ink/10 pr-4 last:border-r-0 md:pl-4">
-              <span className="type-eyebrow text-primary font-semibold uppercase tracking-wider block">
-                Immersive Duration
-              </span>
-              <span className="font-serif text-xl sm:text-2xl lg:text-3xl text-ink font-medium block leading-tight">
-                {duration}
-              </span>
-              <span className="text-xs text-muted block font-sans">
-                Full-time ashram residency
-              </span>
-            </div>
-
-            {/* Spec 3 */}
-            <div className="space-y-2 text-center md:text-left md:border-r md:border-ink/10 pr-4 last:border-r-0 md:pl-4">
-              <span className="type-eyebrow text-primary font-semibold uppercase tracking-wider block">
-                Certification
-              </span>
-              <span className="font-serif text-xl sm:text-2xl lg:text-3xl text-ink font-medium block leading-tight">
-                {certification}
-              </span>
-              <span className="text-xs text-muted block font-sans">
-                Worldwide standard credentials
-              </span>
-            </div>
-
-            {/* Spec 4 */}
-            <div className="space-y-2 text-center md:text-left pr-4 last:border-r-0 md:pl-4">
-              <span className="type-eyebrow text-primary font-semibold uppercase tracking-wider block">
-                Course Fee
-              </span>
-              <span className="font-serif text-xl sm:text-2xl lg:text-3xl text-ink font-medium block leading-tight">
-                {fee}
-              </span>
-              <span className="text-xs text-muted block font-sans">
-                All-inclusive tuition &amp; board
-              </span>
+            <div className="relative grid grid-cols-1 divide-y divide-ink/6 sm:grid-cols-2 sm:divide-x sm:divide-y-0 lg:grid-cols-4">
+              {overviewSpecs.map((spec) => (
+                <div
+                  key={spec.label}
+                  className={`group relative flex flex-col gap-3 px-6 py-8 transition-colors sm:px-7 md:py-9 ${
+                    "highlight" in spec && spec.highlight
+                      ? "bg-linear-to-br from-primary/10 via-primary/5 to-transparent lg:rounded-br-3xl"
+                      : "hover:bg-sand/25"
+                  }`}
+                >
+                  <div className="flex items-baseline justify-between gap-3">
+                    <span className="type-eyebrow font-semibold uppercase tracking-wider text-primary">
+                      {spec.label}
+                    </span>
+                    <span
+                      className="font-serif text-lg leading-none text-primary/20"
+                      aria-hidden="true"
+                    >
+                      {spec.index}
+                    </span>
+                  </div>
+                  <p
+                    className={`font-serif text-2xl font-medium leading-[1.15] tracking-tight sm:text-[1.65rem] ${
+                      "highlight" in spec && spec.highlight
+                        ? "text-primary"
+                        : "text-ink"
+                    }`}
+                  >
+                    {spec.value}
+                  </p>
+                  <p className="max-w-[16rem] font-sans text-xs leading-relaxed text-muted">
+                    {spec.hint}
+                  </p>
+                  <span
+                    className={`absolute bottom-0 left-6 right-6 h-px origin-left scale-x-0 transition-transform duration-300 group-hover:scale-x-100 sm:left-7 sm:right-7 ${
+                      "highlight" in spec && spec.highlight
+                        ? "bg-primary/25"
+                        : "bg-accent/50"
+                    }`}
+                    aria-hidden="true"
+                  />
+                </div>
+              ))}
             </div>
           </motion.div>
         </div>

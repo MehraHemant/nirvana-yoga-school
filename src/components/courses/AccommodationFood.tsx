@@ -58,14 +58,7 @@ function ImageGalleryPanel({
   const isInView = useInView(panelRef, { amount: 0.2 });
 
   const active = images[activeIndex] ?? images[0];
-  const progress =
-    images.length > 0 ? ((activeIndex + 1) / images.length) * 100 : 0;
 
-  const accentRing =
-    accent === "secondary"
-      ? "ring-secondary/25 border-secondary/20"
-      : "ring-primary/25 border-primary/20";
-  const accentBar = accent === "secondary" ? "bg-secondary" : "bg-primary";
   const accentThumb =
     accent === "secondary"
       ? "border-secondary ring-secondary/20"
@@ -127,7 +120,7 @@ function ImageGalleryPanel({
         />
 
         <div
-          className={`relative aspect-[5/3] rounded-3xl overflow-hidden bg-ink shadow-card ring-1 group ${accentRing}`}
+          className={`relative aspect-[5/3] rounded-3xl overflow-hidden group`}
         >
           <AnimatePresence mode="popLayout">
             <motion.button
@@ -342,13 +335,12 @@ export default function AccommodationFood() {
       />
 
       <Container size="2xl" className="relative w-full">
-        {/* Compact header row */}
         <motion.div
           initial="hidden"
           whileInView="visible"
           viewport={VIEWPORT_ONCE}
           variants={fadeUp}
-          className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-4"
+          className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
         >
           <SectionHeader
             eyebrow="Residential Life"
@@ -380,63 +372,13 @@ export default function AccommodationFood() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
-              transition={reducedTransition(prefersReduced, { duration: 0.3, ease: EASE_OUT })}
-              className="grid lg:grid-cols-12 gap-5 lg:gap-7 items-start"
+              transition={reducedTransition(prefersReduced, {
+                duration: 0.3,
+                ease: EASE_OUT,
+              })}
+              className="grid items-start gap-5 lg:grid-cols-12 lg:gap-7"
             >
-              {/* Left: Room selector + facilities */}
-              <div className="lg:col-span-5 order-2 lg:order-1 min-w-0 flex flex-col gap-4">
-                {/* Section intro */}
-                <div>
-                  <p className="font-serif text-base md:text-lg text-ink leading-snug mb-1">
-                    Choose your <span className="text-primary">room type</span>
-                  </p>
-                  <p className="text-xs text-muted font-sans leading-relaxed">
-                    {COMFORTABLE_STAY.description}
-                  </p>
-                </div>
-
-                {/* Room selector cards */}
-                <RoomTypeSelector activeId={roomTab} onChange={setRoomTab} />
-
-                {/* Active room description */}
-                {/* <AnimatePresence mode="wait">
-                  <motion.div
-                    key={roomTab}
-                    initial={{ opacity: 0, y: 4 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0 }}
-                    transition={reducedTransition(prefersReduced, { duration: 0.22, ease: EASE_OUT })}
-                    className="rounded-xl border border-primary/15 bg-primary/4 px-3.5 py-3"
-                  >
-                    <p className="text-xs text-ink/75 font-sans leading-relaxed">
-                      {activeRoom.description}
-                    </p>
-                  </motion.div>
-                </AnimatePresence> */}
-
-                {/* Campus facilities */}
-                <div className="rounded-2xl bg-white/70 border border-ink/6 p-3 shadow-xs">
-                  <p className="type-eyebrow text-secondary mb-2">
-                    Campus facilities
-                  </p>
-                  <ul className="grid grid-cols-2 gap-x-3 gap-y-1.5">
-                    {FACILITIES.map((facility) => (
-                      <li
-                        key={facility}
-                        className="flex items-center gap-1.5 text-[10px] sm:text-[11px] text-ink/75 font-sans"
-                      >
-                        <span className="w-3.5 h-3.5 rounded-full bg-primary/8 text-primary flex items-center justify-center shrink-0">
-                          <Check size={8} className="stroke-[3]" />
-                        </span>
-                        {facility}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-
-              {/* Right: Gallery */}
-              <div className="lg:col-span-7 order-1 lg:order-2 min-w-0">
+              <div className="min-w-0 lg:col-span-7">
                 <ImageGalleryPanel
                   key={roomTab}
                   images={[...activeRoom.images]}
@@ -446,6 +388,38 @@ export default function AccommodationFood() {
                     openLightbox([...activeRoom.images], index, activeRoom.label)
                   }
                 />
+              </div>
+
+              <div className="flex min-w-0 flex-col gap-4 lg:col-span-5">
+                <div>
+                  <p className="mb-1 font-serif text-base leading-snug text-ink md:text-lg">
+                    Choose your <span className="text-primary">room type</span>
+                  </p>
+                  <p className="font-sans text-xs leading-relaxed text-muted">
+                    {COMFORTABLE_STAY.description}
+                  </p>
+                </div>
+
+                <RoomTypeSelector activeId={roomTab} onChange={setRoomTab} />
+
+                <div className="rounded-2xl border border-ink/6 bg-white/70 p-3 shadow-xs">
+                  <p className="type-eyebrow mb-2 text-secondary">
+                    Campus facilities
+                  </p>
+                  <ul className="grid grid-cols-2 gap-x-3 gap-y-1.5">
+                    {FACILITIES.map((facility) => (
+                      <li
+                        key={facility}
+                        className="flex items-center gap-1.5 font-sans text-[10px] text-ink/75 sm:text-[11px]"
+                      >
+                        <span className="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-primary/8 text-primary">
+                          <Check size={8} className="stroke-[3]" />
+                        </span>
+                        {facility}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             </motion.div>
           ) : (
@@ -459,9 +433,49 @@ export default function AccommodationFood() {
                 duration: 0.35,
                 ease: EASE_OUT,
               })}
-              className="grid lg:grid-cols-12 gap-6 lg:gap-8 items-start"
+              className="grid items-start gap-6 lg:grid-cols-12 lg:gap-8"
             >
-              <div className="lg:col-span-7 min-w-0">
+              <div className="order-2 min-w-0 lg:order-1 lg:col-span-5">
+                <div className="mb-4 border-l-2 border-secondary/40 pl-4 sm:pl-5">
+                  <p className="type-eyebrow mb-1.5 text-secondary">
+                    Sattvic Cuisine
+                  </p>
+                  <h3 className="mb-2 font-serif text-lg leading-tight text-ink md:text-xl">
+                    Nourishing meals for a{" "}
+                    <span className="text-primary">yogic life</span>
+                  </h3>
+                  <p className="font-sans text-xs leading-relaxed text-muted sm:text-sm">
+                    {FOOD_CONTENT.description}
+                  </p>
+                </div>
+
+                <ul className="mb-3 space-y-2">
+                  {FOOD_CONTENT.points.map((point) => (
+                    <li
+                      key={point}
+                      className="flex gap-2.5 rounded-xl border border-ink/5 bg-white/70 p-2.5"
+                    >
+                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-secondary/10 bg-secondary/10 text-secondary">
+                        <Check size={11} className="stroke-[2.5]" />
+                      </span>
+                      <span className="pt-0.5 font-sans text-xs leading-snug text-ink/80 sm:text-sm">
+                        {point}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="rounded-2xl border border-secondary/15 bg-white p-3 shadow-xs sm:p-4">
+                  <p className="type-eyebrow mb-1.5 text-secondary">
+                    Something in particular?
+                  </p>
+                  <p className="font-sans text-xs leading-relaxed text-muted sm:text-sm">
+                    {FOOD_CONTENT.dietaryNote}
+                  </p>
+                </div>
+              </div>
+
+              <div className="order-1 min-w-0 lg:order-2 lg:col-span-7">
                 <ImageGalleryPanel
                   images={FOOD_GALLERY}
                   label="Sattvic Cuisine"
@@ -470,46 +484,6 @@ export default function AccommodationFood() {
                     openLightbox(FOOD_GALLERY, index, "Sattvic Food & Dining")
                   }
                 />
-              </div>
-
-              <div className="lg:col-span-5 min-w-0">
-                <div className="border-l-2 border-secondary/40 pl-4 sm:pl-5 mb-4">
-                  <p className="type-eyebrow text-secondary mb-1.5">
-                    Sattvic Cuisine
-                  </p>
-                  <h3 className="font-serif text-lg md:text-xl text-ink leading-tight mb-2">
-                    Nourishing meals for a{" "}
-                    <span className="text-primary">yogic life</span>
-                  </h3>
-                  <p className="text-xs sm:text-sm text-muted font-sans leading-relaxed">
-                    {FOOD_CONTENT.description}
-                  </p>
-                </div>
-
-                <ul className="space-y-2 mb-3">
-                  {FOOD_CONTENT.points.map((point) => (
-                    <li
-                      key={point}
-                      className="flex gap-2.5 rounded-xl bg-white/70 border border-ink/5 p-2.5"
-                    >
-                      <span className="w-6 h-6 rounded-lg bg-secondary/10 text-secondary flex items-center justify-center shrink-0 border border-secondary/10">
-                        <Check size={11} className="stroke-[2.5]" />
-                      </span>
-                      <span className="text-xs sm:text-sm text-ink/80 font-sans leading-snug pt-0.5">
-                        {point}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-
-                <div className="rounded-2xl border border-secondary/15 bg-white p-3 sm:p-4 shadow-xs">
-                  <p className="type-eyebrow text-secondary mb-1.5">
-                    Something in particular?
-                  </p>
-                  <p className="text-xs sm:text-sm text-muted font-sans leading-relaxed">
-                    {FOOD_CONTENT.dietaryNote}
-                  </p>
-                </div>
               </div>
             </motion.div>
           )}

@@ -3,11 +3,6 @@ export type WhyNirvanaHighlight = {
   body: string;
 };
 
-export const WHY_NIRVANA_INTRO = [
-  "Choosing your perfect space in Rishikesh for yoga teacher training is more than just picking a course: it is a sanctuary where your heart feels at home, your body is supported, and your spirit is inspired to arise.",
-  "Nirvana Yoga School has set up an environment conducive to deep learning, healing, and authentic transformation—a place where every detail encourages you to reconnect with yourself.",
-] as const;
-
 export const WHY_NIRVANA_HIGHLIGHTS: WhyNirvanaHighlight[] = [
   {
     title: "Quality Education Rooted in Tradition",

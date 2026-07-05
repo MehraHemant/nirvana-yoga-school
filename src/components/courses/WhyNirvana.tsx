@@ -20,7 +20,6 @@ import {
   WHY_NIRVANA_BANNER,
   WHY_NIRVANA_CLOSING,
   WHY_NIRVANA_HIGHLIGHTS,
-  WHY_NIRVANA_INTRO,
 } from "@/data/whyNirvana";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 
@@ -44,52 +43,24 @@ const HIGHLIGHT_ICONS = [
 export default function WhyNirvana() {
   return (
     <section id="why-nirvana" className="bg-white">
-      <div className="relative overflow-hidden py-20 sm:py-28 md:py-32">
-        <Image
-          src={WHY_NIRVANA_BANNER}
-          alt="Yoga practice at Nirvana Yoga School on Silent Hill, Upper Tapovan, Rishikesh"
-          fill
-          sizes="100vw"
-          className="object-cover object-center"
-          priority
-        />
-        <div
-          className="absolute inset-0 bg-linear-to-b from-ink/75 via-ink/60 to-ink/80"
-          aria-hidden="true"
-        />
-        <div
-          className="pointer-events-none absolute -left-24 bottom-0 h-[280px] w-[280px] rounded-full bg-primary/20 blur-[100px]"
-          aria-hidden="true"
-        />
-
-        <Container size="2xl" className="relative z-10">
+      <Container size="2xl" className="py-16 sm:py-20">
           <motion.div
             initial="hidden"
             whileInView="visible"
             viewport={VIEWPORT_ONCE}
             variants={fadeUp}
-            className="mx-auto max-w-3xl text-center"
+            className="mx-auto max-w-3xl text-center mb-8"
           >
             <SectionHeader
               eyebrow="Silent Hill · Upper Tapovan"
               title={
                 <>
-                  Why <span className="text-accent">Nirvana?</span>
+                  Why <span className="text-primary">Nirvana?</span>
                 </>
               }
               align="center"
-              invert
             />
-            <div className="mt-6 space-y-4 text-center font-sans text-sm leading-relaxed text-white/80 sm:text-base">
-              {WHY_NIRVANA_INTRO.map((p) => (
-                <p key={p.slice(0, 32)}>{p}</p>
-              ))}
-            </div>
           </motion.div>
-        </Container>
-      </div>
-
-      <Container size="2xl" className="py-16 sm:py-20">
         <motion.div
           initial="hidden"
           whileInView="visible"
@@ -100,28 +71,27 @@ export default function WhyNirvana() {
             What Makes Nirvana a Truly Unique Experience?
           </h3>
 
-          <ul className="columns-1 gap-x-12 md:columns-2">
+          <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-x-8 md:gap-y-5">
             {WHY_NIRVANA_HIGHLIGHTS.map((item, i) => {
               const Icon = HIGHLIGHT_ICONS[i] ?? BookOpen;
               return (
-                <li
-                  key={item.title}
-                  className="mb-6 break-inside-avoid"
-                >
-                  <div className="flex items-start gap-3">
+                <li key={item.title}>
+                  <article className="group flex h-full gap-4 rounded-2xl border border-ink/6 bg-paper/40 p-4 transition-all duration-300 hover:border-primary/15 hover:bg-white hover:shadow-soft sm:p-5">
                     <span
-                      className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-secondary/10"
+                      className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white shadow-xs ring-1 ring-secondary/15 transition-colors group-hover:bg-primary/5 group-hover:ring-primary/20"
                       aria-hidden="true"
                     >
-                      <Icon size={16} className="text-secondary" />
+                      <Icon size={18} className="text-primary" />
                     </span>
-                    <p className="type-body leading-relaxed text-ink/85">
-                      <strong className="font-sans font-semibold text-ink">
-                        {item.title}:
-                      </strong>{" "}
-                      <span className="text-muted">{item.body}</span>
-                    </p>
-                  </div>
+                    <div className="min-w-0">
+                      <h4 className="type-display-sm mb-1.5 font-serif leading-snug text-ink">
+                        {item.title}
+                      </h4>
+                      <p className="font-sans text-sm leading-relaxed text-muted">
+                        {item.body}
+                      </p>
+                    </div>
+                  </article>
                 </li>
               );
             })}
@@ -133,7 +103,7 @@ export default function WhyNirvana() {
         </motion.div>
       </Container>
 
-      <div className="relative mt-16 overflow-hidden bg-white py-16 sm:py-20">
+      <div className="relative mt-8 overflow-hidden bg-white pb-16 sm:pb-20">
         <div
           className="pointer-events-none absolute -right-20 top-0 h-[320px] w-[320px] rounded-full bg-primary/5 blur-[90px]"
           aria-hidden="true"

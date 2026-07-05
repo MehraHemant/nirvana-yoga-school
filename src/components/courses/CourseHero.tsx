@@ -257,64 +257,15 @@ export default function CourseHero({
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.25, 0, 0, 1] }}
-          className="mb-3 flex shrink-0 items-end justify-between gap-4 pt-4"
+          className="w-full flex flex-col items-center justify-center mb-4 mt-6"
         >
-          <div className="min-w-0">
             <Heading
               as="h1"
               size="h2"
-              className="line-clamp-2 max-w-4xl font-medium leading-tightest! text-ink/90 text-xl sm:text-2xl md:text-3xl lg:text-[2.2rem]"
+              className="line-clamp-2 text-center font-medium text-xl md:text-3xl lg:text-4xl"
             >
               {title}
             </Heading>
-            <p className="mt-1 text-[11px] font-semibold uppercase tracking-widest text-accent/80">
-              {photos.length} photos
-              {videoIds.length > 0 ? ` · ${videoIds.length} videos` : ""}
-            </p>
-          </div>
-
-          {/* Meta chips + CTA — desktop only */}
-          <div className="hidden shrink-0 items-center gap-3 md:flex">
-            {hasMeta && (
-              <div className="flex items-center gap-3 rounded-2xl bg-white/60 px-4 py-2 backdrop-blur-sm ring-1 ring-ink/6">
-                {duration && (
-                  <div>
-                    <p className="text-[9px] font-semibold uppercase tracking-widest text-muted/60">
-                      Duration
-                    </p>
-                    <p className="text-xs font-semibold text-ink">{duration}</p>
-                  </div>
-                )}
-                {certification && (
-                  <>
-                    <div className="h-6 w-px bg-ink/8" />
-                    <div>
-                      <p className="text-[9px] font-semibold uppercase tracking-widest text-muted/60">
-                        Certification
-                      </p>
-                      <p className="text-xs font-semibold text-ink">
-                        {certification}
-                      </p>
-                    </div>
-                  </>
-                )}
-                {fee && (
-                  <>
-                    <div className="h-6 w-px bg-ink/8" />
-                    <div>
-                      <p className="text-[9px] font-semibold uppercase tracking-widest text-muted/60">
-                        Fee
-                      </p>
-                      <p className="text-xs font-semibold text-primary">
-                        {fee}
-                      </p>
-                    </div>
-                  </>
-                )}
-              </div>
-            )}
-
-          </div>
         </motion.div>
 
         {/* ── Bento grid ─────────────────────────────────────────────────── */}
@@ -363,6 +314,46 @@ export default function CourseHero({
                 </motion.div>
               )}
             </AnimatePresence>
+
+            {/* Course meta — frosted overlay on main photo */}
+            {hasMeta && !activeVideoId && (
+              <div className="pointer-events-none absolute top-3 left-3 z-20 flex items-center gap-3 rounded-2xl bg-ink/45 px-4 py-2 backdrop-blur-md ring-1 ring-white/10">
+                {duration && (
+                  <div>
+                    <p className="text-[9px] font-semibold uppercase tracking-widest text-white/65">
+                      Duration
+                    </p>
+                    <p className="text-xs font-semibold text-white">{duration}</p>
+                  </div>
+                )}
+                {certification && (
+                  <>
+                    <div className="h-6 w-px bg-white/25" aria-hidden="true" />
+                    <div>
+                      <p className="text-[9px] font-semibold uppercase tracking-widest text-white/65">
+                        Certification
+                      </p>
+                      <p className="text-xs font-semibold text-white">
+                        {certification}
+                      </p>
+                    </div>
+                  </>
+                )}
+                {fee && (
+                  <>
+                    <div className="h-6 w-px bg-white/25" aria-hidden="true" />
+                    <div>
+                      <p className="text-[9px] font-semibold uppercase tracking-widest text-white/65">
+                        Fee
+                      </p>
+                      <p className="text-xs font-semibold text-accent">
+                        {fee}
+                      </p>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
 
             {/* Back-to-photos button (shown while video plays) */}
             {activeVideoId && (
