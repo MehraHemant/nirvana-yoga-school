@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Button, Container } from "@/components/ui";
+import { Container } from "@/components/ui";
 import {
   Bookmark,
   ChevronLeft,
@@ -11,6 +11,7 @@ import {
   Comment,
   Heart,
   Instagram,
+  Link,
   MoreHorizontal,
   Play,
   Send,
@@ -57,82 +58,116 @@ function InstagramProfileBar({
   const avatar = feed.media[0]?.image;
   const followers = feed.followersCount ?? 12_400;
   const following = feed.followingCount ?? 842;
+  const websiteHref = feed.website
+    ? feed.website.startsWith("http")
+      ? feed.website
+      : `https://${feed.website}`
+    : null;
+  const websiteLabel = feed.website?.replace(/^https?:\/\//, "") ?? "";
+  const bioLines = feed.bio?.split("\n").filter(Boolean) ?? [];
+
+  const stats = [
+    { value: feed.postsCount, label: "posts" },
+    { value: formatCount(followers), label: "followers" },
+    { value: formatCount(following), label: "following" },
+  ];
 
   return (
-    <div className="mb-10 flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-      <div className="flex flex-col gap-5 sm:flex-row sm:gap-6">
-        <div className="relative mx-auto h-[72px] w-[72px] shrink-0 overflow-hidden rounded-full bg-linear-to-br from-[#feda75] via-[#fa7e1e] to-[#d62976] p-[3px] sm:mx-0 sm:h-20 sm:w-20">
-          <div className="relative h-full w-full overflow-hidden rounded-full border-2 border-white bg-white">
-            {avatar ? (
-              <Image
-                src={avatar}
-                alt=""
-                fill
-                unoptimized
-                sizes="80px"
-                className="object-cover"
-              />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center bg-sand">
-                <Instagram size={28} className="text-primary" />
-              </div>
-            )}
+    <a
+      href={profileUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={`View @${handle} on Instagram`}
+      className="group relative mb-10 block w-full overflow-hidden rounded-3xl bg-linear-to-br from-secondary via-secondary to-secondary-dark p-6 shadow-soft transition-all hover:shadow-lg sm:p-8 lg:p-10"
+    >
+      <div
+        className="pointer-events-none absolute -left-20 -top-20 h-56 w-56 rounded-full bg-white/10 blur-3xl"
+        aria-hidden="true"
+      />
+      <div
+        className="pointer-events-none absolute -bottom-16 -right-10 h-48 w-48 rounded-full bg-black/20 blur-3xl"
+        aria-hidden="true"
+      />
+
+      <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:gap-10">
+        {/* Avatar */}
+        <div className="mx-auto shrink-0 lg:mx-0">
+          <div className="rounded-full bg-linear-to-tr from-[#feda75] via-[#fa7e1e] via-35% to-[#d62976] p-[3px] shadow-lg">
+            <div className="relative h-[108px] w-[108px] overflow-hidden rounded-full border-[3px] border-primary bg-white sm:h-[120px] sm:w-[120px] lg:h-[128px] lg:w-[128px]">
+              {avatar ? (
+                <Image
+                  src={avatar}
+                  alt=""
+                  fill
+                  unoptimized
+                  sizes="(max-width: 640px) 108px, 128px"
+                  className="object-cover"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-sand">
+                  <Instagram size={36} className="text-primary" />
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
-        <div className="min-w-0 text-center sm:text-left">
-          <p className="font-sans text-lg font-semibold text-ink">{handle}</p>
+        {/* Main content */}
+        <div className="min-w-0 flex-1 text-center font-sans text-white lg:text-left">
+          <ul className="mb-4 inline-flex flex-wrap justify-center divide-x divide-white/30 sm:gap-0 lg:justify-start">
+            {stats.map((stat) => (
+              <li key={stat.label} className="px-4 first:pl-0 sm:px-6">
+                <p className="text-lg font-bold leading-none tabular-nums sm:text-xl">
+                  {stat.value}
+                </p>
+                <p className="mt-1 text-xs text-white/80 sm:text-sm">{stat.label}</p>
+              </li>
+            ))}
+          </ul>
 
-          <div className="mt-3 flex flex-wrap justify-center gap-5 font-sans text-sm text-ink sm:justify-start">
-            <span>
-              <strong className="font-semibold">{feed.postsCount}</strong> posts
-            </span>
-            <span>
-              <strong className="font-semibold">{formatCount(followers)}</strong>{" "}
-              followers
-            </span>
-            <span>
-              <strong className="font-semibold">{formatCount(following)}</strong>{" "}
-              following
-            </span>
-          </div>
+          <p className="text-xl font-bold leading-tight sm:text-2xl">{handle}</p>
+          <p className="mt-1 text-sm font-semibold text-white/90">{displayName}</p>
 
-          <div className="mt-4 space-y-1">
-            <p className="font-sans text-sm font-semibold text-ink">
-              {displayName}
-            </p>
-            {feed.bio && (
-              <p className="whitespace-pre-line font-sans text-sm leading-relaxed text-ink/85">
-                {feed.bio}
-              </p>
-            )}
-            {feed.website && (
-              <a
-                href={
-                  feed.website.startsWith("http")
-                    ? feed.website
-                    : `https://${feed.website}`
-                }
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block font-sans text-sm font-semibold text-[#00376b] hover:underline"
-              >
-                {feed.website.replace(/^https?:\/\//, "")}
-              </a>
-            )}
-          </div>
+          {bioLines.length > 0 && (
+            <div className="mx-auto mt-3 max-w-lg space-y-1 lg:mx-0">
+              {bioLines.map((line, i) => (
+                <p
+                  key={line}
+                  className={
+                    i === 0
+                      ? "text-[15px] font-medium leading-snug text-white"
+                      : "text-sm leading-relaxed text-white/85"
+                  }
+                >
+                  {line}
+                </p>
+              ))}
+            </div>
+          )}
+
+          {websiteHref && (
+            <span className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-white/12 px-3.5 py-1.5 text-sm font-semibold text-white ring-1 ring-white/20 transition-colors group-hover:bg-white/18">
+              <Link size={14} className="shrink-0 opacity-90" />
+              {websiteLabel}
+            </span>
+          )}
+        </div>
+
+        {/* Follow CTA — desktop */}
+        <div className="hidden shrink-0 lg:block">
+          <span className="inline-flex items-center gap-2 rounded-xl bg-white px-7 py-2.5 text-sm font-semibold text-primary shadow-md transition-transform group-hover:scale-[1.02]">
+            <Instagram size={16} />
+            Follow
+          </span>
         </div>
       </div>
 
-      <Button
-        href={profileUrl}
-        variant="primary"
-        size="md"
-        className="mx-auto shrink-0 sm:mx-0 lg:mt-2"
-      >
+      {/* Follow CTA — mobile */}
+      <span className="relative z-10 mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-white py-2.5 text-sm font-semibold text-primary shadow-md transition-transform group-hover:scale-[1.01] lg:hidden">
+        <Instagram size={16} />
         Follow on Instagram
-      </Button>
-    </div>
+      </span>
+    </a>
   );
 }
 
@@ -494,13 +529,6 @@ export default function InstagramFeed() {
       className="relative overflow-x-clip bg-white py-20 sm:py-28"
     >
       <Container size="2xl">
-        <div className="mb-10 flex items-center gap-3">
-          <Instagram size={22} className="text-primary" />
-          <h2 className="font-serif text-2xl text-ink sm:text-3xl">
-            Instagram
-          </h2>
-        </div>
-
         {media.length > 0 ? (
           <>
             <InstagramProfileBar feed={feed} profileUrl={profileUrl} />

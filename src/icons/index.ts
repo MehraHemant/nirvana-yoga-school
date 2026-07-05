@@ -21,6 +21,7 @@ export { default as HeroUnderline } from "./HeroUnderline";
 export { default as Instagram } from "./Instagram";
 export { default as Layers } from "./Layers";
 export { default as Leaf } from "./Leaf";
+export { default as Link } from "./Link";
 export { default as Logo } from "./Logo";
 export { default as Lotus } from "./Lotus";
 export { default as MenuIcon } from "./MenuIcon";
