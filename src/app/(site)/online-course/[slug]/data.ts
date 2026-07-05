@@ -1,7 +1,7 @@
 import { getCourseMedia } from "@/content";
 import type { OnlineCourseDocument } from "@/content/types";
 import { fetchYouTubeVideos } from "@/lib/youtube";
-import type { OnlinePageData } from "./types";
+import type { OnlineCoursePageData } from "./types";
 
 export const ONLINE_BATCHES = [
   {
@@ -13,10 +13,10 @@ export const ONLINE_BATCHES = [
   },
 ];
 
-export async function loadOnlinePageData(
+export async function loadOnlineCoursePageData(
   slug: string,
   course: OnlineCourseDocument,
-): Promise<OnlinePageData> {
+): Promise<OnlineCoursePageData> {
   const media = await getCourseMedia(slug);
   const videos = await fetchYouTubeVideos(
     media.videos.map((id) => `https://www.youtube.com/watch?v=${id}`),

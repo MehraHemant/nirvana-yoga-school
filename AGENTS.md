@@ -76,8 +76,8 @@ Set `DATABASE_URL` in `.env` so repositories read from PostgreSQL (fallback: bun
 src/
   app/
     (site)/
-      course/[slug]/        # Residential YTT — page.tsx + ResidentialClient, data.ts, types.ts
-      online-course/[slug]/ # Online courses — OnlineClient, data.ts, types.ts
+      course/[slug]/        # Residential YTT — page.tsx + CourseClient, data.ts, types.ts
+      online-course/[slug]/ # Online courses — OnlineCourseClient, data.ts, types.ts
       retreat/[slug]/       # Retreat pages — RetreatClient
       venue/[slug]/         # Venue pages — VenueClient
       [slug]/               # Other site pages (teacher, about, hubs, …)

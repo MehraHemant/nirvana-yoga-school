@@ -12,13 +12,13 @@ import {
 import { TeachersSection } from "@/components/home";
 import { FAQSection } from "@/components/ui";
 import { ONLINE_BATCHES } from "./data";
-import type { OnlinePageData } from "./types";
+import type { OnlineCoursePageData } from "./types";
 
-export default function OnlineClient({
+export default function OnlineCourseClient({
   course,
   media,
   videos,
-}: OnlinePageData) {
+}: OnlineCoursePageData) {
   return (
     <>
       <CourseHero

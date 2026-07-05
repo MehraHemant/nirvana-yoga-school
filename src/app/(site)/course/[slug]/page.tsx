@@ -4,8 +4,8 @@ import { MapSection } from "@/components/home";
 import { getResidentialCourse } from "@/content";
 import { getSlugsByType } from "@/content/pages";
 import { courseMetadata } from "../../_shared/metadata";
-import { loadResidentialPageData } from "./data";
-import ResidentialClient from "./ResidentialClient";
+import CourseClient from "./CourseClient";
+import { loadCoursePageData } from "./data";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -35,11 +35,11 @@ export default async function Page({ params }: PageProps) {
   const result = await getResidentialCourse(slug);
   if (!result.data) notFound();
 
-  const data = await loadResidentialPageData(slug, result.data);
+  const data = await loadCoursePageData(slug, result.data);
 
   return (
     <>
-      <ResidentialClient {...data} />
+      <CourseClient {...data} />
       <MapSection />
     </>
   );

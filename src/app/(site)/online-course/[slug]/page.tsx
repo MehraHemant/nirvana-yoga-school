@@ -3,8 +3,8 @@ import { notFound } from "next/navigation";
 import { getOnlineCourse } from "@/content";
 import { getSlugsByType } from "@/content/pages";
 import { courseMetadata } from "../../_shared/metadata";
-import { loadOnlinePageData } from "./data";
-import OnlineClient from "./OnlineClient";
+import { loadOnlineCoursePageData } from "./data";
+import OnlineCourseClient from "./OnlineCourseClient";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -33,6 +33,6 @@ export default async function Page({ params }: PageProps) {
   const result = await getOnlineCourse(slug);
   if (!result.data) notFound();
 
-  const data = await loadOnlinePageData(slug, result.data);
-  return <OnlineClient {...data} />;
+  const data = await loadOnlineCoursePageData(slug, result.data);
+  return <OnlineCourseClient {...data} />;
 }

@@ -17,13 +17,13 @@ import {
   WhyNirvana,
 } from "@/components/courses";
 import { COURSE_FAQ_CATEGORIES, FAQSection } from "@/components/ui";
-import type { ResidentialPageData } from "./types";
+import type { CoursePageData } from "./types";
 
-export default function ResidentialClient({
+export default function CourseClient({
   course,
   media,
   videos,
-}: ResidentialPageData) {
+}: CoursePageData) {
   return (
     <>
       <CourseHero
