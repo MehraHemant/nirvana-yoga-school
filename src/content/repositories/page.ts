@@ -1,51 +1,28 @@
+import { loadPageBySlug } from "@/content/pages/load";
+import { PAGES } from "@/content/pages/registry";
 import type { RepositoryOptions } from "@/content/repositories/fetch";
-import {
-  getOnlineCourse,
-  getOnlineCourseSlugs,
-} from "@/content/repositories/online-course";
-import {
-  getResidentialCourse,
-  getResidentialCourseSlugs,
-} from "@/content/repositories/residential-course";
-import {
-  getSitePage,
-  getSitePageSlugs,
-} from "@/content/repositories/site-page";
 import type { PageDocument } from "@/content/types";
 
-/** Single entry point for `[slug]` route — online → residential → site. */
+/** Resolve any page by slug — uses the pages registry for type, then loads data. */
 export async function getPageBySlug(
   slug: string,
-  options?: RepositoryOptions,
+  _options?: RepositoryOptions,
 ): Promise<PageDocument | null> {
-  const online = await getOnlineCourse(slug, options);
-  if (online.data) {
-    return { kind: "online", slug, course: online.data };
-  }
-
-  const residential = await getResidentialCourse(slug, options);
-  if (residential.data) {
-    return { kind: "residential", slug, course: residential.data };
-  }
-
-  const site = await getSitePage(slug, options);
-  if (site.data) {
-    return { kind: "site", slug, page: site.data };
-  }
-
-  return null;
+  return loadPageBySlug(slug);
 }
 
 /** All slugs for static generation (deduplicated). */
 export async function getAllPageSlugs(): Promise<string[]> {
-  const [online, residential, site] = await Promise.all([
-    getOnlineCourseSlugs(),
-    getResidentialCourseSlugs(),
-    getSitePageSlugs(),
-  ]);
-  return [...new Set([...online, ...residential, ...site])];
+  return PAGES.map((page) => page.slug);
 }
 
+export { loadPage, loadPageBySlug } from "@/content/pages/load";
+export { pagePath } from "@/content/pages/path";
+export {
+  getPageRef,
+  getPageType,
+  getSlugsByType,
+} from "@/content/pages/registry";
 export {
   getBlogPost,
   getBlogPostSlugs,

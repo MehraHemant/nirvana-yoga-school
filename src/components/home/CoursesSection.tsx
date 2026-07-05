@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { Container, CourseCard, SectionHeader } from "@/components/ui";
 import type { CourseCardProps } from "@/components/ui/CourseCard";
+import { pagePath } from "@/content/pages/path";
 import { LIVE_SITE } from "@/lib/live-site";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 
@@ -18,7 +19,7 @@ const COURSES: (CourseCardProps & { highlights: string[] })[] = [
     image:
       "https://images.unsplash.com/photo-1599447421416-3414500d18a5?w=800&auto=format&fit=crop&q=80",
     certBadge: `${SITE}/img/ryt200.webp`,
-    href: "/200-hour-yoga-teacher-training-in-rishikesh-india",
+    href: pagePath({ type: "course", slug: "200-hour-yoga-teacher-training-in-rishikesh-india" }),
     highlights: [
       "Ashtanga Primary Series",
       "Traditional Hatha",
@@ -35,7 +36,7 @@ const COURSES: (CourseCardProps & { highlights: string[] })[] = [
     image:
       "https://images.unsplash.com/photo-1612817288484-6f916006741a?w=800&auto=format&fit=crop&q=80",
     certBadge: `${SITE}/img/ryt200.webp`,
-    href: "/200-hour-ayurveda-yoga-teacher-training-in-rishikesh-india",
+    href: pagePath({ type: "course", slug: "200-hour-ayurveda-yoga-teacher-training-in-rishikesh-india" }),
     highlights: [
       "Ayurvedic Constitution (Prakriti)",
       "Panchakarma Basics",
@@ -52,7 +53,7 @@ const COURSES: (CourseCardProps & { highlights: string[] })[] = [
     image:
       "https://images.unsplash.com/photo-1528319725582-ddc096101511?w=800&auto=format&fit=crop&q=80",
     certBadge: `${SITE}/img/ryt200.webp`,
-    href: "/200-hour-meditation-teacher-training-in-rishikesh-india",
+    href: pagePath({ type: "course", slug: "200-hour-meditation-teacher-training-in-rishikesh-india" }),
     highlights: [
       "Meditation Techniques",
       "Yoga Nidra Scripting",
@@ -69,7 +70,7 @@ const COURSES: (CourseCardProps & { highlights: string[] })[] = [
     image:
       "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800&auto=format&fit=crop&q=80",
     certBadge: `${SITE}/img/ryt200.webp`,
-    href: "/200-hour-kundalini-yoga-teacher-training-in-rishikesh-india",
+    href: pagePath({ type: "course", slug: "200-hour-kundalini-yoga-teacher-training-in-rishikesh-india" }),
     highlights: [
       "Kriya & Energy Channels",
       "Chakra Activation",
@@ -86,7 +87,7 @@ const COURSES: (CourseCardProps & { highlights: string[] })[] = [
     image:
       "https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?w=800&auto=format&fit=crop&q=80",
     certBadge: `${SITE}/img/ryt300.webp`,
-    href: "/300-hour-yoga-teacher-training-in-rishikesh-india",
+    href: pagePath({ type: "course", slug: "300-hour-yoga-teacher-training-in-rishikesh-india" }),
     highlights: [
       "Advanced Asanas & Adjustments",
       "Advanced Ayurveda Therapy",
@@ -103,7 +104,7 @@ const COURSES: (CourseCardProps & { highlights: string[] })[] = [
     image:
       "https://images.unsplash.com/photo-1508672019048-805c876b67e2?w=800&auto=format&fit=crop&q=80",
     certBadge: `${SITE}/img/ryt500.webp`,
-    href: "/500-hour-yoga-teacher-training-in-rishikesh-india",
+    href: pagePath({ type: "course", slug: "500-hour-yoga-teacher-training-in-rishikesh-india" }),
     highlights: [
       "Master Class Pedagogy",
       "Complete Sanskrit Studies",

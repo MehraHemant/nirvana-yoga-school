@@ -9,11 +9,18 @@ export type {
   ResidentialCourseDocument,
 } from "@/content/types/course";
 export type {
+  PageRef,
+  PageType,
+} from "@/content/types/page-ref";
+export type {
+  BlogPage,
+  CoursePage,
   OnlinePage,
   PageDocument,
   PageKind,
-  ResidentialPage,
+  RetreatPage,
   SitePage,
+  VenuePage,
 } from "@/content/types/page";
 export type {
   CourseMedia,

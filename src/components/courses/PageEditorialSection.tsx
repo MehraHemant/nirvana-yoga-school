@@ -2,8 +2,8 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
+import SectionBlocksRenderer from "@/components/courses/SectionBlocksRenderer";
 import { Container, SectionHeader } from "@/components/ui";
-import SectionBlocksRenderer from "@/components/pages/modules/SectionBlocksRenderer";
 import type { SitePageSection } from "@/data/sitePages";
 import { Check } from "@/icons";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
@@ -65,7 +65,10 @@ export default function PageEditorialSection({
                         key={item}
                         className="flex items-start gap-2.5 rounded-2xl border border-ink/6 bg-white p-4 font-sans text-sm text-muted shadow-card"
                       >
-                        <Check size={16} className="mt-0.5 shrink-0 text-primary" />
+                        <Check
+                          size={16}
+                          className="mt-0.5 shrink-0 text-primary"
+                        />
                         <span>{item}</span>
                       </li>
                     ))}
@@ -92,7 +95,10 @@ export default function PageEditorialSection({
                             key={item}
                             className="flex items-start gap-2 font-sans text-sm text-muted"
                           >
-                            <Check size={14} className="mt-0.5 shrink-0 text-primary" />
+                            <Check
+                              size={14}
+                              className="mt-0.5 shrink-0 text-primary"
+                            />
                             <span>{item}</span>
                           </li>
                         ))}

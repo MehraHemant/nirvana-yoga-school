@@ -160,7 +160,7 @@ export default function CourseStickyNav({
       ref={barRef}
       className={`sticky top-20 z-30 w-full max-w-full transition-[background,box-shadow,border-color] duration-300 ${
         isScrolled
-          ? "border-b border-ink/8 bg-white/90 shadow-soft backdrop-blur-md"
+          ? "border-b border-ink/8  bg-white/90 shadow-soft backdrop-blur-md"
           : "bg-white"
       }`}
     >

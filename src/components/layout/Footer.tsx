@@ -2,6 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { logo_white } from "@/assets";
 import { Container } from "@/components/ui";
+import { pagePath } from "@/content/pages/path";
+import type { PageRef } from "@/content/types/page-ref";
 import { Facebook, Instagram, WhatsApp, YouTube } from "@/icons";
 
 const SOCIAL = [
@@ -25,27 +27,45 @@ const SOCIAL = [
 
 const PROGRAMS = [
   {
-    href: "/200-hour-yoga-teacher-training-in-rishikesh-india",
+    page: {
+      type: "course",
+      slug: "200-hour-yoga-teacher-training-in-rishikesh-india",
+    },
     label: "200-Hour YTT",
   },
   {
-    href: "/300-hour-yoga-teacher-training-in-rishikesh-india",
+    page: {
+      type: "course",
+      slug: "300-hour-yoga-teacher-training-in-rishikesh-india",
+    },
     label: "300-Hour YTT",
   },
   {
-    href: "/500-hour-yoga-teacher-training-in-rishikesh-india",
+    page: {
+      type: "course",
+      slug: "500-hour-yoga-teacher-training-in-rishikesh-india",
+    },
     label: "500-Hour YTT",
   },
   {
-    href: "/200-hour-kundalini-yoga-teacher-training-in-rishikesh-india",
+    page: {
+      type: "course",
+      slug: "200-hour-kundalini-yoga-teacher-training-in-rishikesh-india",
+    },
     label: "Kundalini YTT",
   },
   {
-    href: "/online-yoga-teacher-training-courses",
+    page: { type: "site", slug: "online-yoga-teacher-training-courses" },
     label: "Online Courses",
   },
-  { href: "/3-day-yoga-retreat-in-rishikesh-india", label: "Retreats" },
-];
+  {
+    page: { type: "retreat", slug: "3-day-yoga-retreat-in-rishikesh-india" },
+    label: "Retreats",
+  },
+].map((item) => ({
+  href: pagePath(item.page as PageRef),
+  label: item.label,
+}));
 
 const SCHOOL = [
   { href: "/#about", label: "About" },

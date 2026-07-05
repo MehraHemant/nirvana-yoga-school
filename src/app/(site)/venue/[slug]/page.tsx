@@ -1,16 +1,18 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getSlugsByType, isDedicatedRouteSlug } from "@/content/pages";
+import { MapSection } from "@/components/home";
+import { getSlugsByType } from "@/content/pages";
 import { getSitePage } from "@/content";
-import { courseMetadata } from "../_shared/metadata";
-import { renderSitePage } from "./_site/render";
+import { courseMetadata } from "../../_shared/metadata";
+import { loadSitePageData } from "../../_shared/site/data";
+import VenueClient from "./VenueClient";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
 export async function generateStaticParams() {
-  return getSlugsByType("site").map((slug) => ({ slug }));
+  return getSlugsByType("venue").map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({
@@ -18,7 +20,7 @@ export async function generateMetadata({
 }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const result = await getSitePage(slug);
-  if (!result.data) return { title: "Page Not Found" };
+  if (!result.data) return { title: "Venue Not Found" };
 
   return courseMetadata(
     result.data.title,
@@ -29,10 +31,20 @@ export async function generateMetadata({
 
 export default async function Page({ params }: PageProps) {
   const { slug } = await params;
-  if (isDedicatedRouteSlug(slug)) notFound();
-
   const result = await getSitePage(slug);
   if (!result.data) notFound();
 
-  return renderSitePage(result.data);
+  const data = loadSitePageData(result.data);
+  const props = {
+    page: data.page,
+    mapped: data.mapped,
+    teachers: data.teachers,
+  };
+
+  return (
+    <>
+      <VenueClient {...props} />
+      <MapSection />
+    </>
+  );
 }

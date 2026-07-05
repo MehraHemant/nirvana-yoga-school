@@ -5,8 +5,16 @@ import type {
 } from "@/content/types/course";
 import type { SitePageDocument } from "@/content/types/site-page";
 
-/** Discriminated union for `[slug]` route resolution. */
-export type PageKind = "online" | "residential" | "site";
+export type { PageRef, PageType } from "@/content/types/page-ref";
+
+/** Discriminated union aligned with `PageType` in the pages registry. */
+export type PageKind = "course" | "online" | "retreat" | "venue" | "site";
+
+export type CoursePage = {
+  kind: "course";
+  slug: string;
+  course: ResidentialCourseDocument;
+};
 
 export type OnlinePage = {
   kind: "online";
@@ -14,10 +22,16 @@ export type OnlinePage = {
   course: OnlineCourseDocument;
 };
 
-export type ResidentialPage = {
-  kind: "residential";
+export type RetreatPage = {
+  kind: "retreat";
   slug: string;
-  course: ResidentialCourseDocument;
+  page: SitePageDocument;
+};
+
+export type VenuePage = {
+  kind: "venue";
+  slug: string;
+  page: SitePageDocument;
 };
 
 export type SitePage = {
@@ -26,7 +40,12 @@ export type SitePage = {
   page: SitePageDocument;
 };
 
-export type PageDocument = OnlinePage | ResidentialPage | SitePage;
+export type PageDocument =
+  | CoursePage
+  | OnlinePage
+  | RetreatPage
+  | VenuePage
+  | SitePage;
 
 export type BlogPage = {
   kind: "blog";

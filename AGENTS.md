@@ -75,84 +75,32 @@ Set `DATABASE_URL` in `.env` so repositories read from PostgreSQL (fallback: bun
 ```
 src/
   app/
-    layout.tsx          # Root layout: metadata, fonts, Header, Footer, WhatsAppFab, MobileStickyBar
-    page.tsx            # Home page — composes all home sections + JSON-LD
-    [slug]/page.tsx     # Dynamic route: course detail pages or migrated themed top-level pages
-    blog/
-      page.tsx          # Blog archive grid generated from live-site sitemap data
-      [slug]/page.tsx   # Blog detail shell generated from live-site blog data
-    globals.css         # Tailwind v4 @theme tokens + utility classes
+    (site)/
+      course/[slug]/        # Residential YTT — page.tsx + ResidentialClient, data.ts, types.ts
+      online-course/[slug]/ # Online courses — OnlineClient, data.ts, types.ts
+      retreat/[slug]/       # Retreat pages — RetreatClient
+      venue/[slug]/         # Venue pages — VenueClient
+      [slug]/               # Other site pages (teacher, about, hubs, …)
+        page.tsx
+        _site/              # SiteClient, TeachersClient, HubClient, render.tsx
+      _shared/              # metadata.ts, site/ shared blocks + data loaders
+    globals.css
   constants/
-    navigation.ts       # PRIMARY_NAV + SIGN_IN_URL — mirrored from live site header
-  data/                 # @deprecated barrels — import from `@/content` instead
-    coursesData.ts      # Residential course data (large hand-authored records)
-    sitePages.ts        # Re-exports site page registry
-    blogPosts.ts        # Re-exports blog registry
-  content/              # Unified content layer — types, data, mappers, repositories
-    types/              # Shared document types (course, site-page, blog-post, page union)
+    navigation.ts
+  content/              # Content layer — types, data, mappers, repositories
+    types/
     data/
-      site-pages/       # site-pages.json + SITE_PAGES registry
-      blog/             # blog-posts.json + BLOG_POSTS registry
-      online-courses/   # ONLINE_COURSES + meta.json + curated 200h
-      residential/      # Residential course static loader
-      media/            # COURSES_MEDIA (images + YouTube IDs)
-    mappers/            # site-page, site-page-copy, online-course transforms
-    repositories/       # getPageBySlug, getBlogPost, getCourseMedia (+ API/live merge)
-    index.ts            # Public API — import pages from here
-  assets/               # Local images, video, fonts (re-exported via barrel)
-    images/
-      logo.png          # Dark logo (light bg)
-      logo_white.png    # Light logo (dark bg / hero)
-      home/
-        banner_1.webp   # Used in welcome collage
-        banner_2.webp
-        banner_3.webp
-    video/              # (currently empty; hero videos live in /public/videos/)
-    index.ts            # Barrel: re-exports images
+    mappers/
+    repositories/
+    index.ts
+  data/                 # @deprecated barrels — import from `@/content` instead
+  assets/
   components/
-    pages/
-      SimplePage.tsx    # Hero shell for migrated live-site pages
-      PageRenderer.tsx  # Client: composes page modules from sitePages data
-      utils.ts          # sectionTone, layoutForSection, shouldSkipSection
-      modules/          # Interactive page blocks (highlights, sections, gallery, etc.)
-      index.ts          # Barrel
-    home/               # Home page sections (one file per section)
-      HeroSection.tsx
-      HeroBackgroundVideo.tsx  # Client: responsive poster + single video with media sources
-      WelcomeSection.tsx
-      VideoSection.tsx          # Async server: oEmbed fetch → VideoSectionPlayer
-      VideoSectionPlayer.tsx    # Client: playlist + YouTube iframe
-      GallerySection.tsx        # Client: Pinterest-style masonry grid layout with category tabs, dynamic crossfading auto-transition shuffling, and fullscreen lightbox modal
-      WhyRishikeshSection.tsx   # Async server: oEmbed fetch → WhyRishikeshClient
-      WhyRishikeshClient.tsx    # Client: timeline sutras accordion + unified player card
-      CoursesSection.tsx
-      ExperienceSection.tsx
-      TeachersSection.tsx
-      RishikeshSection.tsx
-      TestimonialsSection.tsx
-      FinalCTASection.tsx
-      index.ts          # Barrel
+    courses/
+    home/               # Home page sections
     layout/
-      Footer.tsx
-      index.ts
-    ui/                 # Reusable primitives — used across sections
-      Button.tsx        # 4 variants × 3 sizes, polymorphic Link/<button>
-      Container.tsx     # max-width wrapper with sm/md/lg/xl
-      Heading.tsx       # Reusable heading component with alignment, font, and size controls
-      SectionHeader.tsx # eyebrow + title + description pattern
-      Pill.tsx          # rounded label with optional invert
-      MediaLightbox.tsx # client component: reusable high-fidelity swipeable gallery lightbox modal
-      PlatformReviewsRows.tsx # client: Google/TripAdvisor/Trustpilot rating cards + testimonial sliders (REVIEWS)
-      FAQSection.tsx     # client: shared FAQ section — `variant="image"` or `"plain"`, optional category tabs
-      FAQItem.tsx        # client: single FAQ accordion card (used by FAQSection)
-      Header.tsx        # client component: transparent→solid on scroll, full live-site nav with dropdowns + mobile accordion
-      Card.tsx          # (legacy "Expanding Yoga's Reach" card, not currently used)
-      CourseCard.tsx    # Interactive animated YTT course card
-      JsonLd.tsx        # Wraps dangerouslySetInnerHTML for structured data
-      WhatsAppFab.tsx   # Floating WhatsApp button
-      MobileStickyBar.tsx
-      index.ts          # Barrel
-    index.ts            # Top-level barrel: re-exports ui/home/layout
+    ui/
+    index.ts
   icons/
     types.ts            # IconProps + iconSize helper
     index.ts            # Barrel — import icons from `@/icons`
@@ -560,3 +508,4 @@ Last meaningful update: 2026-06-28 — **Unified CMS on :3000**: website, `/admi
 2026-06-28 — **Rich SimplePage sync**: `scripts/sync-live-content.mjs` now scrapes structured live-site data into `sitePages.json` — h2 sections with lists/subsections (retreat schedules, inclusions), teacher profiles (`people[]` with education/experience/expertise), gallery images, retreat highlights/packages. `SimplePage.tsx` renders alternating `bg-paper`/`bg-white` bands for each block.
 2026-06-28 — **CMS dynamic section builder**: Site page sections in `/admin` use `section-list` + `BlockBuilder` (paragraph, lead, bullets, FAQ, CTA with href/variant, image with preview, gallery, subsection, video). Layout dropdown removed; frontend renders via `SectionBlocksRenderer` when `blocks[]` is present (legacy `body`/`items`/`layout` still supported).
 2026-06-28 — **File-only static site**: Removed PostgreSQL, Docker, admin CMS, all `/api` routes, and live-site sync scripts. Content loads from `src/content/data/` and `src/data/` JSON/TS only. Live-site images replaced with high-res Unsplash stock via `src/lib/stock-images.ts`.
+2026-07-05 — **Segmented routes**: `/course/[slug]`, `/online-course/[slug]`, `/retreat/[slug]`, `/venue/[slug]`; catch-all `[slug]` for remaining site pages. Path helpers in `constants/routes.ts`; legacy flat URLs redirect in `next.config.ts`.

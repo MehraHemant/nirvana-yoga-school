@@ -1,3 +1,4 @@
+import { pagePath } from "@/content/pages/path";
 import sitePagesJson from "@/content/data/site-pages/site-pages.json";
 import type { SitePageCard, SitePageDocument } from "@/content/types";
 
@@ -6,25 +7,37 @@ const courseCards: SitePageCard[] = [
     title: "200 Hour Yoga Teacher Training",
     description:
       "A Yoga Alliance certified foundation in Hatha, Ashtanga, Vinyasa, pranayama, meditation, anatomy, and teaching methodology.",
-    href: "/200-hour-yoga-teacher-training-in-rishikesh-india",
+    href: pagePath({
+      type: "course",
+      slug: "200-hour-yoga-teacher-training-in-rishikesh-india",
+    }),
   },
   {
     title: "300 Hour Yoga Teacher Training",
     description:
       "An advanced residential training for graduates who want to deepen teaching skill, sequencing, yoga therapy, and inner practice.",
-    href: "/300-hour-yoga-teacher-training-in-rishikesh-india",
+    href: pagePath({
+      type: "course",
+      slug: "300-hour-yoga-teacher-training-in-rishikesh-india",
+    }),
   },
   {
     title: "500 Hour Yoga Teacher Training",
     description:
       "A complete 200 + 300 hour journey for students seeking the highest Yoga Alliance teacher training pathway.",
-    href: "/500-hour-yoga-teacher-training-in-rishikesh-india",
+    href: pagePath({
+      type: "course",
+      slug: "500-hour-yoga-teacher-training-in-rishikesh-india",
+    }),
   },
   {
     title: "Yin Yoga & Sound Healing",
     description:
       "Specialty immersions for restorative practice, nervous-system care, and subtle-energy study in Rishikesh.",
-    href: "/yin-yoga-teacher-training-in-rishikesh-india",
+    href: pagePath({
+      type: "course",
+      slug: "yin-yoga-teacher-training-in-rishikesh-india",
+    }),
   },
 ];
 
@@ -33,19 +46,25 @@ const onlineCards: SitePageCard[] = [
     title: "200 Hour Online Yoga TTC",
     description:
       "Study the core Yoga Alliance curriculum from home with guided practice, lectures, and teacher support.",
-    href: "/200-hour-online-yoga-teacher-training",
+    href: pagePath({
+      type: "online",
+      slug: "200-hour-online-yoga-teacher-training",
+    }),
   },
   {
     title: "Ayurveda, Meditation & Yin Modules",
     description:
       "Focused online programs for students who want to deepen one area of practice without travelling.",
-    href: "/online-yoga-teacher-training-courses",
+    href: pagePath({
+      type: "site",
+      slug: "online-yoga-teacher-training-courses",
+    }),
   },
   {
     title: "Short Continuing Education Courses",
     description:
       "Bite-sized yoga, pranayama, anatomy, philosophy, mindfulness, and office-yoga trainings.",
-    href: "/online-50-hour-hatha-yoga-course",
+    href: pagePath({ type: "online", slug: "online-50-hour-hatha-yoga-course" }),
   },
 ];
 
@@ -54,19 +73,28 @@ const retreatCards: SitePageCard[] = [
     title: "3-Day Yoga Meditation Ayurveda Wellness Retreat",
     description:
       "A short reset with yoga, meditation, sattvic meals, and time to breathe in Rishikesh.",
-    href: "/3-day-yoga-retreat-in-rishikesh-india",
+    href: pagePath({
+      type: "retreat",
+      slug: "3-day-yoga-retreat-in-rishikesh-india",
+    }),
   },
   {
     title: "5-Day Yoga Meditation Ayurveda Wellness Retreat",
     description:
       "A balanced retreat rhythm for practice, rest, Ayurvedic care, and guided reflection.",
-    href: "/5-day-yoga-retreat-in-rishikesh-india",
+    href: pagePath({
+      type: "retreat",
+      slug: "5-day-yoga-retreat-in-rishikesh-india",
+    }),
   },
   {
     title: "7-Day Yoga Meditation Ayurveda Wellness Retreat",
     description:
       "A fuller immersion into yogic living, self-care, and Rishikesh's sacred landscape.",
-    href: "/7-day-yoga-retreat-in-rishikesh-india",
+    href: pagePath({
+      type: "retreat",
+      slug: "7-day-yoga-retreat-in-rishikesh-india",
+    }),
   },
 ];
 
@@ -89,7 +117,10 @@ const CARD_OVERRIDES: Partial<
         title: "200 Hour Kundalini Hatha Yoga Teacher Training",
         description:
           "A residential Kundalini, Hatha, kriya, mantra, mudra, and meditation pathway.",
-        href: "/200-hour-kundalini-yoga-teacher-training-in-rishikesh-india",
+        href: pagePath({
+          type: "course",
+          slug: "200-hour-kundalini-yoga-teacher-training-in-rishikesh-india",
+        }),
       },
     ],
   },
