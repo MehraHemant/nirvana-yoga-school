@@ -1,65 +1,81 @@
 "use client";
 
+import { CourseStickyNav } from "@/components/courses";
 import {
-  AccommodationFood,
-  DailySchedule,
-  InstagramFeed,
-  TravelGuide,
-  UpcomingDates,
-  WhatIsIncluded,
-  WhyNirvana,
-} from "@/components/courses";
-import { TeachersSection } from "@/components/home";
-import {
-  SiteEditorial,
-  SiteFaq,
-  SiteHero,
-  SiteOverview,
-} from "../../_shared/site/shared";
-import type { SiteClientProps } from "../../_shared/site/types";
+  RetreatAccommodationSection,
+  RetreatHero,
+  RetreatHighlightsBar,
+  RetreatInclusionsSection,
+  RetreatOverviewSection,
+  RetreatPackagesSection,
+  RetreatPricingCard,
+  RetreatScheduleSection,
+  RetreatTestimonialsSection,
+} from "@/components/retreat";
+import { Container } from "@/components/ui";
+import type { RetreatPageData } from "./types";
 
-export default function RetreatClient({
-  page,
-  mapped,
-  teachers,
-}: SiteClientProps) {
-  const isBooking = page.slug === "retreat-booking";
+export default function RetreatClient({ retreat, mapped }: RetreatPageData) {
+  const pricingCard = (
+    <RetreatPricingCard
+      title={retreat.title}
+      fee={mapped.fee}
+      offer={retreat.offer}
+      pricing={mapped.pricing}
+    />
+  );
 
   return (
-    <>
-      <SiteHero page={page} mapped={mapped} />
-      <article className="min-h-screen max-w-full overflow-x-clip">
-        <SiteOverview page={page} mapped={mapped} />
-        {mapped.inclusions.length > 0 && (
-          <WhatIsIncluded
-            inclusions={mapped.inclusions}
-            exclusions={mapped.exclusions}
-          />
-        )}
-        {mapped.schedule.length > 0 && (
-          <DailySchedule
-            description={mapped.scheduleDescription}
-            schedule={mapped.schedule}
-          />
-        )}
-        {mapped.pricing.length > 0 && (
-          <UpcomingDates
-            duration={mapped.duration}
-            pricing={mapped.pricing}
-            pricingDescription={mapped.pricingDescription}
-            batches={mapped.batches}
-            datesTitle={isBooking ? "Book a retreat" : "Retreat dates"}
-            lodgingTitle="Retreat packages"
-          />
-        )}
-        {teachers.length > 0 && <TeachersSection teachers={teachers} />}
-        <SiteEditorial mapped={mapped} />
-        <AccommodationFood />
-        <WhyNirvana />
-        <TravelGuide />
-        <InstagramFeed />
-        <SiteFaq mapped={mapped} />
-      </article>
-    </>
+    <div className="retreat-product-theme bg-white">
+      <RetreatHero
+        title={retreat.title}
+        description={retreat.description}
+        duration={retreat.duration}
+        fee={mapped.fee}
+        image={retreat.heroImage}
+        ctaLabel={retreat.ctaLabel}
+        ctaHref={retreat.ctaHref}
+      />
+
+      <RetreatHighlightsBar highlights={retreat.highlights} />
+
+      <CourseStickyNav items={mapped.navItems} variant="retreat" />
+
+      <Container size="2xl">
+        <div className="retreat-product-layout">
+          <main className="retreat-product-main min-w-0">
+            <RetreatOverviewSection
+              overview={retreat.overview}
+              images={retreat.overviewImages}
+            />
+
+            <RetreatInclusionsSection inclusions={retreat.inclusions} />
+
+            <div className="border-b border-secondary/10 py-8 lg:hidden">
+              {pricingCard}
+            </div>
+
+            <RetreatScheduleSection schedule={retreat.schedule} />
+
+            <RetreatAccommodationSection
+              accommodation={retreat.accommodation}
+              facilities={mapped.accommodationFacilities}
+            />
+
+            <RetreatPackagesSection
+              duration={retreat.duration}
+              pricing={mapped.pricing}
+              batches={mapped.batches}
+            />
+
+            <RetreatTestimonialsSection />
+          </main>
+
+          <aside className="retreat-product-sidebar hidden lg:block">
+            {pricingCard}
+          </aside>
+        </div>
+      </Container>
+    </div>
   );
 }

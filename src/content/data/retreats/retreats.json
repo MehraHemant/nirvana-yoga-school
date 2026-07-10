@@ -36,20 +36,119 @@
           "day": 1,
           "title": "ARRIVAL & GROUNDING",
           "image": "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/5.jpg",
-          "activities": []
+          "activities": [
+            {
+              "time": "10:00 – 11:00",
+              "activity": "Opening Fire Ceremony"
+            },
+            {
+              "time": "11:30 – 12:30",
+              "activity": "Hatha Yoga"
+            },
+            {
+              "time": "13:00 – 14:00",
+              "activity": "Lunch"
+            },
+            {
+              "time": "16:00 – 17:00",
+              "activity": "Yoga Philosophy"
+            },
+            {
+              "time": "17:00 – 19:00",
+              "activity": "World Famous Ganga Arti at Parmarth Niketan"
+            },
+            {
+              "time": "19:00 – 20:00",
+              "activity": "Dinner"
+            },
+            {
+              "time": "22:00",
+              "activity": "Bedtime"
+            }
+          ]
         },
         {
           "day": 2,
           "title": "ART THERAPY & TREKKING",
           "image": "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/6.jpg",
-          "activities": []
+          "activities": [
+            {
+              "time": "05:30 am",
+              "activity": "Wake Up"
+            },
+            {
+              "time": "06:00 – 06:50",
+              "activity": "Pranayama, Mantra Chanting & Meditation"
+            },
+            {
+              "time": "07:00 – 08:00",
+              "activity": "Hatha Yoga"
+            },
+            {
+              "time": "09:00 – 10:00",
+              "activity": "Breakfast"
+            },
+            {
+              "time": "10:00 – 13:00",
+              "activity": "Excursion Time (Vasishta cave / Beetle ashram / Mouni baba cave)"
+            },
+            {
+              "time": "13:00 – 14:30",
+              "activity": "Lunch"
+            },
+            {
+              "time": "16:30 – 07:00",
+              "activity": "Ayurvedic Full Body Massage (1 hour)"
+            },
+            {
+              "time": "19:00 – 20:00",
+              "activity": "Dinner"
+            },
+            {
+              "time": "21:00 – 22:00",
+              "activity": "Bonfire / De-stress through Fun"
+            },
+            {
+              "time": "22:00",
+              "activity": "Bedtime"
+            }
+          ]
         },
         {
           "day": 3,
           "title": "SOUND & DEVOTION",
           "note": "Note: The order of the classes may change depending on various factors.",
           "image": "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/7.jpg",
-          "activities": []
+          "activities": [
+            {
+              "time": "04:00",
+              "activity": "Wake Up!"
+            },
+            {
+              "time": "05:00 – 09:00",
+              "activity": "Kunjapuri (some yoga in Kunjapuri) / morning hatha class Ganga beach"
+            },
+            {
+              "time": "09:00 – 10:00",
+              "activity": "Breakfast"
+            },
+            {
+              "time": "11:00 – 12:00",
+              "activity": "Mindfulness Practice"
+            },
+            {
+              "time": "13:00 – 14:00",
+              "activity": "Lunch"
+            },
+            {
+              "time": "17:30 - 19:00",
+              "activity": "Kirtan Session"
+            },
+            {
+              "time": "22:00",
+              "activity": "Bedtime"
+            }
+          ]
         }
       ],
       "accommodation": {
@@ -199,7 +298,7 @@
       "faqs": [],
       "offer": {
         "label": "25% OFF",
-        "note": "Till 30th June 2026",
+        "note": "*Till 10th July 2026*",
         "items": [
           "Yoga Classes",
           "Ayurveda Massage",
@@ -246,32 +345,217 @@
           "day": 1,
           "title": "Arrival & Spiritual Initiation",
           "image": "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/5.jpg",
-          "activities": []
+          "activities": [
+            {
+              "time": "01:00 PM - 02:00 PM",
+              "activity": "Lunch"
+            },
+            {
+              "time": "02:30 PM - 04:00 PM",
+              "activity": "Opening Ceremony & Hawan"
+            },
+            {
+              "time": "04:30 PM - 07:00 PM",
+              "activity": "Ganga Aarti"
+            },
+            {
+              "time": "8:00 PM - 9:00 PM",
+              "activity": "Dinner"
+            },
+            {
+              "time": "10:00 PM",
+              "activity": "Lights Off"
+            }
+          ]
         },
         {
           "day": 2,
           "title": "Awakening & Creative Development",
           "image": "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/6.jpg",
-          "activities": []
+          "activities": [
+            {
+              "time": "05:30 AM",
+              "activity": "Wake Up"
+            },
+            {
+              "time": "6:00 AM",
+              "activity": "Herbal Tea"
+            },
+            {
+              "time": "7:00 AM - 8:30 AM",
+              "activity": "Hatha Yoga & Pranayama"
+            },
+            {
+              "time": "9:00 AM - 10:00 AM",
+              "activity": "Breakfast"
+            },
+            {
+              "time": "11:00 AM - 12:30 PM",
+              "activity": "Art Therapy (Stone Painting)"
+            },
+            {
+              "time": "01:00 PM - 02:00 PM",
+              "activity": "Lunch"
+            },
+            {
+              "time": "03:30 PM - 03:45 PM",
+              "activity": "Herbal Tea"
+            },
+            {
+              "time": "04:00 PM - 06:00 PM",
+              "activity": "Trekking to Baal Kumari & Meditation"
+            },
+            {
+              "time": "7:30 PM - 08:30 PM",
+              "activity": "Dinner"
+            },
+            {
+              "time": "10:00 PM",
+              "activity": "Lights Off"
+            }
+          ]
         },
         {
           "day": 3,
           "title": "Deep Healing",
           "image": "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/7.jpg",
-          "activities": []
+          "activities": [
+            {
+              "time": "05:30 AM",
+              "activity": "Wake Up"
+            },
+            {
+              "time": "6:00 AM",
+              "activity": "Herbal Tea"
+            },
+            {
+              "time": "7:00 AM - 8:30 AM",
+              "activity": "Yin Yoga & Pranayama"
+            },
+            {
+              "time": "9:00 AM - 10:00 AM",
+              "activity": "Breakfast"
+            },
+            {
+              "time": "11:00 AM - 12:30 PM",
+              "activity": "Sound Healing"
+            },
+            {
+              "time": "01:00 PM - 02:00 PM",
+              "activity": "Lunch"
+            },
+            {
+              "time": "03:30 PM - 03:45 PM",
+              "activity": "Herbal Tea"
+            },
+            {
+              "time": "04:00 PM - 06:00 PM",
+              "activity": "Kirtan & Meditation"
+            },
+            {
+              "time": "7:30 PM - 08:30 PM",
+              "activity": "Dinner"
+            },
+            {
+              "time": "10:00 PM",
+              "activity": "Lights Off"
+            }
+          ]
         },
         {
           "day": 4,
           "title": "Emotional Release & Rest",
           "image": "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/1.jpg",
-          "activities": []
+          "activities": [
+            {
+              "time": "4:00 AM",
+              "activity": "Wake Up Before Sunrise"
+            },
+            {
+              "time": "4:15 AM",
+              "activity": "Leaving To Visit Sunrise"
+            },
+            {
+              "time": "9:00 AM - 10:00 AM",
+              "activity": "Breakfast"
+            },
+            {
+              "time": "9:00 AM - 10:00 AM",
+              "activity": "Breakfast"
+            },
+            {
+              "time": "11:00 AM - 12:30 PM",
+              "activity": "Destress & Emotional Trauma Healing"
+            },
+            {
+              "time": "01:00 PM - 02:00 PM",
+              "activity": "Lunch"
+            },
+            {
+              "time": "03:30 PM - 03:45 PM",
+              "activity": "Herbal Tea"
+            },
+            {
+              "time": "04:00 PM - 06:00 PM",
+              "activity": "Yoga Nidra Session"
+            },
+            {
+              "time": "7:30 PM - 08:30 PM",
+              "activity": "Dinner"
+            },
+            {
+              "time": "10:00 PM",
+              "activity": "Lights Off"
+            }
+          ]
         },
         {
           "day": 5,
           "title": "Gratitude & Renewal",
           "note": "Note: The order of the classes may change depending on various factors.",
           "image": "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/1.jpg",
-          "activities": []
+          "activities": [
+            {
+              "time": "5:30 AM",
+              "activity": "Wake Up"
+            },
+            {
+              "time": "6:00 AM",
+              "activity": "Herbal Tea"
+            },
+            {
+              "time": "7:00 AM - 8:30 AM",
+              "activity": "Hatha Yoga & Pranayama"
+            },
+            {
+              "time": "9:00 AM - 10:00 AM",
+              "activity": "Breakfast"
+            },
+            {
+              "time": "11:00 AM - 12:30 PM",
+              "activity": "Guided Meditation"
+            },
+            {
+              "time": "01:00 PM - 02:00 PM",
+              "activity": "Lunch"
+            },
+            {
+              "time": "03:30 PM - 03:45 PM",
+              "activity": "Herbal Tea"
+            },
+            {
+              "time": "04:00 PM - 06:00 PM",
+              "activity": "Trekking, Nature Walk, Visit To Waterfall"
+            },
+            {
+              "time": "7:30 PM - 08:30 PM",
+              "activity": "Dinner"
+            },
+            {
+              "time": "10:00 PM",
+              "activity": "Lights Off"
+            }
+          ]
         }
       ],
       "accommodation": {
@@ -449,7 +733,7 @@
       ],
       "offer": {
         "label": "25% OFF",
-        "note": "Till 30th June 2026",
+        "note": "*Till 10th July 2026*",
         "items": [
           "Yoga Classes",
           "Ayurveda Massage",
@@ -496,44 +780,311 @@
           "day": 1,
           "title": "Arrival & Spiritual Welcoming",
           "image": "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/5.jpg",
-          "activities": []
+          "activities": [
+            {
+              "time": "Before 12:00 PM",
+              "activity": "Check-In"
+            },
+            {
+              "time": "01:00 PM – 02:00 PM",
+              "activity": "Lunch"
+            },
+            {
+              "time": "02:30 PM – 04:00 PM",
+              "activity": "Opening Ceremony & Hawan"
+            },
+            {
+              "time": "04:30 PM – 07:00 PM",
+              "activity": "Ganga Aarti"
+            },
+            {
+              "time": "08:00 PM – 09:00 PM",
+              "activity": "Dinner"
+            },
+            {
+              "time": "10:00 PM",
+              "activity": "Lights Off"
+            }
+          ]
         },
         {
           "day": 2,
           "title": "Detox & Energy Awakening",
           "image": "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/6.jpg",
-          "activities": []
+          "activities": [
+            {
+              "time": "05:30 AM",
+              "activity": "Wake Up"
+            },
+            {
+              "time": "06:00 AM",
+              "activity": "Herbal Tea"
+            },
+            {
+              "time": "07:00 AM – 08:30 AM",
+              "activity": "Hatha Yoga & Pranayama"
+            },
+            {
+              "time": "09:00 AM – 10:00 AM",
+              "activity": "Breakfast"
+            },
+            {
+              "time": "11:00 AM – 12:30 PM",
+              "activity": "Art Therapy (Stone Painting)"
+            },
+            {
+              "time": "01:00 PM – 02:00 PM",
+              "activity": "Lunch"
+            },
+            {
+              "time": "03:30 PM – 03:45 PM",
+              "activity": "Herbal Tea"
+            },
+            {
+              "time": "04:00 PM – 06:00 PM",
+              "activity": "Trekking to Baal Kumari & Meditation"
+            },
+            {
+              "time": "07:30 PM – 08:30 PM",
+              "activity": "Dinner"
+            },
+            {
+              "time": "10:00 PM",
+              "activity": "Lights Off"
+            }
+          ]
         },
         {
           "day": 3,
           "title": "Emotional Release & Inner Healing",
           "image": "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/7.jpg",
-          "activities": []
+          "activities": [
+            {
+              "time": "05:30 AM",
+              "activity": "Wake Up"
+            },
+            {
+              "time": "06:00 AM",
+              "activity": "Herbal Tea"
+            },
+            {
+              "time": "07:00 AM – 08:30 AM",
+              "activity": "Yin Yoga & Pranayama"
+            },
+            {
+              "time": "09:00 AM – 10:00 AM",
+              "activity": "Breakfast"
+            },
+            {
+              "time": "11:00 AM – 12:30 PM",
+              "activity": "Sound Healing"
+            },
+            {
+              "time": "01:00 PM – 02:00 PM",
+              "activity": "Lunch"
+            },
+            {
+              "time": "03:30 PM – 03:45 PM",
+              "activity": "Herbal Tea"
+            },
+            {
+              "time": "04:00 PM – 06:00 PM",
+              "activity": "Kirtan & Meditation"
+            },
+            {
+              "time": "07:30 PM – 08:30 PM",
+              "activity": "Dinner"
+            },
+            {
+              "time": "10:00 PM",
+              "activity": "Lights Off"
+            }
+          ]
         },
         {
           "day": 4,
           "title": "Spiritual & Mental Rebalancing",
           "image": "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/1.jpg",
-          "activities": []
+          "activities": [
+            {
+              "time": "04:00 AM",
+              "activity": "Wake Up Before Sunrise"
+            },
+            {
+              "time": "04:15 AM",
+              "activity": "Leaving To Visit Sunrise"
+            },
+            {
+              "time": "09:00 AM – 10:00 AM",
+              "activity": "Breakfast"
+            },
+            {
+              "time": "11:00 AM – 12:30 PM",
+              "activity": "Destress & Emotional Trauma Healing"
+            },
+            {
+              "time": "01:00 PM – 02:00 PM",
+              "activity": "Lunch"
+            },
+            {
+              "time": "03:30 PM – 03:45 PM",
+              "activity": "Herbal Tea"
+            },
+            {
+              "time": "04:00 PM – 06:00 PM",
+              "activity": "Yoga Nidra Session"
+            },
+            {
+              "time": "07:30 PM – 08:30 PM",
+              "activity": "Dinner"
+            },
+            {
+              "time": "10:00 PM",
+              "activity": "Lights Off"
+            }
+          ]
         },
         {
           "day": 5,
           "title": "Nature Excursion & Yoga Practicing",
           "image": "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/1.jpg",
-          "activities": []
+          "activities": [
+            {
+              "time": "05:30 AM",
+              "activity": "Wake Up"
+            },
+            {
+              "time": "06:00 AM",
+              "activity": "Herbal Tea"
+            },
+            {
+              "time": "07:00 AM – 08:30 AM",
+              "activity": "Hatha Yoga & Pranayama"
+            },
+            {
+              "time": "09:00 AM – 10:00 AM",
+              "activity": "Breakfast"
+            },
+            {
+              "time": "11:00 AM – 12:30 PM",
+              "activity": "Guided Meditation"
+            },
+            {
+              "time": "01:00 PM – 02:00 PM",
+              "activity": "Lunch"
+            },
+            {
+              "time": "03:30 PM – 03:45 PM",
+              "activity": "Herbal Tea"
+            },
+            {
+              "time": "04:00 PM – 06:00 PM",
+              "activity": "Trekking, Nature Walk, Visit To Waterfall"
+            },
+            {
+              "time": "07:30 PM – 08:30 PM",
+              "activity": "Dinner"
+            },
+            {
+              "time": "10:00 PM",
+              "activity": "Lights Off"
+            }
+          ]
         },
         {
           "day": 6,
           "title": "Cleansing & Clarity",
           "image": "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/1.jpg",
-          "activities": []
+          "activities": [
+            {
+              "time": "05:30 AM",
+              "activity": "Wake Up"
+            },
+            {
+              "time": "06:00 AM",
+              "activity": "Herbal Tea"
+            },
+            {
+              "time": "07:00 AM – 08:30 AM",
+              "activity": "Jal Neti (Cleansing Process For Breathing Practices)"
+            },
+            {
+              "time": "09:00 AM – 10:00 AM",
+              "activity": "Breakfast"
+            },
+            {
+              "time": "11:00 AM – 12:30 PM",
+              "activity": "Guided Meditation"
+            },
+            {
+              "time": "01:00 PM – 02:00 PM",
+              "activity": "Lunch"
+            },
+            {
+              "time": "03:30 PM – 03:45 PM",
+              "activity": "Herbal Tea"
+            },
+            {
+              "time": "04:00 PM – 06:00 PM",
+              "activity": "Yoga Nidra"
+            },
+            {
+              "time": "07:30 PM – 08:30 PM",
+              "activity": "Dinner"
+            },
+            {
+              "time": "10:00 PM",
+              "activity": "Lights Off"
+            }
+          ]
         },
         {
           "day": 7,
           "title": "Gratitude & Renewal",
           "note": "Note: The order of the classes may change depending on various factors.",
           "image": "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/1.jpg",
-          "activities": []
+          "activities": [
+            {
+              "time": "05:30 AM",
+              "activity": "Wake Up"
+            },
+            {
+              "time": "06:00 AM",
+              "activity": "Herbal Tea"
+            },
+            {
+              "time": "07:00 AM – 08:30 AM",
+              "activity": "Ashtanga Yoga Flow"
+            },
+            {
+              "time": "09:00 AM – 10:00 AM",
+              "activity": "Breakfast"
+            },
+            {
+              "time": "11:00 AM – 12:30 PM",
+              "activity": "Introductory Ayurveda Workshop"
+            },
+            {
+              "time": "01:00 PM – 02:00 PM",
+              "activity": "Lunch"
+            },
+            {
+              "time": "03:30 PM – 03:45 PM",
+              "activity": "Herbal Tea"
+            },
+            {
+              "time": "04:00 PM – 06:00 PM",
+              "activity": "Visit to the Sunset Point"
+            },
+            {
+              "time": "07:30 PM – 08:30 PM",
+              "activity": "Dinner"
+            },
+            {
+              "time": "10:00 PM",
+              "activity": "Lights Off"
+            }
+          ]
         }
       ],
       "accommodation": {
@@ -711,7 +1262,7 @@
       ],
       "offer": {
         "label": "25% OFF",
-        "note": "Till 30th June 2026",
+        "note": "*Till 10th July 2026*",
         "items": [
           "Yoga Classes",
           "Ayurveda Massage",

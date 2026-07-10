@@ -38,6 +38,10 @@ export {
   getResidentialCourseSlugs,
 } from "@/content/repositories/residential-course";
 export {
+  getRetreat,
+  getRetreatSlugs,
+} from "@/content/repositories/retreat";
+export {
   getSitePage,
   getSitePageSlugs,
 } from "@/content/repositories/site-page";

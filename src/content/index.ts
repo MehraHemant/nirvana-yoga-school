@@ -1,3 +1,5 @@
+export { mapRetreatPage, retreatWhatsAppHref } from "@/content/mappers/retreat-page";
+export type { MappedRetreatPage } from "@/content/mappers/retreat-page";
 export {
   buildAllOnlineCoursesFromSitePages,
   buildOnlineCourseFromSitePage,
@@ -30,6 +32,8 @@ export {
   getPageBySlug,
   getResidentialCourse,
   getResidentialCourseSlugs,
+  getRetreat,
+  getRetreatSlugs,
   getSitePage,
   getSitePageSlugs,
 } from "@/content/repositories/page";
