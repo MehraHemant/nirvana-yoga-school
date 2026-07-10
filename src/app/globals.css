@@ -670,6 +670,25 @@ body {
   background: rgb(163 36 50 / 0.04);
 }
 
+/* Footer nav — same left-accent hover as header dropdown items */
+.footer-nav-link {
+  border-left: 2px solid transparent;
+  border-radius: 0.75rem;
+  padding: 0.375rem 0.75rem;
+  margin-left: -0.75rem;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.footer-nav-link:hover,
+.footer-nav-link:focus-visible {
+  border-left-color: var(--color-primary);
+  background: rgb(163 36 50 / 0.12);
+  color: white;
+}
+
 .nav-dropdown-cta {
   opacity: 0;
   transform: translateY(6px);
@@ -1129,8 +1148,7 @@ details[open] .accordion-icon {
       ellipse 70% 50% at 100% 0%,
       rgb(166 181 162 / 0.14),
       transparent 55%
-    ),
-    linear-gradient(165deg, #0a333b 0%, #0e4956 48%, #0a333b 100%);
+    ), linear-gradient(165deg, #0a333b 0%, #0e4956 48%, #0a333b 100%);
 }
 
 .retreat-glass {

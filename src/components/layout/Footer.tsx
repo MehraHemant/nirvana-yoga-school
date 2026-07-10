@@ -113,14 +113,14 @@ function ColHeading({ children }: { children: string }) {
 
 function NavLinks({ links }: { links: { href: string; label: string }[] }) {
   return (
-    <ul className="space-y-3">
+    <ul className="space-y-1">
       {links.map((l) => (
         <li key={l.label}>
           <Link
             href={l.href}
             target={l.href.startsWith("http") ? "_blank" : undefined}
             rel={l.href.startsWith("http") ? "noopener noreferrer" : undefined}
-            className="text-[13px] text-white/55 hover:text-white transition-colors duration-300 font-sans"
+            className="footer-nav-link text-[13px] text-white/55 font-sans"
           >
             {l.label}
           </Link>
@@ -159,13 +159,13 @@ function ContactLines() {
       </p>
       <a
         href="mailto:hello@nirvanayogaschoolindia.com"
-        className="block text-white/55 hover:text-white transition-colors"
+        className="footer-nav-link block text-white/55"
       >
         hello@nirvanayogaschoolindia.com
       </a>
       <a
         href="https://wa.me/919876543210"
-        className="block text-white/55 hover:text-white transition-colors"
+        className="footer-nav-link block text-white/55"
       >
         +91 98765 43210
       </a>
@@ -215,7 +215,7 @@ export default function Footer() {
                 <Link
                   key={l.label}
                   href={l.href}
-                  className="hover:text-white/60 transition-colors"
+                  className="footer-nav-link text-white/30"
                 >
                   {l.label}
                 </Link>
