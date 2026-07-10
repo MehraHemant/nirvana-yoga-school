@@ -36,21 +36,12 @@ export const FOOD_CONTENT = {
     "If you have special dietary needs — anywhere from vegan, gluten-free to allergy-aware — please do not hesitate to inform us. We shall make all the arrangements to ensure that your meals cater to your needs either during booking or upon your arrival.",
 };
 
-export const FACILITIES = [
-  "Shower",
-  "Terrace",
-  "Dining area",
-  "Free Wi-Fi",
-  "Yoga hall",
-  "Environment friendly",
-  "Garden",
-  "Attached bathroom",
-  "Hot water",
-  "Purified drinking water",
-  "Paid laundry service",
-  "Heater — 100 USD extra",
-  "Air conditioning — 100 USD extra",
-] as const;
+export {
+  FACILITIES,
+  FACILITY_ITEMS,
+  resolveFacilityItem,
+  type FacilityItem,
+} from "./accommodationFacilities";
 
 export const ACCOMMODATION_GALLERIES = [
   {

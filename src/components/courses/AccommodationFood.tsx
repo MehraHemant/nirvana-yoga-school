@@ -7,7 +7,13 @@ import {
   useReducedMotion,
 } from "framer-motion";
 import Image from "next/image";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   Container,
   MediaLightbox,
@@ -18,7 +24,7 @@ import {
   ACCOMMODATION_GALLERIES,
   type AccommodationGalleryId,
   COMFORTABLE_STAY,
-  FACILITIES,
+  FACILITY_ITEMS,
   FOOD_CONTENT,
   FOOD_GALLERY,
   type GalleryImage,
@@ -120,7 +126,7 @@ function ImageGalleryPanel({
         />
 
         <div
-          className={`relative aspect-[5/3] rounded-3xl overflow-hidden group`}
+          className={`relative aspect-[5/3] md:aspect-[4/3] rounded-3xl overflow-hidden group`}
         >
           <AnimatePresence mode="popLayout">
             <motion.button
@@ -179,7 +185,6 @@ function ImageGalleryPanel({
               </button>
             </>
           )}
-
         </div>
 
         <button
@@ -239,63 +244,133 @@ function RoomTypeSelector({
   onChange: (id: AccommodationGalleryId) => void;
 }) {
   return (
-    <div className="flex flex-col gap-2.5">
-      {ACCOMMODATION_GALLERIES.map((room, i) => {
-        const isActive = room.id === activeId;
-        const thumb = room.images[0]?.url;
-        return (
-          <button
-            key={room.id}
-            type="button"
-            onClick={() => onChange(room.id)}
-            aria-pressed={isActive}
-            className={`group flex items-center gap-3.5 w-full rounded-2xl border p-2.5 text-left cursor-pointer transition-all duration-300 ${
-              isActive
-                ? "border-primary/30 bg-white shadow-card ring-1 ring-primary/10"
-                : "border-ink/8 bg-sand/60 hover:bg-white hover:border-ink/15 hover:shadow-xs"
-            }`}
-          >
-            {/* Room photo */}
-            <div className="relative w-[4.5rem] h-[4.5rem] rounded-xl overflow-hidden shrink-0 shadow-xs">
-              {thumb && (
-                <Image
-                  src={thumb}
-                  alt={room.label}
-                  fill
-                  sizes="72px"
-                  className={`object-cover transition-transform duration-500 ${
-                    isActive ? "scale-110" : "group-hover:scale-110"
-                  }`}
+    <div className="space-y-2">
+      <p className="type-eyebrow text-secondary">Choose your room</p>
+      <div className="flex flex-col gap-2">
+        {ACCOMMODATION_GALLERIES.map((room) => {
+          const isActive = room.id === activeId;
+          const thumb = room.images[0]?.url;
+          return (
+            <button
+              key={room.id}
+              type="button"
+              onClick={() => onChange(room.id)}
+              aria-pressed={isActive}
+              className={`group flex w-full items-center gap-3 rounded-2xl border px-2.5 py-2 text-left transition-all duration-300 ${
+                isActive
+                  ? "border-primary/25 bg-primary/5 shadow-xs ring-1 ring-primary/10"
+                  : "border-ink/6 bg-white hover:border-primary/15 hover:bg-sand/40"
+              }`}
+            >
+              <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl shadow-xs">
+                {thumb && (
+                  <Image
+                    src={thumb}
+                    alt={room.label}
+                    fill
+                    sizes="48px"
+                    className={`object-cover transition-transform duration-500 ${
+                      isActive ? "scale-105" : "group-hover:scale-105"
+                    }`}
+                  />
+                )}
+              </div>
+
+              <div className="min-w-0 flex-1">
+                <p
+                  className={`type-ui font-medium leading-snug ${isActive ? "text-ink" : "text-ink/75"}`}
+                >
+                  {room.label}
+                </p>
+                <p className="type-eyebrow mt-0.5 line-clamp-1 text-muted">
+                  {room.images.length} photos
+                </p>
+              </div>
+
+              {isActive && (
+                <span
+                  className="h-2 w-2 shrink-0 rounded-full bg-primary"
+                  aria-hidden="true"
                 />
               )}
-              {isActive && (
-                <div className="absolute inset-0 ring-2 ring-primary/50 ring-inset rounded-xl" />
-              )}
-            </div>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
-            {/* Text */}
-            <div className="flex-1 min-w-0">
-              <span className={`block type-eyebrow text-[9px] mb-0.5 ${isActive ? "text-primary" : "text-muted/60"}`}>
-                0{i + 1}
-              </span>
-              <p className={`font-serif text-sm sm:text-[15px] leading-snug mb-0.5 ${isActive ? "text-ink font-medium" : "text-ink/70"}`}>
-                {room.label}
-              </p>
-              <p className="text-[10px] text-muted font-sans line-clamp-1 leading-snug">
-                {room.description}
-              </p>
-            </div>
+function FacilitiesGrid() {
+  return (
+    <div className="rounded-3xl border border-secondary/10 bg-linear-to-br from-white via-white to-secondary/5 p-4 sm:p-5">
+      <div className="mb-4 flex flex-wrap items-end justify-between gap-3 border-b border-ink/5 pb-3">
+        <div>
+          <p className="type-eyebrow mb-0.5 text-secondary">
+            Campus facilities
+          </p>
+          <p className="type-ui max-w-xl text-muted">
+            Included with your stay — optional add-ons for cooler months.
+          </p>
+        </div>
+        <span className="type-eyebrow rounded-full border border-secondary/15 bg-secondary/5 px-2.5 py-0.5 text-secondary">
+          {FACILITY_ITEMS.length} amenities
+        </span>
+      </div>
 
-            {/* Photo count + active pulse */}
-            <div className="shrink-0 flex flex-col items-end gap-1.5">
-              {isActive && <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />}
-              <span className={`text-[9px] font-semibold tabular-nums px-2 py-0.5 rounded-full ${isActive ? "bg-primary/10 text-primary" : "bg-ink/6 text-muted"}`}>
-                {room.images.length} photos
+      <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+        {FACILITY_ITEMS.map((facility) => {
+          const Icon = facility.icon;
+          const isPaidExtra = Boolean(facility.note);
+
+          return (
+            <li
+              key={facility.label}
+              className="flex items-start gap-2 rounded-xl border border-ink/5 bg-white/90 p-2.5 transition-shadow hover:shadow-soft"
+            >
+              <span
+                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border ${
+                  isPaidExtra
+                    ? "border-ink/10 bg-ink/5 text-ink"
+                    : "border-primary/10 bg-primary/10 text-primary"
+                }`}
+              >
+                <Icon size={14} strokeWidth={2} />
               </span>
-            </div>
-          </button>
-        );
-      })}
+              <div className="min-w-0">
+                <p className="type-ui font-medium leading-snug text-ink">
+                  {facility.label}
+                </p>
+                {facility.note ? (
+                  <p className="type-eyebrow mt-0.5 text-muted">
+                    {facility.note}
+                  </p>
+                ) : null}
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
+function TabIntro({
+  eyebrow,
+  title,
+  description,
+}: {
+  eyebrow: string;
+  title: ReactNode;
+  description: string;
+}) {
+  return (
+    <div className="border-l-2 border-secondary/35 pl-4 sm:pl-5">
+      <p className="type-eyebrow mb-1.5 text-secondary">{eyebrow}</p>
+      <h3 className="mb-2 font-serif text-lg leading-tight text-ink md:text-xl">
+        {title}
+      </h3>
+      <p className="type-body leading-relaxed text-muted">{description}</p>
     </div>
   );
 }
@@ -327,7 +402,7 @@ export default function AccommodationFood() {
   return (
     <section
       id="accommodation"
-      className="relative overflow-hidden bg-white py-8 sm:py-10 lg:min-h-[calc(100svh-5.5rem)] lg:flex lg:flex-col"
+      className="relative overflow-hidden bg-white py-8 sm:py-10"
     >
       <div
         className="absolute left-[-8%] top-[40%] w-[240px] h-[240px] rounded-full bg-secondary/5 blur-[80px] pointer-events-none"
@@ -335,159 +410,191 @@ export default function AccommodationFood() {
       />
 
       <Container size="2xl" className="relative w-full">
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={VIEWPORT_ONCE}
-          variants={fadeUp}
-          className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
-        >
-          <SectionHeader
-            eyebrow="Residential Life"
-            title={
-              <>
-                Accommodation &amp; <span className="text-primary">Food</span>
-              </>
-            }
-            align="left"
-            className="mb-0!"
-          />
-          <TabSwitcher
-            tabs={[
-              { id: "lodging", label: "Ashram Lodging" },
-              { id: "food", label: "Sattvic Food" },
-            ]}
-            activeId={mainTab}
-            onChange={(id) => setMainTab(id as MainTab)}
-            layoutId="accommodationMainTabs"
-            className="shrink-0"
-          />
-        </motion.div>
-
-        <AnimatePresence mode="wait">
-          {mainTab === "lodging" ? (
+        <div className="grid items-start gap-6 lg:grid-cols-12 lg:gap-8 xl:gap-10">
+          <div className="flex min-w-0 flex-col gap-5 lg:col-span-5">
             <motion.div
-              key="lodging"
-              id="lodging"
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={reducedTransition(prefersReduced, {
-                duration: 0.3,
-                ease: EASE_OUT,
-              })}
-              className="grid items-start gap-5 lg:grid-cols-12 lg:gap-7"
+              initial="hidden"
+              whileInView="visible"
+              viewport={VIEWPORT_ONCE}
+              variants={fadeUp}
+              className="space-y-4 border-b border-ink/5 pb-5"
             >
-              <div className="min-w-0 lg:col-span-7">
-                <ImageGalleryPanel
-                  key={roomTab}
-                  images={[...activeRoom.images]}
-                  label={activeRoom.label}
-                  accent="primary"
-                  onOpenLightbox={(index) =>
-                    openLightbox([...activeRoom.images], index, activeRoom.label)
-                  }
-                />
-              </div>
+              <SectionHeader
+                eyebrow="Residential Life"
+                title={
+                  <>
+                    Accommodation &amp;{" "}
+                    <span className="text-primary">Food</span>
+                  </>
+                }
+                align="left"
+                className="mb-4"
+              />
 
-              <div className="flex min-w-0 flex-col gap-4 lg:col-span-5">
-                <div>
-                  <p className="mb-1 font-serif text-base leading-snug text-ink md:text-lg">
-                    Choose your <span className="text-primary">room type</span>
-                  </p>
-                  <p className="font-sans text-xs leading-relaxed text-muted">
-                    {COMFORTABLE_STAY.description}
-                  </p>
-                </div>
+              <TabSwitcher
+                tabs={[
+                  { id: "lodging", label: "Ashram Lodging" },
+                  { id: "food", label: "Sattvic Food" },
+                ]}
+                activeId={mainTab}
+                onChange={(id) => setMainTab(id as MainTab)}
+                layoutId="accommodationMainTabs"
+                variant="pill"
+                size="sm"
+                className="!justify-start !px-0 pb-0"
+              />
+            </motion.div>
 
-                <RoomTypeSelector activeId={roomTab} onChange={setRoomTab} />
+            <AnimatePresence mode="wait">
+              {mainTab === "lodging" ? (
+                <motion.div
+                  key="lodging"
+                  id="lodging"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={reducedTransition(prefersReduced, {
+                    duration: 0.28,
+                    ease: EASE_OUT,
+                  })}
+                  className="space-y-5"
+                >
+                  <TabIntro
+                    eyebrow="Ashram Lodging"
+                    title={
+                      <>
+                        Comfortable stay in the{" "}
+                        <span className="text-primary">heart of Rishikesh</span>
+                      </>
+                    }
+                    description={COMFORTABLE_STAY.description}
+                  />
 
-                <div className="rounded-2xl border border-ink/6 bg-white/70 p-3 shadow-xs">
-                  <p className="type-eyebrow mb-2 text-secondary">
-                    Campus facilities
-                  </p>
-                  <ul className="grid grid-cols-2 gap-x-3 gap-y-1.5">
-                    {FACILITIES.map((facility) => (
+                  <RoomTypeSelector activeId={roomTab} onChange={setRoomTab} />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="food"
+                  id="food"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={reducedTransition(prefersReduced, {
+                    duration: 0.28,
+                    ease: EASE_OUT,
+                  })}
+                  className="space-y-5"
+                >
+                  <TabIntro
+                    eyebrow="Sattvic Cuisine"
+                    title={
+                      <>
+                        Nourishing meals for a{" "}
+                        <span className="text-primary">yogic life</span>
+                      </>
+                    }
+                    description={FOOD_CONTENT.description}
+                  />
+
+                  <ul className="space-y-2">
+                    {FOOD_CONTENT.points.map((point) => (
                       <li
-                        key={facility}
-                        className="flex items-center gap-1.5 font-sans text-[10px] text-ink/75 sm:text-[11px]"
+                        key={point}
+                        className="flex gap-2.5 rounded-xl border border-ink/5 bg-white p-2.5"
                       >
-                        <span className="flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-primary/8 text-primary">
-                          <Check size={8} className="stroke-[3]" />
+                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-secondary/10 bg-secondary/10 text-secondary">
+                          <Check size={11} className="stroke-[2.5]" />
                         </span>
-                        {facility}
+                        <span className="type-body pt-0.5 leading-snug text-ink/80">
+                          {point}
+                        </span>
                       </li>
                     ))}
                   </ul>
-                </div>
-              </div>
-            </motion.div>
-          ) : (
-            <motion.div
-              key="food"
-              id="food"
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -12 }}
-              transition={reducedTransition(prefersReduced, {
-                duration: 0.35,
-                ease: EASE_OUT,
-              })}
-              className="grid items-start gap-6 lg:grid-cols-12 lg:gap-8"
-            >
-              <div className="order-2 min-w-0 lg:order-1 lg:col-span-5">
-                <div className="mb-4 border-l-2 border-secondary/40 pl-4 sm:pl-5">
-                  <p className="type-eyebrow mb-1.5 text-secondary">
-                    Sattvic Cuisine
-                  </p>
-                  <h3 className="mb-2 font-serif text-lg leading-tight text-ink md:text-xl">
-                    Nourishing meals for a{" "}
-                    <span className="text-primary">yogic life</span>
-                  </h3>
-                  <p className="font-sans text-xs leading-relaxed text-muted sm:text-sm">
-                    {FOOD_CONTENT.description}
-                  </p>
-                </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
 
-                <ul className="mb-3 space-y-2">
-                  {FOOD_CONTENT.points.map((point) => (
-                    <li
-                      key={point}
-                      className="flex gap-2.5 rounded-xl border border-ink/5 bg-white/70 p-2.5"
-                    >
-                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-secondary/10 bg-secondary/10 text-secondary">
-                        <Check size={11} className="stroke-[2.5]" />
-                      </span>
-                      <span className="pt-0.5 font-sans text-xs leading-snug text-ink/80 sm:text-sm">
-                        {point}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
+          <div className="min-w-0 lg:col-span-7">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={
+                  mainTab === "lodging" ? `gallery-${roomTab}` : "food-gallery"
+                }
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={reducedTransition(prefersReduced, {
+                  duration: 0.32,
+                  ease: EASE_OUT,
+                })}
+                className="lg:sticky lg:top-28"
+              >
+                <ImageGalleryPanel
+                  key={mainTab === "lodging" ? roomTab : "food"}
+                  images={
+                    mainTab === "lodging"
+                      ? [...activeRoom.images]
+                      : FOOD_GALLERY
+                  }
+                  label={
+                    mainTab === "lodging" ? activeRoom.label : "Sattvic Cuisine"
+                  }
+                  accent={mainTab === "lodging" ? "primary" : "secondary"}
+                  onOpenLightbox={(index) =>
+                    openLightbox(
+                      mainTab === "lodging"
+                        ? [...activeRoom.images]
+                        : FOOD_GALLERY,
+                      index,
+                      mainTab === "lodging"
+                        ? activeRoom.label
+                        : "Sattvic Food & Dining",
+                    )
+                  }
+                />
+              </motion.div>
+            </AnimatePresence>
+          </div>
 
-                <div className="rounded-2xl border border-secondary/15 bg-white p-3 shadow-xs sm:p-4">
-                  <p className="type-eyebrow mb-1.5 text-secondary">
+          <AnimatePresence>
+            {mainTab === "food" && (
+              <motion.div
+                key="food-dietary-note"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={reducedTransition(prefersReduced, {
+                  duration: 0.28,
+                  ease: EASE_OUT,
+                })}
+                className="col-span-1 lg:col-span-12"
+              >
+                <div className="rounded-2xl border border-secondary/15 bg-secondary/5 p-4 sm:p-5">
+                  <p className="type-eyebrow mb-1 text-secondary">
                     Something in particular?
                   </p>
-                  <p className="font-sans text-xs leading-relaxed text-muted sm:text-sm">
+                  <p className="type-ui max-w-4xl leading-relaxed text-muted">
                     {FOOD_CONTENT.dietaryNote}
                   </p>
                 </div>
-              </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
-              <div className="order-1 min-w-0 lg:order-2 lg:col-span-7">
-                <ImageGalleryPanel
-                  images={FOOD_GALLERY}
-                  label="Sattvic Cuisine"
-                  accent="secondary"
-                  onOpenLightbox={(index) =>
-                    openLightbox(FOOD_GALLERY, index, "Sattvic Food & Dining")
-                  }
-                />
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {mainTab === "lodging" && (
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={VIEWPORT_ONCE}
+            variants={fadeUp}
+            className="mt-6 lg:mt-8"
+          >
+            <FacilitiesGrid />
+          </motion.div>
+        )}
       </Container>
 
       <MediaLightbox
