@@ -1,6 +1,7 @@
 import { Footer, Header } from "@/components";
 import MobileStickyBar from "@/components/ui/MobileStickyBar";
 import WhatsAppFab from "@/components/ui/WhatsAppFab";
+import SiteMain from "./SiteMain";
 
 export default function SiteLayout({
   children,
@@ -8,7 +9,7 @@ export default function SiteLayout({
   return (
     <>
       <Header />
-      <main className="relative flex-1">{children}</main>
+      <SiteMain>{children}</SiteMain>
       <Footer />
       <WhatsAppFab phone="919876543210" />
       <MobileStickyBar />

@@ -8,7 +8,7 @@ import { fadeUp } from "@/lib/motion";
 
 export default function YttHubHeroSection() {
   return (
-    <section className="relative min-h-[460px] overflow-hidden pt-[4.75rem] md:min-h-[520px] md:pt-[5.5rem]">
+    <section className="relative min-h-[460px] overflow-hidden md:min-h-[520px]">
       <Image
         src={YTT_HUB_HERO_IMAGE}
         alt="Yoga teacher training by the Ganges in Rishikesh"

@@ -41,7 +41,7 @@ export default function OnlineCourseHero({
     : image;
 
   return (
-    <section className="online-hero relative overflow-hidden bg-secondary pt-[4.75rem] text-white md:pt-[5.5rem]">
+    <section className="online-hero relative overflow-hidden bg-secondary text-white">
       <div
         className="pointer-events-none absolute inset-0"
         aria-hidden="true"

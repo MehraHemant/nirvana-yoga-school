@@ -106,7 +106,7 @@ export default async function BlogPostPage({ params }: PageProps) {
 
   return (
     <>
-      <section className="relative overflow-hidden bg-ink pt-[4.75rem] text-white md:pt-[5.5rem]">
+      <section className="relative overflow-hidden bg-ink text-white">
         <Image
           src={post.image}
           alt=""

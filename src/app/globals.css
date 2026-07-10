@@ -28,14 +28,34 @@
 :root {
   --background: #f8fafd;
   --foreground: #1a1410;
+  --site-header-height: 4.75rem;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --site-header-height: 5.5rem;
+  }
 }
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: var(--site-header-height, 4.75rem);
   background: var(--background);
   color: var(--foreground);
   -webkit-font-smoothing: antialiased;
   height: 100%;
+}
+
+/* Inner pages: no smooth-scroll overshoot or scroll anchoring nudges at the top */
+html.site-inner-page {
+  scroll-behavior: auto;
+  overscroll-behavior-y: none;
+  overflow-anchor: none;
+}
+
+/* Course hero: pad below fixed header, fill one viewport, resist scroll anchoring jumps */
+.course-hero-section {
+  overflow-anchor: none;
 }
 
 body {
@@ -1046,4 +1066,93 @@ details[open] .accordion-icon {
 .online-course-theme + .course-sticky-nav,
 .online-course-theme .sticky.z-30 {
   background: rgb(255 255 255 / 0.96);
+}
+
+/* ── Retreat product theme (online-style layout) ── */
+.retreat-product-theme {
+  --retreat-sticky-top: 9rem;
+}
+
+@media (min-width: 1024px) {
+  .retreat-product-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 360px;
+    gap: 2.5rem;
+    align-items: start;
+  }
+
+  .retreat-product-sidebar {
+    position: sticky;
+    top: var(--retreat-sticky-top);
+    padding-top: 1.5rem;
+  }
+}
+
+.retreat-product-theme .retreat-product-main {
+  min-width: 0;
+}
+
+.retreat-product-theme .retreat-pricing-card {
+  box-shadow:
+    0 2px 8px -2px rgb(14 73 86 / 0.08),
+    0 16px 40px -12px rgb(14 73 86 / 0.16);
+}
+
+.retreat-product-theme .retreat-hero {
+  border-bottom: 1px solid rgb(255 255 255 / 0.08);
+}
+
+.retreat-product-theme + .course-sticky-nav,
+.retreat-product-theme .sticky.z-30 {
+  background: rgb(255 255 255 / 0.96);
+}
+
+/* ── Retreat wellness theme (legacy) ── */
+.retreat-theme {
+  --retreat-sand: #f2f6f3;
+  --retreat-sage: #dce8df;
+}
+
+.retreat-band-sand {
+  background-color: var(--retreat-sand);
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    rgb(14 73 86 / 0.03) 1px,
+    transparent 0
+  );
+  background-size: 28px 28px;
+}
+
+.retreat-band-dark {
+  background:
+    radial-gradient(
+      ellipse 70% 50% at 100% 0%,
+      rgb(166 181 162 / 0.14),
+      transparent 55%
+    ),
+    linear-gradient(165deg, #0a333b 0%, #0e4956 48%, #0a333b 100%);
+}
+
+.retreat-glass {
+  background: rgb(255 255 255 / 0.1);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgb(255 255 255 / 0.16);
+  box-shadow: 0 8px 32px -8px rgb(4 20 23 / 0.35);
+}
+
+.retreat-theme .retreat-hero {
+  border-bottom: 1px solid rgb(255 255 255 / 0.08);
+}
+
+.retreat-theme + .course-sticky-nav.sticky,
+.retreat-theme .course-sticky-nav.sticky {
+  background: rgb(248 250 249 / 0.96);
+}
+
+.retreat-theme #why-nirvana {
+  background: var(--retreat-sand);
+}
+
+.retreat-theme #travel {
+  background: white;
 }

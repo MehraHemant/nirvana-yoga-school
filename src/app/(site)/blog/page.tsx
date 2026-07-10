@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 export default function BlogPage() {
   return (
     <>
-      <section className="relative overflow-hidden bg-ink pt-[4.75rem] text-white md:pt-[5.5rem]">
+      <section className="relative overflow-hidden bg-ink text-white">
         <div
           className="absolute inset-0 bg-linear-to-br from-primary/30 via-ink to-secondary/30"
           aria-hidden="true"

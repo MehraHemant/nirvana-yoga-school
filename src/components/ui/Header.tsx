@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useState } from "react";
 import { logo, logo_white } from "@/assets";
 import {
   type NavItem,
@@ -287,8 +287,11 @@ export default function Header() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [mobileOpen]);
 
-  // Non-home pages: always solid (white bg, dark text) from the first pixel
+  // Home: transparent over the video hero until scroll. Other pages: solid bar.
   const solid = !isHome || scrolled || mobileOpen;
+  const innerHeightClass = scrolled
+    ? "h-[4.5rem] md:h-[5rem]"
+    : "h-[4.75rem] md:h-[5.5rem]";
   const headerTop = scrolled
     ? "top-[4.5rem] md:top-[5rem]"
     : "top-[4.75rem] md:top-[5.5rem]";
@@ -296,6 +299,30 @@ export default function Header() {
     solid,
     className: "nav-link text-sm font-medium tracking-wide py-1.5 font-sans",
   });
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: re-measure when header layout mode changes
+  useLayoutEffect(() => {
+    const header = document.querySelector("header");
+    if (!header) return;
+
+    const syncHeaderHeight = () => {
+      const height = Math.ceil(header.getBoundingClientRect().height);
+      document.documentElement.style.setProperty(
+        "--site-header-height",
+        `${height}px`,
+      );
+    };
+
+    syncHeaderHeight();
+    const observer = new ResizeObserver(syncHeaderHeight);
+    observer.observe(header);
+    window.addEventListener("resize", syncHeaderHeight);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", syncHeaderHeight);
+    };
+  }, [innerHeightClass]);
 
   return (
     <>
@@ -305,9 +332,7 @@ export default function Header() {
         }`}
       >
         <div
-          className={`header-inner mx-auto max-w-[92rem] px-5 md:px-8 flex items-center justify-between gap-4 ${
-            scrolled ? "h-[4.5rem] md:h-[5rem]" : "h-[4.75rem] md:h-[5.5rem]"
-          }`}
+          className={`header-inner mx-auto max-w-[92rem] px-5 md:px-8 flex items-center justify-between gap-4 ${innerHeightClass}`}
         >
           <Link
             href="/"
