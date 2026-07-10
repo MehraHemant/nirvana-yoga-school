@@ -15,18 +15,33 @@ export default function CourseBookingFab({
   fee,
   href = "#pricing",
 }: CourseBookingFabProps) {
-  const [visible, setVisible] = useState(false);
+  const [pastHero, setPastHero] = useState(false);
+  const [footerNear, setFooterNear] = useState(false);
   const prefersReduced = useReducedMotion() ?? false;
 
   useEffect(() => {
     const onScroll = () => {
-      setVisible(window.scrollY > window.innerHeight * 0.65);
+      setPastHero(window.scrollY > window.innerHeight * 0.65);
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  useEffect(() => {
+    const footer = document.querySelector("footer");
+    if (!footer) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setFooterNear(entry.isIntersecting),
+      { rootMargin: "0px 0px -80px 0px", threshold: 0 },
+    );
+
+    observer.observe(footer);
+    return () => observer.disconnect();
+  }, []);
+
+  const visible = pastHero && !footerNear;
   const label = fee ? `Book now — from ${fee}` : "Book now";
 
   return (
