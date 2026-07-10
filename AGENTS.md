@@ -104,6 +104,7 @@ src/
     index.ts
   icons/
     types.ts            # IconProps + iconSize helper
+    ICONS.md            # **Read before adding SVGs** — component template + checklist
     index.ts            # Barrel — import icons from `@/icons`
     ArrowRight.tsx
     BadgeStar.tsx
@@ -392,7 +393,7 @@ These are currently stubbed and must be replaced before launch:
 ### Imports
 - Sort: external → `@/` → relative. Biome's `organizeImports` is enabled and will auto-sort.
 - Always import from barrels (`@/components`, `@/components/ui`, `@/icons`, etc.) where possible.
-- **Icons**: never inline `<svg>` in components — use `@/icons` TSX components. All accept optional `size` and `className` via `IconProps`.
+- **Icons**: never inline `<svg>` in components — use `@/icons` TSX components. All accept optional `size` and `className` via `IconProps`. **Before adding any SVG, read `src/icons/ICONS.md`** — create one file per icon, export from `index.ts`, reuse existing icons when possible.
 
 ### Components
 - Default export is the component. Named exports only for re-exports in barrels.
@@ -510,3 +511,4 @@ Last meaningful update: 2026-06-28 — **Unified CMS on :3000**: website, `/admi
 2026-06-28 — **CMS dynamic section builder**: Site page sections in `/admin` use `section-list` + `BlockBuilder` (paragraph, lead, bullets, FAQ, CTA with href/variant, image with preview, gallery, subsection, video). Layout dropdown removed; frontend renders via `SectionBlocksRenderer` when `blocks[]` is present (legacy `body`/`items`/`layout` still supported).
 2026-06-28 — **File-only static site**: Removed PostgreSQL, Docker, admin CMS, all `/api` routes, and live-site sync scripts. Content loads from `src/content/data/` and `src/data/` JSON/TS only. Live-site images replaced with high-res Unsplash stock via `src/lib/stock-images.ts`.
 2026-07-05 — **Online course product pages**: Dedicated `src/components/online/` theme (teal hero, trust bar, sticky pricing card, review grid). `OnlineCourseClient` uses live-site sections only — no residential lodging, dates, or travel blocks.
+2026-07-10 — **Facility icons + ICONS.md**: Campus facilities use per-amenity icons (`Shower`, `Terrace`, `Bowl`, `Wifi`, `Lotus`, `Leaf`, `Garden`, `Bathroom`, `Flame`, `Droplet`, `Laundry`, `Wind`). Registry in `src/data/accommodationFacilities.ts`. Agent guide at `src/icons/ICONS.md` — read before adding any SVG.
