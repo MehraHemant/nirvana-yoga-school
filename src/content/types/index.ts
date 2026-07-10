@@ -9,6 +9,10 @@ export type {
   ResidentialCourseDocument,
 } from "@/content/types/course";
 export type {
+  RetreatDocument,
+  RetreatScheduleDay,
+} from "@/content/types/retreat-page";
+export type {
   PageRef,
   PageType,
 } from "@/content/types/page-ref";
@@ -23,6 +27,7 @@ export type {
   VenuePage,
 } from "@/content/types/page";
 export type {
+  CourseImageDetail,
   CourseMedia,
   CoursePricingOption,
   CourseScheduleItem,

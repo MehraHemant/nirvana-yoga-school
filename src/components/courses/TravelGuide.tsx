@@ -1,6 +1,11 @@
 "use client";
 
-import { AnimatePresence, motion, useInView, useReducedMotion } from "framer-motion";
+import {
+  AnimatePresence,
+  motion,
+  useInView,
+  useReducedMotion,
+} from "framer-motion";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { Container, Heading, Pill, SectionHeader } from "@/components/ui";
@@ -76,7 +81,7 @@ export default function TravelGuide() {
       ref={sectionRef}
       id="travel"
       aria-label="Guide to travelling to India"
-      className="relative overflow-x-clip bg-paper py-20 sm:py-28"
+      className="relative overflow-x-clip bg-white py-20 sm:py-28"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       onFocusCapture={() => setIsPaused(true)}
@@ -112,15 +117,15 @@ export default function TravelGuide() {
           </div>
 
           {/* Topic accordion */}
-          <aside
-            className="flex flex-col gap-2"
-            aria-label="Travel topics"
-          >
+          <aside className="flex flex-col gap-2" aria-label="Travel topics">
             {TRAVEL_TOPICS.map((topic) => {
               const isActive = activeId === topic.id;
               const { Icon } = topic;
               return (
-                <div key={topic.id} className="overflow-hidden rounded-2xl border border-ink/8 transition-colors duration-200">
+                <div
+                  key={topic.id}
+                  className="overflow-hidden rounded-2xl border border-ink/8 transition-colors duration-200"
+                >
                   <button
                     type="button"
                     onClick={() => setActiveId(isActive ? null : topic.id)}
@@ -163,9 +168,7 @@ export default function TravelGuide() {
                     <ChevronDown
                       size={14}
                       className={`shrink-0 transition-transform duration-300 ${
-                        isActive
-                          ? "rotate-180 text-white/70"
-                          : "text-ink/30"
+                        isActive ? "rotate-180 text-white/70" : "text-ink/30"
                       }`}
                     />
                   </button>

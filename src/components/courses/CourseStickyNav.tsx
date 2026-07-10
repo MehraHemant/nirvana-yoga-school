@@ -76,7 +76,14 @@ function scrollActiveTabIntoView(
     activeRect.right <= containerRect.right - 8;
 
   if (!isFullyVisible) {
-    activeEl.scrollIntoView({ behavior, inline: "center", block: "nearest" });
+    const targetLeft =
+      activeEl.offsetLeft -
+      container.clientWidth / 2 +
+      activeEl.offsetWidth / 2;
+    container.scrollTo({
+      left: Math.max(0, targetLeft),
+      behavior,
+    });
   }
 }
 
@@ -86,24 +93,29 @@ export default function CourseStickyNav({
   solidBar = false,
 }: {
   items?: StickyNavItem[];
-  variant?: "residential" | "online";
+  variant?: "residential" | "online" | "retreat";
   solidBar?: boolean;
 }) {
   const navItems = items && items.length > 0 ? items : [...DEFAULT_NAV_ITEMS];
   const isOnline = variant === "online";
-  const activeTextClass = isOnline ? "text-secondary" : "text-primary";
-  const activePillClass = isOnline
-    ? "border-secondary/15 bg-secondary/8"
-    : "border-primary/15 bg-primary/8";
-  const focusRingClass = isOnline
-    ? "focus-visible:ring-secondary/60"
-    : "focus-visible:ring-primary/60";
+  const isRetreat = variant === "retreat";
+  const activeTextClass =
+    isOnline || isRetreat ? "text-secondary" : "text-primary";
+  const activePillClass =
+    isOnline || isRetreat
+      ? "border-secondary/15 bg-secondary/8"
+      : "border-primary/15 bg-primary/8";
+  const focusRingClass =
+    isOnline || isRetreat
+      ? "focus-visible:ring-secondary/60"
+      : "focus-visible:ring-primary/60";
   const prefersReduced = useReducedMotion() ?? false;
   const sentinelRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLElement>(null);
   const isNavigatingRef = useRef(false);
   const navLockTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const skipNavScrollIntoViewRef = useRef(true);
 
   const [activeSection, setActiveSection] = useState<NavSectionId>(
     navItems[0]?.id ?? "#overview",
@@ -215,6 +227,10 @@ export default function CourseStickyNav({
   }, [getScrollLine, navItems]);
 
   useEffect(() => {
+    if (skipNavScrollIntoViewRef.current) {
+      skipNavScrollIntoViewRef.current = false;
+      return;
+    }
     scrollActiveTabIntoView(scrollRef.current, activeSection, scrollBehavior);
   }, [activeSection, scrollBehavior]);
 
@@ -272,7 +288,7 @@ export default function CourseStickyNav({
         className={`course-sticky-nav sticky z-30 w-full max-w-full transition-[background,box-shadow,border-color] duration-300 ${
           showBarBg
             ? "border-b border-ink/8 bg-white/95 shadow-soft backdrop-blur-md"
-            : "border-b border-transparent bg-transparent shadow-none"
+            : "border-b border-transparent bg-white shadow-none"
         }`}
       >
         <Container size="2xl" className="relative !px-0 sm:!px-5 md:!px-8">

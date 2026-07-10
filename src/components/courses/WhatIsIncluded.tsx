@@ -130,13 +130,11 @@ function getInclusionIcon(item: string) {
   );
 }
 
-export default function WhatIsIncluded({
-  inclusions,
-}: WhatIsIncludedProps) {
+export default function WhatIsIncluded({ inclusions }: WhatIsIncludedProps) {
   return (
     <section
       id="inclusions"
-      className="py-16 lg:py-0 lg:min-h-[calc(100svh-4rem)] lg:flex lg:items-center bg-paper relative overflow-hidden"
+      className="py-16 lg:py-0 lg:min-h-[calc(100svh-4rem)] lg:flex lg:items-center bg-white relative overflow-hidden"
     >
       {/* Background ambient glows */}
       <div className="absolute right-[-10%] top-[-10%] w-[500px] h-[500px] rounded-full bg-primary/5 blur-[100px] pointer-events-none" />
@@ -200,25 +198,33 @@ export default function WhatIsIncluded({
           >
             <div className="flex items-center gap-2 mb-4">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary/10 text-secondary border border-secondary/15">
-                <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse" aria-hidden="true" />
-                <span className="type-eyebrow text-[9px] font-bold tracking-wider">Tuition Inclusions</span>
+                <span
+                  className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"
+                  aria-hidden="true"
+                />
+                <span className="type-eyebrow text-[9px] font-bold tracking-wider">
+                  Tuition Inclusions
+                </span>
               </div>
             </div>
 
-            <h3 className="font-serif text-xl font-medium text-ink mb-6">
+            <h3 className="font-serif text-xl md:text-2xl lg:text-3xl font-medium text-ink mb-6">
               Everything included in your fee
             </h3>
 
             <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
               {inclusions.map((item) => (
-                <li key={item} className="flex items-start gap-3 group cursor-default">
+                <li
+                  key={item}
+                  className="flex items-start gap-3 group cursor-default"
+                >
                   <span
                     className="w-9 h-9 rounded-2xl bg-secondary/10 flex items-center justify-center shrink-0 mt-0.5 border border-secondary/15 group-hover:bg-secondary transition-all duration-300 shadow-2xs"
                     aria-hidden="true"
                   >
                     {getInclusionIcon(item)}
                   </span>
-                  <span className="text-xs sm:text-[13px] text-ink/80 font-sans leading-relaxed group-hover:text-ink transition-colors duration-200 pt-1.5">
+                  <span className="type-body text-ink/80 font-sans leading-relaxed group-hover:text-ink transition-colors duration-200">
                     {item}
                   </span>
                 </li>
@@ -227,7 +233,10 @@ export default function WhatIsIncluded({
 
             <div className="mt-8 pt-5 border-t border-ink/5 text-[11px] text-muted font-sans flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <span className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-secondary" aria-hidden="true" />
+                <span
+                  className="w-1.5 h-1.5 rounded-full bg-secondary"
+                  aria-hidden="true"
+                />
                 ✓ No hidden registration fees or local taxes.
               </span>
               <span className="sm:text-right font-medium text-ink/75">

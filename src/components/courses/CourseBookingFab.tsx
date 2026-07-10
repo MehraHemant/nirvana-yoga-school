@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ArrowRight } from "@/icons";
@@ -13,10 +13,10 @@ interface CourseBookingFabProps {
 
 export default function CourseBookingFab({
   fee,
-  title,
   href = "#pricing",
 }: CourseBookingFabProps) {
   const [visible, setVisible] = useState(false);
+  const prefersReduced = useReducedMotion() ?? false;
 
   useEffect(() => {
     const onScroll = () => {
@@ -27,47 +27,56 @@ export default function CourseBookingFab({
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  const label = fee ? `Book now — from ${fee}` : "Book now";
+
   return (
     <AnimatePresence>
       {visible && (
         <motion.div
-          initial={{ opacity: 0, y: 28, scale: 0.92 }}
+          initial={{ opacity: 0, y: 16, scale: 0.94 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 20, scale: 0.94 }}
-          transition={{ duration: 0.35, ease: [0.25, 0, 0, 1] }}
-          className="fixed bottom-6 right-6 z-40 hidden md:block"
+          exit={{ opacity: 0, y: 10, scale: 0.96 }}
+          transition={
+            prefersReduced
+              ? { duration: 0 }
+              : { type: "spring", stiffness: 400, damping: 30 }
+          }
+          className="fixed bottom-5 right-5 z-40 hidden md:block"
         >
           <Link
             href={href}
-            className="group relative flex min-w-[220px] items-center gap-3 overflow-hidden rounded-2xl border border-ink/8 bg-primary px-5 py-3.5 shadow-[0_12px_48px_-12px_rgba(26,20,16,0.35)] ring-1 ring-ink/5 transition-colors hover:bg-primary-dark sm:min-w-[260px] sm:gap-4 sm:px-6"
+            aria-label={label}
+            className="group flex items-stretch overflow-hidden rounded-full shadow-[0_10px_36px_-10px_rgba(26,20,16,0.55),0_8px_28px_-8px_rgba(163,36,50,0.45)] ring-1 ring-white/10 transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-[0_14px_44px_-10px_rgba(26,20,16,0.6),0_12px_36px_-8px_rgba(163,36,50,0.55)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-sand"
           >
-            <span
-              className="pointer-events-none absolute inset-0 bg-linear-to-r from-white/0 via-white/12 to-white/0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-              aria-hidden="true"
-            />
-
             {fee ? (
-              <div className="relative z-10 flex shrink-0 flex-col border-r border-white/20 pr-3 sm:pr-4">
-                <span className="text-[9px] font-semibold uppercase tracking-wider text-white/55">
-                  {title ? "Starting from" : "From"}
+              <div className="flex shrink-0 flex-col justify-center border-r border-white/10 bg-ink px-4 py-2.5">
+                <span className="text-[9px] font-semibold uppercase tracking-[0.16em] text-white/45">
+                  From
                 </span>
-                <span className="font-serif text-base font-semibold leading-none tabular-nums text-white sm:text-lg">
+                <span className="mt-0.5 font-serif text-base font-semibold leading-none tabular-nums text-white sm:text-[1.05rem]">
                   {fee}
                 </span>
               </div>
             ) : null}
 
-            <div className="relative z-10 min-w-0 flex-1">
-              <span className="block font-sans text-sm font-bold tracking-wide text-white sm:text-base">
-                Book Now
-              </span>
-              <span className="mt-0.5 block text-[10px] font-medium text-white/65 sm:text-[11px]">
-                Secure your spot
-              </span>
-            </div>
+            <span className="relative flex items-center gap-2.5 overflow-hidden bg-primary py-2.5 pl-4 pr-1.5 transition-colors duration-200 group-hover:bg-primary-dark">
+              <span
+                className="pointer-events-none absolute inset-0 bg-linear-to-r from-white/0 via-white/16 to-white/0 -translate-x-full transition-transform duration-500 group-hover:translate-x-full"
+                aria-hidden="true"
+              />
 
-            <span className="relative z-10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/15 text-white ring-1 ring-white/20 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:bg-white/25">
-              <ArrowRight size={16} />
+              <span className="relative z-10 flex flex-col leading-none">
+                <span className="text-sm font-bold tracking-wide text-white">
+                  Book Now
+                </span>
+                <span className="mt-0.5 text-[10px] font-medium text-white/65">
+                  Secure your spot
+                </span>
+              </span>
+
+              <span className="relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-ink/25 text-white ring-1 ring-white/20 transition-all duration-200 group-hover:translate-x-0.5 group-hover:bg-ink/40">
+                <ArrowRight size={14} />
+              </span>
             </span>
           </Link>
         </motion.div>

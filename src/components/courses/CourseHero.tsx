@@ -4,6 +4,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button, Container, Heading, MediaLightbox } from "@/components/ui";
+import type { CourseImageDetail } from "@/content/types";
 import { ChevronLeft, ChevronRight, Play } from "@/icons";
 import { YOUTUBE_METADATA_REGISTRY } from "@/lib/youtube";
 
@@ -22,6 +23,7 @@ interface CourseHeroProps {
   certBadge?: string;
   heroImages?: string[];
   images?: string[];
+  imageDetails?: CourseImageDetail[];
   videos?: string[];
   metaItems?: { label: string; value: string }[];
   ctaPrimary?: string;
@@ -33,7 +35,15 @@ interface CourseHeroProps {
 interface MediaItem {
   type: "image" | "video";
   url: string;
+  tag?: string;
+  pictured?: string;
 }
+
+type HeroPhoto = {
+  url: string;
+  tag?: string;
+  pictured?: string;
+};
 
 // ─── Supplemental photos (Yoga / Rishikesh — shown when course has few images) ─
 
@@ -69,6 +79,15 @@ function ytTitle(id: string, fallbackIdx: number) {
   return t.length > 60 ? `${t.slice(0, 57)}…` : t;
 }
 
+function buildImageMetaMap(imageDetails?: CourseImageDetail[]) {
+  const map = new Map<string, { tag?: string; pictured?: string }>();
+  for (const detail of imageDetails ?? []) {
+    if (!detail.url) continue;
+    map.set(detail.url, { tag: detail.tag, pictured: detail.pictured });
+  }
+  return map;
+}
+
 function MaximizeIcon() {
   return (
     <svg
@@ -93,6 +112,7 @@ export default function CourseHero({
   image,
   heroImages,
   images,
+  imageDetails,
   videos,
   fee,
   duration,
@@ -104,30 +124,49 @@ export default function CourseHero({
 }: CourseHeroProps) {
   const prefersReduced = useReducedMotion() ?? false;
   const stripRef = useRef<HTMLDivElement>(null);
+  const imageMetaByUrl = useMemo(
+    () => buildImageMetaMap(imageDetails),
+    [imageDetails],
+  );
 
   // ── Build photo list ──────────────────────────────────────────────────────
-  const photos = useMemo<string[]>(() => {
+  const photos = useMemo<HeroPhoto[]>(() => {
     const seen = new Set<string>();
-    const all: string[] = [];
+    const all: HeroPhoto[] = [];
     for (const src of [...(heroImages ?? []), ...(images ?? [])]) {
       if (src && !seen.has(src)) {
         seen.add(src);
-        all.push(src);
+        const meta = imageMetaByUrl.get(src);
+        all.push({
+          url: src,
+          tag: meta?.tag,
+          pictured: meta?.pictured,
+        });
       }
     }
     if (all.length === 0 && image) {
-      all.push(image);
+      const meta = imageMetaByUrl.get(image);
+      all.push({
+        url: image,
+        tag: meta?.tag,
+        pictured: meta?.pictured,
+      });
       seen.add(image);
     }
     for (const src of SUPPLEMENTAL) {
       if (all.length >= MIN_PHOTOS) break;
       if (!seen.has(src)) {
         seen.add(src);
-        all.push(src);
+        const meta = imageMetaByUrl.get(src);
+        all.push({
+          url: src,
+          tag: meta?.tag,
+          pictured: meta?.pictured,
+        });
       }
     }
     return all;
-  }, [heroImages, images, image]);
+  }, [heroImages, images, image, imageMetaByUrl]);
 
   // ── Build video list ──────────────────────────────────────────────────────
   const videoIds = useMemo(() => (videos ?? []).filter(Boolean), [videos]);
@@ -135,7 +174,12 @@ export default function CourseHero({
   // ── All items for lightbox ────────────────────────────────────────────────
   const allItems = useMemo<MediaItem[]>(
     () => [
-      ...photos.map((url) => ({ type: "image" as const, url })),
+      ...photos.map((photo) => ({
+        type: "image" as const,
+        url: photo.url,
+        tag: photo.tag,
+        pictured: photo.pictured,
+      })),
       ...videoIds.map((url) => ({ type: "video" as const, url })),
     ],
     [photos, videoIds],
@@ -167,7 +211,7 @@ export default function CourseHero({
       (photoIdx - 1 + photos.length) % photos.length,
     ];
     for (const i of new Set(toLoad)) {
-      const url = photos[i];
+      const url = photos[i]?.url;
       if (url) {
         const img = new window.Image();
         img.src = url;
@@ -186,7 +230,7 @@ export default function CourseHero({
         0,
         thumb.offsetLeft - el.clientWidth / 2 + thumb.offsetWidth / 2,
       ),
-      behavior: prefersReduced ? "auto" : "smooth",
+      behavior: "auto",
     });
   }, [photoIdx, prefersReduced]);
 
@@ -242,9 +286,14 @@ export default function CourseHero({
 
   const hasMeta = !!(duration || certification || fee);
   const hasCTA = !!(ctaPrimary || ctaSecondary);
+  const activePhoto = photos[photoIdx] ?? photos[0];
+  const activeTag = activePhoto?.tag;
+  const activePictured = activePhoto?.pictured;
 
   return (
-    <section className="relative w-full overflow-hidden bg-white md:h-[calc(100svh-5.5rem)] md:max-h-[880px] lg:h-svh lg:max-h-svh">
+    <section className="course-hero-section relative flex h-svh min-h-svh w-full shrink-0 flex-col overflow-hidden bg-white">
+      {/* Fixed max header height — avoids layout shift when the bar shrinks on scroll */}
+      <div className="h-[4.75rem] shrink-0 md:h-[5.5rem]" aria-hidden="true" />
       {/* Ambient glow */}
       <div
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_10%_0%,rgb(166_181_162/0.12),transparent_55%)]"
@@ -253,14 +302,14 @@ export default function CourseHero({
 
       <Container
         size="2xl"
-        className="relative flex min-h-0 flex-col overflow-hidden pt-16 pb-2 md:h-full md:pt-22 md:pb-4"
+        className="relative flex h-full min-h-0 flex-col overflow-hidden py-2 md:py-3"
       >
         {/* ── Header row ─────────────────────────────────────────────────── */}
         <motion.div
-          initial={{ opacity: 0, y: 8 }}
+          initial={{ opacity: 0 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.25, 0, 0, 1] }}
-          className="mb-2 mt-1 flex w-full flex-col items-center justify-center sm:mb-3 md:mb-4 md:mt-4"
+          className="mb-1.5 mt-2 flex w-full shrink-0 flex-col items-center justify-center sm:mb-2 md:mb-3"
         >
           <Heading
             as="h1"
@@ -279,10 +328,10 @@ export default function CourseHero({
           // biome-ignore lint/a11y/noStaticElementInteractions: hover pause for autoplay
           onMouseEnter={() => setHovered(true)}
           onMouseLeave={() => setHovered(false)}
-          className="grid min-h-0 flex-1 grid-cols-1 gap-2 overflow-hidden rounded-2xl sm:rounded-3xl md:grid-cols-4 md:grid-rows-2 md:gap-2.5"
+          className="grid min-h-0 flex-1 grid-cols-1 grid-rows-1 gap-2 overflow-hidden rounded-2xl sm:rounded-3xl md:grid-cols-4 md:grid-rows-2 md:gap-2.5"
         >
           {/* ── Large featured cell ─────────────────────────────────────── */}
-          <div className="relative aspect-[5/4] min-h-0 overflow-hidden rounded-2xl bg-sand/70 sm:aspect-[16/10] md:col-span-2 md:row-span-2 md:aspect-auto md:h-full md:rounded-3xl">
+          <div className="relative h-full min-h-0 overflow-hidden rounded-2xl bg-sand/70 md:col-span-2 md:row-span-2 md:rounded-3xl">
             <AnimatePresence mode="wait">
               {activeVideoId ? (
                 <motion.iframe
@@ -297,7 +346,7 @@ export default function CourseHero({
                   allowFullScreen
                   className="absolute inset-0 h-full w-full border-0 bg-ink"
                 />
-              ) : (
+              ) : activePhoto ? (
                 <motion.div
                   key={photoIdx}
                   initial={{ opacity: 0 }}
@@ -307,20 +356,33 @@ export default function CourseHero({
                   className="absolute inset-0"
                 >
                   <Image
-                    src={photos[photoIdx]}
-                    alt={title}
+                    src={activePhoto.url}
+                    alt={activePictured ?? activeTag ?? title}
                     fill
                     priority
                     sizes="(max-width:768px)100vw,50vw"
                     className="object-cover"
                   />
                 </motion.div>
-              )}
+              ) : null}
             </AnimatePresence>
+
+            {/* Image tag — category badge when present */}
+            {activeTag && !activeVideoId && (
+              <span className="pointer-events-none absolute top-3 left-3 z-20 rounded-full bg-primary px-2.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-white sm:px-3 sm:text-[10px]">
+                {activeTag}
+              </span>
+            )}
 
             {/* Course meta — frosted overlay on main photo */}
             {hasMeta && !activeVideoId && (
-              <div className="pointer-events-none absolute right-2 bottom-14 left-2 z-20 flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-2xl bg-ink/45 px-3 py-2 backdrop-blur-md ring-1 ring-white/10 sm:right-auto sm:bottom-auto sm:top-3 sm:left-3 sm:flex-nowrap sm:gap-3 sm:px-4">
+              <div
+                className={`pointer-events-none absolute right-2 left-2 z-20 flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-2xl bg-ink/45 px-3 py-2 backdrop-blur-md ring-1 ring-white/10 sm:right-auto sm:left-3 sm:flex-nowrap sm:gap-3 sm:px-4 ${
+                  activePictured
+                    ? "bottom-[5.75rem] sm:bottom-auto sm:top-3"
+                    : "bottom-14 sm:bottom-auto sm:top-3"
+                } ${activeTag ? "sm:top-12" : ""}`}
+              >
                 {duration && (
                   <div className="min-w-0">
                     <p className="text-[8px] font-semibold uppercase tracking-widest text-white/65 sm:text-[9px]">
@@ -363,6 +425,23 @@ export default function CourseHero({
                     </div>
                   </>
                 )}
+              </div>
+            )}
+
+            {/* Image details — pictured caption */}
+            {activePictured && !activeVideoId && (
+              <div
+                id="imageDetails"
+                className="pointer-events-none absolute right-2 bottom-12 left-2 z-20 sm:bottom-14 sm:left-3 sm:max-w-md"
+              >
+                <p className="rounded-2xl bg-ink/55 px-3 py-2 text-[11px] leading-snug text-white backdrop-blur-md ring-1 ring-white/10 sm:px-3.5 sm:py-2.5 sm:text-xs">
+                  <span className="type-eyebrow block text-[8px] text-white/65 sm:text-[9px]">
+                    Pictured
+                  </span>
+                  <span className="mt-0.5 block font-medium">
+                    {activePictured}
+                  </span>
+                </p>
               </div>
             )}
 
@@ -501,7 +580,7 @@ export default function CourseHero({
                   aria-label="View photo"
                 >
                   <Image
-                    src={photos[(photoIdx + cell.offset) % photos.length]}
+                    src={photos[(photoIdx + cell.offset) % photos.length].url}
                     alt=""
                     fill
                     sizes="18vw"
@@ -512,7 +591,7 @@ export default function CourseHero({
                 /* Fallback: extra photo when no video available */
                 <div className="relative h-full w-full overflow-hidden rounded-2xl">
                   <Image
-                    src={photos[(photoIdx + cell.offset) % photos.length]}
+                    src={photos[(photoIdx + cell.offset) % photos.length].url}
                     alt=""
                     fill
                     sizes="18vw"
@@ -579,7 +658,7 @@ export default function CourseHero({
               ref={stripRef}
               className="no-scrollbar flex touch-pan-x gap-1.5 overflow-x-auto scroll-smooth snap-x snap-mandatory [-webkit-overflow-scrolling:touch] sm:gap-2"
             >
-              {photos.map((url, i) => {
+              {photos.map((photo, i) => {
                 const isActive = i === photoIdx && !activeVideoId;
                 return (
                   <button
@@ -596,7 +675,7 @@ export default function CourseHero({
                     aria-current={isActive ? "true" : undefined}
                   >
                     <Image
-                      src={url}
+                      src={photo.url}
                       alt=""
                       fill
                       sizes="80px"

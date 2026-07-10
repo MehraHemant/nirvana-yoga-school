@@ -24,8 +24,15 @@ export type CoursePricingOption = {
   image?: string;
 };
 
+export type CourseImageDetail = {
+  url: string;
+  tag?: string;
+  pictured?: string;
+};
+
 export type CourseMedia = {
   images: string[];
+  imageDetails?: CourseImageDetail[];
   videos: string[];
 };
 

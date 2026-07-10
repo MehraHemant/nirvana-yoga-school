@@ -34,7 +34,7 @@ export default function CourseSyllabus({
   ];
 
   return (
-    <section id="syllabus" className="py-20 sm:py-28 bg-paper">
+    <section id="syllabus" className="py-20 sm:py-28 bg-white">
       <Container size="2xl">
         <motion.div
           initial="hidden"

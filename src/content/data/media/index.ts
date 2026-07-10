@@ -1,6 +1,72 @@
-import type { CourseMedia } from "@/content/types";
+import type { CourseImageDetail, CourseMedia } from "@/content/types";
 
 export type { CourseMedia };
+
+const SITE = "https://www.nirvanayogaschoolindia.com";
+
+/** Captions and category tags for the residential YTT hero gallery (from live site). */
+export const YTT_HERO_IMAGE_DETAILS: CourseImageDetail[] = [
+  {
+    url: `${SITE}/admin/uploads/yoga/img_6821981f671d8.webp`,
+    pictured: "Students of Nirvana Yoga School",
+  },
+  {
+    url: `${SITE}/admin/uploads/yoga/img_6821971ac7faf.webp`,
+    tag: "Beach Yoga",
+  },
+  {
+    url: `${SITE}/admin/uploads/yoga/img_6821971ac8220.webp`,
+    pictured: "200-Hour YTTC students with certification",
+  },
+  {
+    url: `${SITE}/admin/uploads/yoga/img_68219912b94b2.webp`,
+    pictured: "Dining hall of Nirvana Yoga School",
+  },
+  {
+    url: `${SITE}/admin/uploads/yoga/img_6821971ac7cc5.webp`,
+    tag: "Yoga in the Nature",
+  },
+  {
+    url: `${SITE}/admin/uploads/yoga/img_68219912b9b73.webp`,
+    pictured: "Food at Nirvana Yoga School",
+  },
+  {
+    url: `${SITE}/admin/uploads/yoga/img_68219a9a1ca9b.webp`,
+    pictured: "Accommodation at Nirvana Yoga School",
+  },
+  {
+    url: `${SITE}/admin/uploads/yoga/img_6821971ac8548.webp`,
+    pictured: "200-Hour Yoga Teacher Training in Rishikesh",
+  },
+  {
+    url: `${SITE}/admin/uploads/yoga/DSC01680.webp`,
+    pictured: "Teachers of Nirvana Yoga School",
+  },
+  {
+    url: `${SITE}/admin/uploads/yoga/img_68219912b987a.webp`,
+    pictured: "Students having candle light dinner",
+  },
+  {
+    url: `${SITE}/admin/uploads/yoga/DSC09794.webp`,
+    pictured: "Sound healer with sound bowls",
+  },
+  {
+    url: `${SITE}/admin/uploads/yoga/DSC09937.webp`,
+    pictured: "Excursion event organised by Nirvana Yoga School",
+  },
+  {
+    url: `${SITE}/admin/uploads/yoga/img_6739ed9589cf2.webp`,
+    tag: "Trataka practice",
+  },
+  {
+    url: `${SITE}/admin/uploads/yoga/img_6739ed958a18c.webp`,
+    pictured: "Student practicing Jalneti",
+  },
+  {
+    url: `${SITE}/admin/uploads/yoga/DSC09843.webp`,
+    pictured: "Sound healing session",
+  },
+];
 
 export const COURSES_MEDIA: Record<string, CourseMedia> = {
   "200-hour-yoga-teacher-training-in-rishikesh-india": {
@@ -30,6 +96,7 @@ export const COURSES_MEDIA: Record<string, CourseMedia> = {
       "RqG48joKLp8",
       "TYal8a3zGow",
     ],
+    imageDetails: YTT_HERO_IMAGE_DETAILS,
   },
   "200-hour-ayurveda-yoga-teacher-training-in-rishikesh-india": {
     images: [

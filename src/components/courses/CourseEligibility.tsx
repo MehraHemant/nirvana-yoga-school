@@ -38,10 +38,10 @@ function PrerequisiteCard({
           Prerequisite {num}
         </span>
       </div>
-      <h4 className="font-serif text-lg font-semibold tracking-wider text-ink">
+      <h4 className="font-serif type-lead text-lg md:text-xl lg:text-2xl font-semibold tracking-wider text-ink">
         {title}
       </h4>
-      <p className="text-sm text-muted leading-relaxed font-sans">{desc}</p>
+      <p className="type-body leading-snug text-muted font-sans">{desc}</p>
     </motion.div>
   );
 }

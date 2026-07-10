@@ -22,11 +22,13 @@ function RoomCard({
   duration,
   selectedBatch,
   wide = false,
+  buildHref = whatsAppHref,
 }: {
   option: PricingOption;
   duration: string;
   selectedBatch: string;
   wide?: boolean;
+  buildHref?: (duration: string, roomType: string, batch: string) => string;
 }) {
   const noRoom = option.roomType.toLowerCase().includes("without");
   const saving = option.originalPrice
@@ -60,7 +62,7 @@ function RoomCard({
           </p>
         </div>
         <Button
-          href={whatsAppHref(duration, option.roomType, selectedBatch)}
+          href={buildHref(duration, option.roomType, selectedBatch)}
           variant="secondary"
           size="sm"
           className="w-full shrink-0 sm:w-auto"
@@ -75,7 +77,7 @@ function RoomCard({
 
   return (
     <article className="flex flex-col rounded-2xl border border-ink/8 bg-white p-4 shadow-card transition-all duration-300 hover:border-primary/15 hover:shadow-soft">
-      <h4 className="line-clamp-2 font-serif text-sm font-medium leading-snug text-ink">
+      <h4 className="line-clamp-2 font-serif type-lead  font-medium leading-snug text-ink">
         {option.roomType}
       </h4>
 
@@ -110,7 +112,7 @@ function RoomCard({
       </ul>
 
       <Button
-        href={whatsAppHref(duration, option.roomType, selectedBatch)}
+        href={buildHref(duration, option.roomType, selectedBatch)}
         variant="secondary"
         size="sm"
         className="mt-auto w-full"
@@ -130,6 +132,7 @@ export default function UpcomingDates({
   batches: batchesProp,
   lodgingTitle = "Lodging packages",
   datesTitle = "Training dates",
+  buildWhatsAppHref = whatsAppHref,
 }: UpcomingDatesProps) {
   const batches = batchesProp?.length ? batchesProp : getBatchDates(duration);
   const [selectedBatch, setSelectedBatch] = useState(batches[0]?.dates ?? "");
@@ -137,7 +140,7 @@ export default function UpcomingDates({
   return (
     <section
       id="pricing"
-      className="py-8 sm:py-10 bg-paper lg:min-h-[calc(100svh-5.5rem)] lg:flex lg:flex-col lg:justify-center"
+      className="py-8 sm:py-10 bg-white lg:min-h-[calc(100svh-5.5rem)] lg:flex lg:flex-col lg:justify-center"
     >
       <Container size="2xl">
         {/* Compact split header */}
@@ -187,6 +190,7 @@ export default function UpcomingDates({
                     duration={duration}
                     selectedBatch={selectedBatch}
                     wide={isLast || noRoom}
+                    buildHref={buildWhatsAppHref}
                   />
                 );
               })}
@@ -195,7 +199,7 @@ export default function UpcomingDates({
 
           {/* ── Dates column (right) — same row height as left, list scrolls ── */}
           <div className="flex min-h-0 flex-col gap-3 lg:h-0 lg:min-h-full lg:overflow-hidden">
-            <Heading as="h3" size="h4" font="poppins" className="mb-0 shrink-0">
+            <Heading as="h2" size="h4" font="poppins" className="mb-0 shrink-0">
               {datesTitle}
             </Heading>
 
@@ -223,7 +227,7 @@ export default function UpcomingDates({
                         }`}
                       >
                         <div className="flex flex-wrap items-center justify-between gap-2">
-                          <p className="font-sans text-xs font-semibold text-ink">
+                          <p className="font-sans type-body font-medium text-ink">
                             {batch.dates}
                           </p>
                           <span
@@ -232,7 +236,7 @@ export default function UpcomingDates({
                             {batch.status}
                           </span>
                         </div>
-                        <p className="mt-0.5 font-sans text-[10px] text-muted">
+                        <p className="mt-0.5 font-sans text-xs sm:text-sm text-muted">
                           {batch.spaces} · {duration}
                         </p>
                       </button>

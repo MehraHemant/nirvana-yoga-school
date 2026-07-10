@@ -7,14 +7,19 @@ export interface PricingOption {
   image?: string;
 }
 
-export interface UpcomingDatesProps {
+export type UpcomingDatesProps = {
   duration: string;
   pricing: PricingOption[];
   pricingDescription: string;
   batches?: BatchItem[];
   lodgingTitle?: string;
   datesTitle?: string;
-}
+  buildWhatsAppHref?: (
+    duration: string,
+    roomType: string,
+    batch: string,
+  ) => string;
+};
 
 export type BatchItem = {
   dates: string;

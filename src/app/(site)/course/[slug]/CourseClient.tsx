@@ -1,5 +1,6 @@
 "use client";
 
+import { MapSection } from "@/components";
 import {
   AccommodationFood,
   CourseBookingFab,
@@ -18,7 +19,6 @@ import {
 } from "@/components/courses";
 import { COURSE_FAQ_CATEGORIES, FAQSection } from "@/components/ui";
 import type { CoursePageData } from "./types";
-import { MapSection } from "@/components";
 
 export default function CourseClient({
   course,
@@ -38,6 +38,7 @@ export default function CourseClient({
         certBadge={course.certBadge}
         heroImages={course.heroImages}
         images={media.images}
+        imageDetails={media.imageDetails}
         videos={media.videos}
       />
 
@@ -87,12 +88,12 @@ export default function CourseClient({
         <TravelGuide />
 
         <InstagramFeed />
-        <MapSection />
+        <MapSection className="bg-white" />
 
         <FAQSection
           faqs={course.faqs}
           categories={COURSE_FAQ_CATEGORIES}
-          sectionClassName="bg-paper"
+          sectionClassName="bg-white"
           eyebrow="Got Questions?"
           title={
             <>

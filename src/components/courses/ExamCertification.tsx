@@ -64,7 +64,7 @@ export default function ExamCertification() {
   return (
     <section
       id="exam"
-      className="relative bg-paper border-b border-ink/5 py-20 sm:py-28"
+      className="relative bg-white py-20 sm:py-28"
     >
       <Container size="2xl">
         <div className="space-y-16">
@@ -120,7 +120,7 @@ export default function ExamCertification() {
                   />
                 </button>
               </div>
-              <p className="text-[11px] text-muted text-center mt-6 font-sans italic">
+              <p className="type-ui mt-6 text-center italic text-muted">
                 Click certificates to zoom in.
               </p>
             </div>
@@ -139,10 +139,10 @@ export default function ExamCertification() {
                     <span className="type-eyebrow text-primary/70 font-semibold tracking-wider block uppercase mb-1">
                       {step.tag}
                     </span>
-                    <h4 className="font-serif text-base sm:text-lg font-semibold tracking-wider text-ink">
+                    <h4 className="font-serif text-base sm:text-lg md:text-xl lg:text-2xl font-semibold tracking-wider text-ink">
                       {step.title}
                     </h4>
-                    <p className="text-xs sm:text-sm text-muted leading-relaxed font-sans pt-1">
+                    <p className="type-body pt-1 leading-relaxed text-muted">
                       {step.desc}
                     </p>
                   </div>
