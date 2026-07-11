@@ -69,7 +69,7 @@ const PROGRAMS = [
 
 const SCHOOL = [
   { href: "/#about", label: "About" },
-  { href: "/#teachers", label: "Teachers" },
+  { href: "/teacher", label: "Teachers" },
   { href: "/#reviews", label: "Reviews" },
   { href: "/#gallery", label: "Gallery" },
   { href: "/blog", label: "Journal" },

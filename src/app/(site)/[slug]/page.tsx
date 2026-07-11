@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getSlugsByType, isDedicatedRouteSlug } from "@/content/pages";
 import { getSitePage } from "@/content";
+import { getSlugsByType, isDedicatedRouteSlug } from "@/content/pages";
 import { courseMetadata } from "../_shared/metadata";
 import { renderSitePage } from "./_site/render";
 
@@ -10,7 +10,9 @@ interface PageProps {
 }
 
 export async function generateStaticParams() {
-  return getSlugsByType("site").map((slug) => ({ slug }));
+  return getSlugsByType("site")
+    .filter((slug) => slug !== "teacher")
+    .map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({

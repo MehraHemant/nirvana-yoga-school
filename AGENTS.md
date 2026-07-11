@@ -80,7 +80,8 @@ src/
       online-course/[slug]/ # Online courses — OnlineCourseClient, data.ts, types.ts
       retreat/[slug]/       # Retreat pages — RetreatClient
       venue/[slug]/         # Venue pages — VenueClient
-      [slug]/               # Other site pages (teacher, about, hubs, …)
+      teacher/page.tsx      # Dedicated faculty page — TeachersPageClient
+      [slug]/               # Other site pages (about, hubs, …)
         page.tsx
         _site/              # SiteClient, TeachersClient, HubClient, render.tsx
       _shared/              # metadata.ts, site/ shared blocks + data loaders
@@ -99,6 +100,7 @@ src/
     courses/
     online/             # Online product pages — hero, pricing card, testimonials
     home/               # Home page sections
+    teachers/           # Dedicated `/teacher` page — TeachersPageClient
     layout/
     ui/
     index.ts
@@ -512,3 +514,4 @@ Last meaningful update: 2026-06-28 — **Unified CMS on :3000**: website, `/admi
 2026-06-28 — **File-only static site**: Removed PostgreSQL, Docker, admin CMS, all `/api` routes, and live-site sync scripts. Content loads from `src/content/data/` and `src/data/` JSON/TS only. Live-site images replaced with high-res Unsplash stock via `src/lib/stock-images.ts`.
 2026-07-05 — **Online course product pages**: Dedicated `src/components/online/` theme (teal hero, trust bar, sticky pricing card, review grid). `OnlineCourseClient` uses live-site sections only — no residential lodging, dates, or travel blocks.
 2026-07-10 — **Facility icons + ICONS.md**: Campus facilities use per-amenity icons (`Shower`, `Terrace`, `Bowl`, `Wifi`, `Lotus`, `Leaf`, `Garden`, `Bathroom`, `Flame`, `Droplet`, `Laundry`, `Wind`). Registry in `src/data/accommodationFacilities.ts`. Agent guide at `src/icons/ICONS.md` — read before adding any SVG.
+2026-07-11 — **Dedicated `/teacher` page**: Faculty page at `teacher/page.tsx` via `TeachersPageClient` — cinematic hero, scrollable jump-to nav, and simple profile cards. Teacher data centralized in `content/data/teachers.ts` from `site-pages.json` (`people[]` with live `/img/teacher/` photos). Home `TeachersSection` uses the same source. Footer links to `/teacher`.

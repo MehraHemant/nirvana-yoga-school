@@ -29,7 +29,7 @@ export function mapSiteTeachers(
     ),
     image:
       person.image ??
-      "https://images.unsplash.com/photo-1614283233556-f35b0c801ef1?w=600&auto=format&fit=crop&q=80",
+      "https://www.nirvanayogaschoolindia.com/img/teacher/jeet-thapliyal.webp",
     bio: refineTeacherBio(person.bio ?? ""),
     education: person.education ?? [],
     detailedExperience: person.experience ?? [],
