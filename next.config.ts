@@ -1,3 +1,5 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import type { NextConfig } from "next";
 import { legacyRedirectForSlug } from "@/content/pages/path";
 import {
@@ -7,19 +9,23 @@ import {
   VENUE_SLUGS,
 } from "@/content/pages/slugs";
 
+const projectRoot = path.dirname(fileURLToPath(import.meta.url));
+
 const legacyRedirects = [
   ...RESIDENTIAL_COURSE_SLUGS.map((slug) =>
     legacyRedirectForSlug(slug, "course"),
   ),
-  ...ONLINE_COURSE_SLUGS.map((slug) =>
-    legacyRedirectForSlug(slug, "online"),
-  ),
+  ...ONLINE_COURSE_SLUGS.map((slug) => legacyRedirectForSlug(slug, "online")),
   ...RETREAT_SLUGS.map((slug) => legacyRedirectForSlug(slug, "retreat")),
   ...VENUE_SLUGS.map((slug) => legacyRedirectForSlug(slug, "venue")),
 ];
 
 const nextConfig: NextConfig = {
   reactCompiler: true,
+  // Pin Turbopack root — avoids watching all of ~/Desktop when a stray lockfile exists there
+  turbopack: {
+    root: projectRoot,
+  },
   images: {
     remotePatterns: [
       {
