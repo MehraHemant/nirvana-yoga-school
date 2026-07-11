@@ -21,7 +21,11 @@ function TeacherArticle({
   teacher,
   index,
   prefersReducedMotion,
-}: { teacher: TeacherProfile; index: number; prefersReducedMotion: boolean }) {
+}: {
+  teacher: TeacherProfile;
+  index: number;
+  prefersReducedMotion: boolean;
+}) {
   const id = teacherSlug(teacher.name);
   // Even index (0,2,4…) → name/bio LEFT, image RIGHT
   // Odd index  (1,3,5…) → image LEFT,   name/bio RIGHT
@@ -54,7 +58,7 @@ function TeacherArticle({
   return (
     <motion.article
       id={id}
-      className="scroll-mt-28 overflow-hidden rounded-3xl border border-ink/20 bg-white shadow-card transition-shadow duration-300 hover:shadow-soft"
+      className="scroll-mt-28 overflow-hidden rounded-3xl border border-secondary/25 bg-white shadow-card transition-shadow duration-300 hover:shadow-soft"
       whileHover={prefersReducedMotion ? {} : { y: -3 }}
       transition={{ type: "spring", stiffness: 300, damping: 28 }}
     >
@@ -78,57 +82,68 @@ function TeacherArticle({
           </>
         )}
 
-
         {/* Bottom row: 3-column details strip, no inner cards */}
-        <div className="col-span-1 border-t-2 border-ink/12 bg-sand/30 sm:col-span-2">
-          <div className="grid divide-y divide-ink/10 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-
+        <div className="col-span-1 border-t border-secondary/25 bg-white sm:col-span-2">
+          <div className="grid divide-y divide-secondary/20 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
             {/* Education */}
-            <div className="px-7 py-6 md:px-9 md:py-7 bg-primary/[0.02] transition-colors duration-300 hover:bg-primary/[0.04]">
-              <p className="type-eyebrow mb-4 font-semibold tracking-widest text-primary">Education</p>
+            <div className="px-7 py-6 md:px-9 md:py-7 bg-white transition-colors duration-300 hover:bg-primary/[0.02]">
+              <p className="type-eyebrow mb-4 font-semibold tracking-widest text-primary">
+                Education
+              </p>
               <ul className="space-y-2.5">
                 {teacher.education.map((item) => (
                   <li key={item} className="flex items-start gap-2.5">
-                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary/60" aria-hidden="true" />
-                    <span className="type-body leading-snug text-ink/85">{item}</span>
+                    <span
+                      className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary/60"
+                      aria-hidden="true"
+                    />
+                    <span className="type-body leading-snug text-ink/85">
+                      {item}
+                    </span>
                   </li>
                 ))}
               </ul>
             </div>
 
             {/* Experience */}
-            <div className="px-7 py-6 md:px-9 md:py-7 bg-secondary/[0.02] transition-colors duration-300 hover:bg-secondary/[0.04]">
-              <p className="type-eyebrow mb-4 font-semibold tracking-widest text-secondary">Experience</p>
+            <div className="px-7 py-6 md:px-9 md:py-7 bg-white transition-colors duration-300 hover:bg-secondary/[0.02]">
+              <p className="type-eyebrow mb-4 font-semibold tracking-widest text-secondary">
+                Experience
+              </p>
               <ul className="space-y-2.5">
                 {teacher.detailedExperience.map((item) => (
                   <li key={item} className="flex items-start gap-2.5">
-                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-secondary/60" aria-hidden="true" />
-                    <span className="type-body leading-snug text-ink/85">{item}</span>
+                    <span
+                      className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-secondary/60"
+                      aria-hidden="true"
+                    />
+                    <span className="type-body leading-snug text-ink/85">
+                      {item}
+                    </span>
                   </li>
                 ))}
               </ul>
             </div>
 
             {/* Expertise */}
-            <div className="px-7 py-6 md:px-9 md:py-7 bg-accent/[0.04] transition-colors duration-300 hover:bg-accent/[0.08]">
-              <p className="type-eyebrow mb-4 font-semibold tracking-widest text-secondary/80">Expertise</p>
+            <div className="px-7 py-6 md:px-9 md:py-7 bg-white transition-colors duration-300 hover:bg-accent/[0.03]">
+              <p className="type-eyebrow mb-4 font-semibold tracking-widest text-secondary/80">
+                Expertise
+              </p>
               <div className="flex flex-wrap gap-2">
                 {teacher.expertise.map((item) => (
                   <span
                     key={item}
-                    className="type-ui inline-flex items-center rounded-full border border-accent/35 bg-white/90 px-3 py-1 text-ink/90 transition-all duration-150 hover:border-secondary/40 hover:bg-white hover:shadow-2xs"
+                    className="type-ui inline-flex items-center rounded-full border border-accent/35 bg-white px-3 py-1 text-ink/90 transition-all duration-150 hover:border-secondary/45 hover:bg-white hover:shadow-2xs"
                   >
                     {item}
                   </span>
                 ))}
               </div>
             </div>
-
           </div>
         </div>
-
       </div>
-
     </motion.article>
   );
 }
@@ -150,9 +165,9 @@ export default function TeachersPageClient({
       const top = Math.max(
         0,
         node.getBoundingClientRect().top +
-        window.scrollY -
-        getHeaderHeight() -
-        24,
+          window.scrollY -
+          getHeaderHeight() -
+          24,
       );
       window.scrollTo({
         top,
@@ -238,7 +253,6 @@ export default function TeachersPageClient({
         </Container>
       </section>
 
-
       {/* Magazine layout: sticky TOC + scrollable profiles */}
       <section id="faculty" className="bg-paper py-14 sm:py-16 lg:py-20">
         <Container size="2xl">
@@ -260,10 +274,11 @@ export default function TeachersPageClient({
                   key={teacher.name}
                   type="button"
                   onClick={() => scrollToTeacher(slug)}
-                  className={`type-ui shrink-0 rounded-full border px-3.5 py-2 font-semibold transition-colors ${isActive
-                    ? "border-primary bg-primary text-white"
-                    : "border-ink/8 bg-white text-ink"
-                    }`}
+                  className={`type-ui shrink-0 rounded-full border px-3.5 py-2 font-semibold transition-colors ${
+                    isActive
+                      ? "border-primary bg-primary text-white"
+                      : "border-ink/8 bg-white text-ink"
+                  }`}
                 >
                   {teacher.name.replace(/^Dr\.\s/, "").split(" ")[0]}
                 </button>
@@ -293,10 +308,11 @@ export default function TeachersPageClient({
                         key={teacher.name}
                         type="button"
                         onClick={() => scrollToTeacher(slug)}
-                        className={`type-ui block w-full border-l-2 py-2 pl-3 text-left transition-colors ${isActive
-                          ? "border-primary font-semibold text-primary"
-                          : "border-transparent text-muted hover:border-ink/20 hover:text-ink"
-                          }`}
+                        className={`type-ui block w-full border-l-2 py-2 pl-3 text-left transition-colors ${
+                          isActive
+                            ? "border-primary font-semibold text-primary"
+                            : "border-transparent text-muted hover:border-ink/20 hover:text-ink"
+                        }`}
                       >
                         {teacher.name.replace(/^Dr\.\s/, "")}
                       </button>
@@ -309,7 +325,12 @@ export default function TeachersPageClient({
             {/* Profile stream */}
             <div className="min-w-0 space-y-6">
               {teachers.map((teacher, i) => (
-                <TeacherArticle key={teacher.name} teacher={teacher} index={i} prefersReducedMotion={prefersReducedMotion} />
+                <TeacherArticle
+                  key={teacher.name}
+                  teacher={teacher}
+                  index={i}
+                  prefersReducedMotion={prefersReducedMotion}
+                />
               ))}
             </div>
           </div>
