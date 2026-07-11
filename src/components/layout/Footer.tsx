@@ -71,7 +71,7 @@ const SCHOOL = [
   { href: "/#about", label: "About" },
   { href: "/teacher", label: "Teachers" },
   { href: "/#reviews", label: "Reviews" },
-  { href: "/#gallery", label: "Gallery" },
+  { href: "/venue/course-venue", label: "Course Venue" },
   { href: "/blog", label: "Journal" },
   { href: "/#faq", label: "FAQ" },
 ];

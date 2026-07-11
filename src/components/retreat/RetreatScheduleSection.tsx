@@ -1,115 +1,350 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
-import Image from "next/image";
-import { useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { useCallback, useLayoutEffect, useRef, useState } from "react";
+import { Container, SectionHeader, TabSwitcher } from "@/components/ui";
 import type { RetreatScheduleDay } from "@/content/types/retreat-page";
-import RetreatSectionShell from "./RetreatSectionShell";
+import { BookOpen, Bowl, Clock, Lotus, Sunrise } from "@/icons";
+import {
+  EASE_OUT,
+  fadeUp,
+  reducedTransition,
+  VIEWPORT_ONCE,
+} from "@/lib/motion";
 
 type RetreatScheduleSectionProps = {
+  /** Day-by-day retreat activities from static content JSON */
   schedule: RetreatScheduleDay[];
 };
 
+type ScheduleIconType = "morning" | "meal" | "study" | "yoga" | "default";
+
+const SCHEDULE_ICON_META: Record<
+  ScheduleIconType,
+  { color: string; caption: string }
+> = {
+  morning: {
+    color: "text-amber-500",
+    caption: "Spiritual morning practice",
+  },
+  meal: { color: "text-primary", caption: "Nutritional sattvic meal" },
+  study: {
+    color: "text-secondary",
+    caption: "Traditional lecture & ceremony",
+  },
+  yoga: { color: "text-accent", caption: "Pranayama, Hatha & Yin yoga" },
+  default: { color: "text-muted", caption: "Leisure & reflection time" },
+};
+
+function ScheduleIcon({ type }: { type: ScheduleIconType }) {
+  const className = `h-5 w-5 ${SCHEDULE_ICON_META[type].color}`;
+
+  if (type === "morning") return <Sunrise size={20} className={className} />;
+  if (type === "meal") return <Bowl size={20} className={className} />;
+  if (type === "study") return <BookOpen size={20} className={className} />;
+  if (type === "yoga") return <Lotus size={20} className={className} />;
+  return <Clock size={20} className={className} />;
+}
+
+const getIconType = (activity: string, time: string): ScheduleIconType => {
+  const actLower = activity.toLowerCase();
+  const timeLower = time.toLowerCase();
+
+  if (
+    actLower.includes("breakfast") ||
+    actLower.includes("lunch") ||
+    actLower.includes("dinner") ||
+    actLower.includes("meal") ||
+    actLower.includes("tea")
+  ) {
+    return "meal";
+  }
+  if (
+    actLower.includes("philosophy") ||
+    actLower.includes("lecture") ||
+    actLower.includes("discussion") ||
+    actLower.includes("ceremony") ||
+    actLower.includes("aarti") ||
+    actLower.includes("havan") ||
+    actLower.includes("sound") ||
+    actLower.includes("healing") ||
+    actLower.includes("orientation")
+  ) {
+    return "study";
+  }
+  if (
+    actLower.includes("yoga") ||
+    actLower.includes("asana") ||
+    actLower.includes("flow") ||
+    actLower.includes("meditation") ||
+    actLower.includes("pranayama") ||
+    actLower.includes("breath") ||
+    actLower.includes("cleansing")
+  ) {
+    return "yoga";
+  }
+  if (
+    timeLower.includes("06:00 am") ||
+    timeLower.includes("07:00 am") ||
+    timeLower.includes("06:30 am")
+  ) {
+    return "morning";
+  }
+  return "default";
+};
+
+function getScheduleTabsTop(): number {
+  const header =
+    document.querySelector("header")?.getBoundingClientRect().height ?? 76;
+  const courseNav =
+    document.querySelector(".course-sticky-nav")?.getBoundingClientRect()
+      .height ?? 52;
+  return Math.ceil(header + courseNav);
+}
+
+/**
+ * Retreat day-by-day schedule with sticky day tabs and an alternating timeline.
+ *
+ * @param props - Component props
+ * @param props.schedule - Ordered list of retreat days and activities
+ */
 export default function RetreatScheduleSection({
   schedule,
 }: RetreatScheduleSectionProps) {
-  const [activeDay, setActiveDay] = useState(schedule[0]?.day ?? 1);
-  const active = schedule.find((day) => day.day === activeDay) ?? schedule[0];
+  const prefersReduced = useReducedMotion() ?? false;
+  const [activeDay, setActiveDay] = useState<string>("1");
+  const [tabsTop, setTabsTop] = useState(128);
+  const [tabsHeight, setTabsHeight] = useState(0);
+  const [isPinned, setIsPinned] = useState(false);
+  const tabsSentinelRef = useRef<HTMLDivElement>(null);
+  const sectionEndRef = useRef<HTMLDivElement>(null);
+  const tabsRef = useRef<HTMLDivElement>(null);
+  const dayPanelRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    const syncLayout = () => {
+      setTabsTop(getScheduleTabsTop());
+      if (tabsRef.current) {
+        setTabsHeight(tabsRef.current.offsetHeight);
+      }
+    };
+
+    syncLayout();
+    window.addEventListener("resize", syncLayout);
+    return () => window.removeEventListener("resize", syncLayout);
+  }, []);
+
+  useLayoutEffect(() => {
+    const updatePinned = () => {
+      const sentinel = tabsSentinelRef.current;
+      const sectionEnd = sectionEndRef.current;
+      if (!sentinel) return;
+
+      const sentinelTop = sentinel.getBoundingClientRect().top;
+      const sectionEndTop =
+        sectionEnd?.getBoundingClientRect().top ?? Number.POSITIVE_INFINITY;
+      const pinLine = tabsTop;
+      const unpinLine = pinLine + tabsHeight;
+
+      setIsPinned(sentinelTop <= pinLine && sectionEndTop > unpinLine);
+    };
+
+    updatePinned();
+    window.addEventListener("scroll", updatePinned, { passive: true });
+    window.addEventListener("resize", updatePinned);
+    return () => {
+      window.removeEventListener("scroll", updatePinned);
+      window.removeEventListener("resize", updatePinned);
+    };
+  }, [tabsTop, tabsHeight]);
+
+  const active =
+    schedule.find((day) => String(day.day) === activeDay) ?? schedule[0];
+
+  const handleDayChange = useCallback(
+    (id: string) => {
+      setActiveDay(id);
+      requestAnimationFrame(() => {
+        dayPanelRef.current?.scrollIntoView({
+          behavior: prefersReduced ? "auto" : "smooth",
+          block: "start",
+        });
+      });
+    },
+    [prefersReduced],
+  );
 
   if (!active) return null;
 
-  return (
-    <RetreatSectionShell id="schedule" title="Day-wise Schedule">
-      <div className="space-y-8">
-        {/* Day selector tabs */}
-        <div className="flex flex-wrap gap-2.5 rounded-2xl bg-sand/40 p-2 border border-secondary/10 w-fit">
-          {schedule.map((day) => {
-            const isActive = day.day === activeDay;
-            return (
-              <button
-                key={day.day}
-                type="button"
-                onClick={() => setActiveDay(day.day)}
-                className={`rounded-xl px-5 py-2.5 text-xs uppercase tracking-wider font-semibold transition-all duration-200 ${
-                  isActive
-                    ? "bg-secondary text-white shadow-sm"
-                    : "text-muted hover:bg-secondary/10 hover:text-secondary"
-                }`}
-              >
-                Day {day.day}
-              </button>
-            );
-          })}
-        </div>
+  const tabs = schedule.map((day) => ({
+    id: String(day.day),
+    label: `Day ${day.day}`,
+  }));
 
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={active.day}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
-            className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]"
-          >
-            {/* Timeline Card */}
-            <div className="overflow-hidden rounded-3xl border border-secondary/15 bg-white shadow-xs p-6 md:p-8">
-              <div className="border-b border-secondary/10 pb-6 mb-6">
-                <span className="type-eyebrow text-secondary font-semibold tracking-wider">
-                  Day 0{active.day} focus
+  return (
+    <section
+      id="schedule"
+      className="relative border-b border-secondary/10 bg-white py-16 sm:py-20"
+    >
+      <div
+        className="pointer-events-none absolute top-[20%] right-[-10%] h-[500px] w-[500px] rounded-full bg-secondary/5 blur-[100px]"
+        aria-hidden="true"
+      />
+      <div
+        className="pointer-events-none absolute bottom-[10%] left-[-10%] h-[500px] w-[500px] rounded-full bg-primary/5 blur-[100px]"
+        aria-hidden="true"
+      />
+
+      <Container size="2xl">
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={VIEWPORT_ONCE}
+          variants={fadeUp}
+          className="mx-auto mb-10 max-w-2xl text-center"
+        >
+          <SectionHeader
+            eyebrow="Retreat Timeline"
+            title={
+              <>
+                Day-by-Day <span className="text-primary">Journey</span>
+              </>
+            }
+            align="center"
+          />
+          <p className="type-lead mx-auto mt-6 max-w-xl font-sans text-base text-muted">
+            Follow our balanced daily rhythm of yoga practice, meditation,
+            nourishing meals, and sound healing designed for deep relaxation and
+            inner harmony.
+          </p>
+        </motion.div>
+      </Container>
+
+      <div ref={tabsSentinelRef} className="h-px w-full" aria-hidden="true" />
+
+      {isPinned && (
+        <div
+          style={{ height: tabsHeight }}
+          className="w-full"
+          aria-hidden="true"
+        />
+      )}
+
+      <div
+        ref={tabsRef}
+        style={isPinned ? { top: tabsTop } : undefined}
+        className={`z-20 border-b border-secondary/10 bg-white/95 backdrop-blur-md ${
+          isPinned ? "fixed inset-x-0 shadow-soft" : "relative"
+        }`}
+      >
+        <Container size="2xl" className="py-3">
+          <TabSwitcher
+            tabs={tabs}
+            activeId={activeDay}
+            onChange={handleDayChange}
+            layoutId="activeRetreatDayTab"
+            variant="pill"
+            size="sm"
+            className="mb-0! pb-0!"
+          />
+        </Container>
+      </div>
+
+      <Container size="2xl">
+        <div
+          ref={dayPanelRef}
+          className="mx-auto max-w-3xl pt-8"
+          style={{ scrollMarginTop: tabsTop + tabsHeight + 16 }}
+        >
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={active.day}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={reducedTransition(prefersReduced, {
+                duration: 0.3,
+                ease: EASE_OUT,
+              })}
+              className="space-y-8"
+            >
+              <div className="pb-2 text-center">
+                <span className="type-eyebrow font-semibold tracking-wider text-secondary">
+                  Day 0{active.day} Focus
                 </span>
-                <h3 className="mt-1 font-serif text-2xl md:text-3xl font-medium text-ink leading-tight">
+                <h4 className="mt-1 font-serif text-2xl font-medium leading-tight text-ink sm:text-3xl">
                   {active.title}
-                </h3>
+                </h4>
               </div>
 
-              {/* Timeline layout */}
-              <div className="relative pl-7 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-secondary/15">
-                <div className="space-y-7">
-                  {active.activities.map((item) => (
-                    <div
-                      key={`${item.time}-${item.activity}`}
-                      className="relative grid grid-cols-1 gap-1 sm:grid-cols-[8.5rem_1fr] sm:gap-4"
-                    >
-                      {/* Timeline dot */}
-                      <span
-                        className="absolute -left-[23px] top-1.5 h-2.5 w-2.5 rounded-full bg-secondary outline outline-4 outline-white"
-                        aria-hidden="true"
-                      />
+              <div className="relative min-h-[250px] pt-4">
+                <div
+                  className="absolute top-4 bottom-4 left-[30px] w-0.5 -translate-x-1/2 bg-ink/10 sm:left-1/2"
+                  aria-hidden="true"
+                />
 
-                      <span className="type-ui font-semibold text-secondary tracking-wide uppercase tabular-nums">
-                        {item.time}
-                      </span>
-                      <span className="type-body text-sm leading-relaxed text-ink/85">
-                        {item.activity}
-                      </span>
-                    </div>
-                  ))}
+                <div className="space-y-6 sm:space-y-8">
+                  {active.activities.map((item, index) => {
+                    const isEven = index % 2 === 0;
+                    const iconType = getIconType(item.activity, item.time);
+
+                    return (
+                      <div
+                        key={`${item.time}-${item.activity}`}
+                        className="relative flex flex-col items-start sm:flex-row sm:justify-between"
+                      >
+                        <div
+                          className={`w-full pl-16 sm:w-[44%] sm:pl-0 ${
+                            isEven
+                              ? "text-left sm:order-first sm:text-right"
+                              : "text-left sm:order-last sm:text-left"
+                          }`}
+                        >
+                          <span className="type-ui inline-block rounded-full border border-primary/10 bg-primary/5 px-3 py-1 font-sans font-semibold tracking-wide text-primary sm:border-0 sm:bg-transparent sm:p-0 sm:text-base">
+                            {item.time}
+                          </span>
+                        </div>
+
+                        <div className="absolute top-1.5 left-[30px] z-10 flex h-6 w-6 -translate-x-1/2 items-center justify-center rounded-full border border-primary/30 bg-white shadow-soft sm:left-1/2">
+                          <div className="h-2.5 w-2.5 rounded-full bg-primary" />
+                        </div>
+
+                        <div
+                          className={`mt-2 w-full pl-16 sm:mt-0 sm:w-[44%] sm:pl-0 ${
+                            isEven ? "sm:order-last" : "sm:order-first"
+                          }`}
+                        >
+                          <div className="surface-card flex gap-4 rounded-3xl p-5 transition-all duration-300 hover:border-primary/20 hover:shadow-soft sm:p-6">
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-ink/8 bg-surface-muted">
+                              <ScheduleIcon type={iconType} />
+                            </div>
+                            <div className="space-y-1">
+                              <h4 className="type-display-sm font-medium leading-tight text-ink">
+                                {item.activity}
+                              </h4>
+                              <span className="block font-sans text-xs font-medium text-muted">
+                                {SCHEDULE_ICON_META[iconType].caption}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
               {active.note && (
-                <div className="mt-8 border-t border-secondary/10 pt-4 text-xs text-muted/80 italic leading-relaxed">
-                  💡 {active.note}
+                <div className="surface-panel mx-auto mt-8 max-w-md rounded-2xl p-4 text-center text-xs font-medium text-muted shadow-xs">
+                  💡 <strong>Daily Note:</strong> {active.note}
                 </div>
               )}
-            </div>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      </Container>
 
-            {/* Day Image */}
-            {active.image && (
-              <div className="group relative min-h-[300px] overflow-hidden rounded-3xl border border-secondary/15 bg-secondary/5 lg:min-h-full">
-                <Image
-                  src={active.image}
-                  alt={active.title}
-                  fill
-                  sizes="(max-width:1024px) 100vw, 35vw"
-                  className="object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-103"
-                />
-                <div className="absolute inset-0 bg-linear-to-t from-ink/35 via-transparent to-transparent opacity-80" />
-              </div>
-            )}
-          </motion.div>
-        </AnimatePresence>
-      </div>
-    </RetreatSectionShell>
+      <div ref={sectionEndRef} className="h-px w-full" aria-hidden="true" />
+    </section>
   );
 }

@@ -7,4 +7,3 @@ export { default as RetreatPackagesSection } from "./RetreatPackagesSection";
 export { default as RetreatPricingCard } from "./RetreatPricingCard";
 export { default as RetreatScheduleSection } from "./RetreatScheduleSection";
 export { default as RetreatSectionShell } from "./RetreatSectionShell";
-export { default as RetreatTestimonialsSection } from "./RetreatTestimonialsSection";

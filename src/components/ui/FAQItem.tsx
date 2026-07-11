@@ -38,8 +38,8 @@ export default function FAQItem({
             }`
           : `rounded-2xl border ${
               isActive
-                ? "border-primary bg-sand/20 shadow-soft"
-                : "border-ink/10 bg-white hover:border-primary/25"
+                ? "border-primary bg-surface-muted shadow-soft"
+                : "surface-panel border-ink/10 hover:border-primary/25"
             }`
       }`}
     >

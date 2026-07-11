@@ -13,6 +13,12 @@ import {
 } from "../../_shared/site/shared";
 import type { SiteClientProps } from "../../_shared/site/types";
 
+/**
+ * Composes dedicated venue pages from shared hero, overview, gallery,
+ * accommodation, editorial, and FAQ sections.
+ *
+ * @param props - Mapped static venue page content
+ */
 export default function VenueClient({ page, mapped }: SiteClientProps) {
   return (
     <>

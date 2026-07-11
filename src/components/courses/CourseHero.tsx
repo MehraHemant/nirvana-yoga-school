@@ -30,6 +30,8 @@ interface CourseHeroProps {
   ctaSecondary?: string;
   ctaPrimaryHref?: string;
   ctaSecondaryHref?: string;
+  /** When true, do not pad the gallery with stock Unsplash photos */
+  disableSupplemental?: boolean;
 }
 
 interface MediaItem {
@@ -121,6 +123,7 @@ export default function CourseHero({
   ctaPrimaryHref,
   ctaSecondary,
   ctaSecondaryHref,
+  disableSupplemental = false,
 }: CourseHeroProps) {
   const prefersReduced = useReducedMotion() ?? false;
   const stripRef = useRef<HTMLDivElement>(null);
@@ -153,20 +156,22 @@ export default function CourseHero({
       });
       seen.add(image);
     }
-    for (const src of SUPPLEMENTAL) {
-      if (all.length >= MIN_PHOTOS) break;
-      if (!seen.has(src)) {
-        seen.add(src);
-        const meta = imageMetaByUrl.get(src);
-        all.push({
-          url: src,
-          tag: meta?.tag,
-          pictured: meta?.pictured,
-        });
+    if (!disableSupplemental) {
+      for (const src of SUPPLEMENTAL) {
+        if (all.length >= MIN_PHOTOS) break;
+        if (!seen.has(src)) {
+          seen.add(src);
+          const meta = imageMetaByUrl.get(src);
+          all.push({
+            url: src,
+            tag: meta?.tag,
+            pictured: meta?.pictured,
+          });
+        }
       }
     }
     return all;
-  }, [heroImages, images, image, imageMetaByUrl]);
+  }, [heroImages, images, image, imageMetaByUrl, disableSupplemental]);
 
   // ── Build video list ──────────────────────────────────────────────────────
   const videoIds = useMemo(() => (videos ?? []).filter(Boolean), [videos]);
@@ -361,7 +366,7 @@ export default function CourseHero({
                     fill
                     priority
                     sizes="(max-width:768px)100vw,50vw"
-                    className="object-cover"
+                    className="object-cover object-center"
                   />
                 </motion.div>
               ) : null}
@@ -581,21 +586,21 @@ export default function CourseHero({
                 >
                   <Image
                     src={photos[(photoIdx + cell.offset) % photos.length].url}
-                    alt=""
+                    alt={title}
                     fill
                     sizes="18vw"
-                    className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                    className="object-cover object-center transition-transform duration-500 group-hover:scale-[1.03]"
                   />
                 </button>
               ) : (
                 /* Fallback: extra photo when no video available */
-                <div className="relative h-full w-full overflow-hidden rounded-2xl">
+                <div className="relative h-full w-full overflow-hidden rounded-2xl bg-sand/60">
                   <Image
                     src={photos[(photoIdx + cell.offset) % photos.length].url}
-                    alt=""
+                    alt={title}
                     fill
                     sizes="18vw"
-                    className="object-cover"
+                    className="object-cover object-center"
                   />
                 </div>
               )}

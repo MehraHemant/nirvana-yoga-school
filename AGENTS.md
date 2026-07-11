@@ -79,7 +79,7 @@ src/
       course/[slug]/        # Residential YTT — page.tsx + CourseClient, data.ts, types.ts
       online-course/[slug]/ # Online courses — OnlineCourseClient, data.ts, types.ts
       retreat/[slug]/       # Retreat pages — RetreatClient
-      venue/[slug]/         # Venue pages — VenueClient
+      venue/[slug]/         # Course + retreat venue pages — VenueClient
       teacher/page.tsx      # Dedicated faculty page — TeachersPageClient
       [slug]/               # Other site pages (about, hubs, …)
         page.tsx
@@ -402,6 +402,11 @@ These are currently stubbed and must be replaced before launch:
 - File names match component names exactly (`HeroSection.tsx`, not `hero-section.tsx`).
 - Client components: add `"use client"` only when needed (hooks, browser APIs). Currently only `Header.tsx` is a client component.
 
+### Documentation (JSDoc) — required for agents
+- Every exported React component, custom hook (`use*`), and function must have a `/** ... */` JSDoc summarizing purpose and documenting props/parameters (`@param` / `@returns`).
+- Prefer documenting intent and side effects over restating TypeScript types.
+- Cursor rule: `.cursor/rules/jsdoc-documentation.mdc` (`alwaysApply`). Apply when creating or editing symbols in `src/**/*.{ts,tsx}`; skip trivial one-liners and barrel re-exports.
+
 ### Styling
 - Tailwind utility-first. No CSS modules, no styled-components.
 - Use the design tokens (`text-primary`, `bg-sand`) — **never** raw hex codes in JSX.
@@ -515,3 +520,5 @@ Last meaningful update: 2026-06-28 — **Unified CMS on :3000**: website, `/admi
 2026-07-05 — **Online course product pages**: Dedicated `src/components/online/` theme (teal hero, trust bar, sticky pricing card, review grid). `OnlineCourseClient` uses live-site sections only — no residential lodging, dates, or travel blocks.
 2026-07-10 — **Facility icons + ICONS.md**: Campus facilities use per-amenity icons (`Shower`, `Terrace`, `Bowl`, `Wifi`, `Lotus`, `Leaf`, `Garden`, `Bathroom`, `Flame`, `Droplet`, `Laundry`, `Wind`). Registry in `src/data/accommodationFacilities.ts`. Agent guide at `src/icons/ICONS.md` — read before adding any SVG.
 2026-07-11 — **Dedicated `/teacher` page**: Faculty page at `teacher/page.tsx` via `TeachersPageClient` — cinematic hero, scrollable jump-to nav, and simple profile cards. Teacher data centralized in `content/data/teachers.ts` from `site-pages.json` (`people[]` with live `/img/teacher/` photos). Home `TeachersSection` uses the same source. Footer links to `/teacher`.
+2026-07-11 — **JSDoc rule for agents**: `.cursor/rules/jsdoc-documentation.mdc` requires JSDoc on exported components, hooks, and functions (props/params/`@returns`) when editing `src/**/*.{ts,tsx}`.
+2026-07-11 — **Dedicated Course Venue page**: `/venue/course-venue` promotes the original live-site `/gallery` content into the venue route with all yoga hall, dining, room, dorm, and premises images. Venue navigation and footer link to the dedicated page; `/gallery` redirects there.

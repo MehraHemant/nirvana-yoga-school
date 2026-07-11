@@ -147,10 +147,25 @@ for (const slug of ONLINE_SHORT_SLUGS) {
 }
 
 const basePages = sitePagesJson as Record<string, SitePageDocument>;
+const courseVenuePage: SitePageDocument = {
+  ...basePages.gallery,
+  slug: "course-venue",
+  eyebrow: "Course Venue",
+  title: "Course Venue in Rishikesh",
+  description:
+    "Explore Nirvana Yoga School's yoga halls, dining room, private and shared accommodation, dorms, balconies, and peaceful campus in Upper Tapovan, Rishikesh.",
+  ctaLabel: "Explore the Campus",
+  ctaHref: "#gallery",
+};
+
+const registeredPages = {
+  ...basePages,
+  "course-venue": courseVenuePage,
+};
 
 /** Static fallback registry — swap repository source to API/DB without changing shape. */
 export const SITE_PAGES: Record<string, SitePageDocument> = Object.fromEntries(
-  Object.entries(basePages).map(([slug, page]) => [
+  Object.entries(registeredPages).map(([slug, page]) => [
     slug,
     { ...page, ...CARD_OVERRIDES[slug] },
   ]),

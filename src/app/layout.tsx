@@ -77,7 +77,7 @@ export default function RootLayout({
       className={`${poppins.variable} ${noeDisplay.variable} h-full antialiased scroll-smooth`}
       data-scroll-behavior="smooth"
     >
-      <body className="flex min-h-full flex-col bg-sand text-ink">
+      <body className="flex min-h-full flex-col bg-white text-ink">
         {children}
       </body>
     </html>

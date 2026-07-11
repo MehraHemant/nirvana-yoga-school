@@ -5,14 +5,14 @@
       "eyebrow": "Retreat",
       "title": "3-Day Yoga Meditation Ayurveda Wellness Retreat",
       "description": "Join a 3-Day Yoga Retreat in Rishikesh, India at a certified yoga school. Enjoy yoga, meditation, Ayurveda, Ganga Aarti, luxury stay, Satvic meals, and holistic wellness.",
-      "heroImage": "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/1.jpg",
+      "heroImage": "/img/gallery/3-day-retreat/1.jpg",
       "duration": "3 Days",
-      "overview": "The 3-day yoga retreat provides yoga, meditation, ayurvedic massage, and inner healing exercises, in the foothills of the Himalayas. Activities include asana classes, pranayama, meditation sessions, kirtan sessions, traditional ayurvedic massage, visits to popular retreat spots, and other wellness activities.\n\nThe stay includes luxurious rooms with a serene mountain view and Satvic vegetarian meals. Reset your energy and take a break from your fast-paced schedule to explore your inner self in the lap of Mother Nature.\n\nThe Nirvana Retreat Experience | Yoga, Meditation & Wellness",
+      "overview": "Practice yoga, meditation, and ayurvedic healing in the Himalayan foothills. Days blend asana, pranayama, kirtan, massage, and gentle excursions — with serene lodging, mountain views, and sattvic meals. A focused pause to reset your energy and reconnect with yourself.",
       "overviewImages": [
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/1.jpg",
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/2.jpg",
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/3.jpg",
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/4.jpg"
+        "/img/gallery/3-day-retreat/1.jpg",
+        "/img/gallery/3-day-retreat/2.jpg",
+        "/img/gallery/3-day-retreat/3.jpg",
+        "/img/gallery/3-day-retreat/4.jpg"
       ],
       "inclusions": [
         "Hatha Yoga, Pranayama, Meditation & Yoga Philosophy Classes",
@@ -26,16 +26,16 @@
         "Daily 3 times Vegetarian Meals"
       ],
       "inclusionImages": [
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/3.jpg",
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/4.jpg",
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/5.jpg",
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/6.jpg"
+        "/img/gallery/3-day-retreat/3.jpg",
+        "/img/gallery/3-day-retreat/4.jpg",
+        "/img/gallery/3-day-retreat/5.jpg",
+        "/img/gallery/3-day-retreat/6.jpg"
       ],
       "schedule": [
         {
           "day": 1,
           "title": "ARRIVAL & GROUNDING",
-          "image": "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/5.jpg",
+          "image": "/img/gallery/3-day-retreat/5.jpg",
           "activities": [
             {
               "time": "10:00 – 11:00",
@@ -70,7 +70,7 @@
         {
           "day": 2,
           "title": "ART THERAPY & TREKKING",
-          "image": "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/6.jpg",
+          "image": "/img/gallery/3-day-retreat/6.jpg",
           "activities": [
             {
               "time": "05:30 am",
@@ -118,7 +118,7 @@
           "day": 3,
           "title": "SOUND & DEVOTION",
           "note": "Note: The order of the classes may change depending on various factors.",
-          "image": "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/7.jpg",
+          "image": "/img/gallery/3-day-retreat/7.jpg",
           "activities": [
             {
               "time": "04:00",
@@ -154,23 +154,23 @@
       "accommodation": {
         "body": "Private AC Balcony Room\n\n2-Shared AC Balcony Room\n\nFood\n\nYou will get three yogic nutritious meals per day including breakfast, lunch, and dinner. We ensure that a yogi has a calm mind and a calm stomach is the way to go! Thus all our meals are filled with satvic nutrition-rich salads, fruits, lentils, etc. If you need gluten-free food or if you have any other restrictions you are requested to let us know before booking the course.",
         "images": [
-          "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/1.webp",
-          "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/2.webp",
-          "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/3.webp",
-          "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/4.webp",
-          "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/5.webp",
-          "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/6.webp",
-          "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/7.webp",
-          "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/8.webp"
+          "/img/retreat-venue/private/1.webp",
+          "/img/retreat-venue/private/2.webp",
+          "/img/retreat-venue/private/3.webp",
+          "/img/retreat-venue/private/4.webp",
+          "/img/retreat-venue/private/5.webp",
+          "/img/retreat-venue/private/6.webp",
+          "/img/retreat-venue/private/7.webp",
+          "/img/retreat-venue/private/8.webp"
         ],
-        "image": "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/1.webp"
+        "image": "/img/retreat-venue/private/1.webp"
       },
       "packages": [
         {
           "title": "Private AC Balcony Room",
           "price": "399 USD",
           "originalPrice": "532 USD",
-          "image": "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/1.jpg",
+          "image": "/img/gallery/3-day-retreat/1.jpg",
           "features": [
             "Daily yoga & meditation",
             "Sattvic meals included",
@@ -186,7 +186,7 @@
           "title": "Shared AC Balcony Room",
           "price": "299 USD",
           "originalPrice": "398 USD",
-          "image": "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/2.jpg",
+          "image": "/img/gallery/3-day-retreat/2.jpg",
           "features": [
             "Daily yoga & meditation",
             "Sattvic meals included",
@@ -260,40 +260,40 @@
         {
           "title": "Yoga Practice",
           "description": "Balance your life through Yoga",
-          "image": "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/1.jpg"
+          "image": "/img/gallery/3-day-retreat/1.jpg"
         },
         {
           "title": "Ayurvedic Massage",
           "description": "Holistic healing with Ayurvedic touch",
-          "image": "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/2.jpg"
+          "image": "/img/gallery/3-day-retreat/2.jpg"
         },
         {
           "title": "Excursions",
           "description": "Adventure Awaits: Explore and Discove",
-          "image": "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/3.jpg"
+          "image": "/img/gallery/3-day-retreat/3.jpg"
         }
       ],
       "gallery": [
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/1.jpg",
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/2.jpg",
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/3.jpg",
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/4.jpg",
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/5.jpg",
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/6.jpg",
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/7.jpg",
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/8.jpg",
-        "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/1.webp",
-        "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/2.webp",
-        "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/3.webp",
-        "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/4.webp",
-        "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/5.webp",
-        "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/6.webp",
-        "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/7.webp",
-        "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/8.webp",
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/9.jpg",
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/10.jpg",
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/11.jpg",
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/12.jpg"
+        "/img/gallery/3-day-retreat/1.jpg",
+        "/img/gallery/3-day-retreat/2.jpg",
+        "/img/gallery/3-day-retreat/3.jpg",
+        "/img/gallery/3-day-retreat/4.jpg",
+        "/img/gallery/3-day-retreat/5.jpg",
+        "/img/gallery/3-day-retreat/6.jpg",
+        "/img/gallery/3-day-retreat/7.jpg",
+        "/img/gallery/3-day-retreat/8.jpg",
+        "/img/retreat-venue/private/1.webp",
+        "/img/retreat-venue/private/2.webp",
+        "/img/retreat-venue/private/3.webp",
+        "/img/retreat-venue/private/4.webp",
+        "/img/retreat-venue/private/5.webp",
+        "/img/retreat-venue/private/6.webp",
+        "/img/retreat-venue/private/7.webp",
+        "/img/retreat-venue/private/8.webp",
+        "/img/gallery/3-day-retreat/9.jpg",
+        "/img/gallery/3-day-retreat/10.jpg",
+        "/img/gallery/3-day-retreat/11.jpg",
+        "/img/gallery/3-day-retreat/12.jpg"
       ],
       "faqs": [],
       "offer": {
@@ -314,13 +314,13 @@
       "eyebrow": "Retreat",
       "title": "5-Day Yoga Meditation Ayurveda Wellness Retreat",
       "description": "5-Day Yoga Retreat in Rishikesh at a certified yoga school with Hatha Yoga, meditation, sound healing, Ganga Aarti, Satvic meals & luxury stay.",
-      "heroImage": "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/1.jpg",
+      "heroImage": "/img/gallery/3-day-retreat/1.jpg",
       "duration": "5 Days",
-      "overview": "Experience true serenity, quiet, and calm in the foothills of the Himalayas with our 5-day yoga retreat in Rishikesh. Reconnect and rebalance yourself in the lush natural surroundings with trained personnel and gurus to guide your journey inside and out.\n\nSituated in a serene, restorative setting, our yoga center retreat is surrounded by river views, gardens, and sacred spaces where you can learn or perform traditional yogic practices with modern healing therapies. Each day in this 5-day yoga retreat program in Rishikesh is tailored to help you channel your inner energy and unlock your best self.\n\nOur yoga, meditation & self-healing retreat is for anyone and everyone. If you want to escape the everyday stress or want to savor the Himalayan life away from the hustle and bustle of the city, this luxury yoga retreat is for you. No matter if you are a student, yoga teacher, working professional, or just someone who wants to heal emotionally, this retreat offers a safe, nurturing space to slow down, breathe deeply, and realign with yourself.\n\nAt Nirvana Yoga School, we believe in offering an experience that remains with you throughout your life - an experience that truly enriches your soul rather than your memory. That is why, through yogic practices, meditations, and culturally immersive programs, we create moments of deep transformation and inner awakening which you can cherish for a lifetime. Here, you wake up to herbal teas, savor sattvic and gluten-free meals, enjoy nature treks in the foothills of the Himalayas, Ganga aartis, and a lot more.\n\nYes. You will get to learn and practice hatha yoga, yin yoga, pranayama, and guided meditations by renowned teaching staff with years of experience. There will also be sound healing therapies, art workshops, destress, & emotional trauma healing practices to help you release stored stress and reconnect with your true self. This yoga and meditation retreat is perfect for those who want to heal emotionally and mentally.\n\nThe Nirvana Retreat Experience | Yoga, Meditation & Wellness",
+      "overview": "Five days of serenity in Rishikesh — Hatha and Yin yoga, pranayama, meditation, sound healing, and cultural immersion beside the Ganga. Experienced gurus guide each day in a restorative setting of gardens, river views, and sacred space. Open to anyone ready to slow down, heal emotionally, and carry the calm home.",
       "overviewImages": [
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/1.jpg",
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/2.jpg",
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/3.jpg"
+        "/img/gallery/3-day-retreat/1.jpg",
+        "/img/gallery/3-day-retreat/2.jpg",
+        "/img/gallery/3-day-retreat/3.jpg"
       ],
       "inclusions": [
         "Hatha Yoga, Pranayama, Meditation & Yoga Philosophy Classes",
@@ -336,15 +336,15 @@
         "Sacred Ganga Bath"
       ],
       "inclusionImages": [
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/3.jpg",
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/4.jpg",
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/5.jpg"
+        "/img/gallery/3-day-retreat/3.jpg",
+        "/img/gallery/3-day-retreat/4.jpg",
+        "/img/gallery/3-day-retreat/5.jpg"
       ],
       "schedule": [
         {
           "day": 1,
           "title": "Arrival & Spiritual Initiation",
-          "image": "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/5.jpg",
+          "image": "/img/gallery/3-day-retreat/5.jpg",
           "activities": [
             {
               "time": "01:00 PM - 02:00 PM",
@@ -371,7 +371,7 @@
         {
           "day": 2,
           "title": "Awakening & Creative Development",
-          "image": "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/6.jpg",
+          "image": "/img/gallery/3-day-retreat/6.jpg",
           "activities": [
             {
               "time": "05:30 AM",
@@ -418,7 +418,7 @@
         {
           "day": 3,
           "title": "Deep Healing",
-          "image": "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/7.jpg",
+          "image": "/img/gallery/3-day-retreat/7.jpg",
           "activities": [
             {
               "time": "05:30 AM",
@@ -465,7 +465,7 @@
         {
           "day": 4,
           "title": "Emotional Release & Rest",
-          "image": "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/1.jpg",
+          "image": "/img/gallery/3-day-retreat/1.jpg",
           "activities": [
             {
               "time": "4:00 AM",
@@ -513,7 +513,7 @@
           "day": 5,
           "title": "Gratitude & Renewal",
           "note": "Note: The order of the classes may change depending on various factors.",
-          "image": "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/1.jpg",
+          "image": "/img/gallery/3-day-retreat/1.jpg",
           "activities": [
             {
               "time": "5:30 AM",
@@ -561,23 +561,23 @@
       "accommodation": {
         "body": "At Nirvana Yoga School, we offer accommodations that bring comfort after a long day so that you can actually relax, unwind, and connect with your loved ones. Our rooms are surrounded by river views and lush greenery with fresh mountain air, allowing you to breathe more freely.\n\nPrivate AC Balcony Room\n\n2-Shared AC Balcony Room\n\nFood\n\nWe serve three yogic, nutritious meals per day, which include breakfast, lunch, and dinner. These meals are specifically tailored to ensure that you get the healthy diet of a yogi who has a calm mind but a calmer stomach. Each course, from nutrition-rich salads to local fruits and lentils, is 100% sattvic. Kindly do let us know if you want gluten-free food or if you follow any other dietary restrictions so that we can prepare beforehand.",
         "images": [
-          "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/1.webp",
-          "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/2.webp",
-          "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/3.webp",
-          "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/4.webp",
-          "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/5.webp",
-          "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/6.webp",
-          "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/7.webp",
-          "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/8.webp"
+          "/img/retreat-venue/private/1.webp",
+          "/img/retreat-venue/private/2.webp",
+          "/img/retreat-venue/private/3.webp",
+          "/img/retreat-venue/private/4.webp",
+          "/img/retreat-venue/private/5.webp",
+          "/img/retreat-venue/private/6.webp",
+          "/img/retreat-venue/private/7.webp",
+          "/img/retreat-venue/private/8.webp"
         ],
-        "image": "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/1.webp"
+        "image": "/img/retreat-venue/private/1.webp"
       },
       "packages": [
         {
           "title": "Private AC Balcony Room",
           "price": "599 USD",
           "originalPrice": "798 USD",
-          "image": "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/1.webp",
+          "image": "/img/retreat-venue/private/1.webp",
           "features": [
             "Daily yoga & meditation",
             "Sattvic meals included",
@@ -666,40 +666,40 @@
         {
           "title": "Yoga Practice",
           "description": "Learn & perform yoga under the guidance of trained Gurus.",
-          "image": "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/1.jpg"
+          "image": "/img/gallery/3-day-retreat/1.jpg"
         },
         {
           "title": "Cultural Immersion",
           "description": "Soak in the rich culture with food, treks, and workshops.",
-          "image": "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/1.jpg"
+          "image": "/img/gallery/3-day-retreat/1.jpg"
         },
         {
           "title": "Self-Healing",
           "description": "Unlock a better self through guided meditations & community support.",
-          "image": "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/1.jpg"
+          "image": "/img/gallery/3-day-retreat/1.jpg"
         }
       ],
       "gallery": [
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/1.jpg",
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/2.jpg",
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/3.jpg",
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/4.jpg",
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/5.jpg",
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/6.jpg",
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/7.jpg",
-        "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/1.webp",
-        "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/2.webp",
-        "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/3.webp",
-        "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/4.webp",
-        "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/5.webp",
-        "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/6.webp",
-        "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/7.webp",
-        "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/8.webp",
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/9.jpg",
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/10.jpg",
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/11.jpg",
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/12.jpg",
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/13.jpg"
+        "/img/gallery/3-day-retreat/1.jpg",
+        "/img/gallery/3-day-retreat/2.jpg",
+        "/img/gallery/3-day-retreat/3.jpg",
+        "/img/gallery/3-day-retreat/4.jpg",
+        "/img/gallery/3-day-retreat/5.jpg",
+        "/img/gallery/3-day-retreat/6.jpg",
+        "/img/gallery/3-day-retreat/7.jpg",
+        "/img/retreat-venue/private/1.webp",
+        "/img/retreat-venue/private/2.webp",
+        "/img/retreat-venue/private/3.webp",
+        "/img/retreat-venue/private/4.webp",
+        "/img/retreat-venue/private/5.webp",
+        "/img/retreat-venue/private/6.webp",
+        "/img/retreat-venue/private/7.webp",
+        "/img/retreat-venue/private/8.webp",
+        "/img/gallery/3-day-retreat/9.jpg",
+        "/img/gallery/3-day-retreat/10.jpg",
+        "/img/gallery/3-day-retreat/11.jpg",
+        "/img/gallery/3-day-retreat/12.jpg",
+        "/img/gallery/3-day-retreat/13.jpg"
       ],
       "faqs": [
         {
@@ -749,13 +749,13 @@
       "eyebrow": "Retreat",
       "title": "7-Day Yoga Meditation Ayurveda Wellness Retreat",
       "description": "7-Day Yoga Retreat in Rishikesh at a certified yoga school with Hatha Yoga, meditation, sound healing, Ganga Aarti, Satvic meals & Himalayan stay.",
-      "heroImage": "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/1.jpg",
+      "heroImage": "/img/gallery/3-day-retreat/1.jpg",
       "duration": "7 Days",
-      "overview": "Give yourself a moment to breathe, relax, and reconnect with our 7-day yoga retreat in Rishikesh. Step away from the noise and enjoy a comfortable stay in the lush green foothills of the Himalayas.\n\nThis weeklong yoga retreat in Rishikesh, India, offers you an escape from the buzz of everyday stress through spiritual and yogic practices. Perform hatha, ashtanga, and yin yoga guided by trained gurus with years of experience. Meditate with the sound of the flowing Ganga and nature.\n\nSooth your soul with kirtans and Ganga aarti, calm your mind with nature walks, and heal your emotions with sound healing therapy, as well as destress & emotional trauma healing workshops. Every day in our yoga retreat center is made to help you reunite with your true sense of self.\n\nThis yoga meditation retreat is for everyone, especially those who are looking for a getaway in the Himalayan countryside. Be it a student, yoga teacher, working professional, or just someone who wants to heal emotionally, our retreat program offers an experience tailored for everyone.\n\nWe offer a carefully curated experience focused on healing, yogic practices, and cultural immersion. Each day offers something new - be it wellness therapies, yoga, meditation, cultural practices, or excursions into nature. With soulful, sattvic food and lush, natural setting, we ensure that you come as you are and leave spiritually fulfilled and more in tune with yourself.\n\nA number of things! From yoga asanas and Ayurvedic knowledge to what’s locked inside your mind. You’ll gain practical techniques, meditation, emotional balance, and mindful living that you can easily use in your day-to-day life. In the end, it all comes down to what you take from a supportive environment backed by the camaraderie of like-minded people.\n\nThe Nirvana Retreat Experience | Yoga, Meditation & Wellness",
+      "overview": "Seven days to breathe, restore, and realign in the lush Himalayas. Hatha, Ashtanga, and Yin yoga, meditation, kirtan, Ganga aarti, sound healing, and nature walks unfold with experienced teachers beside the Ganga. A welcoming week for students, teachers, and professionals seeking emotional renewal and lasting inner balance.",
       "overviewImages": [
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/1.jpg",
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/2.jpg",
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/3.jpg"
+        "/img/gallery/3-day-retreat/1.jpg",
+        "/img/gallery/3-day-retreat/2.jpg",
+        "/img/gallery/3-day-retreat/3.jpg"
       ],
       "inclusions": [
         "Yoga Classes (asana/pranayama/ meditation)",
@@ -771,15 +771,15 @@
         "What Does Each Day Look Like in Our 7-Day Yoga Retreat in Rishikesh?"
       ],
       "inclusionImages": [
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/3.jpg",
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/4.jpg",
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/5.jpg"
+        "/img/gallery/3-day-retreat/3.jpg",
+        "/img/gallery/3-day-retreat/4.jpg",
+        "/img/gallery/3-day-retreat/5.jpg"
       ],
       "schedule": [
         {
           "day": 1,
           "title": "Arrival & Spiritual Welcoming",
-          "image": "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/5.jpg",
+          "image": "/img/gallery/3-day-retreat/5.jpg",
           "activities": [
             {
               "time": "Before 12:00 PM",
@@ -810,7 +810,7 @@
         {
           "day": 2,
           "title": "Detox & Energy Awakening",
-          "image": "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/6.jpg",
+          "image": "/img/gallery/3-day-retreat/6.jpg",
           "activities": [
             {
               "time": "05:30 AM",
@@ -857,7 +857,7 @@
         {
           "day": 3,
           "title": "Emotional Release & Inner Healing",
-          "image": "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/7.jpg",
+          "image": "/img/gallery/3-day-retreat/7.jpg",
           "activities": [
             {
               "time": "05:30 AM",
@@ -904,7 +904,7 @@
         {
           "day": 4,
           "title": "Spiritual & Mental Rebalancing",
-          "image": "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/1.jpg",
+          "image": "/img/gallery/3-day-retreat/1.jpg",
           "activities": [
             {
               "time": "04:00 AM",
@@ -947,7 +947,7 @@
         {
           "day": 5,
           "title": "Nature Excursion & Yoga Practicing",
-          "image": "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/1.jpg",
+          "image": "/img/gallery/3-day-retreat/1.jpg",
           "activities": [
             {
               "time": "05:30 AM",
@@ -994,7 +994,7 @@
         {
           "day": 6,
           "title": "Cleansing & Clarity",
-          "image": "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/1.jpg",
+          "image": "/img/gallery/3-day-retreat/1.jpg",
           "activities": [
             {
               "time": "05:30 AM",
@@ -1042,7 +1042,7 @@
           "day": 7,
           "title": "Gratitude & Renewal",
           "note": "Note: The order of the classes may change depending on various factors.",
-          "image": "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/1.jpg",
+          "image": "/img/gallery/3-day-retreat/1.jpg",
           "activities": [
             {
               "time": "05:30 AM",
@@ -1090,23 +1090,23 @@
       "accommodation": {
         "body": "At Nirvana Yoga School, we offer peaceful accommodations so that you can relax, recharge, and feel right at home. With calming river vistas, fresh mountain air, and lush green surroundings, we make sure your stay matches your level of comfort and wellbeing.\n\nPrivate AC Balcony Room\n\n2-Shared AC Balcony Room\n\nFood\n\nWe serve three wholesome, yogic meals each day - breakfast, lunch, and dinner. Each meal is thoughtfully prepared to nourish your body, calm your mind, and support the life of a yogi. Our menu features fresh and seasonal ingredients, including nutrient-rich salads, local fruits, and lentils, all prepared in a 100% sattvic way. If you follow a gluten-free diet or have any specific dietary needs, let us know in advance so that we can accommodate you satisfactorily.",
         "images": [
-          "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/1.webp",
-          "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/2.webp",
-          "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/3.webp",
-          "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/4.webp",
-          "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/5.webp",
-          "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/6.webp",
-          "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/7.webp",
-          "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/8.webp"
+          "/img/retreat-venue/private/1.webp",
+          "/img/retreat-venue/private/2.webp",
+          "/img/retreat-venue/private/3.webp",
+          "/img/retreat-venue/private/4.webp",
+          "/img/retreat-venue/private/5.webp",
+          "/img/retreat-venue/private/6.webp",
+          "/img/retreat-venue/private/7.webp",
+          "/img/retreat-venue/private/8.webp"
         ],
-        "image": "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/1.webp"
+        "image": "/img/retreat-venue/private/1.webp"
       },
       "packages": [
         {
           "title": "Private Room with Balcony",
           "price": "799 USD",
           "originalPrice": "1065 USD",
-          "image": "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/1.webp",
+          "image": "/img/retreat-venue/private/1.webp",
           "features": [
             "Daily yoga & meditation",
             "Sattvic meals included",
@@ -1195,40 +1195,40 @@
         {
           "title": "Yoga & Meditation",
           "description": "Learn & practice hatha, Yin, Pranayama and guided meditation.",
-          "image": "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/1.jpg"
+          "image": "/img/gallery/3-day-retreat/1.jpg"
         },
         {
           "title": "Nature Therapy",
           "description": "Relax and reconnect with nature in a lush, serene setting.",
-          "image": "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/1.jpg"
+          "image": "/img/gallery/3-day-retreat/1.jpg"
         },
         {
           "title": "Emotional Detox",
           "description": "Find inner peace & stability with holistic healing and therapies.",
-          "image": "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/1.jpg"
+          "image": "/img/gallery/3-day-retreat/1.jpg"
         }
       ],
       "gallery": [
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/1.jpg",
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/2.jpg",
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/3.jpg",
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/4.jpg",
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/5.jpg",
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/6.jpg",
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/7.jpg",
-        "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/1.webp",
-        "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/2.webp",
-        "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/3.webp",
-        "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/4.webp",
-        "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/5.webp",
-        "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/6.webp",
-        "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/7.webp",
-        "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/8.webp",
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/9.jpg",
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/10.jpg",
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/11.jpg",
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/12.jpg",
-        "https://www.nirvanayogaschoolindia.com/img/gallery/3-day-retreat/13.jpg"
+        "/img/gallery/3-day-retreat/1.jpg",
+        "/img/gallery/3-day-retreat/2.jpg",
+        "/img/gallery/3-day-retreat/3.jpg",
+        "/img/gallery/3-day-retreat/4.jpg",
+        "/img/gallery/3-day-retreat/5.jpg",
+        "/img/gallery/3-day-retreat/6.jpg",
+        "/img/gallery/3-day-retreat/7.jpg",
+        "/img/retreat-venue/private/1.webp",
+        "/img/retreat-venue/private/2.webp",
+        "/img/retreat-venue/private/3.webp",
+        "/img/retreat-venue/private/4.webp",
+        "/img/retreat-venue/private/5.webp",
+        "/img/retreat-venue/private/6.webp",
+        "/img/retreat-venue/private/7.webp",
+        "/img/retreat-venue/private/8.webp",
+        "/img/gallery/3-day-retreat/9.jpg",
+        "/img/gallery/3-day-retreat/10.jpg",
+        "/img/gallery/3-day-retreat/11.jpg",
+        "/img/gallery/3-day-retreat/12.jpg",
+        "/img/gallery/3-day-retreat/13.jpg"
       ],
       "faqs": [
         {

@@ -197,7 +197,7 @@ function ImageGalleryPanel({
       </div>
 
       {images.length > 1 && (
-        <div className="rounded-xl border border-ink/6 bg-white/80 backdrop-blur-sm p-2 shadow-xs overflow-hidden">
+        <div className="surface-panel overflow-hidden rounded-xl p-2 shadow-xs">
           <ul
             ref={scrollRef}
             className="flex gap-2 overflow-x-auto overscroll-x-contain scrollbar-none snap-x snap-mandatory py-0.5 max-w-full"
@@ -259,7 +259,7 @@ function RoomTypeSelector({
               className={`group flex w-full items-center gap-3 rounded-2xl border px-2.5 py-2 text-left transition-all duration-300 ${
                 isActive
                   ? "border-primary/25 bg-primary/5 shadow-xs ring-1 ring-primary/10"
-                  : "border-ink/6 bg-white hover:border-primary/15 hover:bg-sand/40"
+                  : "surface-panel border-ink/8 hover:border-primary/15"
               }`}
             >
               <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl shadow-xs">
@@ -326,7 +326,7 @@ function FacilitiesGrid() {
           return (
             <li
               key={facility.label}
-              className="flex items-start gap-2 rounded-xl border border-ink/5 bg-white/90 p-2.5 transition-shadow hover:shadow-soft"
+              className="surface-panel flex items-start gap-2 rounded-xl p-2.5 transition-shadow hover:shadow-soft"
             >
               <span
                 className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border ${
@@ -500,7 +500,7 @@ export default function AccommodationFood() {
                     {FOOD_CONTENT.points.map((point) => (
                       <li
                         key={point}
-                        className="flex gap-2.5 rounded-xl border border-ink/5 bg-white p-2.5"
+                        className="surface-panel flex gap-2.5 rounded-xl p-2.5"
                       >
                         <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-secondary/10 bg-secondary/10 text-secondary">
                           <Check size={11} className="stroke-[2.5]" />

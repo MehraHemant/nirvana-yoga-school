@@ -70,6 +70,8 @@ export function refineHeroSubtitle(page: SitePageDocument): string {
       "Meet the gurus behind Nirvana — experienced teachers rooted in Himalayan tradition, anatomy, philosophy, and meditation.",
     gallery:
       "A glimpse of campus life, practice halls, rooms, meals, and the sacred landscape around our Rishikesh ashram.",
+    "course-venue":
+      "Explore our yoga halls, dining room, private and shared rooms, balconies, and peaceful campus on Silent Hill in Upper Tapovan, Rishikesh.",
     "retreat-venue":
       "Peaceful rooms, river views, and sattvic spaces designed for retreat, training, and quiet reflection.",
     "about-us":
@@ -132,6 +134,8 @@ export function refineOverview(
       "Since 2012, Nirvana Yoga School has welcomed students from around the world for teacher training, retreats, and workshops — grounded in traditional yoga and warm ashram hospitality.",
     gallery:
       "Walk through our campus, practice spaces, meals, rooms, and the landscapes that shape daily life at the school.",
+    "course-venue":
+      "Nirvana Yoga School sits in the quieter, greener part of Upper Tapovan. Purpose-built practice halls, clean residential rooms, nourishing dining spaces, balconies, and mountain surroundings support focused study and restorative ashram living.",
     "retreat-venue":
       "Clean, calm rooms with attached baths, balcony views, and easy access to the Ganges — designed for retreat guests and training students alike.",
   };

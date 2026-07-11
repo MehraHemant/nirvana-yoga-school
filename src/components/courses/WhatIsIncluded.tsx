@@ -176,7 +176,7 @@ export default function WhatIsIncluded({ inclusions }: WhatIsIncludedProps) {
             </p>
 
             {/* Minimalist Tip Box */}
-            <div className="p-6 rounded-3xl bg-white/60 border border-ink/5 shadow-soft space-y-2 hover:bg-white transition-all duration-300">
+            <div className="surface-panel space-y-2 rounded-3xl p-6 transition-all duration-300 hover:shadow-soft">
               <span className="type-eyebrow text-secondary font-semibold block mb-1">
                 Arrival Support
               </span>
@@ -194,7 +194,7 @@ export default function WhatIsIncluded({ inclusions }: WhatIsIncludedProps) {
             whileInView="visible"
             viewport={VIEWPORT_ONCE}
             variants={fadeUp}
-            className="lg:col-span-7 bg-white rounded-3xl p-8 lg:p-10 border border-ink/5 shadow-card hover:shadow-soft transition-all duration-300 relative overflow-hidden"
+            className="surface-card lg:col-span-7 relative overflow-hidden rounded-3xl p-8 transition-all duration-300 hover:shadow-soft lg:p-10"
           >
             <div className="flex items-center gap-2 mb-4">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary/10 text-secondary border border-secondary/15">

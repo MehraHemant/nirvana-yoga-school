@@ -6,7 +6,7 @@ export default function TestimonialsSection() {
   return (
     <section
       id="reviews"
-      className="relative w-full overflow-hidden bg-paper py-20 md:py-28"
+      className="relative w-full overflow-hidden bg-white py-20 md:py-28"
     >
       <div
         className="pointer-events-none absolute -top-32 right-1/4 h-[600px] w-[600px] rounded-full bg-primary/3 blur-[140px]"

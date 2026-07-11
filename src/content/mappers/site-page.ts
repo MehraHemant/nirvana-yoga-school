@@ -398,6 +398,7 @@ export function mapSitePage(page: SitePageDocument): MappedSitePage {
     showTravelGuide: isRetreat || page.slug.includes("teacher-training"),
     showAccommodation:
       isRetreat ||
+      page.slug === "course-venue" ||
       page.slug === "retreat-venue" ||
       page.slug.includes("teacher-training"),
     showInstagram: page.slug !== "contact",

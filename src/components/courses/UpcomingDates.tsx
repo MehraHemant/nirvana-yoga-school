@@ -37,7 +37,7 @@ function RoomCard({
 
   if (noRoom || wide) {
     return (
-      <article className="col-span-2 flex flex-col gap-3 rounded-2xl border border-dashed border-ink/15 bg-white px-4 py-4 shadow-xs sm:flex-row sm:items-center sm:justify-between sm:gap-5">
+      <article className="col-span-2 flex flex-col gap-3 rounded-2xl border border-dashed border-ink/20 bg-surface px-4 py-4 shadow-xs sm:flex-row sm:items-center sm:justify-between sm:gap-5">
         <div className="min-w-0">
           <h4 className="font-serif text-sm font-medium leading-snug text-ink">
             {option.roomType}
@@ -76,12 +76,12 @@ function RoomCard({
   }
 
   return (
-    <article className="flex flex-col rounded-2xl border border-ink/8 bg-white p-4 shadow-card transition-all duration-300 hover:border-primary/15 hover:shadow-soft">
+    <article className="surface-card flex flex-col rounded-2xl p-4 transition-all duration-300 hover:border-primary/15 hover:shadow-soft">
       <h4 className="line-clamp-2 font-serif type-lead  font-medium leading-snug text-ink">
         {option.roomType}
       </h4>
 
-      <div className="mt-3 rounded-xl border border-ink/6 bg-sand/40 px-3 py-2.5">
+      <div className="surface-inset mt-3 rounded-xl px-3 py-2.5">
         <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
           <span className="font-serif text-2xl font-medium leading-none text-primary">
             {option.price}
@@ -222,8 +222,8 @@ export default function UpcomingDates({
                         onClick={() => setSelectedBatch(batch.dates)}
                         className={`w-full cursor-pointer rounded-xl border p-2.5 text-left transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 ${
                           selected
-                            ? "border-primary bg-white shadow-soft"
-                            : "border-transparent bg-white/50 hover:bg-white/80"
+                            ? "surface-elevated border-primary shadow-soft"
+                            : "surface-panel border-ink/8 hover:border-primary/20"
                         }`}
                       >
                         <div className="flex flex-wrap items-center justify-between gap-2">

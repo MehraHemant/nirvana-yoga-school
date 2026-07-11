@@ -178,7 +178,7 @@ export default function CourseOverview({
 
           {/* 2-Column Split: Editorial Text & Interactive Video */}
           <div
-            className={`grid gap-12 items-start ${showVideoPanel || showImagePanel ? "lg:grid-cols-12 lg:gap-16" : ""}`}
+            className={`grid gap-12 items-start lg:items-stretch ${showVideoPanel || showImagePanel ? "lg:grid-cols-12 lg:gap-16" : ""}`}
           >
             {/* Left: Editorial copy */}
             <motion.div
@@ -186,9 +186,9 @@ export default function CourseOverview({
               whileInView="visible"
               viewport={VIEWPORT_ONCE}
               variants={fadeUp}
-              className={`space-y-8 ${showVideoPanel || showImagePanel ? "lg:col-span-6" : "max-w-4xl"}`}
+              className={`flex h-full flex-col space-y-8 ${showVideoPanel || showImagePanel ? "lg:col-span-6" : "max-w-4xl"}`}
             >
-              <div className="space-y-6">
+              <div className="flex-1 space-y-6">
                 <p className="type-lead text-muted first-letter:text-6xl first-letter:font-serif first-letter:font-bold first-letter:text-primary first-letter:float-left first-letter:mr-4 first-letter:mt-1 first-letter:leading-[0.8]">
                   {overview}
                 </p>
@@ -200,7 +200,7 @@ export default function CourseOverview({
               </div>
 
               {/* Premium High-Contrast Blockquote Card */}
-              <div className="relative overflow-hidden bg-secondary text-white p-7 sm:p-8 rounded-3xl shadow-card border border-white/10">
+              <div className="relative shrink-0 overflow-hidden rounded-3xl border border-white/10 bg-secondary p-7 text-white shadow-card sm:p-8">
                 <span
                   className="absolute -left-2 -top-8 font-serif text-[10rem] text-white/8 select-none pointer-events-none"
                   aria-hidden="true"
@@ -223,10 +223,10 @@ export default function CourseOverview({
                 whileInView="visible"
                 viewport={VIEWPORT_ONCE}
                 variants={fadeUp}
-                className="lg:col-span-6 w-full space-y-6"
+                className="flex h-full min-h-0 w-full flex-col lg:col-span-6"
               >
                 {showImagePanel && (
-                  <div className="relative aspect-[4/5] w-full overflow-hidden rounded-3xl bg-ink/10 shadow-card border border-ink/5">
+                  <div className="relative aspect-[4/5] min-h-[280px] w-full flex-1 overflow-hidden rounded-3xl border border-ink/5 bg-ink/10 shadow-card lg:aspect-auto lg:min-h-0">
                     <Image
                       src={featureImages[activeImageIndex] ?? featureImages[0]}
                       alt=""
@@ -243,10 +243,11 @@ export default function CourseOverview({
                             type="button"
                             onClick={() => setActiveImageIndex(index)}
                             aria-label={`Show image ${index + 1}`}
-                            className={`h-2 rounded-full transition-all ${index === activeImageIndex
+                            className={`h-2 rounded-full transition-all ${
+                              index === activeImageIndex
                                 ? "w-6 bg-white"
                                 : "w-2 bg-white/60"
-                              }`}
+                            }`}
                           />
                         ))}
                       </div>
@@ -255,9 +256,9 @@ export default function CourseOverview({
                 )}
 
                 {showVideoPanel && activeVideo && (
-                  <div className="w-full">
+                  <div className="flex h-full min-h-0 w-full flex-col space-y-6">
                     {/* Floating Video Player Panel */}
-                    <div className="relative aspect-video w-full overflow-hidden rounded-3xl bg-ink/10 shadow-card hover:shadow-soft border border-ink/5 transition-all duration-500 group">
+                    <div className="group relative aspect-video min-h-[200px] w-full flex-1 overflow-hidden rounded-3xl border border-ink/5 bg-ink/10 shadow-card transition-all duration-500 hover:shadow-soft lg:aspect-auto lg:min-h-0">
                       {isPlaying ? (
                         <iframe
                           src={`https://www.youtube.com/embed/${activeVideo.id}?autoplay=1&rel=0&modestbranding=1`}
@@ -352,12 +353,14 @@ export default function CourseOverview({
                         <div className="relative">
                           {/* Side fades to mask scrollable edges dynamically */}
                           <div
-                            className={`absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white to-transparent pointer-events-none z-10 transition-opacity duration-300 ${showLeftFade ? "opacity-100" : "opacity-0"
-                              }`}
+                            className={`absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white to-transparent pointer-events-none z-10 transition-opacity duration-300 ${
+                              showLeftFade ? "opacity-100" : "opacity-0"
+                            }`}
                           />
                           <div
-                            className={`absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent pointer-events-none z-10 transition-opacity duration-300 ${showRightFade ? "opacity-100" : "opacity-0"
-                              }`}
+                            className={`absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent pointer-events-none z-10 transition-opacity duration-300 ${
+                              showRightFade ? "opacity-100" : "opacity-0"
+                            }`}
                           />
 
                           <div
@@ -378,10 +381,11 @@ export default function CourseOverview({
                                   aria-label={`Play video: ${vid.title}`}
                                 >
                                   <div
-                                    className={`relative aspect-video w-full rounded-xl overflow-hidden border transition-all duration-300 ${isActive
+                                    className={`relative aspect-video w-full rounded-xl overflow-hidden border transition-all duration-300 ${
+                                      isActive
                                         ? "border-primary ring-2 ring-primary/20 scale-95"
                                         : "border-ink/10 opacity-70 hover:opacity-100 hover:scale-95 shadow-xs"
-                                      }`}
+                                    }`}
                                   >
                                     <Image
                                       src={vid.thumbnailUrl}
@@ -391,8 +395,9 @@ export default function CourseOverview({
                                       className="object-cover"
                                     />
                                     <div
-                                      className={`absolute inset-0 flex items-center justify-center transition-colors duration-300 ${isActive ? "bg-primary/20" : "bg-ink/30"
-                                        }`}
+                                      className={`absolute inset-0 flex items-center justify-center transition-colors duration-300 ${
+                                        isActive ? "bg-primary/20" : "bg-ink/30"
+                                      }`}
                                     >
                                       {isActive ? (
                                         <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-white scale-90 shadow-md">
@@ -409,10 +414,11 @@ export default function CourseOverview({
                                     </span>
                                   </div>
                                   <span
-                                    className={`text-[10px] font-medium leading-tight overflow-hidden mt-1.5 transition-colors duration-300 ${isActive
+                                    className={`text-[10px] font-medium leading-tight overflow-hidden mt-1.5 transition-colors duration-300 ${
+                                      isActive
                                         ? "text-primary font-semibold"
                                         : "text-muted group-hover/item:text-ink"
-                                      }`}
+                                    }`}
                                     style={{
                                       display: "-webkit-box",
                                       WebkitLineClamp: 2,
@@ -443,14 +449,14 @@ export default function CourseOverview({
             whileInView="visible"
             viewport={VIEWPORT_ONCE}
             variants={fadeUp}
-            className="relative mt-12 overflow-hidden rounded-3xl bg-linear-to-br from-white via-white to-sand/50 shadow-card ring-1 ring-ink/6"
+            className="relative mt-12 overflow-hidden rounded-3xl border border-ink/8 bg-surface shadow-card ring-1 ring-ink/5"
           >
             <HeroFlourish
               className="pointer-events-none absolute -right-10 -top-10 h-44 w-44 text-primary/6"
               aria-hidden="true"
             />
 
-            <div className="relative flex flex-col gap-1 border-b border-ink/6 bg-sand/30 px-6 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+            <div className="relative flex flex-col gap-1 border-b border-ink/8 bg-surface-muted px-6 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-8">
               <p className="type-eyebrow font-semibold uppercase tracking-[0.2em] text-primary">
                 Course at a glance
               </p>
@@ -463,10 +469,11 @@ export default function CourseOverview({
               {overviewSpecs.map((spec) => (
                 <div
                   key={spec.label}
-                  className={`group relative flex flex-col gap-3 px-6 py-8 transition-colors sm:px-7 md:py-9 ${"highlight" in spec && spec.highlight
+                  className={`group relative flex flex-col gap-3 px-6 py-8 transition-colors sm:px-7 md:py-9 ${
+                    "highlight" in spec && spec.highlight
                       ? "bg-linear-to-br from-primary/10 via-primary/5 to-transparent lg:rounded-br-3xl"
-                      : "hover:bg-sand/25"
-                    }`}
+                      : "hover:bg-surface"
+                  }`}
                 >
                   <div className="flex items-baseline justify-between gap-3">
                     <span className="type-eyebrow font-semibold uppercase tracking-wider text-primary">
@@ -480,10 +487,11 @@ export default function CourseOverview({
                     </span>
                   </div>
                   <p
-                    className={`font-serif text-2xl font-medium leading-[1.15] tracking-tight sm:text-[1.65rem] ${"highlight" in spec && spec.highlight
+                    className={`font-serif text-2xl font-medium leading-[1.15] tracking-tight sm:text-[1.65rem] ${
+                      "highlight" in spec && spec.highlight
                         ? "text-primary"
                         : "text-ink"
-                      }`}
+                    }`}
                   >
                     {spec.value}
                   </p>
@@ -491,10 +499,11 @@ export default function CourseOverview({
                     {spec.hint}
                   </p>
                   <span
-                    className={`absolute bottom-0 left-6 right-6 h-px origin-left scale-x-0 transition-transform duration-300 group-hover:scale-x-100 sm:left-7 sm:right-7 ${"highlight" in spec && spec.highlight
+                    className={`absolute bottom-0 left-6 right-6 h-px origin-left scale-x-0 transition-transform duration-300 group-hover:scale-x-100 sm:left-7 sm:right-7 ${
+                      "highlight" in spec && spec.highlight
                         ? "bg-primary/25"
                         : "bg-accent/50"
-                      }`}
+                    }`}
                     aria-hidden="true"
                   />
                 </div>

@@ -201,8 +201,8 @@ export default function DailySchedule({
                         isEven ? "sm:order-last" : "sm:order-first"
                       }`}
                     >
-                      <div className="bg-white rounded-3xl p-5 sm:p-6 shadow-card border border-ink/5 hover:border-primary/20 hover:shadow-soft transition-all duration-300 flex gap-4">
-                        <div className="w-10 h-10 rounded-2xl bg-sand border border-ink/5 flex items-center justify-center shrink-0">
+                      <div className="surface-card flex gap-4 rounded-3xl p-5 transition-all duration-300 hover:border-primary/20 hover:shadow-soft sm:p-6">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-ink/8 bg-surface-muted">
                           <ScheduleIcon type={iconType} />
                         </div>
                         <div className="space-y-1">
@@ -223,7 +223,7 @@ export default function DailySchedule({
         </div>
 
         {/* Footer Warning block */}
-        <div className="mt-16 text-center text-xs text-muted font-medium bg-white/70 max-w-md mx-auto p-4 rounded-2xl border border-ink/5 shadow-card">
+        <div className="surface-panel mx-auto mt-16 max-w-md rounded-2xl p-4 text-center text-xs font-medium text-muted shadow-xs">
           ⚠️ <strong>Note:</strong> The schedule is subject to minor adjustments
           based on seasonal weather conditions, excursion timings (Sundays), or
           special ceremonies.

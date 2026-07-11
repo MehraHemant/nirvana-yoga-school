@@ -69,8 +69,8 @@ export default function CourseSyllabus({
                   key={item.title}
                   className={`rounded-2xl border transition-all duration-300 ${
                     isOpen
-                      ? "border-primary bg-sand/30 shadow-soft"
-                      : "border-ink/10 bg-white hover:border-primary/50 hover:bg-sand/10"
+                      ? "border-primary bg-surface-muted shadow-soft"
+                      : "surface-panel border-ink/10 hover:border-primary/50"
                   }`}
                 >
                   {/* Accordion header button */}
@@ -134,7 +134,7 @@ export default function CourseSyllabus({
                             {item.description}
                           </p>
 
-                          <div className="bg-white/70 p-5 rounded-2xl border border-ink/5 shadow-xs">
+                          <div className="surface-panel rounded-2xl p-5 shadow-xs">
                             <span className="type-eyebrow text-primary block mb-3">
                               Core Study Modules:
                             </span>
@@ -163,7 +163,7 @@ export default function CourseSyllabus({
 
           {/* Right: Distribution Sidebar Column */}
           <div className="lg:col-span-4 lg:sticky lg:top-36">
-            <div className="bg-sand/40 border border-ink/5 rounded-3xl p-6 sm:p-8 shadow-card">
+            <div className="surface-card rounded-3xl p-6 sm:p-8">
               <h3 className="type-display-sm text-ink mb-1">
                 Hours Distribution
               </h3>
@@ -189,7 +189,7 @@ export default function CourseSyllabus({
                 ))}
               </div>
 
-              <div className="mt-8 p-4 bg-white rounded-2xl border border-ink/5 text-center text-xs text-muted font-sans leading-relaxed">
+              <div className="surface-panel mt-8 rounded-2xl p-4 text-center font-sans text-xs leading-relaxed text-muted">
                 📜 Yoga Alliance curriculum details are updated regularly to
                 stay aligned with current international teacher standards.
               </div>

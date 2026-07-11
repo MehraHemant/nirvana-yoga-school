@@ -76,9 +76,9 @@ export default function WhyNirvana() {
               const Icon = HIGHLIGHT_ICONS[i] ?? BookOpen;
               return (
                 <li key={item.title}>
-                  <article className="group flex h-full gap-4 rounded-2xl border border-ink/6 bg-paper/40 p-4 transition-all duration-300 hover:border-primary/15 hover:bg-white hover:shadow-soft sm:p-5">
+                  <article className="group surface-panel flex h-full gap-4 rounded-2xl p-4 transition-all duration-300 hover:border-primary/15 hover:shadow-soft sm:p-5">
                     <span
-                      className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white shadow-xs ring-1 ring-secondary/15 transition-colors group-hover:bg-primary/5 group-hover:ring-primary/20"
+                      className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-ink/8 bg-white shadow-xs transition-colors group-hover:border-primary/20 group-hover:bg-primary/5"
                       aria-hidden="true"
                     >
                       <Icon size={18} className="text-primary" />

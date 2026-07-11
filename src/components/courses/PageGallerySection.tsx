@@ -7,6 +7,26 @@ import { Container, MediaLightbox, SectionHeader } from "@/components/ui";
 import type { SitePageGalleryImage } from "@/data/sitePages";
 import { fadeUp, reducedTransition, VIEWPORT_ONCE } from "@/lib/motion";
 
+const CATEGORY_LABELS: Record<string, string> = {
+  yogahall: "Yoga Hall",
+  dinning: "Dining",
+  private: "Private Room",
+  "2 shared": "2-Shared Room",
+  "3 shared": "3-Shared Room",
+  "4 shared": "4-Shared Dorm",
+  premisis: "Premises",
+};
+
+function categoryLabel(category: string): string {
+  return CATEGORY_LABELS[category] ?? category;
+}
+
+/**
+ * Filterable venue gallery with masonry images and fullscreen lightbox.
+ *
+ * @param props - Gallery content
+ * @param props.images - Categorized venue images
+ */
 export default function PageGallerySection({
   images,
 }: {
@@ -29,7 +49,7 @@ export default function PageGallerySection({
   if (images.length === 0) return null;
 
   return (
-    <section id="gallery" className="bg-paper py-20 sm:py-28">
+    <section id="gallery" className="bg-white py-20 sm:py-28">
       <Container size="2xl">
         <motion.div
           initial="hidden"
@@ -42,7 +62,8 @@ export default function PageGallerySection({
             eyebrow="Gallery"
             title={
               <>
-                Campus &amp; <span className="text-primary">life</span>
+                School amenities &amp;{" "}
+                <span className="text-primary">facilities</span>
               </>
             }
           />
@@ -57,10 +78,10 @@ export default function PageGallerySection({
               className={`rounded-full px-4 py-2 font-sans text-sm font-medium transition-colors ${
                 activeCategory === category
                   ? "bg-primary text-white"
-                  : "bg-white text-ink hover:bg-primary/10"
+                  : "surface-panel text-ink hover:border-primary/20"
               }`}
             >
-              {category}
+              {category === "All" ? category : categoryLabel(category)}
             </button>
           ))}
         </div>
@@ -85,12 +106,12 @@ export default function PageGallerySection({
                   setLightboxIndex(index);
                   setIsLightboxOpen(true);
                 }}
-                className="group relative mb-3 block w-full overflow-hidden rounded-2xl break-inside-avoid"
+                className="group relative mb-3 block w-full overflow-hidden rounded-2xl border border-ink/8 bg-surface shadow-card break-inside-avoid"
               >
-                <div className="relative aspect-[4/5] w-full">
+                <div className="relative aspect-4/5 w-full">
                   <Image
                     src={image.url}
-                    alt={image.category}
+                    alt={`${categoryLabel(image.category)} at Nirvana Yoga School`}
                     fill
                     unoptimized
                     sizes="(max-width: 640px) 50vw, 25vw"

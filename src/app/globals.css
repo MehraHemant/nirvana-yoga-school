@@ -10,6 +10,8 @@
   --color-muted: #6b5e57;
   --color-light-gray: #f8fafd;
   --color-sand: #f8fafd;
+  --color-surface: #f3f5f8;
+  --color-surface-muted: #eceff3;
   --color-dark: #041417;
 
   /* Fonts config */
@@ -255,6 +257,29 @@ body {
     transparent 0
   );
   background-size: 24px 24px;
+}
+
+/* Card surfaces on white page canvas — borders + light fill */
+.surface-card {
+  border: 1px solid rgb(26 20 16 / 0.09);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.surface-panel {
+  border: 1px solid rgb(26 20 16 / 0.08);
+  background-color: var(--color-surface);
+}
+
+.surface-elevated {
+  border: 1px solid rgb(26 20 16 / 0.1);
+  background-color: #ffffff;
+  box-shadow: var(--shadow-card);
+}
+
+.surface-inset {
+  border: 1px solid rgb(26 20 16 / 0.07);
+  background-color: var(--color-surface-muted);
 }
 
 /* Hero gradient overlay — bottom-up dark + side radial vignette */

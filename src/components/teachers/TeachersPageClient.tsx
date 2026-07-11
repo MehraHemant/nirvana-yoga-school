@@ -58,7 +58,7 @@ function TeacherArticle({
   return (
     <motion.article
       id={id}
-      className="scroll-mt-28 overflow-hidden rounded-3xl border border-secondary/25 bg-white shadow-card transition-shadow duration-300 hover:shadow-soft"
+      className="scroll-mt-28 surface-card overflow-hidden rounded-3xl transition-shadow duration-300 hover:shadow-soft"
       whileHover={prefersReducedMotion ? {} : { y: -3 }}
       transition={{ type: "spring", stiffness: 300, damping: 28 }}
     >
@@ -209,7 +209,7 @@ export default function TeachersPageClient({
   return (
     <>
       {/* Full-bleed hero */}
-      <section className="relative min-h-[48svh] overflow-hidden bg-ink text-white lg:min-h-[56svh]">
+      <section className="relative min-h-[48svh] overflow-hidden bg-ink text-white lg:min-h-[56svh] pt-[var(--site-header-height,4.75rem)]">
         <Image
           src={heroImage}
           alt=""
@@ -224,7 +224,7 @@ export default function TeachersPageClient({
         />
         <Container
           size="2xl"
-          className="relative z-10 flex min-h-[48svh] flex-col justify-end py-14 lg:min-h-[56svh] lg:py-20"
+          className="relative z-10 flex min-h-[calc(48svh-var(--site-header-height,4.75rem))] flex-col justify-end py-14 lg:min-h-[calc(56svh-var(--site-header-height,4.75rem))] lg:py-20"
         >
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -254,7 +254,7 @@ export default function TeachersPageClient({
       </section>
 
       {/* Magazine layout: sticky TOC + scrollable profiles */}
-      <section id="faculty" className="bg-paper py-14 sm:py-16 lg:py-20">
+      <section id="faculty" className="bg-white py-14 sm:py-16 lg:py-20">
         <Container size="2xl">
           <SectionHeader
             eyebrow="Faculty profiles"
@@ -277,7 +277,7 @@ export default function TeachersPageClient({
                   className={`type-ui shrink-0 rounded-full border px-3.5 py-2 font-semibold transition-colors ${
                     isActive
                       ? "border-primary bg-primary text-white"
-                      : "border-ink/8 bg-white text-ink"
+                      : "surface-panel border-ink/8 text-ink"
                   }`}
                 >
                   {teacher.name.replace(/^Dr\.\s/, "").split(" ")[0]}

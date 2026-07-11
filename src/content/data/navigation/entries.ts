@@ -80,7 +80,7 @@ export const NAV_DROPDOWN_ENTRIES: Record<NavDropdownKey, NavDropdownConfig> = {
   },
   venue: {
     items: [
-      { sort: 1, href: "/#gallery", label: "Course Venue" },
+      { sort: 1, type: "venue", slug: "course-venue" },
       { sort: 2, type: "venue", slug: "retreat-venue" },
     ],
   },

@@ -12,6 +12,11 @@ import {
 const projectRoot = path.dirname(fileURLToPath(import.meta.url));
 
 const legacyRedirects = [
+  {
+    source: "/gallery",
+    destination: "/venue/course-venue",
+    permanent: true as const,
+  },
   ...RESIDENTIAL_COURSE_SLUGS.map((slug) =>
     legacyRedirectForSlug(slug, "course"),
   ),

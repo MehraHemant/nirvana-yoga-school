@@ -16,7 +16,6 @@ export default function CourseBookingFab({
   href = "#pricing",
 }: CourseBookingFabProps) {
   const [pastHero, setPastHero] = useState(false);
-  const [footerNear, setFooterNear] = useState(false);
   const prefersReduced = useReducedMotion() ?? false;
 
   useEffect(() => {
@@ -28,20 +27,7 @@ export default function CourseBookingFab({
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  useEffect(() => {
-    const footer = document.querySelector("footer");
-    if (!footer) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => setFooterNear(entry.isIntersecting),
-      { rootMargin: "0px 0px -80px 0px", threshold: 0 },
-    );
-
-    observer.observe(footer);
-    return () => observer.disconnect();
-  }, []);
-
-  const visible = pastHero && !footerNear;
+  const visible = pastHero;
   const label = fee ? `Book now — from ${fee}` : "Book now";
 
   return (

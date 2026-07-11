@@ -11,7 +11,7 @@ interface PageProps {
 
 export async function generateStaticParams() {
   return getSlugsByType("site")
-    .filter((slug) => slug !== "teacher")
+    .filter((slug) => slug !== "teacher" && slug !== "contact")
     .map((slug) => ({ slug }));
 }
 
@@ -19,6 +19,7 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { slug } = await params;
+  if (slug === "contact" || slug === "teacher") return { title: "Not Found" };
   const result = await getSitePage(slug);
   if (!result.data) return { title: "Page Not Found" };
 
@@ -31,7 +32,9 @@ export async function generateMetadata({
 
 export default async function Page({ params }: PageProps) {
   const { slug } = await params;
-  if (isDedicatedRouteSlug(slug)) notFound();
+  if (isDedicatedRouteSlug(slug) || slug === "contact" || slug === "teacher") {
+    notFound();
+  }
 
   const result = await getSitePage(slug);
   if (!result.data) notFound();
