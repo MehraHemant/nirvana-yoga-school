@@ -1,0 +1,488 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum PageType {
+  course
+  online
+  retreat
+  venue
+  site
+  blog
+}
+
+enum AdminRole {
+  admin
+  editor
+}
+
+enum NavItemType {
+  page
+  static
+}
+
+enum LeadType {
+  enquiry
+  contact
+}
+
+enum LeadStatus {
+  new
+  read
+  replied
+  archived
+}
+
+enum BookingType {
+  course
+  retreat
+}
+
+enum BookingStatus {
+  pending_payment
+  confirmed
+  failed
+  cancelled
+}
+
+enum PaymentMode {
+  full
+  deposit_20
+}
+
+model Page {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  type        PageType
+  eyebrow     String   @default("")
+  title       String
+  description String   @default("")
+  image       String   @default("")
+  ctaLabel    String?  @map("cta_label")
+  ctaHref     String?  @map("cta_href")
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  sections   PageSection[]
+  packages   PagePackage[]
+  gallery    PageGalleryImage[]
+  cards      PageCard[]
+  people     PagePerson[]
+  highlights PageHighlight[]
+  courseDoc  CourseDocument?
+  pageModules Json? @map("page_modules")
+
+  @@index([type, published])
+  @@map("pages")
+}
+
+model PageSection {
+  id        String   @id @default(cuid())
+  pageId    String   @map("page_id")
+  sortOrder Int      @map("sort_order")
+  title     String
+  eyebrow   String?
+  body      String?  @db.Text
+  layout    String   @default("default")
+  image     String?
+  images    Json     @default("[]")
+  blocks    Json?
+
+  page         Page                  @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  subsections  SectionSubsection[]
+  items        SectionItem[]
+
+  @@index([pageId, sortOrder])
+  @@map("page_sections")
+}
+
+model SectionSubsection {
+  id        String  @id @default(cuid())
+  sectionId String  @map("section_id")
+  sortOrder Int     @map("sort_order")
+  title     String
+  body      String? @db.Text
+  image     String?
+
+  section PageSection       @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  items   SubsectionItem[]
+
+  @@index([sectionId, sortOrder])
+  @@map("section_subsections")
+}
+
+model SectionItem {
+  id        String @id @default(cuid())
+  sectionId String @map("section_id")
+  sortOrder Int    @map("sort_order")
+  value     String
+
+  section PageSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
+  @@index([sectionId, sortOrder])
+  @@map("section_items")
+}
+
+model SubsectionItem {
+  id           String @id @default(cuid())
+  subsectionId String @map("subsection_id")
+  sortOrder    Int    @map("sort_order")
+  value        String
+
+  subsection SectionSubsection @relation(fields: [subsectionId], references: [id], onDelete: Cascade)
+
+  @@index([subsectionId, sortOrder])
+  @@map("subsection_items")
+}
+
+model PagePackage {
+  id        String  @id @default(cuid())
+  pageId    String  @map("page_id")
+  sortOrder Int     @map("sort_order")
+  title     String
+  price     String
+  image     String?
+
+  page Page @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@index([pageId, sortOrder])
+  @@map("page_packages")
+}
+
+model PageGalleryImage {
+  id            String  @id @default(cuid())
+  pageId        String  @map("page_id")
+  sortOrder     Int     @map("sort_order")
+  url           String
+  category      String  @default("general")
+  mediaAssetId  String? @map("media_asset_id")
+
+  page       Page        @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  mediaAsset MediaAsset? @relation(fields: [mediaAssetId], references: [id], onDelete: SetNull)
+
+  @@index([pageId, sortOrder])
+  @@map("page_gallery_images")
+}
+
+model PageCard {
+  id          String @id @default(cuid())
+  pageId      String @map("page_id")
+  sortOrder   Int    @map("sort_order")
+  title       String
+  description String @db.Text
+  href        String?
+
+  page Page @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@index([pageId, sortOrder])
+  @@map("page_cards")
+}
+
+model PagePerson {
+  id         String @id @default(cuid())
+  pageId     String @map("page_id")
+  sortOrder  Int    @map("sort_order")
+  name       String
+  image      String?
+  summary    String? @db.Text
+  bio        String? @db.Text
+  education  Json    @default("[]")
+  experience Json    @default("[]")
+  expertise  Json    @default("[]")
+
+  page Page @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@index([pageId, sortOrder])
+  @@map("page_people")
+}
+
+model PageHighlight {
+  id          String  @id @default(cuid())
+  pageId      String  @map("page_id")
+  sortOrder   Int     @map("sort_order")
+  title       String
+  description String  @db.Text
+  image       String?
+
+  page Page @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@index([pageId, sortOrder])
+  @@map("page_highlights")
+}
+
+model CourseDocument {
+  id       String @id @default(cuid())
+  pageId   String @unique @map("page_id")
+  document Json
+
+  page Page @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@map("course_documents")
+}
+
+model BlogPost {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  title       String
+  category    String    @default("")
+  excerpt     String    @db.Text
+  image       String    @default("")
+  publishedAt DateTime? @map("published_at")
+  content     Json      @default("[]")
+  bodyHtml    String?   @map("body_html") @db.Text
+  published   Boolean   @default(true)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@map("blog_posts")
+}
+
+model NavigationGroup {
+  id    String @id @default(cuid())
+  key   String @unique
+  label String
+
+  items NavigationItem[]
+
+  @@map("navigation_groups")
+}
+
+model NavigationItem {
+  id        String      @id @default(cuid())
+  groupId   String      @map("group_id")
+  sortOrder Int         @map("sort_order")
+  itemType  NavItemType @map("item_type")
+  pageType  String?     @map("page_type")
+  pageSlug  String?     @map("page_slug")
+  href      String?
+  label     String?
+
+  group NavigationGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@index([groupId, sortOrder])
+  @@map("navigation_items")
+}
+
+model MediaAsset {
+  id          String   @id @default(cuid())
+  url         String
+  cdnKey      String   @map("cdn_key")
+  mime        String
+  sizeBytes   Int      @map("size_bytes")
+  width       Int?
+  height      Int?
+  alt         String?
+  caption     String?
+  description String?  @db.Text
+  tags        String[] @default([])
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  galleryImages PageGalleryImage[]
+
+  @@index([createdAt])
+  @@map("media_assets")
+}
+
+model AdminUser {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String    @map("password_hash")
+  role         AdminRole @default(editor)
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  revisions ContentRevision[]
+
+  @@map("admin_users")
+}
+
+model ContentRevision {
+  id          String   @id @default(cuid())
+  entityType  String   @map("entity_type")
+  entityId    String   @map("entity_id")
+  slug        String?
+  snapshot    Json
+  adminUserId String?  @map("admin_user_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  adminUser AdminUser? @relation(fields: [adminUserId], references: [id], onDelete: SetNull)
+
+  @@index([entityType, entityId])
+  @@index([slug])
+  @@map("content_revisions")
+}
+
+model ModuleLibraryItem {
+  id        String   @id @default(cuid())
+  moduleKey String   @map("module_key")
+  variant   String?
+  name      String
+  payload   Json
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([moduleKey, variant])
+  @@map("module_library_items")
+}
+
+model LeadSubmission {
+  id            String     @id @default(cuid())
+  type          LeadType
+  status        LeadStatus @default(new)
+  name          String
+  email         String
+  phone         String?
+  subject       String?
+  program       String?
+  accommodation String?
+  startDate     String?    @map("start_date")
+  message       String     @db.Text
+  source        String?
+  createdAt     DateTime   @default(now()) @map("created_at")
+  readAt        DateTime?  @map("read_at")
+  deletedAt     DateTime?  @map("deleted_at")
+
+  @@index([type, createdAt])
+  @@index([status, createdAt])
+  @@index([deletedAt])
+  @@map("lead_submissions")
+}
+
+model Booking {
+  id               String        @id @default(cuid())
+  type             BookingType
+  status           BookingStatus @default(pending_payment)
+  programSlug      String        @map("program_slug")
+  programTitle     String        @map("program_title")
+  roomType         String        @map("room_type")
+  batchDate        String        @map("batch_date")
+  duration         String?
+  name             String
+  gender           String
+  email            String
+  phone            String
+  country          String?
+  referenceCode    String?       @map("reference_code")
+  hearAbout        String?       @map("hear_about")
+  paymentMode      PaymentMode   @map("payment_mode")
+  basePriceCents   Int           @map("base_price_cents")
+  fullAmountCents  Int           @map("full_amount_cents")
+  payNowCents      Int           @map("pay_now_cents")
+  paypalFeeCents   Int           @map("paypal_fee_cents")
+  totalPayNowCents Int           @map("total_pay_now_cents")
+  remainingCents   Int           @map("remaining_cents")
+  promoCode        String?       @map("promo_code")
+  discountCents    Int           @default(0) @map("discount_cents")
+  paypalOrderId    String?       @map("paypal_order_id")
+  paypalCaptureId  String?       @map("paypal_capture_id")
+  deletedAt        DateTime?     @map("deleted_at")
+  createdAt        DateTime      @default(now()) @map("created_at")
+  updatedAt        DateTime      @updatedAt @map("updated_at")
+  confirmedAt      DateTime?     @map("confirmed_at")
+
+  @@index([type, status, createdAt])
+  @@index([deletedAt])
+  @@map("bookings")
+}
+
+// ---------------------------------------------------------------------------
+// AI Chatbot (RAG) — conversations, documents, pgvector embeddings
+// ---------------------------------------------------------------------------
+
+enum ChatMessageRole {
+  user
+  assistant
+  system
+}
+
+enum DocumentStatus {
+  pending
+  processing
+  indexed
+  failed
+}
+
+enum DocumentSourceType {
+  txt
+  markdown
+  html
+  pdf
+  docx
+}
+
+model Conversation {
+  id        String   @id @default(cuid())
+  sessionId String   @map("session_id")
+  title     String?
+  summary   String?  @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  messages Message[]
+
+  @@index([sessionId, updatedAt])
+  @@map("chat_conversations")
+}
+
+model Message {
+  id             String          @id @default(cuid())
+  conversationId String          @map("conversation_id")
+  role           ChatMessageRole
+  content        String          @db.Text
+  createdAt      DateTime        @default(now()) @map("created_at")
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, createdAt])
+  @@map("chat_messages")
+}
+
+model Document {
+  id         String             @id @default(cuid())
+  title      String
+  source     String
+  sourceType DocumentSourceType @map("source_type")
+  mimeType   String?            @map("mime_type")
+  fileSize   Int?               @map("file_size")
+  status     DocumentStatus     @default(pending)
+  error      String?            @db.Text
+  createdAt  DateTime           @default(now()) @map("created_at")
+  updatedAt  DateTime           @updatedAt @map("updated_at")
+
+  chunks DocumentChunk[]
+
+  @@index([status, createdAt])
+  @@map("chat_documents")
+}
+
+model DocumentChunk {
+  id         String   @id @default(cuid())
+  documentId String   @map("document_id")
+  chunkIndex Int      @map("chunk_index")
+  content    String   @db.Text
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  document  Document   @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  embedding Embedding?
+
+  @@unique([documentId, chunkIndex])
+  @@index([documentId])
+  @@map("chat_document_chunks")
+}
+
+model Embedding {
+  id        String                      @id @default(cuid())
+  chunkId   String                      @unique @map("chunk_id")
+  /// pgvector column — read/write via raw SQL (`backend/utils/vector.ts`)
+  vector    Unsupported("vector(768)")?
+  createdAt DateTime                    @default(now()) @map("created_at")
+
+  chunk DocumentChunk @relation(fields: [chunkId], references: [id], onDelete: Cascade)
+
+  @@map("chat_embeddings")
+}
