@@ -26,7 +26,7 @@
 }
 
 :root {
-  --background: #f8fafd;
+  --background: #ffffff;
   --foreground: #1a1410;
   --site-header-height: 4.75rem;
 }
@@ -248,7 +248,7 @@ body {
 
 /* Subtle paper texture for light sections */
 .bg-paper {
-  background-color: var(--color-light-gray);
+  background-color: var(--background);
   background-image: radial-gradient(
     circle at 1px 1px,
     rgb(26 20 16 / 0.025) 1px,
