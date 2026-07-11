@@ -17,61 +17,119 @@ function getHeaderHeight(): number {
   return document.querySelector("header")?.getBoundingClientRect().height ?? 76;
 }
 
-function TeacherArticle({ teacher }: { teacher: TeacherProfile }) {
+function TeacherArticle({
+  teacher,
+  index,
+  prefersReducedMotion,
+}: { teacher: TeacherProfile; index: number; prefersReducedMotion: boolean }) {
   const id = teacherSlug(teacher.name);
+  // Even index (0,2,4…) → name/bio LEFT, image RIGHT
+  // Odd index  (1,3,5…) → image LEFT,   name/bio RIGHT
+  const imageRight = index % 2 === 0;
+
+  const imageCell = (
+    <div className="relative h-72 w-full sm:h-80 md:h-96">
+      <Image
+        src={teacher.image}
+        alt={teacher.name}
+        fill
+        sizes="(max-width: 640px) 100vw, 50vw"
+        className="object-cover object-top"
+      />
+    </div>
+  );
+
+  const textCell = (
+    <div className="flex flex-col justify-center p-7 sm:p-8 md:p-10">
+      <Heading as="h2" size="h3">
+        {teacher.name}
+      </Heading>
+      <p className="type-eyebrow mt-2 text-secondary">
+        {teacher.experienceSummary}
+      </p>
+      <p className="type-body mt-5 leading-relaxed text-ink">{teacher.bio}</p>
+    </div>
+  );
 
   return (
-    <article
+    <motion.article
       id={id}
-      className="scroll-mt-28 rounded-2xl border border-ink/8 bg-white p-6 sm:p-8"
+      className="scroll-mt-28 overflow-hidden rounded-3xl border border-ink/20 bg-white shadow-card transition-shadow duration-300 hover:shadow-soft"
+      whileHover={prefersReducedMotion ? {} : { y: -3 }}
+      transition={{ type: "spring", stiffness: 300, damping: 28 }}
     >
-      <div className="flex items-start gap-5">
-        <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-2xl bg-sand sm:h-28 sm:w-28">
-          <Image
-            src={teacher.image}
-            alt={teacher.name}
-            fill
-            sizes="112px"
-            className="object-cover object-top"
-          />
+      {/*
+        2 × 2 grid on sm+:
+          top row  → [text | image]  or  [image | text]  (alternates by index)
+          bottom   → spans full width: Education / Experience / Expertise
+        Mobile: stacked (image always on top for visual impact).
+      */}
+      <div className="grid grid-cols-1 sm:grid-cols-2">
+        {/* Top row — swap DOM order to achieve alternating layout */}
+        {imageRight ? (
+          <>
+            {textCell}
+            {imageCell}
+          </>
+        ) : (
+          <>
+            {imageCell}
+            {textCell}
+          </>
+        )}
+
+
+        {/* Bottom row: 3-column details strip, no inner cards */}
+        <div className="col-span-1 border-t-2 border-ink/12 bg-sand/30 sm:col-span-2">
+          <div className="grid divide-y divide-ink/10 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+
+            {/* Education */}
+            <div className="px-7 py-6 md:px-9 md:py-7 bg-primary/[0.02] transition-colors duration-300 hover:bg-primary/[0.04]">
+              <p className="type-eyebrow mb-4 font-semibold tracking-widest text-primary">Education</p>
+              <ul className="space-y-2.5">
+                {teacher.education.map((item) => (
+                  <li key={item} className="flex items-start gap-2.5">
+                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary/60" aria-hidden="true" />
+                    <span className="type-body leading-snug text-ink/85">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Experience */}
+            <div className="px-7 py-6 md:px-9 md:py-7 bg-secondary/[0.02] transition-colors duration-300 hover:bg-secondary/[0.04]">
+              <p className="type-eyebrow mb-4 font-semibold tracking-widest text-secondary">Experience</p>
+              <ul className="space-y-2.5">
+                {teacher.detailedExperience.map((item) => (
+                  <li key={item} className="flex items-start gap-2.5">
+                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-secondary/60" aria-hidden="true" />
+                    <span className="type-body leading-snug text-ink/85">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Expertise */}
+            <div className="px-7 py-6 md:px-9 md:py-7 bg-accent/[0.04] transition-colors duration-300 hover:bg-accent/[0.08]">
+              <p className="type-eyebrow mb-4 font-semibold tracking-widest text-secondary/80">Expertise</p>
+              <div className="flex flex-wrap gap-2">
+                {teacher.expertise.map((item) => (
+                  <span
+                    key={item}
+                    className="type-ui inline-flex items-center rounded-full border border-accent/35 bg-white/90 px-3 py-1 text-ink/90 transition-all duration-150 hover:border-secondary/40 hover:bg-white hover:shadow-2xs"
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+          </div>
         </div>
-        <div className="min-w-0 pt-1">
-          <Heading as="h2" size="h3">
-            {teacher.name}
-          </Heading>
-          <p className="type-eyebrow mt-2 text-secondary">
-            {teacher.experienceSummary}
-          </p>
-        </div>
+
       </div>
 
-      <p className="type-body mt-6 leading-relaxed text-ink">{teacher.bio}</p>
-
-      <div className="mt-6 space-y-5 border-t border-ink/8 pt-6">
-        <div>
-          <p className="type-eyebrow mb-2 text-primary">Education</p>
-          <ul className="type-body list-disc space-y-1.5 pl-5 text-ink">
-            {teacher.education.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-        </div>
-
-        <div>
-          <p className="type-eyebrow mb-2 text-secondary">Experience</p>
-          <ul className="type-body list-disc space-y-1.5 pl-5 text-ink">
-            {teacher.detailedExperience.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-        </div>
-
-        <div>
-          <p className="type-eyebrow mb-2 text-muted">Expertise</p>
-          <p className="type-body text-ink">{teacher.expertise.join(" · ")}</p>
-        </div>
-      </div>
-    </article>
+    </motion.article>
   );
 }
 
@@ -92,9 +150,9 @@ export default function TeachersPageClient({
       const top = Math.max(
         0,
         node.getBoundingClientRect().top +
-          window.scrollY -
-          getHeaderHeight() -
-          24,
+        window.scrollY -
+        getHeaderHeight() -
+        24,
       );
       window.scrollTo({
         top,
@@ -202,11 +260,10 @@ export default function TeachersPageClient({
                   key={teacher.name}
                   type="button"
                   onClick={() => scrollToTeacher(slug)}
-                  className={`type-ui shrink-0 rounded-full border px-3.5 py-2 font-semibold transition-colors ${
-                    isActive
-                      ? "border-primary bg-primary text-white"
-                      : "border-ink/8 bg-white text-ink"
-                  }`}
+                  className={`type-ui shrink-0 rounded-full border px-3.5 py-2 font-semibold transition-colors ${isActive
+                    ? "border-primary bg-primary text-white"
+                    : "border-ink/8 bg-white text-ink"
+                    }`}
                 >
                   {teacher.name.replace(/^Dr\.\s/, "").split(" ")[0]}
                 </button>
@@ -236,11 +293,10 @@ export default function TeachersPageClient({
                         key={teacher.name}
                         type="button"
                         onClick={() => scrollToTeacher(slug)}
-                        className={`type-ui block w-full border-l-2 py-2 pl-3 text-left transition-colors ${
-                          isActive
-                            ? "border-primary font-semibold text-primary"
-                            : "border-transparent text-muted hover:border-ink/20 hover:text-ink"
-                        }`}
+                        className={`type-ui block w-full border-l-2 py-2 pl-3 text-left transition-colors ${isActive
+                          ? "border-primary font-semibold text-primary"
+                          : "border-transparent text-muted hover:border-ink/20 hover:text-ink"
+                          }`}
                       >
                         {teacher.name.replace(/^Dr\.\s/, "")}
                       </button>
@@ -252,8 +308,8 @@ export default function TeachersPageClient({
 
             {/* Profile stream */}
             <div className="min-w-0 space-y-6">
-              {teachers.map((teacher) => (
-                <TeacherArticle key={teacher.name} teacher={teacher} />
+              {teachers.map((teacher, i) => (
+                <TeacherArticle key={teacher.name} teacher={teacher} index={i} prefersReducedMotion={prefersReducedMotion} />
               ))}
             </div>
           </div>

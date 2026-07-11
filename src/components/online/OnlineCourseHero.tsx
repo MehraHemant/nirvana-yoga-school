@@ -41,14 +41,10 @@ export default function OnlineCourseHero({
     : image;
 
   return (
-    <section className="online-hero relative overflow-hidden bg-secondary text-white">
+    <section className="online-hero relative overflow-hidden bg-secondary pt-[var(--site-header-height,4.75rem)] text-white">
       <div
-        className="pointer-events-none absolute inset-0"
+        className="pointer-events-none absolute inset-0 hero-radial-overlay"
         aria-hidden="true"
-        style={{
-          background:
-            "radial-gradient(circle at 80% 20%, rgb(255 255 255 / 0.08), transparent 35%), radial-gradient(circle at 10% 100%, rgb(163 36 50 / 0.18), transparent 40%)",
-        }}
       />
 
       <Container size="2xl" className="relative z-10 py-10 md:py-14 lg:py-16">
