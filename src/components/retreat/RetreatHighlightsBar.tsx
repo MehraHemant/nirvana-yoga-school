@@ -12,25 +12,29 @@ export default function RetreatHighlightsBar({
   if (highlights.length === 0) return null;
 
   return (
-    <div className="border-b border-secondary/10 bg-white">
-      <Container size="2xl" className="grid gap-4 py-6 md:grid-cols-3 md:py-8">
+    <div className="border-b border-secondary/10 bg-sand/35 py-8 md:py-12">
+      <Container size="2xl" className="grid gap-6 md:grid-cols-3">
         {highlights.map((item) => (
           <div
             key={item.title}
-            className="flex items-start gap-4 rounded-3xl border border-secondary/10 bg-secondary/5 px-5 py-5"
+            className="group flex items-start gap-4 rounded-3xl border border-secondary/10 bg-white p-6 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-secondary/20 hover:shadow-soft"
           >
-            <div className="relative size-14 shrink-0 overflow-hidden rounded-2xl ring-1 ring-secondary/10">
+            <div className="relative size-16 shrink-0 overflow-hidden rounded-2xl ring-1 ring-secondary/10 transition-transform duration-300 group-hover:scale-105">
               <Image
                 src={item.image}
                 alt=""
                 fill
-                sizes="56px"
+                sizes="64px"
                 className="object-cover"
               />
             </div>
             <div className="min-w-0">
-              <p className="font-serif text-xl text-ink">{item.title}</p>
-              <p className="mt-1 type-body text-muted">{item.description}</p>
+              <h3 className="font-serif text-lg md:text-xl text-ink leading-snug font-medium transition-colors group-hover:text-secondary">
+                {item.title}
+              </h3>
+              <p className="mt-1.5 type-body text-sm leading-relaxed text-muted">
+                {item.description}
+              </p>
             </div>
           </div>
         ))}
