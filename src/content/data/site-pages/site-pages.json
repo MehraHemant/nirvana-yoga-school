@@ -2791,15 +2791,37 @@
     "eyebrow": "Nirvana Yoga School",
     "title": "Kirtan, Vocal & Instrumental Music Training in Rishikesh, India",
     "description": "Join our Kirtan, Vocal & Instrumental Music Training in Rishikesh, India. Master bhajans, harmonium, tabla, rhythm, and sacred mantra chanting.",
-    "image": "https://www.nirvanayogaschoolindia.com/admin/uploads/yoga/",
+    "image": "https://www.nirvanayogaschoolindia.com/admin/uploads/yoga/yoga-11-06-2026-1781120152-yoga-03-07-2023-1688377619-3.png",
+    "packages": [
+      {
+        "title": "Private Room with Balcony",
+        "price": "549 USD (732 USD)"
+      },
+      {
+        "title": "2-Shared Room with Balcony",
+        "price": "449 USD (598 USD)"
+      },
+      {
+        "title": "4-Shared Dorm with Balcony",
+        "price": "349 USD (465 USD)"
+      },
+      {
+        "title": "Private Double Balcony Room (2 people)",
+        "price": "848 USD (1130 USD)"
+      },
+      {
+        "title": "Without Accommodation",
+        "price": "299 USD (398 USD)"
+      }
+    ],
     "sections": [
       {
         "title": "Overview",
         "body": "This immersive training program is designed to introduce students to the depth and beauty of devotional music through harmonium, voice, and rhythm. Rooted in traditional Indian musical wisdom, the course offers a balanced approach that combines technical learning with inner experience.\n\nConducted in a focused 5-day format, the training allows participants to develop foundational skills in a short time while experiencing the meditative and expressive aspects of kirtan. The program is suitable for complete beginners as well as those who wish to deepen their connection with music and chanting.\n\nThe emphasis is not only on learning techniques but also on cultivating confidence, awareness, and the ability to engage in group musical settings.",
         "layout": "default",
-        "image": "https://www.nirvanayogaschoolindia.com/admin/uploads/yoga/",
+        "image": "https://www.nirvanayogaschoolindia.com/admin/uploads/yoga/yoga-11-06-2026-1781120152-yoga-03-07-2023-1688377619-3.png",
         "images": [
-          "https://www.nirvanayogaschoolindia.com/admin/uploads/yoga/",
+          "https://www.nirvanayogaschoolindia.com/admin/uploads/yoga/yoga-11-06-2026-1781120152-yoga-03-07-2023-1688377619-3.png",
           "https://www.nirvanayogaschoolindia.com/img/200/01.png",
           "https://www.nirvanayogaschoolindia.com/img/200/011.png"
         ]
@@ -2922,7 +2944,15 @@
             "body": "549 USD ( 732 USD )\n\n449 USD ( 598 USD )\n\n349 USD ( 465 USD )\n\n848 USD ( 1130 USD )\n\n299 USD ( 398 USD )\n\nNote: Some rooms have private balconies, while others have shared balconies."
           },
           {
-            "title": "Course Dates"
+            "title": "Course Dates",
+            "items": [
+              "25 Jul – 30 Jul 2026 — 10 seats left",
+              "25 Aug – 30 Aug 2026 — 10 seats left",
+              "25 Sep – 30 Sep 2026 — 10 seats left",
+              "25 Oct – 30 Oct 2026 — 10 seats left",
+              "25 Nov – 30 Nov 2026 — 10 seats left",
+              "25 Dec – 30 Dec 2026 — 10 seats left"
+            ]
           }
         ],
         "layout": "default",
@@ -2953,8 +2983,57 @@
       },
       {
         "title": "Frequently Asked Questions",
-        "body": "Do I need prior musical experience?\n\nAre instruments provided?\n\nCan I join both courses?\n\nIs this suitable for yoga teachers?\n\nWhat will I be able to do after the course?\n\nIs knowledge of Hindi or Sanskrit necessary to join?\n\nHow much practice is expected during or after the course?\n\nWhat style of music is mainly taught in this training?\n\nIs this course more practical or theory-based?\n\nCan this training help me in teaching or guiding others in the future?\n\nWhat kind of environment can I expect during the training?\n\nIs the Mridangam (Drum) course suitable even if I have never played rhythm instruments before?\n\nTapovan, Rishikesh, India\n\n+91 8218564835\n\n+91 8218564835\n\nnirvanayogaschool@gmail.com\n\nWHATSAPP FOR MORE INFO\n\n+91-8218564835\n\nPrice: $${price} $${oldPrice}",
-        "layout": "faq"
+        "layout": "faq",
+        "subsections": [
+          {
+            "title": "Do I need prior musical experience?",
+            "body": "No, the course is beginner-friendly and starts from the basics of harmonium, voice, and rhythm."
+          },
+          {
+            "title": "Are instruments provided?",
+            "body": "Yes, all required instruments are available during training sessions on campus."
+          },
+          {
+            "title": "Can I join both courses?",
+            "body": "Yes, both harmonium/vocal and mridangam chapters complement each other and can be taken together."
+          },
+          {
+            "title": "Is this suitable for yoga teachers?",
+            "body": "Highly beneficial for integrating live music, mantra, and kirtan into yoga or meditation sessions."
+          },
+          {
+            "title": "What will I be able to do after the course?",
+            "body": "Play, sing, and participate confidently in kirtan — and continue your practice independently."
+          },
+          {
+            "title": "Is knowledge of Hindi or Sanskrit necessary to join?",
+            "body": "No. Mantras and songs are taught with clear guidance on pronunciation and meaning."
+          },
+          {
+            "title": "How much practice is expected during or after the course?",
+            "body": "About 15–20 minutes of personal practice after sessions is enough to build confidence over time."
+          },
+          {
+            "title": "What style of music is mainly taught in this training?",
+            "body": "Traditional Indian devotional music — bhajans, mantras, and kirtan with harmonium and rhythm accompaniment."
+          },
+          {
+            "title": "Is this course more practical or theory-based?",
+            "body": "The emphasis is on hands-on practice with guided daily sessions rather than theory alone."
+          },
+          {
+            "title": "Can this training help me in teaching or guiding others in the future?",
+            "body": "Yes — you will gain confidence to lead simple kirtan sessions and support group devotional music."
+          },
+          {
+            "title": "What kind of environment can I expect during the training?",
+            "body": "A calm, supportive ashram setting in Rishikesh with small groups and personal guidance from teachers."
+          },
+          {
+            "title": "Is the Mridangam (Drum) course suitable even if I have never played rhythm instruments before?",
+            "body": "Yes — training begins with very basic strokes and gradually builds rhythmic understanding."
+          }
+        ]
       }
     ],
     "ctaLabel": "Enquire Now",

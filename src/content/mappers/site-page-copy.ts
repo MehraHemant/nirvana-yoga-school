@@ -89,7 +89,7 @@ export function refineHeroSubtitle(page: SitePageDocument): string {
     "kundalini-yoga-teacher-training-in-rishikesh-india":
       "Activate energy, study kriya, mantra, and meditation — a residential Kundalini teacher training in Rishikesh.",
     "kirtan-vocal-and-instrumental-music-training":
-      "Learn sacred kirtan, vocal technique, harmonium, and rhythm with traditional Indian music facilitators.",
+      "A focused 5-day immersion in harmonium, voice, mantra, and mridangam rhythm — beginner-friendly devotional music training in Rishikesh.",
     mindfulness:
       "A practical workshop on present-moment awareness through breath, posture, and guided meditation.",
     "stress-management":
@@ -136,6 +136,8 @@ export function refineOverview(
       "Walk through our campus, practice spaces, meals, rooms, and the landscapes that shape daily life at the school.",
     "course-venue":
       "Nirvana Yoga School sits in the quieter, greener part of Upper Tapovan. Purpose-built practice halls, clean residential rooms, nourishing dining spaces, balconies, and mountain surroundings support focused study and restorative ashram living.",
+    "kirtan-vocal-and-instrumental-music-training":
+      "This immersive 5-day training introduces devotional music through harmonium, voice, and rhythm. Rooted in traditional Indian musical wisdom, it balances technique with inner experience — ideal for beginners and yoga teachers adding kirtan to their offering.",
     "retreat-venue":
       "Clean, calm rooms with attached baths, balcony views, and easy access to the Ganges — designed for retreat guests and training students alike.",
   };

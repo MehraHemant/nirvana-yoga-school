@@ -13,5 +13,8 @@ export type BlogPostDocument = {
   excerpt: string;
   image: string;
   publishedAt?: string | null;
+  /** Legacy structured blocks — used when `bodyHtml` is empty */
   content: BlogContentBlock[];
+  /** Rich-text HTML from the CMS editor (preferred when set) */
+  bodyHtml?: string | null;
 };

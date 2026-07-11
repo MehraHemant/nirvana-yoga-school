@@ -40,4 +40,5 @@ export {
   getSitePage,
   getSitePageSlugs,
 } from "@/content/repositories/page";
+export { getPageModules } from "@/content/repositories/page-modules";
 export type * from "@/content/types";

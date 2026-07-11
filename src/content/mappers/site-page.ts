@@ -266,7 +266,7 @@ function buildMetaItems(page: SitePageDocument, duration: string) {
   return items.slice(0, 4);
 }
 
-function buildNavItems(
+export function buildNavItems(
   mapped: Omit<MappedSitePage, "navItems">,
 ): StickyNavItem[] {
   const items: StickyNavItem[] = [];

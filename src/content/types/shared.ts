@@ -19,6 +19,7 @@ export type CourseSyllabusSection = {
 export type CoursePricingOption = {
   roomType: string;
   price: string;
+  originalPrice?: string;
   description: string;
   features: string[];
   image?: string;
