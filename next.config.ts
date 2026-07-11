@@ -8,6 +8,7 @@ import {
   RETREAT_SLUGS,
   VENUE_SLUGS,
 } from "@/content/pages/slugs";
+import { cdnPublicHostname } from "./src/lib/cdn/cdn-env";
 
 const projectRoot = path.dirname(fileURLToPath(import.meta.url));
 
@@ -17,6 +18,11 @@ const legacyRedirects = [
     destination: "/venue/course-venue",
     permanent: true as const,
   },
+  {
+    source: "/retreat/retreat-booking",
+    destination: "/retreat-booking",
+    permanent: true as const,
+  },
   ...RESIDENTIAL_COURSE_SLUGS.map((slug) =>
     legacyRedirectForSlug(slug, "course"),
   ),
@@ -24,6 +30,8 @@ const legacyRedirects = [
   ...RETREAT_SLUGS.map((slug) => legacyRedirectForSlug(slug, "retreat")),
   ...VENUE_SLUGS.map((slug) => legacyRedirectForSlug(slug, "venue")),
 ];
+
+const cdnHost = cdnPublicHostname();
 
 const nextConfig: NextConfig = {
   reactCompiler: true,
@@ -53,6 +61,9 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "i.ytimg.com",
       },
+      ...(cdnHost
+        ? [{ protocol: "https" as const, hostname: cdnHost }]
+        : []),
     ],
   },
   async redirects() {
