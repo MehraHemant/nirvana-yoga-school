@@ -63,9 +63,9 @@ function RoomCard({
         </div>
         <Button
           href={buildHref(duration, option.roomType, selectedBatch)}
-          variant="secondary"
+          variant="primary"
           size="sm"
-          className="w-full shrink-0 sm:w-auto"
+          className="w-full shrink-0 sm:w-auto bg-black! hover:bg-primary-dark!"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -113,9 +113,9 @@ function RoomCard({
 
       <Button
         href={buildHref(duration, option.roomType, selectedBatch)}
-        variant="secondary"
+        variant="primary"
         size="sm"
-        className="mt-auto w-full"
+        className="mt-auto w-full bg-black! hover:bg-primary-dark!"
         target="_blank"
         rel="noopener noreferrer"
       >
