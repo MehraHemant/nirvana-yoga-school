@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { BlogHtmlContent } from "@/components/blog/BlogHtmlContent";
 import { Container } from "@/components/ui";
 import type { BlogContentBlock } from "@/data/blogPosts";
 import { ArrowRight } from "@/icons";
+import { resolveBlogBodyHtml } from "@/lib/cms/blog-html";
 import { fetchBlogPost, getAllBlogSlugs } from "@/lib/content";
 
 interface PageProps {
@@ -104,6 +106,8 @@ export default async function BlogPostPage({ params }: PageProps) {
     notFound();
   }
 
+  const bodyHtml = resolveBlogBodyHtml(post.bodyHtml, post.content);
+
   return (
     <>
       <section className="relative overflow-hidden bg-ink text-white">
@@ -136,7 +140,11 @@ export default async function BlogPostPage({ params }: PageProps) {
       <article className="bg-paper py-20 sm:py-28">
         <Container size="md">
           <div className="rounded-3xl border border-ink/6 bg-white p-6 shadow-card sm:p-10">
-            <BlogContent blocks={post.content} />
+            {bodyHtml ? (
+              <BlogHtmlContent html={bodyHtml} />
+            ) : (
+              <BlogContent blocks={post.content} />
+            )}
             <Link
               href="/blog"
               className="mt-10 inline-flex items-center gap-2 font-sans text-sm font-semibold text-primary"

@@ -14,7 +14,16 @@ export type UpcomingDatesProps = {
   batches?: BatchItem[];
   lodgingTitle?: string;
   datesTitle?: string;
+  /** Course or retreat slug for book-now links */
+  programSlug?: string;
+  /** When set, Reserve buttons link to the booking flow instead of WhatsApp */
+  bookingType?: "course" | "retreat";
   buildWhatsAppHref?: (
+    duration: string,
+    roomType: string,
+    batch: string,
+  ) => string;
+  buildReserveHref?: (
     duration: string,
     roomType: string,
     batch: string,
@@ -97,6 +106,29 @@ export function whatsAppHref(
     `Hi Nirvana Yoga School, I would like to register for the ${duration} ${roomType} YTT batch starting on ${batch}.`,
   );
   return `https://wa.me/919876543210?text=${text}`;
+}
+
+/**
+ * Build a book-now URL with program, room, and date pre-filled.
+ *
+ * @param bookingType - Course or retreat booking page
+ * @param programSlug - Program slug
+ * @param roomType - Selected room label
+ * @param batch - Selected batch date string
+ */
+export function bookingReserveHref(
+  bookingType: "course" | "retreat",
+  programSlug: string,
+  roomType: string,
+  batch: string,
+): string {
+  const base = bookingType === "course" ? "/booking" : "/retreat-booking";
+  const params = new URLSearchParams({
+    course: programSlug,
+    room: roomType,
+    date: batch,
+  });
+  return `${base}?${params.toString()}`;
 }
 
 export const BOOKING_GUARANTEE = {

@@ -15,6 +15,7 @@ import {
   ACCOMMODATION_PREFERENCE_OPTIONS,
   ENQUIRE_PROGRAM_OPTIONS,
 } from "@/lib/enquire-programs";
+import { openMailtoFallback, submitLead } from "@/lib/leads/submit-lead";
 import { fadeUp, reducedTransition } from "@/lib/motion";
 import {
   DEFAULT_PHONE_COUNTRY_ISO,
@@ -112,8 +113,22 @@ export default function EnquireNowPageClient({
         .filter(Boolean)
         .join("\n");
 
-      const mailtoUrl = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-      window.location.href = mailtoUrl;
+      const result = await submitLead({
+        type: "enquiry",
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        phone,
+        program,
+        startDate: formData.startDate.trim() || undefined,
+        accommodation: formData.accommodation.trim() || undefined,
+        message: formData.message.trim(),
+        source: "/enquire-now",
+      });
+
+      if (!result.stored) {
+        openMailtoFallback({ to: CONTACT_EMAIL, subject, body });
+      }
+
       setFormState("success");
     } catch {
       setFormState("error");
@@ -281,11 +296,12 @@ export default function EnquireNowPageClient({
                       </div>
                       <div className="space-y-2">
                         <h3 className="font-serif text-2xl font-medium text-ink">
-                          Enquiry ready to send!
+                          Enquiry received!
                         </h3>
                         <p className="mx-auto max-w-sm font-sans text-sm leading-relaxed text-muted">
-                          Your email app should open with your enquiry details.
-                          Our team will follow up within 24 hours.
+                          Thank you for your enquiry. Our ashram team will
+                          review your details and reply by email or WhatsApp
+                          within 24 hours.
                         </p>
                       </div>
                       <button

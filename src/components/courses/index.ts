@@ -10,6 +10,7 @@ export { default as ExamCertification } from "./ExamCertification";
 export { default as InstagramFeed } from "./InstagramFeed";
 export { default as PageEditorialSection } from "./PageEditorialSection";
 export { default as PageGallerySection } from "./PageGallerySection";
+export { default as PageHeroRenderer } from "./PageHeroRenderer";
 export { default as PageProgramsSection } from "./PageProgramsSection";
 export { default as TravelGuide } from "./TravelGuide";
 export { default as UpcomingDates } from "./UpcomingDates";

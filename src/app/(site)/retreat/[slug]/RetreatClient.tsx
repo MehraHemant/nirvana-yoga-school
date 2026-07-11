@@ -2,9 +2,9 @@
 
 import {
   CourseBookingFab,
-  CourseHero,
   CourseOverview,
   CourseStickyNav,
+  PageHeroRenderer,
   UpcomingDates,
   WhatIsIncluded,
 } from "@/components/courses";
@@ -75,59 +75,106 @@ const RETREAT_OVERVIEW_DETAILS: Record<
   },
 };
 
-export default function RetreatClient({ retreat, mapped }: RetreatPageData) {
+export default function RetreatClient({
+  retreat,
+  mapped,
+  modules,
+}: RetreatPageData) {
   const details =
     RETREAT_OVERVIEW_DETAILS[retreat.slug] ??
     RETREAT_OVERVIEW_DETAILS["5-day-yoga-retreat-in-rishikesh-india"];
 
   return (
     <div className="retreat-product-theme bg-white">
-      {/* Immersive Hero */}
-      <CourseHero
-        title={retreat.title}
-        subtitle={retreat.description}
-        image={mapped.heroImage}
-        heroImages={mapped.heroImages}
-        duration={retreat.duration}
-        certification="Yoga & Meditation"
-        fee={mapped.fee}
-        ctaPrimary={retreat.ctaLabel}
-        ctaPrimaryHref={retreat.ctaHref}
-        disableSupplemental
-      />
+      {modules ? (
+        <PageHeroRenderer modules={modules} />
+      ) : (
+        <PageHeroRenderer
+          modules={{
+            hero: {
+              type: "bento-media",
+              title: retreat.title,
+              subtitle: retreat.description,
+              duration: retreat.duration,
+              certification: "Yoga & Meditation",
+              fee: mapped.fee,
+              heroImages: mapped.heroImages,
+              images: mapped.heroImages,
+              disableSupplemental: true,
+            },
+            stickyNav: { items: [] },
+            overview: {
+              eyebrow: "",
+              title: "",
+              lead: "",
+              glance: [],
+              media: { mode: "image", items: [] },
+            },
+            inclusions: { items: [] },
+            eligibility: { requirements: [] },
+            syllabus: { description: "", chapters: [] },
+            schedule: { description: "", items: [] },
+            pricing: { description: "", options: [] },
+            faqs: { items: [] },
+            flags: {
+              showExam: false,
+              showAccommodation: true,
+              showWhyNirvana: true,
+              showTravel: true,
+              showInstagram: true,
+              showMap: true,
+            },
+          }}
+        />
+      )}
 
       {/* Highlights Bar */}
       <RetreatHighlightsBar highlights={retreat.highlights} />
 
       {/* Sticky Navigation */}
-      <CourseStickyNav items={mapped.navItems} variant="retreat" />
+      <CourseStickyNav
+        items={modules?.stickyNav.items ?? mapped.navItems}
+        variant="retreat"
+      />
 
       {/* Floating Booking Button (triggers after scroll) */}
       <CourseBookingFab
         fee={mapped.fee}
         title={retreat.title}
-        href="#pricing"
+        href={`/retreat-booking?course=${encodeURIComponent(retreat.slug)}`}
       />
 
       {/* Spacious Full-Width Editorial Sections */}
       <article className="min-h-screen max-w-full bg-white">
         {/* Section 1: Dynamic Bento Overview */}
         <CourseOverview
-          overview={retreat.overview}
+          overview={modules?.overview.lead ?? retreat.overview}
           level={details.level}
           duration={retreat.duration}
           certification={details.certification}
           fee={mapped.fee}
-          featureImages={retreat.overviewImages}
-          eyebrow="The Retreat Experience"
-          title={details.title}
-          supportingCopy={details.supportingCopy}
-          quoteText={details.quoteText}
-          quoteAttribution={details.quoteAttribution}
+          featureImages={
+            modules?.overview.media.items
+              .filter((item) => item.type === "image")
+              .map((item) => item.url) ?? retreat.overviewImages
+          }
+          eyebrow={modules?.overview.eyebrow ?? "The Retreat Experience"}
+          title={modules?.overview.title ?? details.title}
+          supportingCopy={
+            modules?.overview.supportingCopy ?? details.supportingCopy
+          }
+          quoteText={modules?.overview.quote?.text ?? details.quoteText}
+          quoteAttribution={
+            modules?.overview.quote?.attribution ?? details.quoteAttribution
+          }
         />
 
-        {/* Section 2: Premium Inclusions Grid */}
-        <WhatIsIncluded inclusions={retreat.inclusions} />
+        <WhatIsIncluded
+          inclusions={modules?.inclusions.items ?? retreat.inclusions}
+          eyebrow={modules?.inclusions.eyebrow}
+          title={modules?.inclusions.title}
+          description={modules?.inclusions.description}
+        />
 
         {/* Section 3: Day-Wise Schedule Timeline */}
         <RetreatScheduleSection schedule={retreat.schedule} />
@@ -146,6 +193,8 @@ export default function RetreatClient({ retreat, mapped }: RetreatPageData) {
           batches={mapped.batches}
           lodgingTitle="Retreat packages"
           datesTitle="Retreat dates"
+          programSlug={retreat.slug}
+          bookingType="retreat"
           buildWhatsAppHref={retreatWhatsAppHref}
         />
 

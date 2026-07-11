@@ -12,26 +12,48 @@ interface SyllabusSection {
   subtopics: string[];
 }
 
+type SyllabusSidebar = {
+  title: string;
+  subtitle?: string;
+  items: { area: string; hours: string; pct?: string }[];
+  footerNote?: string;
+};
+
 interface CourseSyllabusProps {
   description: string;
   syllabus: SyllabusSection[];
+  /** Replace default YTT hours distribution sidebar */
+  sidebar?: SyllabusSidebar;
+  /** Hide right sidebar column entirely */
+  hideSidebar?: boolean;
+  subtopicsLabel?: string;
 }
 
 export default function CourseSyllabus({
   description,
   syllabus,
+  sidebar,
+  hideSidebar = false,
+  subtopicsLabel = "Core Study Modules:",
 }: CourseSyllabusProps) {
   const [openIndex, setOpenIndex] = useState<number>(0);
   const prefersReduced = useReducedMotion() ?? false;
 
-  // Static curriculum breakdown simulation based on standard RYT guidelines
-  const distributionItems = [
+  const distributionItems = sidebar?.items ?? [
     { area: "Asana & Alignment Clinic", hours: "100 Hours", pct: "50%" },
     { area: "Pranayama, Cleansing & Shatkarma", hours: "30 Hours", pct: "15%" },
     { area: "Anatomy & Kinesiology", hours: "20 Hours", pct: "10%" },
     { area: "Philosophy, Sutras & Lineage", hours: "30 Hours", pct: "15%" },
     { area: "Teaching Methodology & Practicum", hours: "20 Hours", pct: "10%" },
   ];
+
+  const sidebarTitle = sidebar?.title ?? "Hours Distribution";
+  const sidebarSubtitle =
+    sidebar?.subtitle ?? "Certified 200-Hour Syllabus Standards";
+  const sidebarFooter =
+    sidebar?.footerNote ??
+    "📜 Yoga Alliance curriculum details are updated regularly to stay aligned with current international teacher standards.";
+  const showProgressBars = !sidebar;
 
   return (
     <section id="syllabus" className="py-20 sm:py-28 bg-white">
@@ -57,9 +79,10 @@ export default function CourseSyllabus({
           </p>
         </motion.div>
 
-        <div className="grid gap-12 lg:grid-cols-12 lg:gap-12 items-start">
-          {/* Left: Syllabus Accordion list */}
-          <div className="lg:col-span-8 space-y-4">
+        <div
+          className={`grid gap-12 items-start ${hideSidebar ? "" : "lg:grid-cols-12 lg:gap-12"}`}
+        >
+          <div className={`space-y-4 ${hideSidebar ? "" : "lg:col-span-8"}`}>
             {syllabus.map((item, index) => {
               const isOpen = openIndex === index;
               const moduleNumber = (index + 1).toString().padStart(2, "0");
@@ -136,7 +159,7 @@ export default function CourseSyllabus({
 
                           <div className="surface-panel rounded-2xl p-5 shadow-xs">
                             <span className="type-eyebrow text-primary block mb-3">
-                              Core Study Modules:
+                              {subtopicsLabel}
                             </span>
                             <div className="grid gap-3 sm:grid-cols-2">
                               {item.subtopics.map((topic) => (
@@ -161,40 +184,41 @@ export default function CourseSyllabus({
             })}
           </div>
 
-          {/* Right: Distribution Sidebar Column */}
-          <div className="lg:col-span-4 lg:sticky lg:top-36">
-            <div className="surface-card rounded-3xl p-6 sm:p-8">
-              <h3 className="type-display-sm text-ink mb-1">
-                Hours Distribution
-              </h3>
-              <p className="text-xs text-muted font-sans mb-6">
-                Certified 200-Hour Syllabus Standards
-              </p>
+          {!hideSidebar && (
+            <div className="lg:col-span-4 lg:sticky lg:top-36">
+              <div className="surface-card rounded-3xl p-6 sm:p-8">
+                <h3 className="type-display-sm text-ink mb-1">
+                  {sidebarTitle}
+                </h3>
+                <p className="text-xs text-muted font-sans mb-6">
+                  {sidebarSubtitle}
+                </p>
 
-              <div className="space-y-4">
-                {distributionItems.map((item) => (
-                  <div key={item.area} className="space-y-2">
-                    <div className="flex justify-between text-xs font-semibold font-sans">
-                      <span className="text-ink/85">{item.area}</span>
-                      <span className="text-primary">{item.hours}</span>
+                <div className="space-y-4">
+                  {distributionItems.map((item) => (
+                    <div key={item.area} className="space-y-2">
+                      <div className="flex justify-between text-xs font-semibold font-sans">
+                        <span className="text-ink/85">{item.area}</span>
+                        <span className="text-primary">{item.hours}</span>
+                      </div>
+                      {showProgressBars && item.pct && (
+                        <div className="h-1.5 bg-ink/5 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-primary rounded-full"
+                            style={{ width: item.pct }}
+                          />
+                        </div>
+                      )}
                     </div>
-                    {/* Visual Progress Bar */}
-                    <div className="h-1.5 bg-ink/5 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-primary rounded-full"
-                        style={{ width: item.pct }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
 
-              <div className="surface-panel mt-8 rounded-2xl p-4 text-center font-sans text-xs leading-relaxed text-muted">
-                📜 Yoga Alliance curriculum details are updated regularly to
-                stay aligned with current international teacher standards.
+                <div className="surface-panel mt-8 rounded-2xl p-4 text-center font-sans text-xs leading-relaxed text-muted">
+                  {sidebarFooter}
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
       </Container>
     </section>

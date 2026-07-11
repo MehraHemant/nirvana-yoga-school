@@ -1,6 +1,10 @@
-import { getCourseMedia } from "@/content";
 import onlineCourseMeta from "@/content/data/online-courses/meta.json";
-import type { OnlineCourseDocument } from "@/content/types";
+import { extractMediaFromModules } from "@/content/mappers/page-modules";
+import { getPageModules } from "@/content/repositories/page-modules";
+import type {
+  OnlineCourseDocument,
+  PageModulesDocument,
+} from "@/content/types";
 import { fetchYouTubeVideos } from "@/lib/youtube";
 import type { OnlineCoursePageData } from "./types";
 
@@ -12,7 +16,12 @@ export async function loadOnlineCoursePageData(
   slug: string,
   course: OnlineCourseDocument,
 ): Promise<OnlineCoursePageData> {
-  const media = await getCourseMedia(slug);
+  const modulesResult = await getPageModules(slug);
+  const modules = modulesResult.data;
+  const media = modules
+    ? extractMediaFromModules(modules)
+    : { images: [], videos: [] };
+
   const previewId = META[slug]?.video ?? null;
   const videoIds = previewId
     ? [previewId, ...media.videos.filter((id) => id !== previewId)]
@@ -26,5 +35,6 @@ export async function loadOnlineCoursePageData(
     course,
     media: { images: media.images, videos: videoIds },
     videos,
+    modules,
   };
 }

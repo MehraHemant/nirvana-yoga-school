@@ -4,7 +4,7 @@ import { MapSection } from "@/components/home";
 import { getSitePage } from "@/content";
 import { getSlugsByType } from "@/content/pages";
 import { courseMetadata } from "../../_shared/metadata";
-import { loadSitePageData } from "../../_shared/site/data";
+import { loadSitePageDataAsync } from "../../_shared/site/data.server";
 import VenueClient from "./VenueClient";
 
 interface PageProps {
@@ -34,11 +34,12 @@ export default async function Page({ params }: PageProps) {
   const result = await getSitePage(slug);
   if (!result.data) notFound();
 
-  const data = loadSitePageData(result.data);
+  const data = await loadSitePageDataAsync(result.data);
   const props = {
     page: data.page,
     mapped: data.mapped,
     teachers: data.teachers,
+    modules: data.modules,
   };
 
   return (

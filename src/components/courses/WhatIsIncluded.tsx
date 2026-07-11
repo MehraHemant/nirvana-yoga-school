@@ -18,6 +18,9 @@ import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 interface WhatIsIncludedProps {
   inclusions: string[];
   exclusions?: string[];
+  eyebrow?: string;
+  title?: string;
+  description?: string;
 }
 
 function getInclusionIcon(item: string) {
@@ -130,7 +133,13 @@ function getInclusionIcon(item: string) {
   );
 }
 
-export default function WhatIsIncluded({ inclusions }: WhatIsIncludedProps) {
+export default function WhatIsIncluded({
+  inclusions,
+  exclusions,
+  eyebrow = "Fine Print",
+  title = "What is Included in Your Fee",
+  description = "We operate on complete transparency. Your program fee covers all essential living, training, and excursion expenses during your stay so you can focus entirely on your training.",
+}: WhatIsIncludedProps) {
   return (
     <section
       id="inclusions"
@@ -159,20 +168,22 @@ export default function WhatIsIncluded({ inclusions }: WhatIsIncludedProps) {
           {/* Left Column: Section Header & Info (col-span-5) */}
           <div className="lg:col-span-5 space-y-6">
             <SectionHeader
-              eyebrow="Fine Print"
+              eyebrow={eyebrow}
               title={
-                <>
-                  What is <span className="text-primary">Included</span> in Your
-                  Fee
-                </>
+                title.includes("Included") ? (
+                  <>
+                    What is <span className="text-primary">Included</span> in
+                    Your Fee
+                  </>
+                ) : (
+                  title
+                )
               }
               align="left"
               className="mb-0!"
             />
             <p className="type-body text-muted leading-relaxed font-sans text-base">
-              We operate on complete transparency. Your program fee covers all
-              essential living, training, and excursion expenses during your
-              stay so you can focus entirely on your training.
+              {description}
             </p>
 
             {/* Minimalist Tip Box */}

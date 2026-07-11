@@ -1199,3 +1199,210 @@ details[open] .accordion-icon {
 .retreat-theme #travel {
   background: white;
 }
+
+/* Book-now flow */
+.booking-input {
+  width: 100%;
+  border-radius: 1rem;
+  border: 1px solid rgb(14 73 86 / 15%);
+  background: #fff;
+  padding: 0.75rem 1rem;
+  font-family: var(--font-poppins), sans-serif;
+  font-size: 0.9375rem;
+  color: var(--color-ink);
+}
+
+.booking-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgb(163 36 50 / 12%);
+}
+
+.booking-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--color-primary);
+  color: #fff;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  transition: background 0.2s ease;
+}
+
+.booking-btn-primary:hover:not(:disabled) {
+  background: var(--color-primary-dark);
+}
+
+.booking-btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.booking-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid rgb(26 20 16 / 12%);
+  background: #fff;
+  color: var(--color-ink);
+  padding: 0.75rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+/* Blog rich-text output */
+.prose-blog h2 {
+  font-family: var(--font-noe), serif;
+  font-size: clamp(1.25rem, 2vw, 1.5rem);
+  color: var(--color-ink);
+  margin: 2.5rem 0 0.75rem;
+}
+
+.prose-blog h2:first-child {
+  margin-top: 0;
+}
+
+.prose-blog h3 {
+  font-family: var(--font-noe), serif;
+  font-size: clamp(1.125rem, 1.5vw, 1.25rem);
+  color: var(--color-ink);
+  margin: 2rem 0 0.5rem;
+}
+
+.prose-blog h4 {
+  font-family: var(--font-poppins), sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  margin: 1.5rem 0 0.5rem;
+}
+
+.prose-blog p {
+  font-family: var(--font-poppins), sans-serif;
+  font-size: 1rem;
+  line-height: 1.75;
+  color: var(--color-muted);
+  margin: 0 0 1.25rem;
+}
+
+.prose-blog ul,
+.prose-blog ol {
+  margin: 0 0 1.25rem 1.25rem;
+  padding: 0;
+  font-family: var(--font-poppins), sans-serif;
+  font-size: 1rem;
+  line-height: 1.75;
+  color: var(--color-muted);
+}
+
+.prose-blog li {
+  margin-bottom: 0.5rem;
+}
+
+.prose-blog blockquote {
+  margin: 0 0 1.25rem;
+  padding-left: 1rem;
+  border-left: 3px solid rgb(163 36 50 / 35%);
+  color: var(--color-muted);
+  font-style: italic;
+}
+
+.prose-blog a {
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.prose-blog a:hover {
+  color: var(--color-primary-dark);
+}
+
+/* -------------------------------------------------------------------------- */
+/* AI Chatbot widget                                                          */
+/* -------------------------------------------------------------------------- */
+
+.chat-typing-dot {
+  display: inline-block;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 9999px;
+  background: rgb(107 94 87 / 55%);
+  animation: chat-typing-bounce 1.2s ease-in-out infinite;
+}
+
+.chat-typing-dot--delay-1 {
+  animation-delay: 0.15s;
+}
+
+.chat-typing-dot--delay-2 {
+  animation-delay: 0.3s;
+}
+
+@keyframes chat-typing-bounce {
+  0%,
+  80%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.45;
+  }
+  40% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+
+.chat-markdown p {
+  margin: 0 0 0.75rem;
+}
+
+.chat-markdown p:last-child {
+  margin-bottom: 0;
+}
+
+.chat-markdown ul,
+.chat-markdown ol {
+  margin: 0 0 0.75rem 1.1rem;
+  padding: 0;
+}
+
+.chat-markdown li {
+  margin-bottom: 0.35rem;
+}
+
+.chat-markdown pre {
+  margin: 0.5rem 0 0.75rem;
+  overflow-x: auto;
+  border-radius: 0.75rem;
+  border: 1px solid rgb(26 20 16 / 8%);
+  background: rgb(250 247 242);
+  padding: 0.75rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.chat-markdown code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.875em;
+}
+
+.chat-markdown :not(pre) > code {
+  border-radius: 0.35rem;
+  background: rgb(26 20 16 / 6%);
+  padding: 0.1rem 0.35rem;
+}
+
+.chat-markdown a {
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chat-typing-dot {
+    animation: none;
+    opacity: 0.7;
+  }
+}

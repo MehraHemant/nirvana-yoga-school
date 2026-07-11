@@ -1,10 +1,12 @@
 import type { TeacherProfile } from "@/components/home/TeachersSection";
+import { isKirtanPage, mapKirtanPage } from "@/content/mappers/kirtan-page";
 import { mapSitePage } from "@/content/mappers/site-page";
 import {
   refineTeacherBio,
   refineTeacherSummary,
 } from "@/content/mappers/site-page-copy";
-import type { SitePageDocument } from "@/content/types";
+import { isVenuePage, mapVenuePage } from "@/content/mappers/venue-page";
+import type { PageModulesDocument, SitePageDocument } from "@/content/types";
 import type { SitePageData, SitePageVariant } from "./types";
 
 export function sitePageVariant(slug: string): SitePageVariant {
@@ -37,11 +39,21 @@ export function mapSiteTeachers(
   }));
 }
 
-export function loadSitePageData(page: SitePageDocument): SitePageData {
+export function loadSitePageData(
+  page: SitePageDocument,
+  modules: PageModulesDocument | null = null,
+): SitePageData {
+  const mapped = isKirtanPage(page.slug)
+    ? mapKirtanPage(page)
+    : isVenuePage(page.slug)
+      ? mapVenuePage(page)
+      : mapSitePage(page);
+
   return {
     page,
-    mapped: mapSitePage(page),
+    mapped,
     teachers: mapSiteTeachers(page.people),
     variant: sitePageVariant(page.slug),
+    modules,
   };
 }

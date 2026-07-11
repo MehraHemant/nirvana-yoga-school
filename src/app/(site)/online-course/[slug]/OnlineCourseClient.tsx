@@ -1,8 +1,7 @@
 "use client";
 
-import { CourseStickyNav } from "@/components/courses";
+import { CourseStickyNav, PageHeroRenderer } from "@/components/courses";
 import {
-  OnlineCourseHero,
   OnlineCurriculumSection,
   OnlineFAQSection,
   OnlineInclusionsSection,
@@ -18,6 +17,7 @@ import type { OnlineCoursePageData } from "./types";
 export default function OnlineCourseClient({
   course,
   media,
+  modules,
 }: OnlineCoursePageData) {
   const pricing = course.pricing[0];
   const previewVideoId = media.videos[0];
@@ -37,24 +37,60 @@ export default function OnlineCourseClient({
 
   return (
     <div className="online-course-theme bg-white">
-      <OnlineCourseHero
-        title={course.title}
-        subtitle={course.subtitle}
-        duration={course.duration}
-        level={course.level}
-        certification={course.certification}
-        fee={course.fee}
-        image={course.image}
-        previewVideoId={previewVideoId}
-        ctaPrimary={course.ctaPrimary}
-        ctaPrimaryHref={course.ctaPrimaryHref}
-        ctaSecondary={course.ctaSecondary}
-        ctaSecondaryHref={course.ctaSecondaryHref}
-      />
+      {modules ? (
+        <PageHeroRenderer modules={modules} />
+      ) : (
+        <PageHeroRenderer
+          modules={{
+            hero: {
+              type: "split-copy",
+              title: course.title,
+              subtitle: course.subtitle,
+              metaItems: [
+                { label: "Duration", value: course.duration },
+                { label: "Level", value: course.level },
+                { label: "Certification", value: course.certification },
+                { label: "Fee", value: course.fee },
+              ],
+              ctaPrimary: course.ctaPrimary,
+              ctaPrimaryHref: course.ctaPrimaryHref,
+              ctaSecondary: course.ctaSecondary,
+              ctaSecondaryHref: course.ctaSecondaryHref,
+              previewType: previewVideoId ? "video" : "image",
+              previewUrl: previewVideoId ?? course.image,
+            },
+            stickyNav: { items: course.navItems },
+            overview: {
+              eyebrow: "",
+              title: "",
+              lead: course.overview,
+              glance: [],
+              media: { mode: "image", items: [] },
+            },
+            inclusions: { items: course.inclusions },
+            eligibility: { requirements: [] },
+            syllabus: { description: "", chapters: course.syllabus },
+            schedule: { description: "", items: [] },
+            pricing: { description: "", options: course.pricing },
+            faqs: { items: course.faqs },
+            flags: {
+              showExam: false,
+              showAccommodation: false,
+              showWhyNirvana: false,
+              showTravel: false,
+              showInstagram: false,
+              showMap: false,
+            },
+          }}
+        />
+      )}
 
       <OnlineTrustBar />
 
-      <CourseStickyNav items={course.navItems} variant="online" />
+      <CourseStickyNav
+        items={modules?.stickyNav.items ?? course.navItems}
+        variant="online"
+      />
 
       <Container size="2xl">
         <div className="online-course-layout">

@@ -4,7 +4,7 @@ import { getSitePage } from "@/content";
 import { getSlugsByType } from "@/content/pages";
 import { getRetreat } from "@/content/repositories/retreat";
 import { courseMetadata } from "../../_shared/metadata";
-import { loadSitePageData } from "../../_shared/site/data";
+import { loadSitePageDataAsync } from "../../_shared/site/data.server";
 import { loadRetreatPageData } from "./data";
 import LegacyRetreatClient from "./LegacyRetreatClient";
 import RetreatClient from "./RetreatClient";
@@ -45,19 +45,20 @@ export default async function Page({ params }: PageProps) {
   const retreatResult = await getRetreat(slug);
 
   if (retreatResult.data) {
-    const data = loadRetreatPageData(retreatResult.data);
+    const data = await loadRetreatPageData(retreatResult.data);
     return <RetreatClient {...data} />;
   }
 
   const result = await getSitePage(slug);
   if (!result.data) notFound();
 
-  const data = loadSitePageData(result.data);
+  const data = await loadSitePageDataAsync(result.data);
   return (
     <LegacyRetreatClient
       page={data.page}
       mapped={data.mapped}
       teachers={data.teachers}
+      modules={data.modules}
     />
   );
 }

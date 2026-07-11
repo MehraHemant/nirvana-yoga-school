@@ -1,10 +1,10 @@
 "use client";
 
 import {
-  CourseHero,
   CourseOverview,
   CourseStickyNav,
   PageEditorialSection,
+  PageHeroRenderer,
 } from "@/components/courses";
 import { FAQSection } from "@/components/ui";
 import type { OverviewTitleKey } from "@/content/mappers/site-page-copy";
@@ -64,23 +64,55 @@ function siteOverviewTitle(key: OverviewTitleKey, eyebrow: string) {
 export function SiteHero({
   page,
   mapped,
-}: Pick<SiteClientProps, "page" | "mapped">) {
+  modules,
+}: Pick<SiteClientProps, "page" | "mapped" | "modules">) {
+  if (modules) {
+    return (
+      <>
+        <PageHeroRenderer modules={modules} />
+        <CourseStickyNav items={modules.stickyNav.items} />
+      </>
+    );
+  }
+
   const copy = mapped.presentation;
 
   return (
     <>
-      <CourseHero
-        variant="page"
-        title={page.title}
-        subtitle={copy.heroSubtitle}
-        image={page.image}
-        eyebrow={page.eyebrow}
-        heroImages={mapped.heroImages}
-        metaItems={mapped.metaItems}
-        ctaPrimary={mapped.ctaPrimary}
-        ctaPrimaryHref={mapped.ctaPrimaryHref}
-        ctaSecondary={mapped.ctaSecondary}
-        ctaSecondaryHref={mapped.ctaSecondaryHref}
+      <PageHeroRenderer
+        modules={{
+          hero: {
+            type: "page-minimal",
+            eyebrow: page.eyebrow,
+            title: page.title,
+            subtitle: copy.heroSubtitle,
+            heroImage: page.image,
+            ctaLabel: mapped.ctaPrimary,
+            ctaHref: mapped.ctaPrimaryHref,
+          },
+          stickyNav: { items: mapped.navItems },
+          overview: {
+            eyebrow: "",
+            title: "",
+            lead: "",
+            glance: [],
+            media: { mode: "image", items: [] },
+          },
+          inclusions: { items: [] },
+          eligibility: { requirements: [] },
+          syllabus: { description: "", chapters: [] },
+          schedule: { description: "", items: [] },
+          pricing: { description: "", options: [] },
+          faqs: { items: [] },
+          flags: {
+            showExam: false,
+            showAccommodation: false,
+            showWhyNirvana: false,
+            showTravel: false,
+            showInstagram: false,
+            showMap: false,
+          },
+        }}
       />
       <CourseStickyNav items={mapped.navItems} />
     </>
@@ -90,7 +122,27 @@ export function SiteHero({
 export function SiteOverview({
   page,
   mapped,
-}: Pick<SiteClientProps, "page" | "mapped">) {
+  modules,
+}: Pick<SiteClientProps, "page" | "mapped" | "modules">) {
+  if (modules) {
+    const overview = modules.overview;
+    return (
+      <CourseOverview
+        overview={overview.lead}
+        level="All levels welcome"
+        duration={mapped.duration}
+        featureImages={overview.media.items
+          .filter((item) => item.type === "image")
+          .map((item) => item.url)}
+        eyebrow={overview.eyebrow}
+        title={overview.title}
+        supportingCopy={overview.supportingCopy ?? ""}
+        quoteText={overview.quote?.text}
+        quoteAttribution={overview.quote?.attribution}
+      />
+    );
+  }
+
   if (!mapped.overview) return null;
 
   const copy = mapped.presentation;

@@ -19,16 +19,24 @@ import {
 } from "../../_shared/site/shared";
 import type { SiteClientProps } from "../../_shared/site/types";
 
-export default function HubClient({ page, mapped, teachers }: SiteClientProps) {
+export default function HubClient({
+  page,
+  mapped,
+  teachers,
+  modules,
+}: SiteClientProps) {
   return (
     <>
-      <SiteHero page={page} mapped={mapped} />
+      <SiteHero page={page} mapped={mapped} modules={modules} />
       <article className="min-h-screen max-w-full overflow-x-clip">
-        <SiteOverview page={page} mapped={mapped} />
-        {mapped.inclusions.length > 0 && (
+        <SiteOverview page={page} mapped={mapped} modules={modules} />
+        {(modules?.inclusions.items.length ?? mapped.inclusions.length) > 0 && (
           <WhatIsIncluded
-            inclusions={mapped.inclusions}
-            exclusions={mapped.exclusions}
+            inclusions={modules?.inclusions.items ?? mapped.inclusions}
+            exclusions={modules?.inclusions.exclusions ?? mapped.exclusions}
+            eyebrow={modules?.inclusions.eyebrow}
+            title={modules?.inclusions.title}
+            description={modules?.inclusions.description}
           />
         )}
         {mapped.pricing.length > 0 && (

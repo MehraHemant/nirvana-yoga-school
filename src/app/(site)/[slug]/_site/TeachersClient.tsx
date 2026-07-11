@@ -9,12 +9,13 @@ export default function TeachersClient({
   page,
   mapped,
   teachers,
+  modules,
 }: SiteClientProps) {
   return (
     <>
-      <SiteHero page={page} mapped={mapped} />
+      <SiteHero page={page} mapped={mapped} modules={modules} />
       <article className="min-h-screen max-w-full overflow-x-clip">
-        <SiteOverview page={page} mapped={mapped} />
+        <SiteOverview page={page} mapped={mapped} modules={modules} />
         {teachers.length > 0 && <TeachersSection teachers={teachers} />}
         {mapped.gallery.length > 0 && (
           <PageGallerySection images={mapped.gallery} />

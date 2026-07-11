@@ -15,6 +15,9 @@ const CATEGORY_LABELS: Record<string, string> = {
   "3 shared": "3-Shared Room",
   "4 shared": "4-Shared Dorm",
   premisis: "Premises",
+  practice: "Music Training",
+  accommodation: "Rooms & Stay",
+  campus: "Ashram Life",
 };
 
 const CATEGORY_EYEBROWS: Record<string, string> = {
@@ -25,6 +28,9 @@ const CATEGORY_EYEBROWS: Record<string, string> = {
   "3 shared": "Accommodation",
   "4 shared": "Accommodation",
   premisis: "Campus",
+  practice: "Training Sessions",
+  accommodation: "Accommodation",
+  campus: "Campus",
 };
 
 const SLOT_ASPECTS = [
@@ -51,6 +57,9 @@ const SLOT_COUNT_BY_CATEGORY: Record<string, number> = {
   "3 shared": 5,
   "4 shared": 6,
   premisis: 4,
+  practice: 9,
+  accommodation: 8,
+  campus: 6,
 };
 
 type GalleryItem = {

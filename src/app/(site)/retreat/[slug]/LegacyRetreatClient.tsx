@@ -23,14 +23,15 @@ export default function LegacyRetreatClient({
   page,
   mapped,
   teachers,
+  modules,
 }: SiteClientProps) {
   const isBooking = page.slug === "retreat-booking";
 
   return (
     <>
-      <SiteHero page={page} mapped={mapped} />
+      <SiteHero page={page} mapped={mapped} modules={modules} />
       <article className="min-h-screen max-w-full overflow-x-clip">
-        <SiteOverview page={page} mapped={mapped} />
+        <SiteOverview page={page} mapped={mapped} modules={modules} />
         {mapped.inclusions.length > 0 && (
           <WhatIsIncluded
             inclusions={mapped.inclusions}

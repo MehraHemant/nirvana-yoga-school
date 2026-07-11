@@ -5,6 +5,7 @@ import {
   InstagramFeed,
   PageGallerySection,
   PageProgramsSection,
+  WhyNirvana,
 } from "@/components/courses";
 import {
   SiteEditorial,
@@ -20,12 +21,16 @@ import type { SiteClientProps } from "../../_shared/site/types";
  *
  * @param props - Mapped static venue page content
  */
-export default function VenueClient({ page, mapped }: SiteClientProps) {
+export default function VenueClient({
+  page,
+  mapped,
+  modules,
+}: SiteClientProps) {
   return (
     <>
-      <SiteHero page={page} mapped={mapped} />
+      <SiteHero page={page} mapped={mapped} modules={modules} />
       <article className="min-h-screen max-w-full overflow-x-clip">
-        <SiteOverview page={page} mapped={mapped} />
+        <SiteOverview page={page} mapped={mapped} modules={modules} />
         {mapped.programs.length > 0 && (
           <PageProgramsSection cards={mapped.programs} />
         )}
@@ -35,6 +40,7 @@ export default function VenueClient({ page, mapped }: SiteClientProps) {
         <SiteEditorial mapped={mapped} />
         <AccommodationFood />
         <InstagramFeed />
+        <WhyNirvana />
         <SiteFaq mapped={mapped} />
       </article>
     </>

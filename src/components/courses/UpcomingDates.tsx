@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button, Container, Heading, SectionHeader } from "@/components/ui";
 import { Check } from "@/icons";
 import {
+  bookingReserveHref,
   getBatchDates,
   type PricingOption,
   type UpcomingDatesProps,
@@ -22,13 +23,13 @@ function RoomCard({
   duration,
   selectedBatch,
   wide = false,
-  buildHref = whatsAppHref,
+  reserveHref,
 }: {
   option: PricingOption;
   duration: string;
   selectedBatch: string;
   wide?: boolean;
-  buildHref?: (duration: string, roomType: string, batch: string) => string;
+  reserveHref: string;
 }) {
   const noRoom = option.roomType.toLowerCase().includes("without");
   const saving = option.originalPrice
@@ -62,14 +63,12 @@ function RoomCard({
           </p>
         </div>
         <Button
-          href={buildHref(duration, option.roomType, selectedBatch)}
+          href={reserveHref}
           variant="primary"
           size="sm"
           className="w-full shrink-0 sm:w-auto bg-black! hover:bg-primary-dark!"
-          target="_blank"
-          rel="noopener noreferrer"
         >
-          Reserve
+          Book now
         </Button>
       </article>
     );
@@ -112,14 +111,12 @@ function RoomCard({
       </ul>
 
       <Button
-        href={buildHref(duration, option.roomType, selectedBatch)}
+        href={reserveHref}
         variant="primary"
         size="sm"
         className="mt-auto w-full bg-black! hover:bg-primary-dark!"
-        target="_blank"
-        rel="noopener noreferrer"
       >
-        Reserve
+        Book now
       </Button>
     </article>
   );
@@ -132,10 +129,28 @@ export default function UpcomingDates({
   batches: batchesProp,
   lodgingTitle = "Lodging packages",
   datesTitle = "Training dates",
+  programSlug,
+  bookingType = "course",
   buildWhatsAppHref = whatsAppHref,
+  buildReserveHref,
 }: UpcomingDatesProps) {
   const batches = batchesProp?.length ? batchesProp : getBatchDates(duration);
   const [selectedBatch, setSelectedBatch] = useState(batches[0]?.dates ?? "");
+
+  function getReserveHref(roomType: string) {
+    if (buildReserveHref) {
+      return buildReserveHref(duration, roomType, selectedBatch);
+    }
+    if (programSlug) {
+      return bookingReserveHref(
+        bookingType,
+        programSlug,
+        roomType,
+        selectedBatch,
+      );
+    }
+    return buildWhatsAppHref(duration, roomType, selectedBatch);
+  }
 
   return (
     <section
@@ -190,7 +205,7 @@ export default function UpcomingDates({
                     duration={duration}
                     selectedBatch={selectedBatch}
                     wide={isLast || noRoom}
-                    buildHref={buildWhatsAppHref}
+                    reserveHref={getReserveHref(option.roomType)}
                   />
                 );
               })}

@@ -10,13 +10,9 @@ import {
   PhoneInput,
   SearchableSelect,
 } from "@/components/ui";
-import {
-  Check,
-  Compass,
-  Send,
-  WhatsApp,
-} from "@/icons";
+import { Check, Compass, Send, WhatsApp } from "@/icons";
 import { ACCOMMODATION_PREFERENCE_OPTIONS } from "@/lib/enquire-programs";
+import { openMailtoFallback, submitLead } from "@/lib/leads/submit-lead";
 import { fadeUp, reducedTransition } from "@/lib/motion";
 import {
   DEFAULT_PHONE_COUNTRY_ISO,
@@ -62,6 +58,7 @@ export default function ContactPageClient() {
     try {
       const country = getPhoneCountry(phoneCountryIso);
       const phone = formatFullPhone(country, phoneNational);
+      const subject = formData.subject.trim();
       const body = [
         `Name: ${formData.name.trim()}`,
         `Email: ${formData.email.trim()}`,
@@ -75,8 +72,21 @@ export default function ContactPageClient() {
         .filter(Boolean)
         .join("\n");
 
-      const mailtoUrl = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-      window.location.href = mailtoUrl;
+      const result = await submitLead({
+        type: "contact",
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        phone,
+        subject,
+        accommodation: formData.accommodation.trim() || undefined,
+        message: formData.message.trim(),
+        source: "/contact",
+      });
+
+      if (!result.stored) {
+        openMailtoFallback({ to: CONTACT_EMAIL, subject, body });
+      }
+
       setFormState("success");
     } catch {
       setFormState("error");
