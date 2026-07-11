@@ -47,26 +47,34 @@ npx tsc --noEmit         # type-check only
 npx biome check src/ --write   # auto-fix lint + organize imports
 npm run seed:export      # export static JSON → prisma/seed-data.json
 npm run db:up            # PostgreSQL via Docker
-npm run db:setup         # migrate + seed (first time)
+npm run db:migrate       # prisma migrate dev
+npm run db:seed          # seed from JSON/TS content files
+npm run db:seed-modules  # rebuild page_modules JSON only
+npm run db:seed-library  # seed reusable module snippets from page_modules
+npm run db:studio        # Prisma Studio
 npm run db:down          # stop database container
 ```
 
 ### CMS (same app, port 3000)
 
 ```bash
-npm run db:up && npm run db:setup   # first time
+cp .env.example .env
+npm run db:up && npm run db:migrate && npm run db:seed   # first time
 npm run dev
 ```
 
 | URL | Purpose |
 | --- | ------- |
 | http://localhost:3000 | Website |
-| http://localhost:3000/admin | Content CMS |
-| http://localhost:3000/api/admin/* | Admin API |
+| http://localhost:3000/admin/library | Reusable module content library |
+| http://localhost:3000/api/admin/* | Admin API (auth required) |
+| http://localhost:3000/api/content/* | Public read APIs (cached) |
 
-Set `DATABASE_URL` in `.env` so repositories read from PostgreSQL (fallback: bundled JSON).
+Set `DATABASE_URL` in `.env` so repositories read from PostgreSQL. If unset or DB unreachable, **JSON fallback** is used automatically.
 
-**Admin login:** `admin@nirvanayogaschoolindia.com` / `admin123`
+Image uploads: `CLOUDINARY_*` env vars, max **1MB**, JPEG/PNG/WebP only. On upload set **caption**, **description**, and **tags** (presets: Private room, 2 shared room, Food, etc. in `src/lib/cdn/media-tags.ts`). `/admin/media` lists assets with tag filter, edit metadata, and **safe delete** (blocked when URL is referenced in pages, courses, blog, or galleries). See `docs/cms-architecture.md`.
+
+**Admin login (dev seed):** `admin@nirvanayogaschoolindia.com` / `admin123`
 
 ---
 
@@ -137,15 +145,17 @@ public/
     videomobile.mp4            # Hero video (mobile)
     videomobile-poster.webp    # First-frame poster (mobile)
   favicon.png
-docker-compose.yml             # PostgreSQL only (npm run db:up)
-prisma/                        # schema, migrations, seed-data.json
-  lib/
-    db.ts                      # Prisma client + content CRUD
-    cms/                       # admin auth + API handlers
-    admin/api.ts               # admin UI fetch client
-  app/
-    admin/                     # CMS UI at /admin
-    api/admin/                 # CMS REST routes
+docker-compose.yml             # PostgreSQL 16 (npm run db:up)
+docs/cms-architecture.md       # CMS ER diagram, APIs, CDN pipeline
+prisma/schema.prisma           # Postgres schema
+prisma/seed.ts                 # Import site-pages.json, courses, blog, nav
+src/lib/db.ts                  # Prisma singleton
+src/lib/cms/                   # db-to-document, auth, cache, document-to-db
+src/lib/cdn/                   # Cloudinary upload (1MB cap)
+src/app/admin/                 # CMS UI (/admin)
+src/app/api/admin/             # Admin REST (pages, media, auth)
+src/app/api/content/           # Public read APIs
+src/middleware.ts              # Protects /admin + /api/admin
 ```
 
 ### Path alias
@@ -522,3 +532,15 @@ Last meaningful update: 2026-06-28 — **Unified CMS on :3000**: website, `/admi
 2026-07-11 — **Dedicated `/teacher` page**: Faculty page at `teacher/page.tsx` via `TeachersPageClient` — cinematic hero, scrollable jump-to nav, and simple profile cards. Teacher data centralized in `content/data/teachers.ts` from `site-pages.json` (`people[]` with live `/img/teacher/` photos). Home `TeachersSection` uses the same source. Footer links to `/teacher`.
 2026-07-11 — **JSDoc rule for agents**: `.cursor/rules/jsdoc-documentation.mdc` requires JSDoc on exported components, hooks, and functions (props/params/`@returns`) when editing `src/**/*.{ts,tsx}`.
 2026-07-11 — **Dedicated Course Venue page**: `/venue/course-venue` promotes the original live-site `/gallery` content into the venue route with all yoga hall, dining, room, dorm, and premises images. Venue navigation and footer link to the dedicated page; `/gallery` redirects there.
+2026-07-12 — **Media upload limit**: CMS image uploads capped at **1MB** (`MAX_UPLOAD_BYTES` in `src/lib/cdn/constants.ts`).
+2026-07-12 — **CMS restored**: PostgreSQL + Prisma 5, `/admin` portal, `/api/admin/*` + `/api/content/*`, Cloudinary uploads, JSON fallback when `DATABASE_URL` unset or DB down. Architecture: `docs/cms-architecture.md`.
+2026-07-12 — **Full admin editors**: `SitePageEditor`, `CourseEditor`, `BlogPostEditor` in `src/components/admin/` — all fields editable with `ImageField` (upload + media library), collapsible panels, sticky save bar. Sidebar nav: Pages / Courses / Blog / Media. APIs: `PUT /api/admin/pages|courses|blog/[slug]`.
+2026-07-12 — **Module content library**: `module_library_items` table + `/admin/library` + `ModuleLibraryPicker`. Save/insert module snippets by `moduleKey` (hero filtered by layout `variant`). Copy-on-insert into `page_modules`. Seed: `npm run db:seed-library`.
+2026-07-12 — **Module editor UX**: `ModulePageEditor` uses sticky jump-nav (`ModuleNav`), visual `HeroTypePicker`, `ImageListField` (upload per row), bulk paste in `StringListField`, nav presets/quick-add chips, expand/collapse all, and numbered `NestedItemCard` list rows.
+2026-07-12 — **Module-based CMS**: `Page.pageModules` JSON stores fixed-order modules (Hero → Sticky Nav → Overview → Inclusions → Eligibility → Syllabus → Schedule → Pricing → FAQ + flags). Admin: `ModulePageEditor` at `/admin/pages/[slug]` and `/admin/courses/[slug]`. API: `GET/PUT /api/admin/modules/[slug]`. Seed: `npm run db:seed-modules`. Types: `src/content/types/page-modules.ts`, builders: `src/lib/cms/page-modules-builder.ts`.
+2026-07-12 — **Media metadata + safe delete**: `MediaAsset` stores `caption`, `description`, `tags[]`. Upload via `/admin/media` or `ImageField` modal; filter library by tag; `DELETE /api/admin/media/[id]` returns 409 when asset URL is still referenced (`src/lib/cms/media-usage.ts`).
+2026-07-12 — **Blog rich-text editor**: Tiptap (`RichTextEditor`) in `/admin/blog/[slug]` for article body; stored as `bodyHtml` with legacy block fallback via `resolveBlogBodyHtml()`. Frontend renders sanitized HTML via `BlogHtmlContent`.
+2026-07-12 — **Lead tracking dashboard**: `lead_submissions` table stores `/enquire-now` (enquiry) and `/contact` (query) forms via `POST /api/leads`. Admin dashboard shows counts (total, this week, this month, unread) and `/admin/leads` inbox.
+2026-07-12 — **Lead soft delete**: `DELETE /api/admin/leads/[id]` sets `deletedAt`; `/admin/leads` **Deleted** tab lists trashed items; **Restore** via `PATCH { restore: true }`. Inbox supports **Unread / Read** filters, auto-mark read on open, and **Mark as unread** button.
+2026-07-12 — **Book-now + PayPal**: `/booking` (courses) and `/retreat-booking` (retreats) multi-step flow with 20% deposit or full payment + 6% PayPal fee. `bookings` table; APIs: `POST /api/bookings`, `POST /api/payments/paypal/create-order|capture`. Admin: `/admin/bookings`. Env: `NEXT_PUBLIC_PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET`, `PAYPAL_MODE`. Redirect: `/retreat/retreat-booking` → `/retreat-booking`.
+2026-07-12 — **AI Chatbot**: Ollama + pgvector RAG. `POST /api/chat` SSE. `ChatWidget` on site. Admin `/admin/chatbot`. Security: IP+session rate limits, Zod validation, prompt-injection guard, safe errors, request logging. See `docs/chatbot-architecture.md`.
