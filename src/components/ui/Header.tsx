@@ -400,7 +400,7 @@ export default function Header() {
               aria-hidden="true"
             />
             <Button
-              href="#courses"
+              href="/enquire-now"
               variant="primary"
               size="sm"
               className="shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30 transition-shadow duration-300"
@@ -478,7 +478,7 @@ export default function Header() {
                   Contact
                 </Button>
                 <Button
-                  href="#courses"
+                  href="/enquire-now"
                   variant="primary"
                   size="md"
                   onClick={() => setMobileOpen(false)}

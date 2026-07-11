@@ -710,8 +710,8 @@ body {
 .footer-nav-link:hover,
 .footer-nav-link:focus-visible {
   border-left-color: var(--color-primary);
-  background: rgb(163 36 50 / 0.12);
-  color: white;
+  background: rgb(163 36 50 / 0.06);
+  color: var(--color-primary);
 }
 
 .nav-dropdown-cta {

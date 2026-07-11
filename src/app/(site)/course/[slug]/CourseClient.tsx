@@ -18,6 +18,7 @@ import {
   WhyNirvana,
 } from "@/components/courses";
 import { COURSE_FAQ_CATEGORIES, FAQSection } from "@/components/ui";
+import { enquireNowHref } from "@/lib/enquire-programs";
 import type { CoursePageData } from "./types";
 
 export default function CourseClient({
@@ -44,7 +45,11 @@ export default function CourseClient({
 
       <CourseStickyNav />
 
-      <CourseBookingFab fee={course.fee} title={course.title} />
+      <CourseBookingFab
+        fee={course.fee}
+        title={course.title}
+        href={enquireNowHref(course.title)}
+      />
 
       <article className="min-h-screen max-w-full overflow-x-clip">
         <CourseOverview

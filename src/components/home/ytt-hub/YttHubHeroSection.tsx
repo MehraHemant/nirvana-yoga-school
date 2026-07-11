@@ -39,11 +39,7 @@ export default function YttHubHeroSection() {
             <Button href="#courses" variant="primary" size="md">
               View Courses
             </Button>
-            <Button
-              href="https://wa.me/918218564835"
-              variant="outline-light"
-              size="md"
-            >
+            <Button href="/enquire-now" variant="outline-light" size="md">
               Enquire Now
             </Button>
           </div>

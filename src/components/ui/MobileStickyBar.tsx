@@ -12,7 +12,7 @@ export default function MobileStickyBar() {
           </span>
         </div>
       </div>
-      <Button href="#courses" variant="primary" size="sm" responsive>
+      <Button href="/enquire-now" variant="primary" size="sm" responsive>
         Enquire
       </Button>
     </div>

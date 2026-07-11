@@ -2,6 +2,7 @@
 
 import {
   AccommodationFood,
+  InstagramFeed,
   PageGallerySection,
   PageProgramsSection,
 } from "@/components/courses";
@@ -33,6 +34,7 @@ export default function VenueClient({ page, mapped }: SiteClientProps) {
         )}
         <SiteEditorial mapped={mapped} />
         <AccommodationFood />
+        <InstagramFeed />
         <SiteFaq mapped={mapped} />
       </article>
     </>

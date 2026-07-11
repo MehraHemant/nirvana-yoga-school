@@ -1,8 +1,7 @@
+import { enquireNowHref } from "@/lib/enquire-programs";
+
 export function retreatEnquireHref(title: string): string {
-  const text = encodeURIComponent(
-    `Hi Nirvana Yoga School, I would like to enquire about the ${title}.`,
-  );
-  return `https://wa.me/918218564835?text=${text}`;
+  return enquireNowHref(title);
 }
 
 export function parseUsdPrice(price: string): number | null {

@@ -405,7 +405,7 @@ export function mapSitePage(page: SitePageDocument): MappedSitePage {
     ctaPrimary: page.ctaLabel ?? "Enquire Now",
     ctaPrimaryHref: page.packages?.length
       ? "#pricing"
-      : (page.ctaHref ?? "#contact"),
+      : (page.ctaHref ?? "/enquire-now"),
     ctaSecondary:
       schedule.length > 0
         ? "View Schedule"

@@ -4,16 +4,19 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import { useState } from "react";
 import { MapSection } from "@/components/home";
-import { Button, Container, PhoneInput, SectionHeader } from "@/components/ui";
+import {
+  Button,
+  Container,
+  PhoneInput,
+  SearchableSelect,
+} from "@/components/ui";
 import {
   Check,
   Compass,
-  Facebook,
-  Instagram,
   Send,
   WhatsApp,
-  YouTube,
 } from "@/icons";
+import { ACCOMMODATION_PREFERENCE_OPTIONS } from "@/lib/enquire-programs";
 import { fadeUp, reducedTransition } from "@/lib/motion";
 import {
   DEFAULT_PHONE_COUNTRY_ISO,
@@ -38,6 +41,7 @@ export default function ContactPageClient() {
     name: "",
     email: "",
     subject: "",
+    accommodation: "",
     message: "",
   });
 
@@ -62,9 +66,14 @@ export default function ContactPageClient() {
         `Name: ${formData.name.trim()}`,
         `Email: ${formData.email.trim()}`,
         `Phone / WhatsApp: ${phone}`,
+        formData.accommodation.trim()
+          ? `Accommodation preference: ${formData.accommodation.trim()}`
+          : null,
         "",
         formData.message.trim(),
-      ].join("\n");
+      ]
+        .filter(Boolean)
+        .join("\n");
 
       const mailtoUrl = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
       window.location.href = mailtoUrl;
@@ -289,6 +298,7 @@ export default function ContactPageClient() {
                             name: "",
                             email: "",
                             subject: "",
+                            accommodation: "",
                             message: "",
                           });
                           setPhoneNational("");
@@ -391,29 +401,51 @@ export default function ContactPageClient() {
                           />
                         </div>
 
-                        {/* Subject */}
+                        {/* Accommodation Preference */}
                         <div className="space-y-2">
                           <label
-                            htmlFor="subject"
+                            htmlFor="accommodation"
                             className="text-xs font-semibold text-ink font-sans"
                           >
-                            Subject *
+                            Accommodation Preference
                           </label>
-                          <input
-                            id="subject"
-                            type="text"
-                            required
-                            placeholder="e.g. 200 Hour YTT dates in March"
-                            value={formData.subject}
-                            onChange={(e) =>
+                          <SearchableSelect
+                            id="accommodation"
+                            value={formData.accommodation}
+                            onChange={(value) =>
                               setFormData({
                                 ...formData,
-                                subject: e.target.value,
+                                accommodation: value,
                               })
                             }
-                            className="w-full rounded-2xl border border-secondary/15 bg-white px-4 py-3 text-sm text-ink placeholder-muted/65 focus:border-secondary focus:ring-1 focus:ring-secondary focus:outline-none transition-colors"
+                            options={ACCOMMODATION_PREFERENCE_OPTIONS}
+                            placeholder="Select room type…"
                           />
                         </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        {/* Subject */}
+                        <label
+                          htmlFor="subject"
+                          className="text-xs font-semibold text-ink font-sans"
+                        >
+                          Subject *
+                        </label>
+                        <input
+                          id="subject"
+                          type="text"
+                          required
+                          placeholder="e.g. 200 Hour YTT dates in March"
+                          value={formData.subject}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              subject: e.target.value,
+                            })
+                          }
+                          className="w-full rounded-2xl border border-secondary/15 bg-white px-4 py-3 text-sm text-ink placeholder-muted/65 focus:border-secondary focus:ring-1 focus:ring-secondary focus:outline-none transition-colors"
+                        />
                       </div>
 
                       {/* Message Input */}
@@ -509,7 +541,7 @@ export default function ContactPageClient() {
       </section>
 
       {/* 3. Location Map Section */}
-      {/* <MapSection /> */}
+      <MapSection />
     </div>
   );
 }
