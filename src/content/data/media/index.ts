@@ -87,7 +87,6 @@ export const COURSES_MEDIA: Record<string, CourseMedia> = {
       "https://www.nirvanayogaschoolindia.com/admin/uploads/yoga/img_6739ed9589cf2.webp",
       "https://www.nirvanayogaschoolindia.com/admin/uploads/yoga/img_6739ed958a18c.webp",
       "https://www.nirvanayogaschoolindia.com/admin/uploads/yoga/DSC09843.webp",
-
     ],
     videos: [
       "B6MMNCE4eLo",
@@ -116,7 +115,6 @@ export const COURSES_MEDIA: Record<string, CourseMedia> = {
       "https://www.nirvanayogaschoolindia.com/admin/uploads/yoga/DSC00921.webp",
       "https://www.nirvanayogaschoolindia.com/admin/uploads/yoga/DSC00163.webp",
       "https://www.nirvanayogaschoolindia.com/admin/uploads/yoga/yoga-27-07-2023-1690450691-yoga-03-07-2023-1688377681-1.png",
-
     ],
     videos: ["Rcqr1gSe2uE", "ouc32FTrbnk", "RqG48joKLp8", "TYal8a3zGow"],
   },
@@ -140,7 +138,6 @@ export const COURSES_MEDIA: Record<string, CourseMedia> = {
       "https://www.nirvanayogaschoolindia.com/admin/uploads/yoga/img_673ae7085399b.webp",
       "https://www.nirvanayogaschoolindia.com/admin/uploads/yoga/img_673ae70853ef1.webp",
       "https://www.nirvanayogaschoolindia.com/admin/uploads/yoga/yoga-27-07-2023-1690450632-yoga-03-07-2023-1688377681-1.png",
-
     ],
     videos: [
       "wFj_5jCGFfY",
@@ -167,7 +164,6 @@ export const COURSES_MEDIA: Record<string, CourseMedia> = {
       "https://www.nirvanayogaschoolindia.com/admin/uploads/yoga/img_6738a7540c1d3.webp",
       "https://www.nirvanayogaschoolindia.com/admin/uploads/yoga/img1.jpg",
       "https://www.nirvanayogaschoolindia.com/admin/uploads/yoga/yoga-03-07-2023-1688377681-1.png",
-
     ],
     videos: [
       "l_5cIm17Fu0",
@@ -198,7 +194,6 @@ export const COURSES_MEDIA: Record<string, CourseMedia> = {
       "https://www.nirvanayogaschoolindia.com/admin/uploads/yoga/DSC00256.webp",
       "https://www.nirvanayogaschoolindia.com/admin/uploads/yoga/DSC00163.webp",
       "https://www.nirvanayogaschoolindia.com/admin/uploads/yoga/yoga-03-07-2023-1688377681-1.png",
-
     ],
     videos: [
       "tuHcIyh81Mc",
@@ -225,7 +220,6 @@ export const COURSES_MEDIA: Record<string, CourseMedia> = {
       "https://www.nirvanayogaschoolindia.com/admin/uploads/yoga/img_6739e94463988.webp",
       "https://www.nirvanayogaschoolindia.com/admin/uploads/yoga/img_6739e5cd5e756.webp",
       "https://www.nirvanayogaschoolindia.com/admin/uploads/yoga/yoga-03-07-2023-1688377681-1.png",
-
     ],
     videos: ["Rcqr1gSe2uE", "ouc32FTrbnk", "RqG48joKLp8", "TYal8a3zGow"],
   },

@@ -39,8 +39,8 @@ export const FOOD_CONTENT = {
 export {
   FACILITIES,
   FACILITY_ITEMS,
-  resolveFacilityItem,
   type FacilityItem,
+  resolveFacilityItem,
 } from "./accommodationFacilities";
 
 export const ACCOMMODATION_GALLERIES = [

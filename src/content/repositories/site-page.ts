@@ -2,8 +2,8 @@ import {
   getStaticSitePage,
   getStaticSitePageSlugs,
 } from "@/content/data/site-pages";
-import { fromJson, type RepositoryOptions } from "@/content/repositories/fetch";
 import type { ContentResult } from "@/content/repositories/fetch";
+import { fromJson, type RepositoryOptions } from "@/content/repositories/fetch";
 import type { SitePageDocument } from "@/content/types";
 
 export async function getSitePage(

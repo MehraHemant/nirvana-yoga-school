@@ -62,10 +62,7 @@ export default function ExamCertification() {
   const [activeCertIndex, setActiveCertIndex] = useState(0);
 
   return (
-    <section
-      id="exam"
-      className="relative bg-white py-20 sm:py-28"
-    >
+    <section id="exam" className="relative bg-white py-20 sm:py-28">
       <Container size="2xl">
         <div className="space-y-16">
           {/* Section Header */}

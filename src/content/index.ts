@@ -1,10 +1,13 @@
-export { mapRetreatPage, retreatWhatsAppHref } from "@/content/mappers/retreat-page";
-export type { MappedRetreatPage } from "@/content/mappers/retreat-page";
 export {
   buildAllOnlineCoursesFromSitePages,
   buildOnlineCourseFromSitePage,
   ONLINE_COURSE_SLUGS,
 } from "@/content/mappers/online-course";
+export type { MappedRetreatPage } from "@/content/mappers/retreat-page";
+export {
+  mapRetreatPage,
+  retreatWhatsAppHref,
+} from "@/content/mappers/retreat-page";
 export type { MappedSitePage } from "@/content/mappers/site-page";
 export { mapSitePage } from "@/content/mappers/site-page";
 export {
@@ -15,8 +18,8 @@ export {
   legacyRedirectForSlug,
   loadPage,
   loadPageBySlug,
-  pagePath,
   PAGES,
+  pagePath,
   RESIDENTIAL_COURSE_SLUGS,
   RETREAT_SLUGS,
   VENUE_SLUGS,

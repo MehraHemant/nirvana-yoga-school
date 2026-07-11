@@ -290,7 +290,7 @@ Headline hierarchy (Playfair):
   duration="25 Days"
   level="Beginner to intermediate level"
   certification="RYT-200, Yoga Alliance"
-  fee="From 649 USD"
+  fee="649 USD"
   image="https://www.nirvanayogaschoolindia.com/img/service-1.webp"
   certBadge="https://www.nirvanayogaschoolindia.com/img/ryt200.webp"
   href="https://www.nirvanayogaschoolindia.com/200-hour-yoga-teacher-training-in-rishikesh-india"

@@ -1,5 +1,5 @@
-import { pagePath } from "@/content/pages/path";
 import sitePagesJson from "@/content/data/site-pages/site-pages.json";
+import { pagePath } from "@/content/pages/path";
 import type { SitePageCard, SitePageDocument } from "@/content/types";
 
 const courseCards: SitePageCard[] = [
@@ -64,7 +64,10 @@ const onlineCards: SitePageCard[] = [
     title: "Short Continuing Education Courses",
     description:
       "Bite-sized yoga, pranayama, anatomy, philosophy, mindfulness, and office-yoga trainings.",
-    href: pagePath({ type: "online", slug: "online-50-hour-hatha-yoga-course" }),
+    href: pagePath({
+      type: "online",
+      slug: "online-50-hour-hatha-yoga-course",
+    }),
   },
 ];
 

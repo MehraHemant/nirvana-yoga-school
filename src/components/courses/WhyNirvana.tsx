@@ -4,6 +4,11 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { Container, PlatformReviewsRows, SectionHeader } from "@/components/ui";
 import {
+  WHY_NIRVANA_BANNER,
+  WHY_NIRVANA_CLOSING,
+  WHY_NIRVANA_HIGHLIGHTS,
+} from "@/data/whyNirvana";
+import {
   BadgeStar,
   Bed,
   BookOpen,
@@ -16,51 +21,46 @@ import {
   Sunrise,
   Users,
 } from "@/icons";
-import {
-  WHY_NIRVANA_BANNER,
-  WHY_NIRVANA_CLOSING,
-  WHY_NIRVANA_HIGHLIGHTS,
-} from "@/data/whyNirvana";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 
 type IconFC = React.FC<{ size?: number; className?: string }>;
 
 // Mapped 1-to-1 with WHY_NIRVANA_HIGHLIGHTS order
 const HIGHLIGHT_ICONS = [
-  BookOpen,   // Quality Education
-  Compass,    // Serene Setting
-  Leaf,       // Fresh Mountain Air
-  BadgeStar,  // Private Balconies
-  Bowl,       // Whole-Food Sattvic Eating
-  Sunrise,    // Sunrise Views
-  Users,      // Easy Movement
-  Bed,        // Deep Sleep
-  Shield,     // Healing Touch
-  Layers,     // State-of-the-Art Equipment
-  Lotus,      // Cultural & Spiritual Events
+  BookOpen, // Quality Education
+  Compass, // Serene Setting
+  Leaf, // Fresh Mountain Air
+  BadgeStar, // Private Balconies
+  Bowl, // Whole-Food Sattvic Eating
+  Sunrise, // Sunrise Views
+  Users, // Easy Movement
+  Bed, // Deep Sleep
+  Shield, // Healing Touch
+  Layers, // State-of-the-Art Equipment
+  Lotus, // Cultural & Spiritual Events
 ] as IconFC[];
 
 export default function WhyNirvana() {
   return (
     <section id="why-nirvana" className="bg-white">
       <Container size="2xl" className="py-16 sm:py-20">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={VIEWPORT_ONCE}
-            variants={fadeUp}
-            className="mx-auto max-w-3xl text-center mb-8"
-          >
-            <SectionHeader
-              eyebrow="Silent Hill · Upper Tapovan"
-              title={
-                <>
-                  Why <span className="text-primary">Nirvana?</span>
-                </>
-              }
-              align="center"
-            />
-          </motion.div>
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={VIEWPORT_ONCE}
+          variants={fadeUp}
+          className="mx-auto max-w-3xl text-center mb-8"
+        >
+          <SectionHeader
+            eyebrow="Silent Hill · Upper Tapovan"
+            title={
+              <>
+                Why <span className="text-primary">Nirvana?</span>
+              </>
+            }
+            align="center"
+          />
+        </motion.div>
         <motion.div
           initial="hidden"
           whileInView="visible"

@@ -80,7 +80,7 @@ export const YTT_HUB_COURSES: YttHubCourse[] = [
     level: "Beginner to intermediate",
     certification: "RYT-200, Yoga Alliance",
     duration: "25 Days",
-    fee: "From 649 USD",
+    fee: "649 USD",
     image: STOCK_IMAGES.asana,
     certBadge: RYT_BADGE,
     href: pagePath({
@@ -103,7 +103,7 @@ export const YTT_HUB_COURSES: YttHubCourse[] = [
     level: "Beginner to intermediate",
     certification: "RYT-200, Yoga Alliance",
     duration: "25 Days",
-    fee: "From 649 USD",
+    fee: "649 USD",
     image: STOCK_IMAGES.wellness,
     certBadge: RYT_BADGE,
     href: pagePath({
@@ -126,7 +126,7 @@ export const YTT_HUB_COURSES: YttHubCourse[] = [
     level: "Beginner to intermediate",
     certification: "RYT-200, Yoga Alliance",
     duration: "25 Days",
-    fee: "From 649 USD",
+    fee: "649 USD",
     image: STOCK_IMAGES.meditation,
     certBadge: RYT_BADGE,
     href: pagePath({
@@ -148,7 +148,7 @@ export const YTT_HUB_COURSES: YttHubCourse[] = [
     level: "Beginner to intermediate",
     certification: "RYT-200, Yoga Alliance",
     duration: "25 Days",
-    fee: "From 649 USD",
+    fee: "649 USD",
     image: STOCK_IMAGES.yogaPractice,
     certBadge: RYT_BADGE,
     href: pagePath({

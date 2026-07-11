@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { MapSection } from "@/components/home";
-import { getSlugsByType } from "@/content/pages";
 import { getSitePage } from "@/content";
+import { getSlugsByType } from "@/content/pages";
 import { courseMetadata } from "../../_shared/metadata";
 import { loadSitePageData } from "../../_shared/site/data";
 import VenueClient from "./VenueClient";

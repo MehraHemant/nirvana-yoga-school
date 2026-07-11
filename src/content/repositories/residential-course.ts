@@ -3,8 +3,8 @@ import {
   getStaticResidentialCourse,
   getStaticResidentialSlugs,
 } from "@/content/data/residential";
-import { fromJson, type RepositoryOptions } from "@/content/repositories/fetch";
 import type { ContentResult } from "@/content/repositories/fetch";
+import { fromJson, type RepositoryOptions } from "@/content/repositories/fetch";
 import type { CourseMedia, ResidentialCourseDocument } from "@/content/types";
 
 export async function getResidentialCourse(

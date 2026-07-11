@@ -120,13 +120,19 @@ function InstagramProfileBar({
                 <p className="text-lg font-bold leading-none tabular-nums sm:text-xl">
                   {stat.value}
                 </p>
-                <p className="mt-1 text-xs text-white/80 sm:text-sm">{stat.label}</p>
+                <p className="mt-1 text-xs text-white/80 sm:text-sm">
+                  {stat.label}
+                </p>
               </li>
             ))}
           </ul>
 
-          <p className="text-xl font-bold leading-tight sm:text-2xl">{handle}</p>
-          <p className="mt-1 text-sm font-semibold text-white/90">{displayName}</p>
+          <p className="text-xl font-bold leading-tight sm:text-2xl">
+            {handle}
+          </p>
+          <p className="mt-1 text-sm font-semibold text-white/90">
+            {displayName}
+          </p>
 
           {bioLines.length > 0 && (
             <div className="mx-auto mt-3 max-w-lg space-y-1 lg:mx-0">

@@ -16,7 +16,7 @@ const COURSES: (CourseCardProps & { highlights: string[] })[] = [
     duration: "25 Days",
     level: "Beginner to Intermediate",
     certification: "RYT-200, Yoga Alliance",
-    fee: "From 649 USD",
+    fee: "649 USD",
     image:
       "https://images.unsplash.com/photo-1599447421416-3414500d18a5?w=800&auto=format&fit=crop&q=80",
     certBadge: `${SITE}/img/ryt200.webp`,
@@ -36,7 +36,7 @@ const COURSES: (CourseCardProps & { highlights: string[] })[] = [
     duration: "25 Days",
     level: "Beginner to Intermediate",
     certification: "RYT-200, Yoga Alliance",
-    fee: "From 649 USD",
+    fee: "649 USD",
     image:
       "https://images.unsplash.com/photo-1612817288484-6f916006741a?w=800&auto=format&fit=crop&q=80",
     certBadge: `${SITE}/img/ryt200.webp`,
@@ -56,7 +56,7 @@ const COURSES: (CourseCardProps & { highlights: string[] })[] = [
     duration: "25 Days",
     level: "Beginner to Intermediate",
     certification: "RYT-200, Yoga Alliance",
-    fee: "From 649 USD",
+    fee: "649 USD",
     image:
       "https://images.unsplash.com/photo-1528319725582-ddc096101511?w=800&auto=format&fit=crop&q=80",
     certBadge: `${SITE}/img/ryt200.webp`,
@@ -76,7 +76,7 @@ const COURSES: (CourseCardProps & { highlights: string[] })[] = [
     duration: "25 Days",
     level: "Beginner to Intermediate",
     certification: "RYT-200, Yoga Alliance",
-    fee: "From 649 USD",
+    fee: "649 USD",
     image:
       "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800&auto=format&fit=crop&q=80",
     certBadge: `${SITE}/img/ryt200.webp`,

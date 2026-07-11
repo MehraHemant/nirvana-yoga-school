@@ -2,6 +2,7 @@ import type { StickyNavItem } from "@/components/courses/CourseStickyNav";
 import type { TeacherProfile } from "@/components/home/TeachersSection";
 import onlineCourseMeta from "@/content/data/online-courses/meta.json";
 import { SITE_PAGES } from "@/content/data/site-pages";
+import { ONLINE_COURSE_SLUGS } from "@/content/pages/slugs";
 import type {
   CourseScheduleItem,
   CourseSyllabusSection,
@@ -10,7 +11,6 @@ import type {
   SitePageDocument,
   SitePageSection,
 } from "@/content/types";
-import { ONLINE_COURSE_SLUGS } from "@/content/pages/slugs";
 
 import { ENROLL_BASE, LIVE_SITE } from "@/lib/live-site";
 
