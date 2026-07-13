@@ -1,6 +1,6 @@
 # CMS Architecture — Nirvana Yoga School
 
-Architecture for PostgreSQL-backed content management with JSON fallback, public read APIs, Cloudinary media, and an admin portal on the same Next.js 16 app (`:3000`).
+Architecture for MySQL-backed content management with JSON fallback, public read APIs, Cloudinary media, and an admin portal on the same Next.js 16 app (`:3000`).
 
 ---
 
@@ -357,7 +357,7 @@ Admin selects file (+ optional caption, description, tags)
 ### Environment variables
 
 ```env
-DATABASE_URL=postgresql://nirvana:nirvana@localhost:5432/nirvana_cms
+DATABASE_URL=mysql://nirvana:nirvana@localhost:3306/nirvana_cms
 
 CLOUDINARY_CLOUD_NAME=your-cloud-name
 CLOUDINARY_API_KEY=...
@@ -431,7 +431,7 @@ tags?: string          # JSON array or comma-separated
 
 ## 7. Migration & seed plan
 
-1. `docker compose up -d` — PostgreSQL 16
+1. `docker compose up -d mysql` — MySQL 8
 2. `npx prisma migrate dev`
 3. `npm run db:seed` — idempotent upsert:
 
@@ -518,11 +518,11 @@ src/middleware.ts                 Protect /admin + /api/admin
 ## 11. Commands
 
 ```bash
-npm run db:up          # docker compose up -d postgres
+npm run db:up          # docker compose up -d mysql
 npm run db:down        # docker compose down
 npm run db:migrate     # prisma migrate dev
 npm run db:seed        # prisma db seed
 npm run db:studio      # prisma studio
 ```
 
-With `DATABASE_URL` set, repositories and public APIs read from Postgres. Without it, behavior is identical to today (JSON files).
+With `DATABASE_URL` set, repositories and public APIs read from MySQL. Without it, behavior is identical to today (JSON files).

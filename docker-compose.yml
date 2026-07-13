@@ -1,21 +1,23 @@
 services:
-  postgres:
-    image: pgvector/pgvector:pg16
+  mysql:
+    image: mysql:8.4
     container_name: nirvana-cms-db
     restart: unless-stopped
     ports:
-      - "5432:5432"
+      - "3306:3306"
     environment:
-      POSTGRES_USER: nirvana
-      POSTGRES_PASSWORD: nirvana
-      POSTGRES_DB: nirvana_cms
+      MYSQL_ROOT_PASSWORD: nirvana
+      MYSQL_DATABASE: nirvana_cms
+      MYSQL_USER: nirvana
+      MYSQL_PASSWORD: nirvana
     volumes:
-      - nirvana_cms_data:/var/lib/postgresql/data
+      - nirvana_cms_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U nirvana -d nirvana_cms"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-pnirvana"]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
+      start_period: 15s
 
   ollama:
     image: ollama/ollama:latest

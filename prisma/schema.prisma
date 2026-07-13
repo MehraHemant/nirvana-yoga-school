@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -280,7 +280,7 @@ model MediaAsset {
   alt         String?
   caption     String?
   description String?  @db.Text
-  tags        String[] @default([])
+  tags        Json     @default("[]")
   createdAt   DateTime @default(now()) @map("created_at")
 
   galleryImages PageGalleryImage[]
@@ -391,7 +391,7 @@ model Booking {
 }
 
 // ---------------------------------------------------------------------------
-// AI Chatbot (RAG) — conversations, documents, pgvector embeddings
+// AI Chatbot (RAG) — conversations, documents, JSON-stored embeddings
 // ---------------------------------------------------------------------------
 
 enum ChatMessageRole {
@@ -478,8 +478,8 @@ model DocumentChunk {
 model Embedding {
   id        String                      @id @default(cuid())
   chunkId   String                      @unique @map("chunk_id")
-  /// pgvector column — read/write via raw SQL (`backend/utils/vector.ts`)
-  vector    Unsupported("vector(768)")?
+  /// Embedding vector stored as JSON float array (768 dims for nomic-embed-text)
+  vector    Json?
   createdAt DateTime                    @default(now()) @map("created_at")
 
   chunk DocumentChunk @relation(fields: [chunkId], references: [id], onDelete: Cascade)
