@@ -1,4 +1,9 @@
 import type { CreateModuleLibraryItemInput } from "@/content/types";
+import {
+  jsonBadRequest,
+  jsonOk,
+  jsonUnauthorized,
+} from "@/lib/cms/api-response";
 import { getSessionFromRequest } from "@/lib/cms/auth";
 import {
   createModuleLibraryItem,
@@ -13,7 +18,7 @@ import {
 export async function GET(request: Request) {
   const session = await getSessionFromRequest(request);
   if (!session) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonUnauthorized();
   }
 
   const url = new URL(request.url);
@@ -21,14 +26,11 @@ export async function GET(request: Request) {
   const variant = url.searchParams.get("variant") ?? undefined;
 
   if (!moduleKey || !isModuleLibraryKey(moduleKey)) {
-    return Response.json(
-      { error: "moduleKey query parameter is required" },
-      { status: 400 },
-    );
+    return jsonBadRequest("moduleKey query parameter is required");
   }
 
   const items = await listModuleLibraryItems({ moduleKey, variant });
-  return Response.json({
+  return jsonOk({
     items: items.map((item) => ({
       ...item,
       preview: getModuleLibraryPreview(item),
@@ -42,28 +44,27 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const session = await getSessionFromRequest(request);
   if (!session) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonUnauthorized();
   }
 
   const body = (await request.json()) as CreateModuleLibraryItemInput;
 
   if (!body.moduleKey || !isModuleLibraryKey(body.moduleKey)) {
-    return Response.json({ error: "Invalid moduleKey" }, { status: 400 });
+    return jsonBadRequest("Invalid moduleKey");
   }
   if (!body.name?.trim()) {
-    return Response.json({ error: "Name is required" }, { status: 400 });
+    return jsonBadRequest("Name is required");
   }
   if (!body.payload) {
-    return Response.json({ error: "Payload is required" }, { status: 400 });
+    return jsonBadRequest("Payload is required");
   }
 
   try {
     const item = await createModuleLibraryItem(body);
-    return Response.json({ item });
+    return jsonOk({ item });
   } catch (error) {
-    return Response.json(
-      { error: error instanceof Error ? error.message : "Invalid payload" },
-      { status: 400 },
+    return jsonBadRequest(
+      error instanceof Error ? error.message : "Invalid payload",
     );
   }
 }

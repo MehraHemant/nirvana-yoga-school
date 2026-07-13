@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { uploadAdminMedia } from "@/lib/api/admin-client";
 import { MAX_UPLOAD_BYTES, MAX_UPLOAD_LABEL } from "@/lib/cdn/constants";
 import { MediaMetadataFields } from "./MediaMetadataFields";
 
@@ -46,26 +47,19 @@ export function MediaUploadPanel({
     form.append("description", description);
     form.append("tags", JSON.stringify(tags));
 
-    const response = await fetch("/api/admin/media/upload", {
-      method: "POST",
-      body: form,
-    });
-
-    setUploading(false);
-
-    if (!response.ok) {
-      const body = (await response.json()) as { error?: string };
-      onError?.(body.error ?? "Upload failed");
-      return;
+    try {
+      const body = await uploadAdminMedia(form);
+      setFile(null);
+      setCaption("");
+      setDescription("");
+      setTags([]);
+      if (fileRef.current) fileRef.current.value = "";
+      onUploaded(body);
+    } catch (err) {
+      onError?.(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setUploading(false);
     }
-
-    const body = (await response.json()) as { url: string; id: string };
-    setFile(null);
-    setCaption("");
-    setDescription("");
-    setTags([]);
-    if (fileRef.current) fileRef.current.value = "";
-    onUploaded(body);
   }
 
   return (

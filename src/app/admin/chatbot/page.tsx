@@ -19,8 +19,8 @@ export default async function ChatbotAdminPage() {
       </p>
       <div className="admin-card">
         <p className="admin-hint">
-          If you just restarted after the Edge middleware fix, other admin
-          pages (Pages, Courses, Leads, Media) should work normally.
+          If you just restarted after the Edge middleware fix, other admin pages
+          (Pages, Courses, Leads, Media) should work normally.
         </p>
       </div>
     </div>

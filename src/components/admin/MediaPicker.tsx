@@ -1,14 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
-type MediaAsset = {
-  id: string;
-  url: string;
-  alt: string | null;
-  caption: string | null;
-  tags: string[];
-};
+import { fetchAdminMedia } from "@/lib/api/admin-client";
+import type { AdminMediaAsset } from "@/lib/types/admin-api";
 
 type MediaPickerProps = {
   open: boolean;
@@ -28,20 +22,15 @@ export function MediaPicker({
   onSelect,
   tagFilter,
 }: MediaPickerProps) {
-  const [assets, setAssets] = useState<MediaAsset[]>([]);
+  const [assets, setAssets] = useState<AdminMediaAsset[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!open) return;
 
     setLoading(true);
-    const params = tagFilter ? `?tag=${encodeURIComponent(tagFilter)}` : "";
-    fetch(`/api/admin/media${params}`)
-      .then(async (response) => {
-        if (!response.ok) throw new Error("Failed to load media");
-        const body = (await response.json()) as { assets: MediaAsset[] };
-        setAssets(body.assets);
-      })
+    fetchAdminMedia(tagFilter)
+      .then((body) => setAssets(body.assets))
       .catch(() => setAssets([]))
       .finally(() => setLoading(false));
   }, [open, tagFilter]);

@@ -1,63 +1,48 @@
-"use client";
+import { AdminFilterSubmit } from "@/components/admin/AdminFilterSelect";
+import { AdminIconLink } from "@/components/admin/AdminIconAction";
+import { Pencil } from "@/icons";
+import { listAdminBlogPosts } from "@/lib/cms/admin-lists";
 
-import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
-
-type BlogRow = {
-  id: string;
-  slug: string;
-  title: string;
-  category: string;
-  published: boolean;
-  publishedAt: string | null;
-  updatedAt: string;
+type AdminBlogPageProps = {
+  searchParams: Promise<{ q?: string }>;
 };
 
 /**
- * Admin blog posts list.
+ * Admin blog posts list (server-rendered).
+ *
+ * @param props - URL search params for filtering
  */
-export default function AdminBlogPage() {
-  const [posts, setPosts] = useState<BlogRow[]>([]);
-  const [error, setError] = useState("");
-  const [query, setQuery] = useState("");
+export default async function AdminBlogPage({
+  searchParams,
+}: AdminBlogPageProps) {
+  const params = await searchParams;
+  const query = (params.q ?? "").trim().toLowerCase();
 
-  useEffect(() => {
-    fetch("/api/admin/blog")
-      .then(async (response) => {
-        if (!response.ok) throw new Error("Failed to load posts");
-        const body = (await response.json()) as { posts: BlogRow[] };
-        setPosts(body.posts);
-      })
-      .catch((err: Error) => setError(err.message));
-  }, []);
-
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return posts;
-    return posts.filter(
-      (post) =>
-        post.title.toLowerCase().includes(q) ||
-        post.slug.toLowerCase().includes(q) ||
-        post.category.toLowerCase().includes(q),
+  const posts = await listAdminBlogPosts();
+  const filtered = posts.filter((post) => {
+    if (!query) return true;
+    return (
+      post.title.toLowerCase().includes(query) ||
+      post.slug.toLowerCase().includes(query) ||
+      post.category.toLowerCase().includes(query)
     );
-  }, [posts, query]);
+  });
 
   return (
     <div>
       <h1 className="admin-title">Blog</h1>
       <p className="admin-subtitle">Edit articles and news posts.</p>
 
-      <div className="admin-toolbar">
+      <form method="get" className="admin-toolbar">
         <input
           className="admin-input admin-search"
           type="search"
+          name="q"
           placeholder="Search posts…"
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
+          defaultValue={params.q ?? ""}
         />
-      </div>
-
-      {error ? <p className="admin-error">{error}</p> : null}
+        <AdminFilterSubmit>Search</AdminFilterSubmit>
+      </form>
 
       <div className="admin-card">
         <table className="admin-table">
@@ -66,7 +51,7 @@ export default function AdminBlogPage() {
               <th>Title</th>
               <th>Category</th>
               <th>Status</th>
-              <th />
+              <th aria-label="Actions" />
             </tr>
           </thead>
           <tbody>
@@ -75,8 +60,12 @@ export default function AdminBlogPage() {
                 <td>{post.title}</td>
                 <td>{post.category || "—"}</td>
                 <td>{post.published ? "Published" : "Draft"}</td>
-                <td>
-                  <Link href={`/admin/blog/${post.slug}`}>Edit</Link>
+                <td className="admin-row-actions">
+                  <AdminIconLink
+                    href={`/admin/blog/${post.slug}`}
+                    label="Edit post"
+                    icon={<Pencil size={16} />}
+                  />
                 </td>
               </tr>
             ))}

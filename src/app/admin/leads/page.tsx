@@ -4,6 +4,11 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import type { LeadStatus, LeadSubmissionRecord } from "@/content/types/lead";
 import { isLeadUnread } from "@/content/types/lead";
+import {
+  deleteAdminLead,
+  fetchAdminLeads,
+  patchAdminLead,
+} from "@/lib/api/admin-client";
 
 /**
  * Format an ISO date for the leads inbox.
@@ -52,28 +57,20 @@ export default function AdminLeadsPage() {
       params.set("readState", readFilter);
     if (view === "deleted") params.set("deleted", "true");
 
-    const response = await fetch(`/api/admin/leads?${params}`);
-    if (!response.ok) {
-      setError("Failed to load leads");
+    try {
+      const body = await fetchAdminLeads(params);
+      if (!body.dbEnabled) {
+        setError("Database is not connected — leads cannot be loaded.");
+        setLeads([]);
+      } else {
+        setLeads(body.leads);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load leads");
       setLeads([]);
+    } finally {
       setLoading(false);
-      return;
     }
-
-    const body = (await response.json()) as {
-      leads: LeadSubmissionRecord[];
-      dbEnabled: boolean;
-    };
-
-    if (!body.dbEnabled) {
-      setError("Database is not connected — leads cannot be loaded.");
-      setLeads([]);
-      setLoading(false);
-      return;
-    }
-
-    setLeads(body.leads);
-    setLoading(false);
   }, [typeFilter, readFilter, statusFilter, view]);
 
   useEffect(() => {
@@ -96,20 +93,14 @@ export default function AdminLeadsPage() {
     setUpdating(true);
     setError("");
 
-    const response = await fetch(`/api/admin/leads/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
-    });
-
-    setUpdating(false);
-
-    if (!response.ok) {
-      setError("Could not update status");
-      return;
+    try {
+      await patchAdminLead(id, { status });
+      await loadLeads();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not update status");
+    } finally {
+      setUpdating(false);
     }
-
-    await loadLeads();
   }
 
   async function deleteLead(id: string) {
@@ -124,42 +115,36 @@ export default function AdminLeadsPage() {
     setUpdating(true);
     setError("");
 
-    const response = await fetch(`/api/admin/leads/${id}`, {
-      method: "DELETE",
-    });
-
-    setUpdating(false);
-
-    if (!response.ok) {
-      setError("Could not delete submission");
-      return;
+    try {
+      await deleteAdminLead(id);
+      setMessage("Moved to Deleted");
+      setSelectedId(null);
+      await loadLeads();
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Could not delete submission",
+      );
+    } finally {
+      setUpdating(false);
     }
-
-    setMessage("Moved to Deleted");
-    setSelectedId(null);
-    await loadLeads();
   }
 
   async function restoreLead(id: string) {
     setUpdating(true);
     setError("");
 
-    const response = await fetch(`/api/admin/leads/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ restore: true }),
-    });
-
-    setUpdating(false);
-
-    if (!response.ok) {
-      setError("Could not restore submission");
-      return;
+    try {
+      await patchAdminLead(id, { restore: true });
+      setMessage("Restored to inbox");
+      setSelectedId(null);
+      await loadLeads();
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Could not restore submission",
+      );
+    } finally {
+      setUpdating(false);
     }
-
-    setMessage("Restored to inbox");
-    setSelectedId(null);
-    await loadLeads();
   }
 
   return (

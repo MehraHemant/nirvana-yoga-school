@@ -17,7 +17,7 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 /**
- * Whether Postgres CMS is enabled via `DATABASE_URL`.
+ * Whether MySQL CMS is enabled via `DATABASE_URL`.
  */
 export function isDbEnabled(): boolean {
   return Boolean(process.env.DATABASE_URL?.trim());

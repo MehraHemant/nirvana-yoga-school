@@ -10,6 +10,7 @@ import {
   usdToCents,
 } from "@/lib/booking/pricing";
 import { prisma } from "@/lib/db";
+import type { ParseResult } from "@/lib/types/api";
 
 /**
  * Map a Prisma booking row to an API record.
@@ -242,7 +243,7 @@ export async function restoreBooking(id: string) {
  */
 export function parseCreateBookingInput(
   body: unknown,
-): { ok: true; data: CreateBookingInput } | { ok: false; error: string } {
+): ParseResult<CreateBookingInput> {
   if (!body || typeof body !== "object") {
     return { ok: false, error: "Invalid payload" };
   }

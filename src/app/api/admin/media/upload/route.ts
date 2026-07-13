@@ -4,9 +4,17 @@ import {
   uploadToCloudinary,
   validateImageUpload,
 } from "@/lib/cdn/cloudinary";
-import { normalizeMediaTags } from "@/lib/cdn/media-tags";
+import { normalizeMediaTags, parseMediaTagsFromDb } from "@/lib/cdn/media-tags";
+import {
+  jsonBadRequest,
+  jsonError,
+  jsonOk,
+  jsonUnauthorized,
+  jsonUnavailable,
+} from "@/lib/cms/api-response";
 import { getSessionFromRequest } from "@/lib/cms/auth";
 import { prisma } from "@/lib/db";
+import { HTTP } from "@/lib/types/api";
 
 const uploadCounts = new Map<string, { count: number; resetAt: number }>();
 
@@ -45,19 +53,16 @@ function parseTagsFromForm(raw: FormDataEntryValue | null): string[] {
 export async function POST(request: Request) {
   const session = await getSessionFromRequest(request);
   if (!session) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonUnauthorized();
   }
 
   if (!isCdnConfigured()) {
-    return Response.json(
-      { error: "CDN not configured. Set CLOUDINARY_* env vars." },
-      { status: 503 },
-    );
+    return jsonUnavailable("CDN not configured. Set CLOUDINARY_* env vars.");
   }
 
   const ip = request.headers.get("x-forwarded-for") ?? "local";
   if (!checkRateLimit(ip)) {
-    return Response.json({ error: "Rate limit exceeded" }, { status: 429 });
+    return jsonError("Rate limit exceeded", 429);
   }
 
   const form = await request.formData();
@@ -68,7 +73,7 @@ export async function POST(request: Request) {
   const tags = parseTagsFromForm(form.get("tags"));
 
   if (!(file instanceof File)) {
-    return Response.json({ error: "file field required" }, { status: 400 });
+    return jsonBadRequest("file field required");
   }
 
   const validationError = validateImageUpload({
@@ -77,7 +82,7 @@ export async function POST(request: Request) {
   });
   if (validationError) {
     const status = file.size > maxUploadBytes() ? 413 : 415;
-    return Response.json({ error: validationError }, { status });
+    return jsonError(validationError, status);
   }
 
   const buffer = Buffer.from(await file.arrayBuffer());
@@ -99,7 +104,7 @@ export async function POST(request: Request) {
     },
   });
 
-  return Response.json(
+  return jsonOk(
     {
       id: asset.id,
       url: asset.url,
@@ -107,8 +112,8 @@ export async function POST(request: Request) {
       mime: asset.mime,
       caption: asset.caption,
       description: asset.description,
-      tags: asset.tags,
+      tags: parseMediaTagsFromDb(asset.tags),
     },
-    { status: 201 },
+    { status: HTTP.CREATED },
   );
 }

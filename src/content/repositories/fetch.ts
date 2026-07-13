@@ -21,7 +21,7 @@ export function fromDb<T>(data: T): ContentResult<T> {
 }
 
 /**
- * Resolve whether repositories should read from Postgres.
+ * Resolve whether repositories should read from MySQL.
  *
  * @param options - Optional source override
  */

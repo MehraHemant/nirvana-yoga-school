@@ -27,7 +27,7 @@ async function countJsonContains(
   pattern: string,
 ): Promise<number> {
   const rows = await prisma.$queryRawUnsafe<{ count: bigint }[]>(
-    `SELECT COUNT(*)::bigint AS count FROM "${table}" WHERE "${column}"::text LIKE $1 ESCAPE '\\'`,
+    `SELECT COUNT(*) AS count FROM \`${table}\` WHERE CAST(\`${column}\` AS CHAR) LIKE ? ESCAPE '\\\\'`,
     pattern,
   );
   return Number(rows[0]?.count ?? 0);

@@ -8,7 +8,7 @@ import {
 import { isDbConnectionError } from "@/lib/db";
 
 /**
- * Try Postgres first; fall back to bundled JSON if DB is unreachable.
+ * Try MySQL first; fall back to bundled JSON if DB is unreachable.
  *
  * @param dbFn - Async loader from Prisma
  * @param jsonFn - Sync JSON fallback loader

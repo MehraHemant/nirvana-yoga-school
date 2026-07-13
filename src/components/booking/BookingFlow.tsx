@@ -283,7 +283,7 @@ export function BookingFlow({
                     active
                       ? "bg-primary text-white"
                       : done
-                        ? "bg-secondary/10 text-secondary"
+                        ? "bg-primary/10 text-primary"
                         : "bg-white text-muted border border-ink/10"
                   }`}
                 >

@@ -31,3 +31,23 @@ export function normalizeMediaTags(
     : input.split(",").map((tag) => tag.trim());
   return [...new Set(list.filter(Boolean))];
 }
+
+/**
+ * Parse tags stored as Prisma Json (MySQL JSON column).
+ *
+ * @param value - Raw value from database
+ * @returns Normalized tag list
+ */
+export function parseMediaTagsFromDb(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return normalizeMediaTags(value as string[]);
+  }
+  if (typeof value === "string") {
+    try {
+      return normalizeMediaTags(JSON.parse(value) as string[]);
+    } catch {
+      return normalizeMediaTags(value);
+    }
+  }
+  return [];
+}

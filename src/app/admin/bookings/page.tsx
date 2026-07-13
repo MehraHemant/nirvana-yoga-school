@@ -3,6 +3,11 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import type { BookingRecord } from "@/content/types/booking";
+import {
+  deleteAdminBooking,
+  fetchAdminBookings,
+  patchAdminBooking,
+} from "@/lib/api/admin-client";
 
 /**
  * Format booking date for admin display.
@@ -28,17 +33,21 @@ export default function AdminBookingsPage() {
   const loadBookings = useCallback(async () => {
     setLoading(true);
     setError("");
-    const params = view === "deleted" ? "?deleted=true" : "";
-    const response = await fetch(`/api/admin/bookings${params}`);
-    if (!response.ok) {
-      setError("Failed to load bookings");
+
+    try {
+      const body = await fetchAdminBookings(view === "deleted");
+      if (!body.dbEnabled) {
+        setError("Database is not connected — bookings cannot be loaded.");
+        setBookings([]);
+      } else {
+        setBookings(body.bookings);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load bookings");
       setBookings([]);
+    } finally {
       setLoading(false);
-      return;
     }
-    const body = (await response.json()) as { bookings: BookingRecord[] };
-    setBookings(body.bookings);
-    setLoading(false);
   }, [view]);
 
   useEffect(() => {
@@ -47,27 +56,24 @@ export default function AdminBookingsPage() {
 
   async function deleteBooking(id: string) {
     if (!window.confirm("Move this booking to Deleted?")) return;
-    const response = await fetch(`/api/admin/bookings/${id}`, {
-      method: "DELETE",
-    });
-    if (!response.ok) {
-      setError("Could not delete booking");
-      return;
+
+    try {
+      await deleteAdminBooking(id);
+      await loadBookings();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not delete booking");
     }
-    await loadBookings();
   }
 
   async function restoreBooking(id: string) {
-    const response = await fetch(`/api/admin/bookings/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ restore: true }),
-    });
-    if (!response.ok) {
-      setError("Could not restore booking");
-      return;
+    try {
+      await patchAdminBooking(id, true);
+      await loadBookings();
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Could not restore booking",
+      );
     }
-    await loadBookings();
   }
 
   return (

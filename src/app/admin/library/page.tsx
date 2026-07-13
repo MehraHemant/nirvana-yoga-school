@@ -1,87 +1,54 @@
-"use client";
-
-import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
-import type {
-  ModuleLibraryItemRecord,
-  ModuleLibraryKey,
+import {
+  AdminActionForm,
+  AdminConfirmForm,
+} from "@/components/admin/AdminActionForm";
+import {
+  AdminFilterSelect,
+  AdminFilterSubmit,
+} from "@/components/admin/AdminFilterSelect";
+import { AdminIconLink } from "@/components/admin/AdminIconAction";
+import {
+  HERO_VARIANT_LABELS,
+  MODULE_LIBRARY_LABELS,
+  type ModuleLibraryKey,
 } from "@/content/types";
-import { HERO_VARIANT_LABELS, MODULE_LIBRARY_LABELS } from "@/content/types";
-
-type LibraryListItem = ModuleLibraryItemRecord & { preview: string };
+import { Copy, Pencil, Trash } from "@/icons";
+import {
+  getModuleLibraryPreview,
+  isModuleLibraryKey,
+  listModuleLibraryItems,
+} from "@/lib/cms/module-library";
+import { deleteLibraryItemAction, duplicateLibraryItemAction } from "./actions";
 
 const MODULE_KEYS = Object.keys(MODULE_LIBRARY_LABELS) as ModuleLibraryKey[];
 
+type AdminLibraryPageProps = {
+  searchParams: Promise<{ moduleKey?: string; variant?: string }>;
+};
+
 /**
- * Admin content library list with type and hero variant filters.
+ * Admin content library — server-rendered list with icon row actions.
+ *
+ * @param props - URL search params for section filters
  */
-export default function AdminLibraryPage() {
-  const [moduleKey, setModuleKey] = useState<ModuleLibraryKey>("hero");
-  const [variant, setVariant] = useState<string>("");
-  const [items, setItems] = useState<LibraryListItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+export default async function AdminLibraryPage({
+  searchParams,
+}: AdminLibraryPageProps) {
+  const params = await searchParams;
+  const moduleKey: ModuleLibraryKey = isModuleLibraryKey(params.moduleKey ?? "")
+    ? (params.moduleKey as ModuleLibraryKey)
+    : "hero";
+  const variant = moduleKey === "hero" ? (params.variant ?? "").trim() : "";
 
-  const loadItems = useCallback(async () => {
-    setLoading(true);
-    setError("");
+  const rows = await listModuleLibraryItems({
+    moduleKey,
+    variant: variant || undefined,
+  });
 
-    const params = new URLSearchParams({ moduleKey });
-    if (moduleKey === "hero" && variant) {
-      params.set("variant", variant);
-    }
-
-    const response = await fetch(`/api/admin/module-library?${params}`);
-    if (!response.ok) {
-      setError("Failed to load library");
-      setItems([]);
-      setLoading(false);
-      return;
-    }
-
-    const body = (await response.json()) as { items: LibraryListItem[] };
-    setItems(body.items);
-    setLoading(false);
-  }, [moduleKey, variant]);
-
-  useEffect(() => {
-    loadItems();
-  }, [loadItems]);
-
-  async function duplicateItem(item: LibraryListItem) {
-    const response = await fetch("/api/admin/module-library", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        moduleKey: item.moduleKey,
-        variant: item.variant,
-        name: `${item.name} (copy)`,
-        payload: item.payload,
-      }),
-    });
-
-    if (!response.ok) {
-      setError("Duplicate failed");
-      return;
-    }
-
-    await loadItems();
-  }
-
-  async function deleteItem(id: string) {
-    if (!window.confirm("Delete this library item?")) return;
-
-    const response = await fetch(`/api/admin/module-library/${id}`, {
-      method: "DELETE",
-    });
-
-    if (!response.ok) {
-      setError("Delete failed");
-      return;
-    }
-
-    await loadItems();
-  }
+  const items = rows.map((item) => ({
+    ...item,
+    preview: getModuleLibraryPreview(item),
+  }));
 
   const sectionLabel = MODULE_LIBRARY_LABELS[moduleKey];
   const variantLabel =
@@ -99,53 +66,43 @@ export default function AdminLibraryPage() {
 
       <section className="admin-section-block admin-section-block--filters">
         <h2 className="admin-section-label">Filter by section</h2>
-        <div className="admin-toolbar admin-library-filters">
-          <div className="admin-field">
-            <label className="admin-label" htmlFor="lib-module-key">
-              Section type
-            </label>
-            <select
-              id="lib-module-key"
-              className="admin-input admin-filter"
-              value={moduleKey}
-              onChange={(event) => {
-                setModuleKey(event.target.value as ModuleLibraryKey);
-                setVariant("");
-              }}
-            >
-              {MODULE_KEYS.map((key) => (
-                <option key={key} value={key}>
-                  {MODULE_LIBRARY_LABELS[key]}
-                </option>
-              ))}
-            </select>
-          </div>
+        <form method="get" className="admin-filter-bar">
+          <AdminFilterSelect
+            id="lib-module-key"
+            name="moduleKey"
+            label="Section type"
+            defaultValue={moduleKey}
+          >
+            {MODULE_KEYS.map((key) => (
+              <option key={key} value={key}>
+                {MODULE_LIBRARY_LABELS[key]}
+              </option>
+            ))}
+          </AdminFilterSelect>
 
           {moduleKey === "hero" ? (
-            <div className="admin-field">
-              <label className="admin-label" htmlFor="lib-variant">
-                Hero layout
-              </label>
-              <select
-                id="lib-variant"
-                className="admin-input admin-filter"
-                value={variant}
-                onChange={(event) => setVariant(event.target.value)}
-              >
-                <option value="">All layouts</option>
-                {(
-                  Object.keys(
-                    HERO_VARIANT_LABELS,
-                  ) as (keyof typeof HERO_VARIANT_LABELS)[]
-                ).map((key) => (
-                  <option key={key} value={key}>
-                    {HERO_VARIANT_LABELS[key]}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <AdminFilterSelect
+              id="lib-variant"
+              name="variant"
+              label="Hero layout"
+              defaultValue={variant}
+              wide
+            >
+              <option value="">All layouts</option>
+              {(
+                Object.keys(
+                  HERO_VARIANT_LABELS,
+                ) as (keyof typeof HERO_VARIANT_LABELS)[]
+              ).map((key) => (
+                <option key={key} value={key}>
+                  {HERO_VARIANT_LABELS[key]}
+                </option>
+              ))}
+            </AdminFilterSelect>
           ) : null}
-        </div>
+
+          <AdminFilterSubmit>Apply filters</AdminFilterSubmit>
+        </form>
       </section>
 
       <section className="admin-section-block">
@@ -157,19 +114,14 @@ export default function AdminLibraryPage() {
           <span className="admin-section-count">{items.length} items</span>
         </div>
 
-        {error ? <p className="admin-error">{error}</p> : null}
-        {loading ? <p className="admin-hint">Loading…</p> : null}
-
-        {!loading && items.length === 0 ? (
+        {items.length === 0 ? (
           <div className="admin-empty-card">
             <p>No items in this section yet.</p>
             <p className="admin-hint">
               Save from a page editor with &ldquo;Save to library&rdquo;.
             </p>
           </div>
-        ) : null}
-
-        {!loading && items.length > 0 ? (
+        ) : (
           <div className="admin-compact-table">
             <div className="admin-compact-table-head admin-compact-table-row">
               <span className="admin-compact-col admin-compact-col--num">
@@ -216,32 +168,32 @@ export default function AdminLibraryPage() {
                 <span className="admin-compact-col admin-compact-col--date">
                   {new Date(item.updatedAt).toLocaleDateString()}
                 </span>
-                <span className="admin-compact-col admin-compact-col--actions">
-                  <Link
+                <span className="admin-compact-col admin-compact-col--actions admin-row-actions">
+                  <AdminIconLink
                     href={`/admin/library/${item.id}`}
-                    className="admin-btn-xs admin-btn-xs--ghost"
+                    label="Edit"
+                    icon={<Pencil size={16} />}
+                  />
+                  <AdminActionForm
+                    action={duplicateLibraryItemAction}
+                    fields={{ id: item.id }}
+                    label="Duplicate"
                   >
-                    Edit
-                  </Link>
-                  <button
-                    type="button"
-                    className="admin-btn-xs admin-btn-xs--ghost"
-                    onClick={() => duplicateItem(item)}
+                    <Copy size={16} />
+                  </AdminActionForm>
+                  <AdminConfirmForm
+                    action={deleteLibraryItemAction}
+                    confirmMessage="Delete this library item?"
+                    label="Delete"
+                    fields={{ id: item.id }}
                   >
-                    Copy
-                  </button>
-                  <button
-                    type="button"
-                    className="admin-btn-xs admin-btn-xs--danger"
-                    onClick={() => deleteItem(item.id)}
-                  >
-                    Del
-                  </button>
+                    <Trash size={16} />
+                  </AdminConfirmForm>
                 </span>
               </div>
             ))}
           </div>
-        ) : null}
+        )}
       </section>
     </div>
   );

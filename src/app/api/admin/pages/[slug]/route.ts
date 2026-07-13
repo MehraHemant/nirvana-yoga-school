@@ -1,4 +1,12 @@
 import type { SitePageDocument } from "@/content/types";
+import {
+  jsonBadRequest,
+  jsonForbidden,
+  jsonMutationOk,
+  jsonNotFound,
+  jsonOk,
+  jsonUnauthorized,
+} from "@/lib/cms/api-response";
 import { getSessionFromRequest, requireAdminRole } from "@/lib/cms/auth";
 import {
   mapPageToSitePageDocument,
@@ -9,16 +17,18 @@ import {
   upsertSitePageDocument,
 } from "@/lib/cms/document-to-db";
 import { prisma } from "@/lib/db";
-
-type RouteContext = { params: Promise<{ slug: string }> };
+import type { ApiRouteParams } from "@/lib/types/api";
 
 /**
  * Load a full site page for editing.
  */
-export async function GET(request: Request, context: RouteContext) {
+export async function GET(
+  request: Request,
+  context: ApiRouteParams<{ slug: string }>,
+) {
   const session = await getSessionFromRequest(request);
   if (!session) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonUnauthorized();
   }
 
   const { slug } = await context.params;
@@ -28,10 +38,10 @@ export async function GET(request: Request, context: RouteContext) {
   });
 
   if (!page) {
-    return Response.json({ error: "Not found" }, { status: 404 });
+    return jsonNotFound();
   }
 
-  return Response.json({
+  return jsonOk({
     page: mapPageToSitePageDocument(page),
     meta: { id: page.id, type: page.type, published: page.published },
   });
@@ -40,38 +50,44 @@ export async function GET(request: Request, context: RouteContext) {
 /**
  * Upsert a site page document from admin editor.
  */
-export async function PUT(request: Request, context: RouteContext) {
+export async function PUT(
+  request: Request,
+  context: ApiRouteParams<{ slug: string }>,
+) {
   const session = await getSessionFromRequest(request);
   if (!session) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonUnauthorized();
   }
 
   const { slug } = await context.params;
   const body = (await request.json()) as SitePageDocument;
   if (body.slug !== slug) {
-    return Response.json({ error: "Slug mismatch" }, { status: 400 });
+    return jsonBadRequest("Slug mismatch");
   }
 
   const page = await upsertSitePageDocument(body);
-  return Response.json({ ok: true, id: page.id });
+  return jsonMutationOk(page.id);
 }
 
 /**
  * Unpublish a page (admin role required).
  */
-export async function DELETE(request: Request, context: RouteContext) {
+export async function DELETE(
+  request: Request,
+  context: ApiRouteParams<{ slug: string }>,
+) {
   const session = await getSessionFromRequest(request);
   if (!session) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonUnauthorized();
   }
 
   try {
     requireAdminRole(session);
   } catch {
-    return Response.json({ error: "Forbidden" }, { status: 403 });
+    return jsonForbidden();
   }
 
   const { slug } = await context.params;
   await unpublishPage(slug);
-  return Response.json({ ok: true });
+  return jsonMutationOk();
 }

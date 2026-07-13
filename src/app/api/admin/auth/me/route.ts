@@ -1,4 +1,6 @@
+import { jsonOk } from "@/lib/cms/api-response";
 import { getServerSession } from "@/lib/cms/auth";
+import { HTTP } from "@/lib/types/api";
 
 /**
  * Return the current admin session user.
@@ -6,7 +8,7 @@ import { getServerSession } from "@/lib/cms/auth";
 export async function GET() {
   const session = await getServerSession();
   if (!session) {
-    return Response.json({ user: null }, { status: 401 });
+    return jsonOk({ user: null }, { status: HTTP.UNAUTHORIZED });
   }
-  return Response.json({ user: session });
+  return jsonOk({ user: session });
 }

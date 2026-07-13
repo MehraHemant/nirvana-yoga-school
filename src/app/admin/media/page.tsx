@@ -1,28 +1,21 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { AdminIconButton } from "@/components/admin/AdminIconAction";
 import { MediaMetadataFields } from "@/components/admin/MediaMetadataFields";
 import { MediaUploadPanel } from "@/components/admin/MediaUploadPanel";
+import { Check, Close, Pencil, Trash } from "@/icons";
+import {
+  deleteAdminMedia,
+  fetchAdminMedia,
+  updateAdminMedia,
+} from "@/lib/api/admin-client";
 import { MAX_UPLOAD_LABEL } from "@/lib/cdn/constants";
 import { MEDIA_TAG_PRESETS } from "@/lib/cdn/media-tags";
+import type { AdminMediaListResponse } from "@/lib/types/admin-api";
+import { ApiClientError } from "@/lib/types/api";
 
-type MediaUsage = {
-  inUse: boolean;
-  references: string[];
-};
-
-type MediaAsset = {
-  id: string;
-  url: string;
-  mime: string;
-  sizeBytes: number;
-  alt: string | null;
-  caption: string | null;
-  description: string | null;
-  tags: string[];
-  createdAt: string;
-  usage: MediaUsage;
-};
+type MediaAsset = AdminMediaListResponse["assets"][number];
 
 /**
  * Admin media library with metadata, tags, and safe delete.
@@ -43,18 +36,15 @@ export default function AdminMediaPage() {
     setLoading(true);
     setError("");
 
-    const params = tagFilter ? `?tag=${encodeURIComponent(tagFilter)}` : "";
-    const response = await fetch(`/api/admin/media${params}`);
-    if (!response.ok) {
-      setError("Failed to load media");
+    try {
+      const body = await fetchAdminMedia(tagFilter || undefined);
+      setAssets(body.assets);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load media");
       setAssets([]);
+    } finally {
       setLoading(false);
-      return;
     }
-
-    const body = (await response.json()) as { assets: MediaAsset[] };
-    setAssets(body.assets);
-    setLoading(false);
   }, [tagFilter]);
 
   useEffect(() => {
@@ -72,28 +62,21 @@ export default function AdminMediaPage() {
     setSaving(true);
     setError("");
 
-    const response = await fetch(`/api/admin/media/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+    try {
+      await updateAdminMedia(id, {
         caption: editCaption,
         description: editDescription,
         tags: editTags,
         alt: editCaption,
-      }),
-    });
-
-    setSaving(false);
-
-    if (!response.ok) {
-      const body = (await response.json()) as { error?: string };
-      setError(body.error ?? "Save failed");
-      return;
+      });
+      setEditingId(null);
+      setMessage("Image details saved");
+      await loadAssets();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Save failed");
+    } finally {
+      setSaving(false);
     }
-
-    setEditingId(null);
-    setMessage("Image details saved");
-    await loadAssets();
   }
 
   async function deleteAsset(asset: MediaAsset) {
@@ -104,26 +87,18 @@ export default function AdminMediaPage() {
 
     if (!window.confirm("Delete this image from the library and CDN?")) return;
 
-    const response = await fetch(`/api/admin/media/${asset.id}`, {
-      method: "DELETE",
-    });
-
-    if (!response.ok) {
-      const body = (await response.json()) as {
-        error?: string;
-        references?: string[];
-      };
-      setError(
-        body.references?.length
-          ? `${body.error}: ${body.references.join(", ")}`
-          : (body.error ?? "Delete failed"),
-      );
-      return;
+    try {
+      await deleteAdminMedia(asset.id);
+      setMessage("Image deleted");
+      if (editingId === asset.id) setEditingId(null);
+      await loadAssets();
+    } catch (err) {
+      if (err instanceof ApiClientError && err.references?.length) {
+        setError(`${err.message}: ${err.references.join(", ")}`);
+      } else {
+        setError(err instanceof Error ? err.message : "Delete failed");
+      }
     }
-
-    setMessage("Image deleted");
-    if (editingId === asset.id) setEditingId(null);
-    await loadAssets();
   }
 
   return (
@@ -228,47 +203,39 @@ export default function AdminMediaPage() {
               )}
             </div>
 
-            <div className="admin-media-list-actions">
+            <div className="admin-media-list-actions admin-row-actions">
               {editingId === asset.id ? (
                 <>
-                  <button
-                    type="button"
-                    className="admin-btn-sm"
+                  <AdminIconButton
+                    label={saving ? "Saving…" : "Save changes"}
                     disabled={saving}
                     onClick={() => saveEdit(asset.id)}
-                  >
-                    {saving ? "Saving…" : "Save"}
-                  </button>
-                  <button
-                    type="button"
-                    className="admin-btn-sm admin-btn-sm--ghost"
+                    icon={<Check size={16} />}
+                  />
+                  <AdminIconButton
+                    label="Cancel editing"
                     onClick={() => setEditingId(null)}
-                  >
-                    Cancel
-                  </button>
+                    icon={<Close size={16} />}
+                  />
                 </>
               ) : (
                 <>
-                  <button
-                    type="button"
-                    className="admin-btn-sm admin-btn-sm--ghost"
+                  <AdminIconButton
+                    label="Edit metadata"
                     onClick={() => startEdit(asset)}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    type="button"
-                    className="admin-btn-sm admin-btn-sm--danger"
-                    disabled={asset.usage.inUse}
-                    title={
+                    icon={<Pencil size={16} />}
+                  />
+                  <AdminIconButton
+                    label={
                       asset.usage.inUse
-                        ? `In use: ${asset.usage.references.join(", ")}`
+                        ? `Cannot delete — in use: ${asset.usage.references.join(", ")}`
                         : "Delete image"
                     }
+                    variant="danger"
+                    disabled={asset.usage.inUse}
                     onClick={() => deleteAsset(asset)}
-                  >
-                    Delete
-                  </button>
+                    icon={<Trash size={16} />}
+                  />
                 </>
               )}
             </div>

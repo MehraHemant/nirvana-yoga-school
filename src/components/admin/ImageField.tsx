@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { uploadAdminMedia } from "@/lib/api/admin-client";
 import { MAX_UPLOAD_BYTES, MAX_UPLOAD_LABEL } from "@/lib/cdn/constants";
 import { MediaMetadataFields } from "./MediaMetadataFields";
 import { MediaPicker } from "./MediaPicker";
@@ -60,23 +61,16 @@ export function ImageField({ label, value, onChange, hint }: ImageFieldProps) {
     form.append("description", description);
     form.append("tags", JSON.stringify(tags));
 
-    const response = await fetch("/api/admin/media/upload", {
-      method: "POST",
-      body: form,
-    });
-
-    setUploading(false);
-
-    if (!response.ok) {
-      const body = (await response.json()) as { error?: string };
-      setError(body.error ?? "Upload failed");
-      return;
+    try {
+      const body = await uploadAdminMedia(form);
+      onChange(body.url);
+      setUploadModalOpen(false);
+      setPendingFile(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setUploading(false);
     }
-
-    const body = (await response.json()) as { url: string };
-    onChange(body.url);
-    setUploadModalOpen(false);
-    setPendingFile(null);
   }
 
   const fieldId = `image-field-${label.replace(/\s+/g, "-").toLowerCase()}`;

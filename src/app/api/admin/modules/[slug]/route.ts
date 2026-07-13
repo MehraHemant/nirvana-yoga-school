@@ -1,18 +1,26 @@
 import type { PageModulesDocument } from "@/content/types";
+import {
+  jsonMutationOk,
+  jsonNotFound,
+  jsonOk,
+  jsonUnauthorized,
+} from "@/lib/cms/api-response";
 import { getSessionFromRequest } from "@/lib/cms/auth";
 import { mapPageModulesFromRow } from "@/lib/cms/db-page-modules";
 import { upsertPageModules } from "@/lib/cms/document-to-db";
 import { prisma } from "@/lib/db";
-
-type RouteContext = { params: Promise<{ slug: string }> };
+import type { ApiRouteParams } from "@/lib/types/api";
 
 /**
  * Load page modules for editing.
  */
-export async function GET(request: Request, context: RouteContext) {
+export async function GET(
+  request: Request,
+  context: ApiRouteParams<{ slug: string }>,
+) {
   const session = await getSessionFromRequest(request);
   if (!session) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonUnauthorized();
   }
 
   const { slug } = await context.params;
@@ -28,15 +36,15 @@ export async function GET(request: Request, context: RouteContext) {
   });
 
   if (!page) {
-    return Response.json({ error: "Not found" }, { status: 404 });
+    return jsonNotFound();
   }
 
   const modules = mapPageModulesFromRow(page);
   if (!modules) {
-    return Response.json({ error: "No modules configured" }, { status: 404 });
+    return jsonNotFound("No modules configured");
   }
 
-  return Response.json({
+  return jsonOk({
     modules,
     meta: { id: page.id, type: page.type, published: page.published },
   });
@@ -45,15 +53,18 @@ export async function GET(request: Request, context: RouteContext) {
 /**
  * Upsert page modules from admin editor.
  */
-export async function PUT(request: Request, context: RouteContext) {
+export async function PUT(
+  request: Request,
+  context: ApiRouteParams<{ slug: string }>,
+) {
   const session = await getSessionFromRequest(request);
   if (!session) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonUnauthorized();
   }
 
   const { slug } = await context.params;
   const body = (await request.json()) as PageModulesDocument;
 
   const page = await upsertPageModules(slug, body);
-  return Response.json({ ok: true, id: page.id });
+  return jsonMutationOk(page.id);
 }

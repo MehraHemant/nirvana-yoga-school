@@ -1,3 +1,11 @@
+import {
+  jsonBadRequest,
+  jsonConflict,
+  jsonInternal,
+  jsonNotFound,
+  jsonOk,
+  jsonUnavailable,
+} from "@/lib/cms/api-response";
 import { attachPaypalOrder, getBookingById } from "@/lib/cms/bookings";
 import { isDbEnabled } from "@/lib/db";
 import { createPayPalOrder, isPayPalConfigured } from "@/lib/payments/paypal";
@@ -7,28 +15,25 @@ import { createPayPalOrder, isPayPalConfigured } from "@/lib/payments/paypal";
  */
 export async function POST(request: Request) {
   if (!isDbEnabled()) {
-    return Response.json({ error: "Database unavailable" }, { status: 503 });
+    return jsonUnavailable("Database unavailable");
   }
 
   if (!isPayPalConfigured()) {
-    return Response.json(
-      { error: "PayPal is not configured" },
-      { status: 503 },
-    );
+    return jsonUnavailable("PayPal is not configured");
   }
 
   const body = (await request.json()) as { bookingId?: string };
   if (!body.bookingId) {
-    return Response.json({ error: "bookingId is required" }, { status: 400 });
+    return jsonBadRequest("bookingId is required");
   }
 
   const booking = await getBookingById(body.bookingId);
   if (!booking) {
-    return Response.json({ error: "Booking not found" }, { status: 404 });
+    return jsonNotFound("Booking not found");
   }
 
   if (booking.status !== "pending_payment") {
-    return Response.json({ error: "Booking is not payable" }, { status: 409 });
+    return jsonConflict("Booking is not payable");
   }
 
   try {
@@ -40,11 +45,8 @@ export async function POST(request: Request) {
 
     await attachPaypalOrder(booking.id, order.id);
 
-    return Response.json({ orderId: order.id });
+    return jsonOk({ orderId: order.id });
   } catch {
-    return Response.json(
-      { error: "Failed to create PayPal order" },
-      { status: 500 },
-    );
+    return jsonInternal("Failed to create PayPal order");
   }
 }

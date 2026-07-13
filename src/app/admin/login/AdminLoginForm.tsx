@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+import { loginAdmin } from "@/lib/api/admin-client";
 
 /**
  * Admin login form.
@@ -11,7 +12,7 @@ export default function AdminLoginForm() {
   const searchParams = useSearchParams();
   const next = searchParams.get("next") ?? "/admin";
 
-  const [email, setEmail] = useState("admin@nirvanayogaschoolindia.com");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -21,21 +22,14 @@ export default function AdminLoginForm() {
     setLoading(true);
     setError("");
 
-    const response = await fetch("/api/admin/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
-
-    if (!response.ok) {
-      const body = (await response.json()) as { error?: string };
-      setError(body.error ?? "Login failed");
+    try {
+      await loginAdmin({ email, password });
+      router.push(next);
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Login failed");
       setLoading(false);
-      return;
     }
-
-    router.push(next);
-    router.refresh();
   }
 
   return (
@@ -57,6 +51,7 @@ export default function AdminLoginForm() {
             type="email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
+            autoComplete="username"
             required
           />
         </div>
@@ -70,6 +65,7 @@ export default function AdminLoginForm() {
             type="password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
+            autoComplete="current-password"
             required
           />
         </div>

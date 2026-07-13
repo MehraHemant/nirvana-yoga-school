@@ -27,6 +27,10 @@ import type {
 } from "@/content/types";
 import { MODULE_LIBRARY_LABELS } from "@/content/types";
 import type { StickyNavItem } from "@/content/types/shared";
+import {
+  fetchAdminModuleLibraryItem,
+  saveAdminModuleLibraryItem,
+} from "@/lib/api/admin-client";
 
 /**
  * Edit a single module library item payload and name.
@@ -43,12 +47,8 @@ export default function AdminLibraryEditPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch(`/api/admin/module-library/${id}`)
-      .then(async (response) => {
-        if (!response.ok) throw new Error("Not found");
-        const body = (await response.json()) as {
-          item: ModuleLibraryItemRecord;
-        };
+    fetchAdminModuleLibraryItem(id)
+      .then((body) => {
         setItem(body.item);
         setName(body.item.name);
       })
@@ -63,23 +63,18 @@ export default function AdminLibraryEditPage() {
     setSaved(false);
     setError("");
 
-    const response = await fetch(`/api/admin/module-library/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, payload: item.payload }),
-    });
-
-    setSaving(false);
-
-    if (!response.ok) {
-      const body = (await response.json()) as { error?: string };
-      setError(body.error ?? "Save failed");
-      return;
+    try {
+      const body = await saveAdminModuleLibraryItem(id, {
+        name,
+        payload: item.payload,
+      });
+      setItem(body.item);
+      setSaved(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Save failed");
+    } finally {
+      setSaving(false);
     }
-
-    const body = (await response.json()) as { item: ModuleLibraryItemRecord };
-    setItem(body.item);
-    setSaved(true);
   }
 
   function updatePayload(payload: unknown) {

@@ -1,5 +1,6 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import { jsonUnauthorized } from "@/lib/cms/api-response";
 import { getSessionFromNextRequest } from "@/lib/cms/auth-session";
 
 const PUBLIC_ADMIN_PATHS = ["/admin/login", "/api/admin/auth/login"];
@@ -25,7 +26,7 @@ export async function middleware(request: NextRequest) {
   const session = await getSessionFromNextRequest(request);
   if (!session) {
     if (isAdminApi) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return jsonUnauthorized();
     }
     const loginUrl = new URL("/admin/login", request.url);
     loginUrl.searchParams.set("next", pathname);

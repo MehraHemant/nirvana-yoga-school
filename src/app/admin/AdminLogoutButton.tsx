@@ -1,11 +1,13 @@
 "use client";
 
+import { logoutAdmin } from "@/lib/api/admin-client";
+
 /**
  * Logout button for the admin header.
  */
 export function AdminLogoutButton() {
   async function onLogout() {
-    await fetch("/api/admin/auth/logout", { method: "POST" });
+    await logoutAdmin();
     window.location.href = "/admin/login";
   }
 

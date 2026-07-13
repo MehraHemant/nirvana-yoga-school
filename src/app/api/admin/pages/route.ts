@@ -1,3 +1,4 @@
+import { jsonOk, jsonUnauthorized } from "@/lib/cms/api-response";
 import { getSessionFromRequest } from "@/lib/cms/auth";
 import { prisma } from "@/lib/db";
 
@@ -7,7 +8,7 @@ import { prisma } from "@/lib/db";
 export async function GET(request: Request) {
   const session = await getSessionFromRequest(request);
   if (!session) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonUnauthorized();
   }
 
   const pages = await prisma.page.findMany({
@@ -22,5 +23,5 @@ export async function GET(request: Request) {
     },
   });
 
-  return Response.json({ pages });
+  return jsonOk({ pages });
 }

@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import type { ModuleLibraryKey } from "@/content/types";
+import type { ModuleLibraryKey, ModuleLibraryPayload } from "@/content/types";
 import { MODULE_LIBRARY_LABELS } from "@/content/types";
+import { createAdminModuleLibraryItem } from "@/lib/api/admin-client";
 import { ModuleLibraryPicker } from "./ModuleLibraryPicker";
 
 type ModuleLibraryPanelActionsProps = {
@@ -37,26 +38,19 @@ export function ModuleLibraryPanelActions({
     setSaving(true);
     setMessage("");
 
-    const response = await fetch("/api/admin/module-library", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+    try {
+      await createAdminModuleLibraryItem({
         moduleKey,
         variant: variant ?? null,
         name: name.trim(),
-        payload,
-      }),
-    });
-
-    setSaving(false);
-
-    if (!response.ok) {
-      const body = (await response.json()) as { error?: string };
-      setMessage(body.error ?? "Save failed");
-      return;
+        payload: payload as ModuleLibraryPayload,
+      });
+      setMessage("Saved to library");
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : "Save failed");
+    } finally {
+      setSaving(false);
     }
-
-    setMessage("Saved to library");
   }
 
   function insertFromLibrary(libraryPayload: unknown) {

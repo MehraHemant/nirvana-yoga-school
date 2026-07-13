@@ -2,14 +2,13 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import type {
-  ModuleLibraryItemRecord,
-  ModuleLibraryKey,
-} from "@/content/types";
+import type { ModuleLibraryKey } from "@/content/types";
 import { MODULE_LIBRARY_LABELS } from "@/content/types";
+import { fetchAdminModuleLibrary } from "@/lib/api/admin-client";
 import { clonePayload } from "@/lib/cms/module-library";
+import type { AdminModuleLibraryListResponse } from "@/lib/types/admin-api";
 
-type LibraryListItem = ModuleLibraryItemRecord & { preview: string };
+type LibraryListItem = AdminModuleLibraryListResponse["items"][number];
 
 type ModuleLibraryPickerProps = {
   open: boolean;
@@ -44,12 +43,8 @@ export function ModuleLibraryPicker({
     const params = new URLSearchParams({ moduleKey });
     if (variant) params.set("variant", variant);
 
-    fetch(`/api/admin/module-library?${params}`)
-      .then(async (response) => {
-        if (!response.ok) throw new Error("Failed to load library");
-        const body = (await response.json()) as { items: LibraryListItem[] };
-        setItems(body.items);
-      })
+    fetchAdminModuleLibrary(params)
+      .then((body) => setItems(body.items))
       .catch(() => {
         setItems([]);
         setError("Could not load library items");

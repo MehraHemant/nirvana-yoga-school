@@ -4,6 +4,7 @@ import type {
   LeadSubmissionInput,
 } from "@/content/types/lead";
 import { prisma } from "@/lib/db";
+import type { ParseResult } from "@/lib/types/api";
 
 /** Prisma filter for active (non-deleted) leads. */
 const ACTIVE_LEAD_FILTER = { deletedAt: null } as const;
@@ -250,7 +251,7 @@ export async function restoreLead(id: string) {
  */
 export function parseLeadInput(
   body: unknown,
-): { ok: true; data: LeadSubmissionInput } | { ok: false; error: string } {
+): ParseResult<LeadSubmissionInput> {
   if (!body || typeof body !== "object") {
     return { ok: false, error: "Invalid payload" };
   }

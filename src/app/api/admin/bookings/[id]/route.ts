@@ -1,20 +1,28 @@
+import {
+  jsonMutationOk,
+  jsonNotFound,
+  jsonUnauthorized,
+  jsonUnavailable,
+} from "@/lib/cms/api-response";
 import { getSessionFromRequest } from "@/lib/cms/auth";
 import { restoreBooking, softDeleteBooking } from "@/lib/cms/bookings";
 import { isDbEnabled } from "@/lib/db";
-
-type RouteContext = { params: Promise<{ id: string }> };
+import type { ApiRouteParams } from "@/lib/types/api";
 
 /**
  * Soft-delete or restore a booking from the admin portal.
  */
-export async function PATCH(request: Request, context: RouteContext) {
+export async function PATCH(
+  request: Request,
+  context: ApiRouteParams<{ id: string }>,
+) {
   const session = await getSessionFromRequest(request);
   if (!session) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonUnauthorized();
   }
 
   if (!isDbEnabled()) {
-    return Response.json({ error: "Database unavailable" }, { status: 503 });
+    return jsonUnavailable("Database unavailable");
   }
 
   const { id } = await context.params;
@@ -26,31 +34,34 @@ export async function PATCH(request: Request, context: RouteContext) {
     } else {
       await softDeleteBooking(id);
     }
-    return Response.json({ ok: true });
+    return jsonMutationOk();
   } catch {
-    return Response.json({ error: "Booking not found" }, { status: 404 });
+    return jsonNotFound("Booking not found");
   }
 }
 
 /**
  * Soft-delete a booking.
  */
-export async function DELETE(request: Request, context: RouteContext) {
+export async function DELETE(
+  request: Request,
+  context: ApiRouteParams<{ id: string }>,
+) {
   const session = await getSessionFromRequest(request);
   if (!session) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonUnauthorized();
   }
 
   if (!isDbEnabled()) {
-    return Response.json({ error: "Database unavailable" }, { status: 503 });
+    return jsonUnavailable("Database unavailable");
   }
 
   const { id } = await context.params;
 
   try {
     await softDeleteBooking(id);
-    return Response.json({ ok: true });
+    return jsonMutationOk();
   } catch {
-    return Response.json({ error: "Booking not found" }, { status: 404 });
+    return jsonNotFound("Booking not found");
   }
 }

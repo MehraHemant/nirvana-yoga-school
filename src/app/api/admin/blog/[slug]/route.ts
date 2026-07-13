@@ -1,24 +1,33 @@
 import type { BlogPostDocument } from "@/content/types";
+import {
+  jsonBadRequest,
+  jsonMutationOk,
+  jsonNotFound,
+  jsonOk,
+  jsonUnauthorized,
+} from "@/lib/cms/api-response";
 import { getSessionFromRequest } from "@/lib/cms/auth";
 import { upsertBlogPost } from "@/lib/cms/document-to-db";
 import { prisma } from "@/lib/db";
-
-type RouteContext = { params: Promise<{ slug: string }> };
+import type { ApiRouteParams } from "@/lib/types/api";
 
 /**
  * Load a blog post for editing.
  */
-export async function GET(request: Request, context: RouteContext) {
+export async function GET(
+  request: Request,
+  context: ApiRouteParams<{ slug: string }>,
+) {
   const session = await getSessionFromRequest(request);
   if (!session) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonUnauthorized();
   }
 
   const { slug } = await context.params;
   const post = await prisma.blogPost.findUnique({ where: { slug } });
 
   if (!post) {
-    return Response.json({ error: "Not found" }, { status: 404 });
+    return jsonNotFound();
   }
 
   const document: BlogPostDocument = {
@@ -32,7 +41,7 @@ export async function GET(request: Request, context: RouteContext) {
     bodyHtml: post.bodyHtml,
   };
 
-  return Response.json({
+  return jsonOk({
     post: document,
     meta: { id: post.id, published: post.published },
   });
@@ -41,18 +50,21 @@ export async function GET(request: Request, context: RouteContext) {
 /**
  * Upsert a blog post from the admin editor.
  */
-export async function PUT(request: Request, context: RouteContext) {
+export async function PUT(
+  request: Request,
+  context: ApiRouteParams<{ slug: string }>,
+) {
   const session = await getSessionFromRequest(request);
   if (!session) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonUnauthorized();
   }
 
   const { slug } = await context.params;
   const body = (await request.json()) as BlogPostDocument;
   if (body.slug !== slug) {
-    return Response.json({ error: "Slug mismatch" }, { status: 400 });
+    return jsonBadRequest("Slug mismatch");
   }
 
   const post = await upsertBlogPost(body);
-  return Response.json({ ok: true, id: post.id });
+  return jsonMutationOk(post.id);
 }

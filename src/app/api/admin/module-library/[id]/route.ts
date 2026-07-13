@@ -1,38 +1,50 @@
 import type { UpdateModuleLibraryItemInput } from "@/content/types";
+import {
+  jsonBadRequest,
+  jsonMutationOk,
+  jsonNotFound,
+  jsonOk,
+  jsonUnauthorized,
+} from "@/lib/cms/api-response";
 import { getSessionFromRequest } from "@/lib/cms/auth";
 import {
   deleteModuleLibraryItem,
   getModuleLibraryItem,
   updateModuleLibraryItem,
 } from "@/lib/cms/module-library";
-
-type RouteContext = { params: Promise<{ id: string }> };
+import type { ApiRouteParams } from "@/lib/types/api";
 
 /**
  * Load a single module library item.
  */
-export async function GET(request: Request, context: RouteContext) {
+export async function GET(
+  request: Request,
+  context: ApiRouteParams<{ id: string }>,
+) {
   const session = await getSessionFromRequest(request);
   if (!session) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonUnauthorized();
   }
 
   const { id } = await context.params;
   const item = await getModuleLibraryItem(id);
   if (!item) {
-    return Response.json({ error: "Not found" }, { status: 404 });
+    return jsonNotFound();
   }
 
-  return Response.json({ item });
+  return jsonOk({ item });
 }
 
 /**
  * Update a module library item.
  */
-export async function PUT(request: Request, context: RouteContext) {
+export async function PUT(
+  request: Request,
+  context: ApiRouteParams<{ id: string }>,
+) {
   const session = await getSessionFromRequest(request);
   if (!session) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonUnauthorized();
   }
 
   const { id } = await context.params;
@@ -40,29 +52,34 @@ export async function PUT(request: Request, context: RouteContext) {
 
   try {
     const item = await updateModuleLibraryItem(id, body);
-    return Response.json({ item });
+    return jsonOk({ item });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Update failed";
-    const status = message === "Library item not found" ? 404 : 400;
-    return Response.json({ error: message }, { status });
+    if (message === "Library item not found") {
+      return jsonNotFound(message);
+    }
+    return jsonBadRequest(message);
   }
 }
 
 /**
  * Delete a module library item.
  */
-export async function DELETE(request: Request, context: RouteContext) {
+export async function DELETE(
+  request: Request,
+  context: ApiRouteParams<{ id: string }>,
+) {
   const session = await getSessionFromRequest(request);
   if (!session) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonUnauthorized();
   }
 
   const { id } = await context.params;
 
   try {
     await deleteModuleLibraryItem(id);
-    return Response.json({ ok: true });
+    return jsonMutationOk();
   } catch {
-    return Response.json({ error: "Not found" }, { status: 404 });
+    return jsonNotFound();
   }
 }

@@ -205,8 +205,8 @@ export default async function AdminDashboardPage() {
         <div className="admin-card">
           <h2>Leads & enquiries</h2>
           <p className="admin-hint">
-            Connect PostgreSQL via DATABASE_URL to track contact and enquiry
-            form submissions on the dashboard.
+            Connect MySQL via DATABASE_URL to track contact and enquiry form
+            submissions on the dashboard.
           </p>
         </div>
       )}
@@ -218,7 +218,7 @@ export default async function AdminDashboardPage() {
             <h2>Data source</h2>
             <p className="admin-hint">
               {dbEnabled
-                ? "PostgreSQL is connected via DATABASE_URL."
+                ? "MySQL is connected via DATABASE_URL."
                 : "DATABASE_URL is not set — public site uses JSON files."}
             </p>
           </div>

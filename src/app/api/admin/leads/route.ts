@@ -1,3 +1,4 @@
+import { jsonOk, jsonUnauthorized } from "@/lib/cms/api-response";
 import { getSessionFromRequest } from "@/lib/cms/auth";
 import { listLeadSubmissions } from "@/lib/cms/leads";
 import { isDbEnabled } from "@/lib/db";
@@ -8,11 +9,11 @@ import { isDbEnabled } from "@/lib/db";
 export async function GET(request: Request) {
   const session = await getSessionFromRequest(request);
   if (!session) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonUnauthorized();
   }
 
   if (!isDbEnabled()) {
-    return Response.json({ leads: [], dbEnabled: false });
+    return jsonOk({ leads: [], dbEnabled: false });
   }
 
   const { searchParams } = new URL(request.url);
@@ -36,5 +37,5 @@ export async function GET(request: Request) {
       : undefined;
 
   const leads = await listLeadSubmissions({ type, status, readState, deleted });
-  return Response.json({ leads, dbEnabled: true });
+  return jsonOk({ leads, dbEnabled: true });
 }

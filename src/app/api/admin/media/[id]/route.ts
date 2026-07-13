@@ -1,10 +1,16 @@
 import { deleteFromCloudinary } from "@/lib/cdn/cloudinary";
-import { normalizeMediaTags } from "@/lib/cdn/media-tags";
+import { normalizeMediaTags, parseMediaTagsFromDb } from "@/lib/cdn/media-tags";
+import {
+  jsonConflict,
+  jsonMutationOk,
+  jsonNotFound,
+  jsonOk,
+  jsonUnauthorized,
+} from "@/lib/cms/api-response";
 import { getSessionFromRequest } from "@/lib/cms/auth";
 import { getMediaAssetUsage } from "@/lib/cms/media-usage";
 import { prisma } from "@/lib/db";
-
-type RouteContext = { params: Promise<{ id: string }> };
+import type { ApiRouteParams } from "@/lib/types/api";
 
 type MediaUpdateBody = {
   caption?: string | null;
@@ -16,23 +22,27 @@ type MediaUpdateBody = {
 /**
  * Load a single media asset with usage info.
  */
-export async function GET(request: Request, context: RouteContext) {
+export async function GET(
+  request: Request,
+  context: ApiRouteParams<{ id: string }>,
+) {
   const session = await getSessionFromRequest(request);
   if (!session) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonUnauthorized();
   }
 
   const { id } = await context.params;
   const asset = await prisma.mediaAsset.findUnique({ where: { id } });
   if (!asset) {
-    return Response.json({ error: "Not found" }, { status: 404 });
+    return jsonNotFound();
   }
 
   const usage = await getMediaAssetUsage({ id: asset.id, url: asset.url });
 
-  return Response.json({
+  return jsonOk({
     asset: {
       ...asset,
+      tags: parseMediaTagsFromDb(asset.tags),
       createdAt: asset.createdAt.toISOString(),
       usage,
     },
@@ -42,10 +52,13 @@ export async function GET(request: Request, context: RouteContext) {
 /**
  * Update media metadata (caption, description, tags, alt).
  */
-export async function PUT(request: Request, context: RouteContext) {
+export async function PUT(
+  request: Request,
+  context: ApiRouteParams<{ id: string }>,
+) {
   const session = await getSessionFromRequest(request);
   if (!session) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonUnauthorized();
   }
 
   const { id } = await context.params;
@@ -69,9 +82,10 @@ export async function PUT(request: Request, context: RouteContext) {
 
   const usage = await getMediaAssetUsage({ id: asset.id, url: asset.url });
 
-  return Response.json({
+  return jsonOk({
     asset: {
       ...asset,
+      tags: parseMediaTagsFromDb(asset.tags),
       createdAt: asset.createdAt.toISOString(),
       usage,
     },
@@ -81,31 +95,31 @@ export async function PUT(request: Request, context: RouteContext) {
 /**
  * Delete a media asset when it is not referenced anywhere in the CMS.
  */
-export async function DELETE(request: Request, context: RouteContext) {
+export async function DELETE(
+  request: Request,
+  context: ApiRouteParams<{ id: string }>,
+) {
   const session = await getSessionFromRequest(request);
   if (!session) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonUnauthorized();
   }
 
   const { id } = await context.params;
   const asset = await prisma.mediaAsset.findUnique({ where: { id } });
   if (!asset) {
-    return Response.json({ error: "Not found" }, { status: 404 });
+    return jsonNotFound();
   }
 
   const usage = await getMediaAssetUsage({ id: asset.id, url: asset.url });
   if (usage.inUse) {
-    return Response.json(
-      {
-        error: "Image is in use and cannot be deleted",
-        references: usage.references,
-      },
-      { status: 409 },
+    return jsonConflict(
+      "Image is in use and cannot be deleted",
+      usage.references,
     );
   }
 
   await deleteFromCloudinary(asset.cdnKey);
   await prisma.mediaAsset.delete({ where: { id } });
 
-  return Response.json({ ok: true });
+  return jsonMutationOk();
 }

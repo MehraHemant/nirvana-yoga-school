@@ -1,17 +1,26 @@
 import type { CourseDocument } from "@/content/types";
+import {
+  jsonBadRequest,
+  jsonMutationOk,
+  jsonNotFound,
+  jsonOk,
+  jsonUnauthorized,
+} from "@/lib/cms/api-response";
 import { getSessionFromRequest } from "@/lib/cms/auth";
 import { upsertCourseDocument } from "@/lib/cms/document-to-db";
 import { prisma } from "@/lib/db";
-
-type RouteContext = { params: Promise<{ slug: string }> };
+import type { ApiRouteParams } from "@/lib/types/api";
 
 /**
  * Load a course document for editing.
  */
-export async function GET(request: Request, context: RouteContext) {
+export async function GET(
+  request: Request,
+  context: ApiRouteParams<{ slug: string }>,
+) {
   const session = await getSessionFromRequest(request);
   if (!session) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonUnauthorized();
   }
 
   const { slug } = await context.params;
@@ -21,10 +30,10 @@ export async function GET(request: Request, context: RouteContext) {
   });
 
   if (!page?.courseDoc?.document) {
-    return Response.json({ error: "Not found" }, { status: 404 });
+    return jsonNotFound();
   }
 
-  return Response.json({
+  return jsonOk({
     course: page.courseDoc.document as CourseDocument,
     meta: {
       id: page.id,
@@ -37,16 +46,19 @@ export async function GET(request: Request, context: RouteContext) {
 /**
  * Upsert a course document from the admin editor.
  */
-export async function PUT(request: Request, context: RouteContext) {
+export async function PUT(
+  request: Request,
+  context: ApiRouteParams<{ slug: string }>,
+) {
   const session = await getSessionFromRequest(request);
   if (!session) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
+    return jsonUnauthorized();
   }
 
   const { slug } = await context.params;
   const body = (await request.json()) as CourseDocument;
   if (body.slug !== slug) {
-    return Response.json({ error: "Slug mismatch" }, { status: 400 });
+    return jsonBadRequest("Slug mismatch");
   }
 
   const existing = await prisma.page.findUnique({ where: { slug } });
@@ -56,5 +68,5 @@ export async function PUT(request: Request, context: RouteContext) {
       : "course";
 
   const page = await upsertCourseDocument(body, pageType);
-  return Response.json({ ok: true, id: page.id });
+  return jsonMutationOk(page.id);
 }
