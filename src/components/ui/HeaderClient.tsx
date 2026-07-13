@@ -1,9 +1,10 @@
 "use client";
 
+import { useEffect, useLayoutEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useId, useLayoutEffect, useState } from "react";
+import { useId } from "react";
 import {
   type NavItem,
   navItemHref,
@@ -13,16 +14,10 @@ import {
 } from "@/constants/navigation";
 import { ArrowRight, ChevronDown, MenuIcon } from "@/icons";
 import Button from "./Button";
+import { fetchApi } from "@/lib/api/client";
 
 const DEFAULT_LOGO_LIGHT = "/logo.png";
 const DEFAULT_LOGO_DARK = "/logo_white.png";
-
-interface HeaderData {
-  navigation: NavItem[];
-  signInUrl: string;
-  logo: { light: string; dark: string };
-  cta: { label: string; href: string; variant: "primary" | "secondary" };
-}
 
 function linkProps(href: string, external?: boolean) {
   if (external || href.startsWith("http")) {
@@ -47,12 +42,12 @@ function DesktopDropdown({
   const [forceClosed, setForceClosed] = useState(false);
   const textClass = NavText({
     solid,
-    className: "nav-link nav-dropdown-trigger text-sm font-medium tracking-wide flex items-center gap-1.5 py-1.5 font-sans",
+    className:
+      "nav-link nav-dropdown-trigger text-sm font-medium tracking-wide flex items-center gap-1.5 py-1.5 font-sans",
   });
 
   const regularItems = item.items.filter((sub) => !sub.label.toLowerCase().includes("see all"));
   const seeAllItem = item.items.find((sub) => sub.label.toLowerCase().includes("see all"));
-  const dropdownHref = navItemHref(item);
 
   const closeDropdown = () => {
     setOpen(false);
@@ -60,13 +55,15 @@ function DesktopDropdown({
     if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
   };
 
+  const dropdownHref = navItemHref(item);
+
   return (
     <div
       className={`nav-dropdown relative${open && !forceClosed ? " nav-dropdown--open" : ""}${forceClosed ? " nav-dropdown--closed" : ""}`}
       onMouseEnter={() => { setForceClosed(false); setOpen(true); }}
       onMouseLeave={() => { setOpen(false); setForceClosed(false); }}
       onFocus={() => setOpen(true)}
-      onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setOpen(false); }}
+      onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) { setOpen(false); } }}
     >
       {dropdownHref ? (
         <Link {...linkProps(dropdownHref, item.external)} className={textClass} aria-haspopup="true" aria-controls={menuId}>
@@ -114,14 +111,14 @@ function MobileNavItem({ item, index, onNavigate }: { item: NavItem; index: numb
   if (item.type === "link") {
     const href = navItemHref(item);
     if (!href) return null;
-    return <Link {...linkProps(href, item.external)} onClick={onNavigate} style={style} className="mobile-nav-item py-3.5 px-3 text-base font-medium text-ink/90 hover:text-primary border-b border-ink/5 font-sans tracking-wide">{item.label}</Link>;
+    return (
+      <Link {...linkProps(href, item.external)} onClick={onNavigate} style={style} className="mobile-nav-item py-3.5 px-3 text-base font-medium text-ink/90 hover:text-primary border-b border-ink/5 font-sans tracking-wide">{item.label}</Link>
+    );
   }
 
   return (
     <div style={style} className="mobile-nav-item border-b border-ink/5">
-      <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-controls={panelId} className="w-full py-3.5 px-3 flex items-center justify-between text-base font-medium text-ink/90 hover:text-primary font-sans tracking-wide">
-        {item.label} <ChevronDown className={`nav-chevron opacity-70 ${open ? "rotate-180" : ""}`} />
-      </button>
+      <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-controls={panelId} className="w-full py-3.5 px-3 flex items-center justify-between text-base font-medium text-ink/90 hover:text-primary font-sans tracking-wide">{item.label} <ChevronDown className={`nav-chevron opacity-70 ${open ? "rotate-180" : ""}`} /></button>
       <div id={panelId} className={`mobile-accordion-grid ${open ? "mobile-accordion-grid--open" : ""}`}>
         <div className="mobile-accordion-inner">
           <div className="pb-3 pl-4 pr-2 flex flex-col gap-0.5">
@@ -136,18 +133,14 @@ function MobileNavItem({ item, index, onNavigate }: { item: NavItem; index: numb
   );
 }
 
-async function fetchHeaderData(): Promise<HeaderData | null> {
-  try {
-    const res = await fetch("/api/content/header", { cache: "no-store" });
-    if (!res.ok) return null;
-    const json = await res.json();
-    return json.data as HeaderData;
-  } catch {
-    return null;
-  }
+interface HeaderData {
+  navigation: NavItem[];
+  signInUrl: string;
+  logo: { light: string; dark: string };
+  cta: { label: string; href: string; variant: "primary" | "secondary" };
 }
 
-export default function Header() {
+export default function HeaderClient() {
   const pathname = usePathname();
   const isHome = pathname === "/";
 
@@ -155,17 +148,22 @@ export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [headerData, setHeaderData] = useState<HeaderData | null>(null);
 
-  useEffect(() => { fetchHeaderData().then((data) => setHeaderData(data)); }, []);
-
   useEffect(() => {
     let ticking = false;
-    const onScroll = () => { if (ticking) return; ticking = true; requestAnimationFrame(() => { setScrolled(window.scrollY > 48); ticking = false; }); };
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => { setScrolled(window.scrollY > 48); ticking = false; });
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  useEffect(() => { document.body.style.overflow = mobileOpen ? "hidden" : ""; return () => { document.body.style.overflow = ""; }; }, [mobileOpen]);
+  useEffect(() => {
+    document.body.style.overflow = mobileOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [mobileOpen]);
 
   useEffect(() => {
     if (!mobileOpen) return;
@@ -174,21 +172,16 @@ export default function Header() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [mobileOpen]);
 
+  useEffect(() => {
+    fetchApi<HeaderData>("/api/content/header").then((res) => {
+      if (res.data) setHeaderData(res.data);
+    }).catch(console.error);
+  }, []);
+
   const solid = !isHome || scrolled || mobileOpen;
   const innerHeightClass = scrolled ? "h-[4.5rem] md:h-[5rem]" : "h-[4.75rem] md:h-[5.5rem]";
   const headerTop = scrolled ? "top-[4.5rem] md:top-[5rem]" : "top-[4.75rem] md:top-[5.5rem]";
   const linkClass = NavText({ solid, className: "nav-link text-sm font-medium tracking-wide py-1.5 font-sans" });
-
-  useLayoutEffect(() => {
-    const header = document.querySelector("header");
-    if (!header) return;
-    const syncHeaderHeight = () => { const height = Math.ceil(header.getBoundingClientRect().height); document.documentElement.style.setProperty("--site-header-height", `${height}px`); };
-    syncHeaderHeight();
-    const observer = new ResizeObserver(syncHeaderHeight);
-    observer.observe(header);
-    window.addEventListener("resize", syncHeaderHeight);
-    return () => { observer.disconnect(); window.removeEventListener("resize", syncHeaderHeight); };
-  }, [innerHeightClass]);
 
   const navigation = headerData?.navigation ?? PRIMARY_NAV;
   const signInUrl = headerData?.signInUrl ?? SIGN_IN_URL;
@@ -197,6 +190,20 @@ export default function Header() {
   const ctaLabel = headerData?.cta?.label ?? "Enquire Now";
   const ctaHref = headerData?.cta?.href ?? "/enquire-now";
   const ctaVariant = headerData?.cta?.variant ?? "primary";
+
+  useLayoutEffect(() => {
+    const header = document.querySelector("header");
+    if (!header) return;
+    const syncHeaderHeight = () => {
+      const height = Math.ceil(header.getBoundingClientRect().height);
+      document.documentElement.style.setProperty("--site-header-height", `${height}px`);
+    };
+    syncHeaderHeight();
+    const observer = new ResizeObserver(syncHeaderHeight);
+    observer.observe(header);
+    window.addEventListener("resize", syncHeaderHeight);
+    return () => { observer.disconnect(); window.removeEventListener("resize", syncHeaderHeight); };
+  }, [innerHeightClass]);
 
   return (
     <>

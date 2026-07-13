@@ -338,3 +338,36 @@ export async function uploadAdminMedia(
 }
 
 export type { ModuleLibraryItemRecord };
+
+/**
+ * Fetch global settings (header, footer, siteConfig).
+ */
+/**
+ * Fetch global settings (header, footer, siteConfig).
+ */
+export async function fetchAdminGlobalSettings(key: "header" | "footer" | "siteConfig") {
+  const response = await fetch(`/api/admin/settings/${key}`, {
+    headers: { "Content-Type": "application/json" },
+  });
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || `Failed to fetch ${key}`);
+  }
+  return response.json();
+}
+
+/**
+ * Save global settings.
+ */
+export async function saveAdminGlobalSettings(key: "header" | "footer" | "siteConfig", value: unknown) {
+  const response = await fetch(`/api/admin/settings/${key}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ value }),
+  });
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || `Failed to save ${key}`);
+  }
+  return response.json();
+}
