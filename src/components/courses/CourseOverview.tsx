@@ -54,8 +54,10 @@ export default function CourseOverview({
   const showVideoPanel = videos.length > 0;
   const showImagePanel = !showVideoPanel && featureImages.length > 0;
 
-  const [activeVideoId, setActiveVideoId] = useState<string>("");
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [activeVideoId, setActiveVideoId] = useState<string | null>(
+    videos[0]?.id ?? null,
+  );
+  const [isPlaying, setIsPlaying] = useState(true);
 
   useEffect(() => {
     if (featureImages.length > 0) {
@@ -114,13 +116,13 @@ export default function CourseOverview({
   const prevVideo = () => {
     const idx = (activeVideoIndex - 1 + videos.length) % videos.length;
     setActiveVideoId(videos[idx].id);
-    setIsPlaying(false);
+    setIsPlaying(true);
   };
 
   const nextVideo = () => {
     const idx = (activeVideoIndex + 1) % videos.length;
     setActiveVideoId(videos[idx].id);
-    setIsPlaying(false);
+    setIsPlaying(true);
   };
 
   // Scroll listener to toggle left/right fades dynamically
@@ -200,9 +202,9 @@ export default function CourseOverview({
               </div>
 
               {/* Premium High-Contrast Blockquote Card */}
-              <div className="relative shrink-0 overflow-hidden rounded-3xl border border-white/10 bg-secondary p-7 text-white shadow-card sm:p-8">
+              <div className="relative shrink-0 overflow-hidden rounded-3xl border border-primary/10 bg-primary/5 p-7 text-ink shadow-card sm:p-8">
                 <span
-                  className="absolute -left-2 -top-8 font-serif text-[10rem] text-white/8 select-none pointer-events-none"
+                  className="absolute left-2 -top-10 font-serif text-[10rem] text-primary/8 select-none pointer-events-none"
                   aria-hidden="true"
                 >
                   “
@@ -210,7 +212,7 @@ export default function CourseOverview({
                 <p className="font-serif text-lg sm:text-xl leading-relaxed tracking-wide italic relative z-10">
                   "{quoteText}"
                 </p>
-                <span className="type-eyebrow text-accent text-right block mt-4 font-semibold tracking-wider relative z-10 uppercase">
+                <span className="type-eyebrow text-primary text-right block mt-4 font-semibold tracking-wider relative z-10 uppercase">
                   — {quoteAttribution}
                 </span>
               </div>
@@ -258,7 +260,7 @@ export default function CourseOverview({
                 {showVideoPanel && activeVideo && (
                   <div className="flex h-full min-h-0 w-full flex-col space-y-6">
                     {/* Floating Video Player Panel */}
-                    <div className="group relative aspect-video min-h-[200px] w-full flex-1 overflow-hidden rounded-3xl border border-ink/5 bg-ink/10 shadow-card transition-all duration-500 hover:shadow-soft lg:aspect-auto lg:min-h-0">
+                    <div className="group relative aspect-video w-full overflow-hidden rounded-3xl border border-ink/5 bg-ink/10 shadow-card transition-all duration-500 hover:shadow-soft">
                       {isPlaying ? (
                         <iframe
                           src={`https://www.youtube.com/embed/${activeVideo.id}?autoplay=1&rel=0&modestbranding=1`}
@@ -328,11 +330,6 @@ export default function CourseOverview({
                           >
                             <ChevronRight size={18} />
                           </button>
-
-                          {/* Video counter */}
-                          <span className="absolute top-3 left-1/2 z-20 -translate-x-1/2 rounded-full bg-ink/55 px-3 py-1 text-[10px] font-medium tabular-nums text-white backdrop-blur-sm">
-                            {activeVideoIndex + 1} / {videos.length}
-                          </span>
                         </>
                       )}
                     </div>

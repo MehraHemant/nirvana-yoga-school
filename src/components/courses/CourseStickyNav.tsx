@@ -100,14 +100,14 @@ export default function CourseStickyNav({
   const isOnline = variant === "online";
   const isRetreat = variant === "retreat";
   const activeTextClass =
-    isOnline || isRetreat ? "text-secondary" : "text-primary";
+    isOnline || isRetreat ? "text-primary" : "text-primary";
   const activePillClass =
     isOnline || isRetreat
-      ? "border-secondary/15 bg-secondary/8"
+      ? "border-primary/15 bg-primary/8"
       : "border-primary/15 bg-primary/8";
   const focusRingClass =
     isOnline || isRetreat
-      ? "focus-visible:ring-secondary/60"
+      ? "focus-visible:ring-primary/60"
       : "focus-visible:ring-primary/60";
   const prefersReduced = useReducedMotion() ?? false;
   const sentinelRef = useRef<HTMLDivElement>(null);

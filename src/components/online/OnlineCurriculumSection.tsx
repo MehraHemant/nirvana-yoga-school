@@ -39,8 +39,8 @@ export default function OnlineCurriculumSection({
               key={item.title}
               className={`overflow-hidden rounded-2xl border transition-colors ${
                 isOpen
-                  ? "border-secondary/20 bg-white shadow-card"
-                  : "border-secondary/10 bg-white/80 hover:border-secondary/20"
+                  ? "border-primary/20 bg-white shadow-card"
+                  : "border-primary/10 bg-white/80 hover:border-primary/20"
               }`}
             >
               <button
@@ -56,8 +56,8 @@ export default function OnlineCurriculumSection({
                 <span
                   className={`flex size-8 shrink-0 items-center justify-center rounded-full transition-colors ${
                     isOpen
-                      ? "bg-secondary text-white"
-                      : "bg-secondary/10 text-secondary"
+                      ? "bg-primary text-white"
+                      : "bg-primary/10 text-primary"
                   }`}
                 >
                   <motion.span
@@ -93,7 +93,7 @@ export default function OnlineCurriculumSection({
                     }
                     className="overflow-hidden"
                   >
-                    <div className="space-y-4 border-t border-secondary/10 px-5 pb-5 pt-4 sm:px-6 sm:pb-6">
+                    <div className="space-y-4 border-t border-primary/10 px-5 pb-5 pt-4 sm:px-6 sm:pb-6">
                       {item.description && (
                         <p className="type-body text-muted">
                           {item.description}

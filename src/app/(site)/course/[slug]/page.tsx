@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { MapSection } from "@/components/home";
 import { getResidentialCourse } from "@/content";
 import { getSlugsByType } from "@/content/pages";
 import { courseMetadata } from "../../_shared/metadata";
@@ -37,9 +36,5 @@ export default async function Page({ params }: PageProps) {
 
   const data = await loadCoursePageData(slug, result.data);
 
-  return (
-    <>
-      <CourseClient {...data} />
-    </>
-  );
+  return <CourseClient {...data} />;
 }

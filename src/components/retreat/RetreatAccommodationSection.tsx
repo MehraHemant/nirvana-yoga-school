@@ -143,7 +143,7 @@ function RetreatGalleryPanel({
     >
       <div className="relative">
         <div
-          className="pointer-events-none absolute -inset-1.5 rounded-2xl bg-linear-to-br from-secondary/10 via-transparent to-accent/10 blur-md"
+          className="pointer-events-none absolute -inset-1.5 rounded-2xl bg-linear-to-br from-primary/8 via-transparent to-accent/10 blur-md"
           aria-hidden="true"
         />
 
@@ -210,7 +210,7 @@ function RetreatGalleryPanel({
         <button
           type="button"
           onClick={() => onOpenLightbox(activeIndex)}
-          className="absolute -bottom-2.5 right-3 cursor-pointer rounded-full border border-ink/8 bg-white px-3 py-1.5 text-[10px] font-semibold text-ink shadow-soft transition-all hover:border-secondary/20 hover:shadow-md sm:right-4"
+          className="absolute -bottom-2.5 right-3 cursor-pointer rounded-full border border-ink/8 bg-white px-3 py-1.5 text-[10px] font-semibold text-ink shadow-soft transition-all hover:border-primary/20 hover:shadow-md sm:right-4"
         >
           Open full gallery
         </button>
@@ -232,7 +232,7 @@ function RetreatGalleryPanel({
                     onClick={() => setActiveIndex(index)}
                     className={`relative h-14 w-14 overflow-hidden rounded-lg border-2 transition-all sm:h-16 sm:w-16 ${
                       isActive
-                        ? "border-secondary ring-2 ring-secondary/20"
+                        ? "border-primary ring-2 ring-primary/20"
                         : "border-transparent opacity-55 hover:opacity-100"
                     }`}
                     aria-label={item.title}
@@ -265,7 +265,7 @@ function RoomTypeSelector({
 }) {
   return (
     <div className="space-y-2">
-      <p className="type-eyebrow text-secondary">Choose your room</p>
+      <p className="type-eyebrow text-primary">Choose your room</p>
       <div className="flex flex-col gap-2">
         {RETREAT_ROOM_GALLERIES.map((room) => {
           const isActive = room.id === activeId;
@@ -278,8 +278,8 @@ function RoomTypeSelector({
               aria-pressed={isActive}
               className={`group flex w-full items-center gap-3 rounded-2xl border px-2.5 py-2 text-left transition-all duration-300 ${
                 isActive
-                  ? "border-secondary/25 bg-secondary/5 shadow-xs ring-1 ring-secondary/10"
-                  : "surface-panel border-ink/8 hover:border-secondary/15"
+                  ? "border-primary/25 bg-primary/5 shadow-xs ring-1 ring-primary/10"
+                  : "surface-panel border-ink/8 hover:border-primary/15"
               }`}
             >
               <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl shadow-xs">
@@ -309,7 +309,7 @@ function RoomTypeSelector({
 
               {isActive && (
                 <span
-                  className="h-2 w-2 shrink-0 rounded-full bg-secondary"
+                  className="h-2 w-2 shrink-0 rounded-full bg-primary"
                   aria-hidden="true"
                 />
               )}
@@ -323,17 +323,15 @@ function RoomTypeSelector({
 
 function FacilitiesGrid({ facilities }: { facilities: string[] }) {
   return (
-    <div className="rounded-3xl border border-secondary/10 bg-linear-to-br from-white via-white to-secondary/5 p-4 sm:p-5">
+    <div className="rounded-3xl border border-ink/8 bg-linear-to-br from-white via-white to-accent/5 p-4 sm:p-5">
       <div className="mb-4 flex flex-wrap items-end justify-between gap-3 border-b border-ink/5 pb-3">
         <div>
-          <p className="type-eyebrow mb-0.5 text-secondary">
-            Campus facilities
-          </p>
+          <p className="type-eyebrow mb-0.5 text-primary">Campus facilities</p>
           <p className="type-ui max-w-xl text-muted">
             Included with your stay — comfortable, clean & local amenities.
           </p>
         </div>
-        <span className="type-eyebrow rounded-full border border-secondary/15 bg-secondary/5 px-2.5 py-0.5 text-secondary">
+        <span className="type-eyebrow rounded-full border border-primary/15 bg-primary/5 px-2.5 py-0.5 text-primary">
           {facilities.length} amenities
         </span>
       </div>
@@ -353,7 +351,7 @@ function FacilitiesGrid({ facilities }: { facilities: string[] }) {
                 className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border ${
                   isPaidExtra
                     ? "border-ink/10 bg-ink/5 text-ink"
-                    : "border-secondary/10 bg-secondary/10 text-secondary"
+                    : "border-ink/8 bg-primary/10 text-primary"
                 }`}
               >
                 <Icon size={14} strokeWidth={2} />
@@ -386,8 +384,8 @@ function TabIntro({
   description: string;
 }) {
   return (
-    <div className="border-l-2 border-secondary/35 pl-4 sm:pl-5">
-      <p className="type-eyebrow mb-1.5 text-secondary">{eyebrow}</p>
+    <div className="border-l-2 border-primary/30 pl-4 sm:pl-5">
+      <p className="type-eyebrow mb-1.5 text-primary">{eyebrow}</p>
       <h3 className="mb-2 font-serif text-lg leading-tight text-ink md:text-xl">
         {title}
       </h3>
@@ -428,7 +426,7 @@ export default function RetreatAccommodationSection({
       className="relative overflow-hidden bg-white py-16 sm:py-20"
     >
       <div
-        className="absolute left-[-8%] top-[40%] w-[240px] h-[240px] rounded-full bg-secondary/5 blur-[80px] pointer-events-none"
+        className="absolute left-[-8%] top-[40%] w-[240px] h-[240px] rounded-full bg-primary/5 blur-[80px] pointer-events-none"
         aria-hidden="true"
       />
 
@@ -532,7 +530,7 @@ export default function RetreatAccommodationSection({
                         key={point}
                         className="surface-panel flex gap-2.5 rounded-xl p-2.5 shadow-2xs"
                       >
-                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-secondary/10 bg-secondary/10 text-secondary">
+                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-ink/8 bg-primary/10 text-primary">
                           <Check size={11} className="stroke-[2.5]" />
                         </span>
                         <span className="type-body pt-0.5 leading-snug text-ink/80 font-sans">
@@ -594,8 +592,8 @@ export default function RetreatAccommodationSection({
             </div>
           ) : (
             <div className="col-span-1 lg:col-span-12 mt-8">
-              <div className="rounded-2xl border border-secondary/15 bg-secondary/5 p-4 sm:p-5">
-                <p className="type-eyebrow mb-1 text-secondary">
+              <div className="rounded-2xl border border-primary/15 bg-primary/5 p-4 sm:p-5">
+                <p className="type-eyebrow mb-1 text-primary">
                   Dietary Restrictions?
                 </p>
                 <p className="type-ui max-w-4xl leading-relaxed text-muted">

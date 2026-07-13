@@ -28,7 +28,7 @@ export default function OnlineFAQSection({ faqs }: OnlineFAQSectionProps) {
           return (
             <div
               key={faq.question}
-              className="overflow-hidden rounded-2xl border border-secondary/10 bg-white"
+              className="overflow-hidden rounded-2xl border border-primary/10 bg-white"
             >
               <button
                 type="button"
@@ -41,8 +41,8 @@ export default function OnlineFAQSection({ faqs }: OnlineFAQSectionProps) {
                 <span
                   className={`mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full ${
                     isOpen
-                      ? "bg-secondary text-white"
-                      : "bg-secondary/10 text-secondary"
+                      ? "bg-primary text-white"
+                      : "bg-primary/10 text-primary"
                   }`}
                 >
                   <motion.span
@@ -78,7 +78,7 @@ export default function OnlineFAQSection({ faqs }: OnlineFAQSectionProps) {
                     }
                     className="overflow-hidden"
                   >
-                    <p className="border-t border-secondary/10 px-5 pb-5 pt-4 type-body text-muted sm:px-6">
+                    <p className="border-t border-primary/10 px-5 pb-5 pt-4 type-body text-muted sm:px-6">
                       {faq.answer}
                     </p>
                   </motion.div>

@@ -1,10 +1,6 @@
 import { extractMediaFromModules } from "@/content/mappers/page-modules";
 import { getPageModules } from "@/content/repositories/page-modules";
-import type {
-  CourseMedia,
-  PageModulesDocument,
-  ResidentialCourseDocument,
-} from "@/content/types";
+import type { CourseMedia, ResidentialCourseDocument } from "@/content/types";
 import { fetchYouTubeVideos } from "@/lib/youtube";
 import type { CoursePageData } from "./types";
 

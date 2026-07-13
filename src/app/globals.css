@@ -3,16 +3,16 @@
 @theme {
   --color-primary: #a32432;
   --color-primary-dark: #7d1a25;
-  --color-secondary: #0e4956;
-  --color-secondary-dark: #0a333b;
-  --color-accent: #f8fafd;
-  --color-ink: #1a1410;
-  --color-muted: #6b5e57;
-  --color-light-gray: #f8fafd;
-  --color-sand: #f8fafd;
-  --color-surface: #f3f5f8;
-  --color-surface-muted: #eceff3;
-  --color-dark: #041417;
+  --color-secondary: #1c1917;
+  --color-secondary-dark: #141210;
+  --color-accent: #b89260;
+  --color-ink: #1c1917;
+  --color-muted: #78716c;
+  --color-light-gray: #faf8f5;
+  --color-sand: #faf8f5;
+  --color-surface: #faf8f5;
+  --color-surface-muted: #f2efe9;
+  --color-dark: #141210;
 
   /* Fonts config */
   --font-sans: var(--font-poppins), system-ui, sans-serif;
@@ -29,7 +29,7 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #1a1410;
+  --foreground: #1c1917;
   --site-header-height: 4.75rem;
 }
 
@@ -1173,14 +1173,14 @@ details[open] .accordion-icon {
       ellipse 70% 50% at 100% 0%,
       rgb(166 181 162 / 0.14),
       transparent 55%
-    ), linear-gradient(165deg, #0a333b 0%, #0e4956 48%, #0a333b 100%);
+    ), linear-gradient(165deg, #141210 0%, #1c1917 48%, #141210 100%);
 }
 
 .retreat-glass {
   background: rgb(255 255 255 / 0.1);
   backdrop-filter: blur(14px);
   border: 1px solid rgb(255 255 255 / 0.16);
-  box-shadow: 0 8px 32px -8px rgb(4 20 23 / 0.35);
+  box-shadow: 0 8px 32px -8px rgb(20 18 16 / 0.35);
 }
 
 .retreat-theme .retreat-hero {

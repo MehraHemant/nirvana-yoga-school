@@ -34,7 +34,7 @@ function getInclusionIcon(item: string) {
     return (
       <Bed
         size={18}
-        className="text-secondary group-hover:text-white transition-colors duration-200"
+        className="text-primary group-hover:text-white transition-colors duration-200"
       />
     );
   }
@@ -48,7 +48,7 @@ function getInclusionIcon(item: string) {
     return (
       <Leaf
         size={18}
-        className="text-secondary group-hover:text-white transition-colors duration-200"
+        className="text-primary group-hover:text-white transition-colors duration-200"
       />
     );
   }
@@ -62,7 +62,7 @@ function getInclusionIcon(item: string) {
     return (
       <Certificate
         size={18}
-        className="text-secondary group-hover:text-white transition-colors duration-200"
+        className="text-primary group-hover:text-white transition-colors duration-200"
       />
     );
   }
@@ -76,7 +76,7 @@ function getInclusionIcon(item: string) {
     return (
       <BookOpen
         size={18}
-        className="text-secondary group-hover:text-white transition-colors duration-200"
+        className="text-primary group-hover:text-white transition-colors duration-200"
       />
     );
   }
@@ -92,7 +92,7 @@ function getInclusionIcon(item: string) {
     return (
       <Compass
         size={18}
-        className="text-secondary group-hover:text-white transition-colors duration-200"
+        className="text-primary group-hover:text-white transition-colors duration-200"
       />
     );
   }
@@ -107,7 +107,7 @@ function getInclusionIcon(item: string) {
     return (
       <Plane
         size={18}
-        className="text-secondary group-hover:text-white transition-colors duration-200"
+        className="text-primary group-hover:text-white transition-colors duration-200"
       />
     );
   }
@@ -120,7 +120,7 @@ function getInclusionIcon(item: string) {
     return (
       <Wifi
         size={18}
-        className="text-secondary group-hover:text-white transition-colors duration-200"
+        className="text-primary group-hover:text-white transition-colors duration-200"
       />
     );
   }
@@ -128,14 +128,19 @@ function getInclusionIcon(item: string) {
   return (
     <Check
       size={14}
-      className="text-secondary stroke-2 group-hover:text-white transition-colors duration-200"
+      className="text-primary stroke-2 group-hover:text-white transition-colors duration-200"
     />
   );
 }
 
+/**
+ * WhatIsIncluded showcases elements covered under program tuition fees (e.g. food, stay, events)
+ * alongside optional add-ons or exclusions to establish full financial transparency.
+ *
+ * @param props - Component properties conforming to WhatIsIncludedProps
+ */
 export default function WhatIsIncluded({
   inclusions,
-  exclusions,
   eyebrow = "Fine Print",
   title = "What is Included in Your Fee",
   description = "We operate on complete transparency. Your program fee covers all essential living, training, and excursion expenses during your stay so you can focus entirely on your training.",
@@ -147,7 +152,7 @@ export default function WhatIsIncluded({
     >
       {/* Background ambient glows */}
       <div className="absolute right-[-10%] top-[-10%] w-[500px] h-[500px] rounded-full bg-primary/5 blur-[100px] pointer-events-none" />
-      <div className="absolute left-[-10%] bottom-[-10%] w-[500px] h-[500px] rounded-full bg-secondary/5 blur-[100px] pointer-events-none" />
+      <div className="absolute left-[-10%] bottom-[-10%] w-[500px] h-[500px] rounded-full bg-accent/8 blur-[100px] pointer-events-none" />
 
       {/* Background geometric flourishes */}
       <div
@@ -188,7 +193,7 @@ export default function WhatIsIncluded({
 
             {/* Minimalist Tip Box */}
             <div className="surface-panel space-y-2 rounded-3xl p-6 transition-all duration-300 hover:shadow-soft">
-              <span className="type-eyebrow text-secondary font-semibold block mb-1">
+              <span className="type-eyebrow text-primary font-semibold block mb-1">
                 Arrival Support
               </span>
               <p className="text-xs text-muted leading-relaxed font-sans font-light">
@@ -208,9 +213,9 @@ export default function WhatIsIncluded({
             className="surface-card lg:col-span-7 relative overflow-hidden rounded-3xl p-8 transition-all duration-300 hover:shadow-soft lg:p-10"
           >
             <div className="flex items-center gap-2 mb-4">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary/10 text-secondary border border-secondary/15">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/8 text-primary border border-primary/15">
                 <span
-                  className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"
+                  className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"
                   aria-hidden="true"
                 />
                 <span className="type-eyebrow text-[9px] font-bold tracking-wider">
@@ -230,7 +235,7 @@ export default function WhatIsIncluded({
                   className="flex items-start gap-3 group cursor-default"
                 >
                   <span
-                    className="w-9 h-9 rounded-2xl bg-secondary/10 flex items-center justify-center shrink-0 mt-0.5 border border-secondary/15 group-hover:bg-secondary transition-all duration-300 shadow-2xs"
+                    className="w-9 h-9 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 mt-0.5 border border-primary/15 group-hover:bg-primary transition-all duration-300 shadow-2xs"
                     aria-hidden="true"
                   >
                     {getInclusionIcon(item)}
@@ -245,7 +250,7 @@ export default function WhatIsIncluded({
             <div className="mt-8 pt-5 border-t border-ink/5 text-[11px] text-muted font-sans flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <span className="flex items-center gap-1.5">
                 <span
-                  className="w-1.5 h-1.5 rounded-full bg-secondary"
+                  className="w-1.5 h-1.5 rounded-full bg-primary"
                   aria-hidden="true"
                 />
                 ✓ No hidden registration fees or local taxes.

@@ -136,25 +136,25 @@ export default function ContactPageClient() {
   return (
     <div className="bg-sand/15">
       {/* 1. Hero */}
-      <section className="relative min-h-[52svh] overflow-hidden bg-ink text-white pt-[var(--site-header-height,4.75rem)] lg:min-h-[58svh]">
+      <section className="relative min-h-[52svh] overflow-hidden bg-sand text-ink pt-[var(--site-header-height)] lg:min-h-[58svh]">
         <Image
           src={CONTACT_HERO_IMAGE}
           alt=""
           fill
           priority
           sizes="100vw"
-          className="object-cover opacity-45"
+          className="object-cover opacity-20"
         />
         <div
-          className="absolute inset-0 bg-linear-to-r from-ink/92 via-ink/55 to-ink/30"
+          className="absolute inset-0 bg-linear-to-r from-sand via-sand/75 to-transparent"
           aria-hidden="true"
         />
         <div
-          className="pointer-events-none absolute -right-16 top-1/4 h-72 w-72 rounded-full bg-primary/20 blur-[100px]"
+          className="pointer-events-none absolute -right-16 top-1/4 h-72 w-72 rounded-full bg-primary/5 blur-[100px]"
           aria-hidden="true"
         />
         <div
-          className="pointer-events-none absolute bottom-0 left-1/4 h-56 w-56 rounded-full bg-secondary/25 blur-[90px]"
+          className="pointer-events-none absolute bottom-0 left-1/4 h-56 w-56 rounded-full bg-primary/5 blur-[90px]"
           aria-hidden="true"
         />
 
@@ -169,16 +169,16 @@ export default function ContactPageClient() {
               variants={fadeUp}
               className="max-w-2xl space-y-5"
             >
-              <span className="type-eyebrow font-semibold tracking-widest text-accent uppercase">
+              <span className="type-eyebrow font-semibold tracking-widest text-primary uppercase">
                 Get In Touch
               </span>
-              <h1 className="font-serif text-4xl font-medium leading-[1.08] tracking-tight sm:text-5xl md:text-6xl">
+              <h1 className="font-serif text-4xl font-medium leading-[1.08] tracking-tight text-ink sm:text-5xl md:text-6xl">
                 We are here to support{" "}
-                <span className="font-normal italic text-accent">
+                <span className="font-normal italic text-primary">
                   your journey
                 </span>
               </h1>
-              <p className="type-lead max-w-xl pt-1 font-sans text-base leading-relaxed text-white/82 sm:text-lg">
+              <p className="type-lead max-w-xl pt-1 font-sans text-base leading-relaxed text-ink/80 sm:text-lg">
                 Questions about yoga teacher training, retreats, accommodation,
                 or travel to Rishikesh? Our ashram team replies within 24 hours.
               </p>
@@ -191,7 +191,7 @@ export default function ContactPageClient() {
                 ].map((chip) => (
                   <span
                     key={chip}
-                    className="rounded-full border border-white/15 bg-white/10 px-3 py-1 font-sans text-xs font-medium text-white/90 backdrop-blur-sm"
+                    className="rounded-full border border-ink/8 bg-ink/5 px-3 py-1 font-sans text-xs font-medium text-ink/80 backdrop-blur-sm"
                   >
                     {chip}
                   </span>

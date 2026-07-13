@@ -23,7 +23,7 @@ export default function RetreatPricingCard({
 }: RetreatPricingCardProps) {
   return (
     <div
-      className={`retreat-pricing-card overflow-hidden rounded-3xl border border-secondary/20 bg-white shadow-soft transition-all duration-300 hover:shadow-card ${className}`}
+      className={`retreat-pricing-card overflow-hidden rounded-3xl border border-primary/20 bg-white shadow-soft transition-all duration-300 hover:shadow-card ${className}`}
     >
       {/* Early Bird Promo Banner */}
       <div className="bg-linear-to-r from-primary to-primary-dark px-6 py-4 text-center">
@@ -40,7 +40,7 @@ export default function RetreatPricingCard({
       <div className="space-y-6 p-6 md:p-7">
         {/* Promotion details */}
         {offer && offer.items.length > 0 && (
-          <ul className="space-y-2.5 text-sm text-ink/80 border-b border-secondary/10 pb-5">
+          <ul className="space-y-2.5 text-sm text-ink/80 border-b border-primary/10 pb-5">
             {offer.items.map((item) => (
               <li key={item} className="flex items-center gap-2.5">
                 <span className="flex size-4 items-center justify-center rounded-full bg-emerald-55/10 text-emerald-600">
@@ -55,14 +55,14 @@ export default function RetreatPricingCard({
         )}
 
         {/* Room Price Options */}
-        <div className="space-y-3.5 rounded-2xl border border-secondary/15 bg-sand/35 p-4 sm:p-5">
-          <p className="type-eyebrow text-secondary font-semibold tracking-wider text-[10px] mb-2">
+        <div className="space-y-3.5 rounded-2xl border border-accent/15 bg-accent/5 p-4 sm:p-5">
+          <p className="type-eyebrow text-accent font-semibold tracking-wider text-[10px] mb-2">
             Package Pricing
           </p>
           {pricing.map((option) => (
             <div
               key={option.roomType}
-              className="flex items-center justify-between gap-3 border-b border-secondary/10 pb-3 last:border-b-0 last:pb-0"
+              className="flex items-center justify-between gap-3 border-b border-primary/10 pb-3 last:border-b-0 last:pb-0"
             >
               <div className="min-w-0">
                 <p className="text-xs font-semibold text-ink leading-tight">
@@ -73,7 +73,7 @@ export default function RetreatPricingCard({
                 </p>
               </div>
               <div className="text-right shrink-0">
-                <p className="font-serif text-lg font-semibold text-secondary leading-none">
+                <p className="font-serif text-lg font-semibold text-primary leading-none">
                   {option.price}
                 </p>
                 {option.originalPrice && (
@@ -91,7 +91,7 @@ export default function RetreatPricingCard({
           <p className="type-eyebrow text-muted/80 tracking-widest text-[9px]">
             Starting from
           </p>
-          <p className="font-serif text-4xl font-semibold text-secondary mt-1">
+          <p className="font-serif text-4xl font-semibold text-primary mt-1">
             {fee}
           </p>
         </div>

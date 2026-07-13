@@ -39,7 +39,7 @@ export default function OnlinePricingCard({
   return (
     <div
       id="pricing"
-      className={`online-pricing-card overflow-hidden rounded-3xl border border-secondary/15 bg-white shadow-card ${className}`}
+      className={`online-pricing-card overflow-hidden rounded-3xl border border-primary/10 bg-white shadow-card ${className}`}
     >
       <div className="bg-primary px-5 py-3 text-center">
         <p className="font-serif text-lg text-white">20% OFF</p>
@@ -88,15 +88,15 @@ export default function OnlinePricingCard({
               {formatUsd(originalAmount)}
             </p>
           )}
-          <p className="font-serif text-4xl text-secondary">{pricing.price}</p>
+          <p className="font-serif text-4xl text-primary">{pricing.price}</p>
         </div>
 
         <div className="grid gap-3">
           <Button
             href={ctaSecondaryHref}
-            variant="secondary"
+            variant="ghost"
             size="md"
-            className="w-full"
+            className="border border-primary/20 text-primary hover:bg-primary/5 w-full"
             target="_blank"
             rel="noopener noreferrer"
           >

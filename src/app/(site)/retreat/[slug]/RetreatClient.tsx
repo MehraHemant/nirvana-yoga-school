@@ -14,7 +14,7 @@ import {
   RetreatHighlightsBar,
   RetreatScheduleSection,
 } from "@/components/retreat";
-import { COURSE_FAQ_CATEGORIES, Container, FAQSection } from "@/components/ui";
+import { COURSE_FAQ_CATEGORIES, FAQSection } from "@/components/ui";
 import { retreatWhatsAppHref } from "@/content/mappers/retreat-page";
 import type { RetreatPageData } from "./types";
 

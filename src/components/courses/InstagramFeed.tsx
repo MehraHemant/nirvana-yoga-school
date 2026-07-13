@@ -23,7 +23,7 @@ import type {
 import { FALLBACK_INSTAGRAM_FEED } from "@/lib/instagram";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 
-const SKELETON_KEYS = ["a", "b", "c", "d", "e", "f", "g", "h"];
+const _SKELETON_KEYS = ["a", "b", "c", "d", "e", "f", "g", "h"];
 
 function formatCount(value: number) {
   if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`;
@@ -78,14 +78,14 @@ function InstagramProfileBar({
       target="_blank"
       rel="noopener noreferrer"
       aria-label={`View @${handle} on Instagram`}
-      className="group relative mb-10 block w-full overflow-hidden rounded-3xl bg-linear-to-br from-secondary via-secondary to-secondary-dark p-6 shadow-soft transition-all hover:shadow-lg sm:p-8 lg:p-10"
+      className="group relative mb-10 block w-full overflow-hidden rounded-3xl bg-linear-to-br from-primary via-primary to-primary-dark p-6 shadow-soft transition-all hover:shadow-lg sm:p-8 lg:p-10"
     >
       <div
         className="pointer-events-none absolute -left-20 -top-20 h-56 w-56 rounded-full bg-white/10 blur-3xl"
         aria-hidden="true"
       />
       <div
-        className="pointer-events-none absolute -bottom-16 -right-10 h-48 w-48 rounded-full bg-black/20 blur-3xl"
+        className="pointer-events-none absolute -bottom-16 -right-10 h-48 w-48 rounded-full bg-white/10 blur-3xl"
         aria-hidden="true"
       />
 
@@ -502,7 +502,7 @@ function InstagramPostCard({
   );
 }
 
-function PostCardSkeleton() {
+function _PostCardSkeleton() {
   return (
     <div className="overflow-hidden rounded-lg border border-[#dbdbdb] bg-white">
       <div className="flex items-center gap-2.5 px-4 py-3">

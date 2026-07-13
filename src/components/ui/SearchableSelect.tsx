@@ -184,8 +184,8 @@ export default function SearchableSelect({
       <div
         className={`flex items-center rounded-2xl border bg-white transition-colors ${
           open
-            ? "border-secondary ring-1 ring-secondary"
-            : "border-secondary/15 hover:border-secondary/30"
+            ? "border-primary ring-1 ring-primary"
+            : "border-primary/15 hover:border-primary/30"
         }`}
       >
         {/* Hidden mirror input keeps native required validation on the value */}

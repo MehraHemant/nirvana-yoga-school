@@ -1,6 +1,5 @@
 import { mapRetreatPage } from "@/content/mappers/retreat-page";
 import { getPageModules } from "@/content/repositories/page-modules";
-import type { PageModulesDocument } from "@/content/types";
 import type { RetreatDocument } from "@/content/types/retreat-page";
 import type { RetreatPageData } from "./types";
 

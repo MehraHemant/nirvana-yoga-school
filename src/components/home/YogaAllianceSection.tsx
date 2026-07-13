@@ -72,7 +72,7 @@ export default function YogaAllianceSection() {
         aria-hidden="true"
       />
       <div
-        className="absolute top-1/2 left-1/3 w-[500px] h-[500px] bg-secondary/15 blur-[120px] rounded-full pointer-events-none"
+        className="absolute top-1/2 left-1/3 w-[500px] h-[500px] bg-accent/10 blur-[120px] rounded-full pointer-events-none"
         aria-hidden="true"
       />
       <div

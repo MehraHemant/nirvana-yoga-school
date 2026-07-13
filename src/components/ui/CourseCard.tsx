@@ -186,7 +186,7 @@ function CourseCardImage({
 
         {!editorial ? (
           <span
-            className="absolute bottom-7 left-7 z-20 rounded-full border border-secondary/20 bg-secondary/80 px-3.5 py-1.5 text-[10px] font-semibold tracking-wide text-sand shadow-xs backdrop-blur-md sm:bottom-8 sm:left-8 sm:text-[11px]"
+            className="absolute bottom-7 left-7 z-20 rounded-full border border-primary/20 bg-primary/80 px-3.5 py-1.5 text-[10px] font-semibold tracking-wide text-white shadow-xs backdrop-blur-md sm:bottom-8 sm:left-8 sm:text-[11px]"
             style={{
               transform: prefersReduced ? "none" : "translateZ(15px)",
             }}
@@ -229,7 +229,7 @@ function CourseCardBody({
           : "flex flex-1 flex-col px-5 pb-2 pt-1"
       }
     >
-      <div className="type-eyebrow text-secondary">
+      <div className="type-eyebrow text-primary">
         {certShort(certification)} · Yoga Alliance
       </div>
 

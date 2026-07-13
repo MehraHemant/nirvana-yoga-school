@@ -38,7 +38,7 @@ export default function RetreatPackagesSection({
         {/* Step 1: Date Selector */}
         <div className="space-y-4">
           <div className="flex items-center gap-2">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-secondary/10 text-[11px] font-bold text-secondary">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-[11px] font-bold text-primary">
               1
             </span>
             <h3 className="font-serif text-xl font-medium text-ink">
@@ -59,13 +59,13 @@ export default function RetreatPackagesSection({
                   onClick={() => setSelectedBatch(batch.dates)}
                   className={`group relative flex flex-col justify-between rounded-2xl border p-4 text-left transition-all ${
                     selected
-                      ? "border-secondary bg-secondary/[0.02] ring-1 ring-secondary shadow-sm"
-                      : "border-secondary/15 bg-white hover:border-secondary/30 hover:shadow-xs"
+                      ? "border-primary bg-primary/[0.02] ring-1 ring-primary shadow-sm"
+                      : "border-primary/15 bg-white hover:border-primary/30 hover:shadow-xs"
                   }`}
                 >
                   <div className="min-w-0">
                     <p
-                      className={`text-sm font-semibold ${selected ? "text-secondary" : "text-ink"}`}
+                      className={`text-sm font-semibold ${selected ? "text-primary" : "text-ink"}`}
                     >
                       {batch.dates}
                     </p>
@@ -91,7 +91,7 @@ export default function RetreatPackagesSection({
                     <span
                       className={`text-[10px] font-medium transition-opacity ${
                         selected
-                          ? "text-secondary opacity-100"
+                          ? "text-primary opacity-100"
                           : "text-primary opacity-0 group-hover:opacity-100"
                       }`}
                     >
@@ -107,7 +107,7 @@ export default function RetreatPackagesSection({
         {/* Step 2: Package Booking Cards */}
         <div className="space-y-6">
           <div className="flex items-center gap-2">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-secondary/10 text-[11px] font-bold text-secondary">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-[11px] font-bold text-primary">
               2
             </span>
             <h3 className="font-serif text-xl font-medium text-ink">
@@ -119,11 +119,11 @@ export default function RetreatPackagesSection({
             {pricing.map((option) => (
               <article
                 key={option.roomType}
-                className="group flex flex-col overflow-hidden rounded-3xl border border-secondary/15 bg-white shadow-xs transition-all duration-300 hover:border-secondary/25 hover:shadow-soft"
+                className="group flex flex-col overflow-hidden rounded-3xl border border-primary/15 bg-white shadow-xs transition-all duration-300 hover:border-primary/25 hover:shadow-soft"
               >
                 {/* Room Image */}
                 {option.image && (
-                  <div className="relative aspect-video w-full overflow-hidden bg-secondary/5 border-b border-secondary/10">
+                  <div className="relative aspect-video w-full overflow-hidden bg-accent/5 border-b border-accent/10">
                     <Image
                       src={option.image}
                       alt={option.roomType}
@@ -131,7 +131,7 @@ export default function RetreatPackagesSection({
                       sizes="(max-width: 768px) 100vw, 40vw"
                       className="object-cover transition-transform duration-700 group-hover:scale-103"
                     />
-                    <div className="absolute top-3 right-3 rounded-full bg-secondary/90 backdrop-blur-xs px-3 py-1 text-xs font-semibold text-white">
+                    <div className="absolute top-3 right-3 rounded-full bg-primary/90 backdrop-blur-xs px-3 py-1 text-xs font-semibold text-white">
                       Stay + Food included
                     </div>
                   </div>
@@ -144,7 +144,7 @@ export default function RetreatPackagesSection({
                       {option.roomType}
                     </h4>
                     <div className="text-right shrink-0">
-                      <p className="font-serif text-2xl font-semibold text-secondary leading-none">
+                      <p className="font-serif text-2xl font-semibold text-primary leading-none">
                         {option.price}
                       </p>
                       {option.originalPrice && (
@@ -163,14 +163,14 @@ export default function RetreatPackagesSection({
                   <ul className="mt-4 space-y-2 text-xs text-ink/80 flex-1">
                     {option.features?.map((feat) => (
                       <li key={feat} className="flex items-center gap-2">
-                        <Check size={12} className="text-secondary shrink-0" />
+                        <Check size={12} className="text-primary shrink-0" />
                         <span>{feat}</span>
                       </li>
                     ))}
                   </ul>
 
                   {/* Call to action */}
-                  <div className="mt-6 pt-4 border-t border-secondary/10">
+                  <div className="mt-6 pt-4 border-t border-ink/8">
                     <Button
                       href={retreatWhatsAppHref(
                         duration,

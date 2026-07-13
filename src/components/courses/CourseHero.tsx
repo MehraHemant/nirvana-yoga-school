@@ -3,7 +3,7 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Button, Container, Heading, MediaLightbox } from "@/components/ui";
+import { Container, Heading, MediaLightbox } from "@/components/ui";
 import type { CourseImageDetail } from "@/content/types";
 import { ChevronLeft, ChevronRight, Play } from "@/icons";
 import { YOUTUBE_METADATA_REGISTRY } from "@/lib/youtube";
@@ -109,6 +109,12 @@ function MaximizeIcon() {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
+/**
+ * CourseHero renders the main visual presentation area for residential courses,
+ * featuring titles, badges, dynamic metadata tables, and an interactive media filmstrip.
+ *
+ * @param props - Component properties conforming to CourseHeroProps
+ */
 export default function CourseHero({
   title,
   image,
@@ -119,10 +125,6 @@ export default function CourseHero({
   fee,
   duration,
   certification,
-  ctaPrimary,
-  ctaPrimaryHref,
-  ctaSecondary,
-  ctaSecondaryHref,
   disableSupplemental = false,
 }: CourseHeroProps) {
   const prefersReduced = useReducedMotion() ?? false;
@@ -237,7 +239,7 @@ export default function CourseHero({
       ),
       behavior: "auto",
     });
-  }, [photoIdx, prefersReduced]);
+  }, [photoIdx]);
 
   // ── Lightbox keyboard nav ─────────────────────────────────────────────────
   useEffect(() => {
@@ -290,7 +292,6 @@ export default function CourseHero({
   ];
 
   const hasMeta = !!(duration || certification || fee);
-  const hasCTA = !!(ctaPrimary || ctaSecondary);
   const activePhoto = photos[photoIdx] ?? photos[0];
   const activeTag = activePhoto?.tag;
   const activePictured = activePhoto?.pictured;
@@ -657,11 +658,11 @@ export default function CourseHero({
             // biome-ignore lint/a11y/noStaticElementInteractions: hover pause for autoplay
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
-            className="mt-2 shrink-0 overflow-hidden rounded-xl bg-white/50 px-2 pt-2 pb-1.5 backdrop-blur-sm sm:rounded-2xl sm:px-3 sm:pt-2.5 sm:pb-2"
+            className="shrink-0 overflow-hidden rounded-xl bg-white/50 px-2 pt-2 backdrop-blur-sm sm:rounded-2xl"
           >
             <div
               ref={stripRef}
-              className="no-scrollbar flex touch-pan-x gap-1.5 overflow-x-auto scroll-smooth snap-x snap-mandatory [-webkit-overflow-scrolling:touch] sm:gap-2"
+              className="no-scrollbar flex touch-pan-x gap-1.5 overflow-x-auto py-2 px-2 scroll-smooth snap-x snap-mandatory [-webkit-overflow-scrolling:touch] sm:gap-2"
             >
               {photos.map((photo, i) => {
                 const isActive = i === photoIdx && !activeVideoId;
@@ -671,10 +672,10 @@ export default function CourseHero({
                     key={i}
                     type="button"
                     onClick={() => pickPhoto(i)}
-                    className={`relative h-14 w-[4.25rem] shrink-0 snap-start cursor-pointer overflow-hidden rounded-lg transition-all duration-500 sm:h-14 sm:w-20 sm:rounded-xl ${
+                    className={`relative h-14 w-[4.25rem] shrink-0 snap-start cursor-pointer overflow-hidden rounded-lg transition-all duration-200 sm:h-14 sm:w-20 sm:rounded-xl border-2 ${
                       isActive
-                        ? "scale-[1.04] opacity-100 ring-2 ring-primary/35 ring-offset-1 ring-offset-white/50 sm:scale-[1.06] sm:ring-1 sm:ring-accent/70"
-                        : "opacity-50 hover:opacity-85 sm:opacity-45 sm:hover:opacity-80"
+                        ? "border-primary"
+                        : "border-ink/8 hover:border-primary/40"
                     }`}
                     aria-label={`Photo ${i + 1}`}
                     aria-current={isActive ? "true" : undefined}

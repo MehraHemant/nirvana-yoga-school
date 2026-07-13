@@ -89,8 +89,8 @@ export default function TeachersSection({
                   type="button"
                   className={`relative w-full p-4 rounded-xl flex items-center gap-4.5 transition-all duration-300 border text-left cursor-pointer ${
                     isSelected
-                      ? "text-white border-secondary shadow-sm scale-102"
-                      : "bg-white text-ink border-ink/5 hover:border-secondary/20 hover:scale-[1.01]"
+                      ? "text-white border-primary shadow-sm scale-102"
+                      : "bg-white text-ink border-ink/5 hover:border-primary/20 hover:scale-[1.01]"
                   }`}
                   style={{
                     transform:
@@ -102,7 +102,7 @@ export default function TeachersSection({
                   {isSelected && (
                     <motion.div
                       layoutId="activeTeacherBg"
-                      className="absolute inset-0 bg-secondary rounded-xl z-0"
+                      className="absolute inset-0 bg-primary rounded-xl z-0"
                       transition={springTransition}
                     />
                   )}
@@ -121,7 +121,7 @@ export default function TeachersSection({
                     </h4>
                     <p
                       className={`text-[10px] sm:text-[11px] font-sans uppercase font-semibold tracking-wider mt-1.5 truncate ${
-                        isSelected ? "text-white/80" : "text-secondary"
+                        isSelected ? "text-white/80" : "text-muted"
                       }`}
                     >
                       {teacher.experienceSummary}
@@ -172,7 +172,7 @@ export default function TeachersSection({
                     <h3 className="font-serif text-xl md:text-2xl font-bold text-ink leading-tight">
                       {teachers[selectedIdx].name}
                     </h3>
-                    <p className="text-[10px] font-sans uppercase font-extrabold tracking-wider text-secondary mt-1 mb-2.5">
+                    <p className="text-[10px] font-sans uppercase font-extrabold tracking-wider text-muted mt-1 mb-2.5">
                       {teachers[selectedIdx].experienceSummary}
                     </p>
 
@@ -248,7 +248,7 @@ export default function TeachersSection({
                   type="button"
                   className={`w-full p-4 flex items-center justify-between text-left cursor-pointer transition-colors duration-300 ${
                     isOpen
-                      ? "bg-secondary/70 text-white border-b border-ink/5"
+                      ? "bg-primary/80 text-white border-b border-primary/10"
                       : "bg-white text-ink"
                   }`}
                 >
@@ -270,7 +270,7 @@ export default function TeachersSection({
                       </h4>
                       <p
                         className={`text-[10px] sm:text-[11px] font-sans uppercase font-normal tracking-wider mt-1.5 truncate ${
-                          isOpen ? "text-white/80" : "text-secondary"
+                          isOpen ? "text-white/80" : "text-muted"
                         }`}
                       >
                         {teacher.experienceSummary}
@@ -366,10 +366,10 @@ export default function TeachersSection({
         <div className="mt-16 lg:mt-8 flex justify-center w-full select-none">
           <Button
             href="/teacher"
-            variant="secondary"
+            variant="ghost"
             size="md"
             responsive
-            className="cursor-pointer"
+            className="border border-primary/20 text-primary hover:bg-primary/5 cursor-pointer"
           >
             Meet All Gurus
           </Button>

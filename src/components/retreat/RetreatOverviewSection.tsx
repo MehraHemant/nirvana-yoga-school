@@ -33,7 +33,7 @@ export default function RetreatOverviewSection({
 
         {images[0] && (
           <div className="grid grid-cols-2 gap-2.5">
-            <div className="relative col-span-2 aspect-[16/10] overflow-hidden rounded-3xl bg-secondary/5">
+            <div className="relative col-span-2 aspect-[16/10] overflow-hidden rounded-3xl bg-accent/6">
               <Image
                 src={images[0]}
                 alt=""
@@ -45,7 +45,7 @@ export default function RetreatOverviewSection({
             {images.slice(1, 3).map((src) => (
               <div
                 key={src}
-                className="relative aspect-square overflow-hidden rounded-2xl bg-secondary/5"
+                className="relative aspect-square overflow-hidden rounded-2xl bg-accent/6"
               >
                 <Image
                   src={src}

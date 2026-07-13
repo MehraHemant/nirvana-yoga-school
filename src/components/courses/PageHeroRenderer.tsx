@@ -5,7 +5,7 @@ import CourseHero from "@/components/courses/CourseHero";
 import OnlineCourseHero from "@/components/online/OnlineCourseHero";
 import { Button, Container, Heading } from "@/components/ui";
 import { extractMediaFromModules } from "@/content/mappers/page-modules";
-import type { HeroModule, PageModulesDocument } from "@/content/types";
+import type { PageModulesDocument } from "@/content/types";
 
 type PageHeroRendererProps = {
   modules: PageModulesDocument;
@@ -84,7 +84,7 @@ export default function PageHeroRenderer({ modules }: PageHeroRendererProps) {
 
   if (hero.type === "page-minimal") {
     return (
-      <section className="relative overflow-hidden bg-sand pt-[var(--site-header-height,4.75rem)]">
+      <section className="relative overflow-hidden bg-sand pt-[var(--site-header-height)]">
         <Container size="xl" className="py-12 md:py-16">
           <div className="grid gap-8 lg:grid-cols-2 lg:items-center">
             <div className="space-y-4">

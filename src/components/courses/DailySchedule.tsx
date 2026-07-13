@@ -28,7 +28,7 @@ const SCHEDULE_ICON_META: Record<
   },
   meal: { color: "text-primary", caption: "Nutritional Ayurvedic meal" },
   study: {
-    color: "text-secondary",
+    color: "text-primary",
     caption: "Traditional philosophy & lecture",
   },
   yoga: { color: "text-accent", caption: "Hatha / Vinyasa deep practice" },

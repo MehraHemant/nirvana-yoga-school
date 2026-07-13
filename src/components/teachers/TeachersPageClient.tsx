@@ -4,7 +4,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
 import type { TeacherProfile } from "@/components/home/TeachersSection";
-import { Button, Container, Heading, SectionHeader } from "@/components/ui";
+import { Container, Heading, SectionHeader } from "@/components/ui";
 import { TEACHERS_HERO_QUOTE, teacherSlug } from "@/content/data/teachers";
 import { EASE_OUT, reducedTransition } from "@/lib/motion";
 
@@ -48,7 +48,7 @@ function TeacherArticle({
       <Heading as="h2" size="h3">
         {teacher.name}
       </Heading>
-      <p className="type-eyebrow mt-2 text-secondary">
+      <p className="type-eyebrow mt-2 text-muted">
         {teacher.experienceSummary}
       </p>
       <p className="type-body mt-5 leading-relaxed text-ink">{teacher.bio}</p>
@@ -83,7 +83,7 @@ function TeacherArticle({
         )}
 
         {/* Bottom row: 3-column details strip, no inner cards */}
-        <div className="col-span-1 border-t border-secondary/25 bg-white sm:col-span-2">
+        <div className="col-span-1 border-t border-ink/8 bg-white sm:col-span-2">
           <div className="grid divide-y divide-secondary/20 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
             {/* Education */}
             <div className="px-7 py-6 md:px-9 md:py-7 bg-white transition-colors duration-300 hover:bg-primary/[0.02]">
@@ -106,15 +106,15 @@ function TeacherArticle({
             </div>
 
             {/* Experience */}
-            <div className="px-7 py-6 md:px-9 md:py-7 bg-white transition-colors duration-300 hover:bg-secondary/[0.02]">
-              <p className="type-eyebrow mb-4 font-semibold tracking-widest text-secondary">
+            <div className="px-7 py-6 md:px-9 md:py-7 bg-white transition-colors duration-300 hover:bg-primary/[0.02]">
+              <p className="type-eyebrow mb-4 font-semibold tracking-widest text-primary">
                 Experience
               </p>
               <ul className="space-y-2.5">
                 {teacher.detailedExperience.map((item) => (
                   <li key={item} className="flex items-start gap-2.5">
                     <span
-                      className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-secondary/60"
+                      className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary/50"
                       aria-hidden="true"
                     />
                     <span className="type-body leading-snug text-ink/85">
@@ -127,14 +127,14 @@ function TeacherArticle({
 
             {/* Expertise */}
             <div className="px-7 py-6 md:px-9 md:py-7 bg-white transition-colors duration-300 hover:bg-accent/[0.03]">
-              <p className="type-eyebrow mb-4 font-semibold tracking-widest text-secondary/80">
+              <p className="type-eyebrow mb-4 font-semibold tracking-widest text-primary/80">
                 Expertise
               </p>
               <div className="flex flex-wrap gap-2">
                 {teacher.expertise.map((item) => (
                   <span
                     key={item}
-                    className="type-ui inline-flex items-center rounded-full border border-accent/35 bg-white px-3 py-1 text-ink/90 transition-all duration-150 hover:border-secondary/45 hover:bg-white hover:shadow-2xs"
+                    className="type-ui inline-flex items-center rounded-full border border-accent/35 bg-white px-3 py-1 text-ink/90 transition-all duration-150 hover:border-primary/35 hover:bg-white hover:shadow-2xs"
                   >
                     {item}
                   </span>
@@ -148,6 +148,12 @@ function TeacherArticle({
   );
 }
 
+/**
+ * TeachersPageClient renders the dynamic view for the faculty page,
+ * including a full-bleed quote header, sticky table of contents, and biographies.
+ *
+ * @param props - Component properties conforming to TeachersPageClientProps
+ */
 export default function TeachersPageClient({
   teachers,
   heroImage,
@@ -209,22 +215,26 @@ export default function TeachersPageClient({
   return (
     <>
       {/* Full-bleed hero */}
-      <section className="relative min-h-[48svh] overflow-hidden bg-ink text-white lg:min-h-[56svh] pt-[var(--site-header-height,4.75rem)]">
+      <section className="relative min-h-[56svh] overflow-hidden bg-ink text-white lg:min-h-[65svh] pt-[var(--site-header-height)]">
         <Image
           src={heroImage}
           alt=""
           fill
           priority
           sizes="100vw"
-          className="object-cover opacity-55"
+          className="object-cover object-top opacity-50"
         />
         <div
-          className="absolute inset-0 bg-linear-to-r from-ink/85 via-ink/25 to-ink/35"
+          className="absolute inset-0 bg-linear-to-r from-ink/90 via-ink/55 to-ink/20"
+          aria-hidden="true"
+        />
+        <div
+          className="absolute inset-0 bg-linear-to-t from-ink/60 via-transparent to-transparent"
           aria-hidden="true"
         />
         <Container
           size="2xl"
-          className="relative z-10 flex min-h-[calc(48svh-var(--site-header-height,4.75rem))] flex-col justify-end py-14 lg:min-h-[calc(56svh-var(--site-header-height,4.75rem))] lg:py-20"
+          className="relative z-10 flex min-h-[calc(56svh-var(--site-header-height))] flex-col justify-end py-14 lg:min-h-[calc(65svh-var(--site-header-height))] lg:py-20"
         >
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -242,11 +252,11 @@ export default function TeachersPageClient({
               Faculty of{" "}
               <span className="font-normal italic text-accent">Nirvana</span>
             </Heading>
-            <p className="type-lead mt-5 max-w-2xl font-sans leading-relaxed text-white/82">
+            <p className="type-lead mt-5 max-w-2xl font-sans leading-relaxed text-white/75">
               Twelve lineage teachers guiding Hatha, Vinyasa, Kundalini,
               philosophy, anatomy, and meditation on the banks of the Ganga.
             </p>
-            <blockquote className="type-lead mt-6 hidden max-w-xl border-l-2 border-accent/50 pl-4 font-serif italic leading-relaxed text-white/85 md:block">
+            <blockquote className="type-lead mt-6 hidden max-w-xl border-l-2 border-accent/50 pl-4 font-serif italic leading-relaxed text-white/70 md:block">
               {TEACHERS_HERO_QUOTE}
             </blockquote>
           </motion.div>

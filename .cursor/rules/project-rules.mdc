@@ -1,0 +1,133 @@
+---
+alwaysApply: false
+---
+
+Create a production-ready Next.js application architecture and configure Cursor project rules.
+
+Requirements:
+
+1. Create a Cursor rules file:
+.cursor/rules/project-rules.mdc
+
+The rules should enforce:
+
+- Next.js App Router
+- TypeScript only
+- Tailwind CSS only
+- Cloudinary for image management
+- Reusable component architecture
+- Strong typing
+- No usage of "any"
+- JSDoc comments on every component, function, custom hook, and complex logic
+- Conventional file and folder naming
+- Conventional Git commits
+- Clean scalable architecture
+
+2. Create this folder structure:
+
+src/
+├── app/
+│   ├── admin/
+│   ├── api/
+│   ├── layout.tsx
+│   └── page.tsx
+│
+├── components/
+│   ├── ui/
+│   ├── common/
+│   ├── forms/
+│   └── layouts/
+│
+├── features/
+├── hooks/
+├── services/
+├── lib/
+├── types/
+├── utils/
+└── constants/
+
+3. Add README.md containing:
+
+- Project architecture explanation
+- Development guidelines
+- Naming conventions
+- Component creation rules
+- Git commit conventions
+- How to add new features
+
+4. Add example reusable components:
+
+components/ui/
+- button.tsx
+- input.tsx
+- modal.tsx
+- loader.tsx
+
+Each component must:
+- Use TypeScript props
+- Use Tailwind CSS
+- Include JSDoc documentation
+- Be reusable
+
+5. Add example hooks:
+
+hooks/
+- use-auth.ts
+- use-fetch.ts
+
+Each hook must:
+- Have proper TypeScript typing
+- Include JSDoc comments
+
+6. Add Cloudinary service structure:
+
+services/
+- cloudinary-service.ts
+
+Include typed functions:
+
+- uploadImage()
+- deleteImage()
+- getImageUrl()
+
+with proper documentation.
+
+7. Add admin portal structure:
+
+src/app/admin/
+
+Create:
+
+- layout.tsx
+- page.tsx
+- dashboard components folder
+
+Include:
+- Admin sidebar component
+- Dashboard card component
+- Responsive layout
+
+8. Configure the project with best practices:
+
+- ESLint
+- Prettier
+- TypeScript strict mode
+- Tailwind configuration
+- Import aliases (@/)
+
+9. Follow these coding rules:
+
+- Components use PascalCase
+- Files use kebab-case
+- Hooks start with "use"
+- Functions use camelCase
+- Constants use UPPER_CASE
+- No duplicate components
+- Search existing code before creating new files
+
+10. After creating everything:
+- Explain the architecture
+- Explain how to use Cursor rules
+- Provide the first conventional commit message
+
+Do not generate unnecessary code. Create only clean production-ready structure.

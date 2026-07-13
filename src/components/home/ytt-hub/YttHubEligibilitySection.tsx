@@ -23,8 +23,8 @@ export default function YttHubEligibilitySection() {
             variants={fadeUp}
             className="flex items-start gap-3 rounded-2xl border border-ink/8 bg-paper px-5 py-4"
           >
-            <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full bg-secondary/10">
-              <Check size={16} className="text-secondary" />
+            <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10">
+              <Check size={16} className="text-primary" />
             </span>
             <span className="type-body text-ink/85">{paragraph}</span>
           </motion.li>

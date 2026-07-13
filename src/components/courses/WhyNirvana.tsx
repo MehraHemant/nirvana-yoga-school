@@ -1,13 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Image from "next/image";
 import { Container, PlatformReviewsRows, SectionHeader } from "@/components/ui";
-import {
-  WHY_NIRVANA_BANNER,
-  WHY_NIRVANA_CLOSING,
-  WHY_NIRVANA_HIGHLIGHTS,
-} from "@/data/whyNirvana";
+import { WHY_NIRVANA_CLOSING, WHY_NIRVANA_HIGHLIGHTS } from "@/data/whyNirvana";
 import {
   BadgeStar,
   Bed,

@@ -88,7 +88,7 @@ export default function TravelGuide() {
       onBlurCapture={() => setIsPaused(false)}
     >
       <div
-        className="pointer-events-none absolute -right-24 top-0 h-[360px] w-[360px] rounded-full bg-secondary/5 blur-[100px]"
+        className="pointer-events-none absolute -right-24 top-0 h-[360px] w-[360px] rounded-full bg-accent/6 blur-[100px]"
         aria-hidden="true"
       />
 
@@ -140,13 +140,13 @@ export default function TravelGuide() {
                     {/* icon */}
                     <span
                       className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl transition-colors duration-200 ${
-                        isActive ? "bg-white/15" : "bg-secondary/10"
+                        isActive ? "bg-white/15" : "bg-primary/10"
                       }`}
                       aria-hidden="true"
                     >
                       <Icon
                         size={15}
-                        className={isActive ? "text-white" : "text-secondary"}
+                        className={isActive ? "text-white" : "text-primary"}
                       />
                     </span>
 

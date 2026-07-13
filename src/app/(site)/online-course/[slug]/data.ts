@@ -1,10 +1,7 @@
 import onlineCourseMeta from "@/content/data/online-courses/meta.json";
 import { extractMediaFromModules } from "@/content/mappers/page-modules";
 import { getPageModules } from "@/content/repositories/page-modules";
-import type {
-  OnlineCourseDocument,
-  PageModulesDocument,
-} from "@/content/types";
+import type { OnlineCourseDocument } from "@/content/types";
 import { fetchYouTubeVideos } from "@/lib/youtube";
 import type { OnlineCoursePageData } from "./types";
 

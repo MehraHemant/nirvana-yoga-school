@@ -188,7 +188,7 @@ export default function Footer() {
         className="pointer-events-none absolute right-[-6%] bottom-0 h-56 w-56 rounded-full bg-primary/8 blur-[90px]"
         aria-hidden="true"
       />
-      <Container size="xl" className="relative pt-16 pb-8 md:pt-20 md:pb-10">
+      <Container size="2xl" className="relative pt-16 pb-8 md:pt-20 md:pb-10">
         <div className="grid gap-12 lg:grid-cols-[1fr_1.4fr] lg:gap-16">
           <div className="border-l-2 border-primary/25 pl-6 lg:pl-8">
             <BrandLogo />

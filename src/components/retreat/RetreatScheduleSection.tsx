@@ -29,7 +29,7 @@ const SCHEDULE_ICON_META: Record<
   },
   meal: { color: "text-primary", caption: "Nutritional sattvic meal" },
   study: {
-    color: "text-secondary",
+    color: "text-primary",
     caption: "Traditional lecture & ceremony",
   },
   yoga: { color: "text-accent", caption: "Pranayama, Hatha & Yin yoga" },
@@ -184,10 +184,10 @@ export default function RetreatScheduleSection({
   return (
     <section
       id="schedule"
-      className="relative border-b border-secondary/10 bg-white py-16 sm:py-20"
+      className="relative border-b border-ink/8 bg-white py-16 sm:py-20"
     >
       <div
-        className="pointer-events-none absolute top-[20%] right-[-10%] h-[500px] w-[500px] rounded-full bg-secondary/5 blur-[100px]"
+        className="pointer-events-none absolute top-[20%] right-[-10%] h-[500px] w-[500px] rounded-full bg-accent/6 blur-[100px]"
         aria-hidden="true"
       />
       <div
@@ -233,8 +233,8 @@ export default function RetreatScheduleSection({
       <div
         ref={tabsRef}
         style={isPinned ? { top: tabsTop } : undefined}
-        className={`z-20 border-b border-secondary/10 bg-white/95 backdrop-blur-md ${
-          isPinned ? "fixed inset-x-0 shadow-soft" : "relative"
+        className={`z-50 bg-transparent ${
+          isPinned ? "fixed inset-x-0" : "relative"
         }`}
       >
         <Container size="2xl" className="py-3">
@@ -245,7 +245,7 @@ export default function RetreatScheduleSection({
             layoutId="activeRetreatDayTab"
             variant="pill"
             size="sm"
-            className="mb-0! pb-0!"
+            className="mb-0! pb-0! "
           />
         </Container>
       </div>
@@ -269,7 +269,7 @@ export default function RetreatScheduleSection({
               className="space-y-8"
             >
               <div className="pb-2 text-center">
-                <span className="type-eyebrow font-semibold tracking-wider text-secondary">
+                <span className="type-eyebrow font-semibold tracking-wider text-primary">
                   Day 0{active.day} Focus
                 </span>
                 <h4 className="mt-1 font-serif text-2xl font-medium leading-tight text-ink sm:text-3xl">

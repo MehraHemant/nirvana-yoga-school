@@ -16,14 +16,14 @@ const TRUST_FEATURES = [
 
 export default function OnlineTrustBar() {
   return (
-    <div className="border-b border-secondary/10 bg-white">
+    <div className="border-b border-accent/15 bg-white">
       <Container size="2xl" className="grid gap-4 py-6 md:grid-cols-2 md:py-8">
         {TRUST_FEATURES.map(({ title, description, icon: Icon }) => (
           <div
             key={title}
-            className="flex items-start gap-4 rounded-3xl border border-secondary/10 bg-secondary/5 px-5 py-5"
+            className="flex items-start gap-4 rounded-3xl border border-accent/15 bg-accent/8 px-5 py-5"
           >
-            <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-secondary text-white">
+            <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-primary text-white">
               <Icon size={20} />
             </span>
             <div>

@@ -152,7 +152,7 @@ export default function CountryCodeSelect({
         aria-controls={open ? listboxId : undefined}
         onClick={() => (open ? close() : setOpen(true))}
         onKeyDown={handleTriggerKeyDown}
-        className="flex h-full min-h-12 w-[6.75rem] rounded-2xl cursor-pointer items-center gap-1.5 border-r border-secondary/15 bg-surface px-2.5 py-3 font-sans text-sm text-ink transition-colors hover:bg-surface-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-secondary/40 disabled:cursor-not-allowed disabled:opacity-60 sm:w-[7.5rem] sm:px-3"
+        className="flex h-full min-h-12 w-[6.75rem] rounded-2xl cursor-pointer items-center gap-1.5 border-r border-ink/10 bg-surface px-2.5 py-3 font-sans text-sm text-ink transition-colors hover:bg-surface-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-60 sm:w-[7.5rem] sm:px-3"
       >
         <span className="text-base leading-none" aria-hidden="true">
           {isoToFlag(selected.iso2)}
@@ -191,13 +191,12 @@ export default function CountryCodeSelect({
                 }}
                 onKeyDown={handleSearchKeyDown}
                 placeholder="Search country or code"
-                className="w-full rounded-xl border border-secondary/15 bg-white px-3 py-2 font-sans text-sm text-ink placeholder:text-muted/70 focus:border-secondary focus:outline-none focus:ring-1 focus:ring-secondary/30"
+                className="w-full rounded-xl border border-ink/10 bg-white px-3 py-2 font-sans text-sm text-ink placeholder:text-muted/70 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30"
               />
             </div>
 
             <ul
               id={listboxId}
-              role="listbox"
               aria-label="Country codes"
               className="max-h-56 overflow-y-auto overscroll-contain py-1.5"
             >

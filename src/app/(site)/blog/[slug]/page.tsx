@@ -13,11 +13,22 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
+/**
+ * Generates static paths for all published blog post route slugs at build time.
+ *
+ * @returns List of dynamic slug parameters
+ */
 export async function generateStaticParams() {
   const slugs = await getAllBlogSlugs();
   return slugs.map((slug) => ({ slug }));
 }
 
+/**
+ * Resolves HTML metadata tag titles and descriptions for individual blog posts.
+ *
+ * @param props - Dynamic route properties containing target slug promise
+ * @returns Resolved page metadata attributes
+ */
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
@@ -98,6 +109,12 @@ function BlogContent({ blocks }: { blocks: BlogContentBlock[] }) {
   );
 }
 
+/**
+ * BlogPostPage displays the full structured copy body of an individual article
+ * along with categories, header banners, publication dates, and back navigation.
+ *
+ * @param props - Dynamic page params containing the target post slug
+ */
 export default async function BlogPostPage({ params }: PageProps) {
   const { slug } = await params;
   const post = await fetchBlogPost(slug);
@@ -110,27 +127,27 @@ export default async function BlogPostPage({ params }: PageProps) {
 
   return (
     <>
-      <section className="relative overflow-hidden bg-ink text-white">
+      <section className="relative overflow-hidden bg-sand text-ink pt-[var(--site-header-height)]">
         <Image
           src={post.image}
           alt=""
           fill
           priority
           sizes="100vw"
-          className="object-cover opacity-35"
+          className="object-cover opacity-20"
         />
-        <div className="absolute inset-0 bg-linear-to-r from-ink via-ink/82 to-ink/30" />
+        <div className="absolute inset-0 bg-linear-to-r from-sand via-sand/75 to-transparent" />
         <Container
           size="2xl"
           className="relative z-10 flex min-h-[54svh] items-end py-16 sm:py-20"
         >
           <div className="max-w-4xl">
-            <p className="type-eyebrow mb-4 text-accent">{post.category}</p>
-            <h1 className="type-h1 text-balance text-white">{post.title}</h1>
+            <p className="type-eyebrow mb-4 text-primary">{post.category}</p>
+            <h1 className="type-h1 text-balance text-ink">{post.title}</h1>
             {post.publishedAt && (
-              <p className="type-ui mt-4 text-white/65">{post.publishedAt}</p>
+              <p className="type-ui mt-4 text-muted">{post.publishedAt}</p>
             )}
-            <p className="type-lead mt-6 max-w-2xl font-sans leading-relaxed text-white/78">
+            <p className="type-lead mt-6 max-w-2xl font-sans leading-relaxed text-ink/80">
               {post.excerpt}
             </p>
           </div>

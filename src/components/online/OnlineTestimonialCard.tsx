@@ -28,13 +28,13 @@ export default function OnlineTestimonialCard({
   return (
     <motion.blockquote
       variants={testimonialCardVariants}
-      className="rounded-3xl border border-secondary/10 bg-white p-6 shadow-xs"
+      className="rounded-3xl border border-ink/8 bg-white p-6 shadow-xs"
     >
       <BadgeStar size={18} className="text-amber-500" />
       <p className="mt-4 font-serif text-lg leading-relaxed text-ink/90">
         “{testimonial.quote}”
       </p>
-      <footer className="mt-5 type-ui font-semibold text-secondary">
+      <footer className="mt-5 type-ui font-semibold text-muted">
         — {testimonial.name}
       </footer>
     </motion.blockquote>

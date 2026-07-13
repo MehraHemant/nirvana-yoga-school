@@ -137,21 +137,21 @@ export default function EnquireNowPageClient({
 
   return (
     <div className="bg-sand/15">
-      <section className="relative min-h-[52svh] overflow-hidden bg-ink text-white pt-[var(--site-header-height,4.75rem)] lg:min-h-[58svh]">
+      <section className="relative min-h-[52svh] overflow-hidden bg-sand text-ink pt-[var(--site-header-height)] lg:min-h-[58svh]">
         <Image
           src={ENQUIRE_HERO_IMAGE}
           alt=""
           fill
           priority
           sizes="100vw"
-          className="object-cover opacity-40"
+          className="object-cover opacity-20"
         />
         <div
-          className="absolute inset-0 bg-linear-to-r from-ink/94 via-ink/60 to-ink/35"
+          className="absolute inset-0 bg-linear-to-r from-sand via-sand/75 to-transparent"
           aria-hidden="true"
         />
         <div
-          className="pointer-events-none absolute -right-16 top-1/4 h-72 w-72 rounded-full bg-primary/20 blur-[100px]"
+          className="pointer-events-none absolute -right-16 top-1/4 h-72 w-72 rounded-full bg-primary/5 blur-[100px]"
           aria-hidden="true"
         />
 
@@ -165,14 +165,14 @@ export default function EnquireNowPageClient({
             variants={fadeUp}
             className="max-w-2xl space-y-5"
           >
-            <span className="type-eyebrow font-semibold tracking-widest text-accent uppercase">
+            <span className="type-eyebrow font-semibold tracking-widest text-primary uppercase">
               Apply & Enquire
             </span>
-            <h1 className="font-serif text-4xl font-medium leading-[1.08] tracking-tight sm:text-5xl md:text-6xl">
+            <h1 className="font-serif text-4xl font-medium leading-[1.08] tracking-tight text-ink sm:text-5xl md:text-6xl">
               Begin your{" "}
-              <span className="font-normal italic text-accent">enquiry</span>
+              <span className="font-normal italic text-primary">enquiry</span>
             </h1>
-            <p className="type-lead max-w-xl pt-1 font-sans text-base leading-relaxed text-white/82 sm:text-lg">
+            <p className="type-lead max-w-xl pt-1 font-sans text-base leading-relaxed text-ink/80 sm:text-lg">
               Reserve your interest in yoga teacher training, retreats, or
               online courses. Our ashram team will guide you through dates,
               fees, and accommodation.
@@ -186,7 +186,7 @@ export default function EnquireNowPageClient({
               ].map((chip) => (
                 <span
                   key={chip}
-                  className="rounded-full border border-white/15 bg-white/10 px-3 py-1 font-sans text-xs font-medium text-white/90 backdrop-blur-sm"
+                  className="rounded-full border border-ink/8 bg-ink/5 px-3 py-1 font-sans text-xs font-medium text-ink/80 backdrop-blur-sm"
                 >
                   {chip}
                 </span>

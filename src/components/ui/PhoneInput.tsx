@@ -49,7 +49,7 @@ export default function PhoneInput({
 
   const borderClass = error
     ? "border-red-400 focus-within:border-red-500 focus-within:ring-red-200"
-    : "border-secondary/15 focus-within:border-secondary focus-within:ring-secondary";
+    : "border-primary/15 focus-within:border-primary focus-within:ring-primary";
 
   return (
     <div className={className}>

@@ -117,11 +117,10 @@ function ImageGalleryPanel({
     >
       <div className="relative">
         <div
-          className={`absolute -inset-1.5 rounded-2xl bg-linear-to-br ${
-            accent === "secondary"
+          className={`absolute -inset-1.5 rounded-2xl bg-linear-to-br ${accent === "secondary"
               ? "from-secondary/10 via-transparent to-accent/10"
               : "from-primary/10 via-transparent to-accent/10"
-          } blur-md pointer-events-none`}
+            } blur-md pointer-events-none`}
           aria-hidden="true"
         />
 
@@ -210,11 +209,10 @@ function ImageGalleryPanel({
                   <button
                     type="button"
                     onClick={() => setActiveIndex(index)}
-                    className={`relative w-14 h-14 sm:w-16 sm:h-16 rounded-lg overflow-hidden border-2 transition-all duration-300 cursor-pointer ${
-                      isActive
+                    className={`relative w-14 h-14 sm:w-16 sm:h-16 rounded-lg overflow-hidden border-2 transition-all duration-300 cursor-pointer ${isActive
                         ? `${accentThumb} shadow-sm scale-[1.02]`
                         : "border-transparent opacity-55 hover:opacity-100 hover:scale-[1.02]"
-                    }`}
+                      }`}
                     aria-label={item.title}
                     aria-current={isActive ? "true" : undefined}
                   >
@@ -256,11 +254,10 @@ function RoomTypeSelector({
               type="button"
               onClick={() => onChange(room.id)}
               aria-pressed={isActive}
-              className={`group flex w-full items-center gap-3 rounded-2xl border px-2.5 py-2 text-left transition-all duration-300 ${
-                isActive
+              className={`group flex w-full items-center gap-3 rounded-2xl border px-2.5 py-2 text-left transition-all duration-300 ${isActive
                   ? "border-primary/25 bg-primary/5 shadow-xs ring-1 ring-primary/10"
                   : "surface-panel border-ink/8 hover:border-primary/15"
-              }`}
+                }`}
             >
               <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl shadow-xs">
                 {thumb && (
@@ -269,9 +266,8 @@ function RoomTypeSelector({
                     alt={room.label}
                     fill
                     sizes="48px"
-                    className={`object-cover transition-transform duration-500 ${
-                      isActive ? "scale-105" : "group-hover:scale-105"
-                    }`}
+                    className={`object-cover transition-transform duration-500 ${isActive ? "scale-105" : "group-hover:scale-105"
+                      }`}
                   />
                 )}
               </div>
@@ -329,11 +325,10 @@ function FacilitiesGrid() {
               className="surface-panel flex items-start gap-2 rounded-xl p-2.5 transition-shadow hover:shadow-soft"
             >
               <span
-                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border ${
-                  isPaidExtra
+                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border ${isPaidExtra
                     ? "border-ink/10 bg-ink/5 text-ink"
                     : "border-primary/10 bg-primary/10 text-primary"
-                }`}
+                  }`}
               >
                 <Icon size={14} strokeWidth={2} />
               </span>

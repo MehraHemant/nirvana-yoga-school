@@ -13,7 +13,7 @@ export default function TestimonialsSection() {
         aria-hidden="true"
       />
       <div
-        className="pointer-events-none absolute bottom-0 left-1/4 h-[500px] w-[500px] rounded-full bg-secondary/3 blur-[120px]"
+        className="pointer-events-none absolute bottom-0 left-1/4 h-[500px] w-[500px] rounded-full bg-accent/8 blur-[120px]"
         aria-hidden="true"
       />
 

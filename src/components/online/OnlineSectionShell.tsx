@@ -19,7 +19,7 @@ export default function OnlineSectionShell({
   return (
     <section
       id={id}
-      className={`scroll-mt-28 border-b border-secondary/10 py-14 md:py-16 ${className}`}
+      className={`scroll-mt-28 border-b border-ink/8 py-14 md:py-16 ${className}`}
     >
       <div className="space-y-8">
         <div className="space-y-4">
@@ -29,7 +29,7 @@ export default function OnlineSectionShell({
             align="left"
             className="max-w-none"
           />
-          <hr className="border-secondary/10" />
+          <hr className="border-ink/8" />
         </div>
         {children}
       </div>

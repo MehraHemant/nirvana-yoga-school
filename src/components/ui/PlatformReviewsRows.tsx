@@ -41,7 +41,7 @@ function TestimonialCard({ review }: { review: Testimonial }) {
 
   return (
     <div className="flex h-full min-h-[380px] flex-col items-stretch gap-6 pr-3 md:min-h-[240px] md:flex-row md:gap-8">
-      <div className="relative min-h-[220px] w-full shrink-0 overflow-hidden rounded-2xl border border-ink/8 bg-surface-muted md:min-h-full md:w-1/3">
+      <div className="relative min-h-[220px] w-full shrink-0 overflow-hidden rounded-2xl md:min-h-full md:w-1/3">
         <Image
           src={review.image}
           alt={`${review.name} - Testimonial`}
@@ -233,11 +233,10 @@ function RatingCard({
             <Star
               key={`rating-star-${num}`}
               size={16}
-              className={`${
-                num < Math.floor(ratingValue)
-                  ? getStarColorClass(platform)
-                  : "fill-transparent text-ink/10"
-              } shrink-0`}
+              className={`${num < Math.floor(ratingValue)
+                ? getStarColorClass(platform)
+                : "fill-transparent text-ink/10"
+                } shrink-0`}
             />
           ))}
         </div>
@@ -279,7 +278,7 @@ export default function PlatformReviewsRows({
 
   return (
     <div className={`w-full space-y-8 md:space-y-10 ${className}`}>
-      <div className="surface-card grid w-full grid-cols-1 items-stretch gap-6 rounded-3xl p-5 md:p-6 lg:grid-cols-4 lg:gap-8">
+      <div className="grid w-full grid-cols-1 items-stretch gap-6 rounded-3xl p-5 md:p-6 lg:grid-cols-4 lg:gap-8">
         <div className="lg:col-span-1">
           <RatingCard
             platform="Google"
@@ -294,7 +293,7 @@ export default function PlatformReviewsRows({
         </div>
       </div>
 
-      <div className="surface-card grid w-full grid-cols-1 items-stretch gap-6 rounded-3xl p-5 md:p-6 lg:grid-cols-4 lg:gap-8">
+      <div className="grid w-full grid-cols-1 items-stretch gap-6 rounded-3xl p-5 md:p-6 lg:grid-cols-4 lg:gap-8">
         <div className="lg:col-span-1">
           <RatingCard
             platform="Tripadvisor"
@@ -312,7 +311,7 @@ export default function PlatformReviewsRows({
         </div>
       </div>
 
-      <div className="surface-card grid w-full grid-cols-1 items-stretch gap-6 rounded-3xl p-5 md:p-6 lg:grid-cols-4 lg:gap-8">
+      <div className="grid w-full grid-cols-1 items-stretch gap-6 rounded-3xl p-5 md:p-6 lg:grid-cols-4 lg:gap-8">
         <div className="lg:col-span-1">
           <RatingCard
             platform="Trustpilot"

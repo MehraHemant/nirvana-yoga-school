@@ -48,15 +48,14 @@ export default function PageEditorialSection({
               <SectionBlocksRenderer blocks={section.blocks} />
             ) : (
               <>
-                {section.body &&
-                  section.body.split("\n\n").map((paragraph) => (
-                    <p
-                      key={paragraph.slice(0, 48)}
-                      className="type-lead font-sans leading-relaxed text-muted"
-                    >
-                      {paragraph}
-                    </p>
-                  ))}
+                {section.body?.split("\n\n").map((paragraph) => (
+                  <p
+                    key={paragraph.slice(0, 48)}
+                    className="type-lead font-sans leading-relaxed text-muted"
+                  >
+                    {paragraph}
+                  </p>
+                ))}
 
                 {section.items && section.items.length > 0 && (
                   <ul className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">

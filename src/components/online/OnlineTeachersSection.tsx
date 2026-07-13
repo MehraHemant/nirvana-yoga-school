@@ -17,7 +17,7 @@ function TeacherCard({ teacher }: { teacher: TeacherProfile }) {
   const prefersReduced = useReducedMotion() ?? false;
 
   return (
-    <article className="overflow-hidden rounded-3xl border border-secondary/10 bg-white shadow-card">
+    <article className="overflow-hidden rounded-3xl border border-ink/8 bg-white shadow-card">
       <div className="flex flex-col gap-5 p-5 sm:flex-row sm:p-6">
         <div className="relative mx-auto aspect-square w-28 shrink-0 overflow-hidden rounded-2xl sm:mx-0 sm:w-32">
           <Image
@@ -32,7 +32,7 @@ function TeacherCard({ teacher }: { teacher: TeacherProfile }) {
         <div className="min-w-0 flex-1 space-y-3">
           <div>
             <h3 className="font-serif text-xl text-ink">{teacher.name}</h3>
-            <p className="mt-1 text-sm font-medium text-secondary">
+            <p className="mt-1 text-sm font-medium text-muted">
               {teacher.experienceSummary}
             </p>
           </div>
@@ -79,12 +79,10 @@ function TeacherCard({ teacher }: { teacher: TeacherProfile }) {
             }
             className="overflow-hidden"
           >
-            <div className="grid gap-6 border-t border-secondary/10 px-5 py-5 sm:grid-cols-3 sm:px-6 sm:py-6">
+            <div className="grid gap-6 border-t border-ink/8 px-5 py-5 sm:grid-cols-3 sm:px-6 sm:py-6">
               {teacher.education.length > 0 && (
                 <div>
-                  <h4 className="type-eyebrow mb-3 text-secondary">
-                    Education
-                  </h4>
+                  <h4 className="type-eyebrow mb-3 text-muted">Education</h4>
                   <ul className="space-y-2 text-sm text-ink/85">
                     {teacher.education.map((item) => (
                       <li key={item}>{item}</li>
@@ -94,9 +92,7 @@ function TeacherCard({ teacher }: { teacher: TeacherProfile }) {
               )}
               {teacher.detailedExperience.length > 0 && (
                 <div>
-                  <h4 className="type-eyebrow mb-3 text-secondary">
-                    Experience
-                  </h4>
+                  <h4 className="type-eyebrow mb-3 text-muted">Experience</h4>
                   <ul className="space-y-2 text-sm text-ink/85">
                     {teacher.detailedExperience.map((item) => (
                       <li key={item}>{item}</li>
@@ -106,9 +102,7 @@ function TeacherCard({ teacher }: { teacher: TeacherProfile }) {
               )}
               {teacher.expertise.length > 0 && (
                 <div>
-                  <h4 className="type-eyebrow mb-3 text-secondary">
-                    Expertise
-                  </h4>
+                  <h4 className="type-eyebrow mb-3 text-muted">Expertise</h4>
                   <ul className="space-y-2 text-sm text-ink/85">
                     {teacher.expertise.map((item) => (
                       <li key={item}>{item}</li>

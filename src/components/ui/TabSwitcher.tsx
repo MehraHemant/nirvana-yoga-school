@@ -56,12 +56,11 @@ export default function TabSwitcher({
     <div
       className={`flex justify-center overflow-x-auto scrollbar-none pb-2 px-4 ${className}`}
     >
-      <div className={wrapperClasses}>
+      <div className={`${wrapperClasses} bg-white`}>
         {tabs.map((tab) => {
           const isActive = activeId === tab.id;
-          const sharedClassName = `relative ${sizeClasses} rounded-full font-semibold font-sans tracking-wide transition-colors whitespace-nowrap cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 ${
-            isActive ? "text-primary" : "text-muted hover:text-ink"
-          }`;
+          const sharedClassName = `relative ${sizeClasses} rounded-full bg-white font-semibold font-sans tracking-wide transition-colors whitespace-nowrap cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 ${isActive ? "text-primary" : "text-muted hover:text-ink"
+            }`;
 
           const indicator = isActive ? (
             <motion.span

@@ -14,10 +14,10 @@ export default function RetreatInclusionsSection({
         {inclusions.map((item) => (
           <li
             key={item}
-            className="flex items-start gap-3 rounded-2xl border border-secondary/10 bg-white px-4 py-3.5 shadow-xs"
+            className="flex items-start gap-3 rounded-2xl border border-primary/10 bg-white px-4 py-3.5 shadow-xs"
           >
-            <span className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full bg-secondary/10">
-              <Check size={14} className="text-secondary" />
+            <span className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/10">
+              <Check size={14} className="text-primary" />
             </span>
             <span className="type-body text-ink/90">{item}</span>
           </li>

@@ -20,14 +20,10 @@ function savingsPct(price: string, original: string) {
 
 function RoomCard({
   option,
-  duration,
-  selectedBatch,
   wide = false,
   reserveHref,
 }: {
   option: PricingOption;
-  duration: string;
-  selectedBatch: string;
   wide?: boolean;
   reserveHref: string;
 }) {
@@ -66,7 +62,7 @@ function RoomCard({
           href={reserveHref}
           variant="primary"
           size="sm"
-          className="w-full shrink-0 sm:w-auto bg-black! hover:bg-primary-dark!"
+          className="w-full shrink-0 sm:w-auto"
         >
           Book now
         </Button>
@@ -114,7 +110,7 @@ function RoomCard({
         href={reserveHref}
         variant="primary"
         size="sm"
-        className="mt-auto w-full bg-black! hover:bg-primary-dark!"
+        className="mt-auto w-full"
       >
         Book now
       </Button>
@@ -122,6 +118,12 @@ function RoomCard({
   );
 }
 
+/**
+ * UpcomingDates renders scheduling tables and package accommodation pricing tiers,
+ * allowing prospective students to view upcoming session windows and initiate a booking.
+ *
+ * @param props - Component properties conforming to UpcomingDatesProps
+ */
 export default function UpcomingDates({
   duration,
   pricing,
@@ -202,8 +204,6 @@ export default function UpcomingDates({
                   <RoomCard
                     key={option.roomType}
                     option={option}
-                    duration={duration}
-                    selectedBatch={selectedBatch}
                     wide={isLast || noRoom}
                     reserveHref={getReserveHref(option.roomType)}
                   />
