@@ -486,3 +486,18 @@ model Embedding {
 
   @@map("chat_embeddings")
 }
+
+// ---------------------------------------------------------------------------
+// Global Settings — header, footer, site-wide config (editable in admin)
+// ---------------------------------------------------------------------------
+
+model GlobalSettings {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     Json
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("global_settings")
+}
+

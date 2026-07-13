@@ -1,4 +1,5 @@
-import { Footer, Header } from "@/components";
+import Header from "@/components/ui/Header";
+import Footer from "@/components/layout/Footer";
 import MobileStickyBar from "@/components/ui/MobileStickyBar";
 import WhatsAppFab from "@/components/ui/WhatsAppFab";
 import SiteMain from "./SiteMain";

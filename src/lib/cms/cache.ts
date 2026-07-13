@@ -171,3 +171,33 @@ export async function fetchBlogPostsFromDb(): Promise<BlogPostDocument[]> {
 
   return cached();
 }
+
+/**
+ * Fetch global settings from Postgres with Next.js data cache.
+ *
+ * @param key - Settings key (header, footer, siteConfig)
+ */
+export async function fetchGlobalSettingsFromDb(
+  key: string,
+): Promise<unknown | null> {
+  const cached = unstable_cache(
+    async () => {
+      const record = await prisma.globalSettings.findUnique({ where: { key } });
+      return record?.value ?? null;
+    },
+    [`global-settings-${key}`],
+    {
+      tags: [`global-settings:${key}`],
+      revalidate: 3600,
+    },
+  );
+
+  return cached();
+}
+
+/**
+ * Public helper to fetch global settings with cache.
+ */
+export async function getGlobalSettings(key: string): Promise<unknown | null> {
+  return fetchGlobalSettingsFromDb(key);
+}

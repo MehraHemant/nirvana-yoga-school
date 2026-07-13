@@ -2,78 +2,68 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { AdminLogoutButton } from "./AdminLogoutButton";
+import { ChevronRight } from "@/icons";
 
-const NAV_ITEMS = [
-  { href: "/admin", label: "Dashboard", exact: true },
-  { href: "/admin/leads", label: "Enquiries" },
-  { href: "/admin/bookings", label: "Bookings" },
-  { href: "/admin/pages", label: "Pages" },
-  { href: "/admin/courses", label: "Courses" },
-  { href: "/admin/blog", label: "Blog" },
-  { href: "/admin/library", label: "Content Library" },
-  { href: "/admin/media", label: "Media" },
-  { href: "/admin/chatbot", label: "AI Chatbot" },
+const NAV_SECTIONS = [
+  {
+    label: "Content",
+    items: [
+      { label: "Pages", href: "/admin/pages" },
+      { label: "Courses", href: "/admin/courses" },
+      { label: "Blog", href: "/admin/blog" },
+      { label: "Media", href: "/admin/media" },
+      { label: "Library", href: "/admin/library" },
+    ],
+  },
+  {
+    label: "Settings",
+    items: [
+      { label: "Global Settings", href: "/admin/settings" },
+      { label: "Navigation", href: "/admin/navigation" },
+    ],
+  },
+  {
+    label: "Engagement",
+    items: [
+      { label: "Leads", href: "/admin/leads" },
+      { label: "Bookings", href: "/admin/bookings" },
+    ],
+  },
+  {
+    label: "Tools",
+    items: [
+      { label: "Chatbot", href: "/admin/chatbot" },
+    ],
+  },
 ] as const;
 
-/**
- * Returns whether a sidebar href matches the current admin route.
- *
- * @param href - Nav link target
- * @param pathname - Current pathname from the router
- * @param exact - When true, only match the href exactly
- */
-function isSidebarLinkActive(
-  href: string,
-  pathname: string,
-  exact?: boolean,
-): boolean {
-  if (exact) return pathname === href;
-  return pathname === href || pathname.startsWith(`${href}/`);
-}
-
-/**
- * Left sidebar navigation with active-route highlighting.
- */
 export function AdminSidebarNav() {
   const pathname = usePathname();
 
   return (
-    <>
-      <Link href="/admin" className="admin-brand">
-        Nirvana CMS
-      </Link>
-      <nav className="admin-sidebar-nav" aria-label="CMS sections">
-        {NAV_ITEMS.map((item) => {
-          const active = isSidebarLinkActive(
-            item.href,
-            pathname,
-            "exact" in item ? item.exact : false,
-          );
-
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`admin-sidebar-link${active ? " admin-sidebar-link--active" : ""}`}
-              aria-current={active ? "page" : undefined}
-            >
-              {item.label}
-            </Link>
-          );
-        })}
-      </nav>
-      <div className="admin-sidebar-footer">
-        <Link
-          href="/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="admin-sidebar-link"
-        >
-          View site ↗
-        </Link>
-        <AdminLogoutButton />
-      </div>
-    </>
+    <nav className="admin-sidebar-nav" aria-label="Admin navigation">
+      <ul className="admin-nav-list">
+        {NAV_SECTIONS.map((section) => (
+          <li key={section.label} className="admin-nav-section">
+            <span className="admin-nav-section-label">{section.label}</span>
+            <ul className="admin-nav-items">
+              {section.items.map((item) => (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    className={`admin-nav-link ${pathname.startsWith(item.href) ? "active" : ""}`}
+                  >
+                    {item.label}
+                    {pathname.startsWith(item.href) && (
+                      <ChevronRight className="admin-nav-chevron" size={16} />
+                    )}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </li>
+        ))}
+      </ul>
+    </nav>
   );
 }

@@ -13,6 +13,7 @@ import {
   YogaAllianceSection,
 } from "@/components";
 import { FAQSection } from "@/components/ui";
+import { fetchApi } from "@/lib/api/client";
 import { HOME_FAQS } from "@/data/homeFaqs";
 
 const jsonLd = {
@@ -83,7 +84,18 @@ const jsonLd = {
   ],
 };
 
-export default function Home() {
+async function getHomeData() {
+  const [header, footer, siteConfig] = await Promise.all([
+    fetchApi("/api/content/header"),
+    fetchApi("/api/content/footer"),
+    fetchApi("/api/content/site-config"),
+  ]);
+  return { header: header.data, footer: footer.data, siteConfig: siteConfig.data };
+}
+
+export default async function Home() {
+  await getHomeData();
+
   return (
     <>
       {/* Hero LCP — poster + video start downloading before paint */}
