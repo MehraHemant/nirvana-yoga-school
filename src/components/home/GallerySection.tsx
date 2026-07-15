@@ -11,7 +11,7 @@ interface GalleryItem {
   src: string;
   alt: string;
   title: string;
-  category: "practice" | "campus" | "life";
+  category: "practice" | "campus" | "life" | "accommodation" | "food";
 }
 
 const GALLERY_ITEMS: GalleryItem[] = [
@@ -36,13 +36,13 @@ const GALLERY_ITEMS: GalleryItem[] = [
     title: "Ganga Beach Yoga Sessions",
     category: "practice",
   },
-  {
-    id: 4,
-    src: "https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=800&auto=format&fit=crop&q=80",
-    alt: "Food at Nirvana yoga school, Rishikesh",
-    title: "Nourishing Sattvic Food",
-    category: "campus",
-  },
+{
+     id: 4,
+     src: "https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=800&auto=format&fit=crop&q=80",
+     alt: "Food at Nirvana yoga school, Rishikesh",
+     title: "Nourishing Sattvic Food",
+     category: "food",
+   },
   {
     id: 5,
     src: "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=800&auto=format&fit=crop&q=80",
@@ -67,10 +67,10 @@ const GALLERY_ITEMS: GalleryItem[] = [
   {
     id: 8,
     src: "https://images.unsplash.com/photo-1590490360182-c33d57733427?w=800&auto=format&fit=crop&q=80",
-    alt: "Private balcony room accommodation at Nirvana yoga school",
-    title: "Private Balcony Room",
-    category: "campus",
-  },
+alt: "Private balcony room accommodation at Nirvana yoga school",
+     title: "Private Balcony Room",
+     category: "accommodation",
+   },
   {
     id: 9,
     src: "https://images.unsplash.com/photo-1519817650390-64a93db51149?w=800&auto=format&fit=crop&q=80",
@@ -186,10 +186,10 @@ const GALLERY_ITEMS: GalleryItem[] = [
   {
     id: 25,
     src: "https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=800&auto=format&fit=crop&q=80",
-    alt: "2-sharing balcony room accommodation",
-    title: "Shared Room with Balcony",
-    category: "campus",
-  },
+alt: "Shared room with balcony",
+     title: "Shared Room with Balcony",
+     category: "accommodation",
+   },
   {
     id: 26,
     src: "https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=800&auto=format&fit=crop&q=80",
@@ -216,7 +216,8 @@ const GALLERY_ITEMS: GalleryItem[] = [
 const CATEGORIES = [
   { id: "all", label: "All Images" },
   { id: "practice", label: "Yoga & Practice" },
-  { id: "campus", label: "Campus & Food" },
+  { id: "accommodation", label: "Accommodation" },
+  { id: "food", label: "Food" },
   { id: "life", label: "Excursions & Life" },
 ] as const;
 
@@ -251,19 +252,19 @@ export default function GallerySection() {
 
   const [visibleItems, setVisibleItems] = useState<GalleryItem[]>([]);
 
-  // Initialize visible items whenever category changes
-  useEffect(() => {
-    let slotsCount = 15;
-    if (selectedCategory === "practice") {
-      slotsCount = 12;
-    } else if (selectedCategory === "life") {
-      slotsCount = 7;
-    } else if (selectedCategory === "campus") {
-      slotsCount = 7;
-    }
-    slotsCount = Math.min(slotsCount, filteredItems.length);
-    setVisibleItems(filteredItems.slice(0, slotsCount));
-  }, [selectedCategory, filteredItems]);
+// Initialize visible items whenever category changes
+   useEffect(() => {
+     let slotsCount = 15;
+     if (selectedCategory === "practice") {
+       slotsCount = 12;
+     } else if (selectedCategory === "life") {
+       slotsCount = 7;
+     } else if (selectedCategory === "accommodation" || selectedCategory === "food") {
+       slotsCount = 7;
+     }
+     slotsCount = Math.min(slotsCount, filteredItems.length);
+     setVisibleItems(filteredItems.slice(0, slotsCount));
+   }, [selectedCategory, filteredItems]);
 
   // Shuffling auto-transition timer
   // biome-ignore lint/correctness/useExhaustiveDependencies: visibleItems is evaluated dynamically in the functional state updater to avoid resetting the interval
