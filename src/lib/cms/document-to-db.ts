@@ -1,4 +1,3 @@
-import type { Prisma } from "@prisma/client";
 import { revalidateTag } from "next/cache";
 import { getPageRef } from "@/content/pages/registry";
 import type {
@@ -15,7 +14,7 @@ import {
   buildModulesFromOnlineCourse,
   syncPageFieldsFromModules,
 } from "@/lib/cms/page-modules-builder";
-import { prisma } from "@/lib/db";
+import { prisma, type DbClient } from "@/lib/db";
 
 /**
  * Upsert a `SitePageDocument` and all child rows from admin API input.
@@ -36,6 +35,7 @@ export async function upsertSitePageDocument(doc: SitePageDocument) {
       image: doc.image,
       ctaLabel: doc.ctaLabel,
       ctaHref: doc.ctaHref,
+      contentData: doc.presentation ?? {},
     },
     update: {
       type,
@@ -45,89 +45,101 @@ export async function upsertSitePageDocument(doc: SitePageDocument) {
       image: doc.image,
       ctaLabel: doc.ctaLabel,
       ctaHref: doc.ctaHref,
+      contentData: doc.presentation ?? {},
     },
+    select: { id: true, type: true },
   });
 
-  await prisma.pageSection.deleteMany({ where: { pageId: page.id } });
-  await prisma.pagePackage.deleteMany({ where: { pageId: page.id } });
-  await prisma.pageGalleryImage.deleteMany({ where: { pageId: page.id } });
-  await prisma.pageCard.deleteMany({ where: { pageId: page.id } });
-  await prisma.pagePerson.deleteMany({ where: { pageId: page.id } });
-  await prisma.pageHighlight.deleteMany({ where: { pageId: page.id } });
+  await prisma.$transaction(async (tx) => {
+    await Promise.all([
+      tx.pageSection.deleteMany({ where: { pageId: page.id } }),
+      tx.pagePackage.deleteMany({ where: { pageId: page.id } }),
+      tx.pageGalleryImage.deleteMany({ where: { pageId: page.id } }),
+      tx.pageCard.deleteMany({ where: { pageId: page.id } }),
+      tx.pagePerson.deleteMany({ where: { pageId: page.id } }),
+      tx.pageHighlight.deleteMany({ where: { pageId: page.id } }),
+    ]);
 
-  for (const [index, section] of doc.sections.entries()) {
-    await createSection(page.id, index, section);
-  }
+    for (const [index, section] of doc.sections.entries()) {
+      await createSection(page.id, index, section, tx);
+    }
 
-  for (const [index, pkg] of (doc.packages ?? []).entries()) {
-    await prisma.pagePackage.create({
-      data: {
-        pageId: page.id,
-        sortOrder: index,
-        title: pkg.title,
-        price: pkg.price,
-        image: pkg.image,
-      },
-    });
-  }
+    const packages = doc.packages ?? [];
+    if (packages.length > 0) {
+      await tx.pagePackage.createMany({
+        data: packages.map((pkg, index) => ({
+          pageId: page.id,
+          sortOrder: index,
+          title: pkg.title,
+          price: pkg.price,
+          image: pkg.image,
+        })),
+      });
+    }
 
-  for (const [index, image] of (doc.gallery ?? []).entries()) {
-    await prisma.pageGalleryImage.create({
-      data: {
-        pageId: page.id,
-        sortOrder: index,
-        url: image.url,
-        category: image.category,
-      },
-    });
-  }
+    const gallery = doc.gallery ?? [];
+    if (gallery.length > 0) {
+      await tx.pageGalleryImage.createMany({
+        data: gallery.map((image, index) => ({
+          pageId: page.id,
+          sortOrder: index,
+          url: image.url,
+          category: image.category,
+        })),
+      });
+    }
 
-  for (const [index, card] of (doc.cards ?? []).entries()) {
-    await prisma.pageCard.create({
-      data: {
-        pageId: page.id,
-        sortOrder: index,
-        title: card.title,
-        description: card.description,
-        href: card.href,
-      },
-    });
-  }
+    const cards = doc.cards ?? [];
+    if (cards.length > 0) {
+      await tx.pageCard.createMany({
+        data: cards.map((card, index) => ({
+          pageId: page.id,
+          sortOrder: index,
+          title: card.title,
+          description: card.description,
+          href: card.href,
+        })),
+      });
+    }
 
-  for (const [index, person] of (doc.people ?? []).entries()) {
-    await prisma.pagePerson.create({
-      data: {
-        pageId: page.id,
-        sortOrder: index,
-        name: person.name,
-        image: person.image,
-        summary: person.summary,
-        bio: person.bio,
-        education: person.education ?? [],
-        experience: person.experience ?? [],
-        expertise: person.expertise ?? [],
-      },
-    });
-  }
+    const people = doc.people ?? [];
+    if (people.length > 0) {
+      await tx.pagePerson.createMany({
+        data: people.map((person, index) => ({
+          pageId: page.id,
+          sortOrder: index,
+          name: person.name,
+          image: person.image,
+          summary: person.summary,
+          bio: person.bio,
+          education: person.education ?? [],
+          experience: person.experience ?? [],
+          expertise: person.expertise ?? [],
+        })),
+      });
+    }
 
-  for (const [index, highlight] of (doc.highlights ?? []).entries()) {
-    await prisma.pageHighlight.create({
-      data: {
-        pageId: page.id,
-        sortOrder: index,
-        title: highlight.title,
-        description: highlight.description,
-        image: highlight.image,
-      },
-    });
-  }
+    const highlights = doc.highlights ?? [];
+    if (highlights.length > 0) {
+      await tx.pageHighlight.createMany({
+        data: highlights.map((highlight, index) => ({
+          pageId: page.id,
+          sortOrder: index,
+          title: highlight.title,
+          description: highlight.description,
+          image: highlight.image,
+        })),
+      });
+    }
+  });
 
-  invalidateContentCache(doc.slug);
+  invalidateContentCache(doc.slug, page.type);
   return page;
 }
 
 /**
  * Upsert page modules JSON and sync listing metadata from hero.
+ * Prefers a lean `update` (pages already exist) and avoids returning the JSON blob.
  *
  * @param slug - Page slug
  * @param modules - Full module document
@@ -139,29 +151,34 @@ export async function upsertPageModules(
   const ref = getPageRef(slug);
   const type = ref?.type ?? "site";
   const fields = syncPageFieldsFromModules(modules);
+  const data = {
+    type: type as never,
+    eyebrow: fields.eyebrow,
+    title: fields.title,
+    description: fields.description,
+    image: fields.image,
+    fee: fields.fee,
+    duration: fields.duration,
+    pageModules: modules,
+  };
 
-  const page = await prisma.page.upsert({
+  const existing = await prisma.page.findUnique({
     where: { slug },
-    create: {
-      slug,
-      type,
-      eyebrow: fields.eyebrow,
-      title: fields.title,
-      description: fields.description,
-      image: fields.image,
-      pageModules: modules as Prisma.InputJsonValue,
-    },
-    update: {
-      type,
-      eyebrow: fields.eyebrow,
-      title: fields.title,
-      description: fields.description,
-      image: fields.image,
-      pageModules: modules as Prisma.InputJsonValue,
-    },
+    select: { id: true },
   });
 
-  invalidateContentCache(slug);
+  const page = existing
+    ? await prisma.page.update({
+        where: { id: existing.id },
+        data,
+        select: { id: true, type: true },
+      })
+    : await prisma.page.create({
+        data: { slug, ...data },
+        select: { id: true, type: true },
+      });
+
+  invalidateContentCache(slug, page.type);
   return page;
 }
 
@@ -183,12 +200,21 @@ export async function seedCourseModulesFromDocument(
   return upsertPageModules(course.slug, modules);
 }
 
+/**
+ * Creates one page section and its nested items/subsections.
+ *
+ * @param pageId - Parent page id
+ * @param sortOrder - Section order
+ * @param section - Section document
+ * @param db - DB client or transaction client
+ */
 async function createSection(
   pageId: string,
   sortOrder: number,
   section: SitePageSection,
+  db: DbClient = prisma,
 ) {
-  const created = await prisma.pageSection.create({
+  const created = await db.pageSection.create({
     data: {
       pageId,
       sortOrder,
@@ -198,20 +224,23 @@ async function createSection(
       layout: section.layout ?? "default",
       image: section.image,
       images: section.images ?? [],
-      blocks: section.blocks
-        ? (section.blocks as Prisma.InputJsonValue)
-        : undefined,
+      blocks: section.blocks ?? undefined,
     },
   });
 
-  for (const [index, item] of (section.items ?? []).entries()) {
-    await prisma.sectionItem.create({
-      data: { sectionId: created.id, sortOrder: index, value: item },
+  const items = section.items ?? [];
+  if (items.length > 0) {
+    await db.sectionItem.createMany({
+      data: items.map((value, index) => ({
+        sectionId: created.id,
+        sortOrder: index,
+        value,
+      })),
     });
   }
 
   for (const [index, subsection] of (section.subsections ?? []).entries()) {
-    const sub = await prisma.sectionSubsection.create({
+    const sub = await db.sectionSubsection.create({
       data: {
         sectionId: created.id,
         sortOrder: index,
@@ -221,13 +250,14 @@ async function createSection(
       },
     });
 
-    for (const [itemIndex, item] of (subsection.items ?? []).entries()) {
-      await prisma.subsectionItem.create({
-        data: {
+    const subItems = subsection.items ?? [];
+    if (subItems.length > 0) {
+      await db.subsectionItem.createMany({
+        data: subItems.map((value, itemIndex) => ({
           subsectionId: sub.id,
           sortOrder: itemIndex,
-          value: item,
-        },
+          value,
+        })),
       });
     }
   }
@@ -266,14 +296,76 @@ export async function upsertCourseDocument(
     where: { pageId: page.id },
     create: {
       pageId: page.id,
-      document: doc as Prisma.InputJsonValue,
+      document: doc,
     },
     update: {
-      document: doc as Prisma.InputJsonValue,
+      document: doc,
     },
   });
 
   invalidateContentCache(doc.slug);
+  return page;
+}
+
+/**
+ * Upsert a retreat (or other product) JSON document on `course_documents`.
+ *
+ * @param slug - Page slug
+ * @param pageType - Product page type
+ * @param document - Serializable product document
+ * @param meta - Optional title/image overrides
+ */
+export async function upsertProductDocument(
+  slug: string,
+  pageType: "course" | "online" | "retreat",
+  document: object,
+  meta?: { title?: string; image?: string; description?: string },
+) {
+  const title =
+    meta?.title ??
+    ("title" in document && typeof document.title === "string"
+      ? document.title
+      : slug);
+  const image =
+    meta?.image ??
+    ("image" in document && typeof document.image === "string"
+      ? document.image
+      : "heroImage" in document && typeof document.heroImage === "string"
+        ? document.heroImage
+        : "");
+  const description =
+    meta?.description ??
+    ("description" in document && typeof document.description === "string"
+      ? document.description
+      : "subtitle" in document && typeof document.subtitle === "string"
+        ? document.subtitle
+        : "");
+
+  const page = await prisma.page.upsert({
+    where: { slug },
+    create: {
+      slug,
+      type: pageType,
+      title,
+      description,
+      image,
+      eyebrow:
+        pageType === "online"
+          ? "Online Course"
+          : pageType === "retreat"
+            ? "Retreat"
+            : "Yoga Teacher Training",
+    },
+    update: { type: pageType, title, description, image },
+  });
+
+  await prisma.courseDocument.upsert({
+    where: { pageId: page.id },
+    create: { pageId: page.id, document },
+    update: { document },
+  });
+
+  invalidateContentCache(slug, pageType);
   return page;
 }
 
@@ -294,7 +386,7 @@ export async function upsertBlogPost(doc: BlogPostDocument) {
       excerpt: doc.excerpt,
       image: doc.image,
       publishedAt,
-      content: doc.content as Prisma.InputJsonValue,
+      content: doc.content,
       bodyHtml: doc.bodyHtml ?? null,
     },
     update: {
@@ -303,7 +395,7 @@ export async function upsertBlogPost(doc: BlogPostDocument) {
       excerpt: doc.excerpt,
       image: doc.image,
       publishedAt,
-      content: doc.content as Prisma.InputJsonValue,
+      content: doc.content,
       bodyHtml: doc.bodyHtml ?? null,
     },
   });

@@ -1,20 +1,11 @@
 /** Slug lists for dedicated route segments — safe to import from next.config. */
 
+/** Online courses linked from primary nav (ONLINE COURSES dropdown). */
 export const ONLINE_COURSE_SLUGS = [
   "200-hour-online-yoga-teacher-training",
   "online-200-hour-ayurveda-yoga-teacher-training-course",
   "online-200-hour-meditation-yoga-nidra-teacher-training-course",
   "online-100-hour-yin-yoga-teacher-training-course",
-  "online-50-hour-hatha-yoga-course",
-  "online-25-hour-ashtanga-vinyasa-yoga-course",
-  "online-25-hour-yoga-philosophy-course",
-  "online-25-hour-pranayama-course",
-  "online-25-hour-meditation-course",
-  "online-25-hour-ayurveda-course",
-  "online-20-hour-yoga-nidra-course",
-  "online-20-hour-mindfulness-course",
-  "online-10-hour-office-yoga-course",
-  "online-25-hour-yoga-anatomy-physiology-course",
 ] as const;
 
 export const RETREAT_SLUGS = [

@@ -1,10 +1,6 @@
 import type { BlogPostDocument } from "@/content/types/blog-post";
+import type { DedicatedPageContent } from "@/content/types/dedicated-pages";
 import type { LeadStatus } from "@/content/types/lead";
-import type {
-  CreateModuleLibraryItemInput,
-  ModuleLibraryItemRecord,
-  UpdateModuleLibraryItemInput,
-} from "@/content/types/module-library";
 import type { PageModulesDocument } from "@/content/types/page-modules";
 import type {
   AdminBlogPostGetResponse,
@@ -15,12 +11,24 @@ import type {
   AdminMediaItemResponse,
   AdminMediaListResponse,
   AdminMediaUploadResponse,
-  AdminModuleLibraryItemResponse,
-  AdminModuleLibraryListResponse,
   AdminPageModulesGetResponse,
 } from "@/lib/types/admin-api";
 import type { ApiMutationResponse } from "@/lib/types/api";
 import { parseApiJson } from "@/lib/types/api";
+
+/** Keys editable via `/api/admin/settings/[key]`. */
+export type AdminGlobalSettingsKey =
+  | "header"
+  | "footer"
+  | "siteConfig"
+  | "residentialLife"
+  | "whyNirvana"
+  | "siteMap"
+  | "reviews"
+  | "homeFaqs"
+  | "venueFaqs"
+  | "retreatAccommodation"
+  | "yttHub";
 
 /**
  * Typed JSON fetch for admin API routes.
@@ -122,70 +130,6 @@ export async function saveAdminBlogPost(
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(post),
-    },
-  );
-}
-
-/**
- * Load a module library item.
- *
- * @param id - Library item id
- */
-export async function fetchAdminModuleLibraryItem(
-  id: string,
-): Promise<AdminModuleLibraryItemResponse> {
-  return adminFetch<AdminModuleLibraryItemResponse>(
-    `/api/admin/module-library/${id}`,
-  );
-}
-
-/**
- * Update a module library item.
- *
- * @param id - Library item id
- * @param patch - Fields to update
- */
-export async function saveAdminModuleLibraryItem(
-  id: string,
-  patch: UpdateModuleLibraryItemInput,
-): Promise<AdminModuleLibraryItemResponse> {
-  return adminFetch<AdminModuleLibraryItemResponse>(
-    `/api/admin/module-library/${id}`,
-    {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(patch),
-    },
-  );
-}
-
-/**
- * List module library items with optional filters.
- *
- * @param params - moduleKey and optional variant
- */
-export async function fetchAdminModuleLibrary(
-  params: URLSearchParams,
-): Promise<AdminModuleLibraryListResponse> {
-  return adminFetch<AdminModuleLibraryListResponse>(
-    `/api/admin/module-library?${params}`,
-  );
-}
-
-/**
- * Create a module library item.
- *
- * @param input - Create payload
- */
-export async function createAdminModuleLibraryItem(
-  input: CreateModuleLibraryItemInput,
-): Promise<AdminModuleLibraryItemResponse> {
-  return adminFetch<AdminModuleLibraryItemResponse>(
-    "/api/admin/module-library",
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(input),
     },
   );
 }
@@ -337,15 +281,40 @@ export async function uploadAdminMedia(
   });
 }
 
-export type { ModuleLibraryItemRecord };
+/**
+ * Load dedicated page content_data (home / contact / enquire-now).
+ *
+ * @param slug - Dedicated page slug
+ */
+export async function fetchAdminDedicatedPage(
+  slug: string,
+): Promise<{ content: DedicatedPageContent; meta: { slug: string; type: string } }> {
+  return adminFetch(`/api/admin/dedicated/${encodeURIComponent(slug)}`);
+}
 
 /**
- * Fetch global settings (header, footer, siteConfig).
+ * Save dedicated page content_data from Home / Contact / Enquire editors.
+ *
+ * @param slug - Dedicated page slug
+ * @param content - Typed CMS document
  */
+export async function saveAdminDedicatedPage(
+  slug: string,
+  content: DedicatedPageContent,
+): Promise<ApiMutationResponse> {
+  return adminFetch(`/api/admin/dedicated/${encodeURIComponent(slug)}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(content),
+  });
+}
+
 /**
- * Fetch global settings (header, footer, siteConfig).
+ * Fetch global settings (chrome + shared section keys).
+ *
+ * @param key - Settings key
  */
-export async function fetchAdminGlobalSettings(key: "header" | "footer" | "siteConfig") {
+export async function fetchAdminGlobalSettings(key: AdminGlobalSettingsKey) {
   const response = await fetch(`/api/admin/settings/${key}`, {
     headers: { "Content-Type": "application/json" },
   });
@@ -358,8 +327,14 @@ export async function fetchAdminGlobalSettings(key: "header" | "footer" | "siteC
 
 /**
  * Save global settings.
+ *
+ * @param key - Settings key
+ * @param value - Settings JSON value
  */
-export async function saveAdminGlobalSettings(key: "header" | "footer" | "siteConfig", value: unknown) {
+export async function saveAdminGlobalSettings(
+  key: AdminGlobalSettingsKey,
+  value: unknown,
+) {
   const response = await fetch(`/api/admin/settings/${key}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },

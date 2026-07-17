@@ -1,3 +1,5 @@
+import "server-only";
+
 import { isDbEnabled, prisma } from "@/lib/db";
 import type { AdminBlogRow, AdminPageRow } from "@/lib/types/db";
 
@@ -72,11 +74,8 @@ export async function listAdminBlogPosts(): Promise<AdminBlogRow[]> {
  * Resolve the admin editor URL for a CMS page row.
  *
  * @param page - Page list row
- * @returns Editor path under `/admin`
+ * @returns Editor path under `/admin/pages/[slug]`
  */
 export function adminPageEditHref(page: AdminPageRow): string {
-  if (page.type === "course" || page.type === "online") {
-    return `/admin/courses/${page.slug}`;
-  }
   return `/admin/pages/${page.slug}`;
 }

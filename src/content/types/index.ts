@@ -11,6 +11,17 @@ export type {
   PaymentMode,
 } from "@/content/types/booking";
 export type {
+  CmsInteractiveImage,
+  ImageClickAction,
+} from "@/content/types/cms-image";
+export {
+  cmsImageAlt,
+  cmsImageCursorClass,
+  cmsImageUrl,
+  handleCmsImageClick,
+  normalizeCmsImage,
+} from "@/content/types/cms-image";
+export type {
   CourseDocument,
   OnlineCourseDocument,
   OnlineCourseMeta,
@@ -25,17 +36,6 @@ export type {
 } from "@/content/types/lead";
 export { isLeadUnread } from "@/content/types/lead";
 export type {
-  CreateModuleLibraryItemInput,
-  ModuleLibraryItemRecord,
-  ModuleLibraryKey,
-  ModuleLibraryPayload,
-  UpdateModuleLibraryItemInput,
-} from "@/content/types/module-library";
-export {
-  HERO_VARIANT_LABELS,
-  MODULE_LIBRARY_LABELS,
-} from "@/content/types/module-library";
-export type {
   BlogPage,
   CoursePage,
   OnlinePage,
@@ -45,6 +45,15 @@ export type {
   SitePage,
   VenuePage,
 } from "@/content/types/page";
+export type {
+  CmsContentBlock,
+  PageCmsDocument,
+  SitePageCmsContent,
+} from "@/content/types/page-cms";
+export {
+  createCmsBlockId,
+  parsePageCmsDocument,
+} from "@/content/types/page-cms";
 export type {
   BentoMediaHero,
   EligibilityModule,
@@ -58,6 +67,7 @@ export type {
   MappedPageModules,
   MetaItem,
   ModuleFlags,
+  ModuleLiveFields,
   OverviewMediaItem,
   OverviewModule,
   PageMinimalHero,
@@ -100,3 +110,15 @@ export type {
   SitePageSection,
   SitePageSubsection,
 } from "@/content/types/site-page";
+export type {
+  ContactPageContent,
+  DedicatedPageContent,
+  EnquirePageContent,
+  HomePageContent,
+  HomePageMeta,
+  HomeSectionIdFields,
+} from "@/content/types/dedicated-pages";
+export type {
+  PageSeoMeta,
+  SectionIdFields,
+} from "@/content/types/page-seo";

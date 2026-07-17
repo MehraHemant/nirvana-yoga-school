@@ -1,6 +1,6 @@
-import { VENUE_FAQS } from "@/content/data/venue-faqs";
 import type { MappedSitePage } from "@/content/mappers/site-page";
 import { buildNavItems, mapSitePage } from "@/content/mappers/site-page";
+import type { SharedFaq } from "@/content/types/shared-sections";
 import type { SitePageDocument } from "@/content/types";
 
 const VENUE_SLUGS = new Set(["course-venue", "retreat-venue"]);
@@ -18,13 +18,18 @@ export function isVenuePage(slug: string): boolean {
  * Enrich venue pages with Why Nirvana, FAQs, and sticky-nav targets.
  *
  * @param page - Venue site page document
+ * @param faqs - FAQs from `/api/content/venue-faqs` (MySQL)
  */
-export function mapVenuePage(page: SitePageDocument): MappedSitePage {
+export function mapVenuePage(
+  page: SitePageDocument,
+  faqs: SharedFaq[] = [],
+): MappedSitePage {
   const partial = {
     ...mapSitePage(page),
     showWhyNirvana: true,
     showTravelGuide: false,
-    faqs: VENUE_FAQS,
+    showMap: true,
+    faqs,
   };
 
   return {

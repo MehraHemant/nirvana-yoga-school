@@ -1,33 +1,31 @@
-import {
-  getStaticSitePage,
-  getStaticSitePageSlugs,
-} from "@/content/data/site-pages";
-import { withDbFallback } from "@/content/repositories/db-fallback";
+import { requireDb } from "@/content/repositories/db-fallback";
 import type {
   ContentResult,
   RepositoryOptions,
 } from "@/content/repositories/fetch";
 import type { SitePageDocument } from "@/content/types";
-import { fetchSitePageFromDb } from "@/lib/cms/cache";
+import {
+  fetchPageSlugsByTypeFromDb,
+  fetchSitePageFromDb,
+} from "@/lib/cms/cache";
 
 /**
- * Load a site page by slug from Postgres or bundled JSON.
+ * Load a site page by slug from MySQL only.
  *
  * @param slug - Page slug
- * @param options - Optional source override
+ * @param options - Optional repository options
  */
 export async function getSitePage(
   slug: string,
   options?: RepositoryOptions,
 ): Promise<ContentResult<SitePageDocument | null>> {
-  return withDbFallback(
-    () => fetchSitePageFromDb(slug),
-    () => getStaticSitePage(slug),
-    options,
-  );
+  return requireDb(() => fetchSitePageFromDb(slug), options);
 }
 
-/** All site page slugs for static generation. */
+/**
+ * All published site page slugs for static generation.
+ */
 export async function getSitePageSlugs(): Promise<string[]> {
-  return getStaticSitePageSlugs();
+  const result = await requireDb(() => fetchPageSlugsByTypeFromDb("site"));
+  return result.data;
 }

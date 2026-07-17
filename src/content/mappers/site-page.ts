@@ -55,6 +55,8 @@ export type MappedSitePage = {
   showTravelGuide: boolean;
   showAccommodation: boolean;
   showInstagram: boolean;
+  /** Page-level map visibility (shared map content comes from CMS) */
+  showMap: boolean;
   ctaPrimary: string;
   ctaPrimaryHref: string;
   ctaSecondary?: string;
@@ -402,6 +404,7 @@ export function mapSitePage(page: SitePageDocument): MappedSitePage {
       page.slug === "retreat-venue" ||
       page.slug.includes("teacher-training"),
     showInstagram: page.slug !== "contact",
+    showMap: page.slug !== "contact",
     ctaPrimary: page.ctaLabel ?? "Enquire Now",
     ctaPrimaryHref: page.packages?.length
       ? "#pricing"

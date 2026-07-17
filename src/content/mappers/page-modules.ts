@@ -1,3 +1,4 @@
+import { cmsImageUrl, normalizeCmsImage } from "@/content/types/cms-image";
 import type {
   BentoMediaHero,
   MappedPageModules,
@@ -15,9 +16,23 @@ export function extractMediaFromModules(
 ): CourseMedia {
   const hero = modules.hero;
   if (hero.type === "bento-media") {
+    const raw = hero.heroImages ?? [];
+    const images = raw.map(cmsImageUrl).filter(Boolean);
+    const imageDetails =
+      hero.imageDetails ??
+      raw.map((item) => {
+        const n = normalizeCmsImage(item);
+        return {
+          url: n.url,
+          alt: n.alt,
+          clickAction: n.clickAction,
+          redirectUrl: n.redirectUrl,
+          pictured: n.alt || undefined,
+        };
+      });
     return {
-      images: hero.images ?? hero.heroImages ?? [],
-      imageDetails: hero.imageDetails,
+      images,
+      imageDetails,
       videos: hero.videos ?? [],
     };
   }
@@ -60,9 +75,9 @@ export function mapPageModules(
           )
         : [];
 
-  const heroImages =
+  const rawHeroImages =
     hero.type === "bento-media"
-      ? (hero.heroImages ?? hero.images ?? [])
+      ? (hero.heroImages ?? [])
       : hero.type === "page-minimal"
         ? [hero.heroImage]
         : hero.type === "simple-banner"
@@ -73,7 +88,7 @@ export function mapPageModules(
 
   return {
     modules,
-    heroImages,
+    heroImages: rawHeroImages.map(cmsImageUrl).filter(Boolean),
     metaItems,
     videos: media.videos ?? [],
     imageDetails: media.imageDetails,
@@ -96,12 +111,10 @@ export function resolveBentoHeroProps(modules: PageModulesDocument) {
     level: hero.level,
     certification: hero.certification,
     fee: hero.fee,
-    image: hero.heroImages?.[0] ?? hero.images?.[0] ?? "",
+    image: cmsImageUrl(hero.heroImages?.[0] ?? ""),
     certBadge: hero.certBadge,
     heroImages: hero.heroImages,
-    images: hero.images,
     imageDetails: hero.imageDetails,
     videos: hero.videos,
-    disableSupplemental: hero.disableSupplemental,
   } satisfies Partial<BentoMediaHero> & { image: string };
 }

@@ -1,4 +1,3 @@
-import type { Prisma } from "@prisma/client";
 import type {
   SitePageCard,
   SitePageDocument,
@@ -10,6 +9,10 @@ import type {
   SitePageSubsection,
 } from "@/content/types";
 
+/**
+ * Include tree for loading a page with ordered child relations.
+ * Pass to `prisma.page.findUnique({ include: pageWithRelations })`.
+ */
 export const pageWithRelations = {
   sections: {
     orderBy: { sortOrder: "asc" as const },
@@ -28,20 +31,140 @@ export const pageWithRelations = {
   cards: { orderBy: { sortOrder: "asc" as const } },
   people: { orderBy: { sortOrder: "asc" as const } },
   highlights: { orderBy: { sortOrder: "asc" as const } },
-} satisfies Prisma.PageInclude;
+};
 
-export type PageWithRelations = Prisma.PageGetPayload<{
-  include: typeof pageWithRelations;
-}>;
+/** Subsection item row returned by page includes. */
+type SubsectionItemRow = {
+  id: string;
+  subsectionId: string;
+  sortOrder: number;
+  value: string;
+};
+
+/** Section item row returned by page includes. */
+type SectionItemRow = {
+  id: string;
+  sectionId: string;
+  sortOrder: number;
+  value: string;
+};
+
+/** Subsection row with nested items. */
+type SubsectionRow = {
+  id: string;
+  sectionId: string;
+  sortOrder: number;
+  title: string;
+  body: string | null;
+  image: string | null;
+  items: SubsectionItemRow[];
+};
+
+/** Section row with nested subsections and items. */
+type SectionRow = {
+  id: string;
+  pageId: string;
+  sortOrder: number;
+  title: string;
+  eyebrow: string | null;
+  body: string | null;
+  layout: string;
+  image: string | null;
+  images: unknown;
+  blocks: unknown;
+  subsections: SubsectionRow[];
+  items: SectionItemRow[];
+};
+
+/** Page package row. */
+type PackageRow = {
+  id: string;
+  pageId: string;
+  sortOrder: number;
+  title: string;
+  price: string;
+  image: string | null;
+};
+
+/** Gallery image row. */
+type GalleryRow = {
+  id: string;
+  pageId: string;
+  sortOrder: number;
+  url: string;
+  category: string;
+  mediaAssetId: string | null;
+};
+
+/** Card row. */
+type CardRow = {
+  id: string;
+  pageId: string;
+  sortOrder: number;
+  title: string;
+  description: string;
+  href: string | null;
+};
+
+/** Person row. */
+type PersonRow = {
+  id: string;
+  pageId: string;
+  sortOrder: number;
+  name: string;
+  image: string | null;
+  summary: string | null;
+  bio: string | null;
+  education: unknown;
+  experience: unknown;
+  expertise: unknown;
+};
+
+/** Highlight row. */
+type HighlightRow = {
+  id: string;
+  pageId: string;
+  sortOrder: number;
+  title: string;
+  description: string;
+  image: string | null;
+};
+
+/**
+ * Page row shape returned when loaded with `pageWithRelations`.
+ */
+export type PageWithRelations = {
+  id: string;
+  slug: string;
+  type: string;
+  eyebrow: string;
+  title: string;
+  description: string;
+  image: string;
+  fee: string;
+  duration: string;
+  ctaLabel: string | null;
+  ctaHref: string | null;
+  published: boolean;
+  contentTypeId: string | null;
+  contentData: unknown;
+  createdAt: Date;
+  updatedAt: Date;
+  pageModules: unknown;
+  sections: SectionRow[];
+  packages: PackageRow[];
+  gallery: GalleryRow[];
+  cards: CardRow[];
+  people: PersonRow[];
+  highlights: HighlightRow[];
+};
 
 function asStringArray(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
   return value.filter((item): item is string => typeof item === "string");
 }
 
-function mapSubsection(
-  subsection: PageWithRelations["sections"][number]["subsections"][number],
-): SitePageSubsection {
+function mapSubsection(subsection: SubsectionRow): SitePageSubsection {
   const itemsFromTable = subsection.items.map((item) => item.value);
   return {
     title: subsection.title,
@@ -51,9 +174,7 @@ function mapSubsection(
   };
 }
 
-function mapSection(
-  section: PageWithRelations["sections"][number],
-): SitePageSection {
+function mapSection(section: SectionRow): SitePageSection {
   const images = asStringArray(section.images);
   const items = section.items.map((item) => item.value);
   const subsections = section.subsections.map(mapSubsection);
@@ -74,7 +195,7 @@ function mapSection(
 }
 
 /**
- * Map a Prisma page row (with relations) to `SitePageDocument`.
+ * Map a page row (with relations) to `SitePageDocument`.
  *
  * @param page - Page loaded with `pageWithRelations`
  */
@@ -144,5 +265,34 @@ export function mapPageToSitePageDocument(
     cards,
     ctaLabel: page.ctaLabel ?? undefined,
     ctaHref: page.ctaHref ?? undefined,
+    presentation: parsePresentation(page.contentData),
   };
+}
+
+/**
+ * Read teacher/home presentation fields from `content_data`.
+ *
+ * @param value - Raw JSON column
+ */
+function parsePresentation(
+  value: unknown,
+): SitePageDocument["presentation"] | undefined {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return undefined;
+  }
+  const record = value as Record<string, unknown>;
+  const pick = (key: string) =>
+    typeof record[key] === "string" ? (record[key] as string) : undefined;
+  const presentation = {
+    heroQuote: pick("heroQuote"),
+    heroLead: pick("heroLead"),
+    sectionEyebrow: pick("sectionEyebrow"),
+    sectionTitle: pick("sectionTitle"),
+    sectionDescription: pick("sectionDescription"),
+    homeEyebrow: pick("homeEyebrow"),
+    homeTitle: pick("homeTitle"),
+    homeDescription: pick("homeDescription"),
+  };
+  const hasAny = Object.values(presentation).some(Boolean);
+  return hasAny ? presentation : undefined;
 }

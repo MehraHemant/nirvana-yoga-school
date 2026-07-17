@@ -25,6 +25,11 @@ export {
   VENUE_SLUGS,
 } from "@/content/pages";
 export {
+  getGlobalFooter,
+  getGlobalHeader,
+  getSiteConfig,
+} from "@/content/repositories/global-settings";
+export {
   getAllPageSlugs,
   getBlogPost,
   getBlogPostSlugs,
@@ -40,10 +45,5 @@ export {
   getSitePage,
   getSitePageSlugs,
 } from "@/content/repositories/page";
-export {
-  getGlobalHeader,
-  getGlobalFooter,
-  getSiteConfig,
-} from "@/content/repositories/global-settings";
 export { getPageModules } from "@/content/repositories/page-modules";
 export type * from "@/content/types";

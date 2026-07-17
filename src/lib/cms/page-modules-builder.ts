@@ -22,6 +22,7 @@ import type {
   OnlineCourseDocument,
   SitePageDocument,
 } from "@/content/types";
+import { cmsImageUrl } from "@/content/types/cms-image";
 import type {
   BentoMediaHero,
   GlanceItem,
@@ -77,10 +78,8 @@ export function buildModulesFromCourse(
     fee: course.fee,
     certBadge: course.certBadge,
     heroImages: course.heroImages,
-    images: courseMedia.images,
     imageDetails: courseMedia.imageDetails,
     videos: courseMedia.videos,
-    disableSupplemental: false,
   };
 
   return {
@@ -278,8 +277,6 @@ export function buildModulesFromSitePage(
         title: page.title,
         subtitle: presentation.heroSubtitle,
         heroImages: heroImages.slice(0, 12),
-        images: heroImages,
-        disableSupplemental: page.slug.includes("retreat"),
       } satisfies BentoMediaHero)
     : ({
         type: "page-minimal",
@@ -393,8 +390,6 @@ export function buildModulesFromRetreat(
       subtitle: retreat.description,
       duration: retreat.duration,
       heroImages,
-      images: heroImages,
-      disableSupplemental: true,
     },
     stickyNav: { items: [...DEFAULT_RESIDENTIAL_NAV] },
     overview: {
@@ -480,11 +475,19 @@ export function buildModulesFromOnlineSlug(slug: string): PageModulesDocument {
  *
  * @param modules - Page modules document
  */
+/**
+ * Scalar page columns synced from modules so admin lists avoid JSON I/O.
+ *
+ * @param modules - Full page modules document
+ * @returns Title, description, image, eyebrow, fee, and duration
+ */
 export function syncPageFieldsFromModules(modules: PageModulesDocument): {
   title: string;
   description: string;
   image: string;
   eyebrow: string;
+  fee: string;
+  duration: string;
 } {
   const hero = modules.hero;
   switch (hero.type) {
@@ -492,8 +495,10 @@ export function syncPageFieldsFromModules(modules: PageModulesDocument): {
       return {
         title: hero.title,
         description: hero.subtitle ?? "",
-        image: hero.heroImages?.[0] ?? hero.images?.[0] ?? "",
+        image: cmsImageUrl(hero.heroImages?.[0] ?? ""),
         eyebrow: "Yoga Teacher Training",
+        fee: hero.fee ?? "",
+        duration: hero.duration ?? "",
       };
     case "split-copy":
       return {
@@ -501,6 +506,8 @@ export function syncPageFieldsFromModules(modules: PageModulesDocument): {
         description: hero.subtitle ?? "",
         image: hero.previewUrl,
         eyebrow: hero.eyebrow ?? "Online Course",
+        fee: "",
+        duration: "",
       };
     case "simple-banner":
       return {
@@ -508,6 +515,8 @@ export function syncPageFieldsFromModules(modules: PageModulesDocument): {
         description: hero.subtitle ?? "",
         image: hero.backgroundImage,
         eyebrow: "",
+        fee: "",
+        duration: "",
       };
     case "page-minimal":
       return {
@@ -515,8 +524,17 @@ export function syncPageFieldsFromModules(modules: PageModulesDocument): {
         description: hero.description ?? hero.subtitle ?? "",
         image: hero.heroImage,
         eyebrow: hero.eyebrow ?? "",
+        fee: "",
+        duration: "",
       };
     default:
-      return { title: "", description: "", image: "", eyebrow: "" };
+      return {
+        title: "",
+        description: "",
+        image: "",
+        eyebrow: "",
+        fee: "",
+        duration: "",
+      };
   }
 }

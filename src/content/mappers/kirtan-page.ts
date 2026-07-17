@@ -451,6 +451,7 @@ export function mapKirtanPage(page: SitePageDocument): MappedSitePage {
     showWhyNirvana: true,
     showTravelGuide: false,
     showInstagram: true,
+    showMap: true,
     ctaPrimary: page.ctaLabel ?? "Enquire Now",
     ctaPrimaryHref: enquireNowHref(page.title),
     ctaSecondary: "View Curriculum",

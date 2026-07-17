@@ -1,3 +1,5 @@
+import type { CmsInteractiveImage } from "@/content/types/cms-image";
+import type { PageSeoMeta } from "@/content/types/page-seo";
 import type {
   CourseImageDetail,
   CoursePricingOption,
@@ -12,6 +14,18 @@ import type {
   SitePagePerson,
 } from "@/content/types/site-page";
 
+/**
+ * Per-module live flag + optional HTML `_id` persisted in `page_modules` JSON.
+ * Omit or `true` = shown; `live: false` hides the module on the public page.
+ * When `_id` is set, it is used as the public section HTML `id`.
+ */
+export type ModuleLiveFields = {
+  /** Optional section id (admin panel + public section `id` when set) */
+  _id?: string;
+  /** When false, this module is hidden on the public page. Default true. */
+  live?: boolean;
+};
+
 /** Hero layout variants — fields in CMS change per type. */
 export type HeroType =
   | "bento-media"
@@ -21,7 +35,7 @@ export type HeroType =
 
 export type MetaItem = { label: string; value: string };
 
-export type BentoMediaHero = {
+export type BentoMediaHero = ModuleLiveFields & {
   type: "bento-media";
   title: string;
   subtitle?: string;
@@ -30,14 +44,14 @@ export type BentoMediaHero = {
   certification?: string;
   fee?: string;
   certBadge?: string;
-  heroImages?: string[];
-  images?: string[];
+  /** Hero gallery slides — filmstrip uses these only (CMS / DB) */
+  heroImages?: Array<string | CmsInteractiveImage>;
   imageDetails?: CourseImageDetail[];
+  /** YouTube watch / youtu.be URLs (legacy bare video IDs still accepted) */
   videos?: string[];
-  disableSupplemental?: boolean;
 };
 
-export type SplitCopyHero = {
+export type SplitCopyHero = ModuleLiveFields & {
   type: "split-copy";
   eyebrow?: string;
   title: string;
@@ -51,7 +65,7 @@ export type SplitCopyHero = {
   previewUrl: string;
 };
 
-export type SimpleBannerHero = {
+export type SimpleBannerHero = ModuleLiveFields & {
   type: "simple-banner";
   title: string;
   subtitle?: string;
@@ -61,7 +75,7 @@ export type SimpleBannerHero = {
   ctaHref?: string;
 };
 
-export type PageMinimalHero = {
+export type PageMinimalHero = ModuleLiveFields & {
   type: "page-minimal";
   eyebrow?: string;
   title: string;
@@ -83,6 +97,12 @@ export type OverviewMediaItem = {
   url: string;
   title?: string;
   description?: string;
+  /** Alt text for image media */
+  alt?: string;
+  /** Click behaviour for image media */
+  clickAction?: import("@/content/types/cms-image").ImageClickAction;
+  /** Redirect target when clickAction is `redirect` */
+  redirectUrl?: string;
 };
 
 export type GlanceItem = {
@@ -91,7 +111,7 @@ export type GlanceItem = {
   hint?: string;
 };
 
-export type OverviewModule = {
+export type OverviewModule = ModuleLiveFields & {
   eyebrow: string;
   title: string;
   lead: string;
@@ -104,7 +124,7 @@ export type OverviewModule = {
   };
 };
 
-export type InclusionsModule = {
+export type InclusionsModule = ModuleLiveFields & {
   eyebrow?: string;
   title?: string;
   description?: string;
@@ -118,7 +138,7 @@ export type EligibilityRequirement = {
   desc: string;
 };
 
-export type EligibilityModule = {
+export type EligibilityModule = ModuleLiveFields & {
   eyebrow?: string;
   title?: string;
   description?: string;
@@ -126,12 +146,12 @@ export type EligibilityModule = {
   showAllianceBadge?: boolean;
 };
 
-export type SyllabusModule = {
+export type SyllabusModule = ModuleLiveFields & {
   description: string;
   chapters: CourseSyllabusSection[];
 };
 
-export type ScheduleModule = {
+export type ScheduleModule = ModuleLiveFields & {
   description: string;
   items: CourseScheduleItem[];
 };
@@ -144,30 +164,34 @@ export type PricingBatch = {
   tone: "open" | "fast" | "last";
 };
 
-export type PricingModule = {
+export type PricingModule = ModuleLiveFields & {
   description: string;
   duration?: string;
   options: CoursePricingOption[];
   batches?: PricingBatch[];
 };
 
-export type FaqsModule = {
+export type FaqsModule = ModuleLiveFields & {
   items: FAQ[];
   categories?: string[];
 };
 
-export type TeachersModule = {
+export type TeachersModule = ModuleLiveFields & {
   people: SitePagePerson[];
 };
 
-export type GalleryModule = {
+export type GalleryModule = ModuleLiveFields & {
   images: SitePageGalleryImage[];
 };
 
-export type ProgramsModule = {
+export type ProgramsModule = ModuleLiveFields & {
   cards: SitePageCard[];
 };
 
+/**
+ * Page-level toggles for shared/static sections (not per-module CMS blocks).
+ * `true` = include on this page when the shared content is also live + has data.
+ */
 export type ModuleFlags = {
   showExam: boolean;
   showAccommodation: boolean;
@@ -179,8 +203,10 @@ export type ModuleFlags = {
 
 /** Full page content stored in `Page.pageModules` JSON. */
 export type PageModulesDocument = {
+  /** Optional page-level SEO (admin-editable; used by public `generateMetadata`) */
+  meta?: PageSeoMeta;
   hero: HeroModule;
-  stickyNav: { items: StickyNavItem[] };
+  stickyNav: ModuleLiveFields & { items: StickyNavItem[] };
   overview: OverviewModule;
   inclusions: InclusionsModule;
   eligibility: EligibilityModule;

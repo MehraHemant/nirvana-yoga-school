@@ -1,20 +1,25 @@
 import { getBatchDates } from "@/components/courses/upcomingDatesShared";
-import retreatsJson from "@/content/data/retreats/retreats.json";
+import type { ResidentialCourseDocument } from "@/content/types";
 import type { BookingProgram, BookingType } from "@/content/types/booking";
-import { COURSES_DATA } from "@/data/coursesData";
+import type { RetreatDocument } from "@/content/types/retreat-page";
 import { parseUsdAmount } from "@/lib/booking/pricing";
+import { isDbEnabled, prisma } from "@/lib/db";
 
-const RETREAT_SLUGS = [
+const BOOKABLE_RETREAT_SLUGS = new Set([
   "3-day-yoga-retreat-in-rishikesh-india",
   "5-day-yoga-retreat-in-rishikesh-india",
   "7-day-yoga-retreat-in-rishikesh-india",
-] as const;
+]);
 
 /**
- * Build residential course catalog for the booking form.
+ * Map a residential course document into a booking catalog entry.
+ *
+ * @param course - Course document from MySQL
  */
-export function getCourseBookingCatalog(): BookingProgram[] {
-  return Object.values(COURSES_DATA).map((course) => ({
+function courseToBookingProgram(
+  course: ResidentialCourseDocument,
+): BookingProgram {
+  return {
     slug: course.slug,
     title: course.title,
     duration: course.duration,
@@ -26,30 +31,94 @@ export function getCourseBookingCatalog(): BookingProgram[] {
         : undefined,
     })),
     batches: getBatchDates(course.duration).map((batch) => batch.dates),
-  }));
+  };
 }
 
 /**
- * Build retreat catalog for the booking form.
+ * Map a retreat document into a booking catalog entry.
+ *
+ * @param retreat - Retreat document from MySQL
  */
-export function getRetreatBookingCatalog(): BookingProgram[] {
-  return retreatsJson.retreats
-    .filter((retreat) =>
-      (RETREAT_SLUGS as readonly string[]).includes(retreat.slug),
-    )
-    .map((retreat) => ({
-      slug: retreat.slug,
-      title: retreat.title,
-      duration: retreat.duration,
-      rooms: retreat.packages.map((pkg) => ({
-        roomType: pkg.title,
-        priceUsd: parseUsdAmount(pkg.price),
-        originalPriceUsd: pkg.originalPrice
-          ? parseUsdAmount(pkg.originalPrice)
-          : undefined,
-      })),
-      batches: retreat.dates?.map((date) => date.range) ?? [],
-    }));
+function retreatToBookingProgram(retreat: RetreatDocument): BookingProgram {
+  return {
+    slug: retreat.slug,
+    title: retreat.title,
+    duration: retreat.duration,
+    rooms: retreat.packages.map((pkg) => ({
+      roomType: pkg.title,
+      priceUsd: parseUsdAmount(pkg.price),
+      originalPriceUsd: pkg.originalPrice
+        ? parseUsdAmount(pkg.originalPrice)
+        : undefined,
+    })),
+    batches: retreat.dates?.map((date) => date.range) ?? [],
+  };
+}
+
+/**
+ * Build residential course catalog for the booking form from MySQL.
+ *
+ * @returns Bookable course programs
+ */
+export async function getCourseBookingCatalog(): Promise<BookingProgram[]> {
+  if (!isDbEnabled()) {
+    throw new Error("DATABASE_URL is required for the booking catalog.");
+  }
+
+  const pages = await prisma.page.findMany({
+    where: { type: "course", published: true },
+    include: { courseDoc: true },
+    orderBy: { title: "asc" },
+  });
+
+  return pages
+    .map((page) => page.courseDoc?.document)
+    .filter((doc): doc is ResidentialCourseDocument => {
+      if (!doc || typeof doc !== "object") return false;
+      const record = doc as Record<string, unknown>;
+      return (
+        typeof record.slug === "string" &&
+        typeof record.title === "string" &&
+        typeof record.duration === "string" &&
+        Array.isArray(record.pricing)
+      );
+    })
+    .map(courseToBookingProgram);
+}
+
+/**
+ * Build retreat catalog for the booking form from MySQL.
+ *
+ * @returns Bookable retreat programs
+ */
+export async function getRetreatBookingCatalog(): Promise<BookingProgram[]> {
+  if (!isDbEnabled()) {
+    throw new Error("DATABASE_URL is required for the booking catalog.");
+  }
+
+  const pages = await prisma.page.findMany({
+    where: {
+      type: "retreat",
+      published: true,
+      slug: { in: [...BOOKABLE_RETREAT_SLUGS] },
+    },
+    include: { courseDoc: true },
+    orderBy: { title: "asc" },
+  });
+
+  return pages
+    .map((page) => page.courseDoc?.document)
+    .filter((doc): doc is RetreatDocument => {
+      if (!doc || typeof doc !== "object") return false;
+      const record = doc as Record<string, unknown>;
+      return (
+        typeof record.slug === "string" &&
+        typeof record.title === "string" &&
+        typeof record.duration === "string" &&
+        Array.isArray(record.packages)
+      );
+    })
+    .map(retreatToBookingProgram);
 }
 
 /**
@@ -58,12 +127,14 @@ export function getRetreatBookingCatalog(): BookingProgram[] {
  * @param type - Course or retreat booking
  * @param slug - Program slug
  */
-export function getBookingProgram(
+export async function getBookingProgram(
   type: BookingType,
   slug: string,
-): BookingProgram | null {
+): Promise<BookingProgram | null> {
   const catalog =
-    type === "course" ? getCourseBookingCatalog() : getRetreatBookingCatalog();
+    type === "course"
+      ? await getCourseBookingCatalog()
+      : await getRetreatBookingCatalog();
   return catalog.find((program) => program.slug === slug) ?? null;
 }
 

@@ -1,13 +1,40 @@
-import type { NavItem, NavLink } from "@/content/data/navigation/types";
+import type { NavItem } from "@/content/data/navigation/types";
+
+/** Visual style for a header CTA button or text link. */
+export type HeaderCtaVariant = "primary" | "secondary" | "link";
+
+/**
+ * One ordered call-to-action in the site header (e.g. Sign in, Enquire now).
+ */
+export interface HeaderCta {
+  /** Display label */
+  label: string;
+  /** Destination URL (internal path or absolute) */
+  href: string;
+  /** Button style, or `link` for text-link CTAs like Sign in */
+  variant: HeaderCtaVariant;
+  /** Optional sort weight (0, 10, 20…); array order is authoritative when present */
+  sort?: number;
+  /** Force new-tab behavior; defaults to true for absolute http(s) URLs */
+  external?: boolean;
+}
 
 export interface GlobalHeader {
   navigation: NavItem[];
-  signInUrl: string;
   logo: {
     light: string;
     dark: string;
   };
-  cta: {
+  /** Ordered header CTAs (Sign in, Enquire now, custom…) */
+  ctas: HeaderCta[];
+  /**
+   * @deprecated Prefer `ctas`. Kept when migrating older header documents.
+   */
+  signInUrl?: string;
+  /**
+   * @deprecated Prefer `ctas`. Kept when migrating older header documents.
+   */
+  cta?: {
     label: string;
     href: string;
     variant: "primary" | "secondary";

@@ -4,17 +4,15 @@ import {
   getSitePage,
   getSitePageSlugs,
 } from "@/content";
-import { BLOG_POSTS } from "@/content/data/blog";
-import { SITE_PAGES } from "@/content/data/site-pages";
 import type { BlogPostDocument, SitePageDocument } from "@/content/types";
-
-/** @deprecated Use `@/content` repositories instead. */
-export const FALLBACK_SITE_PAGES = SITE_PAGES;
-/** @deprecated Use `@/content` repositories instead. */
-export const FALLBACK_BLOG_POSTS = BLOG_POSTS;
 
 export type { BlogPostDocument as BlogPost, SitePageDocument as SitePage };
 
+/**
+ * Load a site page from MySQL.
+ *
+ * @param slug - Page slug
+ */
 export async function fetchSitePage(
   slug: string,
 ): Promise<SitePageDocument | null> {
@@ -22,6 +20,11 @@ export async function fetchSitePage(
   return result.data;
 }
 
+/**
+ * Load a blog post from MySQL.
+ *
+ * @param slug - Post slug
+ */
 export async function fetchBlogPost(
   slug: string,
 ): Promise<BlogPostDocument | null> {
@@ -29,10 +32,16 @@ export async function fetchBlogPost(
   return result.data;
 }
 
+/**
+ * All published site page slugs from MySQL.
+ */
 export async function getAllSitePageSlugs() {
   return getSitePageSlugs();
 }
 
+/**
+ * All published blog post slugs from MySQL.
+ */
 export async function getAllBlogSlugs() {
   return getBlogPostSlugs();
 }

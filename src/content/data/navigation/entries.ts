@@ -58,7 +58,7 @@ export const NAV_DROPDOWN_ENTRIES: Record<NavDropdownKey, NavDropdownConfig> = {
     },
   },
   online: {
-    items: ONLINE_COURSE_SLUGS.slice(0, 4).map((slug, index) => ({
+    items: ONLINE_COURSE_SLUGS.map((slug, index) => ({
       sort: index + 1,
       type: "online" as const,
       slug,

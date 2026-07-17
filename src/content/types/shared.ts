@@ -29,6 +29,12 @@ export type CourseImageDetail = {
   url: string;
   tag?: string;
   pictured?: string;
+  /** Accessible alt text */
+  alt?: string;
+  /** Click behaviour */
+  clickAction?: import("@/content/types/cms-image").ImageClickAction;
+  /** Redirect target when clickAction is `redirect` */
+  redirectUrl?: string;
 };
 
 export type CourseMedia = {

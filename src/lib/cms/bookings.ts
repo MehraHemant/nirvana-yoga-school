@@ -87,7 +87,7 @@ const ACTIVE_BOOKING_FILTER = { deletedAt: null } as const;
  * @param input - Validated booking form payload
  */
 export async function createBooking(input: CreateBookingInput) {
-  const program = getBookingProgram(input.type, input.programSlug);
+  const program = await getBookingProgram(input.type, input.programSlug);
   if (!program) {
     throw new Error("Program not found");
   }

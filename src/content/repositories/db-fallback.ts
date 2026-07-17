@@ -1,35 +1,46 @@
 import {
   type ContentResult,
   fromDb,
-  fromJson,
   type RepositoryOptions,
-  useDbSource,
 } from "@/content/repositories/fetch";
-import { isDbConnectionError } from "@/lib/db";
+import { isDbEnabled } from "@/lib/db";
 
 /**
- * Try MySQL first; fall back to bundled JSON if DB is unreachable.
- *
- * @param dbFn - Async loader from Prisma
- * @param jsonFn - Sync JSON fallback loader
- * @param options - Optional source override
+ * Error thrown when content repositories cannot use MySQL.
  */
-export async function withDbFallback<T>(
-  dbFn: () => Promise<T>,
-  jsonFn: () => T,
-  options?: RepositoryOptions,
-): Promise<ContentResult<T>> {
-  if (!useDbSource(options)) {
-    return fromJson(jsonFn());
-  }
-
-  try {
-    const data = await dbFn();
-    return fromDb(data);
-  } catch (error) {
-    if (isDbConnectionError(error)) {
-      return fromJson(jsonFn());
-    }
-    throw error;
+export class DatabaseRequiredError extends Error {
+  /**
+   * @param message - Human-readable reason
+   */
+  constructor(
+    message = "DATABASE_URL is required; JSON content fallback is disabled.",
+  ) {
+    super(message);
+    this.name = "DatabaseRequiredError";
   }
 }
+
+/**
+ * Load content exclusively from MySQL. Never falls back to bundled JSON/TS.
+ *
+ * @param dbFn - Async loader from Prisma
+ * @param _options - Optional repository options (source overrides are ignored)
+ * @returns Content wrapped as a DB result
+ * @throws {DatabaseRequiredError} When `DATABASE_URL` is unset
+ */
+export async function requireDb<T>(
+  dbFn: () => Promise<T>,
+  _options?: RepositoryOptions,
+): Promise<ContentResult<T>> {
+  if (!isDbEnabled()) {
+    throw new DatabaseRequiredError();
+  }
+
+  const data = await dbFn();
+  return fromDb(data);
+}
+
+/**
+ * @deprecated Use {@link requireDb}. Kept as an alias so call sites migrate cleanly.
+ */
+export const withDbFallback = requireDb;

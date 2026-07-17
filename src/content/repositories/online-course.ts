@@ -1,32 +1,34 @@
-import {
-  ONLINE_COURSES,
-  type OnlineCourseDocument,
-} from "@/content/data/online-courses";
-import { withDbFallback } from "@/content/repositories/db-fallback";
+import { requireDb } from "@/content/repositories/db-fallback";
 import type {
   ContentResult,
   RepositoryOptions,
 } from "@/content/repositories/fetch";
-import { fetchCourseDocumentFromDb } from "@/lib/cms/cache";
+import type { OnlineCourseDocument } from "@/content/types";
+import {
+  fetchCourseDocumentFromDb,
+  fetchPageSlugsByTypeFromDb,
+} from "@/lib/cms/cache";
 
 /**
- * Load an online course by slug from Postgres or static data.
+ * Load an online course by slug from MySQL only.
  *
  * @param slug - Online course slug
- * @param options - Optional source override
+ * @param options - Optional repository options
  */
 export async function getOnlineCourse(
   slug: string,
   options?: RepositoryOptions,
 ): Promise<ContentResult<OnlineCourseDocument | null>> {
-  return withDbFallback(
+  return requireDb(
     () => fetchCourseDocumentFromDb<OnlineCourseDocument>(slug),
-    () => ONLINE_COURSES[slug] ?? null,
     options,
   );
 }
 
-/** All online course slugs. */
+/**
+ * All published online course slugs.
+ */
 export async function getOnlineCourseSlugs(): Promise<string[]> {
-  return Object.keys(ONLINE_COURSES);
+  const result = await requireDb(() => fetchPageSlugsByTypeFromDb("online"));
+  return result.data;
 }

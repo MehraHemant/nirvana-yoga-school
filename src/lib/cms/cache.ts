@@ -4,6 +4,7 @@ import type {
   PageModulesDocument,
   SitePageDocument,
 } from "@/content/types";
+import { mapPageModulesFromRow } from "@/lib/cms/db-page-modules";
 import {
   mapPageToSitePageDocument,
   pageWithRelations,
@@ -23,9 +24,25 @@ export function contentCacheTag(slug: string): string {
  * Invalidate cached content for a slug after admin writes.
  *
  * @param slug - Page or post slug
+ * @param pageType - Optional page type to also bust type-slug list caches
  */
-export function invalidateContentCache(slug: string): void {
+export function invalidateContentCache(
+  slug: string,
+  pageType?: "course" | "online" | "retreat" | "venue" | "site" | string,
+): void {
   revalidateTag(contentCacheTag(slug), "max");
+  if (pageType) {
+    revalidateTag(`pages:type:${pageType}`, "max");
+  }
+}
+
+/**
+ * Invalidate a global_settings cache entry (header, footer, reviews, …).
+ *
+ * @param key - `global_settings.key` value
+ */
+export function invalidateGlobalSettingsCache(key: string): void {
+  revalidateTag(`global-settings:${key}`, "max");
 }
 
 /**
@@ -96,8 +113,8 @@ export async function fetchPageModulesFromDb(
         where: { slug },
         select: { pageModules: true, published: true },
       });
-      if (!page || !page.published || !page.pageModules) return null;
-      return page.pageModules as PageModulesDocument;
+      if (!page || !page.published) return null;
+      return mapPageModulesFromRow(page);
     },
     [`page-modules-${slug}`],
     {
@@ -200,4 +217,51 @@ export async function fetchGlobalSettingsFromDb(
  */
 export async function getGlobalSettings(key: string): Promise<unknown | null> {
   return fetchGlobalSettingsFromDb(key);
+}
+
+/**
+ * List published page slugs filtered by CMS page type.
+ *
+ * @param type - Prisma `PageType` value
+ * @returns Slug strings ordered by title
+ */
+export async function fetchPageSlugsByTypeFromDb(
+  type: "course" | "online" | "retreat" | "venue" | "site",
+): Promise<string[]> {
+  const cached = unstable_cache(
+    async () => {
+      const pages = await prisma.page.findMany({
+        where: { type, published: true },
+        select: { slug: true },
+        orderBy: { title: "asc" },
+      });
+      return pages.map((page) => page.slug);
+    },
+    [`page-slugs-${type}`],
+    { tags: [`pages:type:${type}`], revalidate: 3600 },
+  );
+
+  return cached();
+}
+
+/**
+ * List all published blog post slugs.
+ *
+ * @returns Blog slugs newest first
+ */
+export async function fetchBlogSlugsFromDb(): Promise<string[]> {
+  const cached = unstable_cache(
+    async () => {
+      const posts = await prisma.blogPost.findMany({
+        where: { published: true },
+        select: { slug: true },
+        orderBy: { publishedAt: "desc" },
+      });
+      return posts.map((post) => post.slug);
+    },
+    ["blog-slugs-all"],
+    { tags: ["blog:all"], revalidate: 3600 },
+  );
+
+  return cached();
 }

@@ -1,5 +1,7 @@
 /** Scraped / CMS site page document (retreats, hubs, about, etc.). */
 
+import type { PageSeoMeta } from "@/content/types/page-seo";
+
 export type SitePageCard = {
   title: string;
   description: string;
@@ -38,6 +40,8 @@ export type SectionContentBlock =
   | { type: "video"; url: string; caption?: string };
 
 export type SitePageSection = {
+  /** Optional HTML section id for scroll anchors */
+  _id?: string;
   title: string;
   eyebrow?: string;
   /** Dynamic blocks — rendered when present (CMS). */
@@ -83,6 +87,8 @@ export type SitePageDocument = {
   title: string;
   description: string;
   image: string;
+  /** Optional page-level SEO overrides (keywords, noIndex, ogImage, etc.) */
+  meta?: PageSeoMeta;
   sections: SitePageSection[];
   highlights?: SitePageHighlight[];
   people?: SitePagePerson[];
@@ -91,4 +97,26 @@ export type SitePageDocument = {
   cards?: SitePageCard[];
   ctaLabel?: string;
   ctaHref?: string;
+  /** Optional CMS blocks from content items / content_data */
+  cms?: import("@/content/types/page-cms").SitePageCmsContent;
+  /**
+   * Teacher-page presentation copy (hero quote, section headers).
+   * Persisted in `pages.content_data`.
+   */
+  presentation?: {
+    heroQuote?: string;
+    heroLead?: string;
+    sectionEyebrow?: string;
+    sectionTitle?: string;
+    sectionDescription?: string;
+    homeEyebrow?: string;
+    homeTitle?: string;
+    homeDescription?: string;
+    /** Optional HTML id for the hero band */
+    heroId?: string;
+    /** Optional HTML id for the faculty section */
+    facultyId?: string;
+    /** Optional HTML id for the homepage teachers teaser copy band (admin only) */
+    homeTeaserId?: string;
+  };
 };

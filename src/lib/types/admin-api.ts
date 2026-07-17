@@ -1,10 +1,6 @@
 import type { BlogPostDocument } from "@/content/types/blog-post";
 import type { BookingRecord } from "@/content/types/booking";
 import type { LeadStats, LeadSubmissionRecord } from "@/content/types/lead";
-import type {
-  ModuleLibraryItemRecord,
-  ModuleLibraryKey,
-} from "@/content/types/module-library";
 import type { PageModulesDocument } from "@/content/types/page-modules";
 import type { SitePageDocument } from "@/content/types/site-page";
 import type { AdminSession } from "@/lib/cms/auth-session";
@@ -67,18 +63,6 @@ export type AdminBookingsListResponse = DbEnabledListBody<
   BookingRecord
 >;
 
-/** GET /api/admin/module-library */
-export type AdminModuleLibraryListResponse = ApiListBody<
-  "items",
-  ModuleLibraryItemRecord & { preview: string }
->;
-
-/** GET /api/admin/module-library/[id] */
-export type AdminModuleLibraryItemResponse = ApiEntityBody<
-  "item",
-  ModuleLibraryItemRecord
->;
-
 /** GET /api/admin/modules/[slug] */
 export type AdminPageModulesMeta = {
   id: string;
@@ -138,8 +122,3 @@ export type PublicBookingCreateResponse = ApiEntityBody<
 /** GET /api/content/pages/[slug] */
 export type PublicSitePageResponse = ContentApiBody<SitePageDocument>;
 
-/** Module library filter query */
-export type ModuleLibraryQuery = {
-  moduleKey: ModuleLibraryKey;
-  variant?: string;
-};

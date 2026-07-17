@@ -1,9 +1,15 @@
 import { loadPageBySlug } from "@/content/pages/load";
-import { PAGES } from "@/content/pages/registry";
+import { requireDb } from "@/content/repositories/db-fallback";
 import type { RepositoryOptions } from "@/content/repositories/fetch";
 import type { PageDocument } from "@/content/types";
+import { prisma } from "@/lib/db";
 
-/** Resolve any page by slug — uses the pages registry for type, then loads data. */
+/**
+ * Resolve any page by slug — uses the pages registry for type, then loads data.
+ *
+ * @param slug - Page slug
+ * @param _options - Unused; kept for API parity
+ */
 export async function getPageBySlug(
   slug: string,
   _options?: RepositoryOptions,
@@ -11,9 +17,19 @@ export async function getPageBySlug(
   return loadPageBySlug(slug);
 }
 
-/** All slugs for static generation (deduplicated). */
+/**
+ * All published page slugs from MySQL (for static generation).
+ */
 export async function getAllPageSlugs(): Promise<string[]> {
-  return PAGES.map((page) => page.slug);
+  const result = await requireDb(async () => {
+    const pages = await prisma.page.findMany({
+      where: { published: true },
+      select: { slug: true },
+      orderBy: { title: "asc" },
+    });
+    return pages.map((page) => page.slug);
+  });
+  return result.data;
 }
 
 export { loadPage, loadPageBySlug } from "@/content/pages/load";

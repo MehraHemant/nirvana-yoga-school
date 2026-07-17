@@ -1,6 +1,9 @@
 import type { FAQEntry } from "@/components/ui/FAQSection";
 
-/** Shared FAQs for course-venue and retreat-venue pages. */
+/**
+ * Seed-only venue FAQs.
+ * Runtime UI loads from MySQL via `getVenueFaqs()` / `/api/content/venue-faqs`.
+ */
 export const VENUE_FAQS: FAQEntry[] = [
   {
     question: "Where is Nirvana Yoga School located?",

@@ -6,28 +6,34 @@ export type ContentResult<T> = {
 };
 
 export type RepositoryOptions = {
-  /** Force json or db; default auto-detects from DATABASE_URL. */
+  /**
+   * @deprecated JSON source is disabled. Repositories always require MySQL.
+   */
   source?: ContentSource;
 };
 
-/** Wrap file-based content in a typed result. */
-export function fromJson<T>(data: T): ContentResult<T> {
-  return { data, source: "json" };
-}
-
-/** Wrap database content in a typed result. */
+/**
+ * Wrap database content in a typed result.
+ *
+ * @param data - Loaded content
+ */
 export function fromDb<T>(data: T): ContentResult<T> {
   return { data, source: "db" };
 }
 
 /**
- * Resolve whether repositories should read from MySQL.
- *
- * @param options - Optional source override
+ * @deprecated JSON fallbacks are removed; prefer {@link fromDb}.
  */
-export function useDbSource(options?: RepositoryOptions): boolean {
-  if (options?.source === "json") return false;
-  if (options?.source === "db")
-    return Boolean(process.env.DATABASE_URL?.trim());
+export function fromJson<T>(data: T): ContentResult<T> {
+  return { data, source: "json" };
+}
+
+/**
+ * Whether repositories should read from MySQL.
+ * Always true when `DATABASE_URL` is set; JSON overrides are ignored.
+ *
+ * @param _options - Ignored (kept for call-site compatibility)
+ */
+export function useDbSource(_options?: RepositoryOptions): boolean {
   return Boolean(process.env.DATABASE_URL?.trim());
 }
