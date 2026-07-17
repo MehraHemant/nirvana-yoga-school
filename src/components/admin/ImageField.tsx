@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useRef, useState } from "react";
 import { uploadAdminMedia } from "@/lib/api/admin-client";
 import { MAX_UPLOAD_BYTES, MAX_UPLOAD_LABEL } from "@/lib/cdn/constants";
@@ -7,10 +8,18 @@ import { MediaMetadataFields } from "./MediaMetadataFields";
 import { MediaPicker } from "./MediaPicker";
 
 type ImageFieldProps = {
+  /** Field label shown above the control */
   label: string;
+  /** Current image URL */
   value: string;
+  /** Called when the URL changes via upload, pick, or clear */
   onChange: (url: string) => void;
+  /** Optional help text under the field */
   hint?: string;
+  /** Hide the visible label (still used for aria when needed) */
+  hideLabel?: boolean;
+  /** Compact layout for table/list rows */
+  compact?: boolean;
 };
 
 /**
@@ -18,7 +27,14 @@ type ImageFieldProps = {
  *
  * @param props - Label, current URL, and change handler
  */
-export function ImageField({ label, value, onChange, hint }: ImageFieldProps) {
+export function ImageField({
+  label,
+  value,
+  onChange,
+  hint,
+  hideLabel = false,
+  compact = false,
+}: ImageFieldProps) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
@@ -76,25 +92,37 @@ export function ImageField({ label, value, onChange, hint }: ImageFieldProps) {
   const fieldId = `image-field-${label.replace(/\s+/g, "-").toLowerCase()}`;
 
   return (
-    <div className="admin-field">
-      <label className="admin-label" htmlFor={fieldId}>
-        {label}
-      </label>
-      <div className="admin-image-field">
+    <div className={`admin-field${compact ? " admin-field--flush" : ""}`}>
+      {hideLabel ? (
+        <span className="sr-only">{label}</span>
+      ) : (
+        <label className="admin-label" htmlFor={fieldId}>
+          {label}
+        </label>
+      )}
+      <div
+        className={`admin-image-field${compact ? " admin-image-field--compact" : ""}`}
+      >
         {value ? (
           <div className="admin-image-preview">
-            {/* biome-ignore lint/performance/noImgElement: admin preview */}
-            <img src={value} alt="" />
+            <Image
+              src={value}
+              alt=""
+              width={compact ? 136 : 240}
+              height={compact ? 56 : 140}
+              className="admin-image-preview-img"
+              unoptimized
+            />
           </div>
         ) : (
           <div className="admin-image-preview admin-image-preview--empty">
-            No image
+            {compact ? "—" : "No image"}
           </div>
         )}
         <div className="admin-image-controls">
           <input
             id={fieldId}
-            className="admin-input"
+            className={`admin-input${compact ? " admin-input--compact" : ""}`}
             type="url"
             value={value}
             placeholder="https://…"

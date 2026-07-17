@@ -2,9 +2,17 @@
 
 import type { EligibilityModule } from "@/content/types";
 import { CollapsiblePanel } from "../CollapsiblePanel";
-import { ModuleLibraryPanelActions } from "../ModuleLibraryPanelActions";
 import { NestedItemCard } from "../NestedItemCard";
+import {
+  SortableList,
+  SortableRow,
+  reorderItems,
+  withSortField,
+} from "../SortableList";
 import { TextField } from "../TextField";
+import { useStableListKeys } from "../useStableListKeys";
+import { SectionIdField } from "../SectionIdField";
+import { ModuleLiveField } from "./ModuleLiveField";
 import type { ModulePanelProps } from "./types";
 
 type EligibilityModuleEditorProps = ModulePanelProps & {
@@ -13,7 +21,7 @@ type EligibilityModuleEditorProps = ModulePanelProps & {
 };
 
 /**
- * Admission standards / eligibility module editor.
+ * Admission standards / eligibility module editor with drag reorder.
  *
  * @param props - Eligibility config and change handler
  */
@@ -25,8 +33,19 @@ export function EligibilityModuleEditor({
   description,
   open,
   onOpenChange,
-  hideLibraryActions = false,
 }: EligibilityModuleEditorProps) {
+  const { keys, addKey, removeKey, reorderKeys } = useStableListKeys(
+    eligibility.requirements.length,
+  );
+
+  function handleReorder(fromIndex: number, toIndex: number) {
+    reorderKeys(fromIndex, toIndex);
+    const requirements = withSortField(
+      reorderItems(eligibility.requirements, fromIndex, toIndex),
+    ) as typeof eligibility.requirements;
+    onChange({ ...eligibility, requirements });
+  }
+
   return (
     <CollapsiblePanel
       id={panelId}
@@ -37,16 +56,18 @@ export function EligibilityModuleEditor({
       open={open}
       onOpenChange={onOpenChange}
       actions={
-        hideLibraryActions ? undefined : (
-          <ModuleLibraryPanelActions
-            moduleKey="eligibility"
-            payload={eligibility}
-            hasContent={eligibility.requirements.length > 0}
-            onInsert={(payload) => onChange(payload as EligibilityModule)}
-          />
-        )
+        <ModuleLiveField
+          id={`${panelId}-live`}
+          value={eligibility.live}
+          onChange={(live) => onChange({ ...eligibility, live })}
+        />
       }
     >
+      <SectionIdField
+        fieldId={`${panelId}-section-id`}
+        value={eligibility._id}
+        onChange={(_id) => onChange({ ...eligibility, _id })}
+      />
       <TextField
         label="Eyebrow"
         value={eligibility.eyebrow ?? ""}
@@ -73,89 +94,73 @@ export function EligibilityModuleEditor({
         />
         Show Yoga Alliance badge
       </label>
-      {eligibility.requirements.map((req, index) => (
-        <NestedItemCard
-          key={`req-${req.num}-${index}`}
-          title={req.title || "Requirement"}
-          index={index}
-          total={eligibility.requirements.length}
-          onRemove={() =>
-            onChange({
-              ...eligibility,
-              requirements: eligibility.requirements.filter(
-                (_, i) => i !== index,
-              ),
-            })
-          }
-          onMoveUp={
-            index > 0
-              ? () => {
-                  const requirements = [...eligibility.requirements];
-                  [requirements[index - 1], requirements[index]] = [
-                    requirements[index],
-                    requirements[index - 1],
-                  ];
-                  onChange({ ...eligibility, requirements });
-                }
-              : undefined
-          }
-          onMoveDown={
-            index < eligibility.requirements.length - 1
-              ? () => {
-                  const requirements = [...eligibility.requirements];
-                  [requirements[index], requirements[index + 1]] = [
-                    requirements[index + 1],
-                    requirements[index],
-                  ];
-                  onChange({ ...eligibility, requirements });
-                }
-              : undefined
-          }
-        >
-          <div className="admin-grid-2">
-            <TextField
-              label="Number"
-              value={req.num}
-              onChange={(num) => {
-                const requirements = [...eligibility.requirements];
-                requirements[index] = { ...req, num };
-                onChange({ ...eligibility, requirements });
-              }}
-            />
-            <TextField
-              label="Title"
-              value={req.title}
-              onChange={(title) => {
-                const requirements = [...eligibility.requirements];
-                requirements[index] = { ...req, title };
-                onChange({ ...eligibility, requirements });
-              }}
-            />
-          </div>
-          <TextField
-            label="Description"
-            value={req.desc}
-            onChange={(desc) => {
-              const requirements = [...eligibility.requirements];
-              requirements[index] = { ...req, desc };
-              onChange({ ...eligibility, requirements });
-            }}
-            multiline
-          />
-        </NestedItemCard>
-      ))}
+      <SortableList ids={keys} onReorder={handleReorder}>
+        {eligibility.requirements.map((req, index) => (
+          <SortableRow key={keys[index]} id={keys[index]}>
+            {({ dragHandleProps }) => (
+              <NestedItemCard
+                title={req.title || "Requirement"}
+                index={index}
+                total={eligibility.requirements.length}
+                dragHandleProps={dragHandleProps}
+                onRemove={() => {
+                  removeKey(index);
+                  onChange({
+                    ...eligibility,
+                    requirements: eligibility.requirements.filter(
+                      (_, i) => i !== index,
+                    ),
+                  });
+                }}
+              >
+                <div className="admin-grid-2">
+                  <TextField
+                    label="Number"
+                    value={req.num}
+                    onChange={(num) => {
+                      const requirements = [...eligibility.requirements];
+                      requirements[index] = { ...req, num };
+                      onChange({ ...eligibility, requirements });
+                    }}
+                  />
+                  <TextField
+                    label="Title"
+                    value={req.title}
+                    onChange={(title) => {
+                      const requirements = [...eligibility.requirements];
+                      requirements[index] = { ...req, title };
+                      onChange({ ...eligibility, requirements });
+                    }}
+                  />
+                </div>
+                <TextField
+                  label="Description"
+                  value={req.desc}
+                  onChange={(desc) => {
+                    const requirements = [...eligibility.requirements];
+                    requirements[index] = { ...req, desc };
+                    onChange({ ...eligibility, requirements });
+                  }}
+                  multiline
+                />
+              </NestedItemCard>
+            )}
+          </SortableRow>
+        ))}
+      </SortableList>
       <button
         type="button"
         className="admin-btn-sm"
-        onClick={() =>
+        onClick={() => {
+          addKey();
           onChange({
             ...eligibility,
             requirements: [
               ...eligibility.requirements,
               { num: "0", title: "", desc: "" },
             ],
-          })
-        }
+          });
+        }}
       >
         Add requirement
       </button>

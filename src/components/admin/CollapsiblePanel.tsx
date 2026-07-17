@@ -11,12 +11,15 @@ type CollapsiblePanelProps = {
   defaultOpen?: boolean;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
-  children: React.ReactNode;
+  /** Panel body; omit for header-only panels (e.g. visibility toggle) */
+  children?: React.ReactNode;
+  /** Header-right slot (e.g. `SectionLiveField` / `ModuleLiveField`) */
   actions?: React.ReactNode;
 };
 
 /**
- * Collapsible admin section panel with optional step badge and anchor id.
+ * Collapsible admin section panel with optional step badge, anchor id,
+ * and header actions (Live switch, remove buttons, etc.).
  *
  * @param props - Panel title, optional subtitle, step number, and child fields
  */
@@ -45,6 +48,7 @@ export function CollapsiblePanel({
   return (
     <section
       id={id}
+      data-section={id || undefined}
       className={`admin-panel ${open ? "admin-panel--open" : ""}`}
     >
       <div className="admin-panel-header">
@@ -65,9 +69,11 @@ export function CollapsiblePanel({
             ) : null}
           </span>
         </button>
-        {actions}
+        {actions ? (
+          <div className="admin-panel-actions">{actions}</div>
+        ) : null}
       </div>
-      {open ? (
+      {open && (description || children) ? (
         <div className="admin-panel-body">
           {description ? (
             <p className="admin-panel-intro">{description}</p>

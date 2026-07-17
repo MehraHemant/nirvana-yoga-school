@@ -1,52 +1,34 @@
 "use client";
 
+import { Trash } from "@/icons";
+import { DragHandle, type DragHandleProps } from "./SortableList";
+
 type ListRowActionsProps = {
-  index: number;
-  total: number;
-  onMoveUp?: () => void;
-  onMoveDown?: () => void;
   onRemove: () => void;
+  /** When set, shows a grab handle instead of move up/down */
+  dragHandleProps?: DragHandleProps;
 };
 
 /**
- * Compact reorder and remove controls for one-line list rows.
+ * Compact drag-handle + remove controls for one-line list rows.
  *
- * @param props - Row index, total count, and action handlers
+ * @param props - Remove handler and optional drag handle props
  */
 export function ListRowActions({
-  index,
-  total,
-  onMoveUp,
-  onMoveDown,
   onRemove,
+  dragHandleProps,
 }: ListRowActionsProps) {
   return (
     <div className="admin-list-row-actions admin-list-row-actions--compact">
+      {dragHandleProps ? <DragHandle dragHandleProps={dragHandleProps} /> : null}
       <button
         type="button"
-        className="admin-btn-xs"
-        aria-label="Move up"
-        onClick={onMoveUp}
-        disabled={index === 0}
-      >
-        ↑
-      </button>
-      <button
-        type="button"
-        className="admin-btn-xs"
-        aria-label="Move down"
-        onClick={onMoveDown}
-        disabled={index === total - 1}
-      >
-        ↓
-      </button>
-      <button
-        type="button"
-        className="admin-btn-xs admin-btn-xs--danger"
+        className="admin-icon-btn admin-icon-btn--sm admin-icon-btn--danger"
         aria-label="Remove"
+        title="Remove"
         onClick={onRemove}
       >
-        ×
+        <Trash size={14} />
       </button>
     </div>
   );

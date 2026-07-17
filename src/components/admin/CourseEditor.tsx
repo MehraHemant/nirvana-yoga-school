@@ -10,6 +10,7 @@ import { CollapsiblePanel } from "./CollapsiblePanel";
 import { ImageField } from "./ImageField";
 import { StringListField } from "./StringListField";
 import { TextField } from "./TextField";
+import { useStableListKeys } from "./useStableListKeys";
 
 type CourseEditorProps = {
   initial: CourseDocument;
@@ -26,6 +27,10 @@ export function CourseEditor({ initial, onSave }: CourseEditorProps) {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
+  const pricingKeys = useStableListKeys(doc.pricing.length);
+  const syllabusKeys = useStableListKeys(doc.syllabus.length);
+  const scheduleKeys = useStableListKeys(doc.schedule.length);
+  const faqKeys = useStableListKeys(doc.faqs.length);
 
   const previewHref = useMemo(() => {
     const ref = getPageRef(doc.slug);
@@ -49,8 +54,8 @@ export function CourseEditor({ initial, onSave }: CourseEditorProps) {
   return (
     <div className="admin-editor">
       <div className="admin-editor-header">
-        <Link href="/admin/courses" className="admin-back-link">
-          ← All courses
+        <Link href="/admin/sections/courses" className="admin-back-link">
+          ← Courses
         </Link>
         <h1 className="admin-title">{doc.title}</h1>
         <p className="admin-subtitle">{doc.slug}</p>
@@ -145,7 +150,7 @@ export function CourseEditor({ initial, onSave }: CourseEditorProps) {
           multiline
         />
         {doc.pricing.map((option, index) => (
-          <div key={`pricing-${index}`} className="admin-nested-card">
+          <div key={pricingKeys.keys[index]} className="admin-nested-card">
             <div className="admin-grid-2">
               <TextField
                 label="Price"
@@ -197,12 +202,13 @@ export function CourseEditor({ initial, onSave }: CourseEditorProps) {
             <button
               type="button"
               className="admin-btn-sm admin-btn-sm--ghost"
-              onClick={() =>
+              onClick={() => {
+                pricingKeys.removeKey(index);
                 setDoc({
                   ...doc,
                   pricing: doc.pricing.filter((_, i) => i !== index),
-                })
-              }
+                });
+              }}
             >
               Remove
             </button>
@@ -211,7 +217,8 @@ export function CourseEditor({ initial, onSave }: CourseEditorProps) {
         <button
           type="button"
           className="admin-btn-sm"
-          onClick={() =>
+          onClick={() => {
+            pricingKeys.addKey();
             setDoc({
               ...doc,
               pricing: [
@@ -223,8 +230,8 @@ export function CourseEditor({ initial, onSave }: CourseEditorProps) {
                   features: [],
                 },
               ],
-            })
-          }
+            });
+          }}
         >
           Add pricing option
         </button>
@@ -240,7 +247,7 @@ export function CourseEditor({ initial, onSave }: CourseEditorProps) {
           multiline
         />
         {doc.syllabus.map((chapter, index) => (
-          <div key={`syllabus-${index}`} className="admin-nested-card">
+          <div key={syllabusKeys.keys[index]} className="admin-nested-card">
             <TextField
               label="Chapter title"
               value={chapter.title}
@@ -272,12 +279,13 @@ export function CourseEditor({ initial, onSave }: CourseEditorProps) {
             <button
               type="button"
               className="admin-btn-sm admin-btn-sm--ghost"
-              onClick={() =>
+              onClick={() => {
+                syllabusKeys.removeKey(index);
                 setDoc({
                   ...doc,
                   syllabus: doc.syllabus.filter((_, i) => i !== index),
-                })
-              }
+                });
+              }}
             >
               Remove chapter
             </button>
@@ -286,15 +294,16 @@ export function CourseEditor({ initial, onSave }: CourseEditorProps) {
         <button
           type="button"
           className="admin-btn-sm"
-          onClick={() =>
+          onClick={() => {
+            syllabusKeys.addKey();
             setDoc({
               ...doc,
               syllabus: [
                 ...doc.syllabus,
                 { title: "New chapter", description: "", subtopics: [] },
               ],
-            })
-          }
+            });
+          }}
         >
           Add chapter
         </button>
@@ -310,7 +319,7 @@ export function CourseEditor({ initial, onSave }: CourseEditorProps) {
           multiline
         />
         {doc.schedule.map((item, index) => (
-          <div key={`schedule-${index}`} className="admin-nested-card">
+          <div key={scheduleKeys.keys[index]} className="admin-nested-card">
             <div className="admin-grid-2">
               <TextField
                 label="Time"
@@ -334,12 +343,13 @@ export function CourseEditor({ initial, onSave }: CourseEditorProps) {
             <button
               type="button"
               className="admin-btn-sm admin-btn-sm--ghost"
-              onClick={() =>
+              onClick={() => {
+                scheduleKeys.removeKey(index);
                 setDoc({
                   ...doc,
                   schedule: doc.schedule.filter((_, i) => i !== index),
-                })
-              }
+                });
+              }}
             >
               Remove
             </button>
@@ -348,12 +358,13 @@ export function CourseEditor({ initial, onSave }: CourseEditorProps) {
         <button
           type="button"
           className="admin-btn-sm"
-          onClick={() =>
+          onClick={() => {
+            scheduleKeys.addKey();
             setDoc({
               ...doc,
               schedule: [...doc.schedule, { time: "", activity: "" }],
-            })
-          }
+            });
+          }}
         >
           Add schedule row
         </button>
@@ -361,7 +372,7 @@ export function CourseEditor({ initial, onSave }: CourseEditorProps) {
 
       <CollapsiblePanel title={`FAQs (${doc.faqs.length})`}>
         {doc.faqs.map((faq, index) => (
-          <div key={`faq-${index}`} className="admin-nested-card">
+          <div key={faqKeys.keys[index]} className="admin-nested-card">
             <TextField
               label="Question"
               value={faq.question}
@@ -385,12 +396,13 @@ export function CourseEditor({ initial, onSave }: CourseEditorProps) {
             <button
               type="button"
               className="admin-btn-sm admin-btn-sm--ghost"
-              onClick={() =>
+              onClick={() => {
+                faqKeys.removeKey(index);
                 setDoc({
                   ...doc,
                   faqs: doc.faqs.filter((_, i) => i !== index),
-                })
-              }
+                });
+              }}
             >
               Remove FAQ
             </button>
@@ -399,18 +411,21 @@ export function CourseEditor({ initial, onSave }: CourseEditorProps) {
         <button
           type="button"
           className="admin-btn-sm"
-          onClick={() =>
+          onClick={() => {
+            faqKeys.addKey();
             setDoc({
               ...doc,
               faqs: [...doc.faqs, { question: "", answer: "" }],
-            })
-          }
+            });
+          }}
         >
           Add FAQ
         </button>
       </CollapsiblePanel>
 
       <AdminSaveBar
+        title={doc.title || "Course"}
+        subtitle={doc.slug}
         saving={saving}
         saved={saved}
         error={error}

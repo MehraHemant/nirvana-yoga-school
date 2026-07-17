@@ -1,6 +1,8 @@
+import Link from "next/link";
+import { duplicateBlogPostAction } from "@/app/admin/blog/actions";
+import { AdminActionForm } from "@/components/admin/AdminActionForm";
 import { AdminFilterSubmit } from "@/components/admin/AdminFilterSelect";
-import { AdminIconLink } from "@/components/admin/AdminIconAction";
-import { Pencil } from "@/icons";
+import { Copy } from "@/icons";
 import { listAdminBlogPosts } from "@/lib/cms/admin-lists";
 
 type AdminBlogPageProps = {
@@ -31,7 +33,9 @@ export default async function AdminBlogPage({
   return (
     <div>
       <h1 className="admin-title">Blog</h1>
-      <p className="admin-subtitle">Edit articles and news posts.</p>
+      <p className="admin-subtitle">
+        Articles and news posts. View the live post or open the editor.
+      </p>
 
       <form method="get" className="admin-toolbar">
         <input
@@ -49,6 +53,7 @@ export default async function AdminBlogPage({
           <thead>
             <tr>
               <th>Title</th>
+              <th>Slug</th>
               <th>Category</th>
               <th>Status</th>
               <th aria-label="Actions" />
@@ -57,15 +62,44 @@ export default async function AdminBlogPage({
           <tbody>
             {filtered.map((post) => (
               <tr key={post.id}>
-                <td>{post.title}</td>
+                <td>
+                  <span className="admin-table-title">{post.title}</span>
+                </td>
+                <td>
+                  <code className="admin-table-slug">/{post.slug}</code>
+                </td>
                 <td>{post.category || "—"}</td>
-                <td>{post.published ? "Published" : "Draft"}</td>
+                <td>
+                  <span
+                    className={`admin-pill${post.published ? " admin-pill--published" : ""}`}
+                  >
+                    {post.published ? "Published" : "Draft"}
+                  </span>
+                </td>
                 <td className="admin-row-actions">
-                  <AdminIconLink
-                    href={`/admin/blog/${post.slug}`}
-                    label="Edit post"
-                    icon={<Pencil size={16} />}
-                  />
+                  <div className="admin-list-row-actions">
+                    <a
+                      href={`/blog/${post.slug}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="admin-btn-sm admin-btn-sm--ghost"
+                    >
+                      View
+                    </a>
+                    <Link
+                      href={`/admin/blog/${post.slug}`}
+                      className="admin-btn-sm"
+                    >
+                      Edit
+                    </Link>
+                    <AdminActionForm
+                      action={duplicateBlogPostAction}
+                      fields={{ id: post.id }}
+                      label="Copy"
+                    >
+                      <Copy size={16} />
+                    </AdminActionForm>
+                  </div>
                 </td>
               </tr>
             ))}

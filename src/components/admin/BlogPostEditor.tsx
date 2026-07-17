@@ -103,6 +103,8 @@ export function BlogPostEditor({ initial, onSave }: BlogPostEditorProps) {
       </CollapsiblePanel>
 
       <AdminSaveBar
+        title={doc.title || "Blog post"}
+        subtitle={doc.slug}
         saving={saving}
         saved={saved}
         error={error}

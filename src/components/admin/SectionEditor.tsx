@@ -3,9 +3,13 @@
 import type { SitePageSection, SitePageSubsection } from "@/content/types";
 import { CollapsiblePanel } from "./CollapsiblePanel";
 import { ImageField } from "./ImageField";
+import { toSectionDomId } from "./sectionDomId";
+import { SectionIdField } from "./SectionIdField";
+import { DragHandle, type DragHandleProps } from "./SortableList";
 import { StringListField } from "./StringListField";
 import { SubsectionEditor } from "./SubsectionEditor";
 import { TextField } from "./TextField";
+import { useStableListKeys } from "./useStableListKeys";
 
 const LAYOUTS: SitePageSection["layout"][] = [
   "default",
@@ -19,8 +23,8 @@ type SectionEditorProps = {
   index: number;
   onChange: (section: SitePageSection) => void;
   onRemove: () => void;
-  onMoveUp?: () => void;
-  onMoveDown?: () => void;
+  /** Drag handle props from a parent {@link SortableRow} */
+  dragHandleProps?: DragHandleProps;
 };
 
 /**
@@ -33,10 +37,10 @@ export function SectionEditor({
   index,
   onChange,
   onRemove,
-  onMoveUp,
-  onMoveDown,
+  dragHandleProps,
 }: SectionEditorProps) {
   const subsections = section.subsections ?? [];
+  const { keys, addKey, removeKey } = useStableListKeys(subsections.length);
 
   function updateSubsection(subIndex: number, next: SitePageSubsection) {
     const list = [...subsections];
@@ -44,30 +48,18 @@ export function SectionEditor({
     onChange({ ...section, subsections: list });
   }
 
+  const panelDomId = toSectionDomId(`content-${index + 1}`, section);
+
   return (
     <CollapsiblePanel
+      id={panelDomId}
       title={section.title || `Section ${index + 1}`}
       subtitle={section.layout ?? "default"}
       defaultOpen={index === 0}
       actions={
         <div className="admin-inline-actions">
-          {onMoveUp ? (
-            <button
-              type="button"
-              className="admin-btn-sm admin-btn-sm--ghost"
-              onClick={onMoveUp}
-            >
-              ↑
-            </button>
-          ) : null}
-          {onMoveDown ? (
-            <button
-              type="button"
-              className="admin-btn-sm admin-btn-sm--ghost"
-              onClick={onMoveDown}
-            >
-              ↓
-            </button>
+          {dragHandleProps ? (
+            <DragHandle dragHandleProps={dragHandleProps} />
           ) : null}
           <button
             type="button"
@@ -79,6 +71,11 @@ export function SectionEditor({
         </div>
       }
     >
+      <SectionIdField
+        fieldId={`section-${index}-id`}
+        value={section._id}
+        onChange={(_id) => onChange({ ...section, _id })}
+      />
       <div className="admin-grid-2">
         <TextField
           label="Section title"
@@ -145,31 +142,33 @@ export function SectionEditor({
           <button
             type="button"
             className="admin-btn-sm"
-            onClick={() =>
+            onClick={() => {
+              addKey();
               onChange({
                 ...section,
                 subsections: [
                   ...subsections,
                   { title: "New subsection", body: "", items: [] },
                 ],
-              })
-            }
+              });
+            }}
           >
             Add subsection
           </button>
         </div>
         {subsections.map((sub, subIndex) => (
           <SubsectionEditor
-            key={`${section.title}-sub-${subIndex}`}
+            key={keys[subIndex]}
             subsection={sub}
             index={subIndex}
             onChange={(next) => updateSubsection(subIndex, next)}
-            onRemove={() =>
+            onRemove={() => {
+              removeKey(subIndex);
               onChange({
                 ...section,
                 subsections: subsections.filter((_, i) => i !== subIndex),
-              })
-            }
+              });
+            }}
           />
         ))}
       </div>

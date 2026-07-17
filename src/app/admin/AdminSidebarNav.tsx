@@ -2,68 +2,146 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronRight } from "@/icons";
+import {
+  BookOpen,
+  Certificate,
+  ChevronRight,
+  Compass,
+  Layers,
+  Leaf,
+  Lotus,
+  Send,
+  Shield,
+  Sunrise,
+  Users,
+  Wallet,
+  Wifi,
+} from "@/icons";
+import { AdminLogoutButton } from "./AdminLogoutButton";
 
-const NAV_SECTIONS = [
+type NavItem = {
+  label: string;
+  href: string;
+  Icon: React.ComponentType<{ size?: number; className?: string }>;
+};
+
+type NavSection = {
+  label: string;
+  items: NavItem[];
+};
+
+const NAV_SECTIONS: NavSection[] = [
   {
-    label: "Content",
+    label: "Pages",
     items: [
-      { label: "Pages", href: "/admin/pages" },
-      { label: "Courses", href: "/admin/courses" },
-      { label: "Blog", href: "/admin/blog" },
-      { label: "Media", href: "/admin/media" },
-      { label: "Library", href: "/admin/library" },
+      { label: "Home", href: "/admin/sections/home", Icon: Lotus },
+      { label: "Courses", href: "/admin/sections/courses", Icon: Certificate },
+      { label: "Online Courses", href: "/admin/sections/online", Icon: Wifi },
+      { label: "Retreats", href: "/admin/sections/retreats", Icon: Sunrise },
+      { label: "Venues", href: "/admin/sections/venues", Icon: Leaf },
+      { label: "Teachers", href: "/admin/sections/teachers", Icon: Users },
+      { label: "Contact", href: "/admin/sections/contact", Icon: Send },
+      { label: "Enquire", href: "/admin/sections/enquire", Icon: Compass },
+      { label: "Blog", href: "/admin/blog", Icon: BookOpen },
+      { label: "Other Pages", href: "/admin/sections/other", Icon: Layers },
     ],
   },
   {
-    label: "Settings",
+    label: "Site chrome",
     items: [
-      { label: "Global Settings", href: "/admin/settings" },
-      { label: "Navigation", href: "/admin/navigation" },
+      {
+        label: "Header & Nav",
+        href: "/admin/components/header",
+        Icon: Compass,
+      },
+      { label: "Footer", href: "/admin/components/footer", Icon: Layers },
+      {
+        label: "Site config",
+        href: "/admin/settings/site-config",
+        Icon: Shield,
+      },
+    ],
+  },
+  {
+    label: "CMS",
+    items: [
+      {
+        label: "Shared sections",
+        href: "/admin/sections/shared",
+        Icon: Layers,
+      },
+      { label: "Media", href: "/admin/media", Icon: Leaf },
     ],
   },
   {
     label: "Engagement",
     items: [
-      { label: "Leads", href: "/admin/leads" },
-      { label: "Bookings", href: "/admin/bookings" },
+      { label: "Leads", href: "/admin/leads", Icon: Send },
+      { label: "Bookings", href: "/admin/bookings", Icon: Wallet },
     ],
   },
-  {
-    label: "Tools",
-    items: [
-      { label: "Chatbot", href: "/admin/chatbot" },
-    ],
-  },
-] as const;
+];
 
+/**
+ * Left admin sidebar with branded header, sectioned nav, and logout.
+ */
 export function AdminSidebarNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="admin-sidebar-nav" aria-label="Admin navigation">
-      <ul className="admin-nav-list">
+    <div className="admin-sidebar-inner">
+      <div className="admin-sidebar-brand">
+        <Link href="/admin" className="admin-sidebar-brand-link">
+          <span className="admin-sidebar-brand-mark" aria-hidden="true">
+            N
+          </span>
+          <span className="admin-sidebar-brand-text">
+            <span className="admin-sidebar-brand-name">Nirvana CMS</span>
+            <span className="admin-sidebar-brand-sub">Content admin</span>
+          </span>
+        </Link>
+      </div>
+
+      <nav className="admin-sidebar-nav" aria-label="Admin navigation">
         {NAV_SECTIONS.map((section) => (
-          <li key={section.label} className="admin-nav-section">
-            <span className="admin-nav-section-label">{section.label}</span>
-            <ul className="admin-nav-items">
-              {section.items.map((item) => (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className={`admin-nav-link ${pathname.startsWith(item.href) ? "active" : ""}`}
-                  >
-                    {item.label}
-                    {pathname.startsWith(item.href) && (
-                      <ChevronRight className="admin-nav-chevron" size={16} />
-                    )}
-                  </Link>
-                </li>
-              ))}
+          <div key={section.label} className="admin-nav-section">
+            <p className="admin-nav-section-label">{section.label}</p>
+            <ul className="admin-nav-list">
+              {section.items.map((item) => {
+                const active =
+                  pathname === item.href ||
+                  pathname.startsWith(`${item.href}/`);
+                const { Icon } = item;
+                return (
+                  <li key={item.href}>
+                    <Link
+                      href={item.href}
+                      className={`admin-nav-link${active ? " is-active" : ""}`}
+                      aria-current={active ? "page" : undefined}
+                    >
+                      <Icon className="admin-nav-icon" size={16} />
+                      <span className="admin-nav-link-label">{item.label}</span>
+                      {active ? (
+                        <ChevronRight className="admin-nav-chevron" size={14} />
+                      ) : null}
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
-          </li>
+          </div>
         ))}
-      </ul>
-    </nav>
+      </nav>
+
+      <div className="admin-sidebar-footer">
+        <p className="admin-sidebar-footer-about">
+          Nirvana CMS — edit pages, media, and site chrome.
+        </p>
+        <Link href="/" className="admin-nav-link admin-nav-link--muted">
+          View site
+        </Link>
+        <AdminLogoutButton />
+      </div>
+    </div>
   );
 }

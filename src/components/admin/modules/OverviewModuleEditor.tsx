@@ -1,10 +1,19 @@
 "use client";
 
-import type { OverviewModule } from "@/content/types";
+import type { OverviewMediaItem, OverviewModule } from "@/content/types";
 import { CollapsiblePanel } from "../CollapsiblePanel";
 import { ImageField } from "../ImageField";
-import { ModuleLibraryPanelActions } from "../ModuleLibraryPanelActions";
+import { ListRowActions } from "../ListRowActions";
+import {
+  SortableList,
+  SortableRow,
+  reorderItems,
+  withSortField,
+} from "../SortableList";
 import { TextField } from "../TextField";
+import { useStableListKeys } from "../useStableListKeys";
+import { SectionIdField } from "../SectionIdField";
+import { ModuleLiveField } from "./ModuleLiveField";
 import type { ModulePanelProps } from "./types";
 
 type OverviewModuleEditorProps = ModulePanelProps & {
@@ -12,8 +21,10 @@ type OverviewModuleEditorProps = ModulePanelProps & {
   onChange: (overview: OverviewModule) => void;
 };
 
+const EMPTY_MEDIA: OverviewMediaItem = { type: "image", url: "", alt: "" };
+
 /**
- * Overview module editor — eyebrow, title, copy, media, quote, glance grid.
+ * Overview module editor — copy, media table, quote, and glance grid.
  *
  * @param props - Overview config and change handler
  */
@@ -25,29 +36,73 @@ export function OverviewModuleEditor({
   description,
   open,
   onOpenChange,
-  hideLibraryActions = false,
 }: OverviewModuleEditorProps) {
+  const mediaKeys = useStableListKeys(overview.media.items.length);
+  const glanceKeys = useStableListKeys(overview.glance.length);
+
+  function updateMedia(index: number, patch: Partial<OverviewMediaItem>) {
+    const items = [...overview.media.items];
+    items[index] = { ...items[index], ...patch };
+    onChange({ ...overview, media: { ...overview.media, items } });
+  }
+
+  function handleMediaReorder(fromIndex: number, toIndex: number) {
+    mediaKeys.reorderKeys(fromIndex, toIndex);
+    const items = withSortField(
+      reorderItems(overview.media.items, fromIndex, toIndex),
+    ) as typeof overview.media.items;
+    onChange({ ...overview, media: { ...overview.media, items } });
+  }
+
+  function addMedia() {
+    mediaKeys.addKey();
+    onChange({
+      ...overview,
+      media: {
+        ...overview.media,
+        items: [...overview.media.items, { ...EMPTY_MEDIA }],
+      },
+    });
+  }
+
+  function handleGlanceReorder(fromIndex: number, toIndex: number) {
+    glanceKeys.reorderKeys(fromIndex, toIndex);
+    const glance = withSortField(
+      reorderItems(overview.glance, fromIndex, toIndex),
+    ) as typeof overview.glance;
+    onChange({ ...overview, glance });
+  }
+
+  function addGlance() {
+    glanceKeys.addKey();
+    onChange({
+      ...overview,
+      glance: [...overview.glance, { label: "", value: "", hint: "" }],
+    });
+  }
+
   return (
     <CollapsiblePanel
       id={panelId}
       step={step}
       title="Overview"
+      subtitle={`${overview.media.items.length} media · ${overview.glance.length} glance`}
       description={description}
       open={open}
       onOpenChange={onOpenChange}
       actions={
-        hideLibraryActions ? undefined : (
-          <ModuleLibraryPanelActions
-            moduleKey="overview"
-            payload={overview}
-            hasContent={Boolean(
-              overview.title?.trim() || overview.lead?.trim(),
-            )}
-            onInsert={(payload) => onChange(payload as OverviewModule)}
-          />
-        )
+        <ModuleLiveField
+          id={`${panelId}-live`}
+          value={overview.live}
+          onChange={(live) => onChange({ ...overview, live })}
+        />
       }
     >
+      <SectionIdField
+        fieldId={`${panelId}-section-id`}
+        value={overview._id}
+        onChange={(_id) => onChange({ ...overview, _id })}
+      />
       <div className="admin-grid-2">
         <TextField
           label="Eyebrow"
@@ -61,11 +116,11 @@ export function OverviewModuleEditor({
         />
       </div>
       <TextField
-        label="Lead description (left column)"
+        label="Lead description"
         value={overview.lead}
         onChange={(lead) => onChange({ ...overview, lead })}
         multiline
-        rows={6}
+        rows={5}
       />
       <TextField
         label="Supporting copy"
@@ -76,12 +131,24 @@ export function OverviewModuleEditor({
       />
 
       <div className="admin-field">
+        <div className="admin-field-header">
+          <div>
+            <span className="admin-label">Media</span>
+            <p className="admin-hint admin-hint--tight">
+              Right-side image, video, or carousel for the overview section.
+            </p>
+          </div>
+          <button type="button" className="admin-btn-sm" onClick={addMedia}>
+            Add media
+          </button>
+        </div>
+
         <label className="admin-label" htmlFor="media-mode">
-          Right panel media mode
+          Display mode
         </label>
         <select
           id="media-mode"
-          className="admin-input"
+          className="admin-input admin-input--compact admin-input--inline"
           value={overview.media.mode}
           onChange={(e) =>
             onChange({
@@ -97,180 +164,280 @@ export function OverviewModuleEditor({
           <option value="video">Video</option>
           <option value="carousel">Image carousel</option>
         </select>
+
+        {overview.media.items.length === 0 ? (
+          <div className="admin-empty-card">
+            <p>No media yet.</p>
+            <button
+              type="button"
+              className="admin-btn-sm"
+              onClick={addMedia}
+            >
+              Add first media
+            </button>
+          </div>
+        ) : (
+          <div className="admin-compact-table-scroll">
+            <div className="admin-compact-table admin-compact-table--form admin-compact-table--overview-media">
+              <div className="admin-compact-table-head admin-compact-table-row">
+                <span className="admin-compact-col admin-compact-col--num">
+                  #
+                </span>
+                <span className="admin-compact-col admin-compact-col--type">
+                  Type
+                </span>
+                <span className="admin-compact-col admin-compact-col--image">
+                  Media
+                </span>
+                <span className="admin-compact-col admin-compact-col--alt">
+                  Alt text
+                </span>
+                <span className="admin-compact-col admin-compact-col--actions">
+                  <span className="sr-only">Actions</span>
+                </span>
+              </div>
+              <SortableList
+                ids={mediaKeys.keys}
+                onReorder={handleMediaReorder}
+              >
+                {overview.media.items.map((item, index) => (
+                  <SortableRow
+                    key={mediaKeys.keys[index]}
+                    id={mediaKeys.keys[index]}
+                  >
+                    {({ dragHandleProps }) => (
+                      <div className="admin-compact-table-row admin-compact-table-row--tall">
+                        <span className="admin-compact-col admin-compact-col--num">
+                          {index + 1}
+                        </span>
+                        <span className="admin-compact-col admin-compact-col--type">
+                          <select
+                            className="admin-input admin-input--compact"
+                            value={item.type}
+                            aria-label={`Media type ${index + 1}`}
+                            onChange={(e) =>
+                              updateMedia(index, {
+                                type: e.target.value as "image" | "video",
+                              })
+                            }
+                          >
+                            <option value="image">Image</option>
+                            <option value="video">Video</option>
+                          </select>
+                        </span>
+                        <span className="admin-compact-col admin-compact-col--image">
+                          {item.type === "image" ? (
+                            <div className="admin-image-cell">
+                              <ImageField
+                                label={`Overview media ${index + 1}`}
+                                value={item.url}
+                                hideLabel
+                                compact
+                                onChange={(url) => updateMedia(index, { url })}
+                              />
+                            </div>
+                          ) : (
+                            <input
+                              className="admin-input admin-input--compact"
+                              value={item.url}
+                              placeholder="YouTube URL or video ID"
+                              aria-label={`Video URL ${index + 1}`}
+                              onChange={(e) =>
+                                updateMedia(index, { url: e.target.value })
+                              }
+                            />
+                          )}
+                        </span>
+                        <span className="admin-compact-col admin-compact-col--alt">
+                          {item.type === "image" ? (
+                            <input
+                              className="admin-input admin-input--compact"
+                              value={item.alt ?? ""}
+                              placeholder="Describe the image"
+                              aria-label={`Alt text ${index + 1}`}
+                              onChange={(e) =>
+                                updateMedia(index, { alt: e.target.value })
+                              }
+                            />
+                          ) : (
+                            <span className="admin-muted-cell">—</span>
+                          )}
+                        </span>
+                        <span className="admin-compact-col admin-compact-col--actions">
+                          <ListRowActions
+                            dragHandleProps={dragHandleProps}
+                            onRemove={() => {
+                              mediaKeys.removeKey(index);
+                              onChange({
+                                ...overview,
+                                media: {
+                                  ...overview.media,
+                                  items: overview.media.items.filter(
+                                    (_, i) => i !== index,
+                                  ),
+                                },
+                              });
+                            }}
+                          />
+                        </span>
+                      </div>
+                    )}
+                  </SortableRow>
+                ))}
+              </SortableList>
+            </div>
+          </div>
+        )}
       </div>
 
-      {overview.media.items.map((item, index) => (
-        // biome-ignore lint/suspicious/noArrayIndexKey: media rows lack stable ids
-        <div key={`media-${index}`} className="admin-nested-card">
-          <div className="admin-field">
-            <label className="admin-label" htmlFor={`media-type-${index}`}>
-              Media type
-            </label>
-            <select
-              id={`media-type-${index}`}
-              className="admin-input"
-              value={item.type}
-              onChange={(e) => {
-                const items = [...overview.media.items];
-                items[index] = {
-                  ...item,
-                  type: e.target.value as "image" | "video",
-                };
-                onChange({ ...overview, media: { ...overview.media, items } });
-              }}
+      <div className="admin-grid-2">
+        <TextField
+          label="Quote text"
+          value={overview.quote?.text ?? ""}
+          onChange={(text) =>
+            onChange({
+              ...overview,
+              quote: {
+                text,
+                attribution: overview.quote?.attribution ?? "",
+              },
+            })
+          }
+          multiline
+          rows={3}
+        />
+        <TextField
+          label="Quote attribution"
+          value={overview.quote?.attribution ?? ""}
+          onChange={(attribution) =>
+            onChange({
+              ...overview,
+              quote: { text: overview.quote?.text ?? "", attribution },
+            })
+          }
+        />
+      </div>
+
+      <div className="admin-field">
+        <div className="admin-field-header">
+          <div>
+            <span className="admin-label">Course at a glance</span>
+            <p className="admin-hint admin-hint--tight">
+              Spec chips under the overview (level, duration, fee, etc.).
+            </p>
+          </div>
+          <button type="button" className="admin-btn-sm" onClick={addGlance}>
+            Add row
+          </button>
+        </div>
+
+        {overview.glance.length === 0 ? (
+          <div className="admin-empty-card">
+            <p>No glance items yet.</p>
+            <button
+              type="button"
+              className="admin-btn-sm"
+              onClick={addGlance}
             >
-              <option value="image">Image</option>
-              <option value="video">Video / YouTube ID</option>
-            </select>
+              Add first row
+            </button>
           </div>
-          {item.type === "image" ? (
-            <ImageField
-              label="Image"
-              value={item.url}
-              onChange={(url) => {
-                const items = [...overview.media.items];
-                items[index] = { ...item, url };
-                onChange({ ...overview, media: { ...overview.media, items } });
-              }}
-            />
-          ) : (
-            <TextField
-              label="Video URL or YouTube ID"
-              value={item.url}
-              onChange={(url) => {
-                const items = [...overview.media.items];
-                items[index] = { ...item, url };
-                onChange({ ...overview, media: { ...overview.media, items } });
-              }}
-            />
-          )}
-          <TextField
-            label="Media title"
-            value={item.title ?? ""}
-            onChange={(title) => {
-              const items = [...overview.media.items];
-              items[index] = { ...item, title };
-              onChange({ ...overview, media: { ...overview.media, items } });
-            }}
-          />
-          <TextField
-            label="Media description"
-            value={item.description ?? ""}
-            onChange={(description) => {
-              const items = [...overview.media.items];
-              items[index] = { ...item, description };
-              onChange({ ...overview, media: { ...overview.media, items } });
-            }}
-            multiline
-          />
-          <button
-            type="button"
-            className="admin-btn-sm admin-btn-sm--ghost"
-            onClick={() => {
-              const items = overview.media.items.filter((_, i) => i !== index);
-              onChange({ ...overview, media: { ...overview.media, items } });
-            }}
-          >
-            Remove media
-          </button>
-        </div>
-      ))}
-      <button
-        type="button"
-        className="admin-btn-sm"
-        onClick={() =>
-          onChange({
-            ...overview,
-            media: {
-              ...overview.media,
-              items: [...overview.media.items, { type: "image", url: "" }],
-            },
-          })
-        }
-      >
-        Add media item
-      </button>
-
-      <TextField
-        label="Quote text"
-        value={overview.quote?.text ?? ""}
-        onChange={(text) =>
-          onChange({
-            ...overview,
-            quote: { text, attribution: overview.quote?.attribution ?? "" },
-          })
-        }
-        multiline
-      />
-      <TextField
-        label="Quote attribution"
-        value={overview.quote?.attribution ?? ""}
-        onChange={(attribution) =>
-          onChange({
-            ...overview,
-            quote: { text: overview.quote?.text ?? "", attribution },
-          })
-        }
-      />
-
-      <p className="admin-label">Course at a glance</p>
-      {overview.glance.map((item, index) => (
-        <div key={`glance-${item.label}`} className="admin-nested-card">
-          <div className="admin-grid-2">
-            <TextField
-              label="Label"
-              value={item.label}
-              onChange={(label) => {
-                const glance = [...overview.glance];
-                glance[index] = { ...item, label };
-                onChange({ ...overview, glance });
-              }}
-            />
-            <TextField
-              label="Value"
-              value={item.value}
-              onChange={(value) => {
-                const glance = [...overview.glance];
-                glance[index] = { ...item, value };
-                onChange({ ...overview, glance });
-              }}
-            />
+        ) : (
+          <div className="admin-compact-table-scroll">
+            <div className="admin-compact-table admin-compact-table--form admin-compact-table--glance">
+              <div className="admin-compact-table-head admin-compact-table-row">
+                <span className="admin-compact-col admin-compact-col--num">
+                  #
+                </span>
+                <span className="admin-compact-col admin-compact-col--label">
+                  Label
+                </span>
+                <span className="admin-compact-col admin-compact-col--value">
+                  Value
+                </span>
+                <span className="admin-compact-col admin-compact-col--hint">
+                  Hint
+                </span>
+                <span className="admin-compact-col admin-compact-col--actions">
+                  <span className="sr-only">Actions</span>
+                </span>
+              </div>
+              <SortableList
+                ids={glanceKeys.keys}
+                onReorder={handleGlanceReorder}
+              >
+                {overview.glance.map((item, index) => (
+                  <SortableRow
+                    key={glanceKeys.keys[index]}
+                    id={glanceKeys.keys[index]}
+                  >
+                    {({ dragHandleProps }) => (
+                      <div className="admin-compact-table-row">
+                        <span className="admin-compact-col admin-compact-col--num">
+                          {index + 1}
+                        </span>
+                        <span className="admin-compact-col admin-compact-col--label">
+                          <input
+                            className="admin-input admin-input--compact"
+                            value={item.label}
+                            placeholder="Focus Level"
+                            aria-label={`Glance label ${index + 1}`}
+                            onChange={(e) => {
+                              const glance = [...overview.glance];
+                              glance[index] = { ...item, label: e.target.value };
+                              onChange({ ...overview, glance });
+                            }}
+                          />
+                        </span>
+                        <span className="admin-compact-col admin-compact-col--value">
+                          <input
+                            className="admin-input admin-input--compact"
+                            value={item.value}
+                            placeholder="Beginner+"
+                            aria-label={`Glance value ${index + 1}`}
+                            onChange={(e) => {
+                              const glance = [...overview.glance];
+                              glance[index] = { ...item, value: e.target.value };
+                              onChange({ ...overview, glance });
+                            }}
+                          />
+                        </span>
+                        <span className="admin-compact-col admin-compact-col--hint">
+                          <input
+                            className="admin-input admin-input--compact"
+                            value={item.hint ?? ""}
+                            placeholder="Optional hint"
+                            aria-label={`Glance hint ${index + 1}`}
+                            onChange={(e) => {
+                              const glance = [...overview.glance];
+                              glance[index] = { ...item, hint: e.target.value };
+                              onChange({ ...overview, glance });
+                            }}
+                          />
+                        </span>
+                        <span className="admin-compact-col admin-compact-col--actions">
+                          <ListRowActions
+                            dragHandleProps={dragHandleProps}
+                            onRemove={() => {
+                              glanceKeys.removeKey(index);
+                              onChange({
+                                ...overview,
+                                glance: overview.glance.filter(
+                                  (_, i) => i !== index,
+                                ),
+                              });
+                            }}
+                          />
+                        </span>
+                      </div>
+                    )}
+                  </SortableRow>
+                ))}
+              </SortableList>
+            </div>
           </div>
-          <TextField
-            label="Hint"
-            value={item.hint ?? ""}
-            onChange={(hint) => {
-              const glance = [...overview.glance];
-              glance[index] = { ...item, hint };
-              onChange({ ...overview, glance });
-            }}
-          />
-          <button
-            type="button"
-            className="admin-btn-sm admin-btn-sm--ghost"
-            onClick={() =>
-              onChange({
-                ...overview,
-                glance: overview.glance.filter((_, i) => i !== index),
-              })
-            }
-          >
-            Remove
-          </button>
-        </div>
-      ))}
-      <button
-        type="button"
-        className="admin-btn-sm"
-        onClick={() =>
-          onChange({
-            ...overview,
-            glance: [...overview.glance, { label: "", value: "" }],
-          })
-        }
-      >
-        Add glance item
-      </button>
+        )}
+      </div>
     </CollapsiblePanel>
   );
 }

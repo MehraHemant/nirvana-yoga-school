@@ -5,9 +5,10 @@ import { CollapsiblePanel } from "../CollapsiblePanel";
 import { HeroTypePicker } from "../HeroTypePicker";
 import { ImageField } from "../ImageField";
 import { ImageListField } from "../ImageListField";
-import { ModuleLibraryPanelActions } from "../ModuleLibraryPanelActions";
 import { StringListField } from "../StringListField";
 import { TextField } from "../TextField";
+import { SectionIdField } from "../SectionIdField";
+import { ModuleLiveField } from "./ModuleLiveField";
 import type { ModulePanelProps } from "./types";
 
 type HeroModuleEditorProps = ModulePanelProps & {
@@ -28,12 +29,13 @@ export function HeroModuleEditor({
   description = "Page top banner — pick a layout, then fill in title, images, and CTAs.",
   open,
   onOpenChange,
-  hideLibraryActions = false,
 }: HeroModuleEditorProps) {
   function setType(type: HeroType) {
     if (type === hero.type) return;
+    const keep = { _id: hero._id, live: hero.live };
     if (type === "bento-media") {
       onChange({
+        ...keep,
         type: "bento-media",
         title: "title" in hero ? hero.title : "",
         heroImages: [],
@@ -41,6 +43,7 @@ export function HeroModuleEditor({
       });
     } else if (type === "split-copy") {
       onChange({
+        ...keep,
         type: "split-copy",
         title: "title" in hero ? hero.title : "",
         previewType: "image",
@@ -48,12 +51,14 @@ export function HeroModuleEditor({
       });
     } else if (type === "simple-banner") {
       onChange({
+        ...keep,
         type: "simple-banner",
         title: "title" in hero ? hero.title : "",
         backgroundImage: "",
       });
     } else {
       onChange({
+        ...keep,
         type: "page-minimal",
         title: "title" in hero ? hero.title : "",
         heroImage: "",
@@ -71,17 +76,18 @@ export function HeroModuleEditor({
       open={open}
       onOpenChange={onOpenChange}
       actions={
-        hideLibraryActions ? undefined : (
-          <ModuleLibraryPanelActions
-            moduleKey="hero"
-            variant={hero.type}
-            payload={hero}
-            hasContent={Boolean(hero.title?.trim())}
-            onInsert={(payload) => onChange(payload as HeroModule)}
-          />
-        )
+        <ModuleLiveField
+          id={`${panelId}-live`}
+          value={hero.live}
+          onChange={(live) => onChange({ ...hero, live })}
+        />
       }
     >
+      <SectionIdField
+        fieldId={`${panelId}-section-id`}
+        value={hero._id}
+        onChange={(_id) => onChange({ ...hero, _id })}
+      />
       <HeroTypePicker value={hero.type} onChange={setType} />
 
       {hero.type === "bento-media" ? (
@@ -132,26 +138,16 @@ export function HeroModuleEditor({
             items={hero.heroImages ?? []}
             onChange={(heroImages) => onChange({ ...hero, heroImages })}
             addLabel="Add image"
-            hint="Upload or pick from the media library for each slide."
+            hint="Each row is one slide — upload or pick an image, set alt text, then drag to reorder."
           />
           <StringListField
-            label="YouTube video IDs"
+            label="YouTube video URLs"
             items={hero.videos ?? []}
             onChange={(videos) => onChange({ ...hero, videos })}
-            addLabel="Add video ID"
-            placeholder="B6MMNCE4eLo"
-            hint="Only the video ID — not the full URL."
+            addLabel="Add video URL"
+            placeholder="https://www.youtube.com/watch?v=…"
+            hint="Paste full YouTube watch or youtu.be links. Filmstrip still uses Hero gallery images only."
           />
-          <label className="admin-checkbox">
-            <input
-              type="checkbox"
-              checked={hero.disableSupplemental ?? false}
-              onChange={(e) =>
-                onChange({ ...hero, disableSupplemental: e.target.checked })
-              }
-            />
-            Disable stock supplemental images
-          </label>
         </div>
       ) : null}
 

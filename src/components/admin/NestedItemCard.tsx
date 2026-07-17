@@ -1,67 +1,54 @@
 "use client";
 
+import { Trash } from "@/icons";
+import { DragHandle, type DragHandleProps } from "./SortableList";
+
 type NestedItemCardProps = {
   title: string;
   index: number;
-  total: number;
+  /** @deprecated Kept for call-site compatibility; unused with drag reorder */
+  total?: number;
   onRemove: () => void;
-  onMoveUp?: () => void;
-  onMoveDown?: () => void;
+  /** When set, shows a grab handle for drag-and-drop reorder */
+  dragHandleProps?: DragHandleProps;
   children: React.ReactNode;
 };
 
 /**
- * Reusable card wrapper for list items with reorder and remove actions.
+ * Card wrapper for nested list items with drag reorder and remove actions.
  *
  * @param props - Item metadata, actions, and field children
  */
 export function NestedItemCard({
   title,
   index,
-  total: _total,
   onRemove,
-  onMoveUp,
-  onMoveDown,
+  dragHandleProps,
   children,
 }: NestedItemCardProps) {
   return (
-    <div className="admin-nested-card">
-      <div className="admin-nested-card-header">
+    <article className="admin-nested-card">
+      <header className="admin-nested-card-header">
         <span className="admin-nested-card-title">
+          {dragHandleProps ? (
+            <DragHandle dragHandleProps={dragHandleProps} />
+          ) : null}
           <span className="admin-nested-card-num">{index + 1}</span>
-          {title}
+          <span className="admin-nested-card-label">{title}</span>
         </span>
-        <div className="admin-nested-card-actions">
-          {onMoveUp ? (
-            <button
-              type="button"
-              className="admin-btn-sm admin-btn-sm--ghost"
-              onClick={onMoveUp}
-              aria-label="Move up"
-            >
-              ↑
-            </button>
-          ) : null}
-          {onMoveDown ? (
-            <button
-              type="button"
-              className="admin-btn-sm admin-btn-sm--ghost"
-              onClick={onMoveDown}
-              aria-label="Move down"
-            >
-              ↓
-            </button>
-          ) : null}
+        <div className="admin-list-row-actions admin-list-row-actions--compact">
           <button
             type="button"
-            className="admin-btn-sm admin-btn-sm--danger"
+            className="admin-icon-btn admin-icon-btn--sm admin-icon-btn--danger"
             onClick={onRemove}
+            aria-label="Remove"
+            title="Remove"
           >
-            Remove
+            <Trash size={14} />
           </button>
         </div>
-      </div>
-      {children}
-    </div>
+      </header>
+      <div className="admin-nested-card-body">{children}</div>
+    </article>
   );
 }

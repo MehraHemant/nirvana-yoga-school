@@ -2,10 +2,18 @@
 
 import type { SyllabusModule } from "@/content/types";
 import { CollapsiblePanel } from "../CollapsiblePanel";
-import { ModuleLibraryPanelActions } from "../ModuleLibraryPanelActions";
 import { NestedItemCard } from "../NestedItemCard";
+import {
+  SortableList,
+  SortableRow,
+  reorderItems,
+  withSortField,
+} from "../SortableList";
 import { StringListField } from "../StringListField";
 import { TextField } from "../TextField";
+import { useStableListKeys } from "../useStableListKeys";
+import { SectionIdField } from "../SectionIdField";
+import { ModuleLiveField } from "./ModuleLiveField";
 import type { ModulePanelProps } from "./types";
 
 type SyllabusModuleEditorProps = ModulePanelProps & {
@@ -14,7 +22,7 @@ type SyllabusModuleEditorProps = ModulePanelProps & {
 };
 
 /**
- * Syllabus module editor.
+ * Syllabus module editor with drag-and-drop chapter reorder.
  *
  * @param props - Syllabus config and change handler
  */
@@ -26,8 +34,19 @@ export function SyllabusModuleEditor({
   description,
   open,
   onOpenChange,
-  hideLibraryActions = false,
 }: SyllabusModuleEditorProps) {
+  const { keys, addKey, removeKey, reorderKeys } = useStableListKeys(
+    syllabus.chapters.length,
+  );
+
+  function handleReorder(fromIndex: number, toIndex: number) {
+    reorderKeys(fromIndex, toIndex);
+    const chapters = withSortField(
+      reorderItems(syllabus.chapters, fromIndex, toIndex),
+    ) as typeof syllabus.chapters;
+    onChange({ ...syllabus, chapters });
+  }
+
   return (
     <CollapsiblePanel
       id={panelId}
@@ -38,79 +57,88 @@ export function SyllabusModuleEditor({
       open={open}
       onOpenChange={onOpenChange}
       actions={
-        hideLibraryActions ? undefined : (
-          <ModuleLibraryPanelActions
-            moduleKey="syllabus"
-            payload={syllabus}
-            hasContent={syllabus.chapters.length > 0}
-            onInsert={(payload) => onChange(payload as SyllabusModule)}
-          />
-        )
+        <ModuleLiveField
+          id={`${panelId}-live`}
+          value={syllabus.live}
+          onChange={(live) => onChange({ ...syllabus, live })}
+        />
       }
     >
+      <SectionIdField
+        fieldId={`${panelId}-section-id`}
+        value={syllabus._id}
+        onChange={(_id) => onChange({ ...syllabus, _id })}
+      />
       <TextField
         label="Intro description"
         value={syllabus.description}
         onChange={(description) => onChange({ ...syllabus, description })}
         multiline
       />
-      {syllabus.chapters.map((chapter, index) => (
-        <NestedItemCard
-          // biome-ignore lint/suspicious/noArrayIndexKey: chapter rows lack stable ids
-          key={`chapter-${index}`}
-          title={chapter.title || "New chapter"}
-          index={index}
-          total={syllabus.chapters.length}
-          onRemove={() =>
-            onChange({
-              ...syllabus,
-              chapters: syllabus.chapters.filter((_, i) => i !== index),
-            })
-          }
-        >
-          <TextField
-            label="Chapter title"
-            value={chapter.title}
-            onChange={(title) => {
-              const chapters = [...syllabus.chapters];
-              chapters[index] = { ...chapter, title };
-              onChange({ ...syllabus, chapters });
-            }}
-          />
-          <TextField
-            label="Description"
-            value={chapter.description}
-            onChange={(description) => {
-              const chapters = [...syllabus.chapters];
-              chapters[index] = { ...chapter, description };
-              onChange({ ...syllabus, chapters });
-            }}
-            multiline
-          />
-          <StringListField
-            label="Subtopics"
-            items={chapter.subtopics}
-            onChange={(subtopics) => {
-              const chapters = [...syllabus.chapters];
-              chapters[index] = { ...chapter, subtopics };
-              onChange({ ...syllabus, chapters });
-            }}
-            hint='Paste a full topic list with "Paste many".'
-          />
-        </NestedItemCard>
-      ))}
+      <SortableList ids={keys} onReorder={handleReorder}>
+        {syllabus.chapters.map((chapter, index) => (
+          <SortableRow key={keys[index]} id={keys[index]}>
+            {({ dragHandleProps }) => (
+              <NestedItemCard
+                title={chapter.title || "New chapter"}
+                index={index}
+                total={syllabus.chapters.length}
+                dragHandleProps={dragHandleProps}
+                onRemove={() => {
+                  removeKey(index);
+                  onChange({
+                    ...syllabus,
+                    chapters: syllabus.chapters.filter((_, i) => i !== index),
+                  });
+                }}
+              >
+                <TextField
+                  label="Chapter title"
+                  value={chapter.title}
+                  onChange={(title) => {
+                    const chapters = [...syllabus.chapters];
+                    chapters[index] = { ...chapter, title };
+                    onChange({ ...syllabus, chapters });
+                  }}
+                />
+                <TextField
+                  label="Description"
+                  value={chapter.description}
+                  onChange={(description) => {
+                    const chapters = [...syllabus.chapters];
+                    chapters[index] = { ...chapter, description };
+                    onChange({ ...syllabus, chapters });
+                  }}
+                  multiline
+                />
+                <StringListField
+                  label="Subtopics"
+                  items={chapter.subtopics}
+                  onChange={(subtopics) => {
+                    const chapters = [...syllabus.chapters];
+                    chapters[index] = { ...chapter, subtopics };
+                    onChange({ ...syllabus, chapters });
+                  }}
+                  hint='Paste a full topic list with "Paste many".'
+                />
+              </NestedItemCard>
+            )}
+          </SortableRow>
+        ))}
+      </SortableList>
       <button
         type="button"
         className="admin-btn-sm"
-        onClick={() =>
+        onClick={() => {
+          addKey();
           onChange({
             ...syllabus,
             chapters: [
               ...syllabus.chapters,
               { title: "New chapter", description: "", subtopics: [] },
             ],
-          })
-        }
+          });
+        }}
       >
         Add chapter
       </button>

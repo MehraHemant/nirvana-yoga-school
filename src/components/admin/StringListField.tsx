@@ -2,6 +2,12 @@
 
 import { useState } from "react";
 import { ListRowActions } from "./ListRowActions";
+import {
+  SortableList,
+  SortableRow,
+  reorderItems,
+} from "./SortableList";
+import { useStableListKeys } from "./useStableListKeys";
 
 type StringListFieldProps = {
   label: string;
@@ -14,7 +20,7 @@ type StringListFieldProps = {
 };
 
 /**
- * Editable list of strings with add/remove rows and optional bulk paste.
+ * Editable list of strings with drag reorder and optional bulk paste.
  *
  * @param props - List label, items, and change handler
  */
@@ -29,6 +35,9 @@ export function StringListField({
 }: StringListFieldProps) {
   const [showPaste, setShowPaste] = useState(false);
   const [pasteText, setPasteText] = useState("");
+  const { keys, addKey, removeKey, reorderKeys } = useStableListKeys(
+    items.length,
+  );
 
   function updateItem(index: number, value: string) {
     const next = [...items];
@@ -37,15 +46,18 @@ export function StringListField({
   }
 
   function removeItem(index: number) {
+    removeKey(index);
     onChange(items.filter((_, i) => i !== index));
   }
 
-  function moveItem(index: number, direction: -1 | 1) {
-    const target = index + direction;
-    if (target < 0 || target >= items.length) return;
-    const next = [...items];
-    [next[index], next[target]] = [next[target], next[index]];
-    onChange(next);
+  function handleReorder(fromIndex: number, toIndex: number) {
+    reorderKeys(fromIndex, toIndex);
+    onChange(reorderItems(items, fromIndex, toIndex));
+  }
+
+  function addItem(value = "") {
+    addKey();
+    onChange([...items, value]);
   }
 
   function applyBulkPaste() {
@@ -54,6 +66,7 @@ export function StringListField({
       .map((line) => line.trim())
       .filter(Boolean);
     if (lines.length === 0) return;
+    // Length sync in useStableListKeys pads new keys for appended rows.
     onChange([...items.filter(Boolean), ...lines]);
     setPasteText("");
     setShowPaste(false);
@@ -79,7 +92,7 @@ export function StringListField({
           <button
             type="button"
             className="admin-btn-sm"
-            onClick={() => onChange([...items, ""])}
+            onClick={() => addItem("")}
           >
             {addLabel}
           </button>
@@ -113,45 +126,55 @@ export function StringListField({
           <button
             type="button"
             className="admin-btn-sm"
-            onClick={() => onChange([""])}
+            onClick={() => addItem("")}
           >
             {addLabel}
           </button>
         </div>
       ) : (
-        <div className="admin-compact-table admin-compact-table--form">
-          <div className="admin-compact-table-head admin-compact-table-row">
-            <span className="admin-compact-col admin-compact-col--num">#</span>
-            <span className="admin-compact-col admin-compact-col--value">
-              {label}
-            </span>
-            <span className="admin-compact-col admin-compact-col--actions" />
-          </div>
-          {items.map((item, index) => (
-            // biome-ignore lint/suspicious/noArrayIndexKey: list rows reorder by index
-            <div key={`${label}-${index}`} className="admin-compact-table-row">
+        <div className="admin-compact-table-scroll">
+          <div className="admin-compact-table admin-compact-table--form">
+            <div className="admin-compact-table-head admin-compact-table-row">
               <span className="admin-compact-col admin-compact-col--num">
-                {index + 1}
+                #
               </span>
               <span className="admin-compact-col admin-compact-col--value">
-                <input
-                  className="admin-input admin-input--compact"
-                  value={item}
-                  placeholder={placeholder}
-                  onChange={(event) => updateItem(index, event.target.value)}
-                />
+                Text
               </span>
               <span className="admin-compact-col admin-compact-col--actions">
-                <ListRowActions
-                  index={index}
-                  total={items.length}
-                  onMoveUp={() => moveItem(index, -1)}
-                  onMoveDown={() => moveItem(index, 1)}
-                  onRemove={() => removeItem(index)}
-                />
+                <span className="sr-only">Actions</span>
               </span>
             </div>
-          ))}
+            <SortableList ids={keys} onReorder={handleReorder}>
+              {items.map((item, index) => (
+                <SortableRow key={keys[index]} id={keys[index]}>
+                  {({ dragHandleProps }) => (
+                    <div className="admin-compact-table-row">
+                      <span className="admin-compact-col admin-compact-col--num">
+                        {index + 1}
+                      </span>
+                      <span className="admin-compact-col admin-compact-col--value">
+                        <input
+                          className="admin-input admin-input--compact"
+                          value={item}
+                          placeholder={placeholder}
+                          onChange={(event) =>
+                            updateItem(index, event.target.value)
+                          }
+                        />
+                      </span>
+                      <span className="admin-compact-col admin-compact-col--actions">
+                        <ListRowActions
+                          dragHandleProps={dragHandleProps}
+                          onRemove={() => removeItem(index)}
+                        />
+                      </span>
+                    </div>
+                  )}
+                </SortableRow>
+              ))}
+            </SortableList>
+          </div>
         </div>
       )}
     </div>

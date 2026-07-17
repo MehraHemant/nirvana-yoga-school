@@ -8,9 +8,17 @@ import type { SitePageDocument } from "@/content/types";
 import { AdminSaveBar } from "./AdminSaveBar";
 import { CollapsiblePanel } from "./CollapsiblePanel";
 import { ImageField } from "./ImageField";
+import { PageSeoFields } from "./PageSeoFields";
 import { SectionEditor } from "./SectionEditor";
+import {
+  SortableList,
+  SortableRow,
+  reorderItems,
+  withSortField,
+} from "./SortableList";
 import { StringListField } from "./StringListField";
 import { TextField } from "./TextField";
+import { useStableListKeys } from "./useStableListKeys";
 
 type SitePageEditorProps = {
   initial: SitePageDocument;
@@ -27,6 +35,17 @@ export function SitePageEditor({ initial, onSave }: SitePageEditorProps) {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
+  const packages = doc.packages ?? [];
+  const gallery = doc.gallery ?? [];
+  const cards = doc.cards ?? [];
+  const people = doc.people ?? [];
+  const highlights = doc.highlights ?? [];
+  const sectionKeys = useStableListKeys(doc.sections.length);
+  const packageKeys = useStableListKeys(packages.length);
+  const galleryKeys = useStableListKeys(gallery.length);
+  const cardKeys = useStableListKeys(cards.length);
+  const peopleKeys = useStableListKeys(people.length);
+  const highlightKeys = useStableListKeys(highlights.length);
 
   const previewHref = useMemo(() => {
     const ref = getPageRef(doc.slug);
@@ -48,27 +67,20 @@ export function SitePageEditor({ initial, onSave }: SitePageEditorProps) {
     }
   }
 
-  function moveSection(index: number, direction: -1 | 1) {
-    const target = index + direction;
-    if (target < 0 || target >= doc.sections.length) return;
-    const sections = [...doc.sections];
-    const [item] = sections.splice(index, 1);
-    sections.splice(target, 0, item);
+  function handleSectionReorder(fromIndex: number, toIndex: number) {
+    sectionKeys.reorderKeys(fromIndex, toIndex);
+    const sections = withSortField(
+      reorderItems(doc.sections, fromIndex, toIndex),
+    ) as typeof doc.sections;
     setDoc({ ...doc, sections });
   }
-
-  const packages = doc.packages ?? [];
-  const gallery = doc.gallery ?? [];
-  const cards = doc.cards ?? [];
-  const people = doc.people ?? [];
-  const highlights = doc.highlights ?? [];
 
   return (
     <div className="admin-editor">
       <div className="admin-editor-header">
         <div>
-          <Link href="/admin/pages" className="admin-back-link">
-            ← All pages
+          <Link href="/admin/sections/other" className="admin-back-link">
+            ← Other pages
           </Link>
           <h1 className="admin-title">{doc.title}</h1>
           <p className="admin-subtitle">{doc.slug}</p>
@@ -76,8 +88,20 @@ export function SitePageEditor({ initial, onSave }: SitePageEditorProps) {
       </div>
 
       <CollapsiblePanel
+        id="section-page-seo"
+        title="Page SEO"
+        subtitle="Title, description, OG image, keywords, noIndex"
+        defaultOpen
+      >
+        <PageSeoFields
+          value={doc.meta}
+          onChange={(meta) => setDoc({ ...doc, meta })}
+        />
+      </CollapsiblePanel>
+
+      <CollapsiblePanel
         title="Page metadata"
-        subtitle="Hero, SEO, CTAs"
+        subtitle="Hero, description, CTAs"
         defaultOpen
       >
         <div className="admin-grid-2">
@@ -93,11 +117,12 @@ export function SitePageEditor({ initial, onSave }: SitePageEditorProps) {
           />
         </div>
         <TextField
-          label="Description (SEO)"
+          label="Description"
           value={doc.description}
           onChange={(description) => setDoc({ ...doc, description })}
           multiline
           rows={3}
+          hint="Page lead / fallback meta description when Page SEO description is empty"
         />
         <ImageField
           label="Hero image"
@@ -125,7 +150,8 @@ export function SitePageEditor({ initial, onSave }: SitePageEditorProps) {
           <button
             type="button"
             className="admin-btn-sm"
-            onClick={() =>
+            onClick={() => {
+              sectionKeys.addKey();
               setDoc({
                 ...doc,
                 sections: [
@@ -137,36 +163,43 @@ export function SitePageEditor({ initial, onSave }: SitePageEditorProps) {
                     items: [],
                   },
                 ],
-              })
-            }
+              });
+            }}
           >
             Add section
           </button>
         </div>
-        {doc.sections.map((section, index) => (
-          <SectionEditor
-            key={`section-${index}-${section.title}`}
-            section={section}
-            index={index}
-            onChange={(next) => {
-              const sections = [...doc.sections];
-              sections[index] = next;
-              setDoc({ ...doc, sections });
-            }}
-            onRemove={() =>
-              setDoc({
-                ...doc,
-                sections: doc.sections.filter((_, i) => i !== index),
-              })
-            }
-            onMoveUp={index > 0 ? () => moveSection(index, -1) : undefined}
-            onMoveDown={
-              index < doc.sections.length - 1
-                ? () => moveSection(index, 1)
-                : undefined
-            }
-          />
-        ))}
+        <SortableList
+          ids={sectionKeys.keys}
+          onReorder={handleSectionReorder}
+        >
+          {doc.sections.map((section, index) => (
+            <SortableRow
+              key={sectionKeys.keys[index]}
+              id={sectionKeys.keys[index]}
+            >
+              {({ dragHandleProps }) => (
+                <SectionEditor
+                  section={section}
+                  index={index}
+                  dragHandleProps={dragHandleProps}
+                  onChange={(next) => {
+                    const sections = [...doc.sections];
+                    sections[index] = next;
+                    setDoc({ ...doc, sections });
+                  }}
+                  onRemove={() => {
+                    sectionKeys.removeKey(index);
+                    setDoc({
+                      ...doc,
+                      sections: doc.sections.filter((_, i) => i !== index),
+                    });
+                  }}
+                />
+              )}
+            </SortableRow>
+          ))}
+        </SortableList>
       </div>
 
       <CollapsiblePanel
@@ -174,7 +207,7 @@ export function SitePageEditor({ initial, onSave }: SitePageEditorProps) {
         subtitle={`${packages.length} packages`}
       >
         {packages.map((pkg, index) => (
-          <div key={`pkg-${index}`} className="admin-nested-card">
+          <div key={packageKeys.keys[index]} className="admin-nested-card">
             <TextField
               label="Room / package name"
               value={pkg.title}
@@ -206,12 +239,13 @@ export function SitePageEditor({ initial, onSave }: SitePageEditorProps) {
             <button
               type="button"
               className="admin-btn-sm admin-btn-sm--ghost"
-              onClick={() =>
+              onClick={() => {
+                packageKeys.removeKey(index);
                 setDoc({
                   ...doc,
                   packages: packages.filter((_, i) => i !== index),
-                })
-              }
+                });
+              }}
             >
               Remove package
             </button>
@@ -220,12 +254,13 @@ export function SitePageEditor({ initial, onSave }: SitePageEditorProps) {
         <button
           type="button"
           className="admin-btn-sm"
-          onClick={() =>
+          onClick={() => {
+            packageKeys.addKey();
             setDoc({
               ...doc,
               packages: [...packages, { title: "New package", price: "" }],
-            })
-          }
+            });
+          }}
         >
           Add package
         </button>
@@ -233,7 +268,7 @@ export function SitePageEditor({ initial, onSave }: SitePageEditorProps) {
 
       <CollapsiblePanel title="Gallery" subtitle={`${gallery.length} images`}>
         {gallery.map((item, index) => (
-          <div key={`gallery-${index}`} className="admin-nested-card">
+          <div key={galleryKeys.keys[index]} className="admin-nested-card">
             <ImageField
               label="Image"
               value={item.url}
@@ -256,12 +291,13 @@ export function SitePageEditor({ initial, onSave }: SitePageEditorProps) {
             <button
               type="button"
               className="admin-btn-sm admin-btn-sm--ghost"
-              onClick={() =>
+              onClick={() => {
+                galleryKeys.removeKey(index);
                 setDoc({
                   ...doc,
                   gallery: gallery.filter((_, i) => i !== index),
-                })
-              }
+                });
+              }}
             >
               Remove
             </button>
@@ -270,12 +306,13 @@ export function SitePageEditor({ initial, onSave }: SitePageEditorProps) {
         <button
           type="button"
           className="admin-btn-sm"
-          onClick={() =>
+          onClick={() => {
+            galleryKeys.addKey();
             setDoc({
               ...doc,
               gallery: [...gallery, { url: "", category: "general" }],
-            })
-          }
+            });
+          }}
         >
           Add gallery image
         </button>
@@ -286,7 +323,7 @@ export function SitePageEditor({ initial, onSave }: SitePageEditorProps) {
         subtitle={`${cards.length} cards`}
       >
         {cards.map((card, index) => (
-          <div key={`card-${index}`} className="admin-nested-card">
+          <div key={cardKeys.keys[index]} className="admin-nested-card">
             <TextField
               label="Title"
               value={card.title}
@@ -318,9 +355,10 @@ export function SitePageEditor({ initial, onSave }: SitePageEditorProps) {
             <button
               type="button"
               className="admin-btn-sm admin-btn-sm--ghost"
-              onClick={() =>
-                setDoc({ ...doc, cards: cards.filter((_, i) => i !== index) })
-              }
+              onClick={() => {
+                cardKeys.removeKey(index);
+                setDoc({ ...doc, cards: cards.filter((_, i) => i !== index) });
+              }}
             >
               Remove
             </button>
@@ -329,12 +367,13 @@ export function SitePageEditor({ initial, onSave }: SitePageEditorProps) {
         <button
           type="button"
           className="admin-btn-sm"
-          onClick={() =>
+          onClick={() => {
+            cardKeys.addKey();
             setDoc({
               ...doc,
               cards: [...cards, { title: "", description: "" }],
-            })
-          }
+            });
+          }}
         >
           Add card
         </button>
@@ -345,7 +384,7 @@ export function SitePageEditor({ initial, onSave }: SitePageEditorProps) {
         subtitle={`${people.length} profiles`}
       >
         {people.map((person, index) => (
-          <div key={`person-${index}`} className="admin-nested-card">
+          <div key={peopleKeys.keys[index]} className="admin-nested-card">
             <TextField
               label="Name"
               value={person.name}
@@ -415,9 +454,13 @@ export function SitePageEditor({ initial, onSave }: SitePageEditorProps) {
             <button
               type="button"
               className="admin-btn-sm admin-btn-sm--ghost"
-              onClick={() =>
-                setDoc({ ...doc, people: people.filter((_, i) => i !== index) })
-              }
+              onClick={() => {
+                peopleKeys.removeKey(index);
+                setDoc({
+                  ...doc,
+                  people: people.filter((_, i) => i !== index),
+                });
+              }}
             >
               Remove
             </button>
@@ -426,12 +469,13 @@ export function SitePageEditor({ initial, onSave }: SitePageEditorProps) {
         <button
           type="button"
           className="admin-btn-sm"
-          onClick={() =>
+          onClick={() => {
+            peopleKeys.addKey();
             setDoc({
               ...doc,
               people: [...people, { name: "New teacher" }],
-            })
-          }
+            });
+          }}
         >
           Add person
         </button>
@@ -442,7 +486,7 @@ export function SitePageEditor({ initial, onSave }: SitePageEditorProps) {
         subtitle={`${highlights.length} items`}
       >
         {highlights.map((item, index) => (
-          <div key={`highlight-${index}`} className="admin-nested-card">
+          <div key={highlightKeys.keys[index]} className="admin-nested-card">
             <TextField
               label="Title"
               value={item.title}
@@ -474,12 +518,13 @@ export function SitePageEditor({ initial, onSave }: SitePageEditorProps) {
             <button
               type="button"
               className="admin-btn-sm admin-btn-sm--ghost"
-              onClick={() =>
+              onClick={() => {
+                highlightKeys.removeKey(index);
                 setDoc({
                   ...doc,
                   highlights: highlights.filter((_, i) => i !== index),
-                })
-              }
+                });
+              }}
             >
               Remove
             </button>
@@ -488,18 +533,21 @@ export function SitePageEditor({ initial, onSave }: SitePageEditorProps) {
         <button
           type="button"
           className="admin-btn-sm"
-          onClick={() =>
+          onClick={() => {
+            highlightKeys.addKey();
             setDoc({
               ...doc,
               highlights: [...highlights, { title: "", description: "" }],
-            })
-          }
+            });
+          }}
         >
           Add highlight
         </button>
       </CollapsiblePanel>
 
       <AdminSaveBar
+        title={doc.title || "Page"}
+        subtitle={doc.slug}
         saving={saving}
         saved={saved}
         error={error}

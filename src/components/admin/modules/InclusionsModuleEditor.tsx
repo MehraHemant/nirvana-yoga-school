@@ -2,9 +2,10 @@
 
 import type { InclusionsModule } from "@/content/types";
 import { CollapsiblePanel } from "../CollapsiblePanel";
-import { ModuleLibraryPanelActions } from "../ModuleLibraryPanelActions";
 import { StringListField } from "../StringListField";
 import { TextField } from "../TextField";
+import { SectionIdField } from "../SectionIdField";
+import { ModuleLiveField } from "./ModuleLiveField";
 import type { ModulePanelProps } from "./types";
 
 type InclusionsModuleEditorProps = ModulePanelProps & {
@@ -25,7 +26,6 @@ export function InclusionsModuleEditor({
   description,
   open,
   onOpenChange,
-  hideLibraryActions = false,
 }: InclusionsModuleEditorProps) {
   return (
     <CollapsiblePanel
@@ -36,16 +36,18 @@ export function InclusionsModuleEditor({
       open={open}
       onOpenChange={onOpenChange}
       actions={
-        hideLibraryActions ? undefined : (
-          <ModuleLibraryPanelActions
-            moduleKey="inclusions"
-            payload={inclusions}
-            hasContent={inclusions.items.length > 0}
-            onInsert={(payload) => onChange(payload as InclusionsModule)}
-          />
-        )
+        <ModuleLiveField
+          id={`${panelId}-live`}
+          value={inclusions.live}
+          onChange={(live) => onChange({ ...inclusions, live })}
+        />
       }
     >
+      <SectionIdField
+        fieldId={`${panelId}-section-id`}
+        value={inclusions._id}
+        onChange={(_id) => onChange({ ...inclusions, _id })}
+      />
       <TextField
         label="Eyebrow"
         value={inclusions.eyebrow ?? ""}

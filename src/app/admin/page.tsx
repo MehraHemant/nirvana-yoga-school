@@ -225,13 +225,19 @@ export default async function AdminDashboardPage() {
           <div className="admin-card">
             <h2>Quick links</h2>
             <p>
-              <Link href="/admin/pages">Edit pages →</Link>
+              <Link href="/admin/sections/courses">Courses →</Link>
             </p>
             <p>
-              <Link href="/admin/courses">Edit courses →</Link>
+              <Link href="/admin/sections/online">Online courses →</Link>
             </p>
             <p>
-              <Link href="/admin/blog">Edit blog →</Link>
+              <Link href="/admin/blog">Blog →</Link>
+            </p>
+            <p>
+              <Link href="/admin/components/header">Header →</Link>
+            </p>
+            <p>
+              <Link href="/admin/components/footer">Footer →</Link>
             </p>
             <p>
               <Link href="/admin/media">Media library →</Link>
