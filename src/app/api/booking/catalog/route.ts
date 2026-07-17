@@ -12,8 +12,8 @@ export async function GET(request: Request) {
   const type = searchParams.get("type");
 
   if (type === "retreat") {
-    return jsonOk({ programs: getRetreatBookingCatalog() });
+    return jsonOk({ programs: await getRetreatBookingCatalog() });
   }
 
-  return jsonOk({ programs: getCourseBookingCatalog() });
+  return jsonOk({ programs: await getCourseBookingCatalog() });
 }

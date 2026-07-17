@@ -6,13 +6,14 @@ import {
   jsonUnauthorized,
 } from "@/lib/cms/api-response";
 import { getSessionFromRequest } from "@/lib/cms/auth";
-import { mapPageModulesFromRow } from "@/lib/cms/db-page-modules";
+import { resolvePageModulesForEditor } from "@/lib/cms/db-page-modules";
 import { upsertPageModules } from "@/lib/cms/document-to-db";
 import { prisma } from "@/lib/db";
 import type { ApiRouteParams } from "@/lib/types/api";
 
 /**
  * Load page modules for editing.
+ * Missing or empty `page_modules` JSON returns an editable scaffold.
  */
 export async function GET(
   request: Request,
@@ -30,6 +31,7 @@ export async function GET(
       id: true,
       slug: true,
       type: true,
+      title: true,
       published: true,
       pageModules: true,
     },
@@ -39,10 +41,7 @@ export async function GET(
     return jsonNotFound();
   }
 
-  const modules = mapPageModulesFromRow(page);
-  if (!modules) {
-    return jsonNotFound("No modules configured");
-  }
+  const modules = resolvePageModulesForEditor(page.pageModules, page.title);
 
   return jsonOk({
     modules,

@@ -1,9 +1,23 @@
-import { getServerSession } from "@/lib/cms/auth";
-import { prisma } from "@/lib/db";
+import { revalidatePath } from "next/cache";
 import { jsonError, jsonForbidden, jsonOk } from "@/lib/cms/api-response";
+import { getServerSession } from "@/lib/cms/auth";
+import { invalidateGlobalSettingsCache } from "@/lib/cms/cache";
+import { prisma } from "@/lib/db";
 import type { ApiRouteParams } from "@/lib/types/api";
 
-const ALLOWED_KEYS = ["header", "footer", "siteConfig"] as const;
+const ALLOWED_KEYS = [
+  "header",
+  "footer",
+  "siteConfig",
+  "residentialLife",
+  "whyNirvana",
+  "siteMap",
+  "reviews",
+  "homeFaqs",
+  "venueFaqs",
+  "retreatAccommodation",
+  "yttHub",
+] as const;
 
 export async function GET(
   _request: Request,
@@ -15,7 +29,8 @@ export async function GET(
   }
 
   const record = await prisma.globalSettings.findUnique({ where: { key } });
-  if (!record) return jsonError("Settings not found", 404, { code: "NOT_FOUND" });
+  if (!record)
+    return jsonError("Settings not found", 404, { code: "NOT_FOUND" });
 
   return jsonOk({ settings: record.value });
 }
@@ -36,9 +51,13 @@ export async function PUT(
 
   await prisma.globalSettings.upsert({
     where: { key },
-    update: { value: value as any },
-    create: { key, value: value as any },
+    update: { value },
+    create: { key, value },
   });
+
+  invalidateGlobalSettingsCache(key);
+  revalidatePath("/");
+  revalidatePath(`/api/content/${key}`);
 
   return jsonOk({ success: true });
 }
