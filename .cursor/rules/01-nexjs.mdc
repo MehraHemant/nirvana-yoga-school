@@ -1,0 +1,31 @@
+---
+description: Next.js App Router rules
+globs:
+  - "app/**/*"
+  - "components/**/*"
+---
+
+# Next.js
+
+- Use Next.js App Router only.
+- Prefer Server Components.
+- Add "use client" only when required.
+- Fetch data on the server whenever possible.
+- Use route handlers under app/api.
+- Keep reusable business logic inside lib/.
+
+# Images
+
+Use:
+
+- next/image
+
+Never add unoptimized large images.
+
+# Navigation
+
+Use:
+
+- next/link
+
+for internal routes.

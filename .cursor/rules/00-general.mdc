@@ -1,0 +1,40 @@
+---
+description: General project rules
+alwaysApply: true
+---
+
+# Core Principles
+
+- Write clean, simple, production-ready code.
+- Keep responses concise.
+- Modify existing code instead of rewriting whole files.
+- Reuse existing components, hooks, and utilities.
+- Never add code that was not requested.
+- Preserve existing functionality.
+- Do not rename files unless requested.
+
+# Code Quality
+
+- Add concise doc comments above functions, components, and hooks.
+- Include @param tags when parameters exist.
+- Keep files focused.
+- Avoid duplicate logic.
+- Remove unused imports and variables.
+
+# Scope
+
+- Change only what the task requires.
+- Do not add unrelated refactors.
+- Do not create fake data.
+- Do not commit secrets.
+
+# Response Style
+
+Before coding:
+1. Understand existing implementation.
+2. Check related files.
+3. Make the smallest possible change.
+
+Do not explain obvious code.
+Do not repeat the whole file.
+Only show changed sections unless full file is requested.

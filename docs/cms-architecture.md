@@ -40,26 +40,6 @@ All page types (site, course, online, retreat, venue) can store a single **`Page
 
 Run `npm run db:migrate` then `npm run db:seed` (or `npm run db:seed-modules`) to populate `page_modules`. Public site reads modules first; falls back to static builders when DB column missing or unreachable.
 
-### Content library (`module_library_items`)
-
-Reusable module snippets stored separately from pages. **Copy-on-insert** — inserting into a page deep-copies JSON; no live links.
-
-| moduleKey | variant (hero only) | payload |
-|-----------|---------------------|---------|
-| `hero` | `bento-media` / `split-copy` / `simple-banner` / `page-minimal` | `HeroModule` |
-| `stickyNav` | — | `{ items: StickyNavItem[] }` |
-| `overview` … `faqs` | — | matching `PageModulesDocument` module type |
-
-| Path | Role |
-|------|------|
-| `src/content/types/module-library.ts` | Library types + labels |
-| `src/lib/cms/module-library.ts` | CRUD + payload validation |
-| `GET/POST /api/admin/module-library` | List (filter `moduleKey`, `variant`) / create |
-| `GET/PUT/DELETE /api/admin/module-library/[id]` | Single item CRUD |
-| `/admin/library` | Browse, filter, duplicate, delete |
-| `ModuleLibraryPicker` | Insert-from-library modal in page editors |
-| `npm run db:seed-library` | Seed library from existing `page_modules` |
-
 ---
 
 ## 2. Entity-relationship diagram

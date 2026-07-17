@@ -1,0 +1,33 @@
+---
+description: Backend API and database rules
+globs:
+  - "app/api/**/*"
+  - "lib/**/*"
+  - "prisma/**/*"
+---
+
+# Backend
+
+Use:
+
+- mysql2 (raw SQL) for MySQL CMS data access
+- JWT cookies
+- Route handlers
+
+Prisma CLI may still be used for schema migrations only (`prisma migrate`).
+
+Rules:
+
+- Validate inputs.
+- Handle errors properly.
+- Keep business logic reusable.
+- Do not expose secrets.
+
+# API
+
+Always handle:
+
+- loading states
+- errors
+- empty responses
+- success states
