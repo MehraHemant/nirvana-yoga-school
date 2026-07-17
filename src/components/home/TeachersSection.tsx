@@ -4,7 +4,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Button, Container, SectionHeader } from "@/components/ui";
-import { getTeachers } from "@/content/data/teachers";
+import { resolveSectionHtmlId } from "@/lib/html-id";
 
 export type TeacherProfile = {
   name: string;
@@ -16,24 +16,55 @@ export type TeacherProfile = {
   expertise: string[];
 };
 
-const TEACHERS = getTeachers();
-
-export default function TeachersSection({
-  teachers: teachersProp,
-}: {
+type TeachersSectionProps = {
+  /** Faculty profiles from MySQL (`page_people` on the teacher page) */
   teachers?: TeacherProfile[];
-} = {}) {
-  const teachers = teachersProp ?? TEACHERS;
+  /** Homepage section eyebrow */
+  eyebrow?: string;
+  /** Homepage section title (plain; accent span stays in markup when default) */
+  title?: React.ReactNode;
+  /** Homepage section description */
+  description?: string;
+  /** Footer CTA label */
+  ctaLabel?: string;
+  /** Footer CTA href */
+  ctaHref?: string;
+  /** Optional CMS section `_id` (falls back to `teachers`) */
+  sectionId?: string;
+};
+
+/**
+ * Homepage / hub teachers strip — profiles must be passed from a server loader.
+ *
+ * @param props - Teachers list and optional section header / CTA from CMS
+ */
+export default function TeachersSection({
+  teachers: teachersProp = [],
+  eyebrow = "Our Spiritual Indian Gurus",
+  title,
+  description = "Meet our experienced, traditional yoga teachers and spiritual guides carrying decades of combined practice directly from traditional Vedic lineages in Rishikesh.",
+  ctaLabel = "Meet All Gurus",
+  ctaHref = "/teacher",
+  sectionId,
+}: TeachersSectionProps) {
+  const teachers = teachersProp;
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const prefersReducedMotion = useReducedMotion();
+
+  const resolvedTitle = title ?? (
+    <>
+      Lineage Teachers,{" "}
+      <span className="font-normal text-primary">Guided by Compassion</span>
+    </>
+  );
 
   const springTransition = prefersReducedMotion
     ? { duration: 0 }
     : ({ type: "spring", stiffness: 350, damping: 30 } as const);
 
   useEffect(() => {
-    if (isHovered) return;
+    if (isHovered || teachers.length === 0) return;
 
     const timer = setInterval(() => {
       if (typeof window !== "undefined" && window.innerWidth >= 1024) {
@@ -44,25 +75,20 @@ export default function TeachersSection({
     return () => clearInterval(timer);
   }, [isHovered, teachers.length]);
 
+  if (teachers.length === 0) return null;
+
   return (
     <section
-      id="teachers"
+      id={resolveSectionHtmlId("teachers", sectionId)}
       className="relative overflow-x-hidden bg-white py-12 sm:py-14 lg:py-16 w-full"
     >
       <Container size="2xl" className="w-full relative z-10">
         {/* Section Header */}
         <div className="w-full text-center mb-12 sm:mb-16 lg:mb-10">
           <SectionHeader
-            eyebrow="Our Spiritual Indian Gurus"
-            title={
-              <>
-                Lineage Teachers,{" "}
-                <span className="font-normal text-primary">
-                  Guided by Compassion
-                </span>
-              </>
-            }
-            description="Meet our experienced, traditional yoga teachers and spiritual guides carrying decades of combined practice directly from traditional Vedic lineages in Rishikesh."
+            eyebrow={eyebrow}
+            title={resolvedTitle}
+            description={description}
             align="center"
             className="mx-auto max-w-3xl"
           />
@@ -151,7 +177,6 @@ export default function TeachersSection({
                     fill
                     sizes="(max-width: 1024px) 350px, 220px"
                     className="object-cover"
-                    priority
                   />
                 </motion.div>
               </AnimatePresence>
@@ -365,13 +390,13 @@ export default function TeachersSection({
         {/* Global Footer Button */}
         <div className="mt-16 lg:mt-8 flex justify-center w-full select-none">
           <Button
-            href="/teacher"
+            href={ctaHref}
             variant="ghost"
             size="md"
             responsive
             className="border border-primary/20 text-primary hover:bg-primary/5 cursor-pointer"
           >
-            Meet All Gurus
+            {ctaLabel}
           </Button>
         </div>
       </Container>

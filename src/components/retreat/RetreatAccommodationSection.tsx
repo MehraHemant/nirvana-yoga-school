@@ -14,16 +14,15 @@ import {
   SectionHeader,
   TabSwitcher,
 } from "@/components/ui";
+import { resolveFacilityByLabel } from "@/components/courses/facility-icons";
 import type { RetreatAccommodation } from "@/content/types/retreat-page";
-import { resolveFacilityItem } from "@/data/accommodationFacilities";
-import {
-  RETREAT_FOOD_GALLERY,
-  RETREAT_MEAL_HIGHLIGHTS,
-  RETREAT_ROOM_GALLERIES,
-  type RetreatGalleryImage,
-  type RetreatRoomGalleryId,
-} from "@/data/retreatAccommodation";
+import type {
+  RetreatAccommodationContent,
+  SharedAccommodationGallery,
+  SharedGalleryImage,
+} from "@/content/types/shared-sections";
 import { Check, ChevronLeft, ChevronRight } from "@/icons";
+import { isSectionLive } from "@/lib/cms/section-visibility";
 import {
   EASE_OUT,
   fadeUp,
@@ -36,6 +35,11 @@ type MainTab = "lodging" | "food";
 type RetreatAccommodationSectionProps = {
   accommodation: RetreatAccommodation;
   facilities: string[];
+  roomGalleries: SharedAccommodationGallery[];
+  foodGallery: SharedGalleryImage[];
+  mealHighlights: string[];
+  /** Shared retreat lodging document (for lodging/food live flags) */
+  lodgingContent?: RetreatAccommodationContent | null;
 };
 
 type ParsedAccommodation = {
@@ -85,7 +89,7 @@ function RetreatGalleryPanel({
   label,
   onOpenLightbox,
 }: {
-  images: RetreatGalleryImage[];
+  images: SharedGalleryImage[];
   label: string;
   onOpenLightbox: (index: number) => void;
 }) {
@@ -257,17 +261,19 @@ function RetreatGalleryPanel({
 }
 
 function RoomTypeSelector({
+  galleries,
   activeId,
   onChange,
 }: {
-  activeId: RetreatRoomGalleryId;
-  onChange: (id: RetreatRoomGalleryId) => void;
+  galleries: SharedAccommodationGallery[];
+  activeId: string;
+  onChange: (id: string) => void;
 }) {
   return (
     <div className="space-y-2">
       <p className="type-eyebrow text-primary">Choose your room</p>
       <div className="flex flex-col gap-2">
-        {RETREAT_ROOM_GALLERIES.map((room) => {
+        {galleries.map((room) => {
           const isActive = room.id === activeId;
           const thumb = room.images[0]?.url;
           return (
@@ -338,7 +344,7 @@ function FacilitiesGrid({ facilities }: { facilities: string[] }) {
 
       <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
         {facilities.map((item) => {
-          const facility = resolveFacilityItem(item);
+          const facility = resolveFacilityByLabel(item);
           const Icon = facility.icon;
           const isPaidExtra = Boolean(facility.note);
 
@@ -394,31 +400,62 @@ function TabIntro({
   );
 }
 
+/**
+ * Retreat lodging + food section. Galleries load from MySQL via the parent.
+ *
+ * @param props - Retreat copy, facilities, and shared lodging media
+ */
 export default function RetreatAccommodationSection({
   accommodation,
   facilities,
+  roomGalleries,
+  foodGallery,
+  mealHighlights,
+  lodgingContent = null,
 }: RetreatAccommodationSectionProps) {
   const prefersReduced = useReducedMotion() ?? false;
-  const [mainTab, setMainTab] = useState<MainTab>("lodging");
-  const [roomTab, setRoomTab] = useState<RetreatRoomGalleryId>("private");
+  const showLodging =
+    isSectionLive(lodgingContent?.accommodation) &&
+    lodgingContent?.lodgingLive !== false &&
+    roomGalleries.length > 0;
+  const showFood =
+    isSectionLive(lodgingContent?.food) &&
+    lodgingContent?.foodLive !== false &&
+    (foodGallery.length > 0 || mealHighlights.length > 0);
+
+  const initialTab: MainTab = showLodging ? "lodging" : "food";
+  const [mainTab, setMainTab] = useState<MainTab>(initialTab);
+  const [roomTab, setRoomTab] = useState(roomGalleries[0]?.id ?? "private");
   const [lightbox, setLightbox] = useState<{
-    items: RetreatGalleryImage[];
+    items: SharedGalleryImage[];
     index: number;
     title: string;
   } | null>(null);
 
   const { intro, foodParagraphs } = parseAccommodationBody(accommodation.body);
   const activeRoom =
-    RETREAT_ROOM_GALLERIES.find((room) => room.id === roomTab) ??
-    RETREAT_ROOM_GALLERIES[0];
+    roomGalleries.find((room) => room.id === roomTab) ?? roomGalleries[0];
 
   const openLightbox = (
-    images: RetreatGalleryImage[],
+    images: SharedGalleryImage[],
     index: number,
     title: string,
   ) => {
     setLightbox({ items: images, index, title });
   };
+
+  if (!showLodging && !showFood) {
+    return null;
+  }
+
+  if (showLodging && !activeRoom) {
+    return null;
+  }
+
+  const lodgingFoodTabs = [
+    ...(showLodging ? [{ id: "lodging" as const, label: "Ashram Lodging" }] : []),
+    ...(showFood ? [{ id: "food" as const, label: "Sattvic Food" }] : []),
+  ];
 
   return (
     <section
@@ -453,22 +490,21 @@ export default function RetreatAccommodationSection({
                 className="mb-4"
               />
 
-              <TabSwitcher
-                tabs={[
-                  { id: "lodging", label: "Ashram Lodging" },
-                  { id: "food", label: "Sattvic Food" },
-                ]}
-                activeId={mainTab}
-                onChange={(id) => setMainTab(id as MainTab)}
-                layoutId="retreatAccommodationTabs"
-                variant="pill"
-                size="sm"
-                className="!justify-start !px-0 pb-0"
-              />
+              {lodgingFoodTabs.length > 1 ? (
+                <TabSwitcher
+                  tabs={lodgingFoodTabs}
+                  activeId={mainTab}
+                  onChange={(id) => setMainTab(id as MainTab)}
+                  layoutId="retreatAccommodationTabs"
+                  variant="pill"
+                  size="sm"
+                  className="!justify-start !px-0 pb-0"
+                />
+              ) : null}
             </motion.div>
 
             <AnimatePresence mode="wait">
-              {mainTab === "lodging" ? (
+              {mainTab === "lodging" && showLodging ? (
                 <motion.div
                   key="lodging"
                   id="lodging"
@@ -495,9 +531,13 @@ export default function RetreatAccommodationSection({
                     }
                   />
 
-                  <RoomTypeSelector activeId={roomTab} onChange={setRoomTab} />
+                  <RoomTypeSelector
+                    galleries={roomGalleries}
+                    activeId={roomTab}
+                    onChange={setRoomTab}
+                  />
                 </motion.div>
-              ) : (
+              ) : showFood ? (
                 <motion.div
                   key="food"
                   id="food"
@@ -525,7 +565,7 @@ export default function RetreatAccommodationSection({
                   />
 
                   <ul className="space-y-2">
-                    {RETREAT_MEAL_HIGHLIGHTS.map((point) => (
+                    {mealHighlights.map((point) => (
                       <li
                         key={point}
                         className="surface-panel flex gap-2.5 rounded-xl p-2.5 shadow-2xs"
@@ -540,7 +580,7 @@ export default function RetreatAccommodationSection({
                     ))}
                   </ul>
                 </motion.div>
-              )}
+              ) : null}
             </AnimatePresence>
           </div>
 
@@ -549,7 +589,9 @@ export default function RetreatAccommodationSection({
             <AnimatePresence mode="wait">
               <motion.div
                 key={
-                  mainTab === "lodging" ? `gallery-${roomTab}` : "food-gallery"
+                  mainTab === "lodging" && showLodging
+                    ? `gallery-${roomTab}`
+                    : "food-gallery"
                 }
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -562,20 +604,22 @@ export default function RetreatAccommodationSection({
               >
                 <RetreatGalleryPanel
                   images={
-                    mainTab === "lodging"
+                    mainTab === "lodging" && showLodging && activeRoom
                       ? [...activeRoom.images]
-                      : RETREAT_FOOD_GALLERY
+                      : foodGallery
                   }
                   label={
-                    mainTab === "lodging" ? activeRoom.label : "Sattvic Cuisine"
+                    mainTab === "lodging" && activeRoom
+                      ? activeRoom.label
+                      : "Sattvic Cuisine"
                   }
                   onOpenLightbox={(index) =>
                     openLightbox(
-                      mainTab === "lodging"
+                      mainTab === "lodging" && activeRoom
                         ? [...activeRoom.images]
-                        : RETREAT_FOOD_GALLERY,
+                        : foodGallery,
                       index,
-                      mainTab === "lodging"
+                      mainTab === "lodging" && activeRoom
                         ? activeRoom.label
                         : "Sattvic Food & Dining",
                     )
@@ -586,11 +630,11 @@ export default function RetreatAccommodationSection({
           </div>
 
           {/* Bottom Row: Facilities or Dietary Notes */}
-          {mainTab === "lodging" ? (
+          {mainTab === "lodging" && showLodging ? (
             <div className="col-span-1 lg:col-span-12 mt-8">
               <FacilitiesGrid facilities={facilities} />
             </div>
-          ) : (
+          ) : showFood ? (
             <div className="col-span-1 lg:col-span-12 mt-8">
               <div className="rounded-2xl border border-primary/15 bg-primary/5 p-4 sm:p-5">
                 <p className="type-eyebrow mb-1 text-primary">
@@ -603,7 +647,7 @@ export default function RetreatAccommodationSection({
                 </p>
               </div>
             </div>
-          )}
+          ) : null}
         </div>
       </Container>
 

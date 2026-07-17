@@ -3,9 +3,7 @@
 import { motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { Container, SectionHeader } from "@/components/ui";
 import { Play } from "@/icons";
-import { resolveSectionHtmlId } from "@/lib/html-id";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 import type { YouTubeVideo } from "@/lib/youtube";
 
@@ -34,6 +32,11 @@ type VideoPlaylistItemProps = {
   onSelect: (id: string) => void;
 };
 
+/**
+ * Single playlist row — thumbnail + title that selects a video on click.
+ *
+ * @param props - The video, whether it is the active item, and select handler
+ */
 function VideoPlaylistItem({
   video,
   isActive,
@@ -106,25 +109,27 @@ function VideoPlaylistItem({
   );
 }
 
-type VideoSectionPlayerProps = {
+type VideoPlaylistPlayerProps = {
+  /** Ordered videos; the first is active by default */
   videos: YouTubeVideo[];
-  /** Optional CMS section `_id` (falls back to `video`) */
-  sectionId?: string;
-  /** Optional CMS section header */
-  header?: { eyebrow?: string; title: string; description?: string };
+  /** Extra classes for the grid wrapper */
+  className?: string;
 };
 
 /**
- * Homepage video playlist player with optional CMS header copy.
+ * Playlist-left / player-right YouTube player. The selected video plays in the
+ * large frame on the right while the scrollable playlist sits on the left.
+ * Auto-plays (muted) once the block scrolls into view; respects reduced motion.
  *
- * @param props - YouTube videos and optional header / section id
+ * Shared by the home video section and the course overview.
+ *
+ * @param props - Videos to show and optional grid wrapper classes
  */
-export default function VideoSectionPlayer({
+export default function VideoPlaylistPlayer({
   videos,
-  sectionId,
-  header,
-}: VideoSectionPlayerProps) {
-  const sectionRef = useRef<HTMLElement>(null);
+  className = "",
+}: VideoPlaylistPlayerProps) {
+  const rootRef = useRef<HTMLDivElement>(null);
   const hasAutoplayedOnce = useRef(false);
   const [activeId, setActiveId] = useState(videos[0]?.id ?? "");
   const [playerKey, setPlayerKey] = useState(0);
@@ -132,6 +137,18 @@ export default function VideoSectionPlayer({
   const prefersReduced = useReducedMotion() ?? false;
 
   const active = videos.find((v) => v.id === activeId) ?? videos[0];
+
+  useEffect(() => {
+    if (videos.length === 0) {
+      setActiveId("");
+      return;
+    }
+    if (!videos.some((v) => v.id === activeId)) {
+      setActiveId(videos[0].id);
+      setAutoplay(false);
+      setPlayerKey((key) => key + 1);
+    }
+  }, [videos, activeId]);
 
   const selectVideo = (id: string) => {
     if (id === activeId) return;
@@ -141,7 +158,7 @@ export default function VideoSectionPlayer({
   };
 
   useEffect(() => {
-    const node = sectionRef.current;
+    const node = rootRef.current;
     if (!node || prefersReduced) return;
 
     const observer = new IntersectionObserver(
@@ -162,102 +179,71 @@ export default function VideoSectionPlayer({
   if (!active) return null;
 
   return (
-    <section
-      id={resolveSectionHtmlId("video", sectionId)}
-      ref={sectionRef}
-      className="relative w-full overflow-hidden bg-white py-12 sm:py-14 lg:py-16"
+    <div
+      ref={rootRef}
+      className={`grid w-full min-w-0 grid-cols-1 items-start gap-6 sm:gap-8 lg:grid-cols-12 lg:gap-10 ${className}`}
     >
-      <Container size="2xl" className="relative min-w-0">
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={VIEWPORT_ONCE}
-          variants={fadeUp}
-        >
-          <SectionHeader
-            eyebrow={header?.eyebrow ?? "Student voices"}
-            title={
-              header?.title ?? (
-                <>
-                  Stories from{" "}
-                  <span className="font-medium text-primary font-serif">
-                    Rishikesh
-                  </span>
-                </>
-              )
-            }
-            description={
-              header?.description ??
-              "Watch real students share why they chose Nirvana Yoga School — tap a video to play."
-            }
-            className="mb-6 sm:mb-8 lg:mb-10 lg:max-w-xl"
+      {/* Player */}
+      <motion.div
+        className="order-1 min-w-0 lg:order-2 lg:col-span-8 lg:sticky lg:top-24"
+        initial="hidden"
+        whileInView="visible"
+        viewport={VIEWPORT_ONCE}
+        custom={0.08}
+        variants={fadeUp}
+      >
+        <div className="relative w-full min-w-0">
+          <div
+            className="pointer-events-none absolute -inset-2 rounded-3xl bg-linear-to-br from-primary/12 via-transparent to-accent/12 blur-md sm:-inset-3 sm:rounded-[1.75rem]"
+            aria-hidden="true"
           />
-        </motion.div>
-
-        <div className="grid w-full min-w-0 grid-cols-1 items-start gap-6 sm:gap-8 lg:grid-cols-12 lg:gap-10">
-          {/* Player */}
-          <motion.div
-            className="order-1 min-w-0 lg:order-2 lg:col-span-8 lg:sticky lg:top-24"
-            initial="hidden"
-            whileInView="visible"
-            viewport={VIEWPORT_ONCE}
-            custom={0.08}
-            variants={fadeUp}
-          >
-            <div className="relative w-full min-w-0">
-              <div
-                className="pointer-events-none absolute -inset-2 rounded-3xl bg-linear-to-br from-primary/12 via-transparent to-accent/12 blur-md sm:-inset-3 sm:rounded-[1.75rem]"
-                aria-hidden="true"
+          <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl">
+            <div className="relative aspect-video w-full">
+              <iframe
+                key={playerKey}
+                src={buildEmbedUrl(activeId, autoplay)}
+                title={`${active.title} — ${active.channel}`}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerPolicy="strict-origin-when-cross-origin"
+                allowFullScreen
+                className="absolute inset-0 h-full w-full border-0"
               />
-              <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl">
-                <div className="relative aspect-video w-full">
-                  <iframe
-                    key={playerKey}
-                    src={buildEmbedUrl(activeId, autoplay)}
-                    title={`${active.title} — ${active.channel}`}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    referrerPolicy="strict-origin-when-cross-origin"
-                    allowFullScreen
-                    className="absolute inset-0 h-full w-full border-0"
-                  />
-                </div>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Playlist — one list, responsive layout */}
-          <div className="order-2 min-w-0 lg:order-1 lg:col-span-4">
-            <div className="mb-3 flex items-end justify-between gap-3 lg:mb-4">
-              <p className="type-eyebrow text-muted">{videos.length} videos</p>
-              <p className="type-eyebrow text-muted md:hidden">Swipe →</p>
-            </div>
-
-            <div className="marquee-mask max-md:-mx-5 max-md:px-5 md:contents">
-              <ul
-                className="flex gap-3 overflow-x-auto overscroll-x-contain pb-1 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:grid md:grid-cols-1 md:gap-2.5 md:overflow-visible md:pb-0 lg:flex lg:max-h-[min(32rem,calc(100svh-8rem))] lg:flex-col lg:gap-2.5 lg:overflow-y-auto lg:pr-0.5"
-                aria-label="Video playlist"
-              >
-                {videos.map((video) => {
-                  const isActive = video.id === activeId;
-
-                  return (
-                    <li
-                      key={video.id}
-                      className="w-[min(78vw,17rem)] shrink-0 snap-start md:w-full md:shrink lg:w-full"
-                    >
-                      <VideoPlaylistItem
-                        video={video}
-                        isActive={isActive}
-                        onSelect={selectVideo}
-                      />
-                    </li>
-                  );
-                })}
-              </ul>
             </div>
           </div>
         </div>
-      </Container>
-    </section>
+      </motion.div>
+
+      {/* Playlist — one list, responsive layout */}
+      <div className="order-2 min-w-0 lg:order-1 lg:col-span-4 lg:sticky lg:top-24 lg:self-start">
+        <div className="mb-3 flex items-end justify-between gap-3 lg:mb-4">
+          <p className="type-eyebrow text-muted">{videos.length} videos</p>
+          <p className="type-eyebrow text-muted md:hidden">Swipe →</p>
+        </div>
+
+        <div className="marquee-mask max-md:-mx-5 max-md:px-5 md:contents">
+          <ul
+            className="flex gap-3 overflow-x-auto overscroll-x-contain pb-1 snap-x snap-mandatory max-lg:[-ms-overflow-style:none] max-lg:[scrollbar-width:none] max-lg:[&::-webkit-scrollbar]:hidden md:grid md:grid-cols-1 md:gap-2.5 md:overflow-visible md:pb-0 lg:flex lg:max-h-[min(32rem,calc(100svh-8rem))] lg:flex-col lg:gap-2.5 lg:overflow-y-auto lg:pr-1.5 lg:[scrollbar-color:var(--color-accent)_transparent] lg:[scrollbar-width:thin] lg:[&::-webkit-scrollbar]:w-1.5 lg:[&::-webkit-scrollbar-thumb]:rounded-full lg:[&::-webkit-scrollbar-thumb]:bg-accent/60 lg:[&::-webkit-scrollbar-track]:bg-transparent"
+            aria-label="Video playlist"
+          >
+            {videos.map((video) => {
+              const isActive = video.id === activeId;
+
+              return (
+                <li
+                  key={video.id}
+                  className="w-[min(78vw,17rem)] shrink-0 snap-start md:w-full md:shrink lg:w-full"
+                >
+                  <VideoPlaylistItem
+                    video={video}
+                    isActive={isActive}
+                    onSelect={selectVideo}
+                  />
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      </div>
+    </div>
   );
 }

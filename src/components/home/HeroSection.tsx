@@ -1,28 +1,41 @@
 import { Button, Container, Heading } from "@/components/ui";
+import type { HomeHeroContent } from "@/content/types/dedicated-pages";
+import { DEFAULT_HOME_PAGE_CONTENT } from "@/content/data/dedicated-page-defaults";
 import { ArrowRight, HeroFlourish, HeroUnderline } from "@/icons";
+import { optionalSectionHtmlId } from "@/lib/html-id";
 import HeroBackgroundVideo from "./HeroBackgroundVideo";
 
-const MARQUEE_ITEMS = [
-  "5.0 ★ Google Reviews",
-  "Yoga Alliance Certified",
-  "5,000+ Students Trained",
-  "50+ Countries Reached",
-  "5.0 ★ Tripadvisor",
-  "RYT 200 · 300 · 500",
-];
+type HeroSectionProps = {
+  /** Optional CMS hero content; falls back to defaults */
+  content?: HomeHeroContent;
+};
 
-const MOBILE_TRUST = [
-  { value: "5.0★", label: "Rated" },
-  { value: "5,000+", label: "Students" },
-  { value: "50+", label: "Countries" },
-];
+/**
+ * Homepage full-bleed hero with badge, title, CTA, trust chips, and marquee.
+ *
+ * @param props - Optional CMS hero fields
+ */
+export default function HeroSection({
+  content = DEFAULT_HOME_PAGE_CONTENT.hero,
+}: HeroSectionProps) {
+  const {
+    badge,
+    titleLead,
+    titleAccent,
+    ctaLabel,
+    ctaHref,
+    marqueeItems,
+    mobileTrust,
+    video,
+  } = content;
 
-export default function HeroSection() {
   return (
-    <section className="relative min-h-svh w-full overflow-hidden bg-ink">
-      <HeroBackgroundVideo />
+    <section
+      id={optionalSectionHtmlId(content._id)}
+      className="relative min-h-svh w-full overflow-hidden bg-ink"
+    >
+      <HeroBackgroundVideo video={video} />
 
-      {/* Cinematic overlays — video stays clear in the upper half */}
       <div
         className="absolute inset-0 bg-linear-to-t from-black/90 via-black/25 via-45% to-transparent"
         aria-hidden="true"
@@ -38,25 +51,10 @@ export default function HeroSection() {
 
       <HeroFlourish className="absolute top-28 right-6 md:right-12 w-24 md:w-32 h-24 md:h-32 text-white/10 pointer-events-none" />
 
-      {/* Top eyebrow */}
-      {/* <div className="absolute top-20 md:top-24 inset-x-0 z-10 animate-fade-up fade-delay-100">
-        <Container size="2xl">
-          <div className="flex items-center justify-center gap-3 text-white/60">
-            <span className="h-px w-10 md:w-20 bg-linear-to-r from-transparent to-white/35" />
-            <span className="type-eyebrow text-[0.65rem] sm:text-xs text-white/60">
-              Est. Rishikesh · 2012
-            </span>
-            <span className="h-px w-10 md:w-20 bg-linear-to-l from-transparent to-white/35" />
-          </div>
-        </Container>
-      </div> */}
-
-      {/* Bottom-anchored content */}
       <div className="relative z-10 min-h-svh flex items-end pb-36 sm:pb-[4.5rem] md:pb-[5rem]">
         <Container size="2xl" className="w-full">
           <div className="grid lg:grid-cols-12 gap-10 items-end">
             <div className="lg:col-span-7 xl:col-span-8 relative">
-              {/* Editorial accent line */}
               <span
                 className="hidden md:block absolute -left-6 top-2 bottom-2 w-px bg-linear-to-b from-transparent via-accent/70 to-transparent"
                 aria-hidden="true"
@@ -67,9 +65,7 @@ export default function HeroSection() {
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-60" />
                   <span className="relative inline-flex h-full w-full rounded-full bg-accent" />
                 </span>
-                <span className="type-eyebrow text-white/90">
-                  Yoga Alliance Certified · India
-                </span>
+                <span className="type-eyebrow text-white/90">{badge}</span>
               </div>
 
               <Heading
@@ -79,13 +75,10 @@ export default function HeroSection() {
                 size="h1"
                 className="animate-fade-up fade-delay-300 text-balance"
               >
-                Where ancient yoga
-                <br className="hidden sm:block" />
-                <span className="text-white/95"> meets the soul of the </span>
-                <br />
+                {titleLead}{" "}
                 <span className="relative inline-block whitespace-nowrap">
                   <span className="font-serif font-normal text-accent">
-                    Himalayas
+                    {titleAccent}
                   </span>
                   <HeroUnderline className="absolute -bottom-1 md:-bottom-2 left-0 w-full text-accent" />
                 </span>
@@ -93,12 +86,12 @@ export default function HeroSection() {
               </Heading>
               <div className="animate-fade-up fade-delay-500 mt-5 sm:mt-8 flex flex-wrap gap-2 sm:gap-3">
                 <Button
-                  href="#courses"
+                  href={ctaHref}
                   variant="primary"
                   responsive
                   className="group shadow-lg shadow-primary/30 hover:shadow-primary/40"
                 >
-                  Explore Courses
+                  {ctaLabel}
                   <ArrowRight
                     size={16}
                     className="sm:w-[18px] sm:h-[18px] transition-transform group-hover:translate-x-1"
@@ -106,9 +99,8 @@ export default function HeroSection() {
                 </Button>
               </div>
 
-              {/* Mobile trust chips */}
               <div className="animate-fade-up fade-delay-600 lg:hidden mt-5 sm:mt-8 flex gap-2 sm:gap-3 overflow-x-auto pb-1">
-                {MOBILE_TRUST.map((item) => (
+                {mobileTrust.map((item) => (
                   <div
                     key={item.label}
                     className="hero-glass shrink-0 rounded-xl sm:rounded-2xl px-3 py-2 sm:px-4 sm:py-3 min-w-[76px] sm:min-w-[88px] text-center"
@@ -127,13 +119,12 @@ export default function HeroSection() {
         </Container>
       </div>
 
-      {/* Marquee with edge fade */}
       <div className="absolute bottom-0 inset-x-0 z-10 border-t border-white/10 bg-black/50 backdrop-blur-md">
         <div className="marquee-mask overflow-hidden py-3">
           <div className="flex w-max animate-marquee" aria-hidden="true">
             {["a", "b"].map((set) => (
               <div key={set} className="flex">
-                {MARQUEE_ITEMS.map((item) => (
+                {marqueeItems.map((item) => (
                   <div
                     key={`${set}-${item}`}
                     className="flex items-center gap-5 md:gap-10 px-5 md:px-10 text-white/75 text-xs md:text-sm whitespace-nowrap"

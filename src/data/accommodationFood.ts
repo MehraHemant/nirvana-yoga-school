@@ -1,6 +1,17 @@
+/**
+ * Seed-only source for residential life content.
+ * Runtime UI loads from MySQL via `/api/content/residential-life`.
+ */
 const SITE = "https://www.nirvanayogaschoolindia.com";
 
-export type GalleryImage = { url: string; title: string };
+export type GalleryImage = {
+  url: string;
+  /** Used as accessible alt text */
+  title: string;
+  alt?: string;
+  clickAction?: "fullscreen" | "redirect" | "none";
+  redirectUrl?: string;
+};
 
 export function liveImage(path: string): string {
   return path.startsWith("http") ? path : `${SITE}${path}`;

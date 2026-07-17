@@ -2,22 +2,38 @@
 
 import { motion } from "framer-motion";
 import { Container, CourseCard, SectionHeader } from "@/components/ui";
-import { YTT_HUB_COURSES, YTT_HUB_COURSES_INTRO } from "@/data/yttHubPage";
+import type { YttHubContent } from "@/content/types/shared-sections";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 
-export default function YttHubCoursesSection() {
+type YttHubCoursesSectionProps = {
+  coursesIntro: YttHubContent["coursesIntro"];
+  courses: YttHubContent["courses"];
+  /** Public section HTML id (defaults to `courses`) */
+  htmlId?: string;
+};
+
+/**
+ * YTT hub course cards grid — content from MySQL.
+ *
+ * @param props - Courses intro copy and course cards
+ */
+export default function YttHubCoursesSection({
+  coursesIntro,
+  courses,
+  htmlId = "courses",
+}: YttHubCoursesSectionProps) {
   return (
-    <section id="courses" className="scroll-mt-28 bg-paper py-14 md:py-16">
+    <section id={htmlId} className="scroll-mt-28 bg-paper py-14 md:py-16">
       <Container size="2xl" className="mb-8 md:mb-10">
         <SectionHeader
-          title={YTT_HUB_COURSES_INTRO.title}
+          title={coursesIntro.title}
           align="left"
           className="max-w-none"
         />
       </Container>
 
       <Container size="2xl" className="mb-10 space-y-4 md:mb-12">
-        {YTT_HUB_COURSES_INTRO.paragraphs.map((paragraph) => (
+        {coursesIntro.paragraphs.map((paragraph) => (
           <p key={paragraph.slice(0, 48)} className="type-body text-muted">
             {paragraph}
           </p>
@@ -26,7 +42,7 @@ export default function YttHubCoursesSection() {
 
       <Container size="2xl">
         <div className="grid gap-7 lg:grid-cols-2 lg:gap-8">
-          {YTT_HUB_COURSES.map((course, index) => (
+          {courses.map((course, index) => (
             <motion.div
               key={course.href}
               initial="hidden"

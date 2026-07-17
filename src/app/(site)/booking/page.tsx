@@ -22,7 +22,7 @@ type BookingPageProps = {
  */
 export default async function BookingPage({ searchParams }: BookingPageProps) {
   const params = await searchParams;
-  const programs = getCourseBookingCatalog();
+  const programs = await getCourseBookingCatalog();
 
   return (
     <BookingFlow

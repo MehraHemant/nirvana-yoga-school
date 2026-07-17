@@ -21,6 +21,8 @@ interface WhatIsIncludedProps {
   eyebrow?: string;
   title?: string;
   description?: string;
+  /** Public section HTML id (defaults to `inclusions`) */
+  htmlId?: string;
 }
 
 function getInclusionIcon(item: string) {
@@ -144,10 +146,11 @@ export default function WhatIsIncluded({
   eyebrow = "Fine Print",
   title = "What is Included in Your Fee",
   description = "We operate on complete transparency. Your program fee covers all essential living, training, and excursion expenses during your stay so you can focus entirely on your training.",
+  htmlId = "inclusions",
 }: WhatIsIncludedProps) {
   return (
     <section
-      id="inclusions"
+      id={htmlId}
       className="py-16 lg:py-0 lg:min-h-[calc(100svh-4rem)] lg:flex lg:items-center bg-white relative overflow-hidden"
     >
       {/* Background ambient glows */}

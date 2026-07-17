@@ -1,30 +1,42 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getOnlineCourse } from "@/content";
-import { getSlugsByType } from "@/content/pages";
-import { courseMetadata } from "../../_shared/metadata";
+import { getOnlineCourse, getOnlineCourseSlugs } from "@/content";
+import { getPageModules } from "@/content/repositories/page-modules";
+import { mergePageMetadata } from "../../_shared/metadata";
 import { loadOnlineCoursePageData } from "./data";
 import OnlineCourseClient from "./OnlineCourseClient";
+
+export const revalidate = 3600;
 
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
+/**
+ * Build static paths from published online course slugs in MySQL.
+ */
 export async function generateStaticParams() {
-  return getSlugsByType("online").map((slug) => ({ slug }));
+  const slugs = await getOnlineCourseSlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const result = await getOnlineCourse(slug);
+  const [result, modulesResult] = await Promise.all([
+    getOnlineCourse(slug),
+    getPageModules(slug).catch(() => null),
+  ]);
   if (!result.data) return { title: "Course Not Found" };
 
-  return courseMetadata(
-    result.data.title,
-    result.data.subtitle,
-    result.data.image,
+  return mergePageMetadata(
+    {
+      title: result.data.title,
+      description: result.data.subtitle,
+      image: result.data.image,
+    },
+    modulesResult?.data?.meta,
   );
 }
 

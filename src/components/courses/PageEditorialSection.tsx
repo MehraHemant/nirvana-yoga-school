@@ -6,8 +6,14 @@ import SectionBlocksRenderer from "@/components/courses/SectionBlocksRenderer";
 import { Container, SectionHeader } from "@/components/ui";
 import type { SitePageSection } from "@/data/sitePages";
 import { Check } from "@/icons";
+import { optionalSectionHtmlId } from "@/lib/html-id";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 
+/**
+ * Renders one CMS site-page editorial section (body, blocks, gallery).
+ *
+ * @param props - Section document and alternating tone
+ */
 export default function PageEditorialSection({
   section,
   tone = "paper",
@@ -24,6 +30,7 @@ export default function PageEditorialSection({
 
   return (
     <section
+      id={optionalSectionHtmlId(section._id)}
       className={`${tone === "paper" ? "bg-paper" : "bg-white"} py-20 sm:py-28`}
     >
       <Container size="2xl">

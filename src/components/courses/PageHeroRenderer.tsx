@@ -6,6 +6,7 @@ import OnlineCourseHero from "@/components/online/OnlineCourseHero";
 import { Button, Container, Heading } from "@/components/ui";
 import { extractMediaFromModules } from "@/content/mappers/page-modules";
 import type { PageModulesDocument } from "@/content/types";
+import { cmsImageUrl } from "@/content/types/cms-image";
 
 type PageHeroRendererProps = {
   modules: PageModulesDocument;
@@ -132,13 +133,11 @@ export default function PageHeroRenderer({ modules }: PageHeroRendererProps) {
       level={hero.level}
       certification={hero.certification}
       fee={hero.fee}
-      image={hero.heroImages?.[0] ?? hero.images?.[0] ?? ""}
+      image={cmsImageUrl(hero.heroImages?.[0] ?? "")}
       certBadge={hero.certBadge}
       heroImages={hero.heroImages}
-      images={hero.images ?? media.images}
       imageDetails={hero.imageDetails ?? media.imageDetails}
       videos={hero.videos ?? media.videos}
-      disableSupplemental={hero.disableSupplemental}
     />
   );
 }

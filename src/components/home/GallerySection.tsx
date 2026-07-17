@@ -4,250 +4,68 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { Container, MediaLightbox, SectionHeader } from "@/components/ui";
+import { DEFAULT_HOME_PAGE_CONTENT } from "@/content/data/dedicated-page-defaults";
+import type {
+  HomeGalleryItem,
+  HomeGallerySectionContent,
+} from "@/content/types/dedicated-pages";
+import { resolveSectionHtmlId } from "@/lib/html-id";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 
-interface GalleryItem {
-  id: number;
-  src: string;
-  alt: string;
-  title: string;
-  category: "practice" | "campus" | "life";
-}
-
-const GALLERY_ITEMS: GalleryItem[] = [
-  {
-    id: 1,
-    src: "https://images.unsplash.com/photo-1501555088652-021faa106b9b?w=800&auto=format&fit=crop&q=80",
-    alt: "Excursion in 200-Hour YTTC",
-    title: "Weekend Excursions",
-    category: "life",
-  },
-  {
-    id: 2,
-    src: "https://images.unsplash.com/photo-1561336313-0bd5e0b27ec8?w=800&auto=format&fit=crop&q=80",
-    alt: "Opening ceremony of yoga teacher training course",
-    title: "Opening Fire Ceremony (Havan)",
-    category: "life",
-  },
-  {
-    id: 3,
-    src: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800&auto=format&fit=crop&q=80",
-    alt: "Beach yoga in Rishikesh",
-    title: "Ganga Beach Yoga Sessions",
-    category: "practice",
-  },
-  {
-    id: 4,
-    src: "https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=800&auto=format&fit=crop&q=80",
-    alt: "Food at Nirvana yoga school, Rishikesh",
-    title: "Nourishing Sattvic Food",
-    category: "campus",
-  },
-  {
-    id: 5,
-    src: "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=800&auto=format&fit=crop&q=80",
-    alt: "Hatha yoga class of 200-hour yoga teacher training",
-    title: "Traditional Hatha Yoga Class",
-    category: "practice",
-  },
-  {
-    id: 6,
-    src: "https://images.unsplash.com/photo-1508672019048-805c876b67e2?w=800&auto=format&fit=crop&q=80",
-    alt: "Pranayama (breathwork) practice class",
-    title: "Pranayama & Breathwork",
-    category: "practice",
-  },
-  {
-    id: 7,
-    src: "https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=800&auto=format&fit=crop&q=80",
-    alt: "Trataka meditation",
-    title: "Trataka (Candle Gazing)",
-    category: "practice",
-  },
-  {
-    id: 8,
-    src: "https://images.unsplash.com/photo-1590490360182-c33d57733427?w=800&auto=format&fit=crop&q=80",
-    alt: "Private balcony room accommodation at Nirvana yoga school",
-    title: "Private Balcony Room",
-    category: "campus",
-  },
-  {
-    id: 9,
-    src: "https://images.unsplash.com/photo-1519817650390-64a93db51149?w=800&auto=format&fit=crop&q=80",
-    alt: "Shatkarma practice in 200 hour Yoga TTC",
-    title: "Shatkarma (Yogic Cleansing)",
-    category: "practice",
-  },
-  {
-    id: 10,
-    src: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=800&auto=format&fit=crop&q=80",
-    alt: "Student celebration at Nirvana yoga school",
-    title: "Kirtan & Celebration",
-    category: "life",
-  },
-  {
-    id: 11,
-    src: "https://images.unsplash.com/photo-1598387993441-a364f854c3e1?w=800&auto=format&fit=crop&q=80",
-    alt: "Sound healing session",
-    title: "Sacred Sound Healing",
-    category: "practice",
-  },
-  {
-    id: 12,
-    src: "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=800&auto=format&fit=crop&q=80",
-    alt: "Dinner at Nirvana yoga school",
-    title: "Sattvic Vegetarian Buffet",
-    category: "campus",
-  },
-  {
-    id: 13,
-    src: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&auto=format&fit=crop&q=80",
-    alt: "Sunrise excursion during yoga course in Rishikesh",
-    title: "Himalayan Sunrise Excursion",
-    category: "life",
-  },
-  {
-    id: 14,
-    src: "https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?w=800&auto=format&fit=crop&q=80",
-    alt: "Outdoor yoga class",
-    title: "Outdoor Yoga Sessions",
-    category: "practice",
-  },
-  {
-    id: 15,
-    src: "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=800&auto=format&fit=crop&q=80",
-    alt: "4-sharing dorm accommodation",
-    title: "Spacious Dorm Accommodation",
-    category: "campus",
-  },
-  {
-    id: 16,
-    src: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800&auto=format&fit=crop&q=80",
-    alt: "Yoga philosophy class",
-    title: "Yoga Philosophy & Satsang",
-    category: "practice",
-  },
-  {
-    id: 17,
-    src: "https://images.unsplash.com/photo-1531545514256-b1400bc00f31?w=800&auto=format&fit=crop&q=80",
-    alt: "Certification ceremony of yoga teacher training course",
-    title: "Graduation Ceremony",
-    category: "life",
-  },
-  {
-    id: 18,
-    src: "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?w=800&auto=format&fit=crop&q=80",
-    alt: "Outdoor yoga philosophy class",
-    title: "Outdoor Philosophy Discussion",
-    category: "practice",
-  },
-  {
-    id: 19,
-    src: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&auto=format&fit=crop&q=80",
-    alt: "Candle light dinner at Nirvana yoga school",
-    title: "Special Candlelight Dinner",
-    category: "campus",
-  },
-  {
-    id: 20,
-    src: "https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?w=800&auto=format&fit=crop&q=80",
-    alt: "Ganga beach yoga",
-    title: "Yoga by the River Ganges",
-    category: "practice",
-  },
-  {
-    id: 21,
-    src: "https://images.unsplash.com/photo-1533777857889-4be7c70b33f7?w=800&auto=format&fit=crop&q=80",
-    alt: "Dining hall of Nirvana yoga school, Rishikesh",
-    title: "Community Dining Hall",
-    category: "campus",
-  },
-  {
-    id: 22,
-    src: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&auto=format&fit=crop&q=80",
-    alt: "Certification ceremony of 300-hour yoga teacher training",
-    title: "Graduation Celebration",
-    category: "life",
-  },
-  {
-    id: 23,
-    src: "https://images.unsplash.com/photo-1512438248247-f0f2a5a8b7f0?w=800&auto=format&fit=crop&q=80",
-    alt: "Yoga Nidra session",
-    title: "Yoga Nidra & Relaxation",
-    category: "practice",
-  },
-  {
-    id: 24,
-    src: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800&auto=format&fit=crop&q=80",
-    alt: "Ashtanga Vinyasa yoga practice session",
-    title: "Ashtanga Vinyasa Flow",
-    category: "practice",
-  },
-  {
-    id: 25,
-    src: "https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=800&auto=format&fit=crop&q=80",
-    alt: "2-sharing balcony room accommodation",
-    title: "Shared Room with Balcony",
-    category: "campus",
-  },
-  {
-    id: 26,
-    src: "https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=800&auto=format&fit=crop&q=80",
-    alt: "Students of Nirvana yoga school, India",
-    title: "Global Yogic Community",
-    category: "life",
-  },
-  {
-    id: 27,
-    src: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&auto=format&fit=crop&q=80",
-    alt: "Students of Nirvana yoga school, Rishikesh",
-    title: "Lifetime Connections",
-    category: "life",
-  },
-  {
-    id: 28,
-    src: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800&auto=format&fit=crop&q=80",
-    alt: "Yoga anatomy class",
-    title: "Functional Yoga Anatomy",
-    category: "practice",
-  },
-];
-
-const CATEGORIES = [
-  { id: "all", label: "All Images" },
-  { id: "practice", label: "Yoga & Practice" },
-  { id: "campus", label: "Campus & Food" },
-  { id: "life", label: "Excursions & Life" },
-] as const;
+type GalleryItem = HomeGalleryItem & { id: number };
 
 const SLOT_ASPECTS = [
-  "aspect-[2/3]", // Very Tall portrait
-  "aspect-[16/10]", // Wide landscape
-  "aspect-square", // Square
-  "aspect-[3/4]", // Tall portrait
-  "aspect-[4/5]", // Medium portrait
-  "aspect-[16/9]", // Very Wide landscape
-  "aspect-[2/3]", // Very Tall portrait
-  "aspect-square", // Square
-  "aspect-[4/3]", // Landscape
-  "aspect-[3/4]", // Tall portrait
-  "aspect-[2/3]", // Very Tall portrait
-  "aspect-[16/10]", // Wide landscape
+  "aspect-[2/3]",
+  "aspect-[16/10]",
+  "aspect-square",
+  "aspect-[3/4]",
+  "aspect-[4/5]",
+  "aspect-[16/9]",
+  "aspect-[2/3]",
+  "aspect-square",
+  "aspect-[4/3]",
+  "aspect-[3/4]",
+  "aspect-[2/3]",
+  "aspect-[16/10]",
 ] as const;
 
-export default function GallerySection() {
-  const [selectedCategory, setSelectedCategory] = useState<
-    "all" | "practice" | "campus" | "life"
-  >("all");
+type GallerySectionProps = {
+  /** Full CMS gallery section */
+  content?: HomeGallerySectionContent;
+};
+
+/**
+ * Homepage campus gallery with category filters driven by CMS content.
+ *
+ * @param props - Optional CMS gallery section
+ */
+export default function GallerySection({
+  content = DEFAULT_HOME_PAGE_CONTENT.gallery,
+}: GallerySectionProps) {
+  const sourceItems =
+    content.items?.length > 0
+      ? content.items
+      : DEFAULT_HOME_PAGE_CONTENT.gallery.items;
+
+  const categories =
+    content.categories?.length
+      ? content.categories
+      : (DEFAULT_HOME_PAGE_CONTENT.gallery.categories ?? []);
+
+  const [selectedCategory, setSelectedCategory] = useState("all");
   const prefersReduced = useReducedMotion() ?? false;
 
-  // Filter items based on selected category
+  const items: GalleryItem[] = useMemo(
+    () => sourceItems.map((item, index) => ({ ...item, id: index + 1 })),
+    [sourceItems],
+  );
+
   const filteredItems = useMemo(() => {
-    return GALLERY_ITEMS.filter(
+    return items.filter(
       (item) =>
         selectedCategory === "all" || item.category === selectedCategory,
     );
-  }, [selectedCategory]);
+  }, [items, selectedCategory]);
 
   const [visibleItems, setVisibleItems] = useState<GalleryItem[]>([]);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
@@ -260,7 +78,6 @@ export default function GallerySection() {
     }));
   }, [visibleItems]);
 
-  // Initialize visible items whenever category changes
   useEffect(() => {
     let slotsCount = 15;
     if (selectedCategory === "practice") {
@@ -274,7 +91,6 @@ export default function GallerySection() {
     setVisibleItems(filteredItems.slice(0, slotsCount));
   }, [selectedCategory, filteredItems]);
 
-  // Shuffling auto-transition timer
   // biome-ignore lint/correctness/useExhaustiveDependencies: visibleItems is evaluated dynamically in the functional state updater to avoid resetting the interval
   useEffect(() => {
     if (prefersReduced) return;
@@ -292,7 +108,6 @@ export default function GallerySection() {
         );
         if (currentPool.length === 0) return currentVisible;
 
-        // Pick up to 3 unique random slots to replace
         const slotCount = Math.min(
           3,
           currentVisible.length,
@@ -303,7 +118,6 @@ export default function GallerySection() {
           slotIndices.add(Math.floor(Math.random() * currentVisible.length));
         }
 
-        // Pick unique random pool items for each slot
         const shuffledPool = [...currentPool].sort(() => Math.random() - 0.5);
         const nextVisible = [...currentVisible];
         let poolIdx = 0;
@@ -312,14 +126,14 @@ export default function GallerySection() {
         }
         return nextVisible;
       });
-    }, 2000); // Swap 3 images every 2 seconds
+    }, 2000);
 
     return () => clearInterval(interval);
   }, [filteredItems, visibleItems.length, prefersReduced]);
 
   return (
     <section
-      id="gallery"
+      id={resolveSectionHtmlId("gallery", content._id)}
       className="relative w-full bg-paper py-12 sm:py-14 lg:py-16"
     >
       <Container size="2xl" className="relative">
@@ -331,21 +145,15 @@ export default function GallerySection() {
         >
           <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between mb-10 md:mb-14">
             <SectionHeader
-              eyebrow="Campus & Culture"
-              title={
-                <>
-                  Life at{" "}
-                  <span className="font-medium text-primary">Nirvana</span>
-                </>
-              }
-              description="A glimpse into the daily rhythm, organic meals, clean accommodations, sacred ceremonies, and outdoor excursions that make up your yoga teacher training journey."
+              eyebrow={content.eyebrow}
+              title={content.title}
+              description={content.description}
               align="left"
               className="max-w-2xl mb-0!"
             />
           </div>
         </motion.div>
 
-        {/* Categories Tab Bar */}
         <motion.div
           className="sticky top-18 md:top-20 z-30 bg-sand/90 backdrop-blur-md py-4 mb-10 -mx-5 px-5 md:-mx-8 md:px-8 border-b border-ink/8"
           initial="hidden"
@@ -355,7 +163,7 @@ export default function GallerySection() {
           variants={fadeUp}
         >
           <div className="flex flex-wrap gap-2">
-            {CATEGORIES.map((category) => {
+            {categories.map((category) => {
               const isActive = selectedCategory === category.id;
               return (
                 <button
@@ -384,7 +192,6 @@ export default function GallerySection() {
           </div>
         </motion.div>
 
-        {/* Masonry Columns Container */}
         <div className="relative w-full">
           <AnimatePresence mode="wait">
             <motion.div
@@ -403,7 +210,6 @@ export default function GallerySection() {
                     key={item.id}
                     className="w-full text-left break-inside-avoid mb-6 group block rounded-3xl"
                   >
-                    {/* Image Card Frame */}
                     <button
                       type="button"
                       onClick={() => {
@@ -414,7 +220,7 @@ export default function GallerySection() {
                     >
                       <AnimatePresence mode="popLayout">
                         <motion.div
-                          key={item.id} // item key drives the smooth crossfade transition on slot updates
+                          key={item.id}
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           exit={{ opacity: 0 }}
@@ -433,7 +239,6 @@ export default function GallerySection() {
                       </AnimatePresence>
                     </button>
 
-                    {/* Pinterest Style Caption below Card */}
                     <div className="mt-3 px-2">
                       <span className="type-eyebrow text-[9px] text-primary tracking-widest block font-bold">
                         {item.category === "practice"
@@ -460,7 +265,7 @@ export default function GallerySection() {
         items={lightboxItems}
         activeIndex={activeImageIndex}
         onChangeActiveIndex={setActiveImageIndex}
-        title="Life at Nirvana"
+        title={content.lightboxTitle ?? "Life at Nirvana"}
       />
     </section>
   );

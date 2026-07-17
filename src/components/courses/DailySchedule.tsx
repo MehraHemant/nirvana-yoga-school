@@ -14,6 +14,8 @@ interface ScheduleItem {
 interface DailyScheduleProps {
   description: string;
   schedule: ScheduleItem[];
+  /** Public section HTML id (defaults to `schedule`) */
+  htmlId?: string;
 }
 
 type ScheduleIconType = "morning" | "meal" | "study" | "yoga" | "default";
@@ -48,6 +50,7 @@ function ScheduleIcon({ type }: { type: ScheduleIconType }) {
 export default function DailySchedule({
   description,
   schedule,
+  htmlId = "schedule",
 }: DailyScheduleProps) {
   const [activeTab, setActiveTab] = useState<string>("full");
 
@@ -122,7 +125,7 @@ export default function DailySchedule({
 
   return (
     <section
-      id="schedule"
+      id={htmlId}
       className="relative overflow-x-clip bg-white py-20 sm:py-28"
     >
       <Container size="2xl">

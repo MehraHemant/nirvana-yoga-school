@@ -1,38 +1,41 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { DEFAULT_HOME_PAGE_CONTENT } from "@/content/data/dedicated-page-defaults";
+import type { HomeHeroVideoContent } from "@/content/types/dedicated-pages";
 
-const HERO_VIDEO = {
-  mobile: {
-    src: "/videos/videomobile.mp4",
-    poster: "/videos/videomobile-poster.webp",
-  },
-  desktop: {
-    src: "/videos/videodesktop.mp4",
-    poster: "/videos/videodesktop-poster.webp",
-  },
-} as const;
+type HeroBackgroundVideoProps = {
+  /** CMS hero video sources; falls back to defaults */
+  video?: HomeHeroVideoContent;
+};
 
-export default function HeroBackgroundVideo() {
+/**
+ * Full-bleed responsive hero background video with poster fallback.
+ *
+ * @param props - Optional CMS video source paths
+ */
+export default function HeroBackgroundVideo({
+  video = DEFAULT_HOME_PAGE_CONTENT.hero.video,
+}: HeroBackgroundVideoProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
 
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
+    const el = videoRef.current;
+    if (!el) return;
 
     const markReady = () => setPlaying(true);
 
-    video.addEventListener("canplay", markReady);
-    video.addEventListener("playing", markReady);
+    el.addEventListener("canplay", markReady);
+    el.addEventListener("playing", markReady);
 
-    if (video.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA) {
+    if (el.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA) {
       markReady();
     }
 
     return () => {
-      video.removeEventListener("canplay", markReady);
-      video.removeEventListener("playing", markReady);
+      el.removeEventListener("canplay", markReady);
+      el.removeEventListener("playing", markReady);
     };
   }, []);
 
@@ -40,9 +43,9 @@ export default function HeroBackgroundVideo() {
     <>
       {/* Responsive poster — visible until video is playing */}
       <picture className="absolute inset-0">
-        <source media="(max-width: 768px)" srcSet={HERO_VIDEO.mobile.poster} />
+        <source media="(max-width: 768px)" srcSet={video.mobilePoster} />
         <img
-          src={HERO_VIDEO.desktop.poster}
+          src={video.desktopPoster}
           sizes="100vw"
           alt=""
           fetchPriority="high"
@@ -62,15 +65,15 @@ export default function HeroBackgroundVideo() {
         loop
         playsInline
         preload="auto"
-        poster={HERO_VIDEO.desktop.poster}
+        poster={video.desktopPoster}
         tabIndex={-1}
       >
         <source
-          src={HERO_VIDEO.mobile.src}
+          src={video.mobileSrc}
           type="video/mp4"
           media="(max-width: 768px)"
         />
-        <source src={HERO_VIDEO.desktop.src} type="video/mp4" />
+        <source src={video.desktopSrc} type="video/mp4" />
       </video>
     </>
   );

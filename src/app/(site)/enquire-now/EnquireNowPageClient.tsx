@@ -10,11 +10,19 @@ import {
   PhoneInput,
   SearchableSelect,
 } from "@/components/ui";
+import { DEFAULT_ENQUIRE_PAGE_CONTENT } from "@/content/data/dedicated-page-defaults";
+import type { EnquirePageContent } from "@/content/types/dedicated-pages";
+import type { SiteMapContent } from "@/content/types/shared-sections";
 import { Check, Compass, Send, WhatsApp } from "@/icons";
 import {
   ACCOMMODATION_PREFERENCE_OPTIONS,
   ENQUIRE_PROGRAM_OPTIONS,
 } from "@/lib/enquire-programs";
+import { shouldRenderSection } from "@/lib/cms/section-visibility";
+import {
+  optionalSectionHtmlId,
+  resolveSectionHtmlId,
+} from "@/lib/html-id";
 import { openMailtoFallback, submitLead } from "@/lib/leads/submit-lead";
 import { fadeUp, reducedTransition } from "@/lib/motion";
 import {
@@ -24,41 +32,28 @@ import {
 } from "@/lib/phone-countries";
 
 const CONTACT_EMAIL = "hello@nirvanayogaschoolindia.com";
-const ENQUIRE_HERO_IMAGE = "/img/retreat-venue/private/2.webp";
-
-const ENQUIRY_STEPS = [
-  {
-    step: "01",
-    title: "Share your details",
-    body: "Tell us which program interests you, your preferred dates, and room preference.",
-  },
-  {
-    step: "02",
-    title: "Ashram coordinator replies",
-    body: "We respond within 24 hours by email or WhatsApp with dates, fees, and next steps.",
-  },
-  {
-    step: "03",
-    title: "Reserve your place",
-    body: "Confirm your batch and accommodation to secure your spot in Tapovan, Rishikesh.",
-  },
-] as const;
 
 type EnquireNowPageClientProps = {
   /** Pre-filled program from `?program=` query string */
   initialProgram?: string;
   /** Pre-filled accommodation from `?accommodation=` query string */
   initialAccommodation?: string;
+  /** CMS content_data for /enquire-now */
+  content?: EnquirePageContent;
+  /** Shared site map embed from CMS */
+  siteMap?: SiteMapContent | null;
 };
 
 /**
  * Enquiry form page for residential YTT, online courses, and retreats.
  *
- * @param props - Optional URL pre-fill values
+ * @param props - Optional URL pre-fill values, CMS content, and shared map
  */
 export default function EnquireNowPageClient({
   initialProgram = "",
   initialAccommodation = "",
+  content = DEFAULT_ENQUIRE_PAGE_CONTENT,
+  siteMap = null,
 }: EnquireNowPageClientProps) {
   const prefersReduced = useReducedMotion() ?? false;
   const [formState, setFormState] = useState<
@@ -135,11 +130,18 @@ export default function EnquireNowPageClient({
     }
   };
 
+  const formHtmlId = resolveSectionHtmlId("enquire-form", content.form._id);
+  const stepsHtmlId = optionalSectionHtmlId(content.stepsSection?._id);
+  const heroHtmlId = optionalSectionHtmlId(content.hero._id);
+
   return (
     <div className="bg-sand/15">
-      <section className="relative min-h-[52svh] overflow-hidden bg-sand text-ink pt-[var(--site-header-height)] lg:min-h-[58svh]">
+      <section
+        id={heroHtmlId}
+        className="relative min-h-[52svh] overflow-hidden bg-sand text-ink pt-[var(--site-header-height)] lg:min-h-[58svh]"
+      >
         <Image
-          src={ENQUIRE_HERO_IMAGE}
+          src={content.hero.image}
           alt=""
           fill
           priority
@@ -166,16 +168,13 @@ export default function EnquireNowPageClient({
             className="max-w-2xl space-y-5"
           >
             <span className="type-eyebrow font-semibold tracking-widest text-primary uppercase">
-              Apply & Enquire
+              {content.hero.eyebrow}
             </span>
             <h1 className="font-serif text-4xl font-medium leading-[1.08] tracking-tight text-ink sm:text-5xl md:text-6xl">
-              Begin your{" "}
-              <span className="font-normal italic text-primary">enquiry</span>
+              {content.hero.title}
             </h1>
             <p className="type-lead max-w-xl pt-1 font-sans text-base leading-relaxed text-ink/80 sm:text-lg">
-              Reserve your interest in yoga teacher training, retreats, or
-              online courses. Our ashram team will guide you through dates,
-              fees, and accommodation.
+              {content.hero.lead}
             </p>
 
             <div className="flex flex-wrap gap-2 pt-1">
@@ -194,7 +193,7 @@ export default function EnquireNowPageClient({
             </div>
 
             <div className="flex flex-wrap gap-3 pt-2">
-              <Button href="#enquire-form" variant="primary" size="md">
+              <Button href={`#${formHtmlId}`} variant="primary" size="md">
                 Submit Enquiry
               </Button>
               <Button
@@ -213,29 +212,27 @@ export default function EnquireNowPageClient({
       </section>
 
       <section
-        id="enquire-form"
+        id={formHtmlId}
         className="relative overflow-hidden bg-white py-16 sm:py-20 scroll-mt-[calc(var(--site-header-height,4.75rem)+0.5rem)]"
       >
         <Container size="xl">
           <div className="grid gap-12 lg:grid-cols-12 lg:items-stretch lg:gap-14">
-            <div className="flex lg:col-span-5">
+            <div id={stepsHtmlId} className="flex lg:col-span-5">
               <div className="surface-card flex h-full w-full flex-col rounded-3xl p-6 sm:p-8 lg:p-9">
                 <div className="shrink-0 space-y-2">
                   <span className="type-eyebrow block font-semibold uppercase text-primary">
-                    How it works
+                    {content.form.eyebrow}
                   </span>
                   <h2 className="font-serif text-2xl font-medium text-ink sm:text-3xl">
-                    Your path to Rishikesh
+                    {content.form.title}
                   </h2>
                   <p className="font-sans text-sm leading-relaxed text-muted">
-                    Share a few details and our coordinators will help you
-                    choose the right program, batch dates, and room type for
-                    your stay in Tapovan.
+                    {content.form.lead}
                   </p>
                 </div>
 
                 <ol className="mt-8 flex flex-1 flex-col gap-4">
-                  {ENQUIRY_STEPS.map((item) => (
+                  {content.steps.map((item) => (
                     <li
                       key={item.step}
                       className="surface-panel rounded-2xl p-4 sm:p-5"
@@ -529,7 +526,7 @@ export default function EnquireNowPageClient({
                             "Sending Enquiry..."
                           ) : (
                             <>
-                              <span>Submit Enquiry</span>
+                              <span>{content.form.submitLabel}</span>
                               <Send
                                 size={14}
                                 className="transition-transform group-hover:translate-x-0.5"
@@ -559,7 +556,14 @@ export default function EnquireNowPageClient({
         </Container>
       </section>
 
-      <MapSection />
+      {content.map.show !== false &&
+      shouldRenderSection(siteMap, Boolean(siteMap?.embedUrl?.trim())) &&
+      siteMap ? (
+        <MapSection
+          content={siteMap}
+          htmlId={resolveSectionHtmlId("location", content.map._id)}
+        />
+      ) : null}
     </div>
   );
 }

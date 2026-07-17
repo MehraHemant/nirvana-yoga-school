@@ -3,17 +3,31 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { Container, Pill, SectionHeader } from "@/components/ui";
-import {
-  YTT_HUB_INTRO,
-  YTT_HUB_OVERVIEW_IMAGE,
-  YTT_HUB_OVERVIEW_INSET_IMAGE,
-} from "@/data/yttHubPage";
+import type { YttHubContent } from "@/content/types/shared-sections";
 import { Check } from "@/icons";
 import { EASE_OUT, fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 
-export default function YttHubOverviewSection() {
+type YttHubOverviewSectionProps = {
+  intro: YttHubContent["intro"];
+  overviewImage: string;
+  overviewInsetImage: string;
+  /** Public section HTML id (defaults to `about`) */
+  htmlId?: string;
+};
+
+/**
+ * YTT hub overview collage + program points from MySQL.
+ *
+ * @param props - Intro stats/points and overview images
+ */
+export default function YttHubOverviewSection({
+  intro,
+  overviewImage,
+  overviewInsetImage,
+  htmlId = "about",
+}: YttHubOverviewSectionProps) {
   return (
-    <section id="about" className="scroll-mt-28 bg-white py-20 md:py-28">
+    <section id={htmlId} className="scroll-mt-28 bg-white py-20 md:py-28">
       <Container size="2xl" className="space-y-12 md:space-y-16">
         <motion.div
           initial="hidden"
@@ -47,7 +61,7 @@ export default function YttHubOverviewSection() {
           >
             <div className="relative min-h-[480px] overflow-hidden rounded-3xl shadow-card sm:min-h-[520px] lg:min-h-[640px]">
               <Image
-                src={YTT_HUB_OVERVIEW_IMAGE}
+                src={overviewImage}
                 alt="Students practicing yoga at Nirvana Yoga School in Rishikesh"
                 fill
                 className="object-cover"
@@ -61,7 +75,7 @@ export default function YttHubOverviewSection() {
               <div className="absolute right-5 top-5 w-[38%] max-w-[168px] overflow-hidden rounded-2xl border-4 border-white shadow-soft sm:right-6 sm:top-6 sm:max-w-[190px]">
                 <div className="relative aspect-[4/5]">
                   <Image
-                    src={YTT_HUB_OVERVIEW_INSET_IMAGE}
+                    src={overviewInsetImage}
                     alt="Guided meditation during yoga teacher training"
                     fill
                     className="object-cover"
@@ -76,7 +90,7 @@ export default function YttHubOverviewSection() {
 
               <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-primary via-primary/95 to-primary/80 px-5 pb-5 pt-16 sm:px-6 sm:pb-6">
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-                  {YTT_HUB_INTRO.stats.map((stat) => (
+                  {intro.stats.map((stat) => (
                     <div
                       key={stat.label}
                       className="rounded-2xl border border-white/15 bg-white/10 px-3 py-4 text-center backdrop-blur-sm sm:px-4 sm:py-5"
@@ -111,7 +125,7 @@ export default function YttHubOverviewSection() {
               </p>
 
               <ul className="mt-8 space-y-4">
-                {YTT_HUB_INTRO.overviewPoints.map((point, index) => (
+                {intro.overviewPoints.map((point, index) => (
                   <li key={point} className="flex gap-4">
                     <span className="font-serif text-lg leading-none text-primary/70">
                       {String(index + 1).padStart(2, "0")}

@@ -2,15 +2,27 @@
 
 import { PageGallerySection, WhyNirvana } from "@/components/courses";
 import { TeachersSection } from "@/components/home";
+import { shouldRenderSection } from "@/lib/cms/section-visibility";
 import { SiteFaq, SiteHero, SiteOverview } from "../../_shared/site/shared";
 import type { SiteClientProps } from "../../_shared/site/types";
 
+/**
+ * Teachers listing page with shared Why Nirvana live gate.
+ *
+ * @param props - Mapped teacher page content and shared sections
+ */
 export default function TeachersClient({
   page,
   mapped,
   teachers,
   modules,
+  whyNirvana,
+  reviews,
 }: SiteClientProps) {
+  const showWhyNirvana =
+    (modules?.flags.showWhyNirvana ?? mapped.showWhyNirvana) &&
+    shouldRenderSection(whyNirvana, Boolean(whyNirvana?.highlights?.length));
+
   return (
     <>
       <SiteHero page={page} mapped={mapped} modules={modules} />
@@ -20,8 +32,10 @@ export default function TeachersClient({
         {mapped.gallery.length > 0 && (
           <PageGallerySection images={mapped.gallery} />
         )}
-        <WhyNirvana />
-        <SiteFaq mapped={mapped} />
+        {showWhyNirvana ? (
+          <WhyNirvana content={whyNirvana} reviews={reviews} />
+        ) : null}
+        <SiteFaq mapped={mapped} modules={modules} />
       </article>
     </>
   );

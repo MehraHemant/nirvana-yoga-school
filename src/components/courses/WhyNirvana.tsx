@@ -2,7 +2,10 @@
 
 import { motion } from "framer-motion";
 import { Container, PlatformReviewsRows, SectionHeader } from "@/components/ui";
-import { WHY_NIRVANA_CLOSING, WHY_NIRVANA_HIGHLIGHTS } from "@/data/whyNirvana";
+import type {
+  ReviewsContent,
+  WhyNirvanaContent,
+} from "@/content/types/shared-sections";
 import {
   BadgeStar,
   Bed,
@@ -16,6 +19,7 @@ import {
   Sunrise,
   Users,
 } from "@/icons";
+import { shouldRenderSection } from "@/lib/cms/section-visibility";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 
 type IconFC = React.FC<{ size?: number; className?: string }>;
@@ -35,7 +39,25 @@ const HIGHLIGHT_ICONS = [
   Lotus, // Cultural & Spiritual Events
 ] as IconFC[];
 
-export default function WhyNirvana() {
+type WhyNirvanaProps = {
+  /** Server-provided why-nirvana content */
+  content?: WhyNirvanaContent | null;
+  /** Server-provided reviews for the embedded review rows */
+  reviews?: ReviewsContent | null;
+};
+
+/**
+ * Why Nirvana highlights grid plus shared review rows.
+ *
+ * @param props - Server-provided content and reviews
+ */
+export default function WhyNirvana({
+  content = null,
+  reviews = null,
+}: WhyNirvanaProps = {}) {
+  const hasData = Boolean(content?.highlights?.length);
+  if (!content || !shouldRenderSection(content, hasData)) return null;
+
   return (
     <section id="why-nirvana" className="bg-white">
       <Container size="2xl" className="py-16 sm:py-20">
@@ -67,7 +89,7 @@ export default function WhyNirvana() {
           </h3>
 
           <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-x-8 md:gap-y-5">
-            {WHY_NIRVANA_HIGHLIGHTS.map((item, i) => {
+            {content.highlights.map((item, i) => {
               const Icon = HIGHLIGHT_ICONS[i] ?? BookOpen;
               return (
                 <li key={item.title}>
@@ -93,20 +115,25 @@ export default function WhyNirvana() {
           </ul>
 
           <p className="mx-auto mt-12 max-w-3xl border-t border-ink/10 pt-10 text-center font-sans text-sm leading-relaxed text-muted sm:text-base">
-            {WHY_NIRVANA_CLOSING}
+            {content.closing}
           </p>
         </motion.div>
       </Container>
 
-      <div className="relative mt-8 overflow-hidden bg-white pb-16 sm:pb-20">
-        <div
-          className="pointer-events-none absolute -right-20 top-0 h-[320px] w-[320px] rounded-full bg-primary/5 blur-[90px]"
-          aria-hidden="true"
-        />
-        <Container size="2xl" className="relative z-10">
-          <PlatformReviewsRows />
-        </Container>
-      </div>
+      {shouldRenderSection(
+        reviews,
+        Boolean(reviews?.reviews?.length),
+      ) ? (
+        <div className="relative mt-8 overflow-hidden bg-white pb-16 sm:pb-20">
+          <div
+            className="pointer-events-none absolute -right-20 top-0 h-[320px] w-[320px] rounded-full bg-primary/5 blur-[90px]"
+            aria-hidden="true"
+          />
+          <Container size="2xl" className="relative z-10">
+            <PlatformReviewsRows content={reviews} />
+          </Container>
+        </div>
+      ) : null}
     </section>
   );
 }

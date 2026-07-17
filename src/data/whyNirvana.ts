@@ -1,3 +1,7 @@
+/**
+ * Seed-only Why Nirvana source.
+ * Runtime UI loads from MySQL via `/api/content/why-nirvana`.
+ */
 export type WhyNirvanaHighlight = {
   title: string;
   body: string;

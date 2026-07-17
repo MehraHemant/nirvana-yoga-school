@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
+import type { ReactNode } from "react";
 import { useState } from "react";
 import { MapSection } from "@/components/home";
 import {
@@ -10,8 +11,16 @@ import {
   PhoneInput,
   SearchableSelect,
 } from "@/components/ui";
+import { DEFAULT_CONTACT_PAGE_CONTENT } from "@/content/data/dedicated-page-defaults";
+import type { ContactPageContent } from "@/content/types/dedicated-pages";
+import type { SiteMapContent } from "@/content/types/shared-sections";
 import { Check, Compass, Send, WhatsApp } from "@/icons";
 import { ACCOMMODATION_PREFERENCE_OPTIONS } from "@/lib/enquire-programs";
+import {
+  optionalSectionHtmlId,
+  resolveSectionHtmlId,
+} from "@/lib/html-id";
+import { shouldRenderSection } from "@/lib/cms/section-visibility";
 import { openMailtoFallback, submitLead } from "@/lib/leads/submit-lead";
 import { fadeUp, reducedTransition } from "@/lib/motion";
 import {
@@ -21,9 +30,23 @@ import {
 } from "@/lib/phone-countries";
 
 const CONTACT_EMAIL = "hello@nirvanayogaschoolindia.com";
-const CONTACT_HERO_IMAGE = "/img/retreat-venue/private/1.webp";
 
-export default function ContactPageClient() {
+type ContactPageClientProps = {
+  /** CMS content_data for /contact */
+  content?: ContactPageContent;
+  /** Shared site map embed from CMS */
+  siteMap?: SiteMapContent | null;
+};
+
+/**
+ * Contact page UI — hero, detail cards, lead form, optional map.
+ *
+ * @param props - Optional CMS content document and shared map
+ */
+export default function ContactPageClient({
+  content = DEFAULT_CONTACT_PAGE_CONTENT,
+  siteMap = null,
+}: ContactPageClientProps) {
   const prefersReduced = useReducedMotion() ?? false;
   const [formState, setFormState] = useState<
     "idle" | "submitting" | "success" | "error"
@@ -93,52 +116,23 @@ export default function ContactPageClient() {
     }
   };
 
-  const contactDetails = [
-    {
-      title: "Ashram Location",
-      value: "Tapovan, Rishikesh, Uttarakhand 249137, India",
-      href: "https://maps.google.com/?q=Nirvana+Yoga+School+Rishikesh",
-      icon: <Compass size={20} className="text-secondary" />,
-      actionText: "View on Google Maps →",
-    },
-    {
-      title: "WhatsApp & Call Support",
-      value: "+91 82185 64835",
-      href: "https://wa.me/918218564835",
-      icon: <WhatsApp size={20} className="text-secondary" />,
-      actionText: "Chat on WhatsApp →",
-    },
-    {
-      title: "Direct Email Support",
-      value: "hello@nirvanayogaschoolindia.com",
-      href: "mailto:hello@nirvanayogaschoolindia.com",
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth="1.5"
-          stroke="currentColor"
-          className="w-5 h-5 text-secondary"
-          aria-hidden="true"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"
-          />
-        </svg>
-      ),
-      actionText: "Send email support →",
-    },
-  ];
+  const contactDetails = content.details.map((detail) => ({
+    ...detail,
+    icon: contactDetailIcon(detail.iconKey),
+  }));
+  const formHtmlId = resolveSectionHtmlId("contact-form", content.form._id);
+  const detailsHtmlId = optionalSectionHtmlId(content.detailsSection?._id);
+  const heroHtmlId = optionalSectionHtmlId(content.hero._id);
 
   return (
     <div className="bg-sand/15">
       {/* 1. Hero */}
-      <section className="relative min-h-[52svh] overflow-hidden bg-sand text-ink pt-[var(--site-header-height)] lg:min-h-[58svh]">
+      <section
+        id={heroHtmlId}
+        className="relative min-h-[52svh] overflow-hidden bg-sand text-ink pt-[var(--site-header-height)] lg:min-h-[58svh]"
+      >
         <Image
-          src={CONTACT_HERO_IMAGE}
+          src={content.hero.image}
           alt=""
           fill
           priority
@@ -170,17 +164,13 @@ export default function ContactPageClient() {
               className="max-w-2xl space-y-5"
             >
               <span className="type-eyebrow font-semibold tracking-widest text-primary uppercase">
-                Get In Touch
+                {content.hero.eyebrow}
               </span>
               <h1 className="font-serif text-4xl font-medium leading-[1.08] tracking-tight text-ink sm:text-5xl md:text-6xl">
-                We are here to support{" "}
-                <span className="font-normal italic text-primary">
-                  your journey
-                </span>
+                {content.hero.title}
               </h1>
               <p className="type-lead max-w-xl pt-1 font-sans text-base leading-relaxed text-ink/80 sm:text-lg">
-                Questions about yoga teacher training, retreats, accommodation,
-                or travel to Rishikesh? Our ashram team replies within 24 hours.
+                {content.hero.lead}
               </p>
 
               <div className="flex flex-wrap gap-2 pt-1">
@@ -199,7 +189,7 @@ export default function ContactPageClient() {
               </div>
 
               <div className="flex flex-wrap gap-3 pt-2">
-                <Button href="#contact-form" variant="primary" size="md">
+                <Button href={`#${formHtmlId}`} variant="primary" size="md">
                   Send a Message
                 </Button>
                 <Button
@@ -219,25 +209,23 @@ export default function ContactPageClient() {
 
       {/* 2. Main Content splitting Grid */}
       <section
-        id="contact-form"
+        id={formHtmlId}
         className="relative overflow-hidden bg-white py-16 sm:py-20 scroll-mt-[calc(var(--site-header-height,4.75rem)+0.5rem)]"
       >
         <Container size="xl">
           <div className="grid gap-12 lg:grid-cols-12 lg:items-stretch lg:gap-14">
             {/* Left Column: Direct Contact Info (col-span-5) */}
-            <div className="flex lg:col-span-5">
+            <div id={detailsHtmlId} className="flex lg:col-span-5">
               <div className="surface-card flex h-full w-full flex-col rounded-3xl p-6 sm:p-8 lg:p-9">
                 <div className="shrink-0 space-y-2">
                   <span className="type-eyebrow block font-semibold uppercase text-primary">
-                    Contact Details
+                    {content.form.eyebrow}
                   </span>
                   <h2 className="font-serif text-2xl font-medium text-ink sm:text-3xl">
-                    Connect with Nirvana
+                    {content.form.title}
                   </h2>
                   <p className="font-sans text-sm leading-relaxed text-muted">
-                    Whether you are planning your travel arrival to Tapovan or
-                    inquiring about syllabus details, we look forward to
-                    greeting you.
+                    {content.form.lead}
                   </p>
                 </div>
 
@@ -532,7 +520,7 @@ export default function ContactPageClient() {
                             </>
                           ) : (
                             <>
-                              <span>Send Message</span>
+                              <span>{content.form.submitLabel}</span>
                               <Send
                                 size={14}
                                 className="group-hover:translate-x-0.5 transition-transform"
@@ -550,8 +538,48 @@ export default function ContactPageClient() {
         </Container>
       </section>
 
-      {/* 3. Location Map Section */}
-      <MapSection />
+      {/* 3. Location Map Section — page show + shared map live/data */}
+      {content.map.show !== false &&
+      shouldRenderSection(siteMap, Boolean(siteMap?.embedUrl?.trim())) &&
+      siteMap ? (
+        <MapSection
+          content={siteMap}
+          htmlId={resolveSectionHtmlId("location", content.map._id)}
+        />
+      ) : null}
     </div>
   );
+}
+
+/**
+ * Maps CMS icon keys to contact detail icons.
+ *
+ * @param iconKey - Icon key from content_data
+ */
+function contactDetailIcon(
+  iconKey: ContactPageContent["details"][number]["iconKey"],
+): ReactNode {
+  if (iconKey === "whatsapp") {
+    return <WhatsApp size={20} className="text-secondary" />;
+  }
+  if (iconKey === "email") {
+    return (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        strokeWidth="1.5"
+        stroke="currentColor"
+        className="w-5 h-5 text-secondary"
+        aria-hidden="true"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"
+        />
+      </svg>
+    );
+  }
+  return <Compass size={20} className="text-secondary" />;
 }

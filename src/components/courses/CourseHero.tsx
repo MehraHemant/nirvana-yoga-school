@@ -5,15 +5,23 @@ import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Container, Heading, MediaLightbox } from "@/components/ui";
 import type { CourseImageDetail } from "@/content/types";
+import type { CmsInteractiveImage } from "@/content/types/cms-image";
+import {
+  cmsImageAlt,
+  cmsImageCursorClass,
+  cmsImageUrl,
+  handleCmsImageClick,
+  normalizeCmsImage,
+} from "@/content/types/cms-image";
 import { ChevronLeft, ChevronRight, Play } from "@/icons";
-import { YOUTUBE_METADATA_REGISTRY } from "@/lib/youtube";
+import { parseYouTubeId, YOUTUBE_METADATA_REGISTRY } from "@/lib/youtube";
 
 // ─── Props ───────────────────────────────────────────────────────────────────
 
 interface CourseHeroProps {
   title: string;
   subtitle?: string;
-  image: string;
+  image: string | CmsInteractiveImage;
   variant?: "course" | "page";
   eyebrow?: string;
   duration?: string;
@@ -21,50 +29,22 @@ interface CourseHeroProps {
   certification?: string;
   fee?: string;
   certBadge?: string;
-  heroImages?: string[];
-  images?: string[];
+  /** Filmstrip + main gallery — hero module images only */
+  heroImages?: Array<string | CmsInteractiveImage>;
   imageDetails?: CourseImageDetail[];
+  /** YouTube URLs (or legacy bare video IDs) */
   videos?: string[];
   metaItems?: { label: string; value: string }[];
   ctaPrimary?: string;
   ctaSecondary?: string;
   ctaPrimaryHref?: string;
   ctaSecondaryHref?: string;
-  /** When true, do not pad the gallery with stock Unsplash photos */
-  disableSupplemental?: boolean;
 }
 
-interface MediaItem {
-  type: "image" | "video";
-  url: string;
-  tag?: string;
-  pictured?: string;
-}
-
-type HeroPhoto = {
-  url: string;
+type HeroPhoto = CmsInteractiveImage & {
   tag?: string;
   pictured?: string;
 };
-
-// ─── Supplemental photos (Yoga / Rishikesh — shown when course has few images) ─
-
-const SUPPLEMENTAL = [
-  "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=1200&auto=format&fit=crop&q=85",
-  "https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=1200&auto=format&fit=crop&q=85",
-  "https://images.unsplash.com/photo-1599447421416-3414500d18a5?w=1200&auto=format&fit=crop&q=85",
-  "https://images.unsplash.com/photo-1593811160657-8443f7660669?w=1200&auto=format&fit=crop&q=85",
-  "https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?w=1200&auto=format&fit=crop&q=85",
-  "https://images.unsplash.com/photo-1508672019048-805c876b67e2?w=1200&auto=format&fit=crop&q=85",
-  "https://images.unsplash.com/photo-1528319725582-ddc096101511?w=1200&auto=format&fit=crop&q=85",
-  "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=1200&auto=format&fit=crop&q=85",
-  "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=1200&auto=format&fit=crop&q=85",
-  "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=1200&auto=format&fit=crop&q=85",
-  "https://images.unsplash.com/photo-1501555088652-021faa106b9b?w=1200&auto=format&fit=crop&q=85",
-  "https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=1200&auto=format&fit=crop&q=85",
-];
-
-const MIN_PHOTOS = 12;
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -82,12 +62,43 @@ function ytTitle(id: string, fallbackIdx: number) {
 }
 
 function buildImageMetaMap(imageDetails?: CourseImageDetail[]) {
-  const map = new Map<string, { tag?: string; pictured?: string }>();
+  const map = new Map<
+    string,
+    {
+      tag?: string;
+      pictured?: string;
+      alt?: string;
+      clickAction?: CourseImageDetail["clickAction"];
+      redirectUrl?: string;
+    }
+  >();
   for (const detail of imageDetails ?? []) {
     if (!detail.url) continue;
-    map.set(detail.url, { tag: detail.tag, pictured: detail.pictured });
+    map.set(detail.url, {
+      tag: detail.tag,
+      pictured: detail.pictured,
+      alt: detail.alt,
+      clickAction: detail.clickAction,
+      redirectUrl: detail.redirectUrl,
+    });
   }
   return map;
+}
+
+function toHeroPhoto(
+  input: string | CmsInteractiveImage,
+  metaByUrl: ReturnType<typeof buildImageMetaMap>,
+): HeroPhoto {
+  const base = normalizeCmsImage(input);
+  const meta = metaByUrl.get(base.url);
+  return {
+    ...base,
+    alt: base.alt || meta?.alt || meta?.pictured || "",
+    clickAction: base.clickAction ?? meta?.clickAction ?? "fullscreen",
+    redirectUrl: base.redirectUrl || meta?.redirectUrl || "",
+    tag: meta?.tag,
+    pictured: meta?.pictured,
+  };
 }
 
 function MaximizeIcon() {
@@ -119,13 +130,11 @@ export default function CourseHero({
   title,
   image,
   heroImages,
-  images,
   imageDetails,
   videos,
   fee,
   duration,
   certification,
-  disableSupplemental = false,
 }: CourseHeroProps) {
   const prefersReduced = useReducedMotion() ?? false;
   const stripRef = useRef<HTMLDivElement>(null);
@@ -134,52 +143,37 @@ export default function CourseHero({
     [imageDetails],
   );
 
-  // ── Build photo list ──────────────────────────────────────────────────────
+  // Filmstrip + main stage: hero module images only (CMS / DB). No supplemental stock.
   const photos = useMemo<HeroPhoto[]>(() => {
     const seen = new Set<string>();
     const all: HeroPhoto[] = [];
-    for (const src of [...(heroImages ?? []), ...(images ?? [])]) {
-      if (src && !seen.has(src)) {
-        seen.add(src);
-        const meta = imageMetaByUrl.get(src);
-        all.push({
-          url: src,
-          tag: meta?.tag,
-          pictured: meta?.pictured,
-        });
+    for (const src of heroImages ?? []) {
+      const url = cmsImageUrl(src);
+      if (url && !seen.has(url)) {
+        seen.add(url);
+        all.push(toHeroPhoto(src, imageMetaByUrl));
       }
     }
     if (all.length === 0 && image) {
-      const meta = imageMetaByUrl.get(image);
-      all.push({
-        url: image,
-        tag: meta?.tag,
-        pictured: meta?.pictured,
-      });
-      seen.add(image);
-    }
-    if (!disableSupplemental) {
-      for (const src of SUPPLEMENTAL) {
-        if (all.length >= MIN_PHOTOS) break;
-        if (!seen.has(src)) {
-          seen.add(src);
-          const meta = imageMetaByUrl.get(src);
-          all.push({
-            url: src,
-            tag: meta?.tag,
-            pictured: meta?.pictured,
-          });
-        }
+      const url = cmsImageUrl(image);
+      if (url) {
+        all.push(toHeroPhoto(image, imageMetaByUrl));
       }
     }
     return all;
-  }, [heroImages, images, image, imageMetaByUrl, disableSupplemental]);
+  }, [heroImages, image, imageMetaByUrl]);
 
-  // ── Build video list ──────────────────────────────────────────────────────
-  const videoIds = useMemo(() => (videos ?? []).filter(Boolean), [videos]);
+  // ── Build video list (URLs or legacy bare IDs → embed IDs) ─────────────────
+  const videoIds = useMemo(
+    () =>
+      (videos ?? [])
+        .map((entry) => parseYouTubeId(entry.trim()))
+        .filter((id): id is string => Boolean(id)),
+    [videos],
+  );
 
   // ── All items for lightbox ────────────────────────────────────────────────
-  const allItems = useMemo<MediaItem[]>(
+  const allItems = useMemo(
     () => [
       ...photos.map((photo) => ({
         type: "image" as const,
@@ -278,6 +272,12 @@ export default function CourseHero({
     setLightboxOpen(true);
   };
 
+  const onPhotoActivate = (idx: number) => {
+    const photo = photos[idx];
+    if (!photo) return;
+    handleCmsImageClick(photo, () => openLightbox(idx));
+  };
+
   // ── Bento cell definitions ────────────────────────────────────────────────
   // 4-col, 2-row grid: large featured (2×2) + 4 smaller cells
   const smallCells: {
@@ -293,8 +293,11 @@ export default function CourseHero({
 
   const hasMeta = !!(duration || certification || fee);
   const activePhoto = photos[photoIdx] ?? photos[0];
-  const activeTag = activePhoto?.tag;
   const activePictured = activePhoto?.pictured;
+  const activeAlt = activePhoto
+    ? cmsImageAlt(activePhoto, activePictured ?? title)
+    : title;
+  const activeClickAction = activePhoto?.clickAction ?? "fullscreen";
 
   return (
     <section className="course-hero-section relative flex h-svh min-h-svh w-full shrink-0 flex-col overflow-hidden bg-white">
@@ -331,7 +334,6 @@ export default function CourseHero({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.55, delay: 0.08, ease: [0.25, 0, 0, 1] }}
-          // biome-ignore lint/a11y/noStaticElementInteractions: hover pause for autoplay
           onMouseEnter={() => setHovered(true)}
           onMouseLeave={() => setHovered(false)}
           className="grid min-h-0 flex-1 grid-cols-1 grid-rows-1 gap-2 overflow-hidden rounded-2xl sm:rounded-3xl md:grid-cols-4 md:grid-rows-2 md:gap-2.5"
@@ -363,7 +365,7 @@ export default function CourseHero({
                 >
                   <Image
                     src={activePhoto.url}
-                    alt={activePictured ?? activeTag ?? title}
+                    alt={activeAlt}
                     fill
                     priority
                     sizes="(max-width:768px)100vw,50vw"
@@ -373,13 +375,6 @@ export default function CourseHero({
               ) : null}
             </AnimatePresence>
 
-            {/* Image tag — category badge when present */}
-            {activeTag && !activeVideoId && (
-              <span className="pointer-events-none absolute top-3 left-3 z-20 rounded-full bg-primary px-2.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-white sm:px-3 sm:text-[10px]">
-                {activeTag}
-              </span>
-            )}
-
             {/* Course meta — frosted overlay on main photo */}
             {hasMeta && !activeVideoId && (
               <div
@@ -387,7 +382,7 @@ export default function CourseHero({
                   activePictured
                     ? "bottom-[5.75rem] sm:bottom-auto sm:top-3"
                     : "bottom-14 sm:bottom-auto sm:top-3"
-                } ${activeTag ? "sm:top-12" : ""}`}
+                }`}
               >
                 {duration && (
                   <div className="min-w-0">
@@ -425,7 +420,7 @@ export default function CourseHero({
                       <p className="text-[8px] font-semibold uppercase tracking-widest text-white/65 sm:text-[9px]">
                         Fee
                       </p>
-                      <p className="truncate text-[11px] font-semibold text-accent sm:text-xs">
+                      <p className="truncate text-[11px] font-semibold text-white sm:text-xs">
                         {fee}
                       </p>
                     </div>
@@ -438,7 +433,7 @@ export default function CourseHero({
             {activePictured && !activeVideoId && (
               <div
                 id="imageDetails"
-                className="pointer-events-none absolute right-2 bottom-12 left-2 z-20 sm:bottom-14 sm:left-3 sm:max-w-md"
+                className="pointer-events-none absolute right-2 bottom-12 left-2 z-20 sm:bottom-14 sm:left-3 sm:max-w-md flex"
               >
                 <p className="rounded-2xl bg-ink/55 px-3 py-2 text-[11px] leading-snug text-white backdrop-blur-md ring-1 ring-white/10 sm:px-3.5 sm:py-2.5 sm:text-xs">
                   <span className="type-eyebrow block text-[8px] text-white/65 sm:text-[9px]">
@@ -468,13 +463,19 @@ export default function CourseHero({
             {/* Nav controls (shown while browsing photos) */}
             {!activeVideoId && (
               <>
-                {/* Full-cover click → lightbox */}
-                <button
-                  type="button"
-                  onClick={() => openLightbox(photoIdx)}
-                  className="absolute inset-0 z-10 cursor-zoom-in"
-                  aria-label={`View photo ${photoIdx + 1} fullscreen`}
-                />
+                {/* Full-cover click → lightbox / redirect / none */}
+                {activeClickAction !== "none" ? (
+                  <button
+                    type="button"
+                    onClick={() => onPhotoActivate(photoIdx)}
+                    className={`absolute inset-0 z-10 ${cmsImageCursorClass(activeClickAction)}`}
+                    aria-label={
+                      activeClickAction === "redirect"
+                        ? `Open link for ${activeAlt}`
+                        : `View photo ${photoIdx + 1} fullscreen`
+                    }
+                  />
+                ) : null}
 
                 {/* Bottom control bar — always visible */}
                 <div className="absolute inset-x-0 bottom-0 z-20 flex items-center justify-between bg-linear-to-t from-ink/35 to-transparent px-2.5 pb-2.5 pt-8 sm:px-3 sm:pb-3 sm:pt-10">
@@ -507,15 +508,17 @@ export default function CourseHero({
                   </span>
                 </div>
 
-                {/* Expand to lightbox */}
-                <button
-                  type="button"
-                  onClick={() => openLightbox(photoIdx)}
-                  className="absolute top-2.5 right-2.5 z-20 cursor-pointer rounded-full bg-white/80 p-2 text-ink/50 backdrop-blur-sm transition-colors hover:text-ink sm:top-3 sm:right-3 sm:p-1.5"
-                  aria-label="Open fullscreen"
-                >
-                  <MaximizeIcon />
-                </button>
+                {/* Expand to lightbox — only when fullscreen is allowed */}
+                {activeClickAction === "fullscreen" ? (
+                  <button
+                    type="button"
+                    onClick={() => onPhotoActivate(photoIdx)}
+                    className="absolute top-2.5 right-2.5 z-20 cursor-pointer rounded-full bg-white/80 p-2 text-ink/50 backdrop-blur-sm transition-colors hover:text-ink sm:top-3 sm:right-3 sm:p-1.5"
+                    aria-label="Open fullscreen"
+                  >
+                    <MaximizeIcon />
+                  </button>
+                ) : null}
               </>
             )}
           </div>
@@ -577,22 +580,37 @@ export default function CourseHero({
                 </button>
               ) : cell.type === "photo" ? (
                 /* Photo cell */
-                <button
-                  type="button"
-                  onClick={() =>
-                    openLightbox((photoIdx + cell.offset) % photos.length)
-                  }
-                  className="group relative h-full w-full cursor-zoom-in overflow-hidden rounded-2xl"
-                  aria-label="View photo"
-                >
-                  <Image
-                    src={photos[(photoIdx + cell.offset) % photos.length].url}
-                    alt={title}
-                    fill
-                    sizes="18vw"
-                    className="object-cover object-center transition-transform duration-500 group-hover:scale-[1.03]"
-                  />
-                </button>
+                (() => {
+                  const cellIdx = (photoIdx + cell.offset) % photos.length;
+                  const cellPhoto = photos[cellIdx];
+                  const cellAction = cellPhoto?.clickAction ?? "fullscreen";
+                  const cellAlt = cellPhoto
+                    ? cmsImageAlt(cellPhoto, title)
+                    : title;
+                  return (
+                    <button
+                      type="button"
+                      onClick={() => onPhotoActivate(cellIdx)}
+                      disabled={cellAction === "none"}
+                      className={`group relative h-full w-full overflow-hidden rounded-2xl ${cmsImageCursorClass(cellAction)} disabled:cursor-default`}
+                      aria-label={
+                        cellAction === "none"
+                          ? cellAlt
+                          : cellAction === "redirect"
+                            ? `Open link for ${cellAlt}`
+                            : `View ${cellAlt} fullscreen`
+                      }
+                    >
+                      <Image
+                        src={cellPhoto.url}
+                        alt={cellAlt}
+                        fill
+                        sizes="18vw"
+                        className="object-cover object-center transition-transform duration-500 group-hover:scale-[1.03]"
+                      />
+                    </button>
+                  );
+                })()
               ) : (
                 /* Fallback: extra photo when no video available */
                 <div className="relative h-full w-full overflow-hidden rounded-2xl bg-sand/60">
@@ -655,7 +673,6 @@ export default function CourseHero({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.15 }}
-            // biome-ignore lint/a11y/noStaticElementInteractions: hover pause for autoplay
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
             className="shrink-0 overflow-hidden rounded-xl bg-white/50 px-2 pt-2 backdrop-blur-sm sm:rounded-2xl"

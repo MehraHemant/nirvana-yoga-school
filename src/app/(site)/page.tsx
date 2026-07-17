@@ -1,150 +1,233 @@
-import {
-  CoursesSection,
-  FinalCTASection,
-  GallerySection,
-  HeroSection,
-  JsonLd,
-  MapSection,
-  TeachersSection,
-  TestimonialsSection,
-  VideoSection,
-  WelcomeSection,
-  WhyRishikeshSection,
-  YogaAllianceSection,
-} from "@/components";
-import { FAQSection } from "@/components/ui";
-import { fetchApi } from "@/lib/api/client";
-import { HOME_FAQS } from "@/data/homeFaqs";
+import dynamic from "next/dynamic";
+import type { Metadata } from "next";
+import { Suspense } from "react";
+import { HeroSection, JsonLd, WelcomeSection } from "@/components";
+import { DEFAULT_HOME_PAGE_CONTENT } from "@/content/data/dedicated-page-defaults";
+import { getHomePageContent } from "@/content/repositories/dedicated-pages";
+import { getSiteMap } from "@/content/repositories/shared-sections";
+import { getTeachersPage } from "@/content/repositories/teachers";
+import { shouldRenderHomeSection } from "@/lib/cms/home-section-visibility";
+import { shouldRenderSection } from "@/lib/cms/section-visibility";
+import { resolveSectionHtmlId } from "@/lib/html-id";
+import { metadataFromPageSeo } from "./_shared/metadata";
 
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "Organization",
-      "@id": "https://www.nirvanayogaschoolindia.com/#org",
-      name: "Nirvana Yoga School",
-      url: "https://www.nirvanayogaschoolindia.com",
-      logo: "https://www.nirvanayogaschoolindia.com/logo.png",
-      sameAs: [
-        "https://www.instagram.com/nirvanayogaschool",
-        "https://www.facebook.com/nirvanayogaschool",
-        "https://www.youtube.com/@nirvanayogaschool",
-      ],
-    },
-    {
-      "@type": "LocalBusiness",
-      "@id": "https://www.nirvanayogaschoolindia.com/#school",
-      name: "Nirvana Yoga School",
-      image: "https://www.nirvanayogaschoolindia.com/logo.png",
-      priceRange: "$649 - $1449",
-      address: {
-        "@type": "PostalAddress",
-        streetAddress: "Tapovan",
-        addressLocality: "Rishikesh",
-        addressRegion: "Uttarakhand",
-        postalCode: "249192",
-        addressCountry: "IN",
-      },
-      aggregateRating: {
-        "@type": "AggregateRating",
-        ratingValue: "5.0",
-        reviewCount: "500",
-        bestRating: "5",
-      },
-    },
-    {
-      "@type": "FAQPage",
-      mainEntity: [
-        {
-          "@type": "Question",
-          name: "How much does yoga teacher training cost in India?",
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: "Yoga teacher training in India typically costs $700 to $1,800. At Nirvana, our 200-hour course starts at $649 all-inclusive — covering accommodation, meals, manual, excursions and Yoga Alliance certification.",
-          },
-        },
-        {
-          "@type": "Question",
-          name: "Which certification is best for yoga teachers?",
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: "Yoga Alliance USA is the most widely recognised certification. We offer RYT 200, RYT 300 and RYT 500-hour programs meeting international standards.",
-          },
-        },
-        {
-          "@type": "Question",
-          name: "Do I need prior yoga experience to join?",
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: "No advanced experience is required for our 200-hour foundational course. An open heart and basic yoga familiarity are enough — we guide you from the ground up.",
-          },
-        },
-      ],
-    },
-  ],
-};
+/** Align Full Route Cache with content `unstable_cache` TTL */
+export const revalidate = 3600;
 
-async function getHomeData() {
-  const [header, footer, siteConfig] = await Promise.all([
-    fetchApi("/api/content/header"),
-    fetchApi("/api/content/footer"),
-    fetchApi("/api/content/site-config"),
-  ]);
-  return { header: header.data, footer: footer.data, siteConfig: siteConfig.data };
+/**
+ * Homepage SEO from dedicated CMS meta, falling back to root defaults.
+ */
+export async function generateMetadata(): Promise<Metadata> {
+  const homeResult = await getHomePageContent().catch(() => null);
+  return metadataFromPageSeo(homeResult?.data?.meta);
 }
 
+const VideoSection = dynamic(() => import("@/components/home/VideoSection"));
+const GallerySection = dynamic(
+  () => import("@/components/home/GallerySection"),
+);
+const WhyRishikeshSection = dynamic(
+  () => import("@/components/home/WhyRishikeshSection"),
+);
+const CoursesSection = dynamic(
+  () => import("@/components/home/CoursesSection"),
+);
+const YogaAllianceSection = dynamic(
+  () => import("@/components/home/YogaAllianceSection"),
+);
+const TeachersSection = dynamic(
+  () => import("@/components/home/TeachersSection"),
+);
+const TestimonialsSection = dynamic(
+  () => import("@/components/home/TestimonialsSection"),
+);
+const MapSection = dynamic(() => import("@/components/home/MapSection"));
+const FAQSection = dynamic(() =>
+  import("@/components/ui/FAQSection").then((m) => m.default),
+);
+const FinalCTASection = dynamic(
+  () => import("@/components/home/FinalCTASection"),
+);
+
+/** Lightweight placeholder so layout doesn’t jump while a section chunk loads. */
+function SectionSkeleton({
+  minHeight = "min-h-[40vh]",
+}: {
+  minHeight?: string;
+}) {
+  return <div className={`w-full ${minHeight}`} aria-hidden="true" />;
+}
+
+/**
+ * Builds homepage JSON-LD from CMS FAQs and optional SEO fields.
+ *
+ * @param home - Normalized homepage CMS document
+ */
+function buildHomeJsonLd(home: typeof DEFAULT_HOME_PAGE_CONTENT) {
+  const sameAs =
+    home.seo?.organization?.sameAs?.length
+      ? home.seo.organization.sameAs
+      : (DEFAULT_HOME_PAGE_CONTENT.seo?.organization?.sameAs ?? []);
+  const lb = {
+    ...DEFAULT_HOME_PAGE_CONTENT.seo?.localBusiness,
+    ...home.seo?.localBusiness,
+  };
+  const faqs = home.faqs.faqs.length
+    ? home.faqs.faqs
+    : DEFAULT_HOME_PAGE_CONTENT.faqs.faqs;
+
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://www.nirvanayogaschoolindia.com/#org",
+        name: "Nirvana Yoga School",
+        url: "https://www.nirvanayogaschoolindia.com",
+        logo: "https://www.nirvanayogaschoolindia.com/logo.png",
+        sameAs,
+      },
+      {
+        "@type": "LocalBusiness",
+        "@id": "https://www.nirvanayogaschoolindia.com/#school",
+        name: "Nirvana Yoga School",
+        image: "https://www.nirvanayogaschoolindia.com/logo.png",
+        priceRange: lb.priceRange,
+        address: {
+          "@type": "PostalAddress",
+          streetAddress: lb.streetAddress,
+          addressLocality: lb.addressLocality,
+          addressRegion: lb.addressRegion,
+          postalCode: lb.postalCode,
+          addressCountry: lb.addressCountry,
+        },
+        aggregateRating: {
+          "@type": "AggregateRating",
+          ratingValue: lb.ratingValue,
+          reviewCount: lb.reviewCount,
+          bestRating: "5",
+        },
+      },
+      {
+        "@type": "FAQPage",
+        mainEntity: faqs.map((faq) => ({
+          "@type": "Question",
+          name: faq.question,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: faq.answer,
+          },
+        })),
+      },
+    ],
+  };
+}
+
+/**
+ * Homepage — hero + welcome load immediately; below-fold sections are code-split.
+ */
 export default async function Home() {
-  await getHomeData();
+  const [homeResult, teachersResult, siteMapResult] = await Promise.all([
+    getHomePageContent().catch(() => null),
+    getTeachersPage(),
+    getSiteMap().catch(() => null),
+  ]);
+  const home = homeResult?.data ?? DEFAULT_HOME_PAGE_CONTENT;
+  const teachers = teachersResult.data?.teachers ?? [];
+  const siteMap = siteMapResult?.data ?? null;
+  const heroVideo = home.hero.video;
+  const jsonLd = buildHomeJsonLd(home);
+  const showMap =
+    shouldRenderHomeSection("map", home) &&
+    shouldRenderSection(siteMap, Boolean(siteMap?.embedUrl?.trim()));
 
   return (
     <>
-      {/* Hero LCP — poster + video start downloading before paint */}
+      {/* Hero LCP — poster only; video loads after paint */}
       <link
         rel="preload"
         as="image"
-        href="/videos/videomobile-poster.webp"
+        href={heroVideo.mobilePoster}
         media="(max-width: 767px)"
         fetchPriority="high"
       />
       <link
         rel="preload"
         as="image"
-        href="/videos/videodesktop-poster.webp"
+        href={heroVideo.desktopPoster}
         media="(min-width: 768px)"
         fetchPriority="high"
-      />
-      <link
-        rel="preload"
-        href="/videos/videomobile.mp4"
-        as="video"
-        type="video/mp4"
-        media="(max-width: 767px)"
-      />
-      <link
-        rel="preload"
-        href="/videos/videodesktop.mp4"
-        as="video"
-        type="video/mp4"
-        media="(min-width: 768px)"
       />
       <JsonLd data={jsonLd} />
-      <HeroSection />
-      <WelcomeSection />
-      <VideoSection />
-      <GallerySection />
-      <WhyRishikeshSection />
-      <CoursesSection />
-      <YogaAllianceSection />
-      <TeachersSection />
-      <TestimonialsSection />
-      <MapSection />
-      <FAQSection
-        faqs={HOME_FAQS}
-        eyebrow="Questions, answered"
-        title="Frequently asked"
-        sectionClassName="bg-white"
-      />
-      <FinalCTASection />
+      {shouldRenderHomeSection("hero", home) ? (
+        <HeroSection content={home.hero} />
+      ) : null}
+      {shouldRenderHomeSection("welcome", home) ? (
+        <WelcomeSection content={home.welcome} />
+      ) : null}
+      {shouldRenderHomeSection("video", home) ? (
+        <Suspense fallback={<SectionSkeleton minHeight="min-h-[50vh]" />}>
+          <VideoSection content={home.video} />
+        </Suspense>
+      ) : null}
+      {shouldRenderHomeSection("gallery", home) ? (
+        <GallerySection content={home.gallery} />
+      ) : null}
+      {shouldRenderHomeSection("whyRishikesh", home) ? (
+        <Suspense fallback={<SectionSkeleton minHeight="min-h-[50vh]" />}>
+          <WhyRishikeshSection content={home.whyRishikesh} />
+        </Suspense>
+      ) : null}
+      {shouldRenderHomeSection("courses", home) ? (
+        <CoursesSection content={home.courses} />
+      ) : null}
+      {shouldRenderHomeSection("yogaAlliance", home) ? (
+        <YogaAllianceSection content={home.yogaAlliance} />
+      ) : null}
+      {shouldRenderHomeSection("teachersTeaser", home) ? (
+        <TeachersSection
+          teachers={teachers}
+          eyebrow={home.teachersTeaser.eyebrow}
+          title={home.teachersTeaser.title}
+          description={home.teachersTeaser.description}
+          ctaLabel={home.teachersTeaser.ctaLabel}
+          ctaHref={home.teachersTeaser.ctaHref}
+          sectionId={home.teachersTeaser._id}
+        />
+      ) : null}
+      {shouldRenderHomeSection("testimonials", home) ? (
+        <TestimonialsSection
+          reviews={
+            home.testimonials.reviews?.length
+              ? { reviews: home.testimonials.reviews }
+              : null
+          }
+          content={{
+            _id: home.testimonials._id,
+            eyebrow: home.testimonials.eyebrow,
+            title: home.testimonials.title,
+            description: home.testimonials.description,
+          }}
+        />
+      ) : null}
+      {showMap && siteMap ? (
+        <MapSection
+          content={siteMap}
+          htmlId={resolveSectionHtmlId("location", home.map._id)}
+        />
+      ) : null}
+      {shouldRenderHomeSection("faqs", home) ? (
+        <FAQSection
+          id={resolveSectionHtmlId("faq", home.faqs._id)}
+          faqs={home.faqs.faqs}
+          eyebrow={home.faqs.eyebrow}
+          title={home.faqs.title}
+          sectionClassName="bg-white"
+        />
+      ) : null}
+      {shouldRenderHomeSection("finalCta", home) ? (
+        <FinalCTASection content={home.finalCta} />
+      ) : null}
     </>
   );
 }

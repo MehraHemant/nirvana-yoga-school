@@ -18,6 +18,8 @@ export type UpcomingDatesProps = {
   programSlug?: string;
   /** When set, Reserve buttons link to the booking flow instead of WhatsApp */
   bookingType?: "course" | "retreat";
+  /** Public section HTML id (defaults to `pricing`) */
+  htmlId?: string;
   buildWhatsAppHref?: (
     duration: string,
     roomType: string,

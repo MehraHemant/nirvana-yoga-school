@@ -1,3 +1,7 @@
+/**
+ * Seed-only reviews source.
+ * Runtime UI loads from MySQL via `/api/content/reviews`.
+ */
 export type Testimonial = {
   name: string;
   image: string;

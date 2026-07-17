@@ -1,11 +1,41 @@
 "use client";
 
 import { Container, PlatformReviewsRows, SectionHeader } from "@/components/ui";
+import { DEFAULT_HOME_PAGE_CONTENT } from "@/content/data/dedicated-page-defaults";
+import type { HomeReviewsSectionContent } from "@/content/types/dedicated-pages";
+import type { ReviewsContent } from "@/content/types/shared-sections";
+import { resolveSectionHtmlId } from "@/lib/html-id";
 
-export default function TestimonialsSection() {
+type TestimonialsSectionProps = {
+  /** Server-provided reviews (skips client fetch) */
+  reviews?: ReviewsContent | null;
+  /** Optional CMS section header copy (includes `_id` for public anchor) */
+  content?: Pick<
+    HomeReviewsSectionContent,
+    "_id" | "eyebrow" | "title" | "description"
+  >;
+};
+
+/**
+ * Homepage testimonials band with platform review rows.
+ *
+ * @param props - Optional server-provided reviews and CMS header
+ */
+export default function TestimonialsSection({
+  reviews,
+  content,
+}: TestimonialsSectionProps = {}) {
+  const eyebrow =
+    content?.eyebrow ?? DEFAULT_HOME_PAGE_CONTENT.testimonials.eyebrow;
+  const title =
+    content?.title ?? DEFAULT_HOME_PAGE_CONTENT.testimonials.title;
+  const description =
+    content?.description ??
+    DEFAULT_HOME_PAGE_CONTENT.testimonials.description;
+
   return (
     <section
-      id="reviews"
+      id={resolveSectionHtmlId("reviews", content?._id)}
       className="relative w-full overflow-hidden bg-white py-20 md:py-28"
     >
       <div
@@ -21,20 +51,13 @@ export default function TestimonialsSection() {
         <div className="mx-auto mb-16 w-full max-w-2xl text-center">
           <SectionHeader
             align="center"
-            eyebrow="Testimonials"
-            title={
-              <>
-                What Students Say About{" "}
-                <span className="font-medium text-primary">
-                  Nirvana Yoga School
-                </span>
-              </>
-            }
-            description="Read the authentic transformation stories of practitioners from all corners of the globe who completed their lineages here."
+            eyebrow={eyebrow}
+            title={title}
+            description={description}
           />
         </div>
 
-        <PlatformReviewsRows />
+        <PlatformReviewsRows content={reviews} />
       </Container>
     </section>
   );

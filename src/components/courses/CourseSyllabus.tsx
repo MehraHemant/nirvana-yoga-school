@@ -27,6 +27,8 @@ interface CourseSyllabusProps {
   /** Hide right sidebar column entirely */
   hideSidebar?: boolean;
   subtopicsLabel?: string;
+  /** Public section HTML id (defaults to `syllabus`) */
+  htmlId?: string;
 }
 
 export default function CourseSyllabus({
@@ -35,6 +37,7 @@ export default function CourseSyllabus({
   sidebar,
   hideSidebar = false,
   subtopicsLabel = "Core Study Modules:",
+  htmlId = "syllabus",
 }: CourseSyllabusProps) {
   const [openIndex, setOpenIndex] = useState<number>(0);
   const prefersReduced = useReducedMotion() ?? false;
@@ -56,7 +59,7 @@ export default function CourseSyllabus({
   const showProgressBars = !sidebar;
 
   return (
-    <section id="syllabus" className="py-20 sm:py-28 bg-white">
+    <section id={htmlId} className="py-20 sm:py-28 bg-white">
       <Container size="2xl">
         <motion.div
           initial="hidden"

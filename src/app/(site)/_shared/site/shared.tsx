@@ -8,6 +8,8 @@ import {
 } from "@/components/courses";
 import { FAQSection } from "@/components/ui";
 import type { OverviewTitleKey } from "@/content/mappers/site-page-copy";
+import { isSectionLive, shouldRenderSection } from "@/lib/cms/section-visibility";
+import { resolveSectionHtmlId } from "@/lib/html-id";
 import type { SiteClientProps } from "./types";
 
 export type { SiteClientProps };
@@ -61,16 +63,25 @@ function siteOverviewTitle(key: OverviewTitleKey, eyebrow: string) {
   }
 }
 
+/**
+ * Site page hero + sticky nav, gated by module live flags.
+ *
+ * @param props - Page, mapped copy, and modules
+ */
 export function SiteHero({
   page,
   mapped,
   modules,
 }: Pick<SiteClientProps, "page" | "mapped" | "modules">) {
   if (modules) {
+    const showHero = isSectionLive(modules.hero);
+    const showStickyNav = isSectionLive(modules.stickyNav);
     return (
       <>
-        <PageHeroRenderer modules={modules} />
-        <CourseStickyNav items={modules.stickyNav.items} />
+        {showHero ? <PageHeroRenderer modules={modules} /> : null}
+        {showStickyNav ? (
+          <CourseStickyNav items={modules.stickyNav.items} />
+        ) : null}
       </>
     );
   }
@@ -119,15 +130,22 @@ export function SiteHero({
   );
 }
 
+/**
+ * Site overview section, gated by module live flag.
+ *
+ * @param props - Page, mapped copy, and modules
+ */
 export function SiteOverview({
   page,
   mapped,
   modules,
 }: Pick<SiteClientProps, "page" | "mapped" | "modules">) {
   if (modules) {
+    if (!isSectionLive(modules.overview)) return null;
     const overview = modules.overview;
     return (
       <CourseOverview
+        htmlId={resolveSectionHtmlId("overview", overview._id)}
         overview={overview.lead}
         level="All levels welcome"
         duration={mapped.duration}
@@ -172,13 +190,22 @@ export function SiteEditorial({ mapped }: Pick<SiteClientProps, "mapped">) {
   ));
 }
 
-export function SiteFaq({ mapped }: Pick<SiteClientProps, "mapped">) {
-  if (mapped.faqs.length === 0) return null;
+/**
+ * Site FAQ accordion, gated by module live + data.
+ *
+ * @param props - Mapped FAQs and optional modules
+ */
+export function SiteFaq({
+  mapped,
+  modules,
+}: Pick<SiteClientProps, "mapped" | "modules">) {
+  const faqs = modules?.faqs.items?.length ? modules.faqs.items : mapped.faqs;
+  if (!shouldRenderSection(modules?.faqs, faqs.length > 0)) return null;
 
   return (
     <FAQSection
-      id="faq"
-      faqs={mapped.faqs}
+      id={resolveSectionHtmlId("faq", modules?.faqs._id)}
+      faqs={faqs}
       sectionClassName="bg-white"
       eyebrow="Got Questions?"
       title={

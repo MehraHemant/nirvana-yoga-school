@@ -3,33 +3,63 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import type { ReactNode } from "react";
-import { useEffect, useRef, useState } from "react";
-import { Container, SectionHeader } from "@/components/ui";
-import { ChevronLeft, ChevronRight, HeroFlourish, Play } from "@/icons";
+import { useEffect, useState } from "react";
+import VideoPlaylistPlayer from "@/components/home/VideoPlaylistPlayer";
+import { Container, MediaLightbox, SectionHeader } from "@/components/ui";
+import {
+  cmsImageAlt,
+  cmsImageCursorClass,
+  handleCmsImageClick,
+  type ImageClickAction,
+  normalizeCmsImage,
+} from "@/content/types/cms-image";
+import { HeroFlourish } from "@/icons";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 import type { YouTubeVideo } from "@/lib/youtube";
 
-interface CourseOverviewProps {
+type CourseOverviewProps = {
+  /** Lead overview paragraph */
   overview: string;
+  /** Focus / experience level */
   level: string;
+  /** Program duration */
   duration: string;
+  /** Certification line */
   certification?: string;
+  /** Fee display string */
   fee?: string;
+  /** Optional YouTube playlist (rendered below the copy, homepage-style) */
   videos?: YouTubeVideo[];
+  /** Optional image carousel when no videos are provided */
   featureImages?: string[];
+  /** Rich overview carousel images (preferred over featureImages) */
+  overviewImages?: Array<{
+    url: string;
+    alt?: string;
+    clickAction?: import("@/content/types/cms-image").ImageClickAction;
+    redirectUrl?: string;
+  }>;
+  /** Section eyebrow */
   eyebrow?: string;
+  /** Section title */
   title?: ReactNode;
+  /** Supporting paragraph under the lead */
   supportingCopy?: string;
+  /** Blockquote body */
   quoteText?: string;
+  /** Blockquote attribution */
   quoteAttribution?: string;
-}
+  /** Public section HTML id (defaults to `overview`) */
+  htmlId?: string;
+};
 
-function formatDuration(totalSeconds: number) {
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds % 60;
-  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
-}
-
+/**
+ * Course / retreat / site overview: editorial copy first, then media on its
+ * own row. Videos use the same playlist-left / player-right layout as the
+ * homepage video section.
+ *
+ * @param props - Overview copy, glance specs, and optional media
+ */
 export default function CourseOverview({
   overview,
   level,
@@ -38,6 +68,7 @@ export default function CourseOverview({
   fee = "649 USD",
   videos = [],
   featureImages = [],
+  overviewImages = [],
   eyebrow = "The Inner Path",
   title = (
     <>
@@ -48,42 +79,21 @@ export default function CourseOverview({
   supportingCopy = "Our residential yoga training program is designed to facilitate physical purification, emotional release, and intellectual understanding. By immersing yourself completely in the ashram lifecycle, you step away from modern distractions to cultivate discipline, self-inquiry, and authentic teachings handed down through generations.",
   quoteText = "Yoga is not just physical posture; it is a sacred pathway to quieting the mind, understanding the self, and returning to the lineage of ancient wisdom.",
   quoteAttribution = "Himalayan Lineage Teachings",
+  htmlId = "overview",
 }: CourseOverviewProps) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
   const resolvedSupporting = supportingCopy === "" ? undefined : supportingCopy;
   const showVideoPanel = videos.length > 0;
-  const showImagePanel = !showVideoPanel && featureImages.length > 0;
-
-  const [activeVideoId, setActiveVideoId] = useState<string | null>(
-    videos[0]?.id ?? null,
-  );
-  const [isPlaying, setIsPlaying] = useState(true);
+  const carouselImages =
+    overviewImages.length > 0
+      ? overviewImages.map(normalizeCmsImage)
+      : featureImages.map((url) => normalizeCmsImage(url));
+  const showImagePanel = !showVideoPanel && carouselImages.length > 0;
 
   useEffect(() => {
-    if (featureImages.length > 0) {
-      setActiveImageIndex(0);
-    }
-  }, [featureImages]);
-
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [showLeftFade, setShowLeftFade] = useState(false);
-  const [showRightFade, setShowRightFade] = useState(false);
-
-  // Sync active video when videos prop changes
-  useEffect(() => {
-    if (videos && videos.length > 0) {
-      setActiveVideoId(videos[0].id);
-      setIsPlaying(false);
-    } else {
-      setActiveVideoId("");
-      setIsPlaying(false);
-    }
-  }, [videos]);
-
-  const activeVideo =
-    videos.find((v) => v.id === activeVideoId) || videos[0] || null;
-
-  const activeVideoIndex = videos.findIndex((v) => v.id === activeVideoId);
+    if (carouselImages.length > 0) setActiveImageIndex(0);
+  }, [carouselImages.length]);
 
   const overviewSpecs = [
     {
@@ -113,56 +123,18 @@ export default function CourseOverview({
     },
   ] as const;
 
-  const prevVideo = () => {
-    const idx = (activeVideoIndex - 1 + videos.length) % videos.length;
-    setActiveVideoId(videos[idx].id);
-    setIsPlaying(true);
-  };
-
-  const nextVideo = () => {
-    const idx = (activeVideoIndex + 1) % videos.length;
-    setActiveVideoId(videos[idx].id);
-    setIsPlaying(true);
-  };
-
-  // Scroll listener to toggle left/right fades dynamically
-  useEffect(() => {
-    const el = scrollContainerRef.current;
-    if (!el || videos.length === 0) return;
-
-    const handleScroll = () => {
-      const scrollLeft = el.scrollLeft;
-      const maxScrollLeft = el.scrollWidth - el.clientWidth;
-      setShowLeftFade(scrollLeft > 5);
-      setShowRightFade(scrollLeft < maxScrollLeft - 5);
-    };
-
-    handleScroll(); // Initial check
-    el.addEventListener("scroll", handleScroll, { passive: true });
-    window.addEventListener("resize", handleScroll);
-
-    return () => {
-      el.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("resize", handleScroll);
-    };
-  }, [videos.length]);
-
   return (
     <section
-      id="overview"
-      className="py-16 sm:py-14 bg-white relative overflow-hidden"
+      id={htmlId}
+      className="relative overflow-hidden bg-white py-16 sm:py-14"
     >
-      {/* Background radial glows for premium depth */}
-      <div className="absolute right-[-10%] top-[10%] w-[600px] h-[600px] rounded-full bg-primary/5 blur-[120px] pointer-events-none" />
-      <div className="absolute left-[-10%] bottom-[10%] w-[500px] h-[500px] rounded-full bg-accent/8 blur-[100px] pointer-events-none" />
-
-      {/* Sacred Geometry Mandalas in Background */}
-      <HeroFlourish className="absolute right-[-8%] top-[5%] w-[450px] h-[450px] text-accent/12 pointer-events-none rotate-45" />
-      <HeroFlourish className="absolute left-[-12%] bottom-[-5%] w-[380px] h-[380px] text-primary/4 pointer-events-none" />
+      <div className="pointer-events-none absolute right-[-10%] top-[10%] h-[600px] w-[600px] rounded-full bg-primary/5 blur-[120px]" />
+      <div className="pointer-events-none absolute bottom-[10%] left-[-10%] h-[500px] w-[500px] rounded-full bg-accent/8 blur-[100px]" />
+      <HeroFlourish className="pointer-events-none absolute right-[-8%] top-[5%] h-[450px] w-[450px] rotate-45 text-accent/12" />
+      <HeroFlourish className="pointer-events-none absolute bottom-[-5%] left-[-12%] h-[380px] w-[380px] text-primary/4" />
 
       <Container size="2xl">
-        <div className="space-y-8">
-          {/* Header Row */}
+        <div className="space-y-10 lg:space-y-12">
           <motion.div
             initial="hidden"
             whileInView="visible"
@@ -178,275 +150,140 @@ export default function CourseOverview({
             />
           </motion.div>
 
-          {/* 2-Column Split: Editorial Text & Interactive Video */}
-          <div
-            className={`grid gap-12 items-start lg:items-stretch ${showVideoPanel || showImagePanel ? "lg:grid-cols-12 lg:gap-16" : ""}`}
-          >
-            {/* Left: Editorial copy */}
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={VIEWPORT_ONCE}
-              variants={fadeUp}
-              className={`flex h-full flex-col space-y-8 ${showVideoPanel || showImagePanel ? "lg:col-span-6" : "max-w-4xl"}`}
-            >
-              <div className="flex-1 space-y-6">
-                <p className="type-lead text-muted first-letter:text-6xl first-letter:font-serif first-letter:font-bold first-letter:text-primary first-letter:float-left first-letter:mr-4 first-letter:mt-1 first-letter:leading-[0.8]">
-                  {overview}
-                </p>
-                {resolvedSupporting && (
-                  <p className="type-lead text-muted leading-relaxed font-sans">
-                    {resolvedSupporting}
-                  </p>
-                )}
-              </div>
-
-              {/* Premium High-Contrast Blockquote Card */}
-              <div className="relative shrink-0 overflow-hidden rounded-3xl border border-primary/10 bg-primary/5 p-7 text-ink shadow-card sm:p-8">
-                <span
-                  className="absolute left-2 -top-10 font-serif text-[10rem] text-primary/8 select-none pointer-events-none"
-                  aria-hidden="true"
-                >
-                  “
-                </span>
-                <p className="font-serif text-lg sm:text-xl leading-relaxed tracking-wide italic relative z-10">
-                  "{quoteText}"
-                </p>
-                <span className="type-eyebrow text-primary text-right block mt-4 font-semibold tracking-wider relative z-10 uppercase">
-                  — {quoteAttribution}
-                </span>
-              </div>
-            </motion.div>
-
-            {/* Right: Cinematic Video Station */}
-            {(showVideoPanel || showImagePanel) && (
-              <motion.div
-                initial="hidden"
-                whileInView="visible"
-                viewport={VIEWPORT_ONCE}
-                variants={fadeUp}
-                className="flex h-full min-h-0 w-full flex-col lg:col-span-6"
-              >
-                {showImagePanel && (
-                  <div className="relative aspect-[4/5] min-h-[280px] w-full flex-1 overflow-hidden rounded-3xl border border-ink/5 bg-ink/10 shadow-card lg:aspect-auto lg:min-h-0">
-                    <Image
-                      src={featureImages[activeImageIndex] ?? featureImages[0]}
-                      alt=""
-                      fill
-                      unoptimized
-                      sizes="(max-width: 768px) 100vw, 50vw"
-                      className="object-cover"
-                    />
-                    {featureImages.length > 1 && (
-                      <div className="absolute inset-x-0 bottom-4 flex justify-center gap-2">
-                        {featureImages.map((url, index) => (
-                          <button
-                            key={url}
-                            type="button"
-                            onClick={() => setActiveImageIndex(index)}
-                            aria-label={`Show image ${index + 1}`}
-                            className={`h-2 rounded-full transition-all ${
-                              index === activeImageIndex
-                                ? "w-6 bg-white"
-                                : "w-2 bg-white/60"
-                            }`}
-                          />
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {showVideoPanel && activeVideo && (
-                  <div className="flex h-full min-h-0 w-full flex-col space-y-6">
-                    {/* Floating Video Player Panel */}
-                    <div className="group relative aspect-video w-full overflow-hidden rounded-3xl border border-ink/5 bg-ink/10 shadow-card transition-all duration-500 hover:shadow-soft">
-                      {isPlaying ? (
-                        <iframe
-                          src={`https://www.youtube.com/embed/${activeVideo.id}?autoplay=1&rel=0&modestbranding=1`}
-                          title={activeVideo.title}
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                          referrerPolicy="strict-origin-when-cross-origin"
-                          allowFullScreen
-                          className="absolute inset-0 h-full w-full border-0"
-                        />
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => setIsPlaying(true)}
-                          className="absolute inset-0 w-full h-full p-0 border-0 text-left cursor-pointer focus:outline-none"
-                        >
-                          <Image
-                            src={activeVideo.thumbnailUrl}
-                            alt={activeVideo.title}
-                            fill
-                            sizes="(max-width: 768px) 100vw, 50vw"
-                            className="object-cover transition-transform duration-700 group-hover:scale-102"
-                          />
-                          <div className="absolute inset-0 bg-ink/20 group-hover:bg-ink/10 transition-colors duration-300" />
-
-                          {/* pulsing play trigger */}
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <span className="relative flex h-16 w-16 items-center justify-center">
-                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary/45 opacity-75" />
-                              <span className="relative flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white shadow-lg transition-transform duration-300 group-hover:scale-110">
-                                <Play size={25} className="" />
-                              </span>
-                            </span>
-                          </div>
-
-                          <span className="hero-glass text-white text-[10px] uppercase font-bold tracking-wider px-3 py-1.5 rounded-full backdrop-blur-xs border border-white/10 absolute bottom-4 left-4 z-10">
-                            Course Insights
-                          </span>
-
-                          <span className="type-ui absolute bottom-4 right-4 rounded-md bg-ink/80 px-2.5 py-1 text-[10px] font-medium text-white backdrop-blur-xs">
-                            {formatDuration(activeVideo.durationSeconds)}
-                          </span>
-                        </button>
-                      )}
-
-                      {/* Prev / Next arrows — always visible when multiple videos */}
-                      {videos.length > 1 && (
-                        <>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              prevVideo();
-                            }}
-                            className="absolute left-3 top-1/2 z-20 -translate-y-1/2 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-white/80 text-ink/70 shadow-soft backdrop-blur-sm transition-all hover:bg-white hover:text-ink hover:scale-105"
-                            aria-label="Previous video"
-                          >
-                            <ChevronLeft size={18} />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              nextVideo();
-                            }}
-                            className="absolute right-3 top-1/2 z-20 -translate-y-1/2 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-white/80 text-ink/70 shadow-soft backdrop-blur-sm transition-all hover:bg-white hover:text-ink hover:scale-105"
-                            aria-label="Next video"
-                          >
-                            <ChevronRight size={18} />
-                          </button>
-                        </>
-                      )}
-                    </div>
-
-                    {/* Playlist Selector - Horizontal Filmstrip */}
-                    {videos.length > 1 && (
-                      <div className="space-y-3 mt-6">
-                        <div className="flex items-center justify-between border-b border-ink/5 pb-2">
-                          <span className="type-eyebrow text-[10px] text-muted uppercase tracking-wider font-semibold">
-                            Course Videos &amp; Testimonials ({videos.length})
-                          </span>
-                          <span className="type-eyebrow text-[9.5px] text-muted font-sans flex items-center gap-1.5 opacity-80">
-                            Swipe to browse →
-                          </span>
-                        </div>
-
-                        {/* Horizontal filmstrip container */}
-                        <div className="relative">
-                          {/* Side fades to mask scrollable edges dynamically */}
-                          <div
-                            className={`absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white to-transparent pointer-events-none z-10 transition-opacity duration-300 ${
-                              showLeftFade ? "opacity-100" : "opacity-0"
-                            }`}
-                          />
-                          <div
-                            className={`absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent pointer-events-none z-10 transition-opacity duration-300 ${
-                              showRightFade ? "opacity-100" : "opacity-0"
-                            }`}
-                          />
-
-                          <div
-                            ref={scrollContainerRef}
-                            className="flex flex-nowrap gap-3.5 overflow-x-auto pb-2 px-1 scrollbar-none snap-x snap-mandatory"
-                          >
-                            {videos.map((vid) => {
-                              const isActive = vid.id === activeVideo.id;
-                              return (
-                                <button
-                                  key={vid.id}
-                                  type="button"
-                                  onClick={() => {
-                                    setActiveVideoId(vid.id);
-                                    setIsPlaying(true);
-                                  }}
-                                  className="w-28 sm:w-32 shrink-0 text-left snap-start group/item cursor-pointer focus:outline-none"
-                                  aria-label={`Play video: ${vid.title}`}
-                                >
-                                  <div
-                                    className={`relative aspect-video w-full rounded-xl overflow-hidden border transition-all duration-300 ${
-                                      isActive
-                                        ? "border-primary ring-2 ring-primary/20 scale-95"
-                                        : "border-ink/10 opacity-70 hover:opacity-100 hover:scale-95 shadow-xs"
-                                    }`}
-                                  >
-                                    <Image
-                                      src={vid.thumbnailUrl}
-                                      alt=""
-                                      fill
-                                      sizes="120px"
-                                      className="object-cover"
-                                    />
-                                    <div
-                                      className={`absolute inset-0 flex items-center justify-center transition-colors duration-300 ${
-                                        isActive ? "bg-primary/20" : "bg-ink/30"
-                                      }`}
-                                    >
-                                      {isActive ? (
-                                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-white scale-90 shadow-md">
-                                          <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
-                                        </span>
-                                      ) : (
-                                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/95 text-primary scale-90 opacity-0 group-hover/item:opacity-100 transition-all duration-300 shadow-md">
-                                          <Play size={8} className="ml-0.5" />
-                                        </span>
-                                      )}
-                                    </div>
-                                    <span className="type-ui absolute bottom-1 right-1 bg-ink/75 px-1 py-0.2 rounded text-[8.5px] font-medium text-white backdrop-blur-xs">
-                                      {formatDuration(vid.durationSeconds)}
-                                    </span>
-                                  </div>
-                                  <span
-                                    className={`text-[10px] font-medium leading-tight overflow-hidden mt-1.5 transition-colors duration-300 ${
-                                      isActive
-                                        ? "text-primary font-semibold"
-                                        : "text-muted group-hover/item:text-ink"
-                                    }`}
-                                    style={{
-                                      display: "-webkit-box",
-                                      WebkitLineClamp: 2,
-                                      WebkitBoxOrient: "vertical",
-                                      overflow: "hidden",
-                                      textOverflow: "ellipsis",
-                                      height: "25px",
-                                    }}
-                                  >
-                                    {vid.title}
-                                  </span>
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </motion.div>
-            )}
-          </div>
-
-          {/* Bottom specs — course snapshot card */}
+          {/* Text first — full width editorial column */}
           <motion.div
             initial="hidden"
             whileInView="visible"
             viewport={VIEWPORT_ONCE}
             variants={fadeUp}
-            className="relative mt-12 overflow-hidden rounded-3xl border border-ink/8 bg-surface shadow-card ring-1 ring-ink/5"
+            className="grid gap-8 lg:grid-cols-12 lg:gap-12"
+          >
+            <div className="space-y-6 lg:col-span-7">
+              <p className="type-lead text-muted first-letter:float-left first-letter:mr-4 first-letter:mt-1 first-letter:font-serif first-letter:text-6xl first-letter:font-bold first-letter:leading-[0.8] first-letter:text-primary">
+                {overview}
+              </p>
+              {resolvedSupporting ? (
+                <p className="type-lead font-sans leading-relaxed text-muted">
+                  {resolvedSupporting}
+                </p>
+              ) : null}
+            </div>
+
+            <div className="relative overflow-hidden rounded-3xl border border-primary/10 bg-primary/5 p-7 text-ink shadow-card sm:p-8 lg:col-span-5 lg:self-start">
+              <span
+                className="pointer-events-none absolute -top-10 left-2 select-none font-serif text-[10rem] text-primary/8"
+                aria-hidden="true"
+              >
+                “
+              </span>
+              <p className="relative z-10 font-serif text-lg italic leading-relaxed tracking-wide sm:text-xl">
+                "{quoteText}"
+              </p>
+              <span className="type-eyebrow relative z-10 mt-4 block text-right font-semibold uppercase tracking-wider text-primary">
+                — {quoteAttribution}
+              </span>
+            </div>
+          </motion.div>
+
+          {/* Media on its own row — homepage video layout */}
+          {showVideoPanel ? (
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={VIEWPORT_ONCE}
+              variants={fadeUp}
+              className="w-full min-w-0"
+            >
+              <div className="mb-5 flex items-end justify-between gap-4 sm:mb-6">
+                <div>
+                  <p className="type-eyebrow text-primary">Course films</p>
+                  <h3 className="mt-1 font-serif text-2xl text-ink sm:text-3xl">
+                    Watch the journey
+                  </h3>
+                </div>
+              </div>
+              <VideoPlaylistPlayer videos={videos} />
+            </motion.div>
+          ) : null}
+
+          {showImagePanel ? (
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={VIEWPORT_ONCE}
+              variants={fadeUp}
+              className="relative aspect-[21/9] min-h-[220px] w-full overflow-hidden rounded-3xl border border-ink/5 bg-ink/10 shadow-card sm:min-h-[280px]"
+            >
+              {(() => {
+                const active =
+                  carouselImages[activeImageIndex] ?? carouselImages[0];
+                const action: ImageClickAction =
+                  active.clickAction ?? "fullscreen";
+                const alt = cmsImageAlt(active, "Course overview image");
+                return (
+                  <button
+                    type="button"
+                    disabled={action === "none"}
+                    onClick={() =>
+                      handleCmsImageClick(active, () => setLightboxOpen(true))
+                    }
+                    className={`absolute inset-0 h-full w-full ${cmsImageCursorClass(action)} disabled:cursor-default`}
+                    aria-label={
+                      action === "none"
+                        ? alt
+                        : action === "redirect"
+                          ? `Open link for ${alt}`
+                          : `View ${alt} fullscreen`
+                    }
+                  >
+                    <Image
+                      src={active.url}
+                      alt={alt}
+                      fill
+                      unoptimized
+                      sizes="(max-width: 768px) 100vw, 1200px"
+                      className="object-cover"
+                    />
+                  </button>
+                );
+              })()}
+              {carouselImages.length > 1 ? (
+                <div className="absolute inset-x-0 bottom-4 z-10 flex justify-center gap-2">
+                  {carouselImages.map((img, index) => (
+                    <button
+                      key={`${img.url}-${index}`}
+                      type="button"
+                      onClick={() => setActiveImageIndex(index)}
+                      aria-label={`Show image ${index + 1}`}
+                      className={`h-2 rounded-full transition-all ${
+                        index === activeImageIndex
+                          ? "w-6 bg-white"
+                          : "w-2 bg-white/60"
+                      }`}
+                    />
+                  ))}
+                </div>
+              ) : null}
+              <MediaLightbox
+                isOpen={lightboxOpen}
+                onClose={() => setLightboxOpen(false)}
+                items={carouselImages.map((img) => ({
+                  type: "image" as const,
+                  url: img.url,
+                }))}
+                activeIndex={activeImageIndex}
+                onChangeActiveIndex={setActiveImageIndex}
+                title="Overview gallery"
+              />
+            </motion.div>
+          ) : null}
+
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={VIEWPORT_ONCE}
+            variants={fadeUp}
+            className="relative mt-2 overflow-hidden rounded-3xl border border-ink/8 bg-surface shadow-card ring-1 ring-ink/5"
           >
             <HeroFlourish
               className="pointer-events-none absolute -right-10 -top-10 h-44 w-44 text-primary/6"

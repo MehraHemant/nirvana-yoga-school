@@ -57,4 +57,4 @@ export const PRIMARY_NAV: NavItem[] = [
 ];
 
 export const SIGN_IN_URL =
-  "https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?auto=format&fit=crop&w=1600&q=85";
+  "https://www.nirvanayogaschoolindia.com/student-login";

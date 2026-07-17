@@ -3,8 +3,13 @@
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { REVIEWS, type Testimonial } from "@/data/reviews";
+import type {
+  ReviewsContent,
+  SharedReview,
+} from "@/content/types/shared-sections";
 import { ChevronLeft, ChevronRight, Google, Star, Tripadvisor } from "@/icons";
+
+type Testimonial = SharedReview;
 
 const getStarColorClass = (source: string) => {
   if (source === "Google") return "text-[#facc15] fill-[#facc15]";
@@ -140,42 +145,45 @@ function TestimonialSlider({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="relative min-h-[380px] w-full overflow-hidden md:min-h-[240px]">
-        <AnimatePresence initial={false} custom={direction} mode="wait">
-          <motion.div
-            key={page}
-            custom={direction}
-            variants={slideVariants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            className="h-full w-full"
-          >
-            <TestimonialCard review={activeReview} />
-          </motion.div>
-        </AnimatePresence>
-      </div>
-
-      {reviews.length > 1 && (
-        <>
+      <div className="flex w-full items-center gap-2 sm:gap-3">
+        {reviews.length > 1 ? (
           <button
             type="button"
             onClick={() => paginate(-1)}
-            className="absolute left-2 top-1/2 z-20 flex -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-ink/5 bg-white p-2.5 text-ink/75 shadow-soft transition-all hover:bg-primary hover:text-white md:left-3"
+            className="z-20 flex shrink-0 cursor-pointer items-center justify-center rounded-full border border-ink/5 bg-white p-2.5 text-ink/75 shadow-soft transition-all hover:bg-primary hover:text-white"
             aria-label="Previous review"
           >
             <ChevronLeft size={16} />
           </button>
+        ) : null}
+
+        <div className="relative min-h-[380px] min-w-0 flex-1 overflow-hidden md:min-h-[240px]">
+          <AnimatePresence initial={false} custom={direction} mode="wait">
+            <motion.div
+              key={page}
+              custom={direction}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              className="h-full w-full"
+            >
+              <TestimonialCard review={activeReview} />
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        {reviews.length > 1 ? (
           <button
             type="button"
             onClick={() => paginate(1)}
-            className="absolute right-2 top-1/2 z-20 flex -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-ink/5 bg-white p-2.5 text-ink/75 shadow-soft transition-all hover:bg-primary hover:text-white md:right-3"
+            className="z-20 flex shrink-0 cursor-pointer items-center justify-center rounded-full border border-ink/5 bg-white p-2.5 text-ink/75 shadow-soft transition-all hover:bg-primary hover:text-white"
             aria-label="Next review"
           >
             <ChevronRight size={16} />
           </button>
-        </>
-      )}
+        ) : null}
+      </div>
     </section>
   );
 }
@@ -233,10 +241,11 @@ function RatingCard({
             <Star
               key={`rating-star-${num}`}
               size={16}
-              className={`${num < Math.floor(ratingValue)
-                ? getStarColorClass(platform)
-                : "fill-transparent text-ink/10"
-                } shrink-0`}
+              className={`${
+                num < Math.floor(ratingValue)
+                  ? getStarColorClass(platform)
+                  : "fill-transparent text-ink/10"
+              } shrink-0`}
             />
           ))}
         </div>
@@ -266,15 +275,27 @@ function RatingCard({
   return content;
 }
 
-/** Google, TripAdvisor, and Trustpilot review rows — shared by home and course pages. */
+type PlatformReviewsRowsProps = {
+  className?: string;
+  /** Server-provided reviews content */
+  content?: ReviewsContent | null;
+};
+
+/**
+ * Google, TripAdvisor, and Trustpilot review rows — shared by home and course pages.
+ *
+ * @param props - Optional className and server-provided reviews content
+ */
 export default function PlatformReviewsRows({
   className = "",
-}: {
-  className?: string;
-}) {
-  const googleReviews = REVIEWS.filter((r) => r.source === "Google");
-  const tripadvisorReviews = REVIEWS.filter((r) => r.source === "Tripadvisor");
-  const trustpilotReviews = REVIEWS.filter((r) => r.source === "Trustpilot");
+  content = null,
+}: PlatformReviewsRowsProps) {
+  if (!content) return null;
+
+  const reviews = content.reviews ?? [];
+  const googleReviews = reviews.filter((r) => r.source === "Google");
+  const tripadvisorReviews = reviews.filter((r) => r.source === "Tripadvisor");
+  const trustpilotReviews = reviews.filter((r) => r.source === "Trustpilot");
 
   return (
     <div className={`w-full space-y-8 md:space-y-10 ${className}`}>
@@ -288,7 +309,7 @@ export default function PlatformReviewsRows({
             link="https://g.co/kgs/cftBiC3"
           />
         </div>
-        <div className="relative overflow-hidden lg:col-span-3">
+        <div className="relative lg:col-span-3">
           <TestimonialSlider reviews={googleReviews} autoplayInterval={3200} />
         </div>
       </div>
@@ -303,7 +324,7 @@ export default function PlatformReviewsRows({
             link="https://www.tripadvisor.com/Attraction_Review-g580106-d27745947-Reviews-Nirvana_Yoga_School-Rishikesh_Dehradun_District_Uttarakhand.html"
           />
         </div>
-        <div className="relative overflow-hidden lg:col-span-3">
+        <div className="relative lg:col-span-3">
           <TestimonialSlider
             reviews={tripadvisorReviews}
             autoplayInterval={4200}
@@ -321,7 +342,7 @@ export default function PlatformReviewsRows({
             link="https://www.trustpilot.com/review/nirvanayogaschoolindia.com"
           />
         </div>
-        <div className="relative overflow-hidden lg:col-span-3">
+        <div className="relative lg:col-span-3">
           <TestimonialSlider
             reviews={trustpilotReviews}
             autoplayInterval={3500}

@@ -29,6 +29,8 @@ type CourseEligibilityProps = {
   description?: string;
   /** Hide Yoga Alliance seal badge in sidebar */
   showAllianceBadge?: boolean;
+  /** Public section HTML id (defaults to `eligibility`) */
+  htmlId?: string;
 };
 
 const DEFAULT_REQUIREMENTS: Requirement[] = [
@@ -116,6 +118,7 @@ export default function CourseEligibility({
   ),
   description = "We look beyond athletic metrics to ensure students are prepared physically, mentally, and emotionally for intensive ashram living.",
   showAllianceBadge = true,
+  htmlId = "eligibility",
 }: CourseEligibilityProps) {
   const resolvedRequirements = requirements.map((req, index) => ({
     ...req,
@@ -124,7 +127,7 @@ export default function CourseEligibility({
 
   return (
     <section
-      id="eligibility"
+      id={htmlId}
       className="py-20 sm:py-28 bg-white overflow-hidden"
     >
       <Container size="2xl">

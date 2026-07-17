@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { Container, SectionHeader } from "@/components/ui";
-import { BLOG_POSTS } from "@/data/blogPosts";
+import { getBlogPosts } from "@/content/repositories/blog-post";
 import { ArrowRight } from "@/icons";
 
 export const metadata: Metadata = {
@@ -12,10 +12,12 @@ export const metadata: Metadata = {
 };
 
 /**
- * BlogPage renders the yoga and wellness article collection index layout,
- * presenting category-labeled guides and posts with reading links.
+ * Blog index — posts load from MySQL via `getBlogPosts()`.
  */
-export default function BlogPage() {
+export default async function BlogPage() {
+  const result = await getBlogPosts();
+  const posts = result.data ?? [];
+
   return (
     <>
       <section className="relative overflow-hidden bg-sand text-ink pt-[var(--site-header-height)]">
@@ -52,7 +54,7 @@ export default function BlogPage() {
           />
 
           <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {BLOG_POSTS.map((post) => (
+            {posts.map((post) => (
               <Link
                 key={post.slug}
                 href={`/blog/${post.slug}`}

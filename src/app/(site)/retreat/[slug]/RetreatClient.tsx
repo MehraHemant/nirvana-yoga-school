@@ -15,7 +15,9 @@ import {
   RetreatScheduleSection,
 } from "@/components/retreat";
 import { COURSE_FAQ_CATEGORIES, FAQSection } from "@/components/ui";
+import { resolveSectionHtmlId } from "@/lib/html-id";
 import { retreatWhatsAppHref } from "@/content/mappers/retreat-page";
+import { isSectionLive, shouldRenderSection } from "@/lib/cms/section-visibility";
 import type { RetreatPageData } from "./types";
 
 const RETREAT_OVERVIEW_DETAILS: Record<
@@ -79,63 +81,90 @@ export default function RetreatClient({
   retreat,
   mapped,
   modules,
+  lodging,
 }: RetreatPageData) {
   const details =
     RETREAT_OVERVIEW_DETAILS[retreat.slug] ??
     RETREAT_OVERVIEW_DETAILS["5-day-yoga-retreat-in-rishikesh-india"];
 
+  const showHero = isSectionLive(modules?.hero);
+  const showStickyNav = isSectionLive(modules?.stickyNav);
+  const showOverview = isSectionLive(modules?.overview);
+  const showInclusions = shouldRenderSection(
+    modules?.inclusions,
+    (modules?.inclusions.items ?? retreat.inclusions).length > 0,
+  );
+  const showPricing = shouldRenderSection(
+    modules?.pricing,
+    mapped.pricing.length > 0,
+  );
+  const showFaqs = shouldRenderSection(
+    modules?.faqs,
+    (modules?.faqs.items ?? retreat.faqs ?? []).length > 0,
+  );
+  const showAccommodation =
+    (modules?.flags.showAccommodation ?? true) &&
+    shouldRenderSection(
+      lodging,
+      lodging.roomGalleries.length > 0 ||
+        lodging.foodGallery.length > 0 ||
+        lodging.mealHighlights.length > 0,
+    );
+
   return (
     <div className="retreat-product-theme bg-white">
-      {modules ? (
-        <PageHeroRenderer modules={modules} />
-      ) : (
-        <PageHeroRenderer
-          modules={{
-            hero: {
-              type: "bento-media",
-              title: retreat.title,
-              subtitle: retreat.description,
-              duration: retreat.duration,
-              certification: "Yoga & Meditation",
-              fee: mapped.fee,
-              heroImages: mapped.heroImages,
-              images: mapped.heroImages,
-              disableSupplemental: true,
-            },
-            stickyNav: { items: [] },
-            overview: {
-              eyebrow: "",
-              title: "",
-              lead: "",
-              glance: [],
-              media: { mode: "image", items: [] },
-            },
-            inclusions: { items: [] },
-            eligibility: { requirements: [] },
-            syllabus: { description: "", chapters: [] },
-            schedule: { description: "", items: [] },
-            pricing: { description: "", options: [] },
-            faqs: { items: [] },
-            flags: {
-              showExam: false,
-              showAccommodation: true,
-              showWhyNirvana: true,
-              showTravel: true,
-              showInstagram: true,
-              showMap: true,
-            },
-          }}
-        />
-      )}
+      {showHero ? (
+        modules ? (
+          <PageHeroRenderer modules={modules} />
+        ) : (
+          <PageHeroRenderer
+            modules={{
+              hero: {
+                type: "bento-media",
+                title: retreat.title,
+                subtitle: retreat.description,
+                duration: retreat.duration,
+                certification: "Yoga & Meditation",
+                fee: mapped.fee,
+                heroImages: mapped.heroImages,
+              },
+              stickyNav: { items: [] },
+              overview: {
+                eyebrow: "",
+                title: "",
+                lead: "",
+                glance: [],
+                media: { mode: "image", items: [] },
+              },
+              inclusions: { items: [] },
+              eligibility: { requirements: [] },
+              syllabus: { description: "", chapters: [] },
+              schedule: { description: "", items: [] },
+              pricing: { description: "", options: [] },
+              faqs: { items: [] },
+              flags: {
+                showExam: false,
+                showAccommodation: true,
+                showWhyNirvana: true,
+                showTravel: true,
+                showInstagram: true,
+                showMap: true,
+              },
+            }}
+          />
+        )
+      ) : null}
 
       {/* Highlights Bar */}
       <RetreatHighlightsBar highlights={retreat.highlights} />
 
       {/* Sticky Navigation */}
-      <CourseStickyNav
-        items={modules?.stickyNav.items ?? mapped.navItems}
-        variant="retreat"
-      />
+      {showStickyNav ? (
+        <CourseStickyNav
+          items={modules?.stickyNav.items ?? mapped.navItems}
+          variant="retreat"
+        />
+      ) : null}
 
       {/* Floating Booking Button (triggers after scroll) */}
       <CourseBookingFab
@@ -146,66 +175,83 @@ export default function RetreatClient({
 
       {/* Spacious Full-Width Editorial Sections */}
       <article className="min-h-screen max-w-full bg-white">
-        {/* Section 1: Dynamic Bento Overview */}
-        <CourseOverview
-          overview={modules?.overview.lead ?? retreat.overview}
-          level={details.level}
-          duration={retreat.duration}
-          certification={details.certification}
-          fee={mapped.fee}
-          featureImages={
-            modules?.overview.media.items
-              .filter((item) => item.type === "image")
-              .map((item) => item.url) ?? retreat.overviewImages
-          }
-          eyebrow={modules?.overview.eyebrow ?? "The Retreat Experience"}
-          title={modules?.overview.title ?? details.title}
-          supportingCopy={
-            modules?.overview.supportingCopy ?? details.supportingCopy
-          }
-          quoteText={modules?.overview.quote?.text ?? details.quoteText}
-          quoteAttribution={
-            modules?.overview.quote?.attribution ?? details.quoteAttribution
-          }
-        />
+        {showOverview ? (
+          <CourseOverview
+            htmlId={resolveSectionHtmlId("overview", modules?.overview._id)}
+            overview={modules?.overview.lead ?? retreat.overview}
+            level={details.level}
+            duration={retreat.duration}
+            certification={details.certification}
+            fee={mapped.fee}
+            featureImages={
+              modules?.overview.media.items
+                .filter((item) => item.type === "image")
+                .map((item) => item.url) ?? retreat.overviewImages
+            }
+            eyebrow={modules?.overview.eyebrow ?? "The Retreat Experience"}
+            title={modules?.overview.title ?? details.title}
+            supportingCopy={
+              modules?.overview.supportingCopy ?? details.supportingCopy
+            }
+            quoteText={modules?.overview.quote?.text ?? details.quoteText}
+            quoteAttribution={
+              modules?.overview.quote?.attribution ?? details.quoteAttribution
+            }
+          />
+        ) : null}
 
-        <WhatIsIncluded
-          inclusions={modules?.inclusions.items ?? retreat.inclusions}
-          eyebrow={modules?.inclusions.eyebrow}
-          title={modules?.inclusions.title}
-          description={modules?.inclusions.description}
-        />
+        {showInclusions ? (
+          <WhatIsIncluded
+            htmlId={resolveSectionHtmlId("inclusions", modules?.inclusions._id)}
+            inclusions={modules?.inclusions.items ?? retreat.inclusions}
+            eyebrow={modules?.inclusions.eyebrow}
+            title={modules?.inclusions.title}
+            description={modules?.inclusions.description}
+          />
+        ) : null}
 
         {/* Section 3: Day-Wise Schedule Timeline */}
-        <RetreatScheduleSection schedule={retreat.schedule} />
+        {retreat.schedule?.length ? (
+          <RetreatScheduleSection schedule={retreat.schedule} />
+        ) : null}
 
-        {/* Section 4: Accommodation & Food */}
-        <RetreatAccommodationSection
-          accommodation={retreat.accommodation}
-          facilities={mapped.accommodationFacilities}
-        />
+        {/* Section 4: Accommodation & Food (CMS lodging + page flag) */}
+        {showAccommodation ? (
+          <RetreatAccommodationSection
+            accommodation={retreat.accommodation}
+            facilities={mapped.accommodationFacilities}
+            roomGalleries={lodging.roomGalleries}
+            foodGallery={lodging.foodGallery}
+            mealHighlights={lodging.mealHighlights}
+            lodgingContent={lodging}
+          />
+        ) : null}
 
         {/* Section 5: Packages & Dates — shared UpcomingDates UI, retreat rooms only */}
-        <UpcomingDates
-          duration={retreat.duration}
-          pricing={mapped.pricing}
-          pricingDescription={mapped.pricingDescription}
-          batches={mapped.batches}
-          lodgingTitle="Retreat packages"
-          datesTitle="Retreat dates"
-          programSlug={retreat.slug}
-          bookingType="retreat"
-          buildWhatsAppHref={retreatWhatsAppHref}
-        />
+        {showPricing ? (
+          <UpcomingDates
+            htmlId={resolveSectionHtmlId("pricing", modules?.pricing._id)}
+            duration={retreat.duration}
+            pricing={mapped.pricing}
+            pricingDescription={mapped.pricingDescription}
+            batches={mapped.batches}
+            lodgingTitle="Retreat packages"
+            datesTitle="Retreat dates"
+            programSlug={retreat.slug}
+            bookingType="retreat"
+            buildWhatsAppHref={retreatWhatsAppHref}
+          />
+        ) : null}
 
         {/* Section 6: Testimonials */}
         <TestimonialsSection />
 
         {/* Section 7: FAQs (if available) */}
-        {retreat.faqs && retreat.faqs.length > 0 && (
+        {showFaqs ? (
           <div className="bg-white">
             <FAQSection
-              faqs={retreat.faqs}
+              id={resolveSectionHtmlId("faq", modules?.faqs._id)}
+              faqs={modules?.faqs.items ?? retreat.faqs ?? []}
               categories={COURSE_FAQ_CATEGORIES}
               sectionClassName="bg-white border-t border-secondary/10"
               eyebrow="Retreat Details"
@@ -216,7 +262,7 @@ export default function RetreatClient({
               }
             />
           </div>
-        )}
+        ) : null}
       </article>
     </div>
   );

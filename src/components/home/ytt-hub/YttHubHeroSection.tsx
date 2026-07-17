@@ -3,14 +3,34 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { Button, Container, Heading, Pill } from "@/components/ui";
-import { YTT_HUB_HERO_IMAGE, YTT_HUB_INTRO } from "@/data/yttHubPage";
+import type { YttHubContent } from "@/content/types/shared-sections";
+import { optionalSectionHtmlId } from "@/lib/html-id";
 import { fadeUp } from "@/lib/motion";
 
-export default function YttHubHeroSection() {
+type YttHubHeroSectionProps = {
+  heroImage: string;
+  intro: YttHubContent["intro"];
+  /** Optional CMS section `_id` for the hero band */
+  htmlId?: string;
+};
+
+/**
+ * YTT hub hero — image and intro copy from MySQL.
+ *
+ * @param props - Hero image URL and intro fields
+ */
+export default function YttHubHeroSection({
+  heroImage,
+  intro,
+  htmlId,
+}: YttHubHeroSectionProps) {
   return (
-    <section className="relative min-h-[460px] overflow-hidden md:min-h-[520px]">
+    <section
+      id={optionalSectionHtmlId(htmlId)}
+      className="relative min-h-[460px] overflow-hidden md:min-h-[520px]"
+    >
       <Image
-        src={YTT_HUB_HERO_IMAGE}
+        src={heroImage}
         alt="Yoga teacher training by the Ganges in Rishikesh"
         fill
         priority
@@ -30,11 +50,11 @@ export default function YttHubHeroSection() {
           variants={fadeUp}
           className="max-w-3xl space-y-5 text-white"
         >
-          <Pill invert>{YTT_HUB_INTRO.pill}</Pill>
+          <Pill invert>{intro.pill}</Pill>
           <Heading as="h1" size="h1" font="serif" invert>
-            {YTT_HUB_INTRO.title}
+            {intro.title}
           </Heading>
-          <p className="type-lead text-white/90">{YTT_HUB_INTRO.lead}</p>
+          <p className="type-lead text-white/90">{intro.lead}</p>
           <div className="flex flex-wrap gap-3">
             <Button href="#courses" variant="primary" size="md">
               View Courses

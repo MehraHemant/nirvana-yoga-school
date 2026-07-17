@@ -106,9 +106,9 @@ export default function RetreatHero({
               </Button>
               <Button
                 href="#pricing"
-                variant="ghost"
+                variant="outline-light"
                 size="md"
-                className="text-white hover:text-accent"
+                className="border-white/25 bg-transparent hover:bg-white/15 hover:text-white"
               >
                 View Packages ↓
               </Button>

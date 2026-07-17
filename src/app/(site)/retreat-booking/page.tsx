@@ -24,7 +24,7 @@ export default async function RetreatBookingPage({
   searchParams,
 }: RetreatBookingPageProps) {
   const params = await searchParams;
-  const programs = getRetreatBookingCatalog();
+  const programs = await getRetreatBookingCatalog();
 
   return (
     <BookingFlow

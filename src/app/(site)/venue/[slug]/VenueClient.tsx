@@ -1,12 +1,14 @@
 "use client";
 
 import {
-  AccommodationFood,
+  Accommodation,
+  Food,
   InstagramFeed,
   PageGallerySection,
   PageProgramsSection,
   WhyNirvana,
 } from "@/components/courses";
+import { shouldRenderSection } from "@/lib/cms/section-visibility";
 import {
   SiteEditorial,
   SiteFaq,
@@ -21,11 +23,23 @@ import type { SiteClientProps } from "../../_shared/site/types";
  *
  * @param props - Mapped static venue page content
  */
+/**
+ * Venue page composition with shared Why Nirvana / lodging live gates.
+ *
+ * @param props - Mapped venue content and shared CMS sections
+ */
 export default function VenueClient({
   page,
   mapped,
   modules,
+  residentialLife,
+  whyNirvana,
+  reviews,
 }: SiteClientProps) {
+  const showWhyNirvana =
+    (modules?.flags.showWhyNirvana ?? mapped.showWhyNirvana) &&
+    shouldRenderSection(whyNirvana, Boolean(whyNirvana?.highlights?.length));
+
   return (
     <>
       <SiteHero page={page} mapped={mapped} modules={modules} />
@@ -38,10 +52,19 @@ export default function VenueClient({
           <PageGallerySection images={mapped.gallery} />
         )}
         <SiteEditorial mapped={mapped} />
-        <AccommodationFood />
-        <InstagramFeed />
-        <WhyNirvana />
-        <SiteFaq mapped={mapped} />
+        {(modules?.flags.showAccommodation ?? mapped.showAccommodation) ? (
+          <>
+            <Accommodation content={residentialLife} />
+            <Food content={residentialLife} />
+          </>
+        ) : null}
+        {(modules?.flags.showInstagram ?? mapped.showInstagram) ? (
+          <InstagramFeed />
+        ) : null}
+        {showWhyNirvana ? (
+          <WhyNirvana content={whyNirvana} reviews={reviews} />
+        ) : null}
+        <SiteFaq mapped={mapped} modules={modules} />
       </article>
     </>
   );

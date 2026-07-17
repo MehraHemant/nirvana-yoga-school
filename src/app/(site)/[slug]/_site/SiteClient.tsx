@@ -24,7 +24,7 @@ export default function SiteClient({ page, mapped, modules }: SiteClientProps) {
           <PageGallerySection images={mapped.gallery} />
         )}
         <SiteEditorial mapped={mapped} />
-        <SiteFaq mapped={mapped} />
+        <SiteFaq mapped={mapped} modules={modules} />
       </article>
     </>
   );

@@ -1,8 +1,17 @@
 "use client";
 
 import { CourseStickyNav } from "@/components/courses";
-import { YTT_HUB_NAV } from "@/data/yttHubPage";
+import type { YttHubNavItem } from "@/content/types/shared-sections";
 
-export default function YttHubStickyNav() {
-  return <CourseStickyNav items={YTT_HUB_NAV} solidBar />;
+type YttHubStickyNavProps = {
+  nav: YttHubNavItem[];
+};
+
+/**
+ * Sticky jump-nav for the YTT hub page.
+ *
+ * @param props - Nav items from MySQL `/api/content/ytt-hub`
+ */
+export default function YttHubStickyNav({ nav }: YttHubStickyNavProps) {
+  return <CourseStickyNav items={nav} solidBar />;
 }

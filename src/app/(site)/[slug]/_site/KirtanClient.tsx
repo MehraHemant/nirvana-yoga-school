@@ -1,13 +1,14 @@
 "use client";
 
 import {
-  AccommodationFood,
+  Accommodation,
   CourseBookingFab,
   CourseEligibility,
   CourseHero,
   CourseOverview,
   CourseStickyNav,
   CourseSyllabus,
+  Food,
   InstagramFeed,
   PageGallerySection,
   UpcomingDates,
@@ -24,6 +25,8 @@ import {
   kirtanHeroImage,
   parseKirtanContent,
 } from "@/content/mappers/kirtan-page";
+import { shouldRenderSection } from "@/lib/cms/section-visibility";
+import { resolveSectionHtmlId } from "@/lib/html-id";
 import type { SiteClientProps } from "../../_shared/site/types";
 
 /**
@@ -31,10 +34,20 @@ import type { SiteClientProps } from "../../_shared/site/types";
  *
  * @param props - Mapped site page content with kirtan-specific overrides
  */
-export default function KirtanClient({ page, mapped }: SiteClientProps) {
+export default function KirtanClient({
+  page,
+  mapped,
+  modules,
+  residentialLife,
+  whyNirvana,
+  reviews,
+}: SiteClientProps) {
   const copy = mapped.presentation;
   const kirtan = parseKirtanContent(page);
   const fee = mapped.pricing[0]?.price ?? "$299 USD";
+  const showWhyNirvana =
+    (modules?.flags.showWhyNirvana ?? mapped.showWhyNirvana) &&
+    shouldRenderSection(whyNirvana, Boolean(whyNirvana?.highlights?.length));
 
   return (
     <>
@@ -60,6 +73,7 @@ export default function KirtanClient({ page, mapped }: SiteClientProps) {
 
       <article className="min-h-screen max-w-full overflow-x-clip">
         <CourseOverview
+          htmlId={resolveSectionHtmlId("overview", modules?.overview._id)}
           overview={mapped.overview ?? ""}
           level="Beginners welcome"
           duration={mapped.duration}
@@ -83,11 +97,13 @@ export default function KirtanClient({ page, mapped }: SiteClientProps) {
         />
 
         <WhatIsIncluded
+          htmlId={resolveSectionHtmlId("inclusions", modules?.inclusions._id)}
           inclusions={mapped.inclusions}
           exclusions={mapped.exclusions}
         />
 
         <CourseEligibility
+          htmlId={resolveSectionHtmlId("eligibility", modules?.eligibility._id)}
           requirements={kirtan.eligibility}
           eyebrow="Who Is This For"
           title={
@@ -100,6 +116,7 @@ export default function KirtanClient({ page, mapped }: SiteClientProps) {
         />
 
         <CourseSyllabus
+          htmlId={resolveSectionHtmlId("syllabus", modules?.syllabus._id)}
           description={kirtan.syllabusDescription}
           syllabus={kirtan.syllabus}
           sidebar={KIRTAN_SYLLABUS_SIDEBAR}
@@ -115,9 +132,15 @@ export default function KirtanClient({ page, mapped }: SiteClientProps) {
           images={kirtan.certificationImages}
         />
 
-        <AccommodationFood />
+        {(modules?.flags.showAccommodation ?? mapped.showAccommodation) ? (
+          <>
+            <Accommodation content={residentialLife} />
+            <Food content={residentialLife} />
+          </>
+        ) : null}
 
         <UpcomingDates
+          htmlId={resolveSectionHtmlId("pricing", modules?.pricing._id)}
           duration={mapped.duration}
           pricing={mapped.pricing}
           pricingDescription={mapped.pricingDescription}
@@ -131,11 +154,16 @@ export default function KirtanClient({ page, mapped }: SiteClientProps) {
           images={kirtan.highlightImages}
         />
 
-        <WhyNirvana />
+        {showWhyNirvana ? (
+          <WhyNirvana content={whyNirvana} reviews={reviews} />
+        ) : null}
 
-        <InstagramFeed />
+        {(modules?.flags.showInstagram ?? mapped.showInstagram) ? (
+          <InstagramFeed />
+        ) : null}
 
         <FAQSection
+          id={resolveSectionHtmlId("faq", modules?.faqs._id)}
           faqs={mapped.faqs}
           sectionClassName="bg-white"
           eyebrow="Common Questions"

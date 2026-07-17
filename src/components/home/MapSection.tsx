@@ -1,18 +1,50 @@
+import { DEFAULT_HOME_PAGE_CONTENT } from "@/content/data/dedicated-page-defaults";
+import type { HomeMapSectionContent } from "@/content/types/dedicated-pages";
+import type { SiteMapContent } from "@/content/types/shared-sections";
+import { shouldRenderSection } from "@/lib/cms/section-visibility";
+import { resolveSectionHtmlId } from "@/lib/html-id";
+
 type MapSectionProps = {
   className?: string;
+  /**
+   * CMS map embed + header. Prefer shared `siteMap` from MySQL.
+   * Falls back to homepage defaults only when omitted (empty-CMS safety).
+   */
+  content?: SiteMapContent | HomeMapSectionContent | null;
+  /** Optional HTML id override from the hosting page (e.g. home `map._id`) */
+  htmlId?: string;
 };
 
+/**
+ * Shared Google Maps embed band used on home and product pages.
+ *
+ * @param props - Optional CMS map fields and section class
+ */
 export default function MapSection({
   className = "bg-paper",
+  content,
+  htmlId,
 }: MapSectionProps) {
+  const map = content ?? DEFAULT_HOME_PAGE_CONTENT.map;
+  if (!shouldRenderSection(map, Boolean(map.embedUrl?.trim()))) {
+    return null;
+  }
+
+  const sectionId =
+    htmlId ??
+    resolveSectionHtmlId(
+      "location",
+      "_id" in map && typeof map._id === "string" ? map._id : undefined,
+    );
+
   return (
-    <section id="location" className={`w-full ${className}`}>
+    <section id={sectionId} className={`w-full ${className}`}>
       <iframe
-        title="Nirvana Yoga School — Tapovan, Rishikesh"
-        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3958!2d78.317539!3d30.134671!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390917086b26bdc1%3A0x2b53a8c169c9e93c!2sNirvana%20Yoga%20School!5e1!3m2!1sen!2sin!4v1718600000000!5m2!1sen!2sin"
+        title={map.iframeTitle}
+        src={map.embedUrl}
         className="w-full border-0"
         style={{ minHeight: 500, height: "50vh" }}
-        loading="eager"
+        loading="lazy"
         referrerPolicy="no-referrer-when-downgrade"
         allowFullScreen
       />

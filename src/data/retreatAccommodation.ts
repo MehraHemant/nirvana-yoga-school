@@ -1,3 +1,7 @@
+/**
+ * Seed-only retreat lodging/food galleries.
+ * Runtime UI loads from MySQL via `/api/content/retreat-accommodation`.
+ */
 const SITE = "https://www.nirvanayogaschoolindia.com";
 
 export type RetreatGalleryImage = {

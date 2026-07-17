@@ -1,3 +1,7 @@
+/**
+ * Seed-only YTT hub source.
+ * Runtime UI loads from MySQL via `getYttHub()` / `/api/content/ytt-hub`.
+ */
 import type { StickyNavItem } from "@/components/courses/CourseStickyNav";
 import { pagePath } from "@/content/pages/path";
 import { LIVE_SITE } from "@/lib/live-site";

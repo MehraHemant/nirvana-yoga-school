@@ -8,24 +8,17 @@ import {
 } from "framer-motion";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { banner_1, banner_2, banner_3 } from "@/assets";
 import { Button, Container, Heading, Pill } from "@/components/ui";
+import { DEFAULT_HOME_PAGE_CONTENT } from "@/content/data/dedicated-page-defaults";
+import type { HomeWelcomeContent } from "@/content/types/dedicated-pages";
 import { Check } from "@/icons";
+import { resolveSectionHtmlId } from "@/lib/html-id";
 import { EASE_OUT, reducedTransition, VIEWPORT_ONCE } from "@/lib/motion";
 
-const HIGHLIGHTS = [
-  "Yoga Alliance RYS-200 · 300 · 500",
-  "Residential & online programs",
-  "Sattvic meals & ashram living",
-  "Excursions, kirtan & Ganga aarti",
-] as const;
-
-const ROTATING_STATS = [
-  { value: "10+", label: "Courses" },
-  { value: "20+", label: "Teachers" },
-  { value: "10+", label: "Years Experienced Teachers" },
-  { value: "5", label: "Star Rating" },
-] as const;
+type WelcomeSectionProps = {
+  /** Optional CMS welcome band content */
+  content?: HomeWelcomeContent;
+};
 
 const leftColumnContainer: Variants = {
   hidden: {},
@@ -69,21 +62,35 @@ const rightColumnItem: Variants = {
   },
 };
 
-export default function WelcomeSection() {
+/**
+ * Homepage welcome / about band with rotating stats and highlights.
+ *
+ * @param props - Optional CMS welcome fields
+ */
+export default function WelcomeSection({
+  content = DEFAULT_HOME_PAGE_CONTENT.welcome,
+}: WelcomeSectionProps) {
   const reducedMotion = useReducedMotion();
   const prefersReduced = reducedMotion ?? false;
   const [activeStatIndex, setActiveStatIndex] = useState(0);
+  const rotatingStats = content.rotatingStats;
+  const highlights = content.highlights;
+  const images = content.images.length
+    ? content.images
+    : DEFAULT_HOME_PAGE_CONTENT.welcome.images;
+  const [imageA, imageB, imageC] = images;
 
   useEffect(() => {
+    if (rotatingStats.length === 0) return;
     const timer = setInterval(() => {
-      setActiveStatIndex((prev) => (prev + 1) % ROTATING_STATS.length);
+      setActiveStatIndex((prev) => (prev + 1) % rotatingStats.length);
     }, 3000);
     return () => clearInterval(timer);
-  }, []);
+  }, [rotatingStats.length]);
 
   return (
     <motion.section
-      id="about"
+      id={resolveSectionHtmlId("about", content._id)}
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={VIEWPORT_ONCE}
@@ -129,10 +136,10 @@ export default function WelcomeSection() {
                         className="flex flex-col items-center"
                       >
                         <span className="type-h1 font-bold leading-none text-white mb-2">
-                          {ROTATING_STATS[activeStatIndex].value}
+                          {rotatingStats[activeStatIndex]?.value}
                         </span>
                         <span className="type-eyebrow text-white/95 max-w-[85%] leading-tight">
-                          {ROTATING_STATS[activeStatIndex].label}
+                          {rotatingStats[activeStatIndex]?.label}
                         </span>
                       </motion.div>
                     </AnimatePresence>
@@ -140,7 +147,7 @@ export default function WelcomeSection() {
                 </motion.div>
               </div>
 
-              {/* Cell 2: Image 1 (banner_3) - Clean, rounded image */}
+              {/* Cell 2: Image 1 */}
               <motion.div
                 variants={galleryItemVariants}
                 whileHover={prefersReduced ? undefined : "hover"}
@@ -166,8 +173,8 @@ export default function WelcomeSection() {
                   className="relative w-full h-full rounded-3xl overflow-hidden shadow-card border border-ink/5 group cursor-default"
                 >
                   <Image
-                    src={banner_3}
-                    alt="Yoga practice at Nirvana Yoga School"
+                    src={imageA.src}
+                    alt={imageA.alt}
                     fill
                     sizes="(max-width: 1024px) 50vw, 320px"
                     className="object-cover transition-transform duration-700 group-hover:scale-105"
@@ -176,7 +183,7 @@ export default function WelcomeSection() {
                 </motion.div>
               </motion.div>
 
-              {/* Cell 3: Image 2 (banner_2) - Clean, rounded image */}
+              {/* Cell 3: Image 2 */}
               <motion.div
                 variants={galleryItemVariants}
                 whileHover={prefersReduced ? undefined : "hover"}
@@ -202,8 +209,8 @@ export default function WelcomeSection() {
                   className="relative w-full h-full rounded-3xl overflow-hidden shadow-card border border-ink/5 group cursor-default"
                 >
                   <Image
-                    src={banner_2}
-                    alt="Sunrise yoga by the Ganges"
+                    src={imageB.src}
+                    alt={imageB.alt}
                     fill
                     sizes="(max-width: 1024px) 50vw, 320px"
                     className="object-cover transition-transform duration-700 group-hover:scale-105"
@@ -211,7 +218,7 @@ export default function WelcomeSection() {
                 </motion.div>
               </motion.div>
 
-              {/* Cell 4: Image 3 (banner_1) - Clean, rounded image */}
+              {/* Cell 4: Image 3 */}
               <motion.div
                 variants={galleryItemVariants}
                 whileHover={prefersReduced ? undefined : "hover"}
@@ -237,8 +244,8 @@ export default function WelcomeSection() {
                   className="relative w-full h-full rounded-3xl overflow-hidden shadow-card border border-ink/5 group cursor-default"
                 >
                   <Image
-                    src={banner_1}
-                    alt="Meditation session at Nirvana Yoga School"
+                    src={imageC.src}
+                    alt={imageC.alt}
                     fill
                     sizes="(max-width: 1024px) 50vw, 320px"
                     className="object-cover transition-transform duration-700 group-hover:scale-105"
@@ -257,7 +264,7 @@ export default function WelcomeSection() {
             className="order-1 lg:order-2 flex flex-col gap-6 "
           >
             <motion.div variants={rightColumnItem}>
-              <Pill>Yoga Alliance Certified · India</Pill>
+              <Pill>{content.eyebrow}</Pill>
             </motion.div>
 
             <motion.div
@@ -271,11 +278,7 @@ export default function WelcomeSection() {
                 size="h2"
                 className="text-balance"
               >
-                Welcome to Nirvana — a{" "}
-                <span className="text-primary font-medium">
-                  sanctuary for the soul
-                </span>{" "}
-                in Rishikesh
+                {content.title}
               </Heading>
               <div
                 className="w-12 h-px bg-linear-to-r from-primary/80 via-accent/70 to-transparent"
@@ -286,12 +289,7 @@ export default function WelcomeSection() {
             {/* Lead Story Paragraph */}
             <motion.div variants={rightColumnItem}>
               <p className="text-base md:text-lg leading-snug font-medium text-ink/85">
-                Nirvana Yoga School is more than a teacher training — it is an
-                ancient healing art set in the heart of Rishikesh along the
-                sacred Ganges, elevated by the spirit of Himalayan stillness.
-                With a wise and compassionate teacher team, our residential and
-                online programs take very good care of each student, surrounded
-                by a gentle support matrix of community, tradition, and nature.
+                {content.lead}
               </p>
             </motion.div>
 
@@ -302,27 +300,19 @@ export default function WelcomeSection() {
             >
               <div className="space-y-2 border-t border-ink/5 pt-4">
                 <span className="text-primary font-bold text-sm uppercase tracking-wide block">
-                  01 / Our Vision
+                  {content.vision.label}
                 </span>
                 <p className="text-sm sm:text-sm md:text-base text-ink/75 leading-snug font-sans font-normal">
-                  Our vision is to share timeless yogic wisdom with sincerity,
-                  care, and devotion. From every breath, posture, and chant, we
-                  invite you into a life that feels complete, serene, and deeply
-                  aligned — rooted in tradition yet respectful of every
-                  individual journey.
+                  {content.vision.body}
                 </p>
               </div>
 
               <div className="space-y-2 border-t border-ink/5 pt-4">
                 <span className="text-primary font-bold text-sm uppercase tracking-wide block">
-                  02 / Our Promise
+                  {content.promise.label}
                 </span>
                 <p className="text-sm sm:text-sm md:text-base leading-snug font-sans font-normal">
-                  Whether you join us for a foundational training or a deeper
-                  immersion, our intention remains steady: to hold the space for
-                  meaningful transformation. We welcome seekers from around the
-                  globe to walk with us on this journey — not as students but as
-                  co-travellers.
+                  {content.promise.body}
                 </p>
               </div>
             </motion.div>
@@ -332,7 +322,7 @@ export default function WelcomeSection() {
               variants={rightColumnItem}
               className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 pt-6 border-t border-ink/10"
             >
-              {HIGHLIGHTS.map((item) => (
+              {highlights.map((item) => (
                 <div
                   key={item}
                   className="flex items-start gap-3 cursor-default select-none"
@@ -353,13 +343,13 @@ export default function WelcomeSection() {
               className="flex flex-wrap gap-2.5 sm:gap-3"
             >
               <Button
-                href="#courses"
+                href={content.ctaHref}
                 variant="primary"
                 size="md"
                 responsive
                 className="shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30"
               >
-                View Courses
+                {content.ctaLabel}
               </Button>
             </motion.div>
           </motion.div>

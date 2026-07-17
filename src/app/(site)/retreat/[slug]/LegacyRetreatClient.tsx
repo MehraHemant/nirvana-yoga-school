@@ -1,8 +1,9 @@
 "use client";
 
 import {
-  AccommodationFood,
+  Accommodation,
   DailySchedule,
+  Food,
   InstagramFeed,
   TravelGuide,
   UpcomingDates,
@@ -10,6 +11,7 @@ import {
   WhyNirvana,
 } from "@/components/courses";
 import { MapSection, TeachersSection } from "@/components/home";
+import { shouldRenderSection } from "@/lib/cms/section-visibility";
 import {
   SiteEditorial,
   SiteFaq,
@@ -18,14 +20,28 @@ import {
 } from "../../_shared/site/shared";
 import type { SiteClientProps } from "../../_shared/site/types";
 
-/** Fallback for retreat-booking and other site-page retreats without dedicated JSON. */
+/**
+ * Fallback for retreat-booking and other site-page retreats without dedicated JSON.
+ *
+ * @param props - Mapped site content and shared CMS sections
+ */
 export default function LegacyRetreatClient({
   page,
   mapped,
   teachers,
   modules,
+  residentialLife,
+  whyNirvana,
+  reviews,
+  siteMap,
 }: SiteClientProps) {
   const isBooking = page.slug === "retreat-booking";
+  const showWhyNirvana =
+    (modules?.flags.showWhyNirvana ?? mapped.showWhyNirvana) &&
+    shouldRenderSection(whyNirvana, Boolean(whyNirvana?.highlights?.length));
+  const showMap =
+    (modules?.flags.showMap ?? mapped.showMap) &&
+    shouldRenderSection(siteMap, Boolean(siteMap?.embedUrl?.trim()));
 
   return (
     <>
@@ -56,12 +72,23 @@ export default function LegacyRetreatClient({
         )}
         {teachers.length > 0 && <TeachersSection teachers={teachers} />}
         <SiteEditorial mapped={mapped} />
-        <AccommodationFood />
-        <WhyNirvana />
-        <TravelGuide />
-        <InstagramFeed />
-        <MapSection />
-        <SiteFaq mapped={mapped} />
+        {(modules?.flags.showAccommodation ?? mapped.showAccommodation) ? (
+          <>
+            <Accommodation content={residentialLife} />
+            <Food content={residentialLife} />
+          </>
+        ) : null}
+        {showWhyNirvana ? (
+          <WhyNirvana content={whyNirvana} reviews={reviews} />
+        ) : null}
+        {(modules?.flags.showTravel ?? mapped.showTravelGuide) ? (
+          <TravelGuide />
+        ) : null}
+        {(modules?.flags.showInstagram ?? mapped.showInstagram) ? (
+          <InstagramFeed />
+        ) : null}
+        {showMap && siteMap ? <MapSection content={siteMap} /> : null}
+        <SiteFaq mapped={mapped} modules={modules} />
       </article>
     </>
   );

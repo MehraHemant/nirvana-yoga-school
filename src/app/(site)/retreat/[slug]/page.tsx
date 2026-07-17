@@ -1,42 +1,56 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getSitePage } from "@/content";
-import { getSlugsByType } from "@/content/pages";
-import { getRetreat } from "@/content/repositories/retreat";
-import { courseMetadata } from "../../_shared/metadata";
+import { getRetreat, getRetreatSlugs, getSitePage } from "@/content";
+import { getPageModules } from "@/content/repositories/page-modules";
+import { mergePageMetadata } from "../../_shared/metadata";
 import { loadSitePageDataAsync } from "../../_shared/site/data.server";
 import { loadRetreatPageData } from "./data";
 import LegacyRetreatClient from "./LegacyRetreatClient";
 import RetreatClient from "./RetreatClient";
 
+export const revalidate = 3600;
+
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
+/**
+ * Build static paths from published retreat slugs in MySQL.
+ */
 export async function generateStaticParams() {
-  return getSlugsByType("retreat").map((slug) => ({ slug }));
+  const slugs = await getRetreatSlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const retreatResult = await getRetreat(slug);
+  const [retreatResult, modulesResult] = await Promise.all([
+    getRetreat(slug),
+    getPageModules(slug).catch(() => null),
+  ]);
   if (retreatResult.data) {
-    return courseMetadata(
-      retreatResult.data.title,
-      retreatResult.data.description,
-      retreatResult.data.heroImage,
+    return mergePageMetadata(
+      {
+        title: retreatResult.data.title,
+        description: retreatResult.data.description,
+        image: retreatResult.data.heroImage,
+      },
+      modulesResult?.data?.meta,
     );
   }
 
   const result = await getSitePage(slug);
   if (!result.data) return { title: "Retreat Not Found" };
 
-  return courseMetadata(
-    result.data.title,
-    result.data.description,
-    result.data.image,
+  return mergePageMetadata(
+    {
+      title: result.data.title,
+      description: result.data.description,
+      image: result.data.image,
+    },
+    result.data.meta ?? modulesResult?.data?.meta,
   );
 }
 
@@ -59,6 +73,10 @@ export default async function Page({ params }: PageProps) {
       mapped={data.mapped}
       teachers={data.teachers}
       modules={data.modules}
+      residentialLife={data.residentialLife}
+      whyNirvana={data.whyNirvana}
+      reviews={data.reviews}
+      siteMap={data.siteMap}
     />
   );
 }

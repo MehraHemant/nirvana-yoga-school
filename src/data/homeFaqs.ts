@@ -1,3 +1,7 @@
+/**
+ * Seed-only homepage FAQ source (legacy static imports).
+ * Runtime UI loads from MySQL via `getHomeFaqs()` / `/api/content/home-faqs`.
+ */
 import { beach_yoga, certificate } from "@/assets";
 import type { FAQEntry } from "@/components/ui/FAQSection";
 

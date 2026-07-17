@@ -1,20 +1,34 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { YTT_HUB_ELIGIBILITY } from "@/data/yttHubPage";
+import type { YttHubContent } from "@/content/types/shared-sections";
 import { Check } from "@/icons";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 import YttHubSection from "./YttHubSection";
 
-export default function YttHubEligibilitySection() {
+type YttHubEligibilitySectionProps = {
+  eligibility: YttHubContent["eligibility"];
+  /** Public section HTML id (defaults to `certification`) */
+  htmlId?: string;
+};
+
+/**
+ * YTT hub eligibility / certification section — content from MySQL.
+ *
+ * @param props - Eligibility title and paragraphs
+ */
+export default function YttHubEligibilitySection({
+  eligibility,
+  htmlId = "certification",
+}: YttHubEligibilitySectionProps) {
   return (
     <YttHubSection
-      id="certification"
-      title={YTT_HUB_ELIGIBILITY.title}
+      id={htmlId}
+      title={eligibility.title}
       className="bg-white"
     >
       <ul className="grid max-w-none gap-4">
-        {YTT_HUB_ELIGIBILITY.paragraphs.map((paragraph) => (
+        {eligibility.paragraphs.map((paragraph) => (
           <motion.li
             key={paragraph.slice(0, 48)}
             initial="hidden"

@@ -9,26 +9,10 @@ import {
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Container, Heading, Pill } from "@/components/ui";
+import { DEFAULT_HOME_PAGE_CONTENT } from "@/content/data/dedicated-page-defaults";
+import type { HomeWhyRishikeshContent } from "@/content/types/dedicated-pages";
 import { Play } from "@/icons";
 import { EASE_OUT, fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
-
-const SUTRAS = [
-  {
-    title: "A Sacred Rhythm",
-    body: "There is a sacred rhythm in Rishikesh that cannot be explained but must be felt. It lives in the crispness of the morning air, hums in the silence between the ringing of temple bells, and moves rhythmically in the gentle flow of the river Ganga. For centuries, seekers from all over the world have come here in the drawing of something beyond words. To learn yoga in Rishikesh is to become part of that ancient stream of wisdom, healing, and inner peace.",
-  },
-  {
-    title: "Remembering Who You Are",
-    body: "Yoga in India is another way of remembering who you truly are. Sitting here in the serene Himalayan foothills and being immersed in the spiritual undercurrent of this holy land, your yoga practice transcends the physical. The asanas start to stir something within; the breathing turns from unconscious to a prayer; the meditation deepens into stillness, as if the very mountains are meditating with you.",
-  },
-  {
-    title: "The Sages' Presence",
-    body: "The energy of this land holds the memory of sages who walked here before us — those silent saints who sat by the river and dissolved the limits between self and universe. When you sit beside the Ganga at sunrise or bring your voice in chanting, you find yourself feeling light, clear, and alive. It isn't a spell — it's presence, and Rishikesh can bring you home to it.",
-  },
-] as const;
-
-const CLOSING_INVITATION =
-  "So come… for we warmly invite you to experience it yourself. Walk with us on the banks of this sacred river. Breathe with the mountains. Let Rishikesh remind you of your wholeness, of your stillness, and the vast, beautiful peace that lies within you.";
 
 const listContainerVariants: Variants = {
   hidden: {},
@@ -63,31 +47,24 @@ const playerCardVariants: Variants = {
   },
 };
 
-const _pillContainerVariants: Variants = {
-  hidden: {},
-  visible: {
-    transition: {
-      staggerChildren: 0.08,
-      delayChildren: 0.2,
-    },
-  },
-};
-
-const _pillVariants: Variants = {
-  hidden: { opacity: 0, y: 8 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.4, ease: EASE_OUT },
-  },
-};
-
+/**
+ * Formats a duration in seconds as `m:ss`.
+ *
+ * @param totalSeconds - Total duration in seconds
+ * @returns Formatted duration string
+ */
 function formatDuration(totalSeconds: number) {
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
   return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 }
 
+/**
+ * Builds a YouTube embed URL with autoplay for the Why Rishikesh player.
+ *
+ * @param videoId - YouTube video id
+ * @returns Embed URL
+ */
 function buildEmbedUrl(videoId: string) {
   const params = new URLSearchParams({
     rel: "0",
@@ -99,18 +76,37 @@ function buildEmbedUrl(videoId: string) {
 }
 
 type WhyRishikeshClientProps = {
+  /** CMS Why Rishikesh section content */
+  content?: HomeWhyRishikeshContent;
   videoId: string;
-  title: string;
+  videoTitle: string;
   thumbnailUrl: string;
   durationSeconds: number;
 };
 
+/**
+ * Interactive Why Rishikesh client UI (sutras, trust logos, video card).
+ *
+ * @param props - CMS content plus resolved YouTube metadata
+ */
 export default function WhyRishikeshClient({
+  content = DEFAULT_HOME_PAGE_CONTENT.whyRishikesh,
   videoId,
-  title,
+  videoTitle,
   thumbnailUrl,
   durationSeconds,
 }: WhyRishikeshClientProps) {
+  const sutras =
+    content.sutras?.length > 0
+      ? content.sutras
+      : DEFAULT_HOME_PAGE_CONTENT.whyRishikesh.sutras;
+  const trustLogos =
+    content.trustLogos?.length > 0
+      ? content.trustLogos
+      : DEFAULT_HOME_PAGE_CONTENT.whyRishikesh.trustLogos;
+  const videoCard =
+    content.videoCard ?? DEFAULT_HOME_PAGE_CONTENT.whyRishikesh.videoCard;
+
   const [activeSutraIndex, setActiveSutraIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -120,8 +116,8 @@ export default function WhyRishikeshClient({
   useEffect(() => {
     if (prefersReduced || isPaused || isPlaying) return;
 
-    const intervalTime = 100; // tick every 100ms
-    const duration = 15000; // 15 seconds
+    const intervalTime = 100;
+    const duration = 15000;
     const increment = (intervalTime / duration) * 100;
 
     const timer = setInterval(() => {
@@ -137,17 +133,15 @@ export default function WhyRishikeshClient({
     return () => clearInterval(timer);
   }, [isPaused, isPlaying, prefersReduced]);
 
-  // Separate effect to handle sutra transition when progress reaches 100%
   useEffect(() => {
     if (progress >= 100) {
-      setActiveSutraIndex((prevIndex) => (prevIndex + 1) % SUTRAS.length);
+      setActiveSutraIndex((prevIndex) => (prevIndex + 1) % sutras.length);
       setProgress(0);
     }
-  }, [progress]);
+  }, [progress, sutras.length]);
 
   return (
     <Container size="2xl">
-      {/* ── Section Header (Split Grid to Eliminate Empty Side Space) ── */}
       <motion.div
         initial="hidden"
         whileInView="visible"
@@ -156,7 +150,7 @@ export default function WhyRishikeshClient({
         className="grid grid-cols-1 lg:grid-cols-[1.25fr_1fr] gap-6 lg:gap-10 mb-8 sm:mb-10 lg:mb-10 items-end"
       >
         <div>
-          <Pill>The Yoga Capital of the World</Pill>
+          {content.eyebrow ? <Pill>{content.eyebrow}</Pill> : null}
           <Heading
             as="h2"
             align="left"
@@ -164,71 +158,53 @@ export default function WhyRishikeshClient({
             size="h2"
             className="mt-3 sm:mt-4 text-balance"
           >
-            Why learn yoga in{" "}
-            <span className="text-primary font-medium">Rishikesh</span> — where
-            earth, sky, and spirit meet
+            {content.title}{" "}
+            {content.titleAccent ? (
+              <span className="text-primary font-medium">
+                {content.titleAccent}
+              </span>
+            ) : null}
+            {content.description ? ` ${content.description}` : null}
           </Heading>
         </div>
 
         <div className="flex items-start justify-center">
-          {/* Trust logos */}
           <div className="flex items-center gap-6 sm:gap-8 pt-2">
-            <div className="relative w-24 h-24 sm:w-36 sm:h-36 transition-transform duration-300 hover:scale-105">
-              <Image
-                src="/images/logos/yoga-alliance.png"
-                alt="Yoga Alliance Certified"
-                fill
-                sizes="(max-width: 640px) 96px, 128px"
-                className="object-contain"
-                priority
-              />
-            </div>
-            <div className="relative w-24 h-24 sm:w-36 sm:h-36 transition-transform duration-300 hover:scale-105">
-              <Image
-                src="/images/logos/ayush.png"
-                alt="Ministry of AYUSH, Government of India"
-                fill
-                sizes="(max-width: 640px) 96px, 128px"
-                className="object-contain"
-                priority
-              />
-            </div>
-            <div className="relative w-24 h-24 sm:w-36 sm:h-36 transition-transform duration-300 hover:scale-105">
-              <Image
-                src="/images/logos/yai.png"
-                alt="Yoga Alliance International"
-                fill
-                sizes="(max-width: 640px) 96px, 128px"
-                className="object-contain"
-                priority
-              />
-            </div>
+            {trustLogos.map((logo) => (
+              <div
+                key={logo.src}
+                className="relative w-24 h-24 sm:w-36 sm:h-36 transition-transform duration-300 hover:scale-105"
+              >
+                <Image
+                  src={logo.src}
+                  alt={logo.alt}
+                  fill
+                  sizes="(max-width: 640px) 96px, 128px"
+                  className="object-contain"
+                />
+              </div>
+            ))}
           </div>
         </div>
       </motion.div>
 
-      {/* ── Two-column: Interactive Sutras left + Sticky player right ── */}
       <div className="grid grid-cols-1 lg:grid-cols-[1.15fr_1fr] gap-6 lg:gap-10 items-start">
-        {/* Left Column — Timeline-style interactive accordion */}
         <div className="space-y-6">
           <div className="relative flex gap-6 items-stretch">
-            {/* Stepper Timeline Line (Desktop only) */}
             <div
               className="hidden sm:flex flex-col items-center relative select-none"
               aria-hidden="true"
             >
               <div className="w-px bg-ink/8 absolute top-8 bottom-8 left-1/2 -translate-x-1/2" />
-              {/* Highlight Fill Line */}
               <motion.div
                 className="w-px bg-primary absolute top-8 left-1/2 -translate-x-1/2 origin-top"
                 animate={{
-                  height: `${(activeSutraIndex / (SUTRAS.length - 1)) * 68}%`,
+                  height: `${(activeSutraIndex / Math.max(sutras.length - 1, 1)) * 68}%`,
                 }}
                 transition={{ duration: 0.4, ease: EASE_OUT }}
               />
             </div>
 
-            {/* Accordion Cards */}
             <motion.div
               className="flex-1 space-y-4"
               variants={listContainerVariants}
@@ -236,7 +212,7 @@ export default function WhyRishikeshClient({
               whileInView="visible"
               viewport={VIEWPORT_ONCE}
             >
-              {SUTRAS.map((sutra, i) => {
+              {sutras.map((sutra, i) => {
                 const isActive = activeSutraIndex === i;
                 return (
                   <motion.button
@@ -257,7 +233,6 @@ export default function WhyRishikeshClient({
                         : "bg-white/40 border-ink/5 hover:bg-white/80 hover:border-ink/10"
                     }`}
                   >
-                    {/* Time Progress Line (Above/Top of Card) */}
                     {isActive && !prefersReduced && (
                       <div
                         className="absolute top-0 left-0 right-0 h-1 bg-ink/5"
@@ -270,7 +245,6 @@ export default function WhyRishikeshClient({
                       </div>
                     )}
                     <div className="flex gap-4 items-center">
-                      {/* Indicator Number */}
                       <span
                         className={`font-serif text-xl sm:text-2xl leading-none transition-colors duration-300 select-none ${
                           isActive ? "text-primary font-medium" : "text-ink/30"
@@ -279,7 +253,6 @@ export default function WhyRishikeshClient({
                         {String(i + 1).padStart(2, "0")}
                       </span>
 
-                      {/* Sutra Title */}
                       <h3
                         className={`type-display-sm transition-colors duration-300 ${
                           isActive ? "text-ink font-semibold" : "text-ink/75"
@@ -288,7 +261,6 @@ export default function WhyRishikeshClient({
                         {sutra.title}
                       </h3>
 
-                      {/* Toggle Chevron / Plus Indicator */}
                       <span className="ml-auto shrink-0" aria-hidden="true">
                         <motion.span
                           animate={{ rotate: isActive ? 45 : 0 }}
@@ -302,7 +274,6 @@ export default function WhyRishikeshClient({
                       </span>
                     </div>
 
-                    {/* Expandable Paragraph Body */}
                     <AnimatePresence initial={false}>
                       {isActive && (
                         <motion.div
@@ -334,15 +305,13 @@ export default function WhyRishikeshClient({
             </motion.div>
           </div>
 
-          {/* ── Closing Pull Quote ── */}
           <div className="border-l border-primary/20 pl-4 py-1 mt-4">
             <p className="font-poppins italic text-base sm:text-lg md:text-lg font-normal leading-snug text-ink/65">
-              "{CLOSING_INVITATION}"
+              "{content.closingInvitation}"
             </p>
           </div>
         </div>
 
-        {/* Right Column — Unified Media Player Card */}
         <div className="lg:sticky lg:top-24">
           <motion.div
             initial="hidden"
@@ -352,11 +321,10 @@ export default function WhyRishikeshClient({
             variants={playerCardVariants}
             className="bg-white rounded-[1.75rem] p-4 sm:p-5 shadow-card border border-ink/5 flex flex-col gap-4"
           >
-            {/* Title Section */}
             <div>
               <div className="flex items-center gap-2">
                 <span className="type-eyebrow text-primary tracking-wider">
-                  Guru Ji's Wisdom
+                  {videoCard.eyebrow}
                 </span>
                 <span
                   className="flex h-1.5 w-1.5 rounded-full bg-primary animate-pulse"
@@ -364,49 +332,40 @@ export default function WhyRishikeshClient({
                 />
               </div>
               <h3 className="type-display-sm font-semibold mt-1 text-ink leading-tight">
-                Spiritual Guidance with Gurudev
+                {videoCard.title}
               </h3>
             </div>
 
-            {/* Video Box Container */}
             <div className="relative rounded-xl sm:rounded-2xl overflow-hidden aspect-video shadow-soft ring-1 ring-ink/5 bg-ink/5 group">
               {!isPlaying ? (
                 <button
                   type="button"
                   onClick={() => setIsPlaying(true)}
                   className="absolute inset-0 w-full h-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 cursor-pointer"
-                  aria-label="Play video: Why Learning Yoga in Rishikesh is Life-Changing by Gurudev Dhruvaji"
+                  aria-label={`Play video: ${videoTitle}`}
                 >
-                  {/* Video Thumbnail */}
                   <Image
                     src={thumbnailUrl}
                     alt=""
                     fill
                     sizes="(max-width: 1024px) 90vw, 450px"
                     className="object-cover transition-transform duration-700 group-hover:scale-105"
-                    priority
                   />
-                  {/* Vignette Overlay */}
                   <div className="absolute inset-0 bg-ink/35 group-hover:bg-ink/25 transition-colors duration-300" />
 
-                  {/* Glass Tag Upper Left */}
                   <span className="absolute top-3 left-3 z-10 px-2.5 py-0.5 rounded-full text-[9px] uppercase font-bold tracking-wider text-white bg-ink/40 border border-white/10 backdrop-blur-xs">
-                    Gurudev Dhruvaji
+                    {videoCard.speakerTag}
                   </span>
 
-                  {/* Custom Glass Play Button */}
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="relative flex items-center justify-center">
-                      {/* Outer Pulse Circle */}
                       <div className="absolute -inset-2.5 rounded-full bg-white/10 scale-125 opacity-0 group-hover:opacity-100 group-hover:animate-pulse transition-opacity duration-300" />
-                      {/* Core Glass Button */}
                       <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white shadow-soft transition-all duration-300 group-hover:scale-110 group-hover:bg-white/30">
                         <Play size={14} className="ml-0.5 fill-white" />
                       </span>
                     </div>
                   </div>
 
-                  {/* Duration tag Bottom Right */}
                   <span className="type-ui absolute bottom-3 right-3 rounded-md bg-ink/80 px-2 py-0.5 text-[10px] font-medium text-white backdrop-blur-xs tabular-nums">
                     {formatDuration(durationSeconds)}
                   </span>
@@ -414,7 +373,7 @@ export default function WhyRishikeshClient({
               ) : (
                 <iframe
                   src={buildEmbedUrl(videoId)}
-                  title={title}
+                  title={videoTitle}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   referrerPolicy="strict-origin-when-cross-origin"
                   allowFullScreen
@@ -423,13 +382,12 @@ export default function WhyRishikeshClient({
               )}
             </div>
 
-            {/* Video details & Speaker */}
             <div className="pb-3 border-b border-ink/5">
               <p className="type-ui text-xs sm:text-sm font-medium text-ink leading-snug line-clamp-2">
-                {title}
+                {videoTitle}
               </p>
               <p className="type-eyebrow text-muted mt-1 text-[9px]">
-                Founder & Spiritual Master · Nirvana Yoga School
+                {videoCard.speakerSubtitle}
               </p>
             </div>
           </motion.div>

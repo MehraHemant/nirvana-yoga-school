@@ -2,7 +2,7 @@
 
 import { MapSection } from "@/components";
 import {
-  AccommodationFood,
+  Accommodation,
   CourseBookingFab,
   CourseEligibility,
   CourseOverview,
@@ -10,6 +10,7 @@ import {
   CourseSyllabus,
   DailySchedule,
   ExamCertification,
+  Food,
   InstagramFeed,
   PageHeroRenderer,
   TravelGuide,
@@ -18,13 +19,24 @@ import {
   WhyNirvana,
 } from "@/components/courses";
 import { COURSE_FAQ_CATEGORIES, FAQSection } from "@/components/ui";
+import { isSectionLive, shouldRenderSection } from "@/lib/cms/section-visibility";
+import { resolveSectionHtmlId } from "@/lib/html-id";
 import type { CoursePageData } from "./types";
 
+/**
+ * Interactive course page composition.
+ *
+ * @param props - Course document, modules, media, and shared section content
+ */
 export default function CourseClient({
   course,
   media,
   videos,
   modules,
+  residentialLife,
+  whyNirvana,
+  reviews,
+  siteMap,
 }: CoursePageData) {
   const m = modules;
   const heroFee = m?.hero.type === "bento-media" ? m.hero.fee : course.fee;
@@ -39,54 +51,84 @@ export default function CourseClient({
   const fee =
     glance.find((g) => g.label === "Program Fee")?.value ?? course.fee;
 
+  const faqItems = m?.faqs.items ?? course.faqs;
+  const showHero = isSectionLive(m?.hero);
+  const showStickyNav = isSectionLive(m?.stickyNav);
+  const showOverview = isSectionLive(m?.overview);
+  const showInclusions = shouldRenderSection(
+    m?.inclusions,
+    (m?.inclusions.items ?? course.inclusions).length > 0,
+  );
+  const showEligibility = isSectionLive(m?.eligibility);
+  const showSyllabus = shouldRenderSection(
+    m?.syllabus,
+    (m?.syllabus.chapters ?? course.syllabus).length > 0,
+  );
+  const showSchedule = shouldRenderSection(
+    m?.schedule,
+    (m?.schedule.items ?? course.schedule).length > 0,
+  );
+  const showPricing = shouldRenderSection(
+    m?.pricing,
+    (m?.pricing.options ?? course.pricing).length > 0,
+  );
+  const showFaqs = shouldRenderSection(m?.faqs, faqItems.length > 0);
+  const showAccommodation = m?.flags.showAccommodation ?? true;
+  const showWhyNirvana =
+    (m?.flags.showWhyNirvana ?? true) &&
+    shouldRenderSection(whyNirvana, Boolean(whyNirvana?.highlights?.length));
+  const showMap =
+    (m?.flags.showMap ?? true) &&
+    shouldRenderSection(siteMap, Boolean(siteMap?.embedUrl?.trim()));
+
   return (
     <>
-      {m ? (
-        <PageHeroRenderer modules={m} />
-      ) : (
-        <PageHeroRenderer
-          modules={{
-            hero: {
-              type: "bento-media",
-              title: course.title,
-              subtitle: course.subtitle,
-              duration: course.duration,
-              level: course.level,
-              certification: course.certification,
-              fee: course.fee,
-              certBadge: course.certBadge,
-              heroImages: course.heroImages,
-              images: media.images,
-              imageDetails: media.imageDetails,
-              videos: media.videos,
-            },
-            stickyNav: { items: [] },
-            overview: {
-              eyebrow: "",
-              title: "",
-              lead: course.overview,
-              glance: [],
-              media: { mode: "image", items: [] },
-            },
-            inclusions: { items: course.inclusions },
-            eligibility: { requirements: [] },
-            syllabus: { description: "", chapters: [] },
-            schedule: { description: "", items: [] },
-            pricing: { description: "", options: [] },
-            faqs: { items: [] },
-            flags: {
-              showExam: true,
-              showAccommodation: true,
-              showWhyNirvana: true,
-              showTravel: true,
-              showInstagram: true,
-              showMap: true,
-            },
-          }}
-        />
-      )}
+      {showHero ? (
+        m ? (
+          <PageHeroRenderer modules={m} />
+        ) : (
+          <PageHeroRenderer
+            modules={{
+              hero: {
+                type: "bento-media",
+                title: course.title,
+                subtitle: course.subtitle,
+                duration: course.duration,
+                level: course.level,
+                certification: course.certification,
+                fee: course.fee,
+                certBadge: course.certBadge,
+                heroImages: course.heroImages,
+                videos: media.videos,
+              },
+              stickyNav: { items: [] },
+              overview: {
+                eyebrow: "",
+                title: "",
+                lead: course.overview,
+                glance: [],
+                media: { mode: "image", items: [] },
+              },
+              inclusions: { items: course.inclusions },
+              eligibility: { requirements: [] },
+              syllabus: { description: "", chapters: [] },
+              schedule: { description: "", items: [] },
+              pricing: { description: "", options: [] },
+              faqs: { items: [] },
+              flags: {
+                showExam: true,
+                showAccommodation: true,
+                showWhyNirvana: true,
+                showTravel: true,
+                showInstagram: true,
+                showMap: true,
+              },
+            }}
+          />
+        )
+      ) : null}
 
-      <CourseStickyNav items={m?.stickyNav.items} />
+      {showStickyNav ? <CourseStickyNav items={m?.stickyNav.items} /> : null}
 
       <CourseBookingFab
         fee={heroFee ?? course.fee}
@@ -95,88 +137,129 @@ export default function CourseClient({
       />
 
       <article className="min-h-screen max-w-full overflow-x-clip">
-        <CourseOverview
-          overview={overview?.lead ?? course.overview}
-          level={level}
-          duration={duration}
-          certification={certification}
-          fee={fee}
-          videos={videos}
-          eyebrow={overview?.eyebrow}
-          title={overview?.title}
-          supportingCopy={overview?.supportingCopy}
-          quoteText={overview?.quote?.text}
-          quoteAttribution={overview?.quote?.attribution}
-          featureImages={
-            overview?.media.mode === "carousel"
-              ? overview.media.items
-                  .filter((item) => item.type === "image")
-                  .map((item) => item.url)
-              : undefined
-          }
-        />
+        {showOverview ? (
+          <CourseOverview
+            htmlId={resolveSectionHtmlId("overview", m?.overview._id)}
+            overview={overview?.lead ?? course.overview}
+            level={level}
+            duration={duration}
+            certification={certification}
+            fee={fee}
+            videos={videos}
+            eyebrow={overview?.eyebrow}
+            title={overview?.title}
+            supportingCopy={overview?.supportingCopy}
+            quoteText={overview?.quote?.text}
+            quoteAttribution={overview?.quote?.attribution}
+            featureImages={
+              overview?.media.mode === "carousel"
+                ? overview.media.items
+                    .filter((item) => item.type === "image")
+                    .map((item) => item.url)
+                : undefined
+            }
+            overviewImages={
+              overview?.media.mode === "carousel" ||
+              overview?.media.mode === "image"
+                ? overview.media.items
+                    .filter((item) => item.type === "image")
+                    .map((item) => ({
+                      url: item.url,
+                      alt: item.alt ?? item.title,
+                      clickAction: item.clickAction,
+                      redirectUrl: item.redirectUrl,
+                    }))
+                : undefined
+            }
+          />
+        ) : null}
 
-        <WhatIsIncluded
-          inclusions={m?.inclusions.items ?? course.inclusions}
-          exclusions={m?.inclusions.exclusions ?? course.exclusions}
-          eyebrow={m?.inclusions.eyebrow}
-          title={m?.inclusions.title}
-          description={m?.inclusions.description}
-        />
+        {showInclusions ? (
+          <WhatIsIncluded
+            htmlId={resolveSectionHtmlId("inclusions", m?.inclusions._id)}
+            inclusions={m?.inclusions.items ?? course.inclusions}
+            exclusions={m?.inclusions.exclusions ?? course.exclusions}
+            eyebrow={m?.inclusions.eyebrow}
+            title={m?.inclusions.title}
+            description={m?.inclusions.description}
+          />
+        ) : null}
 
-        <CourseEligibility
-          requirements={m?.eligibility.requirements}
-          eyebrow={m?.eligibility.eyebrow}
-          title={m?.eligibility.title}
-          description={m?.eligibility.description}
-          showAllianceBadge={m?.eligibility.showAllianceBadge}
-        />
+        {showEligibility ? (
+          <CourseEligibility
+            htmlId={resolveSectionHtmlId("eligibility", m?.eligibility._id)}
+            requirements={m?.eligibility.requirements}
+            eyebrow={m?.eligibility.eyebrow}
+            title={m?.eligibility.title}
+            description={m?.eligibility.description}
+            showAllianceBadge={m?.eligibility.showAllianceBadge}
+          />
+        ) : null}
 
-        <CourseSyllabus
-          description={m?.syllabus.description ?? course.syllabusDescription}
-          syllabus={m?.syllabus.chapters ?? course.syllabus}
-        />
+        {showSyllabus ? (
+          <CourseSyllabus
+            htmlId={resolveSectionHtmlId("syllabus", m?.syllabus._id)}
+            description={m?.syllabus.description ?? course.syllabusDescription}
+            syllabus={m?.syllabus.chapters ?? course.syllabus}
+          />
+        ) : null}
 
-        <DailySchedule
-          description={m?.schedule.description ?? course.scheduleDescription}
-          schedule={m?.schedule.items ?? course.schedule}
-        />
+        {showSchedule ? (
+          <DailySchedule
+            htmlId={resolveSectionHtmlId("schedule", m?.schedule._id)}
+            description={m?.schedule.description ?? course.scheduleDescription}
+            schedule={m?.schedule.items ?? course.schedule}
+          />
+        ) : null}
 
         {(m?.flags.showExam ?? true) ? <ExamCertification /> : null}
 
-        {(m?.flags.showAccommodation ?? true) ? <AccommodationFood /> : null}
+        {showAccommodation ? (
+          <>
+            <Accommodation content={residentialLife} />
+            <Food content={residentialLife} />
+          </>
+        ) : null}
 
-        <UpcomingDates
-          duration={m?.pricing.duration ?? course.duration}
-          pricing={m?.pricing.options ?? course.pricing}
-          pricingDescription={
-            m?.pricing.description ?? course.pricingDescription
-          }
-          programSlug={course.slug}
-          bookingType="course"
-        />
+        {showPricing ? (
+          <UpcomingDates
+            htmlId={resolveSectionHtmlId("pricing", m?.pricing._id)}
+            duration={m?.pricing.duration ?? course.duration}
+            pricing={m?.pricing.options ?? course.pricing}
+            pricingDescription={
+              m?.pricing.description ?? course.pricingDescription
+            }
+            programSlug={course.slug}
+            bookingType="course"
+          />
+        ) : null}
 
-        {(m?.flags.showWhyNirvana ?? true) ? <WhyNirvana /> : null}
+        {showWhyNirvana ? (
+          <WhyNirvana content={whyNirvana} reviews={reviews} />
+        ) : null}
 
         {(m?.flags.showTravel ?? true) ? <TravelGuide /> : null}
 
         {(m?.flags.showInstagram ?? true) ? <InstagramFeed /> : null}
 
-        {(m?.flags.showMap ?? true) ? (
-          <MapSection className="bg-white" />
+        {showMap && siteMap ? (
+          <MapSection className="bg-white" content={siteMap} />
         ) : null}
 
-        <FAQSection
-          faqs={m?.faqs.items ?? course.faqs}
-          categories={COURSE_FAQ_CATEGORIES}
-          sectionClassName="bg-white"
-          eyebrow="Got Questions?"
-          title={
-            <>
-              Course <span className="text-primary">FAQs</span>
-            </>
-          }
-        />
+        {showFaqs ? (
+          <FAQSection
+            id={resolveSectionHtmlId("faq", m?.faqs._id)}
+            faqs={faqItems}
+            categories={COURSE_FAQ_CATEGORIES}
+            sectionClassName="bg-white"
+            eyebrow="Got Questions?"
+            title={
+              <>
+                Course <span className="text-primary">FAQs</span>
+              </>
+            }
+          />
+        ) : null}
       </article>
     </>
   );

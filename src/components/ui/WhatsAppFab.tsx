@@ -1,10 +1,16 @@
 import { WhatsApp } from "@/icons";
 
 type Props = {
+  /** Digits-only WhatsApp number from Site config */
   phone: string;
   message?: string;
 };
 
+/**
+ * Floating WhatsApp chat button. Phone comes from Site config in the site layout.
+ *
+ * @param props - Phone number and optional prefilled message
+ */
 export default function WhatsAppFab({
   phone,
   message = "Namaste! I'd like to know more about your yoga teacher training programs.",
