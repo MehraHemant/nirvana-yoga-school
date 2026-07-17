@@ -10,12 +10,64 @@ CREATE TABLE `pages` (
     `cta_label` VARCHAR(191) NULL,
     `cta_href` VARCHAR(191) NULL,
     `published` BOOLEAN NOT NULL DEFAULT true,
+    `content_type_id` VARCHAR(191) NULL,
+    `content_data` JSON NOT NULL DEFAULT ('{}'),
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
     `page_modules` JSON NULL,
 
     UNIQUE INDEX `pages_slug_key`(`slug`),
     INDEX `pages_type_published_idx`(`type`, `published`),
+    INDEX `pages_content_type_id_idx`(`content_type_id`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `content_types` (
+    `id` VARCHAR(191) NOT NULL,
+    `key` VARCHAR(191) NOT NULL,
+    `name` VARCHAR(191) NOT NULL,
+    `description` TEXT NOT NULL DEFAULT '',
+    `icon` VARCHAR(191) NOT NULL DEFAULT 'page',
+    `sort_order` INTEGER NOT NULL DEFAULT 0,
+    `is_system` BOOLEAN NOT NULL DEFAULT false,
+    `page_types` JSON NOT NULL,
+    `fields` JSON NOT NULL,
+    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updated_at` DATETIME(3) NOT NULL,
+
+    UNIQUE INDEX `content_types_key_key`(`key`),
+    INDEX `content_types_sort_order_idx`(`sort_order`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `content_items` (
+    `id` VARCHAR(191) NOT NULL,
+    `content_type_id` VARCHAR(191) NOT NULL,
+    `slug` VARCHAR(191) NULL,
+    `name` VARCHAR(191) NOT NULL,
+    `published` BOOLEAN NOT NULL DEFAULT false,
+    `published_at` DATETIME(3) NULL,
+    `data` JSON NOT NULL,
+    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updated_at` DATETIME(3) NOT NULL,
+
+    UNIQUE INDEX `content_items_slug_key`(`slug`),
+    INDEX `content_items_content_type_id_published_idx`(`content_type_id`, `published`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `content_references` (
+    `id` VARCHAR(191) NOT NULL,
+    `from_id` VARCHAR(191) NOT NULL,
+    `to_id` VARCHAR(191) NOT NULL,
+    `field_key` VARCHAR(191) NOT NULL,
+    `sort_order` INTEGER NOT NULL DEFAULT 0,
+
+    INDEX `content_references_to_id_idx`(`to_id`),
+    INDEX `content_references_from_id_field_key_sort_order_idx`(`from_id`, `field_key`, `sort_order`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -317,70 +369,28 @@ CREATE TABLE `bookings` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `chat_conversations` (
+CREATE TABLE `global_settings` (
     `id` VARCHAR(191) NOT NULL,
-    `session_id` VARCHAR(191) NOT NULL,
-    `title` VARCHAR(191) NULL,
-    `summary` TEXT NULL,
+    `key` VARCHAR(191) NOT NULL,
+    `value` JSON NOT NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
 
-    INDEX `chat_conversations_session_id_updated_at_idx`(`session_id`, `updated_at`),
+    UNIQUE INDEX `global_settings_key_key`(`key`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- CreateTable
-CREATE TABLE `chat_messages` (
-    `id` VARCHAR(191) NOT NULL,
-    `conversation_id` VARCHAR(191) NOT NULL,
-    `role` ENUM('user', 'assistant', 'system') NOT NULL,
-    `content` TEXT NOT NULL,
-    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+-- AddForeignKey
+ALTER TABLE `pages` ADD CONSTRAINT `pages_content_type_id_fkey` FOREIGN KEY (`content_type_id`) REFERENCES `content_types`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
-    INDEX `chat_messages_conversation_id_created_at_idx`(`conversation_id`, `created_at`),
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- AddForeignKey
+ALTER TABLE `content_items` ADD CONSTRAINT `content_items_content_type_id_fkey` FOREIGN KEY (`content_type_id`) REFERENCES `content_types`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
--- CreateTable
-CREATE TABLE `chat_documents` (
-    `id` VARCHAR(191) NOT NULL,
-    `title` VARCHAR(191) NOT NULL,
-    `source` VARCHAR(191) NOT NULL,
-    `source_type` ENUM('txt', 'markdown', 'html', 'pdf', 'docx') NOT NULL,
-    `mime_type` VARCHAR(191) NULL,
-    `file_size` INTEGER NULL,
-    `status` ENUM('pending', 'processing', 'indexed', 'failed') NOT NULL DEFAULT 'pending',
-    `error` TEXT NULL,
-    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updated_at` DATETIME(3) NOT NULL,
+-- AddForeignKey
+ALTER TABLE `content_references` ADD CONSTRAINT `content_references_from_id_fkey` FOREIGN KEY (`from_id`) REFERENCES `content_items`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
-    INDEX `chat_documents_status_created_at_idx`(`status`, `created_at`),
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
-CREATE TABLE `chat_document_chunks` (
-    `id` VARCHAR(191) NOT NULL,
-    `document_id` VARCHAR(191) NOT NULL,
-    `chunk_index` INTEGER NOT NULL,
-    `content` TEXT NOT NULL,
-    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-
-    INDEX `chat_document_chunks_document_id_idx`(`document_id`),
-    UNIQUE INDEX `chat_document_chunks_document_id_chunk_index_key`(`document_id`, `chunk_index`),
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
-CREATE TABLE `chat_embeddings` (
-    `id` VARCHAR(191) NOT NULL,
-    `chunk_id` VARCHAR(191) NOT NULL,
-    `vector` JSON NULL,
-    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-
-    UNIQUE INDEX `chat_embeddings_chunk_id_key`(`chunk_id`),
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- AddForeignKey
+ALTER TABLE `content_references` ADD CONSTRAINT `content_references_to_id_fkey` FOREIGN KEY (`to_id`) REFERENCES `content_items`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `page_sections` ADD CONSTRAINT `page_sections_page_id_fkey` FOREIGN KEY (`page_id`) REFERENCES `pages`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
@@ -420,13 +430,4 @@ ALTER TABLE `navigation_items` ADD CONSTRAINT `navigation_items_group_id_fkey` F
 
 -- AddForeignKey
 ALTER TABLE `content_revisions` ADD CONSTRAINT `content_revisions_admin_user_id_fkey` FOREIGN KEY (`admin_user_id`) REFERENCES `admin_users`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `chat_messages` ADD CONSTRAINT `chat_messages_conversation_id_fkey` FOREIGN KEY (`conversation_id`) REFERENCES `chat_conversations`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `chat_document_chunks` ADD CONSTRAINT `chat_document_chunks_document_id_fkey` FOREIGN KEY (`document_id`) REFERENCES `chat_documents`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `chat_embeddings` ADD CONSTRAINT `chat_embeddings_chunk_id_fkey` FOREIGN KEY (`chunk_id`) REFERENCES `chat_document_chunks`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 

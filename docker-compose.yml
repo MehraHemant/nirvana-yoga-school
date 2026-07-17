@@ -19,21 +19,5 @@ services:
       retries: 10
       start_period: 15s
 
-  ollama:
-    image: ollama/ollama:latest
-    container_name: nirvana-ollama
-    restart: unless-stopped
-    ports:
-      - "11435:11434"
-    volumes:
-      - ollama_data:/root/.ollama
-    healthcheck:
-      test: ["CMD", "ollama", "list"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 20s
-
 volumes:
   nirvana_cms_data:
-  ollama_data:

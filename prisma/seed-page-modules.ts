@@ -1,4 +1,3 @@
-import type { Prisma } from "@prisma/client";
 import { COURSES_MEDIA } from "@/content/data/media";
 import retreatsJson from "@/content/data/retreats/retreats.json";
 import sitePagesJson from "@/content/data/site-pages/site-pages.json";
@@ -42,7 +41,7 @@ export async function seedPageModulesOnly() {
 
     await prisma.page.update({
       where: { slug },
-      data: { pageModules: modules as Prisma.InputJsonValue },
+      data: { pageModules: modules },
     });
     console.log(`  modules site: ${slug}`);
   }
@@ -54,7 +53,7 @@ export async function seedPageModulesOnly() {
     const modules = buildModulesFromCourse(course, media);
     await prisma.page.update({
       where: { slug },
-      data: { pageModules: modules as Prisma.InputJsonValue },
+      data: { pageModules: modules },
     });
     console.log(`  modules course: ${slug}`);
   }
@@ -64,7 +63,7 @@ export async function seedPageModulesOnly() {
       const modules = buildModulesFromOnlineSlug(slug);
       await prisma.page.update({
         where: { slug },
-        data: { pageModules: modules as Prisma.InputJsonValue },
+        data: { pageModules: modules },
       });
       console.log(`  modules online: ${slug}`);
     } catch {
@@ -77,7 +76,7 @@ export async function seedPageModulesOnly() {
     try {
       await prisma.page.update({
         where: { slug: retreat.slug },
-        data: { pageModules: modules as Prisma.InputJsonValue },
+        data: { pageModules: modules },
       });
       console.log(`  modules retreat: ${retreat.slug}`);
     } catch {
