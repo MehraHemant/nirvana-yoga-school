@@ -1,19 +1,23 @@
-import { DEFAULT_HOME_PAGE_CONTENT } from "@/content/data/dedicated-page-defaults";
 import type {
   HomeFaqsContent,
+  InstagramFeedContent,
   ResidentialLifeContent,
   RetreatAccommodationContent,
   ReviewsContent,
   SiteMapContent,
+  TravelGuideContent,
   VenueFaqsContent,
   WhyNirvanaContent,
   YttHubContent,
 } from "@/content/types/shared-sections";
+import { DEFAULT_TRAVEL_GUIDE } from "@/content/data/travel-guide-defaults";
+import { FALLBACK_INSTAGRAM_FEED } from "@/lib/instagram";
 import { fetchGlobalSettingsFromDb } from "@/lib/cms/cache";
 import { requireDb } from "./db-fallback";
 import { getHomePageContent } from "./dedicated-pages";
 import type { ContentResult, RepositoryOptions } from "./fetch";
 import { requireGlobalSetting } from "./global-settings";
+import { DEFAULT_HOME_PAGE_CONTENT } from "@/content/data/dedicated-page-defaults";
 
 /**
  * Normalizes retreat lodging docs so nested live flags always exist.
@@ -64,6 +68,7 @@ function siteMapFromHomeMap(map: {
 
 /**
  * Residential life block (accommodation, food, facilities) from MySQL.
+ * Prefer per-page `page_modules.residentialLife` on the frontend.
  *
  * @param options - Optional repository options
  */
@@ -133,7 +138,8 @@ export async function getVenueFaqs(
 }
 
 /**
- * Retreat lodging / food galleries from MySQL.
+ * Retreat lodging / food galleries from MySQL (legacy global default).
+ * Prefer per-page `page_modules.retreatAccommodation` on the frontend.
  *
  * @param options - Optional repository options
  */
@@ -183,6 +189,62 @@ export async function getSiteMap(
     }
 
     return siteMapFromHomeMap(DEFAULT_HOME_PAGE_CONTENT.map);
+  }, options);
+}
+
+/**
+ * Shared Instagram feed from MySQL (`global_settings.instagram`).
+ *
+ * @param options - Optional repository options
+ */
+export async function getInstagramFeed(
+  options?: RepositoryOptions,
+): Promise<ContentResult<InstagramFeedContent>> {
+  return requireDb(async () => {
+    const stored = await fetchGlobalSettingsFromDb("instagram");
+    if (stored && typeof stored === "object") {
+      const feed = stored as InstagramFeedContent;
+      if (Array.isArray(feed.media) && feed.media.length > 0) {
+        return {
+          ...feed,
+          live: feed.live !== false,
+          profileUrl:
+            feed.profileUrl?.trim() || FALLBACK_INSTAGRAM_FEED.profileUrl,
+        };
+      }
+    }
+    return {
+      live: true,
+      ...FALLBACK_INSTAGRAM_FEED,
+    };
+  }, options);
+}
+
+/**
+ * Shared travel guide from MySQL (`global_settings.travel`).
+ *
+ * @param options - Optional repository options
+ */
+export async function getTravelGuide(
+  options?: RepositoryOptions,
+): Promise<ContentResult<TravelGuideContent>> {
+  return requireDb(async () => {
+    const stored = await fetchGlobalSettingsFromDb("travel");
+    if (stored && typeof stored === "object") {
+      const guide = stored as TravelGuideContent;
+      if (Array.isArray(guide.topics) && guide.topics.length > 0) {
+        return {
+          ...DEFAULT_TRAVEL_GUIDE,
+          ...guide,
+          live: guide.live !== false,
+          topics: guide.topics,
+          quickFacts: guide.quickFacts?.length
+            ? guide.quickFacts
+            : DEFAULT_TRAVEL_GUIDE.quickFacts,
+        };
+      }
+    }
+    return { ...DEFAULT_TRAVEL_GUIDE };
   }, options);
 }
 

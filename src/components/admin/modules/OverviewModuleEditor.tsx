@@ -24,7 +24,7 @@ type OverviewModuleEditorProps = ModulePanelProps & {
 const EMPTY_MEDIA: OverviewMediaItem = { type: "image", url: "", alt: "" };
 
 /**
- * Overview module editor — copy, media table, quote, and glance grid.
+ * Overview module editor — lead/supporting copy, media table, and glance grid.
  *
  * @param props - Overview config and change handler
  */
@@ -120,14 +120,16 @@ export function OverviewModuleEditor({
         value={overview.lead}
         onChange={(lead) => onChange({ ...overview, lead })}
         multiline
-        rows={5}
+        rows={10}
+        hint="Full overview body — no length limit."
       />
       <TextField
         label="Supporting copy"
         value={overview.supportingCopy ?? ""}
         onChange={(supportingCopy) => onChange({ ...overview, supportingCopy })}
         multiline
-        rows={3}
+        rows={8}
+        hint="Optional second paragraph — no length limit."
       />
 
       <div className="admin-field">
@@ -288,34 +290,6 @@ export function OverviewModuleEditor({
             </div>
           </div>
         )}
-      </div>
-
-      <div className="admin-grid-2">
-        <TextField
-          label="Quote text"
-          value={overview.quote?.text ?? ""}
-          onChange={(text) =>
-            onChange({
-              ...overview,
-              quote: {
-                text,
-                attribution: overview.quote?.attribution ?? "",
-              },
-            })
-          }
-          multiline
-          rows={3}
-        />
-        <TextField
-          label="Quote attribution"
-          value={overview.quote?.attribution ?? ""}
-          onChange={(attribution) =>
-            onChange({
-              ...overview,
-              quote: { text: overview.quote?.text ?? "", attribution },
-            })
-          }
-        />
       </div>
 
       <div className="admin-field">

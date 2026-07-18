@@ -137,14 +137,15 @@ export function createEmptyPageModules(
       glance: [],
       media: { mode: "image", items: [] },
     },
-    inclusions: { items: [], exclusions: [] },
+    inclusions: { items: [] },
     eligibility: {
       requirements: [...DEFAULT_ELIGIBILITY_REQUIREMENTS],
       showAllianceBadge: true,
     },
     syllabus: { description: "", chapters: [] },
     schedule: { description: "", items: [] },
-    pricing: { description: "", options: [] },
+    pricing: { description: "", options: [], batches: [] },
+    teachers: { selectedSlugs: [] },
     faqs: { items: [] },
     flags: { ...DEFAULT_RESIDENTIAL_FLAGS },
   };

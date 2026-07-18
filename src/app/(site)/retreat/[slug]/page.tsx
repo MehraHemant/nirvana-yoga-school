@@ -77,6 +77,8 @@ export default async function Page({ params }: PageProps) {
       whyNirvana={data.whyNirvana}
       reviews={data.reviews}
       siteMap={data.siteMap}
+      instagram={data.instagram}
+      travel={data.travel}
     />
   );
 }

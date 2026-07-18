@@ -21,9 +21,27 @@ import { prisma, type DbClient } from "@/lib/db";
  *
  * @param doc - Full site page document
  */
+/**
+ * Builds `content_data` JSON for site pages (presentation copy + optional SEO).
+ *
+ * @param doc - Site page document from admin
+ */
+function sitePageContentData(doc: SitePageDocument): Record<string, unknown> {
+  return {
+    ...(doc.presentation ?? {}),
+    ...(doc.meta ? { meta: doc.meta } : {}),
+  };
+}
+
+/**
+ * Upsert a `SitePageDocument` and all child rows from admin API input.
+ *
+ * @param doc - Full site page document
+ */
 export async function upsertSitePageDocument(doc: SitePageDocument) {
   const ref = getPageRef(doc.slug);
   const type = ref?.type ?? "site";
+  const contentData = sitePageContentData(doc);
   const page = await prisma.page.upsert({
     where: { slug: doc.slug },
     create: {
@@ -35,7 +53,8 @@ export async function upsertSitePageDocument(doc: SitePageDocument) {
       image: doc.image,
       ctaLabel: doc.ctaLabel,
       ctaHref: doc.ctaHref,
-      contentData: doc.presentation ?? {},
+      published: true,
+      contentData,
     },
     update: {
       type,
@@ -45,7 +64,7 @@ export async function upsertSitePageDocument(doc: SitePageDocument) {
       image: doc.image,
       ctaLabel: doc.ctaLabel,
       ctaHref: doc.ctaHref,
-      contentData: doc.presentation ?? {},
+      contentData,
     },
     select: { id: true, type: true },
   });

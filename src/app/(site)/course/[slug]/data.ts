@@ -1,9 +1,11 @@
 import { extractMediaFromModules } from "@/content/mappers/page-modules";
 import { getPageModules } from "@/content/repositories/page-modules";
 import {
+  getInstagramFeed,
   getResidentialLife,
   getReviews,
   getSiteMap,
+  getTravelGuide,
   getWhyNirvana,
 } from "@/content/repositories/shared-sections";
 import type { CourseMedia, ResidentialCourseDocument } from "@/content/types";
@@ -20,14 +22,23 @@ export async function loadCoursePageData(
   slug: string,
   course: ResidentialCourseDocument,
 ): Promise<CoursePageData> {
-  const [modulesResult, residentialLife, whyNirvana, reviews, siteMap] =
-    await Promise.all([
-      getPageModules(slug),
-      getResidentialLife().catch(() => null),
-      getWhyNirvana().catch(() => null),
-      getReviews().catch(() => null),
-      getSiteMap().catch(() => null),
-    ]);
+  const [
+    modulesResult,
+    residentialLife,
+    whyNirvana,
+    reviews,
+    siteMap,
+    instagram,
+    travel,
+  ] = await Promise.all([
+    getPageModules(slug),
+    getResidentialLife().catch(() => null),
+    getWhyNirvana().catch(() => null),
+    getReviews().catch(() => null),
+    getSiteMap().catch(() => null),
+    getInstagramFeed().catch(() => null),
+    getTravelGuide().catch(() => null),
+  ]);
 
   const modules = modulesResult.data;
 
@@ -44,9 +55,12 @@ export async function loadCoursePageData(
     media,
     videos,
     modules,
-    residentialLife: residentialLife?.data ?? null,
+    residentialLife:
+      modules?.residentialLife ?? residentialLife?.data ?? null,
     whyNirvana: whyNirvana?.data ?? null,
     reviews: reviews?.data ?? null,
     siteMap: siteMap?.data ?? null,
+    instagram: instagram?.data ?? null,
+    travel: travel?.data ?? null,
   };
 }

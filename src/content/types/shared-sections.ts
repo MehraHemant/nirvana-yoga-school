@@ -48,12 +48,22 @@ export type ResidentialLifeContent = SharedSectionLiveFields & {
   facilities: SharedFacility[];
 };
 
+/** Allowed review platforms for CMS source dropdowns. */
+export const REVIEW_SOURCE_OPTIONS = [
+  { value: "Google", label: "Google" },
+  { value: "Tripadvisor", label: "Tripadvisor" },
+  { value: "Trustpilot", label: "Trustpilot" },
+] as const;
+
+/** Review platform stored on testimonials / shared reviews. */
+export type ReviewSource = (typeof REVIEW_SOURCE_OPTIONS)[number]["value"];
+
 export type SharedReview = {
   name: string;
   image: string;
   title: string;
   message: string;
-  source: "Google" | "Tripadvisor" | "Trustpilot";
+  source: ReviewSource;
   /** Display order (0, 10, 20…); array order is authoritative when omitted */
   sort?: number;
 };
@@ -97,6 +107,76 @@ export type SiteMapContent = SharedSectionLiveFields & {
   embedUrl: string;
   iframeTitle: string;
 };
+
+/** Icon keys for travel guide topics (mapped to `@/icons` on the client). */
+export type TravelTopicIconKey =
+  | "shield"
+  | "plane"
+  | "leaf"
+  | "compass"
+  | "wallet"
+  | "wifi";
+
+/**
+ * Global travel guide — shared across product pages.
+ * Pages only toggle visibility via `flags.showTravel`.
+ */
+export type TravelGuideContent = SharedSectionLiveFields & {
+  intro: string;
+  quickFacts: Array<{ label: string; value: string }>;
+  topics: Array<{
+    id: string;
+    title: string;
+    tag: string;
+    content: string;
+    image: string;
+    imageAlt: string;
+    iconKey: TravelTopicIconKey;
+  }>;
+};
+
+/**
+ * Global Instagram feed snapshot — shared across product pages.
+ * Pages only toggle visibility via `flags.showInstagram`.
+ */
+export type InstagramFeedContent = SharedSectionLiveFields & {
+  username: string | null;
+  displayName?: string;
+  bio?: string;
+  website?: string;
+  profileUrl: string;
+  postsCount: number;
+  followersCount?: number;
+  followingCount?: number;
+  media: Array<{
+    id: string;
+    caption: string;
+    image: string;
+    images: string[];
+    videoUrl?: string | null;
+    mediaType: "IMAGE" | "VIDEO" | "CAROUSEL_ALBUM";
+    isVideo: boolean;
+    isMultipleImages: boolean;
+    mediaCount: number;
+    likesCount: number;
+    commentsCount: number;
+    permalink: string;
+    timestamp: string;
+    username: string | null;
+  }>;
+};
+
+/** The four global shared section keys editable in Shared sections CMS. */
+export const GLOBAL_SHARED_SECTION_KEYS = [
+  "whyNirvana",
+  "siteMap",
+  "instagram",
+  "travel",
+] as const;
+
+/** @see GLOBAL_SHARED_SECTION_KEYS */
+export type GlobalSharedSectionKey =
+  (typeof GLOBAL_SHARED_SECTION_KEYS)[number];
 
 export type RetreatAccommodationContent = SharedSectionLiveFields & {
   /**

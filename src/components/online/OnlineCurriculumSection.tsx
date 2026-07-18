@@ -13,11 +13,13 @@ type SyllabusSection = {
 };
 
 type OnlineCurriculumSectionProps = {
+  id?: string;
   description: string;
   syllabus: SyllabusSection[];
 };
 
 export default function OnlineCurriculumSection({
+  id = "syllabus",
   description,
   syllabus,
 }: OnlineCurriculumSectionProps) {
@@ -25,11 +27,7 @@ export default function OnlineCurriculumSection({
   const prefersReduced = useReducedMotion() ?? false;
 
   return (
-    <OnlineSectionShell
-      id="syllabus"
-      title="Curriculum"
-      description={description}
-    >
+    <OnlineSectionShell id={id} title="Curriculum" description={description}>
       <div className="space-y-3">
         {syllabus.map((item, index) => {
           const isOpen = openIndex === index;

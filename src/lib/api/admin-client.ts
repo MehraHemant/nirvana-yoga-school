@@ -11,6 +11,7 @@ import type {
   AdminMediaItemResponse,
   AdminMediaListResponse,
   AdminMediaUploadResponse,
+  AdminPageEditorDocument,
   AdminPageModulesGetResponse,
 } from "@/lib/types/admin-api";
 import type { ApiMutationResponse } from "@/lib/types/api";
@@ -24,6 +25,8 @@ export type AdminGlobalSettingsKey =
   | "residentialLife"
   | "whyNirvana"
   | "siteMap"
+  | "instagram"
+  | "travel"
   | "reviews"
   | "homeFaqs"
   | "venueFaqs"
@@ -42,6 +45,39 @@ async function adminFetch<TBody>(
 ): Promise<TBody> {
   const response = await fetch(input, init);
   return parseApiJson<TBody>(response);
+}
+
+/**
+ * Load every document needed by one guided page editor.
+ *
+ * @param slug - Page slug
+ */
+export async function fetchAdminPageEditor(
+  slug: string,
+): Promise<AdminPageEditorDocument> {
+  return adminFetch<AdminPageEditorDocument>(
+    `/api/admin/pages/${encodeURIComponent(slug)}`,
+  );
+}
+
+/**
+ * Save the document pieces owned by one guided page editor.
+ *
+ * @param slug - Page slug
+ * @param document - Changed page document pieces
+ */
+export async function saveAdminPageEditor(
+  slug: string,
+  document: Pick<AdminPageEditorDocument, "modules" | "content" | "product">,
+): Promise<ApiMutationResponse> {
+  return adminFetch<ApiMutationResponse>(
+    `/api/admin/pages/${encodeURIComponent(slug)}`,
+    {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(document),
+    },
+  );
 }
 
 /**
@@ -286,9 +322,10 @@ export async function uploadAdminMedia(
  *
  * @param slug - Dedicated page slug
  */
-export async function fetchAdminDedicatedPage(
-  slug: string,
-): Promise<{ content: DedicatedPageContent; meta: { slug: string; type: string } }> {
+export async function fetchAdminDedicatedPage(slug: string): Promise<{
+  content: DedicatedPageContent;
+  meta: { slug: string; type: string };
+}> {
   return adminFetch(`/api/admin/dedicated/${encodeURIComponent(slug)}`);
 }
 

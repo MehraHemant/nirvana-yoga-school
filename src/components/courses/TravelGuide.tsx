@@ -10,8 +10,10 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { Container, Heading, Pill, SectionHeader } from "@/components/ui";
 import { ChevronDown } from "@/icons";
+import type { TravelGuideContent } from "@/content/types/shared-sections";
 import { EASE_OUT } from "@/lib/motion";
 import {
+  mapTravelTopics,
   TRAVEL_INTRO,
   TRAVEL_TOPICS,
   type TravelTopic,
@@ -51,30 +53,44 @@ function HeroBanner({ topic }: { topic: TravelTopic }) {
   );
 }
 
-export default function TravelGuide() {
-  const [activeId, setActiveId] = useState<string | null>(TRAVEL_TOPICS[0].id);
+/**
+ * Travel guide section — prefers CMS shared content.
+ *
+ * @param props.content - Shared travel document from MySQL
+ */
+export default function TravelGuide({
+  content = null,
+}: {
+  content?: TravelGuideContent | null;
+} = {}) {
+  const topics = content?.topics?.length
+    ? mapTravelTopics(content)
+    : TRAVEL_TOPICS;
+  const intro = content?.intro?.trim() || TRAVEL_INTRO;
+
+  const [activeId, setActiveId] = useState<string | null>(topics[0]?.id ?? null);
   const [isPaused, setIsPaused] = useState(false);
   const prefersReduced = useReducedMotion() ?? false;
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { amount: 0.3 });
-  // Banner always shows the last selected topic even when accordion is closed
   const active =
-    TRAVEL_TOPICS.find((topic) => topic.id === activeId) ?? TRAVEL_TOPICS[0];
+    topics.find((topic) => topic.id === activeId) ?? topics[0];
 
-  // Auto-advance topics — only while in view; pauses on hover/focus
   useEffect(() => {
-    if (!isInView || isPaused || prefersReduced || TRAVEL_TOPICS.length <= 1) {
+    if (!isInView || isPaused || prefersReduced || topics.length <= 1) {
       return;
     }
     const interval = setInterval(() => {
       setActiveId((current) => {
-        if (current === null) return TRAVEL_TOPICS[0].id;
-        const idx = TRAVEL_TOPICS.findIndex((topic) => topic.id === current);
-        return TRAVEL_TOPICS[(idx + 1) % TRAVEL_TOPICS.length].id;
+        if (current === null) return topics[0].id;
+        const idx = topics.findIndex((topic) => topic.id === current);
+        return topics[(idx + 1) % topics.length].id;
       });
     }, 4500);
     return () => clearInterval(interval);
-  }, [isInView, isPaused, prefersReduced]);
+  }, [isInView, isPaused, prefersReduced, topics]);
+
+  if (!active) return null;
 
   return (
     <section
@@ -105,7 +121,7 @@ export default function TravelGuide() {
             }
           />
           <p className="type-body border-l-2 border-primary/20 pl-4 font-sans text-muted sm:text-base">
-            {TRAVEL_INTRO}
+            {intro}
           </p>
         </div>
 
@@ -118,7 +134,7 @@ export default function TravelGuide() {
 
           {/* Topic accordion */}
           <aside className="flex flex-col gap-2" aria-label="Travel topics">
-            {TRAVEL_TOPICS.map((topic) => {
+            {topics.map((topic) => {
               const isActive = activeId === topic.id;
               const { Icon } = topic;
               return (

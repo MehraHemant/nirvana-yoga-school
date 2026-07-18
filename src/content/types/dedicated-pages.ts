@@ -299,6 +299,8 @@ export type EnquireStep = {
   body: string;
 };
 
+export type BookingStep = EnquireStep;
+
 /** Enquire-now CMS document (`slug=enquire-now`). */
 export type EnquirePageContent = {
   kind: "enquire";
@@ -324,10 +326,17 @@ export type EnquirePageContent = {
   };
 };
 
+/** Booking page CMS document (`slug=booking`). */
+export type BookingPageContent = Omit<EnquirePageContent, "kind"> & {
+  kind: "booking";
+  steps: BookingStep[];
+};
+
 export type DedicatedPageContent =
   | HomePageContent
   | ContactPageContent
-  | EnquirePageContent;
+  | EnquirePageContent
+  | BookingPageContent;
 
 /**
  * Type guard for home content documents.
@@ -369,5 +378,20 @@ export function isEnquirePageContent(
     typeof value === "object" &&
     value !== null &&
     (value as EnquirePageContent).kind === "enquire"
+  );
+}
+
+/**
+ * Type guard for booking content documents.
+ *
+ * @param value - Unknown content_data payload
+ */
+export function isBookingPageContent(
+  value: unknown,
+): value is BookingPageContent {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    (value as BookingPageContent).kind === "booking"
   );
 }

@@ -12,6 +12,11 @@ import {
   OnlineTrustBar,
 } from "@/components/online";
 import { Container } from "@/components/ui";
+import {
+  isSectionLive,
+  shouldRenderSection,
+} from "@/lib/cms/section-visibility";
+import { resolveSectionHtmlId } from "@/lib/html-id";
 import type { OnlineCoursePageData } from "./types";
 
 export default function OnlineCourseClient({
@@ -19,27 +24,54 @@ export default function OnlineCourseClient({
   media,
   modules,
 }: OnlineCoursePageData) {
-  const pricing = course.pricing[0];
+  const overview = modules?.overview;
+  const inclusions = modules?.inclusions;
+  const syllabus = modules?.syllabus;
+  const pricingModule = modules?.pricing;
+  const faqs = modules?.faqs;
+  const pricing = pricingModule?.options[0] ?? course.pricing[0];
   const previewVideoId = media.videos[0];
+  const showHero = isSectionLive(modules?.hero);
+  const showStickyNav = isSectionLive(modules?.stickyNav);
+  const showOverview = isSectionLive(overview);
+  const showInclusions = shouldRenderSection(
+    inclusions,
+    (inclusions?.items ?? course.inclusions).length > 0,
+  );
+  const showSyllabus = shouldRenderSection(
+    syllabus,
+    (syllabus?.chapters ?? course.syllabus).length > 0,
+  );
+  const showPricing = shouldRenderSection(
+    pricingModule,
+    (pricingModule?.options ?? course.pricing).length > 0,
+  );
+  const showFaqs = shouldRenderSection(
+    faqs,
+    (faqs?.items ?? course.faqs).length > 0,
+  );
 
-  const pricingCard = pricing ? (
-    <OnlinePricingCard
-      pricing={pricing}
-      pricingDescription={course.pricingDescription}
-      certification={course.certification}
-      level={course.level}
-      ctaPrimary={course.ctaPrimary}
-      ctaPrimaryHref={course.ctaPrimaryHref}
-      ctaSecondary={course.ctaSecondary}
-      ctaSecondaryHref={course.ctaSecondaryHref}
-    />
-  ) : null;
+  const pricingCard =
+    showPricing && pricing ? (
+      <OnlinePricingCard
+        pricing={pricing}
+        pricingDescription={
+          pricingModule?.description ?? course.pricingDescription
+        }
+        certification={course.certification}
+        level={course.level}
+        ctaPrimary={course.ctaPrimary}
+        ctaPrimaryHref={course.ctaPrimaryHref}
+        ctaSecondary={course.ctaSecondary}
+        ctaSecondaryHref={course.ctaSecondaryHref}
+      />
+    ) : null;
 
   return (
     <div className="online-course-theme bg-white">
-      {modules ? (
+      {showHero && modules ? (
         <PageHeroRenderer modules={modules} />
-      ) : (
+      ) : !modules ? (
         <PageHeroRenderer
           modules={{
             hero: {
@@ -83,20 +115,36 @@ export default function OnlineCourseClient({
             },
           }}
         />
-      )}
+      ) : null}
 
       <OnlineTrustBar />
 
-      <CourseStickyNav
-        items={modules?.stickyNav.items ?? course.navItems}
-        variant="online"
-      />
+      {showStickyNav ? (
+        <CourseStickyNav
+          items={modules?.stickyNav.items ?? course.navItems}
+          variant="online"
+        />
+      ) : null}
 
       <Container size="2xl">
         <div className="online-course-layout">
           <main className="online-course-main min-w-0">
-            <OnlineOverviewSection overview={course.overview} />
-            <OnlineInclusionsSection inclusions={course.inclusions} />
+            {showOverview ? (
+              <OnlineOverviewSection
+                id={resolveSectionHtmlId("overview", overview?._id)}
+                title={overview?.title}
+                description={overview?.supportingCopy}
+                overview={overview?.lead ?? course.overview}
+              />
+            ) : null}
+            {showInclusions ? (
+              <OnlineInclusionsSection
+                id={resolveSectionHtmlId("inclusions", inclusions?._id)}
+                title={inclusions?.title}
+                description={inclusions?.description}
+                inclusions={inclusions?.items ?? course.inclusions}
+              />
+            ) : null}
 
             {pricingCard && (
               <div className="border-b border-secondary/10 py-8 lg:hidden">
@@ -104,16 +152,26 @@ export default function OnlineCourseClient({
               </div>
             )}
 
-            <OnlineCurriculumSection
-              description={course.syllabusDescription}
-              syllabus={course.syllabus}
-            />
+            {showSyllabus ? (
+              <OnlineCurriculumSection
+                id={resolveSectionHtmlId("syllabus", syllabus?._id)}
+                description={
+                  syllabus?.description ?? course.syllabusDescription
+                }
+                syllabus={syllabus?.chapters ?? course.syllabus}
+              />
+            ) : null}
 
             <OnlineTeachersSection teachers={course.teachers} />
 
             <OnlineTestimonialsSection testimonials={course.testimonials} />
 
-            <OnlineFAQSection faqs={course.faqs} />
+            {showFaqs ? (
+              <OnlineFAQSection
+                id={resolveSectionHtmlId("faq", faqs?._id)}
+                faqs={faqs?.items ?? course.faqs}
+              />
+            ) : null}
           </main>
 
           {pricingCard && (

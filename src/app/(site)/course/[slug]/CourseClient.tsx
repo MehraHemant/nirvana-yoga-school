@@ -19,7 +19,10 @@ import {
   WhyNirvana,
 } from "@/components/courses";
 import { COURSE_FAQ_CATEGORIES, FAQSection } from "@/components/ui";
-import { isSectionLive, shouldRenderSection } from "@/lib/cms/section-visibility";
+import {
+  isSectionLive,
+  shouldRenderSection,
+} from "@/lib/cms/section-visibility";
 import { resolveSectionHtmlId } from "@/lib/html-id";
 import type { CoursePageData } from "./types";
 
@@ -37,6 +40,8 @@ export default function CourseClient({
   whyNirvana,
   reviews,
   siteMap,
+  instagram,
+  travel,
 }: CoursePageData) {
   const m = modules;
   const heroFee = m?.hero.type === "bento-media" ? m.hero.fee : course.fee;
@@ -80,6 +85,12 @@ export default function CourseClient({
   const showMap =
     (m?.flags.showMap ?? true) &&
     shouldRenderSection(siteMap, Boolean(siteMap?.embedUrl?.trim()));
+  const showTravel =
+    (m?.flags.showTravel ?? true) &&
+    shouldRenderSection(travel, Boolean(travel?.topics?.length));
+  const showInstagram =
+    (m?.flags.showInstagram ?? true) &&
+    shouldRenderSection(instagram, Boolean(instagram?.media?.length));
 
   return (
     <>
@@ -149,8 +160,6 @@ export default function CourseClient({
             eyebrow={overview?.eyebrow}
             title={overview?.title}
             supportingCopy={overview?.supportingCopy}
-            quoteText={overview?.quote?.text}
-            quoteAttribution={overview?.quote?.attribution}
             featureImages={
               overview?.media.mode === "carousel"
                 ? overview.media.items
@@ -178,7 +187,6 @@ export default function CourseClient({
           <WhatIsIncluded
             htmlId={resolveSectionHtmlId("inclusions", m?.inclusions._id)}
             inclusions={m?.inclusions.items ?? course.inclusions}
-            exclusions={m?.inclusions.exclusions ?? course.exclusions}
             eyebrow={m?.inclusions.eyebrow}
             title={m?.inclusions.title}
             description={m?.inclusions.description}
@@ -229,6 +237,7 @@ export default function CourseClient({
             pricingDescription={
               m?.pricing.description ?? course.pricingDescription
             }
+            batches={m?.pricing.batches}
             programSlug={course.slug}
             bookingType="course"
           />
@@ -238,9 +247,11 @@ export default function CourseClient({
           <WhyNirvana content={whyNirvana} reviews={reviews} />
         ) : null}
 
-        {(m?.flags.showTravel ?? true) ? <TravelGuide /> : null}
+        {showTravel && travel ? <TravelGuide content={travel} /> : null}
 
-        {(m?.flags.showInstagram ?? true) ? <InstagramFeed /> : null}
+        {showInstagram && instagram ? (
+          <InstagramFeed content={instagram} />
+        ) : null}
 
         {showMap && siteMap ? (
           <MapSection className="bg-white" content={siteMap} />

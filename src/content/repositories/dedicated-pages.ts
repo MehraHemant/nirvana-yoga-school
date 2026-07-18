@@ -1,14 +1,17 @@
 import {
+  DEFAULT_BOOKING_PAGE_CONTENT,
   DEFAULT_CONTACT_PAGE_CONTENT,
   DEFAULT_ENQUIRE_PAGE_CONTENT,
   DEFAULT_HOME_PAGE_CONTENT,
 } from "@/content/data/dedicated-page-defaults";
 import type {
+  BookingPageContent,
   ContactPageContent,
   EnquirePageContent,
   HomePageContent,
 } from "@/content/types/dedicated-pages";
 import {
+  isBookingPageContent,
   isContactPageContent,
   isEnquirePageContent,
   isHomePageContent,
@@ -236,6 +239,34 @@ export function normalizeEnquireContent(value: unknown): EnquirePageContent {
 }
 
 /**
+ * Merges partial booking content with defaults.
+ *
+ * @param value - Raw content_data
+ */
+export function normalizeBookingContent(value: unknown): BookingPageContent {
+  if (!isBookingPageContent(value)) {
+    return structuredClone(DEFAULT_BOOKING_PAGE_CONTENT);
+  }
+  return {
+    ...DEFAULT_BOOKING_PAGE_CONTENT,
+    ...value,
+    meta:
+      value.meta != null
+        ? { ...DEFAULT_BOOKING_PAGE_CONTENT.meta, ...value.meta }
+        : value.meta ?? DEFAULT_BOOKING_PAGE_CONTENT.meta,
+    hero: { ...DEFAULT_BOOKING_PAGE_CONTENT.hero, ...value.hero },
+    stepsSection: {
+      ...DEFAULT_BOOKING_PAGE_CONTENT.stepsSection,
+      ...value.stepsSection,
+    },
+    steps:
+      value.steps?.length > 0
+        ? value.steps
+        : DEFAULT_BOOKING_PAGE_CONTENT.steps,
+  };
+}
+
+/**
  * Hydrates home FAQs/reviews from legacy global_settings when missing on the page.
  *
  * @param content - Normalized home document
@@ -352,5 +383,22 @@ export async function getEnquirePageContent(
       select: { contentData: true },
     });
     return normalizeEnquireContent(page?.contentData);
+  }, options);
+}
+
+/**
+ * Loads booking page CMS content.
+ *
+ * @param options - Optional repository options
+ */
+export async function getBookingPageContent(
+  options?: RepositoryOptions,
+): Promise<ContentResult<BookingPageContent>> {
+  return requireDb(async () => {
+    const page = await prisma.page.findUnique({
+      where: { slug: "booking" },
+      select: { contentData: true },
+    });
+    return normalizeBookingContent(page?.contentData);
   }, options);
 }

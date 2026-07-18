@@ -36,7 +36,7 @@ export default async function TeachersPage() {
   ]);
   if (!result.data) notFound();
 
-  const { page, presentation, teachers } = result.data;
+  const { presentation, teachers } = result.data;
   const siteMap = siteMapResult?.data ?? null;
   const showMap = shouldRenderSection(
     siteMap,
@@ -47,25 +47,12 @@ export default async function TeachersPage() {
     <>
       <TeachersPageClient
         teachers={teachers}
-        heroImage={page.image}
-        eyebrow={page.eyebrow || "Our Spiritual Indian Gurus"}
-        title={page.title || "Faculty of Nirvana"}
-        lead={
-          presentation.heroLead ??
-          page.description ??
-          "Twelve lineage teachers guiding Hatha, Vinyasa, Kundalini, philosophy, anatomy, and meditation on the banks of the Ganga."
-        }
-        quote={
-          presentation.heroQuote ??
-          "Yoga Is A Light, Which Once Lit Will Never Dim. The Better Your Practice, The Brighter Your Flame."
-        }
         sectionEyebrow={presentation.sectionEyebrow ?? "Faculty profiles"}
         sectionTitle={presentation.sectionTitle ?? "Meet our gurus"}
         sectionDescription={
           presentation.sectionDescription ??
           "Biography, education, experience, and areas of expertise for every member of our faculty."
         }
-        heroId={presentation.heroId}
         facultyId={presentation.facultyId}
       />
       {showMap && siteMap ? <MapSection content={siteMap} /> : null}

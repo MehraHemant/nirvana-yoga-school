@@ -1,17 +1,17 @@
 import {
+  DEFAULT_BOOKING_PAGE_CONTENT,
   DEFAULT_CONTACT_PAGE_CONTENT,
   DEFAULT_ENQUIRE_PAGE_CONTENT,
   DEFAULT_HOME_PAGE_CONTENT,
 } from "@/content/data/dedicated-page-defaults";
 import {
+  normalizeBookingContent,
   normalizeContactContent,
   normalizeEnquireContent,
   normalizeHomeContent,
 } from "@/content/repositories/dedicated-pages";
 import type {
-  ContactPageContent,
   DedicatedPageContent,
-  EnquirePageContent,
   HomePageContent,
 } from "@/content/types/dedicated-pages";
 import type {
@@ -21,7 +21,7 @@ import type {
 import { invalidateContentCache } from "@/lib/cms/cache";
 import { prisma } from "@/lib/db";
 
-const DEDICATED_SLUGS = ["home", "contact", "enquire-now"] as const;
+const DEDICATED_SLUGS = ["home", "contact", "enquire-now", "booking"] as const;
 export type DedicatedPageSlug = (typeof DEDICATED_SLUGS)[number];
 
 /**
@@ -44,6 +44,8 @@ export function defaultDedicatedContent(
   switch (slug) {
     case "home":
       return structuredClone(DEFAULT_HOME_PAGE_CONTENT);
+    case "booking":
+      return structuredClone(DEFAULT_BOOKING_PAGE_CONTENT);
     case "contact":
       return structuredClone(DEFAULT_CONTACT_PAGE_CONTENT);
     case "enquire-now":
@@ -63,6 +65,7 @@ export function parseDedicatedContent(
 ): DedicatedPageContent {
   if (slug === "home") return normalizeHomeContent(raw);
   if (slug === "contact") return normalizeContactContent(raw);
+  if (slug === "booking") return normalizeBookingContent(raw);
   return normalizeEnquireContent(raw);
 }
 
@@ -158,6 +161,8 @@ export async function saveDedicatedPageContent(
       ? "Home"
       : slug === "contact"
         ? "Contact"
+        : slug === "booking"
+          ? "Booking"
         : "Enquire Now";
 
   const page = await prisma.page.upsert({

@@ -3,11 +3,11 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { Button, Container } from "@/components/ui";
-import { BadgeStar, Play } from "@/icons";
 import { fadeUp } from "@/lib/motion";
-import { onlineEnquireHref } from "./utils";
+import { parseYouTubeId, youTubeWatchUrl } from "@/lib/youtube";
 
 type OnlineCourseHeroProps = {
+  eyebrow?: string;
   title: string;
   subtitle: string;
   duration: string;
@@ -23,12 +23,12 @@ type OnlineCourseHeroProps = {
 };
 
 /**
- * OnlineCourseHero displays metadata tables, descriptions, and interactive preview video dialogs
- * for virtual study courses and distance teacher programs.
+ * OnlineCourseHero displays the CMS-configured hero for virtual study courses.
  *
  * @param props - Component properties conforming to OnlineCourseHeroProps
  */
 export default function OnlineCourseHero({
+  eyebrow,
   title,
   subtitle,
   duration,
@@ -42,130 +42,123 @@ export default function OnlineCourseHero({
   ctaSecondary,
   ctaSecondaryHref,
 }: OnlineCourseHeroProps) {
-  const previewThumb = previewVideoId
-    ? `https://img.youtube.com/vi/${previewVideoId}/maxresdefault.jpg`
+  const previewVideo = previewVideoId ? parseYouTubeId(previewVideoId) : null;
+  const previewThumb = previewVideo
+    ? `https://img.youtube.com/vi/${previewVideo}/maxresdefault.jpg`
     : image;
+  const metaItems = [
+    { label: "Duration", value: duration },
+    { label: "Level", value: level },
+    { label: "Certification", value: certification },
+    { label: "Fee", value: fee },
+  ].filter((item) => item.value.trim());
 
   return (
-    <section className="online-hero relative overflow-hidden bg-[#e5eef7] pt-[var(--site-header-height)] text-ink">
-      <div
-        className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-primary/5 blur-3xl"
-        aria-hidden="true"
-      />
+    <section
+      data-transparent-header="true"
+      className="online-hero relative isolate overflow-hidden bg-[#17222b] pt-(--site-header-height) text-white"
+    >
+      {previewThumb ? (
+        <>
+          <Image
+            src={previewThumb}
+            alt=""
+            fill
+            priority
+            className="object-cover object-center opacity-70"
+            sizes="100vw"
+          />
+          <div
+            className="pointer-events-none absolute inset-0 bg-linear-to-r from-[#101b22]/92 via-[#101b22]/68 to-[#101b22]/28"
+            aria-hidden="true"
+          />
+          <div
+            className="pointer-events-none absolute inset-0 bg-linear-to-t from-[#101b22]/65 via-transparent to-[#101b22]/35"
+            aria-hidden="true"
+          />
+        </>
+      ) : null}
 
-      <Container size="2xl" className="relative z-10 py-10 md:py-14 lg:py-16">
-        <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-12">
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={fadeUp}
-            className="space-y-6"
-          >
-            <div className="space-y-3">
-              <p className="type-eyebrow text-primary font-semibold">
-                Online Yoga Teacher Training
+      <Container
+        size="2xl"
+        className="relative z-10 flex min-h-[540px] items-end py-14 sm:min-h-[580px] md:py-20 lg:min-h-[640px] lg:py-24"
+      >
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={fadeUp}
+          className="max-w-3xl"
+        >
+          <div className="space-y-5">
+            {eyebrow ? (
+              <p className="type-eyebrow font-semibold tracking-[0.14em] text-accent">
+                {eyebrow}
               </p>
-              <h1 className="font-serif text-3xl font-medium leading-[1.08] text-ink sm:text-4xl md:text-[2.75rem]">
-                {title}
-              </h1>
-              <p className="font-serif text-lg text-primary font-medium sm:text-xl">
-                {certification} · Globally Recognised
+            ) : null}
+            <h1 className="max-w-3xl font-serif text-4xl font-medium leading-[1.03] text-balance text-white sm:text-5xl lg:text-6xl xl:text-7xl">
+              {title}
+            </h1>
+            {subtitle ? (
+              <p className="max-w-2xl type-lead text-pretty text-white/85">
+                {subtitle}
               </p>
-              <p className="max-w-2xl type-body text-ink/80">{subtitle}</p>
-            </div>
+            ) : null}
+          </div>
 
-            <div className="flex flex-wrap gap-2 text-sm text-ink/85">
-              <span className="rounded-full border border-primary/10 bg-white/60 px-3 py-1">
-                {duration}
-              </span>
-              <span className="rounded-full border border-primary/10 bg-white/60 px-3 py-1">
-                {level}
-              </span>
-              <span className="rounded-full border border-primary/20 bg-primary/5 px-3 py-1 font-semibold text-primary">
-                {fee}
-              </span>
-            </div>
+          {metaItems.length > 0 ? (
+            <dl className="mt-8 grid max-w-2xl grid-cols-2 gap-px overflow-hidden border border-white/15 bg-white/15 backdrop-blur-[2px] sm:grid-cols-4">
+              {metaItems.map((item) => (
+                <div key={item.label} className="bg-[#101b22]/30 px-4 py-3.5">
+                  <dt className="type-eyebrow text-white/60">{item.label}</dt>
+                  <dd className="mt-1 text-sm font-semibold leading-snug text-white">
+                    {item.value}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          ) : null}
 
-            <div className="flex flex-wrap gap-3">
-              <Button
-                href={onlineEnquireHref(title)}
-                variant="primary"
-                size="md"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Enquire Now
+          <div className="mt-8 flex flex-wrap items-center gap-3">
+            {ctaPrimary && ctaPrimaryHref ? (
+              <Button href={ctaPrimaryHref} variant="primary" size="md">
+                {ctaPrimary}
               </Button>
+            ) : null}
+            {ctaSecondary && ctaSecondaryHref ? (
               <Button
                 href={ctaSecondaryHref}
                 variant="ghost"
                 size="md"
-                className="border border-primary/20 text-primary hover:bg-primary/5"
-                target="_blank"
-                rel="noopener noreferrer"
+                className="border border-white/35 text-white hover:bg-white/10"
               >
                 {ctaSecondary}
               </Button>
-              <Button
-                href={ctaPrimaryHref}
-                variant="primary"
-                size="md"
+            ) : null}
+            {previewVideo ? (
+              <a
+                href={youTubeWatchUrl(previewVideo)}
                 target="_blank"
                 rel="noopener noreferrer"
+                className="inline-flex min-h-11 items-center gap-2 px-2 text-sm font-semibold text-white/85 transition-colors hover:text-white"
               >
-                {ctaPrimary}
-              </Button>
-            </div>
-          </motion.div>
-
-          {previewThumb && (
-            <motion.div
-              initial="hidden"
-              animate="visible"
-              variants={fadeUp}
-              className="relative mx-auto w-full max-w-xl lg:max-w-none"
-            >
-              <div className="relative aspect-video overflow-hidden rounded-3xl border border-ink/8 bg-white shadow-xl">
-                <div className="relative h-full w-full">
-                  <Image
-                    src={previewThumb}
-                    alt=""
-                    fill
-                    priority
-                    className="object-cover"
-                    sizes="(max-width: 1024px) 100vw, 480px"
-                  />
-                  <div className="absolute inset-0 bg-linear-to-t from-black/20 via-transparent to-transparent" />
-                  {previewVideoId && (
-                    <a
-                      href={ctaSecondaryHref}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group absolute inset-0 flex items-center justify-center"
-                    >
-                      <span className="flex size-16 items-center justify-center rounded-full bg-white/80 text-primary backdrop-blur-xs shadow-md transition-transform duration-200 group-hover:scale-105">
-                        <Play size={28} className="ml-1" />
-                      </span>
-                      <span className="sr-only">Watch free preview</span>
-                    </a>
-                  )}
-                </div>
-                <div className="flex items-center justify-between gap-3 border-t border-ink/8 px-5 py-4">
-                  <div>
-                    <p className="type-eyebrow text-muted">Free preview</p>
-                    <p className="font-serif text-lg text-ink">
-                      Try before you enroll
-                    </p>
-                  </div>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-primary/5 border border-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-                    <BadgeStar size={14} className="text-amber-500" />
-                    4.9 rating
-                  </span>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </div>
+                <span
+                  className="flex size-8 items-center justify-center rounded-full border border-white/45"
+                  aria-hidden="true"
+                >
+                  <svg
+                    viewBox="0 0 12 12"
+                    className="ml-0.5 size-3 fill-current"
+                    focusable="false"
+                  >
+                    <title>Play</title>
+                    <path d="M3 2.25v7.5L9 6 3 2.25Z" />
+                  </svg>
+                </span>
+                Watch preview
+              </a>
+            ) : null}
+          </div>
+        </motion.div>
       </Container>
     </section>
   );

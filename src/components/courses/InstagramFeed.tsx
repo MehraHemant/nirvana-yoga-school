@@ -16,11 +16,9 @@ import {
   Play,
   Send,
 } from "@/icons";
-import type {
-  InstagramFeed as InstagramFeedData,
-  InstagramMedia,
-} from "@/lib/instagram";
+import type { InstagramFeed as InstagramFeedData, InstagramMedia } from "@/lib/instagram";
 import { FALLBACK_INSTAGRAM_FEED } from "@/lib/instagram";
+import type { InstagramFeedContent } from "@/content/types/shared-sections";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 
 const _SKELETON_KEYS = ["a", "b", "c", "d", "e", "f", "g", "h"];
@@ -522,8 +520,29 @@ function _PostCardSkeleton() {
   );
 }
 
-export default function InstagramFeed() {
-  const feed = FALLBACK_INSTAGRAM_FEED;
+/**
+ * Instagram feed section — prefers CMS shared content, falls back to bundled JSON.
+ *
+ * @param props.content - Shared Instagram document from MySQL
+ */
+export default function InstagramFeed({
+  content = null,
+}: {
+  content?: InstagramFeedContent | null;
+} = {}) {
+  const feed: InstagramFeedData = content?.media?.length
+    ? {
+        media: content.media,
+        username: content.username,
+        displayName: content.displayName,
+        bio: content.bio,
+        website: content.website,
+        profileUrl: content.profileUrl,
+        postsCount: content.postsCount,
+        followersCount: content.followersCount,
+        followingCount: content.followingCount,
+      }
+    : FALLBACK_INSTAGRAM_FEED;
   const profileUrl = feed.profileUrl;
   const media = feed.media;
   const username = feed.username ?? "nirvanayogaschool";

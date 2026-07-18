@@ -29,7 +29,8 @@ export type CourseDocument = {
   pricingDescription: string;
   pricing: CoursePricingOption[];
   inclusions: string[];
-  exclusions: string[];
+  /** @deprecated Exclusions removed from inclusions UI; kept optional for legacy docs */
+  exclusions?: string[];
   faqs: FAQ[];
 };
 

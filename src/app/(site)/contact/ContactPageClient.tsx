@@ -15,12 +15,9 @@ import { DEFAULT_CONTACT_PAGE_CONTENT } from "@/content/data/dedicated-page-defa
 import type { ContactPageContent } from "@/content/types/dedicated-pages";
 import type { SiteMapContent } from "@/content/types/shared-sections";
 import { Check, Compass, Send, WhatsApp } from "@/icons";
-import { ACCOMMODATION_PREFERENCE_OPTIONS } from "@/lib/enquire-programs";
-import {
-  optionalSectionHtmlId,
-  resolveSectionHtmlId,
-} from "@/lib/html-id";
 import { shouldRenderSection } from "@/lib/cms/section-visibility";
+import { ACCOMMODATION_PREFERENCE_OPTIONS } from "@/lib/enquire-programs";
+import { optionalSectionHtmlId, resolveSectionHtmlId } from "@/lib/html-id";
 import { openMailtoFallback, submitLead } from "@/lib/leads/submit-lead";
 import { fadeUp, reducedTransition } from "@/lib/motion";
 import {
@@ -129,7 +126,8 @@ export default function ContactPageClient({
       {/* 1. Hero */}
       <section
         id={heroHtmlId}
-        className="relative min-h-[52svh] overflow-hidden bg-sand text-ink pt-[var(--site-header-height)] lg:min-h-[58svh]"
+        data-transparent-header="true"
+        className="relative min-h-[52svh] overflow-hidden bg-ink text-white lg:min-h-[58svh]"
       >
         <Image
           src={content.hero.image}
@@ -137,73 +135,71 @@ export default function ContactPageClient({
           fill
           priority
           sizes="100vw"
-          className="object-cover opacity-20"
+          className="object-cover object-center"
         />
         <div
-          className="absolute inset-0 bg-linear-to-r from-sand via-sand/75 to-transparent"
+          className="absolute inset-0 bg-linear-to-r from-ink/90 via-ink/65 to-ink/25"
           aria-hidden="true"
         />
         <div
-          className="pointer-events-none absolute -right-16 top-1/4 h-72 w-72 rounded-full bg-primary/5 blur-[100px]"
+          className="absolute inset-x-0 top-0 h-48 bg-linear-to-b from-ink/75 to-transparent"
           aria-hidden="true"
         />
         <div
-          className="pointer-events-none absolute bottom-0 left-1/4 h-56 w-56 rounded-full bg-primary/5 blur-[90px]"
+          className="pointer-events-none absolute -right-16 top-1/4 h-72 w-72 rounded-full bg-primary/20 blur-[100px]"
           aria-hidden="true"
         />
 
         <Container
           size="xl"
-          className="relative z-10 flex min-h-[calc(52svh-var(--site-header-height,4.75rem))] flex-col justify-center py-12 sm:py-14 lg:min-h-[calc(58svh-var(--site-header-height,4.75rem))] lg:py-16"
+          className="relative z-10 flex min-h-[52svh] flex-col justify-center pb-12 pt-[calc(var(--site-header-height,4.75rem)+3rem)] sm:pb-14 sm:pt-[calc(var(--site-header-height,4.75rem)+3.5rem)] lg:min-h-[58svh] lg:pb-16 lg:pt-[calc(var(--site-header-height,4.75rem)+4rem)]"
         >
-          <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:gap-12">
-            <motion.div
-              initial="hidden"
-              animate="visible"
-              variants={fadeUp}
-              className="max-w-2xl space-y-5"
-            >
-              <span className="type-eyebrow font-semibold tracking-widest text-primary uppercase">
-                {content.hero.eyebrow}
-              </span>
-              <h1 className="font-serif text-4xl font-medium leading-[1.08] tracking-tight text-ink sm:text-5xl md:text-6xl">
-                {content.hero.title}
-              </h1>
-              <p className="type-lead max-w-xl pt-1 font-sans text-base leading-relaxed text-ink/80 sm:text-lg">
-                {content.hero.lead}
-              </p>
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={fadeUp}
+            className="max-w-2xl space-y-5"
+          >
+            <span className="type-eyebrow font-semibold tracking-widest text-white/80 uppercase">
+              {content.hero.eyebrow}
+            </span>
+            <h1 className="font-serif text-4xl font-medium leading-[1.08] tracking-tight text-white sm:text-5xl md:text-6xl">
+              {content.hero.title}
+            </h1>
+            <p className="type-lead max-w-xl pt-1 font-sans text-base leading-relaxed text-white/85 sm:text-lg">
+              {content.hero.lead}
+            </p>
 
-              <div className="flex flex-wrap gap-2 pt-1">
-                {[
-                  "Tapovan, Rishikesh",
-                  "Reply within 24 hours",
-                  "WhatsApp support",
-                ].map((chip) => (
-                  <span
-                    key={chip}
-                    className="rounded-full border border-ink/8 bg-ink/5 px-3 py-1 font-sans text-xs font-medium text-ink/80 backdrop-blur-sm"
-                  >
-                    {chip}
-                  </span>
-                ))}
-              </div>
-
-              <div className="flex flex-wrap gap-3 pt-2">
-                <Button href={`#${formHtmlId}`} variant="primary" size="md">
-                  Send a Message
-                </Button>
-                <Button
-                  href="https://wa.me/918218564835"
-                  variant="outline-light"
-                  size="md"
-                  target="_blank"
-                  rel="noopener noreferrer"
+            <div className="flex flex-wrap gap-2 pt-1">
+              {[
+                "Tapovan, Rishikesh",
+                "Reply within 24 hours",
+                "WhatsApp support",
+              ].map((chip) => (
+                <span
+                  key={chip}
+                  className="rounded-full border border-white/20 bg-ink/20 px-3 py-1 font-sans text-xs font-medium text-white/90 backdrop-blur-sm"
                 >
-                  Chat on WhatsApp
-                </Button>
-              </div>
-            </motion.div>
-          </div>
+                  {chip}
+                </span>
+              ))}
+            </div>
+
+            <div className="flex flex-wrap gap-3 pt-2">
+              <Button href={`#${formHtmlId}`} variant="primary" size="md">
+                Send a Message
+              </Button>
+              <Button
+                href="https://wa.me/918218564835"
+                variant="outline-light"
+                size="md"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Chat on WhatsApp
+              </Button>
+            </div>
+          </motion.div>
         </Container>
       </section>
 

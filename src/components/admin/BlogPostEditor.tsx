@@ -22,9 +22,11 @@ type BlogPostEditorProps = {
  */
 export function BlogPostEditor({ initial, onSave }: BlogPostEditorProps) {
   const [doc, setDoc] = useState(initial);
+  const [baseline, setBaseline] = useState(() => JSON.stringify(initial));
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
+  const dirty = JSON.stringify(doc) !== baseline;
 
   const bodyHtml = useMemo(
     () => resolveBlogBodyHtml(doc.bodyHtml, doc.content),
@@ -37,6 +39,7 @@ export function BlogPostEditor({ initial, onSave }: BlogPostEditorProps) {
     setError("");
     try {
       await onSave(doc);
+      setBaseline(JSON.stringify(doc));
       setSaved(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Save failed");
@@ -107,6 +110,7 @@ export function BlogPostEditor({ initial, onSave }: BlogPostEditorProps) {
         subtitle={doc.slug}
         saving={saving}
         saved={saved}
+        dirty={dirty}
         error={error}
         onSave={handleSave}
         previewHref={`/blog/${doc.slug}`}

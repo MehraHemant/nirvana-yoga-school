@@ -34,6 +34,8 @@ export default function LegacyRetreatClient({
   whyNirvana,
   reviews,
   siteMap,
+  instagram,
+  travel,
 }: SiteClientProps) {
   const isBooking = page.slug === "retreat-booking";
   const showWhyNirvana =
@@ -42,6 +44,12 @@ export default function LegacyRetreatClient({
   const showMap =
     (modules?.flags.showMap ?? mapped.showMap) &&
     shouldRenderSection(siteMap, Boolean(siteMap?.embedUrl?.trim()));
+  const showTravel =
+    (modules?.flags.showTravel ?? mapped.showTravelGuide) &&
+    shouldRenderSection(travel, Boolean(travel?.topics?.length));
+  const showInstagram =
+    (modules?.flags.showInstagram ?? mapped.showInstagram) &&
+    shouldRenderSection(instagram, Boolean(instagram?.media?.length));
 
   return (
     <>
@@ -49,10 +57,7 @@ export default function LegacyRetreatClient({
       <article className="min-h-screen max-w-full overflow-x-clip">
         <SiteOverview page={page} mapped={mapped} modules={modules} />
         {mapped.inclusions.length > 0 && (
-          <WhatIsIncluded
-            inclusions={mapped.inclusions}
-            exclusions={mapped.exclusions}
-          />
+          <WhatIsIncluded inclusions={mapped.inclusions} />
         )}
         {mapped.schedule.length > 0 && (
           <DailySchedule
@@ -81,11 +86,9 @@ export default function LegacyRetreatClient({
         {showWhyNirvana ? (
           <WhyNirvana content={whyNirvana} reviews={reviews} />
         ) : null}
-        {(modules?.flags.showTravel ?? mapped.showTravelGuide) ? (
-          <TravelGuide />
-        ) : null}
-        {(modules?.flags.showInstagram ?? mapped.showInstagram) ? (
-          <InstagramFeed />
+        {showTravel && travel ? <TravelGuide content={travel} /> : null}
+        {showInstagram && instagram ? (
+          <InstagramFeed content={instagram} />
         ) : null}
         {showMap && siteMap ? <MapSection content={siteMap} /> : null}
         <SiteFaq mapped={mapped} modules={modules} />

@@ -38,7 +38,7 @@ const FACILITY_ICONS: Record<string, FacilityIcon> = {
 /**
  * Resolves a facility icon key from CMS/API data to an icon component.
  *
- * @param iconKey - Stable key stored in `global_settings.residentialLife`
+ * @param iconKey - Stable key stored on residential life facilities
  * @returns Icon component (falls back to Leaf)
  */
 export function facilityIcon(iconKey: string): FacilityIcon {

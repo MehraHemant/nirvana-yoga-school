@@ -111,6 +111,8 @@ export type {
   SitePageSubsection,
 } from "@/content/types/site-page";
 export type {
+  BookingPageContent,
+  BookingStep,
   ContactPageContent,
   DedicatedPageContent,
   EnquirePageContent,

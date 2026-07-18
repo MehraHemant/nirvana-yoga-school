@@ -6,7 +6,10 @@ import {
 } from "@/content/mappers/site-page-copy";
 import { requireDb } from "@/content/repositories/db-fallback";
 import type { ContentResult } from "@/content/repositories/fetch";
-import { teacherSlug } from "@/content/teachers-slug";
+import {
+  TEACHER_PAGE_SLUG,
+  teacherSlug,
+} from "@/content/teachers-slug";
 import type { SitePageDocument, SitePagePerson } from "@/content/types";
 import { contentCacheTag } from "@/lib/cms/cache";
 import {
@@ -15,8 +18,7 @@ import {
 } from "@/lib/cms/db-to-document";
 import { prisma } from "@/lib/db";
 
-export const TEACHER_PAGE_SLUG = "teacher";
-export { teacherSlug };
+export { TEACHER_PAGE_SLUG, teacherSlug };
 
 /** Presentation copy stored on the teacher page `content_data` JSON. */
 export type TeachersPagePresentation = {
@@ -94,11 +96,37 @@ export function parseTeachersPresentation(
   };
 }
 
+/**
+ * Default presentation copy used when seeding / ensuring the teacher page.
+ */
+export const DEFAULT_TEACHERS_PRESENTATION: TeachersPagePresentation = {
+  heroQuote:
+    "Yoga Is A Light, Which Once Lit Will Never Dim. The Better Your Practice, The Brighter Your Flame.",
+  sectionEyebrow: "Faculty profiles",
+  sectionTitle: "Meet our gurus",
+  sectionDescription:
+    "Biography, education, experience, and areas of expertise for every member of our faculty.",
+  homeEyebrow: "Our Spiritual Indian Gurus",
+  homeTitle: "Lineage Teachers, Guided by Compassion",
+  homeDescription:
+    "Meet our experienced, traditional yoga teachers and spiritual guides carrying decades of combined practice directly from traditional Vedic lineages in Rishikesh.",
+};
+
 async function loadTeachersPageFromDb(): Promise<TeachersPageData | null> {
-  const page = await prisma.page.findUnique({
+  let page = await prisma.page.findUnique({
     where: { slug: TEACHER_PAGE_SLUG },
     include: pageWithRelations,
   });
+
+  if (!page || !page.published || page.people.length === 0) {
+    const { ensureTeacherPage } = await import("@/lib/cms/ensure-teacher-page");
+    await ensureTeacherPage().catch(() => null);
+    page = await prisma.page.findUnique({
+      where: { slug: TEACHER_PAGE_SLUG },
+      include: pageWithRelations,
+    });
+  }
+
   if (!page || !page.published) return null;
 
   const doc = mapPageToSitePageDocument(page);
@@ -130,4 +158,23 @@ export async function getTeachersPage(): Promise<
 export async function getTeachers(): Promise<TeacherProfile[]> {
   const result = await getTeachersPage();
   return result.data?.teachers ?? [];
+}
+
+/**
+ * Filters faculty profiles by selected teacher slugs (page modules picker).
+ * `undefined` keeps `fallback` (legacy page.people). An empty array shows none.
+ *
+ * @param faculty - Full faculty list from the teachers store
+ * @param selectedSlugs - Slugs chosen on a page (`teacherSlug(name)`)
+ * @param fallback - Profiles used when the picker has never been saved
+ */
+export function resolveSelectedTeachers(
+  faculty: TeacherProfile[],
+  selectedSlugs: string[] | undefined,
+  fallback: TeacherProfile[] = [],
+): TeacherProfile[] {
+  if (selectedSlugs === undefined) return fallback;
+  if (selectedSlugs.length === 0) return [];
+  const selected = new Set(selectedSlugs);
+  return faculty.filter((teacher) => selected.has(teacherSlug(teacher.name)));
 }

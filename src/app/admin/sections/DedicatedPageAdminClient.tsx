@@ -5,20 +5,26 @@ import { ContactPageEditor } from "@/components/admin/ContactPageEditor";
 import { EnquirePageEditor } from "@/components/admin/EnquirePageEditor";
 import { HomeSectionsEditor } from "@/components/admin/HomeSectionsEditor";
 import type {
+  BookingPageContent,
   ContactPageContent,
   DedicatedPageContent,
   EnquirePageContent,
   HomePageContent,
 } from "@/content/types/dedicated-pages";
-import { parseApiJson } from "@/lib/types/api";
+import {
+  fetchAdminPageEditor,
+  saveAdminPageEditor,
+} from "@/lib/api/admin-client";
 
-type DedicatedPageSlug = "home" | "contact" | "enquire-now";
+type DedicatedPageSlug = "home" | "contact" | "enquire-now" | "booking";
 
 type DedicatedPageAdminClientProps = {
   /** Dedicated page slug */
   slug: DedicatedPageSlug;
   backHref?: string;
   backLabel?: string;
+  /** Preloaded canonical page document, when routed from `/admin/pages/[slug]`. */
+  initialContent?: DedicatedPageContent;
 };
 
 /**
@@ -30,24 +36,26 @@ export default function DedicatedPageAdminClient({
   slug,
   backHref,
   backLabel,
+  initialContent,
 }: DedicatedPageAdminClientProps) {
-  const [content, setContent] = useState<DedicatedPageContent | null>(null);
+  const [content, setContent] = useState<DedicatedPageContent | null>(
+    initialContent ?? null,
+  );
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch(`/api/admin/dedicated/${encodeURIComponent(slug)}`)
-      .then((res) => parseApiJson<{ content: DedicatedPageContent }>(res))
+    if (initialContent) return;
+    fetchAdminPageEditor(slug)
       .then((body) => setContent(body.content))
       .catch((err: Error) => setError(err.message));
-  }, [slug]);
+  }, [initialContent, slug]);
 
   async function onSave(next: DedicatedPageContent) {
-    const res = await fetch(`/api/admin/dedicated/${encodeURIComponent(slug)}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(next),
+    await saveAdminPageEditor(slug, {
+      modules: null,
+      content: next,
+      product: null,
     });
-    await parseApiJson(res);
     setContent(next);
   }
 
@@ -78,10 +86,16 @@ export default function DedicatedPageAdminClient({
 
   return (
     <EnquirePageEditor
-      initial={content as EnquirePageContent}
+      initial={
+        slug === "booking"
+          ? (content as BookingPageContent)
+          : (content as EnquirePageContent)
+      }
       onSave={onSave}
-      backHref={backHref ?? "/admin/sections/enquire"}
-      backLabel={backLabel ?? "Enquire"}
+      backHref={backHref ?? "/admin/sections/other"}
+      backLabel={backLabel ?? "Other pages"}
+      pageLabel={slug === "booking" ? "Booking" : "Enquire"}
+      previewHref={slug === "booking" ? "/booking" : "/enquire-now"}
     />
   );
 }

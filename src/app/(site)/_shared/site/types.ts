@@ -2,9 +2,11 @@ import type { TeacherProfile } from "@/components/home/TeachersSection";
 import type { MappedSitePage } from "@/content/mappers/site-page";
 import type { PageModulesDocument, SitePageDocument } from "@/content/types";
 import type {
+  InstagramFeedContent,
   ResidentialLifeContent,
   ReviewsContent,
   SiteMapContent,
+  TravelGuideContent,
   WhyNirvanaContent,
 } from "@/content/types/shared-sections";
 
@@ -21,6 +23,10 @@ export type SitePageData = {
   reviews: ReviewsContent | null;
   /** Shared site map embed from CMS */
   siteMap: SiteMapContent | null;
+  /** Shared Instagram feed from CMS */
+  instagram: InstagramFeedContent | null;
+  /** Shared travel guide from CMS */
+  travel: TravelGuideContent | null;
 };
 
 export type SiteClientProps = Pick<
@@ -33,6 +39,8 @@ export type SiteClientProps = Pick<
   | "whyNirvana"
   | "reviews"
   | "siteMap"
+  | "instagram"
+  | "travel"
 > & {
   modules?: PageModulesDocument | null;
 };

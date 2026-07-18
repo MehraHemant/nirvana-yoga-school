@@ -1,15 +1,22 @@
+import type { ReactNode } from "react";
 import { Check } from "@/icons";
 import OnlineSectionShell from "./OnlineSectionShell";
 
 type OnlineInclusionsSectionProps = {
+  id?: string;
+  title?: ReactNode;
+  description?: ReactNode;
   inclusions: string[];
 };
 
 export default function OnlineInclusionsSection({
+  id = "inclusions",
+  title = "Inclusions",
+  description,
   inclusions,
 }: OnlineInclusionsSectionProps) {
   return (
-    <OnlineSectionShell id="inclusions" title="Inclusions">
+    <OnlineSectionShell id={id} title={title} description={description}>
       <ul className="grid gap-3 sm:grid-cols-2">
         {inclusions.map((item) => (
           <li

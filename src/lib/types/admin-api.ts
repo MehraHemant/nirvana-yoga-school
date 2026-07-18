@@ -1,7 +1,10 @@
 import type { BlogPostDocument } from "@/content/types/blog-post";
 import type { BookingRecord } from "@/content/types/booking";
+import type { OnlineCourseDocument } from "@/content/types/course";
+import type { DedicatedPageContent } from "@/content/types/dedicated-pages";
 import type { LeadStats, LeadSubmissionRecord } from "@/content/types/lead";
 import type { PageModulesDocument } from "@/content/types/page-modules";
+import type { RetreatDocument } from "@/content/types/retreat-page";
 import type { SitePageDocument } from "@/content/types/site-page";
 import type { AdminSession } from "@/lib/cms/auth-session";
 import type {
@@ -37,6 +40,18 @@ export type AdminMediaItemResponse = ApiEntityBody<"asset", AdminMediaAsset>;
 export type AdminPageDocumentResponse = {
   page: SitePageDocument | null;
   modules?: PageModulesDocument | null;
+};
+
+/** Single read/write document used by the guided page editor. */
+export type AdminPageEditorDocument = {
+  page: SitePageDocument;
+  modules: PageModulesDocument | null;
+  content: DedicatedPageContent | null;
+  product: {
+    kind: "online" | "retreat";
+    document: OnlineCourseDocument | RetreatDocument;
+  } | null;
+  meta: AdminPageModulesMeta;
 };
 
 /** POST /api/admin/auth/login */
@@ -121,4 +136,3 @@ export type PublicBookingCreateResponse = ApiEntityBody<
 
 /** GET /api/content/pages/[slug] */
 export type PublicSitePageResponse = ContentApiBody<SitePageDocument>;
-

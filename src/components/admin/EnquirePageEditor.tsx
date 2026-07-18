@@ -6,21 +6,33 @@ import { AdminSaveBar } from "@/components/admin/AdminSaveBar";
 import { AdminSectionJumpNav } from "@/components/admin/AdminSectionJumpNav";
 import { CollapsiblePanel } from "@/components/admin/CollapsiblePanel";
 import { ImageField } from "@/components/admin/ImageField";
+import { NestedItemCard } from "@/components/admin/NestedItemCard";
 import { PageSeoFields } from "@/components/admin/PageSeoFields";
-import { toSectionDomId } from "@/components/admin/sectionDomId";
 import { SectionIdField } from "@/components/admin/SectionIdField";
+import { SectionLiveField } from "@/components/admin/SectionLiveField";
+import {
+  reorderItems,
+  SortableList,
+  SortableRow,
+} from "@/components/admin/SortableList";
+import { toSectionDomId } from "@/components/admin/sectionDomId";
 import { TextField } from "@/components/admin/TextField";
 import { useSectionScrollSpy } from "@/components/admin/useSectionScrollSpy";
 import { useStableListKeys } from "@/components/admin/useStableListKeys";
-import type { EnquirePageContent } from "@/content/types/dedicated-pages";
+import type {
+  BookingPageContent,
+  EnquirePageContent,
+} from "@/content/types/dedicated-pages";
 
 type EnquirePageEditorProps = {
-  /** Initial enquire-now content_data document */
-  initial: EnquirePageContent;
+  /** Initial enquiry or booking content_data document */
+  initial: EnquirePageContent | BookingPageContent;
   /** Persist handler */
-  onSave: (doc: EnquirePageContent) => Promise<void>;
+  onSave: (doc: EnquirePageContent | BookingPageContent) => Promise<void>;
   backHref?: string;
   backLabel?: string;
+  pageLabel?: string;
+  previewHref?: string;
 };
 
 const ENQUIRE_JUMP_DEFS = [
@@ -41,6 +53,8 @@ export function EnquirePageEditor({
   onSave,
   backHref = "/admin/sections/other",
   backLabel = "Other pages",
+  pageLabel = "Enquire",
+  previewHref = "/enquire-now",
 }: EnquirePageEditorProps) {
   const [doc, setDoc] = useState(initial);
   const [baseline, setBaseline] = useState(() => JSON.stringify(initial));
@@ -49,9 +63,17 @@ export function EnquirePageEditor({
   const [error, setError] = useState("");
   const dirty = JSON.stringify(doc) !== baseline;
   const stepKeys = useStableListKeys(doc.steps.length);
+  const isBooking = doc.kind === "booking";
+  const showEnquirySections = doc.kind === "enquire";
+  const jumpDefs = showEnquirySections
+    ? ENQUIRE_JUMP_DEFS
+    : ENQUIRE_JUMP_DEFS.filter(
+        (definition) =>
+          definition.key !== "form" && definition.key !== "map",
+      );
 
   const jumpItems = useMemo(() => {
-    return ENQUIRE_JUMP_DEFS.map((def) => {
+    return jumpDefs.map((def) => {
       const section =
         def.key === "meta"
           ? doc.meta
@@ -63,7 +85,7 @@ export function EnquirePageEditor({
         label: def.label,
       };
     });
-  }, [doc]);
+  }, [doc, jumpDefs]);
 
   const sectionIds = useMemo(
     () => jumpItems.map((item) => item.id),
@@ -73,7 +95,7 @@ export function EnquirePageEditor({
 
   /** Resolves panel DOM id for an enquire jump-nav slug. */
   function panelId(slug: (typeof ENQUIRE_JUMP_DEFS)[number]["slug"]): string {
-    const def = ENQUIRE_JUMP_DEFS.find((d) => d.slug === slug);
+    const def = jumpDefs.find((d) => d.slug === slug);
     if (!def) return toSectionDomId(slug);
     const section =
       def.key === "meta"
@@ -100,29 +122,35 @@ export function EnquirePageEditor({
   }
 
   return (
-    <div className="admin-editor">
+    <div
+      className={`admin-editor${isBooking ? " admin-booking-editor" : ""}`}
+    >
       <div className="admin-editor-header">
         <div>
           <Link href={backHref} className="admin-back-link">
             ← {backLabel}
           </Link>
-          <h1 className="admin-title">Enquire</h1>
+          <h1 className="admin-title">{pageLabel}</h1>
           <p className="admin-subtitle">
-            Hero, steps, form copy, and map visibility for /enquire-now.
+            {isBooking
+              ? "Booking hero and customer guidance."
+              : `Hero, enquiry steps, form copy, and map for ${previewHref}.`}
           </p>
         </div>
         <a
-          href="/enquire-now"
+          href={previewHref}
           target="_blank"
           rel="noopener noreferrer"
           className="admin-btn-sm"
         >
-          Preview /enquire-now
+          Preview {previewHref}
         </a>
       </div>
 
       <div className="admin-editor-layout">
-        <AdminSectionJumpNav items={jumpItems} activeId={activeSectionId} />
+        {jumpItems.length >= 4 ? (
+          <AdminSectionJumpNav items={jumpItems} activeId={activeSectionId} />
+        ) : null}
 
         <div className="admin-editor-sections">
           <CollapsiblePanel
@@ -142,6 +170,15 @@ export function EnquirePageEditor({
             title="Hero"
             subtitle="Image and intro copy"
             defaultOpen
+            actions={
+              <SectionLiveField
+                id={`${pageLabel.toLowerCase()}-hero-live`}
+                value={doc.hero.live}
+                onChange={(live) =>
+                  setDoc({ ...doc, hero: { ...doc.hero, live } })
+                }
+              />
+            }
           >
             <SectionIdField
               fieldId="enquire-hero-id"
@@ -157,20 +194,22 @@ export function EnquirePageEditor({
                 setDoc({ ...doc, hero: { ...doc.hero, image } })
               }
             />
-            <TextField
-              label="Eyebrow"
-              value={doc.hero.eyebrow}
-              onChange={(eyebrow) =>
-                setDoc({ ...doc, hero: { ...doc.hero, eyebrow } })
-              }
-            />
-            <TextField
-              label="Title"
-              value={doc.hero.title}
-              onChange={(title) =>
-                setDoc({ ...doc, hero: { ...doc.hero, title } })
-              }
-            />
+            <div className="admin-grid-2">
+              <TextField
+                label="Eyebrow"
+                value={doc.hero.eyebrow}
+                onChange={(eyebrow) =>
+                  setDoc({ ...doc, hero: { ...doc.hero, eyebrow } })
+                }
+              />
+              <TextField
+                label="Title"
+                value={doc.hero.title}
+                onChange={(title) =>
+                  setDoc({ ...doc, hero: { ...doc.hero, title } })
+                }
+              />
+            </div>
             <TextField
               label="Lead"
               value={doc.hero.lead}
@@ -184,8 +223,24 @@ export function EnquirePageEditor({
 
           <CollapsiblePanel
             id={panelId("steps")}
-            title="Steps"
-            subtitle="How-it-works cards"
+            title={isBooking ? "Booking steps" : "Steps"}
+            subtitle={
+              isBooking
+                ? "Short guidance shown before the booking flow"
+                : "How-it-works cards"
+            }
+            actions={
+              <SectionLiveField
+                id={`${pageLabel.toLowerCase()}-steps-live`}
+                value={doc.stepsSection?.live}
+                onChange={(live) =>
+                  setDoc({
+                    ...doc,
+                    stepsSection: { ...doc.stepsSection, live },
+                  })
+                }
+              />
+            }
           >
             <SectionIdField
               fieldId="enquire-steps-id"
@@ -217,54 +272,72 @@ export function EnquirePageEditor({
                 Add step
               </button>
             </div>
-            {doc.steps.map((item, index) => (
-              <div key={stepKeys.keys[index]} className="admin-nested-card">
-                <TextField
-                  label="Step number"
-                  value={item.step}
-                  onChange={(step) => {
-                    const steps = [...doc.steps];
-                    steps[index] = { ...item, step };
-                    setDoc({ ...doc, steps });
-                  }}
-                />
-                <TextField
-                  label="Title"
-                  value={item.title}
-                  onChange={(title) => {
-                    const steps = [...doc.steps];
-                    steps[index] = { ...item, title };
-                    setDoc({ ...doc, steps });
-                  }}
-                />
-                <TextField
-                  label="Body"
-                  value={item.body}
-                  onChange={(body) => {
-                    const steps = [...doc.steps];
-                    steps[index] = { ...item, body };
-                    setDoc({ ...doc, steps });
-                  }}
-                  multiline
-                  rows={2}
-                />
-                <button
-                  type="button"
-                  className="admin-btn-sm admin-btn-sm--ghost"
-                  onClick={() => {
-                    stepKeys.removeKey(index);
-                    setDoc({
-                      ...doc,
-                      steps: doc.steps.filter((_, i) => i !== index),
-                    });
-                  }}
-                >
-                  Remove
-                </button>
-              </div>
-            ))}
+            <SortableList
+              ids={stepKeys.keys}
+              className="admin-booking-steps"
+              onReorder={(fromIndex, toIndex) => {
+                stepKeys.reorderKeys(fromIndex, toIndex);
+                setDoc({
+                  ...doc,
+                  steps: reorderItems(doc.steps, fromIndex, toIndex),
+                });
+              }}
+            >
+              {doc.steps.map((item, index) => (
+                <SortableRow key={stepKeys.keys[index]} id={stepKeys.keys[index]}>
+                  {({ dragHandleProps }) => (
+                    <NestedItemCard
+                      title={item.title || `Step ${index + 1}`}
+                      index={index}
+                      dragHandleProps={dragHandleProps}
+                      onRemove={() => {
+                        stepKeys.removeKey(index);
+                        setDoc({
+                          ...doc,
+                          steps: doc.steps.filter((_, i) => i !== index),
+                        });
+                      }}
+                    >
+                      <div className="admin-grid-2">
+                        <TextField
+                          label="Title"
+                          value={item.title}
+                          onChange={(title) => {
+                            const steps = [...doc.steps];
+                            steps[index] = { ...item, title };
+                            setDoc({ ...doc, steps });
+                          }}
+                        />
+                        <TextField
+                          label={isBooking ? "Label (optional)" : "Step number"}
+                          value={item.step}
+                          onChange={(step) => {
+                            const steps = [...doc.steps];
+                            steps[index] = { ...item, step };
+                            setDoc({ ...doc, steps });
+                          }}
+                        />
+                      </div>
+                      <TextField
+                        label="Description"
+                        value={item.body}
+                        onChange={(body) => {
+                          const steps = [...doc.steps];
+                          steps[index] = { ...item, body };
+                          setDoc({ ...doc, steps });
+                        }}
+                        multiline
+                        rows={2}
+                      />
+                    </NestedItemCard>
+                  )}
+                </SortableRow>
+              ))}
+            </SortableList>
           </CollapsiblePanel>
 
+          {showEnquirySections ? (
+            <>
           <CollapsiblePanel
             id={panelId("form")}
             title="Form copy"
@@ -333,18 +406,20 @@ export function EnquirePageEditor({
               <span>Show map section</span>
             </label>
           </CollapsiblePanel>
+            </>
+          ) : null}
         </div>
       </div>
 
       <AdminSaveBar
-        title="Enquire"
+        title={pageLabel}
         subtitle="content_data"
         saving={saving}
         saved={saved}
         dirty={dirty}
         error={error}
         onSave={handleSave}
-        previewHref="/enquire-now"
+        previewHref={previewHref}
       />
     </div>
   );

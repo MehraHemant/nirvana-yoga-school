@@ -32,6 +32,10 @@ export default function HeroBackgroundVideo({
     if (el.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA) {
       markReady();
     }
+    // Explicitly retry playback after hydration for browsers that defer autoplay.
+    void el.play().catch(() => {
+      // Keep the poster visible when autoplay is unavailable.
+    });
 
     return () => {
       el.removeEventListener("canplay", markReady);

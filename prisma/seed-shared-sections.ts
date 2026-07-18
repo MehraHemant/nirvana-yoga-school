@@ -36,6 +36,8 @@ import {
   YTT_HUB_OVERVIEW_INSET_IMAGE,
   YTT_HUB_WHY_RISHIKESH,
 } from "../src/data/yttHubPage";
+import { DEFAULT_TRAVEL_GUIDE } from "../src/content/data/travel-guide-defaults";
+import { FALLBACK_INSTAGRAM_FEED } from "../src/lib/instagram";
 
 const FACILITY_ICON_KEYS: Record<string, string> = {
   Shower: "shower",
@@ -240,6 +242,29 @@ export function buildSharedSectionSeeds(): Array<{
         },
         nav: YTT_HUB_NAV.map((item) => ({ ...item })),
         faqs: YTT_HUB_FAQS.map((faq) => ({ ...faq })),
+      },
+    },
+    {
+      key: "instagram",
+      value: {
+        live: true,
+        username: FALLBACK_INSTAGRAM_FEED.username,
+        displayName: FALLBACK_INSTAGRAM_FEED.displayName,
+        bio: FALLBACK_INSTAGRAM_FEED.bio,
+        website: FALLBACK_INSTAGRAM_FEED.website,
+        profileUrl: FALLBACK_INSTAGRAM_FEED.profileUrl,
+        postsCount: FALLBACK_INSTAGRAM_FEED.postsCount,
+        followersCount: FALLBACK_INSTAGRAM_FEED.followersCount,
+        followingCount: FALLBACK_INSTAGRAM_FEED.followingCount,
+        media: FALLBACK_INSTAGRAM_FEED.media.map((item) => ({ ...item })),
+      },
+    },
+    {
+      key: "travel",
+      value: {
+        ...DEFAULT_TRAVEL_GUIDE,
+        quickFacts: DEFAULT_TRAVEL_GUIDE.quickFacts.map((fact) => ({ ...fact })),
+        topics: DEFAULT_TRAVEL_GUIDE.topics.map((topic) => ({ ...topic })),
       },
     },
   ];

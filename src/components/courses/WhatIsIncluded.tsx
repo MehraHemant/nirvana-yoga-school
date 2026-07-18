@@ -17,7 +17,6 @@ import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 
 interface WhatIsIncludedProps {
   inclusions: string[];
-  exclusions?: string[];
   eyebrow?: string;
   title?: string;
   description?: string;
@@ -136,8 +135,8 @@ function getInclusionIcon(item: string) {
 }
 
 /**
- * WhatIsIncluded showcases elements covered under program tuition fees (e.g. food, stay, events)
- * alongside optional add-ons or exclusions to establish full financial transparency.
+ * WhatIsIncluded showcases elements covered under program tuition fees
+ * (e.g. food, stay, events).
  *
  * @param props - Component properties conforming to WhatIsIncludedProps
  */
