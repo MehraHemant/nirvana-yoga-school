@@ -8,16 +8,20 @@ import { EASE_OUT } from "@/lib/motion";
 import OnlineSectionShell from "./OnlineSectionShell";
 
 type OnlineFAQSectionProps = {
+  id?: string;
   faqs: FAQ[];
 };
 
-export default function OnlineFAQSection({ faqs }: OnlineFAQSectionProps) {
+export default function OnlineFAQSection({
+  id = "faq",
+  faqs,
+}: OnlineFAQSectionProps) {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
   const prefersReduced = useReducedMotion() ?? false;
 
   return (
     <OnlineSectionShell
-      id="faq"
+      id={id}
       title="Frequently Asked Questions"
       className="border-b-0 pb-20"
     >

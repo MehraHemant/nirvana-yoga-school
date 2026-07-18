@@ -1,6 +1,7 @@
 import { PRIMARY_NAV, SIGN_IN_URL } from "@/constants/navigation";
 import { BLOG_POSTS } from "@/content/data/blog";
 import {
+  DEFAULT_BOOKING_PAGE_CONTENT,
   DEFAULT_CONTACT_PAGE_CONTENT,
   DEFAULT_ENQUIRE_PAGE_CONTENT,
   DEFAULT_HOME_PAGE_CONTENT,
@@ -19,9 +20,9 @@ import {
 } from "@/content/pages/slugs";
 import type { SitePageDocument, SitePageSection } from "@/content/types";
 import { COURSES_DATA } from "@/data/coursesData";
-import { hashPassword } from "@/lib/cms/auth";
-import { syncDefaultContentTypes } from "@/lib/cms/content-types";
-import { prisma } from "@/lib/db";
+import { syncDefaultContentTypes } from "@/lib/cms/content-types-sync";
+import { prisma } from "@/lib/db/node";
+import bcrypt from "bcryptjs";
 import { seedPageModulesOnly } from "./seed-page-modules";
 
 type PageType = "course" | "online" | "retreat" | "venue" | "site" | "blog";
@@ -34,6 +35,25 @@ function pageTypeForSlug(slug: string): PageType {
 
 async function upsertSitePageDocument(doc: SitePageDocument) {
   const type = pageTypeForSlug(doc.slug);
+  const contentData =
+    doc.slug === "teacher"
+      ? {
+          heroQuote:
+            "Yoga Is A Light, Which Once Lit Will Never Dim. The Better Your Practice, The Brighter Your Flame.",
+          heroLead: doc.description,
+          sectionEyebrow: "Faculty profiles",
+          sectionTitle: "Meet our gurus",
+          sectionDescription:
+            "Biography, education, experience, and areas of expertise for every member of our faculty.",
+          homeEyebrow: "Our Spiritual Indian Gurus",
+          homeTitle: "Lineage Teachers, Guided by Compassion",
+          homeDescription:
+            "Meet our experienced, traditional yoga teachers and spiritual guides carrying decades of combined practice directly from traditional Vedic lineages in Rishikesh.",
+        }
+      : {
+          ...(doc.presentation ?? {}),
+          ...(doc.meta ? { meta: doc.meta } : {}),
+        };
 
   const page = await prisma.page.upsert({
     where: { slug: doc.slug },
@@ -46,22 +66,7 @@ async function upsertSitePageDocument(doc: SitePageDocument) {
       image: doc.image,
       ctaLabel: doc.ctaLabel,
       ctaHref: doc.ctaHref,
-      contentData:
-        doc.slug === "teacher"
-          ? ({
-              heroQuote:
-                "Yoga Is A Light, Which Once Lit Will Never Dim. The Better Your Practice, The Brighter Your Flame.",
-              heroLead: doc.description,
-              sectionEyebrow: "Faculty profiles",
-              sectionTitle: "Meet our gurus",
-              sectionDescription:
-                "Biography, education, experience, and areas of expertise for every member of our faculty.",
-              homeEyebrow: "Our Spiritual Indian Gurus",
-              homeTitle: "Lineage Teachers, Guided by Compassion",
-              homeDescription:
-                "Meet our experienced, traditional yoga teachers and spiritual guides carrying decades of combined practice directly from traditional Vedic lineages in Rishikesh.",
-            })
-          : undefined,
+      contentData,
     },
     update: {
       type,
@@ -71,6 +76,7 @@ async function upsertSitePageDocument(doc: SitePageDocument) {
       image: doc.image,
       ctaLabel: doc.ctaLabel,
       ctaHref: doc.ctaHref,
+      contentData,
     },
   });
 
@@ -502,12 +508,12 @@ async function main() {
   await prisma.$executeRawUnsafe("SET FOREIGN_KEY_CHECKS = 1");
   console.log("  wiped existing CMS rows");
 
-  await syncDefaultContentTypes();
+  await syncDefaultContentTypes(prisma);
   console.log("  content types: synced");
 
   await seedGlobalSettings();
 
-  // Dedicated pages (home / contact / enquire) — content_data typed docs.
+  // Dedicated pages — content_data typed docs.
   for (const row of [
     {
       slug: "home",
@@ -527,6 +533,13 @@ async function main() {
       title: "Enquire Now",
       description: "Enquire about yoga teacher training, retreats, and courses.",
       contentData: DEFAULT_ENQUIRE_PAGE_CONTENT,
+    },
+    {
+      slug: "booking",
+      title: "Booking",
+      description:
+        "Book your yoga teacher training and pay a deposit securely.",
+      contentData: DEFAULT_BOOKING_PAGE_CONTENT,
     },
   ] as const) {
     await withRetry(`${row.slug} page`, () =>
@@ -554,7 +567,12 @@ async function main() {
     console.log(`  site page: ${row.slug}`);
   }
 
-  const dedicatedSiteSlugs = new Set(["home", "contact", "enquire-now"]);
+  const dedicatedSiteSlugs = new Set([
+    "home",
+    "contact",
+    "enquire-now",
+    "booking",
+  ]);
   for (const slug of Object.keys(sitePagesJson)) {
     const doc = sitePagesJson[
       slug as keyof typeof sitePagesJson
@@ -629,7 +647,7 @@ async function main() {
   await withRetry("page modules", () => seedPageModulesOnly());
 
   const adminEmail = "admin@nirvanayogaschoolindia.com";
-  const passwordHash = await hashPassword("admin123");
+  const passwordHash = await bcrypt.hash("admin123", 12);
   await withRetry("admin user", () =>
     prisma.adminUser.upsert({
       where: { email: adminEmail },
@@ -642,6 +660,19 @@ async function main() {
     }),
   );
   console.log(`  admin user: ${adminEmail}`);
+
+  const teacherPage = await prisma.page.findUnique({
+    where: { slug: "teacher" },
+  });
+  if (!teacherPage) {
+    throw new Error('Teacher page was not seeded from "site-pages.json".');
+  }
+  const peopleCount = await prisma.pagePerson.count({
+    where: { page: { slug: "teacher" } },
+  });
+  console.log(
+    `  teacher page: ok (${peopleCount} people)`,
+  );
 
   console.log("Seed complete.");
 }

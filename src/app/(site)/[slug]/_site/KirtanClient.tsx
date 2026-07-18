@@ -11,6 +11,7 @@ import {
   Food,
   InstagramFeed,
   PageGallerySection,
+  PageHeroRenderer,
   UpcomingDates,
   WhatIsIncluded,
   WhyNirvana,
@@ -25,7 +26,10 @@ import {
   kirtanHeroImage,
   parseKirtanContent,
 } from "@/content/mappers/kirtan-page";
-import { shouldRenderSection } from "@/lib/cms/section-visibility";
+import {
+  isSectionLive,
+  shouldRenderSection,
+} from "@/lib/cms/section-visibility";
 import { resolveSectionHtmlId } from "@/lib/html-id";
 import type { SiteClientProps } from "../../_shared/site/types";
 
@@ -41,30 +45,63 @@ export default function KirtanClient({
   residentialLife,
   whyNirvana,
   reviews,
+  instagram,
 }: SiteClientProps) {
   const copy = mapped.presentation;
   const kirtan = parseKirtanContent(page);
   const fee = mapped.pricing[0]?.price ?? "$299 USD";
+  const showHero = isSectionLive(modules?.hero);
+  const showStickyNav = isSectionLive(modules?.stickyNav);
+  const showOverview = isSectionLive(modules?.overview);
+  const showInclusions = shouldRenderSection(
+    modules?.inclusions,
+    (modules?.inclusions.items ?? mapped.inclusions).length > 0,
+  );
+  const showEligibility = isSectionLive(modules?.eligibility);
+  const showSyllabus = shouldRenderSection(
+    modules?.syllabus,
+    (modules?.syllabus.chapters ?? kirtan.syllabus).length > 0,
+  );
+  const showPricing = shouldRenderSection(
+    modules?.pricing,
+    (modules?.pricing.options ?? mapped.pricing).length > 0,
+  );
+  const showFaqs = shouldRenderSection(
+    modules?.faqs,
+    (modules?.faqs.items ?? mapped.faqs).length > 0,
+  );
+  const gallery = modules?.gallery?.images ?? mapped.gallery;
   const showWhyNirvana =
     (modules?.flags.showWhyNirvana ?? mapped.showWhyNirvana) &&
     shouldRenderSection(whyNirvana, Boolean(whyNirvana?.highlights?.length));
+  const showInstagram =
+    (modules?.flags.showInstagram ?? mapped.showInstagram) &&
+    shouldRenderSection(instagram, Boolean(instagram?.media?.length));
 
   return (
     <>
-      <CourseHero
-        variant="page"
-        title={page.title}
-        subtitle={copy.heroSubtitle}
-        image={kirtanHeroImage(page)}
-        eyebrow="5-Day Music Training"
-        heroImages={mapped.heroImages}
-        metaItems={mapped.metaItems}
-        ctaPrimary={mapped.ctaPrimary}
-        ctaPrimaryHref={mapped.ctaPrimaryHref}
-        ctaSecondary={mapped.ctaSecondary}
-        ctaSecondaryHref={mapped.ctaSecondaryHref}
-      />
-      <CourseStickyNav items={mapped.navItems} />
+      {showHero ? (
+        modules ? (
+          <PageHeroRenderer modules={modules} />
+        ) : (
+          <CourseHero
+            variant="page"
+            title={page.title}
+            subtitle={copy.heroSubtitle}
+            image={kirtanHeroImage(page)}
+            eyebrow="5-Day Music Training"
+            heroImages={mapped.heroImages}
+            metaItems={mapped.metaItems}
+            ctaPrimary={mapped.ctaPrimary}
+            ctaPrimaryHref={mapped.ctaPrimaryHref}
+            ctaSecondary={mapped.ctaSecondary}
+            ctaSecondaryHref={mapped.ctaSecondaryHref}
+          />
+        )
+      ) : null}
+      {showStickyNav ? (
+        <CourseStickyNav items={modules?.stickyNav.items ?? mapped.navItems} />
+      ) : null}
       <CourseBookingFab
         fee={fee}
         title={page.title}
@@ -72,60 +109,83 @@ export default function KirtanClient({
       />
 
       <article className="min-h-screen max-w-full overflow-x-clip">
-        <CourseOverview
-          htmlId={resolveSectionHtmlId("overview", modules?.overview._id)}
-          overview={mapped.overview ?? ""}
-          level="Beginners welcome"
-          duration={mapped.duration}
-          fee={fee}
-          certification="Certificate on completion"
-          featureImages={
-            kirtan.overviewImages.length > 0
-              ? kirtan.overviewImages
-              : mapped.heroImages.slice(1, 5)
-          }
-          eyebrow="Program Overview"
-          title={
-            <>
-              Find your voice through{" "}
-              <span className="text-primary">sacred sound</span>
-            </>
-          }
-          supportingCopy={copy.overviewSupporting ?? ""}
-          quoteText={copy.quoteText}
-          quoteAttribution={copy.quoteAttribution}
-        />
+        {showOverview ? (
+          <CourseOverview
+            htmlId={resolveSectionHtmlId("overview", modules?.overview._id)}
+            overview={modules?.overview.lead ?? mapped.overview ?? ""}
+            level={
+              modules?.overview.glance.find((item) => item.label === "Level")
+                ?.value ?? "Beginners welcome"
+            }
+            duration={
+              modules?.overview.glance.find((item) => item.label === "Duration")
+                ?.value ?? mapped.duration
+            }
+            fee={
+              modules?.overview.glance.find(
+                (item) => item.label === "Program Fee",
+              )?.value ?? fee
+            }
+            certification={
+              modules?.overview.glance.find(
+                (item) => item.label === "Certification",
+              )?.value ?? "Certificate on completion"
+            }
+            featureImages={
+              modules?.overview.media.items
+                .filter((item) => item.type === "image")
+                .map((item) => item.url) ??
+              (kirtan.overviewImages.length > 0
+                ? kirtan.overviewImages
+                : mapped.heroImages.slice(1, 5))
+            }
+            eyebrow={modules?.overview.eyebrow ?? "Program Overview"}
+            title={modules?.overview.title ?? page.title}
+            supportingCopy={
+              modules?.overview.supportingCopy ?? copy.overviewSupporting ?? ""
+            }
+          />
+        ) : null}
 
-        <WhatIsIncluded
-          htmlId={resolveSectionHtmlId("inclusions", modules?.inclusions._id)}
-          inclusions={mapped.inclusions}
-          exclusions={mapped.exclusions}
-        />
+        {showInclusions ? (
+          <WhatIsIncluded
+            htmlId={resolveSectionHtmlId("inclusions", modules?.inclusions._id)}
+            inclusions={modules?.inclusions.items ?? mapped.inclusions}
+            eyebrow={modules?.inclusions.eyebrow}
+            title={modules?.inclusions.title}
+            description={modules?.inclusions.description}
+          />
+        ) : null}
 
-        <CourseEligibility
-          htmlId={resolveSectionHtmlId("eligibility", modules?.eligibility._id)}
-          requirements={kirtan.eligibility}
-          eyebrow="Who Is This For"
-          title={
-            <>
-              Open to every <span className="text-primary">sincere seeker</span>
-            </>
-          }
-          description="No prior musical training is needed — only curiosity, openness, and a willingness to learn through practice."
-          showAllianceBadge={false}
-        />
+        {showEligibility ? (
+          <CourseEligibility
+            htmlId={resolveSectionHtmlId(
+              "eligibility",
+              modules?.eligibility._id,
+            )}
+            requirements={
+              modules?.eligibility.requirements ?? kirtan.eligibility
+            }
+            eyebrow={modules?.eligibility.eyebrow ?? "Who Is This For"}
+            title={modules?.eligibility.title ?? "Open to every sincere seeker"}
+            description={modules?.eligibility.description}
+            showAllianceBadge={modules?.eligibility.showAllianceBadge ?? false}
+          />
+        ) : null}
 
-        <CourseSyllabus
-          htmlId={resolveSectionHtmlId("syllabus", modules?.syllabus._id)}
-          description={kirtan.syllabusDescription}
-          syllabus={kirtan.syllabus}
-          sidebar={KIRTAN_SYLLABUS_SIDEBAR}
-          subtopicsLabel="What you will learn:"
-        />
+        {showSyllabus ? (
+          <CourseSyllabus
+            htmlId={resolveSectionHtmlId("syllabus", modules?.syllabus._id)}
+            description={
+              modules?.syllabus.description ?? kirtan.syllabusDescription
+            }
+            syllabus={modules?.syllabus.chapters ?? kirtan.syllabus}
+            sidebar={KIRTAN_SYLLABUS_SIDEBAR}
+            subtopicsLabel="What you will learn:"
+          />
+        ) : null}
 
-        {mapped.gallery.length > 0 && (
-          <PageGallerySection images={mapped.gallery} />
-        )}
+        {gallery.length > 0 && <PageGallerySection images={gallery} />}
 
         <KirtanCertificationSection
           description={kirtan.certification}
@@ -139,15 +199,19 @@ export default function KirtanClient({
           </>
         ) : null}
 
-        <UpcomingDates
-          htmlId={resolveSectionHtmlId("pricing", modules?.pricing._id)}
-          duration={mapped.duration}
-          pricing={mapped.pricing}
-          pricingDescription={mapped.pricingDescription}
-          batches={mapped.batches}
-          datesTitle="Course dates"
-          lodgingTitle="Packages (room & food)"
-        />
+        {showPricing ? (
+          <UpcomingDates
+            htmlId={resolveSectionHtmlId("pricing", modules?.pricing._id)}
+            duration={modules?.pricing.duration ?? mapped.duration}
+            pricing={modules?.pricing.options ?? mapped.pricing}
+            pricingDescription={
+              modules?.pricing.description ?? mapped.pricingDescription
+            }
+            batches={modules?.pricing.batches ?? mapped.batches}
+            datesTitle="Course dates"
+            lodgingTitle="Packages (room & food)"
+          />
+        ) : null}
 
         <KirtanHighlightsSection
           highlights={kirtan.highlights}
@@ -158,21 +222,23 @@ export default function KirtanClient({
           <WhyNirvana content={whyNirvana} reviews={reviews} />
         ) : null}
 
-        {(modules?.flags.showInstagram ?? mapped.showInstagram) ? (
-          <InstagramFeed />
+        {showInstagram && instagram ? (
+          <InstagramFeed content={instagram} />
         ) : null}
 
-        <FAQSection
-          id={resolveSectionHtmlId("faq", modules?.faqs._id)}
-          faqs={mapped.faqs}
-          sectionClassName="bg-white"
-          eyebrow="Common Questions"
-          title={
-            <>
-              Kirtan training <span className="text-primary">FAQs</span>
-            </>
-          }
-        />
+        {showFaqs ? (
+          <FAQSection
+            id={resolveSectionHtmlId("faq", modules?.faqs._id)}
+            faqs={modules?.faqs.items ?? mapped.faqs}
+            sectionClassName="bg-white"
+            eyebrow="Common Questions"
+            title={
+              <>
+                Kirtan training <span className="text-primary">FAQs</span>
+              </>
+            }
+          />
+        ) : null}
       </article>
     </>
   );

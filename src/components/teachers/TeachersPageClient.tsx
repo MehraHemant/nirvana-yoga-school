@@ -6,24 +6,13 @@ import { useCallback, useEffect, useState } from "react";
 import type { TeacherProfile } from "@/components/home/TeachersSection";
 import { Container, Heading, SectionHeader } from "@/components/ui";
 import { teacherSlug } from "@/content/teachers-slug";
-import {
-  optionalSectionHtmlId,
-  resolveSectionHtmlId,
-} from "@/lib/html-id";
-import { EASE_OUT, reducedTransition } from "@/lib/motion";
+import { resolveSectionHtmlId } from "@/lib/html-id";
 
 type TeachersPageClientProps = {
   teachers: TeacherProfile[];
-  heroImage: string;
-  eyebrow: string;
-  title: string;
-  lead: string;
-  quote: string;
   sectionEyebrow: string;
   sectionTitle: string;
   sectionDescription: string;
-  /** Optional CMS `_id` for the hero band */
-  heroId?: string;
   /** Optional CMS `_id` for the faculty section (default `faculty`) */
   facultyId?: string;
 };
@@ -164,22 +153,15 @@ function TeacherArticle({
 }
 
 /**
- * TeachersPageClient renders the dynamic view for the faculty page,
- * including a full-bleed quote header, sticky table of contents, and biographies.
+ * TeachersPageClient renders the faculty page's sticky table of contents and biographies.
  *
  * @param props - Component properties conforming to TeachersPageClientProps
  */
 export default function TeachersPageClient({
   teachers,
-  heroImage,
-  eyebrow,
-  title,
-  lead,
-  quote,
   sectionEyebrow,
   sectionTitle,
   sectionDescription,
-  heroId,
   facultyId,
 }: TeachersPageClientProps) {
   const prefersReducedMotion = useReducedMotion() ?? false;
@@ -236,65 +218,14 @@ export default function TeachersPageClient({
     return () => window.removeEventListener("scroll", onScroll);
   }, [teachers]);
 
-  const heroHtmlId = optionalSectionHtmlId(heroId);
   const facultyHtmlId = resolveSectionHtmlId("faculty", facultyId);
 
   return (
     <>
-      {/* Full-bleed hero */}
-      <section
-        id={heroHtmlId}
-        className="relative min-h-[56svh] overflow-hidden bg-ink text-white lg:min-h-[65svh] pt-[var(--site-header-height)]"
-      >
-        <Image
-          src={heroImage}
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover object-center opacity-50"
-        />
-        <div
-          className="absolute inset-0 bg-linear-to-r from-ink/90 via-ink/55 to-ink/20"
-          aria-hidden="true"
-        />
-        <div
-          className="absolute inset-0 bg-linear-to-t from-ink/60 via-transparent to-transparent"
-          aria-hidden="true"
-        />
-        <Container
-          size="2xl"
-          className="relative z-10 flex min-h-[calc(56svh-var(--site-header-height))] flex-col justify-end py-14 lg:min-h-[calc(65svh-var(--site-header-height))] lg:py-20"
-        >
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={reducedTransition(prefersReducedMotion, {
-              duration: 0.65,
-              ease: EASE_OUT,
-            })}
-            className="max-w-3xl"
-          >
-            <p className="type-eyebrow text-accent">{eyebrow}</p>
-            <Heading as="h1" size="h1" invert className="mt-4">
-              {title}
-            </Heading>
-            <p className="type-lead mt-5 max-w-2xl font-sans leading-relaxed text-white/75">
-              {lead}
-            </p>
-            {quote ? (
-              <blockquote className="type-lead mt-6 hidden max-w-xl border-l-2 border-accent/50 pl-4 font-serif italic leading-relaxed text-white/70 md:block">
-                {quote}
-              </blockquote>
-            ) : null}
-          </motion.div>
-        </Container>
-      </section>
-
       {/* Magazine layout: sticky TOC + scrollable profiles */}
       <section
         id={facultyHtmlId}
-        className="bg-white py-14 sm:py-16 lg:py-20"
+        className="bg-white pb-14 pt-[calc(var(--site-header-height)+3.5rem)] sm:pb-16 sm:pt-[calc(var(--site-header-height)+4rem)] lg:pb-20 lg:pt-[calc(var(--site-header-height)+5rem)]"
       >
         <Container size="2xl">
           <SectionHeader

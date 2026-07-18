@@ -23,6 +23,7 @@ import type {
   SitePageDocument,
 } from "@/content/types";
 import { cmsImageUrl } from "@/content/types/cms-image";
+import { teacherSlug } from "@/content/teachers-slug";
 import type {
   BentoMediaHero,
   GlanceItem,
@@ -91,10 +92,6 @@ export function buildModulesFromCourse(
       lead: course.overview,
       supportingCopy:
         "Live the ashram rhythm — morning practice, philosophy, anatomy, teaching labs, and community meals — while earning a credential recognized worldwide.",
-      quote: {
-        text: "Teaching yoga begins when practice becomes honest, steady, and shared.",
-        attribution: "YTT philosophy",
-      },
       glance: buildGlanceFromCourse(course),
       media: {
         mode: courseMedia.videos.length > 0 ? "video" : "carousel",
@@ -117,7 +114,6 @@ export function buildModulesFromCourse(
       description:
         "We operate on complete transparency. Your program fee covers all essential living, training, and excursion expenses during your stay so you can focus entirely on your training.",
       items: course.inclusions,
-      exclusions: course.exclusions,
     },
     eligibility: {
       eyebrow: "Admission Standards",
@@ -188,7 +184,7 @@ export function buildModulesFromOnlineCourse(
         items: [{ type: "image", url: course.image }],
       },
     },
-    inclusions: { items: course.inclusions, exclusions: course.exclusions },
+    inclusions: { items: course.inclusions },
     eligibility: {
       requirements: [...DEFAULT_ELIGIBILITY_REQUIREMENTS],
       showAllianceBadge: true,
@@ -208,15 +204,7 @@ export function buildModulesFromOnlineCourse(
     },
     faqs: { items: course.faqs },
     teachers: {
-      people: course.teachers.map((t) => ({
-        name: t.name,
-        image: t.image,
-        summary: t.experienceSummary,
-        bio: t.bio,
-        education: t.education,
-        experience: t.detailedExperience,
-        expertise: t.expertise,
-      })),
+      selectedSlugs: course.teachers.map((t) => teacherSlug(t.name)),
     },
     flags: {
       showExam: false,
@@ -308,10 +296,6 @@ export function buildModulesFromSitePage(
       title: page.title,
       lead: refineOverview(page, overviewSection?.body),
       supportingCopy: refineSupportingCopy(page),
-      quote: {
-        text: presentation.quoteText,
-        attribution: presentation.quoteAttribution,
-      },
       glance: [],
       media: {
         mode: overviewSection?.images?.length
@@ -331,7 +315,6 @@ export function buildModulesFromSitePage(
     },
     inclusions: {
       items: inclusions,
-      exclusions: [],
     },
     eligibility: {
       requirements: [...DEFAULT_ELIGIBILITY_REQUIREMENTS],
@@ -363,7 +346,9 @@ export function buildModulesFromSitePage(
           };
         }) ?? [],
     },
-    teachers: page.people?.length ? { people: page.people } : undefined,
+    teachers: page.people?.length
+      ? { selectedSlugs: page.people.map((p) => teacherSlug(p.name)) }
+      : undefined,
     gallery: page.gallery?.length ? { images: page.gallery } : undefined,
     programs: page.cards?.length ? { cards: page.cards } : undefined,
     flags,
@@ -398,10 +383,6 @@ export function buildModulesFromRetreat(
       lead: retreat.overview,
       supportingCopy:
         "Wake to herbal tea, move through guided practice, share sattvic meals, and end the day with kirtan, Ganga Aarti, or quiet reflection.",
-      quote: {
-        text: "Retreat is not escape — it is returning to a quieter rhythm your body already knows.",
-        attribution: "Nirvana Yoga School",
-      },
       glance: [{ label: "Duration", value: retreat.duration }],
       media: {
         mode: "carousel",

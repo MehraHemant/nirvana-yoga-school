@@ -22,8 +22,8 @@ type SharedSectionLinksProps = {
 };
 
 /**
- * Admin panel listing deep-links to shared global_settings content
- * (residential life, reviews, FAQs, etc.) so product editors do not duplicate it.
+ * Admin panel listing deep-links to the four shared global_settings editors
+ * (Why Nirvana, Map, Instagram, Travel).
  *
  * @param props - Link list and panel chrome
  */
@@ -55,8 +55,8 @@ export function SharedSectionLinks({
         ))}
       </ul>
       <p className="admin-hint" style={{ marginTop: "0.75rem" }}>
-        Visibility for shared blocks on this page is controlled by the Optional
-        sections toggles above (when present).
+        Visibility for shared blocks on this page is controlled by the Shared
+        sections (Live) toggles on this editor.
       </p>
     </CollapsiblePanel>
   );

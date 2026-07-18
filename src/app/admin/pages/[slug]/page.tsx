@@ -10,26 +10,26 @@ import {
   HUB_MODULE_PANELS,
   KIRTAN_MODULE_PANELS,
   ModulePageEditor,
+  type ModulePanelId,
   RESIDENTIAL_MODULE_PANELS,
   VENUE_MODULE_PANELS,
-  type ModulePanelId,
 } from "@/components/admin/modules/ModulePageEditor";
 import { YttHubEditor } from "@/components/admin/YttHubEditor";
 import type { PageModulesDocument } from "@/content/types";
 import type { YttHubContent } from "@/content/types/shared-sections";
 import {
-  fetchAdminPageModules,
-  saveAdminPageModules,
+  fetchAdminPageEditor,
+  saveAdminPageEditor,
 } from "@/lib/api/admin-client";
 import {
   adminSectionListHref,
   adminSectionListLabel,
 } from "@/lib/cms/admin-section-nav";
 import {
+  type PageLayoutId,
   publicViewHref,
   resolvePageLayoutId,
   sharedSectionLinksForLayout,
-  type PageLayoutId,
 } from "@/lib/cms/page-layout-registry";
 import { parseApiJson } from "@/lib/types/api";
 
@@ -49,16 +49,6 @@ export default function AdminPageEditor() {
  * @param props - Page slug
  */
 function AdminLayoutRouter({ slug }: { slug: string }) {
-  if (slug === "home" || slug === "contact" || slug === "enquire-now") {
-    return (
-      <DedicatedPageAdminClient
-        slug={slug}
-        backHref={adminSectionListHref("site", slug)}
-        backLabel={adminSectionListLabel("site", slug)}
-      />
-    );
-  }
-
   if (slug === "teacher") {
     return (
       <TeachersAdminClient
@@ -81,21 +71,30 @@ function AdminLayoutRouter({ slug }: { slug: string }) {
 }
 
 /**
- * Loads page type from modules API, then routes to online/retreat/module editors.
+ * Loads one canonical page document, then mounts its guided layout editor.
  *
  * @param props - Page slug
  */
 function TypedLayoutEditor({ slug }: { slug: string }) {
   const [modules, setModules] = useState<PageModulesDocument | null>(null);
   const [pageType, setPageType] = useState("site");
+  const [content, setContent] = useState<
+    import("@/content/types/dedicated-pages").DedicatedPageContent | null
+  >(null);
+  const [product, setProduct] =
+    useState<
+      import("@/lib/types/admin-api").AdminPageEditorDocument["product"]
+    >(null);
   const [error, setError] = useState("");
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    fetchAdminPageModules(slug)
+    fetchAdminPageEditor(slug)
       .then((body) => {
         setModules(body.modules);
-        setPageType(body.meta?.type ?? "site");
+        setPageType(body.meta.type);
+        setContent(body.content);
+        setProduct(body.product);
         setReady(true);
       })
       .catch((err: Error) => setError(err.message));
@@ -108,11 +107,33 @@ function TypedLayoutEditor({ slug }: { slug: string }) {
   const backHref = adminSectionListHref(pageType, slug);
   const backLabel = adminSectionListLabel(pageType, slug);
 
+  if (
+    (slug === "home" ||
+      slug === "contact" ||
+      slug === "enquire-now" ||
+      slug === "booking") &&
+    content
+  ) {
+    return (
+      <DedicatedPageAdminClient
+        slug={slug}
+        initialContent={content}
+        backHref={backHref}
+        backLabel={backLabel}
+      />
+    );
+  }
+
   if (layoutId === "onlineCourse") {
+    if (!product || product.kind !== "online") {
+      return <p className="admin-error">Online course document not found.</p>;
+    }
     return (
       <ProductEditorsAdminClient
         slug={slug}
         kind="online"
+        initialDocument={product.document}
+        initialModules={modules}
         backHref={backHref}
         backLabel={backLabel}
       />
@@ -120,10 +141,15 @@ function TypedLayoutEditor({ slug }: { slug: string }) {
   }
 
   if (layoutId === "retreat") {
+    if (!product || product.kind !== "retreat") {
+      return <p className="admin-error">Retreat document not found.</p>;
+    }
     return (
       <ProductEditorsAdminClient
         slug={slug}
         kind="retreat"
+        initialDocument={product.document}
+        initialModules={modules}
         backHref={backHref}
         backLabel={backLabel}
       />
@@ -137,7 +163,11 @@ function TypedLayoutEditor({ slug }: { slug: string }) {
   const { panels, hint } = layoutModuleConfig(layoutId);
 
   async function onSave(next: PageModulesDocument) {
-    await saveAdminPageModules(slug, next);
+    await saveAdminPageEditor(slug, {
+      modules: next,
+      content: null,
+      product: null,
+    });
     setModules(next);
   }
 
@@ -186,7 +216,6 @@ function layoutModuleConfig(layoutId: PageLayoutId): {
         panels: KIRTAN_MODULE_PANELS,
         hint: "Kirtan",
       };
-    case "editorial":
     default:
       return {
         panels: EDITORIAL_MODULE_PANELS,

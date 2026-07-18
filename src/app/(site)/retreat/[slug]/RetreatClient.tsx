@@ -15,9 +15,12 @@ import {
   RetreatScheduleSection,
 } from "@/components/retreat";
 import { COURSE_FAQ_CATEGORIES, FAQSection } from "@/components/ui";
-import { resolveSectionHtmlId } from "@/lib/html-id";
 import { retreatWhatsAppHref } from "@/content/mappers/retreat-page";
-import { isSectionLive, shouldRenderSection } from "@/lib/cms/section-visibility";
+import {
+  isSectionLive,
+  shouldRenderSection,
+} from "@/lib/cms/section-visibility";
+import { resolveSectionHtmlId } from "@/lib/html-id";
 import type { RetreatPageData } from "./types";
 
 const RETREAT_OVERVIEW_DETAILS: Record<
@@ -83,9 +86,13 @@ export default function RetreatClient({
   modules,
   lodging,
 }: RetreatPageData) {
-  const details =
-    RETREAT_OVERVIEW_DETAILS[retreat.slug] ??
-    RETREAT_OVERVIEW_DETAILS["5-day-yoga-retreat-in-rishikesh-india"];
+  const details = modules
+    ? null
+    : (RETREAT_OVERVIEW_DETAILS[retreat.slug] ??
+      RETREAT_OVERVIEW_DETAILS["5-day-yoga-retreat-in-rishikesh-india"]);
+  const overviewValue = (label: string, fallback: string) =>
+    modules?.overview.glance.find((item) => item.label === label)?.value ??
+    fallback;
 
   const showHero = isSectionLive(modules?.hero);
   const showStickyNav = isSectionLive(modules?.stickyNav);
@@ -96,7 +103,7 @@ export default function RetreatClient({
   );
   const showPricing = shouldRenderSection(
     modules?.pricing,
-    mapped.pricing.length > 0,
+    (modules?.pricing.options ?? mapped.pricing).length > 0,
   );
   const showFaqs = shouldRenderSection(
     modules?.faqs,
@@ -179,23 +186,25 @@ export default function RetreatClient({
           <CourseOverview
             htmlId={resolveSectionHtmlId("overview", modules?.overview._id)}
             overview={modules?.overview.lead ?? retreat.overview}
-            level={details.level}
-            duration={retreat.duration}
-            certification={details.certification}
+            level={overviewValue(
+              "Level",
+              details?.level ?? "All levels welcome",
+            )}
+            duration={overviewValue("Duration", retreat.duration)}
+            certification={overviewValue(
+              "Certification",
+              details?.certification ?? "Yoga & Meditation",
+            )}
             fee={mapped.fee}
             featureImages={
               modules?.overview.media.items
                 .filter((item) => item.type === "image")
                 .map((item) => item.url) ?? retreat.overviewImages
             }
-            eyebrow={modules?.overview.eyebrow ?? "The Retreat Experience"}
-            title={modules?.overview.title ?? details.title}
+            eyebrow={modules?.overview.eyebrow ?? retreat.eyebrow}
+            title={modules?.overview.title ?? details?.title ?? retreat.title}
             supportingCopy={
-              modules?.overview.supportingCopy ?? details.supportingCopy
-            }
-            quoteText={modules?.overview.quote?.text ?? details.quoteText}
-            quoteAttribution={
-              modules?.overview.quote?.attribution ?? details.quoteAttribution
+              modules?.overview.supportingCopy ?? details?.supportingCopy ?? ""
             }
           />
         ) : null}
@@ -231,10 +240,12 @@ export default function RetreatClient({
         {showPricing ? (
           <UpcomingDates
             htmlId={resolveSectionHtmlId("pricing", modules?.pricing._id)}
-            duration={retreat.duration}
-            pricing={mapped.pricing}
-            pricingDescription={mapped.pricingDescription}
-            batches={mapped.batches}
+            duration={modules?.pricing.duration ?? retreat.duration}
+            pricing={modules?.pricing.options ?? mapped.pricing}
+            pricingDescription={
+              modules?.pricing.description ?? mapped.pricingDescription
+            }
+            batches={modules?.pricing.batches ?? mapped.batches}
             lodgingTitle="Retreat packages"
             datesTitle="Retreat dates"
             programSlug={retreat.slug}

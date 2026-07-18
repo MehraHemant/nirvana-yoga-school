@@ -13,8 +13,8 @@
     "db:reset": "prisma migrate reset --force",
     "db:migrate": "prisma migrate deploy",
     "db:migrate:dev": "prisma migrate dev",
-    "db:seed": "tsx prisma/seed.ts",
-    "db:seed-modules": "tsx prisma/seed-page-modules.ts",
+    "db:seed": "tsx --env-file=.env prisma/seed.ts",
+    "db:seed-modules": "tsx --env-file=.env prisma/seed-page-modules.ts",
     "db:studio": "prisma studio"
   },
   "dependencies": {
@@ -61,6 +61,6 @@
     "typescript": "^5"
   },
   "prisma": {
-    "seed": "tsx prisma/seed.ts"
+    "seed": "tsx --env-file=.env prisma/seed.ts"
   }
 }

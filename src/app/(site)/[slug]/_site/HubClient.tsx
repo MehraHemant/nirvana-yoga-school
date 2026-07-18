@@ -35,8 +35,12 @@ export default function HubClient({
   residentialLife,
   whyNirvana,
   reviews,
+  instagram,
+  travel,
 }: SiteClientProps) {
   const inclusionItems = modules?.inclusions.items ?? mapped.inclusions;
+  const programs = modules?.programs?.cards ?? mapped.programs;
+  const gallery = modules?.gallery?.images ?? mapped.gallery;
   const showInclusions = shouldRenderSection(
     modules?.inclusions,
     inclusionItems.length > 0,
@@ -48,6 +52,12 @@ export default function HubClient({
   const showWhyNirvana =
     (modules?.flags.showWhyNirvana ?? mapped.showWhyNirvana) &&
     shouldRenderSection(whyNirvana, Boolean(whyNirvana?.highlights?.length));
+  const showTravel =
+    (modules?.flags.showTravel ?? mapped.showTravelGuide) &&
+    shouldRenderSection(travel, Boolean(travel?.topics?.length));
+  const showInstagram =
+    (modules?.flags.showInstagram ?? mapped.showInstagram) &&
+    shouldRenderSection(instagram, Boolean(instagram?.media?.length));
 
   return (
     <>
@@ -58,7 +68,6 @@ export default function HubClient({
           <WhatIsIncluded
             htmlId={resolveSectionHtmlId("inclusions", modules?.inclusions._id)}
             inclusions={inclusionItems}
-            exclusions={modules?.inclusions.exclusions ?? mapped.exclusions}
             eyebrow={modules?.inclusions.eyebrow}
             title={modules?.inclusions.title}
             description={modules?.inclusions.description}
@@ -67,21 +76,30 @@ export default function HubClient({
         {showPricing ? (
           <UpcomingDates
             htmlId={resolveSectionHtmlId("pricing", modules?.pricing._id)}
-            duration={mapped.duration}
-            pricing={mapped.pricing}
-            pricingDescription={mapped.pricingDescription}
-            batches={mapped.batches}
+            duration={modules?.pricing.duration ?? mapped.duration}
+            pricing={
+              modules?.pricing.options?.length
+                ? modules.pricing.options
+                : mapped.pricing
+            }
+            pricingDescription={
+              modules?.pricing.description ?? mapped.pricingDescription
+            }
+            batches={
+              modules?.pricing.batches?.length
+                ? modules.pricing.batches
+                : mapped.batches
+            }
             datesTitle="Training dates"
             lodgingTitle="Lodging packages"
           />
         ) : null}
-        {teachers.length > 0 && <TeachersSection teachers={teachers} />}
-        {mapped.programs.length > 0 && (
-          <PageProgramsSection cards={mapped.programs} />
-        )}
-        {mapped.gallery.length > 0 && (
-          <PageGallerySection images={mapped.gallery} />
-        )}
+        {teachers.length > 0 &&
+        shouldRenderSection(modules?.teachers, teachers.length > 0) ? (
+          <TeachersSection teachers={teachers} />
+        ) : null}
+        {programs.length > 0 && <PageProgramsSection cards={programs} />}
+        {gallery.length > 0 && <PageGallerySection images={gallery} />}
         <SiteEditorial mapped={mapped} />
         {(modules?.flags.showAccommodation ?? mapped.showAccommodation) ? (
           <>
@@ -92,11 +110,9 @@ export default function HubClient({
         {showWhyNirvana ? (
           <WhyNirvana content={whyNirvana} reviews={reviews} />
         ) : null}
-        {(modules?.flags.showTravel ?? mapped.showTravelGuide) ? (
-          <TravelGuide />
-        ) : null}
-        {(modules?.flags.showInstagram ?? mapped.showInstagram) ? (
-          <InstagramFeed />
+        {showTravel && travel ? <TravelGuide content={travel} /> : null}
+        {showInstagram && instagram ? (
+          <InstagramFeed content={instagram} />
         ) : null}
         <SiteFaq mapped={mapped} modules={modules} />
       </article>

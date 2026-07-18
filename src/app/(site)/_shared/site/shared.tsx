@@ -155,8 +155,6 @@ export function SiteOverview({
         eyebrow={overview.eyebrow}
         title={overview.title}
         supportingCopy={overview.supportingCopy ?? ""}
-        quoteText={overview.quote?.text}
-        quoteAttribution={overview.quote?.attribution}
       />
     );
   }
@@ -174,8 +172,6 @@ export function SiteOverview({
       eyebrow={copy.overviewEyebrow}
       title={siteOverviewTitle(copy.overviewTitleKey, page.eyebrow)}
       supportingCopy={copy.overviewSupporting ?? ""}
-      quoteText={copy.quoteText}
-      quoteAttribution={copy.quoteAttribution}
     />
   );
 }

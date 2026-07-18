@@ -45,10 +45,6 @@ type CourseOverviewProps = {
   title?: ReactNode;
   /** Supporting paragraph under the lead */
   supportingCopy?: string;
-  /** Blockquote body */
-  quoteText?: string;
-  /** Blockquote attribution */
-  quoteAttribution?: string;
   /** Public section HTML id (defaults to `overview`) */
   htmlId?: string;
 };
@@ -77,8 +73,6 @@ export default function CourseOverview({
     </>
   ),
   supportingCopy = "Our residential yoga training program is designed to facilitate physical purification, emotional release, and intellectual understanding. By immersing yourself completely in the ashram lifecycle, you step away from modern distractions to cultivate discipline, self-inquiry, and authentic teachings handed down through generations.",
-  quoteText = "Yoga is not just physical posture; it is a sacred pathway to quieting the mind, understanding the self, and returning to the lineage of ancient wisdom.",
-  quoteAttribution = "Himalayan Lineage Teachings",
   htmlId = "overview",
 }: CourseOverviewProps) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
@@ -150,39 +144,22 @@ export default function CourseOverview({
             />
           </motion.div>
 
-          {/* Text first — full width editorial column */}
+          {/* Text first — full-width editorial column (no quote card) */}
           <motion.div
             initial="hidden"
             whileInView="visible"
             viewport={VIEWPORT_ONCE}
             variants={fadeUp}
-            className="grid gap-8 lg:grid-cols-12 lg:gap-12"
+            className="max-w-3xl space-y-6"
           >
-            <div className="space-y-6 lg:col-span-7">
-              <p className="type-lead text-muted first-letter:float-left first-letter:mr-4 first-letter:mt-1 first-letter:font-serif first-letter:text-6xl first-letter:font-bold first-letter:leading-[0.8] first-letter:text-primary">
-                {overview}
+            <p className="type-lead text-muted first-letter:float-left first-letter:mr-4 first-letter:mt-1 first-letter:font-serif first-letter:text-6xl first-letter:font-bold first-letter:leading-[0.8] first-letter:text-primary">
+              {overview}
+            </p>
+            {resolvedSupporting ? (
+              <p className="type-lead font-sans leading-relaxed text-muted">
+                {resolvedSupporting}
               </p>
-              {resolvedSupporting ? (
-                <p className="type-lead font-sans leading-relaxed text-muted">
-                  {resolvedSupporting}
-                </p>
-              ) : null}
-            </div>
-
-            <div className="relative overflow-hidden rounded-3xl border border-primary/10 bg-primary/5 p-7 text-ink shadow-card sm:p-8 lg:col-span-5 lg:self-start">
-              <span
-                className="pointer-events-none absolute -top-10 left-2 select-none font-serif text-[10rem] text-primary/8"
-                aria-hidden="true"
-              >
-                “
-              </span>
-              <p className="relative z-10 font-serif text-lg italic leading-relaxed tracking-wide sm:text-xl">
-                "{quoteText}"
-              </p>
-              <span className="type-eyebrow relative z-10 mt-4 block text-right font-semibold uppercase tracking-wider text-primary">
-                — {quoteAttribution}
-              </span>
-            </div>
+            ) : null}
           </motion.div>
 
           {/* Media on its own row — homepage video layout */}

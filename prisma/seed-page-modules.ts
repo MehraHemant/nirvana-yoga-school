@@ -14,7 +14,7 @@ import {
   buildModulesFromRetreat,
   buildModulesFromSitePage,
 } from "@/lib/cms/page-modules-builder";
-import { prisma } from "@/lib/db";
+import { prisma } from "@/lib/db/node";
 
 /**
  * Populate `page_modules` for all existing page rows.

@@ -35,22 +35,24 @@ export default function VenueClient({
   residentialLife,
   whyNirvana,
   reviews,
+  instagram,
 }: SiteClientProps) {
+  const programs = modules?.programs?.cards ?? mapped.programs;
+  const gallery = modules?.gallery?.images ?? mapped.gallery;
   const showWhyNirvana =
     (modules?.flags.showWhyNirvana ?? mapped.showWhyNirvana) &&
     shouldRenderSection(whyNirvana, Boolean(whyNirvana?.highlights?.length));
+  const showInstagram =
+    (modules?.flags.showInstagram ?? mapped.showInstagram) &&
+    shouldRenderSection(instagram, Boolean(instagram?.media?.length));
 
   return (
     <>
       <SiteHero page={page} mapped={mapped} modules={modules} />
       <article className="min-h-screen max-w-full overflow-x-clip">
         <SiteOverview page={page} mapped={mapped} modules={modules} />
-        {mapped.programs.length > 0 && (
-          <PageProgramsSection cards={mapped.programs} />
-        )}
-        {mapped.gallery.length > 0 && (
-          <PageGallerySection images={mapped.gallery} />
-        )}
+        {programs.length > 0 && <PageProgramsSection cards={programs} />}
+        {gallery.length > 0 && <PageGallerySection images={gallery} />}
         <SiteEditorial mapped={mapped} />
         {(modules?.flags.showAccommodation ?? mapped.showAccommodation) ? (
           <>
@@ -58,8 +60,8 @@ export default function VenueClient({
             <Food content={residentialLife} />
           </>
         ) : null}
-        {(modules?.flags.showInstagram ?? mapped.showInstagram) ? (
-          <InstagramFeed />
+        {showInstagram && instagram ? (
+          <InstagramFeed content={instagram} />
         ) : null}
         {showWhyNirvana ? (
           <WhyNirvana content={whyNirvana} reviews={reviews} />

@@ -71,13 +71,6 @@ export function InclusionsModuleEditor({
         addLabel="Add inclusion"
         hint='Use "Paste many" to add a whole list at once.'
       />
-      <StringListField
-        label="Exclusions"
-        items={inclusions.exclusions ?? []}
-        onChange={(exclusions) => onChange({ ...inclusions, exclusions })}
-        addLabel="Add exclusion"
-        hint="Items not covered in the program fee."
-      />
     </CollapsiblePanel>
   );
 }

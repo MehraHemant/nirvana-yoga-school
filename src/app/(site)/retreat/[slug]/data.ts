@@ -1,11 +1,14 @@
 import { mapRetreatPage } from "@/content/mappers/retreat-page";
 import { getPageModules } from "@/content/repositories/page-modules";
-import { getRetreatAccommodation } from "@/content/repositories/shared-sections";
+import {
+  getRetreatAccommodation,
+  normalizeRetreatAccommodation,
+} from "@/content/repositories/shared-sections";
 import type { RetreatDocument } from "@/content/types/retreat-page";
 import type { RetreatPageData } from "./types";
 
 /**
- * Loads retreat modules + shared lodging galleries from MySQL.
+ * Loads retreat modules and lodging (page modules first, global fallback).
  *
  * @param retreat - Retreat document
  */
@@ -17,10 +20,14 @@ export async function loadRetreatPageData(
     getRetreatAccommodation(),
   ]);
 
+  const lodging = modulesResult.data?.retreatAccommodation
+    ? normalizeRetreatAccommodation(modulesResult.data.retreatAccommodation)
+    : lodgingResult.data;
+
   return {
     retreat,
-    mapped: mapRetreatPage(retreat, lodgingResult.data),
+    mapped: mapRetreatPage(retreat, lodging),
     modules: modulesResult.data,
-    lodging: lodgingResult.data,
+    lodging,
   };
 }

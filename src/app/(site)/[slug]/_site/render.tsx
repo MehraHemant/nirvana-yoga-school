@@ -31,6 +31,8 @@ export async function renderSitePage(page: SitePageDocument) {
     whyNirvana: data.whyNirvana,
     reviews: data.reviews,
     siteMap: data.siteMap,
+    instagram: data.instagram,
+    travel: data.travel,
   };
 
   let client = <SiteClient {...props} />;

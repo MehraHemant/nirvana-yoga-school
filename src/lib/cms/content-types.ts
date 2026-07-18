@@ -1,8 +1,4 @@
 import type { CmsPageKind } from "@/content/data/default-content-types";
-import {
-  DEFAULT_CONTENT_TYPES,
-  LEGACY_TYPE_REMAP,
-} from "@/content/data/default-content-types";
 import type { ContentTypeInput } from "@/content/types/content-schema";
 import type {
   CmsContentBlock,
@@ -13,6 +9,7 @@ import {
   parsePageCmsDocument,
 } from "@/content/types/page-cms";
 import { invalidateContentCache } from "@/lib/cms/cache";
+import { syncDefaultContentTypes as syncDefaultContentTypesWith } from "@/lib/cms/content-types-sync";
 import {
   defaultsFromFields,
   isValidContentKey,
@@ -168,74 +165,7 @@ export async function deleteContentType(id: string) {
  * Upserts all default system content types from the shared catalog.
  */
 export async function syncDefaultContentTypes() {
-  const keepKeys = new Set(DEFAULT_CONTENT_TYPES.map((t) => t.key));
-
-  for (const starter of DEFAULT_CONTENT_TYPES) {
-    await prisma.contentType.upsert({
-      where: { key: starter.key },
-      create: {
-        key: starter.key,
-        name: starter.name,
-        description: starter.description,
-        icon: starter.icon,
-        sortOrder: starter.sortOrder,
-        isSystem: true,
-        pageTypes: starter.pageTypes,
-        fields: starter.fields,
-      },
-      update: {
-        name: starter.name,
-        description: starter.description,
-        icon: starter.icon,
-        sortOrder: starter.sortOrder,
-        isSystem: true,
-        pageTypes: starter.pageTypes,
-        fields: starter.fields,
-      },
-    });
-  }
-
-  // Migrate existing page blocks from legacy per-kind keys to unified keys
-  // before pruning the old types (field keys are preserved).
-  await remapLegacyPageBlocks();
-
-  // Remove obsolete system keys from earlier iterations
-  const obsolete = await prisma.contentType.findMany({
-    where: { isSystem: true },
-  });
-  for (const row of obsolete) {
-    if (!keepKeys.has(row.key)) {
-      await prisma.contentType.delete({ where: { id: row.id } });
-    }
-  }
-}
-
-/**
- * Rewrites page content_data block `typeKey`s from legacy per-kind keys to the
- * unified reusable keys. Safe rename — field data is untouched.
- */
-async function remapLegacyPageBlocks() {
-  const pages = await prisma.page.findMany({
-    select: { id: true, contentData: true },
-  });
-  for (const page of pages) {
-    const doc = parsePageCmsDocument(page.contentData);
-    if (doc.blocks.length === 0) continue;
-    let changed = false;
-    const blocks = doc.blocks.map((block) => {
-      const mapped = LEGACY_TYPE_REMAP[block.typeKey];
-      if (mapped && mapped !== block.typeKey) {
-        changed = true;
-        return { ...block, typeKey: mapped };
-      }
-      return block;
-    });
-    if (!changed) continue;
-    await prisma.page.update({
-      where: { id: page.id },
-      data: { contentData: { blocks } },
-    });
-  }
+  return syncDefaultContentTypesWith(prisma);
 }
 
 /**

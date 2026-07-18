@@ -1,21 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { createEmptyResidentialLife } from "@/content/data/residential-life-defaults";
 import { createEmptyPageModules } from "@/content/page-modules-defaults";
 import { pagePath } from "@/content/pages/path";
 import { getPageRef } from "@/content/pages/registry";
 import type { PageModulesDocument } from "@/content/types";
+import type { ResidentialLifeContent } from "@/content/types/shared-sections";
 import { publicViewHref } from "@/lib/cms/page-layout-registry";
+import { parseApiJson } from "@/lib/types/api";
 import { AdminSaveBar } from "../AdminSaveBar";
 import { AdminSectionJumpNav } from "../AdminSectionJumpNav";
 import { CollapsiblePanel } from "../CollapsiblePanel";
+import { ResidentialLifeFields } from "../LodgingFields";
 import { PageSeoFields } from "../PageSeoFields";
-import { scrollToSection, toSectionDomId } from "../sectionDomId";
 import {
-  SharedSectionLinks,
   type SharedSectionLink,
+  SharedSectionLinks,
 } from "../SharedSectionLinks";
+import { scrollToSection, toSectionDomId } from "../sectionDomId";
 import { useSectionScrollSpy } from "../useSectionScrollSpy";
 import { EligibilityModuleEditor } from "./EligibilityModuleEditor";
 import { FaqModuleEditor } from "./FaqModuleEditor";
@@ -27,6 +31,7 @@ import { PricingModuleEditor } from "./PricingModuleEditor";
 import { ScheduleModuleEditor } from "./ScheduleModuleEditor";
 import { StickyNavModuleEditor } from "./StickyNavModuleEditor";
 import { SyllabusModuleEditor } from "./SyllabusModuleEditor";
+import { TeachersModuleEditor } from "./TeachersModuleEditor";
 import type { ModulePanelProps } from "./types";
 
 /** Module panel ids that can be filtered per layout. */
@@ -39,6 +44,8 @@ export type ModulePanelId =
   | "module-eligibility"
   | "module-syllabus"
   | "module-schedule"
+  | "module-accommodation"
+  | "module-teachers"
   | "module-flags"
   | "module-pricing"
   | "module-faq";
@@ -123,17 +130,31 @@ const MODULE_SECTIONS: Array<{
     hint: "Daily routine",
     moduleKey: "schedule",
   },
-  { id: "module-flags", step: 8, label: "Optional", hint: "Show/hide" },
+  {
+    id: "module-accommodation",
+    step: 8,
+    label: "Lodging & food",
+    hint: "Per-page",
+    moduleKey: "residentialLife",
+  },
+  {
+    id: "module-teachers",
+    step: 9,
+    label: "Teachers",
+    hint: "From faculty",
+    moduleKey: "teachers",
+  },
+  { id: "module-flags", step: 10, label: "Shared live", hint: "Global bands" },
   {
     id: "module-pricing",
-    step: 9,
+    step: 11,
     label: "Pricing",
     hint: "Dates & fees",
     moduleKey: "pricing",
   },
   {
     id: "module-faq",
-    step: 10,
+    step: 12,
     label: "FAQ",
     hint: "Questions",
     moduleKey: "faqs",
@@ -141,7 +162,6 @@ const MODULE_SECTIONS: Array<{
 ];
 
 const DEFAULT_OPEN: Record<string, boolean> = {
-  "module-meta": true,
   "module-hero": true,
   "module-sticky-nav": true,
 };
@@ -157,6 +177,8 @@ export const HUB_MODULE_PANELS: ModulePanelId[] = [
   "module-hero",
   "module-overview",
   "module-inclusions",
+  "module-teachers",
+  "module-accommodation",
   "module-pricing",
   "module-flags",
   "module-faq",
@@ -176,6 +198,7 @@ export const VENUE_MODULE_PANELS: ModulePanelId[] = [
   "module-hero",
   "module-sticky-nav",
   "module-overview",
+  "module-accommodation",
   "module-flags",
   "module-faq",
 ];
@@ -189,6 +212,7 @@ export const KIRTAN_MODULE_PANELS: ModulePanelId[] = [
   "module-inclusions",
   "module-eligibility",
   "module-syllabus",
+  "module-accommodation",
   "module-pricing",
   "module-flags",
   "module-faq",
@@ -257,6 +281,39 @@ export function ModulePageEditor({
     [modules, baseline],
   );
 
+  useEffect(() => {
+    if (modules.residentialLife) return;
+    const accommodationVisible =
+      !visiblePanels || visiblePanels.includes("module-accommodation");
+    if (!accommodationVisible) return;
+    let cancelled = false;
+    // Prefill from legacy global copy when present; otherwise open empty fields.
+    fetch("/api/admin/settings/residentialLife")
+      .then((res) => parseApiJson<{ settings: ResidentialLifeContent }>(res))
+      .then((body) => {
+        if (cancelled) return;
+        setModules((prev) =>
+          prev.residentialLife
+            ? prev
+            : {
+                ...prev,
+                residentialLife: body.settings ?? createEmptyResidentialLife(),
+              },
+        );
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setModules((prev) =>
+          prev.residentialLife
+            ? prev
+            : { ...prev, residentialLife: createEmptyResidentialLife() },
+        );
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [modules.residentialLife, visiblePanels]);
+
   const sections = useMemo(() => {
     const allowed = visiblePanels
       ? new Set(visiblePanels)
@@ -284,14 +341,15 @@ export function ModulePageEditor({
     [sections],
   );
   const activeId = useSectionScrollSpy(sectionIds);
+  const showJumpNav = sections.length >= 6;
 
   /** Stable panel key → current DOM id (respects module `_id`). */
-  function domIdFor(panelId: ModulePanelId): string {
-    return (
+  const domIdFor = useCallback(
+    (panelId: ModulePanelId): string =>
       sections.find((s) => s.id === panelId)?.domId ??
-      modulePanelDomId(panelId)
-    );
-  }
+      modulePanelDomId(panelId),
+    [sections],
+  );
 
   const previewHref = useMemo(() => {
     if (previewHrefProp) return previewHrefProp;
@@ -320,9 +378,7 @@ export function ModulePageEditor({
       onOpenChange: (open) =>
         setOpenPanels((prev) => ({ ...prev, [stableId]: open })),
     }),
-    // domIdFor closes over `sections` / modules._id
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional: track modules + openPanels
-    [openPanels, modules, sections],
+    [openPanels, domIdFor],
   );
 
   const show = (id: ModulePanelId) =>
@@ -401,20 +457,23 @@ export function ModulePageEditor({
 
       <div className="admin-tip-banner">
         <strong>Quick guide:</strong> Panels match this page&apos;s live layout.
-        Shared accommodation / reviews / FAQs are linked below when applicable.
+        Lodging &amp; food are edited on this page. Shared Why Nirvana / Map /
+        Instagram / Travel are linked below when applicable.
       </div>
 
       <div className="admin-editor-layout">
-        <AdminSectionJumpNav
-          items={sections.map(({ domId, step, label, hint }) => ({
-            id: domId,
-            step,
-            label,
-            hint,
-          }))}
-          activeId={activeId}
-          onJump={jumpTo}
-        />
+        {showJumpNav ? (
+          <AdminSectionJumpNav
+            items={sections.map(({ domId, step, label, hint }) => ({
+              id: domId,
+              step,
+              label,
+              hint,
+            }))}
+            activeId={activeId}
+            onJump={jumpTo}
+          />
+        ) : null}
 
         <div className="admin-editor-sections">
           {show("module-meta") ? (
@@ -422,10 +481,10 @@ export function ModulePageEditor({
               <CollapsiblePanel
                 id={domIdFor("module-meta")}
                 step={stepOf("module-meta")}
-                title="Page metadata"
-                subtitle="SEO title, description, OG image — overrides site defaults when set"
-                description="Used by the public page generateMetadata; empty fields fall through to site defaults."
-                open={openPanels["module-meta"] ?? true}
+                title="SEO & page details"
+                subtitle="Optional search and social overrides"
+                description="Empty fields use the site defaults."
+                open={openPanels["module-meta"] ?? false}
                 onOpenChange={(open) =>
                   setOpenPanels((prev) => ({ ...prev, "module-meta": open }))
                 }
@@ -490,7 +549,7 @@ export function ModulePageEditor({
                 {...panelProps(
                   "module-overview",
                   stepOf("module-overview"),
-                  "Intro section with lead copy, media panel, quote, and glance stats.",
+                  "Intro section with lead copy, media panel, and glance stats.",
                 )}
               />
             </div>
@@ -505,7 +564,7 @@ export function ModulePageEditor({
                 {...panelProps(
                   "module-inclusions",
                   stepOf("module-inclusions"),
-                  "Bullet lists of what is and is not included in the program.",
+                  "Bullet list of what is included in the program.",
                 )}
               />
             </div>
@@ -551,6 +610,44 @@ export function ModulePageEditor({
               />
             </div>
           ) : null}
+          {show("module-accommodation") ? (
+            <div className="admin-section-shell">
+              <CollapsiblePanel
+                id={domIdFor("module-accommodation")}
+                step={stepOf("module-accommodation")}
+                title="Accommodation & food"
+                subtitle="Per-page lodging — not shared globally"
+                description="Edit room galleries and food for this page. Use Shared sections (Live) below to show/hide Accommodation & food on the public page."
+                open={openPanels["module-accommodation"] ?? false}
+                onOpenChange={(open) =>
+                  setOpenPanels((prev) => ({
+                    ...prev,
+                    "module-accommodation": open,
+                  }))
+                }
+              >
+                <ResidentialLifeFields
+                  doc={modules.residentialLife ?? createEmptyResidentialLife()}
+                  onChange={(residentialLife) =>
+                    setModules({ ...modules, residentialLife })
+                  }
+                />
+              </CollapsiblePanel>
+            </div>
+          ) : null}
+          {show("module-teachers") ? (
+            <div className="admin-section-shell">
+              <TeachersModuleEditor
+                teachers={modules.teachers ?? { selectedSlugs: [] }}
+                onChange={(teachers) => setModules({ ...modules, teachers })}
+                {...panelProps(
+                  "module-teachers",
+                  stepOf("module-teachers"),
+                  "Select faculty from the Teachers data store for this page.",
+                )}
+              />
+            </div>
+          ) : null}
           {show("module-flags") ? (
             <div className="admin-section-shell">
               <ModuleFlagsPanel
@@ -559,7 +656,7 @@ export function ModulePageEditor({
                 {...panelProps(
                   "module-flags",
                   stepOf("module-flags"),
-                  "Turn optional sections on or off without deleting content.",
+                  "Show or hide shared Why Nirvana / Map / Instagram / Travel on this page.",
                 )}
               />
             </div>

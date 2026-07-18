@@ -58,5 +58,7 @@ export function loadSitePageData(
     whyNirvana: null,
     reviews: null,
     siteMap: null,
+    instagram: null,
+    travel: null,
   };
 }

@@ -133,11 +133,6 @@ export function CourseEditor({ initial, onSave }: CourseEditorProps) {
           items={doc.inclusions}
           onChange={(inclusions) => setDoc({ ...doc, inclusions })}
         />
-        <StringListField
-          label="Exclusions"
-          items={doc.exclusions}
-          onChange={(exclusions) => setDoc({ ...doc, exclusions })}
-        />
       </CollapsiblePanel>
 
       <CollapsiblePanel title={`Pricing (${doc.pricing.length})`}>

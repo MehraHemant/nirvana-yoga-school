@@ -9,23 +9,20 @@ type ModuleFlagsPanelProps = ModulePanelProps & {
   onChange: (flags: ModuleFlags) => void;
 };
 
-const FLAG_ITEMS: { key: keyof ModuleFlags; label: string; section: string }[] =
-  [
-    { key: "showExam", label: "Live · Exam & Certification", section: "8" },
-    {
-      key: "showAccommodation",
-      label: "Live · Accommodation & Food",
-      section: "9",
-    },
-    { key: "showWhyNirvana", label: "Live · Why Nirvana", section: "11" },
-    { key: "showTravel", label: "Live · Travel Guide", section: "12" },
-    { key: "showInstagram", label: "Live · Instagram Feed", section: "13" },
-    { key: "showMap", label: "Live · Map Section", section: "" },
-  ];
+/** Live toggles for the four global shared bands only. */
+const SHARED_LIVE_ITEMS: {
+  key: keyof ModuleFlags;
+  label: string;
+}[] = [
+  { key: "showWhyNirvana", label: "Why Nirvana" },
+  { key: "showMap", label: "Map" },
+  { key: "showInstagram", label: "Instagram" },
+  { key: "showTravel", label: "Travel" },
+];
 
 /**
- * Toggle panel for optional shared/static page sections (page-level live gates).
- * Shared content must also be live and have data to render on the public page.
+ * Page-level Live toggles for the four shared global sections.
+ * Lodging/exam visibility also live here; lodging content is edited on the page.
  *
  * @param props - Module flags and change handler
  */
@@ -42,14 +39,17 @@ export function ModuleFlagsPanel({
     <CollapsiblePanel
       id={panelId}
       step={step}
-      title="Optional sections"
-      subtitle="Page-level live toggles for shared/static bands"
-      description={description}
+      title="Shared sections (Live)"
+      subtitle="Show or hide global Why Nirvana, Map, Instagram, Travel on this page"
+      description={
+        description ??
+        "Shared content is edited once under Shared sections. Lodging & food content is edited on this page."
+      }
       open={open}
       onOpenChange={onOpenChange}
     >
       <div className="admin-flags-grid">
-        {FLAG_ITEMS.map((item) => (
+        {SHARED_LIVE_ITEMS.map((item) => (
           <label key={item.key} className="admin-checkbox admin-checkbox-row">
             <input
               type="checkbox"
@@ -58,13 +58,36 @@ export function ModuleFlagsPanel({
                 onChange({ ...flags, [item.key]: e.target.checked })
               }
             />
-            <span>
-              {item.section ? `${item.section}. ` : ""}
-              {item.label}
-            </span>
+            <span>Live · {item.label}</span>
           </label>
         ))}
+        <label className="admin-checkbox admin-checkbox-row">
+          <input
+            type="checkbox"
+            checked={flags.showExam}
+            onChange={(e) =>
+              onChange({ ...flags, showExam: e.target.checked })
+            }
+          />
+          <span>Live · Exam &amp; certification</span>
+        </label>
+        <label className="admin-checkbox admin-checkbox-row">
+          <input
+            type="checkbox"
+            checked={flags.showAccommodation}
+            onChange={(e) =>
+              onChange({ ...flags, showAccommodation: e.target.checked })
+            }
+          />
+          <span>Live · Accommodation &amp; food</span>
+        </label>
       </div>
+      <p className="admin-hint" style={{ marginTop: "0.75rem" }}>
+        Accommodation &amp; food content is edited on this page. Shared globals:{" "}
+        <a href="/admin/sections/shared" className="admin-link">
+          Why Nirvana / Map / Instagram / Travel →
+        </a>
+      </p>
     </CollapsiblePanel>
   );
 }

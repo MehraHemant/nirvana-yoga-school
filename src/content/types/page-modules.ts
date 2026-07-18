@@ -11,7 +11,6 @@ import type {
 import type {
   SitePageCard,
   SitePageGalleryImage,
-  SitePagePerson,
 } from "@/content/types/site-page";
 
 /**
@@ -116,7 +115,6 @@ export type OverviewModule = ModuleLiveFields & {
   title: string;
   lead: string;
   supportingCopy?: string;
-  quote?: { text: string; attribution: string };
   glance: GlanceItem[];
   media: {
     mode: "image" | "video" | "carousel";
@@ -129,7 +127,6 @@ export type InclusionsModule = ModuleLiveFields & {
   title?: string;
   description?: string;
   items: string[];
-  exclusions?: string[];
 };
 
 export type EligibilityRequirement = {
@@ -176,8 +173,13 @@ export type FaqsModule = ModuleLiveFields & {
   categories?: string[];
 };
 
+/**
+ * Teachers band on a page — picks faculty from the `/teacher` data store.
+ * Frontend resolves `selectedSlugs` via `getTeachers()` / `teacherSlug`.
+ */
 export type TeachersModule = ModuleLiveFields & {
-  people: SitePagePerson[];
+  /** Faculty slugs (`teacherSlug(name)`) selected for this page */
+  selectedSlugs: string[];
 };
 
 export type GalleryModule = ModuleLiveFields & {
@@ -217,6 +219,16 @@ export type PageModulesDocument = {
   teachers?: TeachersModule;
   gallery?: GalleryModule;
   programs?: ProgramsModule;
+  /**
+   * Per-page lodging & food (course/venue/hub/kirtan). Not a global shared section.
+   * When omitted, frontend may fall back to legacy `global_settings.residentialLife`.
+   */
+  residentialLife?: import("@/content/types/shared-sections").ResidentialLifeContent;
+  /**
+   * Per-page retreat lodging & food galleries. Not a global shared section.
+   * When omitted, frontend may fall back to legacy `global_settings.retreatAccommodation`.
+   */
+  retreatAccommodation?: import("@/content/types/shared-sections").RetreatAccommodationContent;
   flags: ModuleFlags;
 };
 

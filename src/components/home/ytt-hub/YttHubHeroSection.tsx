@@ -27,6 +27,7 @@ export default function YttHubHeroSection({
   return (
     <section
       id={optionalSectionHtmlId(htmlId)}
+      data-transparent-header="true"
       className="relative min-h-[460px] overflow-hidden md:min-h-[520px]"
     >
       <Image

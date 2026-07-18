@@ -18,3 +18,4 @@ export { PricingModuleEditor } from "./PricingModuleEditor";
 export { ScheduleModuleEditor } from "./ScheduleModuleEditor";
 export { StickyNavModuleEditor } from "./StickyNavModuleEditor";
 export { SyllabusModuleEditor } from "./SyllabusModuleEditor";
+export { TeachersModuleEditor } from "./TeachersModuleEditor";

@@ -14,15 +14,12 @@ import { DEFAULT_ENQUIRE_PAGE_CONTENT } from "@/content/data/dedicated-page-defa
 import type { EnquirePageContent } from "@/content/types/dedicated-pages";
 import type { SiteMapContent } from "@/content/types/shared-sections";
 import { Check, Compass, Send, WhatsApp } from "@/icons";
+import { shouldRenderSection } from "@/lib/cms/section-visibility";
 import {
   ACCOMMODATION_PREFERENCE_OPTIONS,
   ENQUIRE_PROGRAM_OPTIONS,
 } from "@/lib/enquire-programs";
-import { shouldRenderSection } from "@/lib/cms/section-visibility";
-import {
-  optionalSectionHtmlId,
-  resolveSectionHtmlId,
-} from "@/lib/html-id";
+import { optionalSectionHtmlId, resolveSectionHtmlId } from "@/lib/html-id";
 import { openMailtoFallback, submitLead } from "@/lib/leads/submit-lead";
 import { fadeUp, reducedTransition } from "@/lib/motion";
 import {
@@ -138,7 +135,8 @@ export default function EnquireNowPageClient({
     <div className="bg-sand/15">
       <section
         id={heroHtmlId}
-        className="relative min-h-[52svh] overflow-hidden bg-sand text-ink pt-[var(--site-header-height)] lg:min-h-[58svh]"
+        data-transparent-header="true"
+        className="relative min-h-[52svh] overflow-hidden bg-ink text-white lg:min-h-[58svh]"
       >
         <Image
           src={content.hero.image}
@@ -146,20 +144,24 @@ export default function EnquireNowPageClient({
           fill
           priority
           sizes="100vw"
-          className="object-cover opacity-20"
+          className="object-cover object-center"
         />
         <div
-          className="absolute inset-0 bg-linear-to-r from-sand via-sand/75 to-transparent"
+          className="absolute inset-0 bg-linear-to-r from-ink/90 via-ink/65 to-ink/25"
           aria-hidden="true"
         />
         <div
-          className="pointer-events-none absolute -right-16 top-1/4 h-72 w-72 rounded-full bg-primary/5 blur-[100px]"
+          className="absolute inset-x-0 top-0 h-48 bg-linear-to-b from-ink/75 to-transparent"
+          aria-hidden="true"
+        />
+        <div
+          className="pointer-events-none absolute -right-16 top-1/4 h-72 w-72 rounded-full bg-primary/20 blur-[100px]"
           aria-hidden="true"
         />
 
         <Container
           size="xl"
-          className="relative z-10 flex min-h-[calc(52svh-var(--site-header-height,4.75rem))] flex-col justify-center py-12 sm:py-14 lg:min-h-[calc(58svh-var(--site-header-height,4.75rem))] lg:py-16"
+          className="relative z-10 flex min-h-[52svh] flex-col justify-center pb-12 pt-[calc(var(--site-header-height,4.75rem)+3rem)] sm:pb-14 sm:pt-[calc(var(--site-header-height,4.75rem)+3.5rem)] lg:min-h-[58svh] lg:pb-16 lg:pt-[calc(var(--site-header-height,4.75rem)+4rem)]"
         >
           <motion.div
             initial="hidden"
@@ -167,13 +169,13 @@ export default function EnquireNowPageClient({
             variants={fadeUp}
             className="max-w-2xl space-y-5"
           >
-            <span className="type-eyebrow font-semibold tracking-widest text-primary uppercase">
+            <span className="type-eyebrow font-semibold tracking-widest text-white/80 uppercase">
               {content.hero.eyebrow}
             </span>
-            <h1 className="font-serif text-4xl font-medium leading-[1.08] tracking-tight text-ink sm:text-5xl md:text-6xl">
+            <h1 className="font-serif text-4xl font-medium leading-[1.08] tracking-tight text-white sm:text-5xl md:text-6xl">
               {content.hero.title}
             </h1>
-            <p className="type-lead max-w-xl pt-1 font-sans text-base leading-relaxed text-ink/80 sm:text-lg">
+            <p className="type-lead max-w-xl pt-1 font-sans text-base leading-relaxed text-white/85 sm:text-lg">
               {content.hero.lead}
             </p>
 
@@ -185,7 +187,7 @@ export default function EnquireNowPageClient({
               ].map((chip) => (
                 <span
                   key={chip}
-                  className="rounded-full border border-ink/8 bg-ink/5 px-3 py-1 font-sans text-xs font-medium text-ink/80 backdrop-blur-sm"
+                  className="rounded-full border border-white/20 bg-ink/20 px-3 py-1 font-sans text-xs font-medium text-white/90 backdrop-blur-sm"
                 >
                   {chip}
                 </span>
@@ -289,7 +291,7 @@ export default function EnquireNowPageClient({
                       className="flex flex-1 flex-col items-center justify-center space-y-5 py-16 text-center"
                     >
                       <div className="flex size-16 animate-bounce items-center justify-center rounded-full border border-emerald-100 bg-emerald-50 text-emerald-600 shadow-xs">
-                        <Check size={28} className="stroke-[3]" />
+                        <Check size={28} className="stroke-3" />
                       </div>
                       <div className="space-y-2">
                         <h3 className="font-serif text-2xl font-medium text-ink">

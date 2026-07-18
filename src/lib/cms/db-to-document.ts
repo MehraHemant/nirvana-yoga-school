@@ -251,12 +251,15 @@ export function mapPageToSitePageDocument(
         }))
       : undefined;
 
+  const { presentation, meta } = parseContentData(page.contentData);
+
   return {
     slug: page.slug,
     eyebrow: page.eyebrow,
     title: page.title,
     description: page.description,
     image: page.image,
+    meta,
     sections,
     highlights,
     people,
@@ -265,20 +268,21 @@ export function mapPageToSitePageDocument(
     cards,
     ctaLabel: page.ctaLabel ?? undefined,
     ctaHref: page.ctaHref ?? undefined,
-    presentation: parsePresentation(page.contentData),
+    presentation,
   };
 }
 
 /**
- * Read teacher/home presentation fields from `content_data`.
+ * Read teacher presentation + optional page SEO from `content_data`.
  *
  * @param value - Raw JSON column
  */
-function parsePresentation(
-  value: unknown,
-): SitePageDocument["presentation"] | undefined {
+function parseContentData(value: unknown): {
+  presentation: SitePageDocument["presentation"] | undefined;
+  meta: SitePageDocument["meta"] | undefined;
+} {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
-    return undefined;
+    return { presentation: undefined, meta: undefined };
   }
   const record = value as Record<string, unknown>;
   const pick = (key: string) =>
@@ -292,7 +296,17 @@ function parsePresentation(
     homeEyebrow: pick("homeEyebrow"),
     homeTitle: pick("homeTitle"),
     homeDescription: pick("homeDescription"),
+    heroId: pick("heroId"),
+    facultyId: pick("facultyId"),
+    homeTeaserId: pick("homeTeaserId"),
   };
   const hasAny = Object.values(presentation).some(Boolean);
-  return hasAny ? presentation : undefined;
+  const meta =
+    record.meta && typeof record.meta === "object" && !Array.isArray(record.meta)
+      ? (record.meta as SitePageDocument["meta"])
+      : undefined;
+  return {
+    presentation: hasAny ? presentation : undefined,
+    meta,
+  };
 }

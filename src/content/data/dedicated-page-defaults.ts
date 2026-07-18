@@ -3,6 +3,7 @@
  */
 
 import type {
+  BookingPageContent,
   ContactPageContent,
   EnquirePageContent,
   HomePageContent,
@@ -658,4 +659,39 @@ export const DEFAULT_ENQUIRE_PAGE_CONTENT: EnquirePageContent = {
     submitLabel: "Submit Enquiry",
   },
   map: { show: true },
+};
+
+/** Default booking page content_data document. */
+export const DEFAULT_BOOKING_PAGE_CONTENT: BookingPageContent = {
+  kind: "booking",
+  hero: {
+    image: "/img/retreat-venue/private/1.webp",
+    eyebrow: "Booking",
+    title: "Reserve Your Journey",
+    lead: "Begin your transformative yoga experience at Nirvana Yoga School. Pay securely with PayPal — 20% deposit or full payment.",
+  },
+  steps: [
+    {
+      step: "01",
+      title: "Choose your program",
+      body: "Select your preferred course, start date, and accommodation.",
+    },
+    {
+      step: "02",
+      title: "Share your details",
+      body: "Tell us how to contact you and choose your payment option.",
+    },
+    {
+      step: "03",
+      title: "Secure your place",
+      body: "Pay a 20% deposit or the full fee securely with PayPal.",
+    },
+  ],
+  form: {
+    eyebrow: "Booking",
+    title: "Reserve your place",
+    lead: "Choose your program, accommodation, and preferred dates to continue.",
+    submitLabel: "Continue to payment",
+  },
+  map: { show: false },
 };

@@ -1,3 +1,6 @@
+/** CMS / public slug for the faculty page (`/teacher`). Safe for client imports. */
+export const TEACHER_PAGE_SLUG = "teacher";
+
 /**
  * Builds a URL-safe slug from a teacher name (for in-page anchors).
  *

@@ -8,13 +8,19 @@ import type {
   PageModulesDocument,
   RetreatDocument,
 } from "@/content/types";
-import { parseApiJson } from "@/lib/types/api";
+import {
+  fetchAdminPageEditor,
+  saveAdminPageEditor,
+} from "@/lib/api/admin-client";
 
 type ProductEditorsAdminClientProps = {
   slug: string;
   kind: "online" | "retreat";
   backHref: string;
   backLabel: string;
+  /** Preloaded canonical page document, when available. */
+  initialDocument?: OnlineCourseDocument | RetreatDocument;
+  initialModules?: PageModulesDocument | null;
 };
 
 /**
@@ -27,27 +33,26 @@ export default function ProductEditorsAdminClient({
   kind,
   backHref,
   backLabel,
+  initialDocument,
+  initialModules,
 }: ProductEditorsAdminClientProps) {
   const [document, setDocument] = useState<
     OnlineCourseDocument | RetreatDocument | null
-  >(null);
-  const [modules, setModules] = useState<PageModulesDocument | null>(null);
+  >(initialDocument ?? null);
+  const [modules, setModules] = useState<PageModulesDocument | null>(
+    initialModules ?? null,
+  );
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch(`/api/admin/products/${encodeURIComponent(slug)}`)
-      .then((res) =>
-        parseApiJson<{
-          document: OnlineCourseDocument | RetreatDocument;
-          modules: PageModulesDocument | null;
-        }>(res),
-      )
+    if (initialDocument) return;
+    fetchAdminPageEditor(slug)
       .then((body) => {
-        setDocument(body.document);
+        setDocument(body.product?.document ?? null);
         setModules(body.modules);
       })
       .catch((err: Error) => setError(err.message));
-  }, [slug]);
+  }, [initialDocument, slug]);
 
   if (error) return <p className="admin-error">{error}</p>;
   if (!document) return <p className="admin-hint">Loading product…</p>;
@@ -61,19 +66,11 @@ export default function ProductEditorsAdminClient({
         backHref={backHref}
         backLabel={backLabel}
         onSave={async ({ course, modules: nextModules }) => {
-          const res = await fetch(
-            `/api/admin/products/${encodeURIComponent(slug)}`,
-            {
-              method: "PUT",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                kind: "online",
-                course,
-                modules: nextModules,
-              }),
-            },
-          );
-          await parseApiJson(res);
+          await saveAdminPageEditor(slug, {
+            modules: nextModules,
+            content: null,
+            product: { kind: "online", document: course },
+          });
           setDocument(course);
           setModules(nextModules);
         }}
@@ -89,19 +86,11 @@ export default function ProductEditorsAdminClient({
       backHref={backHref}
       backLabel={backLabel}
       onSave={async ({ retreat, modules: nextModules }) => {
-        const res = await fetch(
-          `/api/admin/products/${encodeURIComponent(slug)}`,
-          {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              kind: "retreat",
-              retreat,
-              modules: nextModules,
-            }),
-          },
-        );
-        await parseApiJson(res);
+        await saveAdminPageEditor(slug, {
+          modules: nextModules,
+          content: null,
+          product: { kind: "retreat", document: retreat },
+        });
         setDocument(retreat);
         setModules(nextModules);
       }}

@@ -84,7 +84,7 @@ function mapBatches(dates: RetreatDocument["dates"]) {
  * room galleries first, then program and lodging photos from content JSON.
  *
  * @param retreat - Retreat document from MySQL
- * @param lodging - Shared retreat accommodation galleries from MySQL
+ * @param lodging - Retreat accommodation galleries (page modules or legacy global)
  * @returns Unique image URLs for CourseHero (no stock fallbacks)
  */
 export function buildRetreatHeroImages(
@@ -136,7 +136,7 @@ export type MappedRetreatPage = {
  * Maps a retreat document into UI props for the retreat client.
  *
  * @param retreat - Retreat document from MySQL
- * @param lodging - Shared retreat accommodation content from MySQL
+ * @param lodging - Retreat accommodation content (page modules or legacy global)
  */
 export function mapRetreatPage(
   retreat: RetreatDocument,

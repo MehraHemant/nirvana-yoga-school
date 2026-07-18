@@ -8,16 +8,20 @@ import {
   SearchableSelect,
   type SearchableSelectOption,
 } from "@/components/ui";
+import { DEFAULT_BOOKING_PAGE_CONTENT } from "@/content/data/dedicated-page-defaults";
 import type {
   BookingProgram,
   BookingType,
   PaymentMode,
 } from "@/content/types/booking";
+import type { BookingPageContent } from "@/content/types/dedicated-pages";
 import {
   calculateBookingPricing,
   formatUsd,
   PAYPAL_FEE_RATE,
 } from "@/lib/booking/pricing";
+import { shouldRenderSection } from "@/lib/cms/section-visibility";
+import { optionalSectionHtmlId } from "@/lib/html-id";
 import {
   DEFAULT_PHONE_COUNTRY_ISO,
   formatFullPhone,
@@ -28,6 +32,8 @@ import { PayPalCheckout } from "./PayPalCheckout";
 type BookingFlowProps = {
   type: BookingType;
   programs: BookingProgram[];
+  /** CMS booking page content */
+  content?: BookingPageContent;
   paypalClientId: string | null;
   initialProgramSlug?: string;
   initialRoomType?: string;
@@ -89,6 +95,7 @@ const PAYMENT_MODE_OPTIONS: SearchableSelectOption[] = [
 export function BookingFlow({
   type,
   programs,
+  content = DEFAULT_BOOKING_PAGE_CONTENT,
   paypalClientId,
   initialProgramSlug = "",
   initialRoomType = "",
@@ -163,11 +170,6 @@ export function BookingFlow({
   );
 
   const programLabel = type === "course" ? "Course" : "Retreat";
-  const heroImage =
-    type === "course"
-      ? "/img/retreat-venue/private/1.webp"
-      : "/img/gallery/3-day-retreat/1.jpg";
-
   async function createPendingBooking() {
     if (!selectedProgram || !selectedRoom || !pricing) {
       setError("Please complete program details.");
@@ -244,33 +246,76 @@ export function BookingFlow({
 
   return (
     <>
-      <section className="relative min-h-[42svh] overflow-hidden bg-ink pt-(--site-header-height,4.75rem) text-white">
+      {shouldRenderSection(content.hero, true) ? (
+      <section
+        id={optionalSectionHtmlId(content.hero._id)}
+        data-transparent-header="true"
+        className="relative min-h-[52svh] overflow-hidden bg-ink text-white lg:min-h-[58svh]"
+      >
         <Image
-          src={heroImage}
+          src={content.hero.image}
           alt=""
           fill
           priority
           sizes="100vw"
-          className="object-cover opacity-40"
+          className="object-cover object-center"
         />
-        <div className="absolute inset-0 bg-linear-to-r from-ink/95 via-ink/70 to-ink/40" />
+        <div
+          className="absolute inset-0 bg-linear-to-r from-ink/90 via-ink/65 to-ink/25"
+          aria-hidden="true"
+        />
+        <div
+          className="absolute inset-x-0 top-0 h-48 bg-linear-to-b from-ink/75 to-transparent"
+          aria-hidden="true"
+        />
+        <div
+          className="pointer-events-none absolute -right-16 top-1/4 h-72 w-72 rounded-full bg-primary/20 blur-[100px]"
+          aria-hidden="true"
+        />
         <Container
           size="xl"
-          className="relative z-10 flex min-h-[36svh] flex-col justify-center py-14"
+          className="relative z-10 flex min-h-[52svh] flex-col justify-center pb-12 pt-[calc(var(--site-header-height,4.75rem)+3rem)] sm:pb-14 sm:pt-[calc(var(--site-header-height,4.75rem)+3.5rem)] lg:min-h-[58svh] lg:pb-16 lg:pt-[calc(var(--site-header-height,4.75rem)+4rem)]"
         >
-          <p className="type-eyebrow mb-3 text-accent">Booking</p>
-          <h1 className="font-serif text-4xl font-medium md:text-5xl">
-            Reserve Your Journey
-          </h1>
-          <p className="type-lead mt-4 max-w-2xl font-sans text-white/80">
-            Begin your transformative yoga experience at Nirvana Yoga School.
-            Pay securely with PayPal — 20% deposit or full payment.
-          </p>
+          <div className="max-w-2xl space-y-5">
+            <span className="type-eyebrow font-semibold tracking-widest text-white/80 uppercase">
+              {content.hero.eyebrow}
+            </span>
+            <h1 className="font-serif text-4xl font-medium leading-[1.08] tracking-tight text-white sm:text-5xl md:text-6xl">
+              {content.hero.title}
+            </h1>
+            <p className="type-lead max-w-xl pt-1 font-sans text-base leading-relaxed text-white/85 sm:text-lg">
+              {content.hero.lead}
+            </p>
+          </div>
         </Container>
       </section>
+      ) : null}
 
       <section className="bg-paper py-16 md:py-20">
         <Container size="lg">
+          {shouldRenderSection(content.stepsSection, content.steps.length > 0) ? (
+            <ol
+              id={optionalSectionHtmlId(content.stepsSection?._id)}
+              className="mb-10 grid gap-4 sm:grid-cols-3"
+            >
+              {content.steps.map((item) => (
+                <li
+                  key={`${item.step}-${item.title}`}
+                  className="rounded-2xl border border-ink/8 bg-white p-5 shadow-card"
+                >
+                  <span className="type-eyebrow text-[10px] font-bold text-secondary">
+                    {item.step}
+                  </span>
+                  <h2 className="mt-1 font-serif text-lg font-medium text-ink">
+                    {item.title}
+                  </h2>
+                  <p className="mt-1.5 font-sans text-sm leading-relaxed text-muted">
+                    {item.body}
+                  </p>
+                </li>
+              ))}
+            </ol>
+          ) : null}
           <div className="mb-8 flex flex-wrap gap-2">
             {["Program", "Your details", "Payment"].map((label, index) => {
               const stepNumber = index + 1;

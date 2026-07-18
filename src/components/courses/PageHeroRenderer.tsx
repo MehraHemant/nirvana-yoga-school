@@ -33,6 +33,7 @@ export default function PageHeroRenderer({ modules }: PageHeroRendererProps) {
 
     return (
       <OnlineCourseHero
+        eyebrow={hero.eyebrow}
         title={hero.title}
         subtitle={hero.subtitle ?? ""}
         duration={duration}
@@ -41,17 +42,20 @@ export default function PageHeroRenderer({ modules }: PageHeroRendererProps) {
         fee={fee}
         image={hero.previewType === "image" ? hero.previewUrl : undefined}
         previewVideoId={previewVideoId}
-        ctaPrimary={hero.ctaPrimary ?? "Enquire"}
-        ctaPrimaryHref={hero.ctaPrimaryHref ?? "#pricing"}
-        ctaSecondary={hero.ctaSecondary ?? "Learn more"}
-        ctaSecondaryHref={hero.ctaSecondaryHref ?? "#overview"}
+        ctaPrimary={hero.ctaPrimary ?? ""}
+        ctaPrimaryHref={hero.ctaPrimaryHref ?? ""}
+        ctaSecondary={hero.ctaSecondary ?? ""}
+        ctaSecondaryHref={hero.ctaSecondaryHref ?? ""}
       />
     );
   }
 
   if (hero.type === "simple-banner") {
     return (
-      <section className="relative h-[60svh] min-h-[420px] overflow-hidden">
+      <section
+        data-transparent-header="true"
+        className="relative h-[60svh] min-h-[420px] overflow-hidden"
+      >
         <Image
           src={hero.backgroundImage}
           alt=""

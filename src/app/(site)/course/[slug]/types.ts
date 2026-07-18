@@ -21,4 +21,8 @@ export type CoursePageData = {
   reviews: ReviewsContent | null;
   /** Shared site map embed from CMS */
   siteMap: SiteMapContent | null;
+  /** Shared Instagram feed from CMS */
+  instagram: import("@/content/types/shared-sections").InstagramFeedContent | null;
+  /** Shared travel guide from CMS */
+  travel: import("@/content/types/shared-sections").TravelGuideContent | null;
 };

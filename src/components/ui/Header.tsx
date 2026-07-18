@@ -3,25 +3,16 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  Fragment,
-  useEffect,
-  useId,
-  useLayoutEffect,
-  useState,
-} from "react";
-import {
-  type NavItem,
-  navItemHref,
-  navLinkHref,
-} from "@/constants/navigation";
-import type { HeaderCta, GlobalHeader } from "@/content/types/global-settings";
+import { Fragment, useEffect, useId, useLayoutEffect, useState } from "react";
+import { type NavItem, navItemHref, navLinkHref } from "@/constants/navigation";
+import type { GlobalHeader, HeaderCta } from "@/content/types/global-settings";
 import { ArrowRight, ChevronDown, MenuIcon } from "@/icons";
 import { normalizeHeaderCtas } from "@/lib/cms/header-fields";
 import Button from "./Button";
 
 const DEFAULT_LOGO_LIGHT = "/logo.png";
 const DEFAULT_LOGO_DARK = "/logo_white.png";
+const LEGACY_TRANSPARENT_HERO_PATHS = new Set(["/", "/enquire-now"]);
 
 type HeaderData = Partial<GlobalHeader> & {
   navigation?: NavItem[];
@@ -97,6 +88,18 @@ function linkProps(href: string, external?: boolean) {
     };
   }
   return { href };
+}
+
+/**
+ * Checks whether the current page needs a transparent header.
+ *
+ * @param pathname - Current client pathname
+ */
+function hasTransparentHeader(pathname: string | null): boolean {
+  return (
+    document.querySelector('[data-transparent-header="true"]') !== null ||
+    (pathname !== null && LEGACY_TRANSPARENT_HERO_PATHS.has(pathname))
+  );
 }
 
 function NavText({
@@ -313,11 +316,34 @@ type HeaderProps = {
  */
 export default function Header({ initialData = null }: HeaderProps) {
   const pathname = usePathname();
-  const isHome = pathname === "/";
 
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [hasTransparentHero, setHasTransparentHero] = useState(
+    () => pathname !== null && LEGACY_TRANSPARENT_HERO_PATHS.has(pathname),
+  );
   const headerData = initialData;
+
+  useLayoutEffect(() => {
+    const syncTransparentHero = () => {
+      const nextHasTransparentHero = hasTransparentHeader(pathname);
+      setHasTransparentHero((currentHasTransparentHero) =>
+        currentHasTransparentHero === nextHasTransparentHero
+          ? currentHasTransparentHero
+          : nextHasTransparentHero,
+      );
+    };
+
+    syncTransparentHero();
+    const observer = new MutationObserver(syncTransparentHero);
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["data-transparent-header"],
+    });
+    return () => observer.disconnect();
+  }, [pathname]);
 
   useEffect(() => {
     let ticking = false;
@@ -335,6 +361,10 @@ export default function Header({ initialData = null }: HeaderProps) {
   }, []);
 
   useEffect(() => {
+    setScrolled(pathname ? window.scrollY > 48 : false);
+  }, [pathname]);
+
+  useEffect(() => {
     document.body.style.overflow = mobileOpen ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
@@ -350,7 +380,7 @@ export default function Header({ initialData = null }: HeaderProps) {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [mobileOpen]);
 
-  const solid = !isHome || scrolled || mobileOpen;
+  const solid = !hasTransparentHero || scrolled || mobileOpen;
   const innerHeightClass = scrolled
     ? "h-[4.5rem] md:h-[5rem]"
     : "h-[4.75rem] md:h-[5.5rem]";
@@ -393,7 +423,7 @@ export default function Header({ initialData = null }: HeaderProps) {
         className={`header-shell fixed top-0 z-50 w-full ${solid ? "header-shell--solid" : "bg-transparent"}`}
       >
         <div
-          className={`header-inner mx-auto max-w-[92rem] px-5 md:px-8 flex items-center justify-between gap-4 ${innerHeightClass}`}
+          className={`header-inner mx-auto max-w-368 px-5 md:px-8 flex items-center justify-between gap-4 ${innerHeightClass}`}
         >
           <Link
             href="/"
@@ -502,7 +532,7 @@ export default function Header({ initialData = null }: HeaderProps) {
                     cta={cta}
                     solid
                     onNavigate={() => setMobileOpen(false)}
-                    className="mobile-nav-item !block py-3.5 px-3 text-base font-semibold text-ink/90 hover:text-primary border-b border-ink/5 tracking-wide"
+                    className="mobile-nav-item block! py-3.5 px-3 text-base font-semibold text-ink/90 hover:text-primary border-b border-ink/5 tracking-wide"
                   />
                 ) : (
                   <div
