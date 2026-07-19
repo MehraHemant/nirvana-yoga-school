@@ -247,7 +247,7 @@ erDiagram
 ```
 Server Component (page.tsx)
     → getSitePage(slug) / getResidentialCourse(slug)  [@/content/repositories]
-        → if NEON_DB_URL:
+        → if NEON_DB_POSTGRES_URL:
               db.page.findUnique({ where: { slug }, include: { sections: { orderBy, include: ... } } })
               → mapPageToSitePageDocument(row)
               → return { data, source: "db" }
@@ -336,7 +336,7 @@ Admin selects file (+ optional caption, description, tags)
 ### Environment variables
 
 ```env
-NEON_DB_URL=postgresql://user:password@your-neon-host/neondb?sslmode=require
+NEON_DB_POSTGRES_URL=postgresql://user:password@your-neon-host/neondb?sslmode=require
 
 CLOUDINARY_CLOUD_NAME=your-cloud-name
 CLOUDINARY_API_KEY=...
@@ -410,7 +410,7 @@ tags?: string          # JSON array or comma-separated
 
 ## 7. Migration & seed plan
 
-1. Set `NEON_DB_URL` in `.env` (never commit this file).
+1. Set `NEON_DB_POSTGRES_URL` in `.env` (never commit this file).
 2. `npm run db:migrate` — applies `scripts/sql/0001_init.sql` once.
 3. `npm run db:seed` — idempotent upsert:
 
@@ -502,4 +502,4 @@ npm run db:seed        # seeds CMS content
 npm run db:seed:missing # seeds only absent bundled CMS content
 ```
 
-With `NEON_DB_URL` set, repositories and public APIs read from Neon Postgres.
+With `NEON_DB_POSTGRES_URL` set, repositories and public APIs read from Neon Postgres.

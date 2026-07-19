@@ -62,7 +62,7 @@ function retreatToBookingProgram(retreat: RetreatDocument): BookingProgram {
  */
 export async function getCourseBookingCatalog(): Promise<BookingProgram[]> {
   if (!isDbEnabled()) {
-    throw new Error("NEON_DB_URL is required for the booking catalog.");
+    throw new Error("NEON_DB_POSTGRES_URL is required for the booking catalog.");
   }
 
   const pages = await db.page.findMany({
@@ -93,7 +93,7 @@ export async function getCourseBookingCatalog(): Promise<BookingProgram[]> {
  */
 export async function getRetreatBookingCatalog(): Promise<BookingProgram[]> {
   if (!isDbEnabled()) {
-    throw new Error("NEON_DB_URL is required for the booking catalog.");
+    throw new Error("NEON_DB_POSTGRES_URL is required for the booking catalog.");
   }
 
   const pages = await db.page.findMany({

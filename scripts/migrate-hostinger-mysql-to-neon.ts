@@ -156,8 +156,8 @@ function uniquePagePeopleRows(rows: RowDataPacket[]): RowDataPacket[] {
  */
 async function main(): Promise<void> {
   const dryRun = process.argv.includes("--dry-run");
-  if (!process.env.NEON_DB_URL?.trim()) {
-    throw new Error("NEON_DB_URL is required.");
+  if (!process.env.NEON_DB_POSTGRES_URL?.trim()) {
+    throw new Error("NEON_DB_POSTGRES_URL is required.");
   }
 
   const source = await mysql.createConnection({

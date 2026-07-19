@@ -28,8 +28,8 @@ function splitStatements(sql: string): string[] {
  * Applies the versioned Neon baseline exactly once.
  */
 async function main(): Promise<void> {
-  if (!process.env.NEON_DB_URL?.trim()) {
-    throw new Error("NEON_DB_URL is required.");
+  if (!process.env.NEON_DB_POSTGRES_URL?.trim()) {
+    throw new Error("NEON_DB_POSTGRES_URL is required.");
   }
 
   const pool = getPool();
