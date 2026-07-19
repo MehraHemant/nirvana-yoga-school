@@ -78,6 +78,11 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { label: "Leads", href: "/admin/leads", Icon: Send },
       { label: "Bookings", href: "/admin/bookings", Icon: Wallet },
+      {
+        label: "Booking add-ons",
+        href: "/admin/bookings/addons",
+        Icon: Layers,
+      },
     ],
   },
 ];

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { BookingFlow } from "@/components/booking";
 import { getBookingPageContent } from "@/content/repositories/dedicated-pages";
+import { getBookingAddons } from "@/content/repositories/shared-sections";
 import { getCourseBookingCatalog } from "@/lib/booking/catalog";
 import { getPayPalClientId } from "@/lib/payments/paypal";
 import { mergePageMetadata } from "../_shared/metadata";
@@ -33,9 +34,10 @@ type BookingPageProps = {
  */
 export default async function BookingPage({ searchParams }: BookingPageProps) {
   const params = await searchParams;
-  const [programs, contentResult] = await Promise.all([
+  const [programs, contentResult, addonsResult] = await Promise.all([
     getCourseBookingCatalog(),
     getBookingPageContent().catch(() => null),
+    getBookingAddons().catch(() => null),
   ]);
 
   return (
@@ -43,6 +45,7 @@ export default async function BookingPage({ searchParams }: BookingPageProps) {
       type="course"
       programs={programs}
       content={contentResult?.data}
+      addons={addonsResult?.data ?? null}
       paypalClientId={getPayPalClientId()}
       initialProgramSlug={params.course ?? ""}
       initialRoomType={params.room ?? ""}

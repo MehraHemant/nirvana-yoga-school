@@ -1,3 +1,4 @@
+import { createDefaultBookingAddons } from "@/content/data/booking-addons-defaults";
 import { DEFAULT_HOME_PAGE_CONTENT } from "@/content/data/dedicated-page-defaults";
 import { DEFAULT_EXAM_CERTIFICATION } from "@/content/data/exam-certification-defaults";
 import { DEFAULT_TRAVEL_GUIDE } from "@/content/data/travel-guide-defaults";
@@ -5,6 +6,7 @@ import {
   normalizeRetreatAccommodation,
   retreatAccommodationToResidentialLife,
 } from "@/content/mappers/residential-life";
+import type { BookingAddonsContent } from "@/content/types/booking";
 import type {
   ExamCertificationContent,
   HomeFaqsContent,
@@ -279,3 +281,29 @@ export async function getYttHub(
     options,
   );
 }
+
+/**
+ * Optional booking add-ons from `global_settings.bookingAddons`.
+ *
+ * @param options - Optional repository options
+ */
+export async function getBookingAddons(
+  options?: RepositoryOptions,
+): Promise<ContentResult<BookingAddonsContent>> {
+  return requireDb(async () => {
+    const stored = await fetchGlobalSettingsFromDb("bookingAddons");
+    if (stored && typeof stored === "object") {
+      const doc = stored as BookingAddonsContent;
+      if (Array.isArray(doc.items)) {
+        return {
+          ...createDefaultBookingAddons(),
+          ...doc,
+          live: doc.live !== false,
+          items: doc.items,
+        };
+      }
+    }
+    return createDefaultBookingAddons();
+  }, options);
+}
+

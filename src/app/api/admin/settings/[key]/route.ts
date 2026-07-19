@@ -1,4 +1,5 @@
 import { revalidatePath } from "next/cache";
+import { createDefaultBookingAddons } from "@/content/data/booking-addons-defaults";
 import { DEFAULT_EXAM_CERTIFICATION } from "@/content/data/exam-certification-defaults";
 import { createDefaultWhyNirvana } from "@/content/data/why-nirvana-defaults";
 import { jsonError, jsonForbidden, jsonOk } from "@/lib/cms/api-response";
@@ -22,6 +23,7 @@ const ALLOWED_KEYS = [
   "venueFaqs",
   "retreatAccommodation",
   "yttHub",
+  "bookingAddons",
 ] as const;
 
 /**
@@ -59,6 +61,11 @@ export async function GET(
 
   if (key === "examCertification") {
     const value = await ensureSharedSettings(key, DEFAULT_EXAM_CERTIFICATION);
+    return jsonOk({ settings: value });
+  }
+
+  if (key === "bookingAddons") {
+    const value = await ensureSharedSettings(key, createDefaultBookingAddons());
     return jsonOk({ settings: value });
   }
 

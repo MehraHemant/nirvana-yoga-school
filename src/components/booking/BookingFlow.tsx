@@ -10,11 +10,14 @@ import {
 } from "@/components/ui";
 import { DEFAULT_BOOKING_PAGE_CONTENT } from "@/content/data/dedicated-page-defaults";
 import type {
+  BookingAddon,
+  BookingAddonsContent,
   BookingProgram,
   BookingType,
   PaymentMode,
 } from "@/content/types/booking";
 import type { BookingPageContent } from "@/content/types/dedicated-pages";
+import { filterBookingAddonsForType } from "@/lib/booking/addons";
 import {
   calculateBookingPricing,
   formatUsd,
@@ -34,6 +37,8 @@ type BookingFlowProps = {
   programs: BookingProgram[];
   /** CMS booking page content */
   content?: BookingPageContent;
+  /** Optional checkout add-ons from admin (global_settings.bookingAddons) */
+  addons?: BookingAddonsContent | null;
   paypalClientId: string | null;
   initialProgramSlug?: string;
   initialRoomType?: string;
@@ -50,7 +55,10 @@ type FormState = {
   paymentMode: PaymentMode;
   referenceCode: string;
   hearAbout: string;
+  selectedAddonIds: string[];
 };
+
+const BOOKING_STEPS = ["Program", "Your details", "Add-ons", "Payment"] as const;
 
 const GENDER_OPTIONS: SearchableSelectOption[] = [
   { value: "Female", label: "Female" },
@@ -88,14 +96,15 @@ const PAYMENT_MODE_OPTIONS: SearchableSelectOption[] = [
 ];
 
 /**
- * Multi-step book-now flow matching the live site (program → details → PayPal).
+ * Multi-step book-now flow (program → details → add-ons → PayPal).
  *
- * @param props - Booking type, catalog, PayPal client id, and URL pre-fills
+ * @param props - Booking type, catalog, add-ons, PayPal client id, and URL pre-fills
  */
 export function BookingFlow({
   type,
   programs,
   content = DEFAULT_BOOKING_PAGE_CONTENT,
+  addons = null,
   paypalClientId,
   initialProgramSlug = "",
   initialRoomType = "",
@@ -112,6 +121,7 @@ export function BookingFlow({
     paymentMode: "deposit_20",
     referenceCode: "",
     hearAbout: "",
+    selectedAddonIds: [],
   });
   const [phoneCountryIso, setPhoneCountryIso] = useState(
     DEFAULT_PHONE_COUNTRY_ISO,
@@ -122,6 +132,19 @@ export function BookingFlow({
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  const availableAddons = useMemo(
+    () => filterBookingAddonsForType(type, addons),
+    [type, addons],
+  );
+
+  const selectedAddons = useMemo(
+    () =>
+      availableAddons.filter((item) =>
+        form.selectedAddonIds.includes(item.id),
+      ),
+    [availableAddons, form.selectedAddonIds],
+  );
 
   const selectedProgram = useMemo(
     () => programs.find((program) => program.slug === form.programSlug) ?? null,
@@ -135,10 +158,19 @@ export function BookingFlow({
     [selectedProgram, form.roomType],
   );
 
+  const roomPriceUsd = selectedRoom?.priceUsd ?? 0;
+  const addonsTotalUsd = selectedAddons.reduce(
+    (sum, item) => sum + item.priceUsd,
+    0,
+  );
+
   const pricing = useMemo(() => {
     if (!selectedRoom) return null;
-    return calculateBookingPricing(selectedRoom.priceUsd, form.paymentMode);
-  }, [selectedRoom, form.paymentMode]);
+    return calculateBookingPricing(
+      roomPriceUsd + addonsTotalUsd,
+      form.paymentMode,
+    );
+  }, [selectedRoom, roomPriceUsd, addonsTotalUsd, form.paymentMode]);
 
   const programOptions = useMemo<SearchableSelectOption[]>(
     () =>
@@ -170,6 +202,24 @@ export function BookingFlow({
   );
 
   const programLabel = type === "course" ? "Course" : "Retreat";
+
+  /**
+   * Toggles an add-on in the selection set.
+   *
+   * @param id - Add-on id
+   */
+  function toggleAddon(id: string) {
+    setForm((prev) => ({
+      ...prev,
+      selectedAddonIds: prev.selectedAddonIds.includes(id)
+        ? prev.selectedAddonIds.filter((item) => item !== id)
+        : [...prev.selectedAddonIds, id],
+    }));
+  }
+
+  /**
+   * Creates a pending booking and advances to the PayPal step.
+   */
   async function createPendingBooking() {
     if (!selectedProgram || !selectedRoom || !pricing) {
       setError("Please complete program details.");
@@ -206,6 +256,7 @@ export function BookingFlow({
         paymentMode: form.paymentMode,
         referenceCode: form.referenceCode,
         hearAbout: form.hearAbout,
+        selectedAddonIds: form.selectedAddonIds,
       }),
     });
 
@@ -219,7 +270,7 @@ export function BookingFlow({
 
     const body = (await response.json()) as { booking: { id: string } };
     setBookingId(body.booking.id);
-    setStep(3);
+    setStep(4);
   }
 
   if (success) {
@@ -300,7 +351,7 @@ export function BookingFlow({
             </ol>
           ) : null}
           <div className="mb-8 flex flex-wrap gap-2">
-            {["Program", "Your details", "Payment"].map((label, index) => {
+            {BOOKING_STEPS.map((label, index) => {
               const stepNumber = index + 1;
               const active = step === stepNumber;
               const done = step > stepNumber;
@@ -321,8 +372,8 @@ export function BookingFlow({
             })}
           </div>
 
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,0.9fr)]">
-            <div className="rounded-3xl border border-ink/8 bg-white p-6 shadow-card md:p-8">
+          <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,0.9fr)]">
+            <div className="min-w-0 rounded-3xl border border-ink/8 bg-white p-6 shadow-card md:p-8">
               {step === 1 ? (
                 <div className="space-y-5">
                   <div>
@@ -577,12 +628,92 @@ export function BookingFlow({
                       type="button"
                       className="booking-btn-primary"
                       disabled={
-                        submitting ||
                         !form.name ||
                         !form.gender ||
                         !form.email ||
                         !phoneNational.trim()
                       }
+                      onClick={() => {
+                        setError("");
+                        setStep(3);
+                      }}
+                    >
+                      Next step
+                    </button>
+                  </div>
+                </div>
+              ) : null}
+
+              {step === 3 ? (
+                <div className="space-y-5">
+                  <div>
+                    <h2 className="font-serif text-2xl text-ink">Add-ons</h2>
+                    <p className="mt-1 font-sans text-sm text-muted">
+                      {addons?.intro?.trim() ||
+                        "Optional extras for your stay. Skip if you do not need any."}
+                    </p>
+                  </div>
+
+                  {availableAddons.length > 0 ? (
+                    <ul className="space-y-3">
+                      {availableAddons.map((item: BookingAddon) => {
+                        const checked = form.selectedAddonIds.includes(
+                          item.id,
+                        );
+                        return (
+                          <li key={item.id}>
+                            <label
+                              className={`flex cursor-pointer gap-4 rounded-2xl border p-4 transition-colors ${
+                                checked
+                                  ? "border-primary/40 bg-primary/5"
+                                  : "border-ink/10 bg-sand/30 hover:border-ink/20"
+                              }`}
+                            >
+                              <input
+                                type="checkbox"
+                                className="mt-1 h-4 w-4 accent-[var(--color-primary,#a32432)]"
+                                checked={checked}
+                                onChange={() => toggleAddon(item.id)}
+                              />
+                              <span className="min-w-0 flex-1">
+                                <span className="flex flex-wrap items-baseline justify-between gap-2">
+                                  <span className="font-sans text-sm font-semibold text-ink">
+                                    {item.label}
+                                  </span>
+                                  <span className="font-serif text-base text-primary">
+                                    {formatUsd(item.priceUsd)}
+                                  </span>
+                                </span>
+                                {item.description ? (
+                                  <span className="mt-1 block font-sans text-sm text-muted">
+                                    {item.description}
+                                  </span>
+                                ) : null}
+                              </span>
+                            </label>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  ) : (
+                    <p className="rounded-2xl border border-ink/8 bg-sand/20 px-4 py-3 font-sans text-sm text-muted">
+                      No optional add-ons are available for this booking right
+                      now.
+                    </p>
+                  )}
+
+                  <div className="flex flex-wrap gap-3">
+                    <button
+                      type="button"
+                      className="booking-btn-secondary"
+                      onClick={() => setStep(2)}
+                    >
+                      Previous
+                    </button>
+                    <button
+                      type="button"
+                      className="booking-btn-primary"
+                      disabled={submitting}
                       onClick={() => void createPendingBooking()}
                     >
                       {submitting ? "Saving…" : "Continue to payment"}
@@ -591,7 +722,7 @@ export function BookingFlow({
                 </div>
               ) : null}
 
-              {step === 3 && bookingId ? (
+              {step === 4 && bookingId ? (
                 <div className="space-y-5">
                   <div>
                     <h2 className="font-serif text-2xl text-ink">
@@ -622,7 +753,7 @@ export function BookingFlow({
                   <button
                     type="button"
                     className="booking-btn-secondary"
-                    onClick={() => setStep(2)}
+                    onClick={() => setStep(3)}
                   >
                     Back
                   </button>
@@ -636,28 +767,53 @@ export function BookingFlow({
               ) : null}
             </div>
 
-            <aside className="h-fit rounded-3xl border border-ink/8 bg-white p-6 shadow-card">
+            <aside className="h-fit min-w-0 rounded-3xl border border-ink/8 bg-white p-6 shadow-card lg:sticky lg:top-[calc(var(--site-header-height,4.75rem)+1rem)]">
               <h3 className="font-serif text-xl text-ink">Fee breakdown</h3>
               {pricing && selectedProgram ? (
                 <dl className="mt-4 space-y-3 font-sans text-sm">
                   <div className="flex justify-between gap-4">
                     <dt className="text-muted">Program</dt>
-                    <dd className="text-ink">{selectedProgram.title}</dd>
+                    <dd className="text-right text-ink">
+                      {selectedProgram.title}
+                    </dd>
                   </div>
                   <div className="flex justify-between gap-4">
                     <dt className="text-muted">Room</dt>
-                    <dd className="text-ink">{form.roomType || "—"}</dd>
+                    <dd className="text-right text-ink">
+                      {form.roomType || "—"}
+                    </dd>
                   </div>
                   <div className="flex justify-between gap-4">
                     <dt className="text-muted">Date</dt>
-                    <dd className="text-ink">{form.batchDate || "—"}</dd>
-                  </div>
-                  <div className="flex justify-between gap-4 border-t border-ink/8 pt-3">
-                    <dt className="text-muted">Course price</dt>
-                    <dd className="font-semibold text-ink">
-                      {formatUsd(pricing.fullAmountUsd)}
+                    <dd className="text-right text-ink">
+                      {form.batchDate || "—"}
                     </dd>
                   </div>
+                  <div className="flex justify-between gap-4 border-t border-ink/8 pt-3">
+                    <dt className="text-muted">
+                      {type === "course" ? "Course price" : "Package price"}
+                    </dt>
+                    <dd className="font-semibold text-ink">
+                      {formatUsd(roomPriceUsd)}
+                    </dd>
+                  </div>
+                  {selectedAddons.map((item) => (
+                    <div
+                      key={item.id}
+                      className="flex justify-between gap-4"
+                    >
+                      <dt className="text-muted">{item.label}</dt>
+                      <dd className="text-ink">{formatUsd(item.priceUsd)}</dd>
+                    </div>
+                  ))}
+                  {selectedAddons.length > 0 ? (
+                    <div className="flex justify-between gap-4">
+                      <dt className="text-muted">Subtotal</dt>
+                      <dd className="font-semibold text-ink">
+                        {formatUsd(pricing.fullAmountUsd)}
+                      </dd>
+                    </div>
+                  ) : null}
                   <div className="flex justify-between gap-4">
                     <dt className="text-muted">
                       {form.paymentMode === "deposit_20"

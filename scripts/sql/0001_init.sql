@@ -353,6 +353,7 @@ CREATE TABLE "bookings" (
     "remaining_cents" INTEGER NOT NULL,
     "promo_code" TEXT,
     "discount_cents" INTEGER NOT NULL DEFAULT 0,
+    "addons" JSONB NOT NULL DEFAULT '[]'::jsonb,
     "paypal_order_id" TEXT,
     "paypal_capture_id" TEXT,
     "deleted_at" TIMESTAMP(3),

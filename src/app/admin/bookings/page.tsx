@@ -82,10 +82,17 @@ export default function AdminBookingsPage() {
         <Link href="/admin" className="admin-back-link">
           ← Dashboard
         </Link>
-        <h1 className="admin-title">Bookings</h1>
-        <p className="admin-subtitle">
-          Course and retreat reservations paid via PayPal.
-        </p>
+        <div className="admin-editor-title-row">
+          <div>
+            <h1 className="admin-title">Bookings</h1>
+            <p className="admin-subtitle">
+              Course and retreat reservations paid via PayPal.
+            </p>
+          </div>
+          <Link href="/admin/bookings/addons" className="admin-btn-sm">
+            Manage add-ons
+          </Link>
+        </div>
       </div>
 
       <div className="admin-chip-row admin-leads-filters">

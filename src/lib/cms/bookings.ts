@@ -1,5 +1,6 @@
 import type {
   BookingRecord,
+  BookingSelectedAddon,
   BookingStatus,
   CreateBookingInput,
 } from "@/content/types/booking";
@@ -9,6 +10,8 @@ import {
   centsToUsd,
   usdToCents,
 } from "@/lib/booking/pricing";
+import { getBookingAddons } from "@/content/repositories/shared-sections";
+import { filterBookingAddonsForType } from "@/lib/booking/addons";
 import { db } from "@/lib/db";
 import type { ParseResult } from "@/lib/types/api";
 
@@ -41,12 +44,16 @@ function toBookingRecord(row: {
   totalPayNowCents: number;
   remainingCents: number;
   promoCode: string | null;
+  addons?: unknown;
   paypalOrderId: string | null;
   paypalCaptureId: string | null;
   deletedAt: Date | null;
   createdAt: Date;
   confirmedAt: Date | null;
 }): BookingRecord {
+  const addons = Array.isArray(row.addons)
+    ? (row.addons as BookingSelectedAddon[])
+    : [];
   return {
     id: row.id,
     type: row.type,
@@ -65,6 +72,8 @@ function toBookingRecord(row: {
     hearAbout: row.hearAbout ?? undefined,
     paymentMode: row.paymentMode,
     promoCode: row.promoCode ?? undefined,
+    selectedAddonIds: addons.map((item) => item.id),
+    addons,
     basePriceUsd: centsToUsd(row.basePriceCents),
     fullAmountUsd: centsToUsd(row.fullAmountCents),
     payNowUsd: centsToUsd(row.payNowCents),
@@ -97,7 +106,25 @@ export async function createBooking(input: CreateBookingInput) {
     throw new Error("Room option not found");
   }
 
-  const pricing = calculateBookingPricing(room.priceUsd, input.paymentMode);
+  const addonsResult = await getBookingAddons();
+  const catalog = filterBookingAddonsForType(
+    input.type,
+    addonsResult.data ?? null,
+  );
+  const selectedIds = new Set(input.selectedAddonIds ?? []);
+  const selectedAddons: BookingSelectedAddon[] = catalog
+    .filter((item) => selectedIds.has(item.id))
+    .map((item) => ({
+      id: item.id,
+      label: item.label,
+      priceUsd: Math.max(0, Math.round(item.priceUsd)),
+    }));
+  const addonsTotal = selectedAddons.reduce(
+    (sum, item) => sum + item.priceUsd,
+    0,
+  );
+  const basePriceUsd = room.priceUsd + addonsTotal;
+  const pricing = calculateBookingPricing(basePriceUsd, input.paymentMode);
 
   const booking = await db.booking.create({
     data: {
@@ -116,13 +143,14 @@ export async function createBooking(input: CreateBookingInput) {
       referenceCode: input.referenceCode?.trim() || null,
       hearAbout: input.hearAbout?.trim() || null,
       paymentMode: input.paymentMode,
-      basePriceCents: usdToCents(room.priceUsd),
+      basePriceCents: usdToCents(basePriceUsd),
       fullAmountCents: usdToCents(pricing.fullAmountUsd),
       payNowCents: usdToCents(pricing.payNowUsd),
       paypalFeeCents: usdToCents(pricing.paypalFeeUsd),
       totalPayNowCents: usdToCents(pricing.totalPayNowUsd),
       remainingCents: usdToCents(pricing.remainingUsd),
       promoCode: input.promoCode?.trim() || null,
+      addons: selectedAddons,
     },
   });
 
@@ -309,6 +337,11 @@ export function parseCreateBookingInput(
         typeof record.promoCode === "string"
           ? record.promoCode.trim()
           : undefined,
+      selectedAddonIds: Array.isArray(record.selectedAddonIds)
+        ? record.selectedAddonIds.filter(
+            (id): id is string => typeof id === "string" && id.trim().length > 0,
+          )
+        : [],
     },
   };
 }

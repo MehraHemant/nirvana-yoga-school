@@ -24,6 +24,33 @@ export type BookingProgram = {
   batches: string[];
 };
 
+/** One optional paid add-on offered at checkout (global_settings.bookingAddons). */
+export type BookingAddon = {
+  id: string;
+  label: string;
+  priceUsd: number;
+  description?: string;
+  /** When set, only shown for these booking types. Empty / omitted = both. */
+  appliesTo?: BookingType[];
+  /** When false, hidden from checkout. Default true. */
+  active?: boolean;
+};
+
+/** CMS document for booking add-ons. */
+export type BookingAddonsContent = {
+  live?: boolean;
+  /** Short intro shown above the add-on checklist */
+  intro?: string;
+  items: BookingAddon[];
+};
+
+/** Snapshot of an add-on selected on a booking. */
+export type BookingSelectedAddon = {
+  id: string;
+  label: string;
+  priceUsd: number;
+};
+
 export type BookingPricingBreakdown = {
   basePriceUsd: number;
   fullAmountUsd: number;
@@ -50,6 +77,8 @@ export type CreateBookingInput = {
   hearAbout?: string;
   paymentMode: PaymentMode;
   promoCode?: string;
+  /** Selected add-on ids from global bookingAddons catalog */
+  selectedAddonIds?: string[];
 };
 
 export type BookingRecord = CreateBookingInput & {
@@ -61,6 +90,8 @@ export type BookingRecord = CreateBookingInput & {
   paypalFeeUsd: number;
   totalPayNowUsd: number;
   remainingUsd: number;
+  /** Resolved add-ons stored with the booking */
+  addons: BookingSelectedAddon[];
   paypalOrderId: string | null;
   paypalCaptureId: string | null;
   deletedAt: string | null;

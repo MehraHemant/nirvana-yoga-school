@@ -3,8 +3,11 @@ export type {
   BlogPostDocument,
 } from "@/content/types/blog-post";
 export type {
+  BookingAddon,
+  BookingAddonsContent,
   BookingProgram,
   BookingRecord,
+  BookingSelectedAddon,
   BookingStatus,
   BookingType,
   CreateBookingInput,
