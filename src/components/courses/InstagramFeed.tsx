@@ -335,10 +335,10 @@ function PostMedia({
   }
 
   return (
-    <div className="group/media relative aspect-square bg-sand">
+    <div className="group/media relative aspect-square overflow-hidden bg-sand">
       <div
         ref={scrollerRef}
-        className="flex h-full snap-x snap-mandatory overflow-x-auto scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="no-scrollbar flex h-full snap-x snap-mandatory overflow-x-auto scroll-smooth"
       >
         {slides.map((src, slideIndex) => (
           <div

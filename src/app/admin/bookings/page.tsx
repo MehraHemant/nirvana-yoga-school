@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import type { BookingRecord } from "@/content/types/booking";
+import type { BookingRecord, BookingStatus } from "@/content/types/booking";
 import {
   deleteAdminBooking,
   fetchAdminBookings,
@@ -19,6 +19,54 @@ function formatDate(iso: string): string {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(new Date(iso));
+}
+
+/**
+ * Format USD for admin display.
+ *
+ * @param amount - Dollar amount
+ */
+function formatUsd(amount: number): string {
+  return `${Math.round(amount)} USD`;
+}
+
+/**
+ * Human label for booking payment status.
+ *
+ * @param status - Booking status
+ */
+function statusLabel(status: BookingStatus): string {
+  switch (status) {
+    case "pending_payment":
+      return "Pending payment";
+    case "confirmed":
+      return "Confirmed";
+    case "failed":
+      return "Failed";
+    case "cancelled":
+      return "Cancelled";
+    default:
+      return status;
+  }
+}
+
+/**
+ * CSS modifier for a booking status chip.
+ *
+ * @param status - Booking status
+ */
+function statusTone(status: BookingStatus): string {
+  switch (status) {
+    case "confirmed":
+      return "admin-status-chip--ok";
+    case "pending_payment":
+      return "admin-status-chip--warn";
+    case "failed":
+    case "cancelled":
+      return "admin-status-chip--danger";
+    default:
+      return "";
+  }
 }
 
 /**
@@ -102,6 +150,9 @@ export default function AdminBookingsPage() {
           onClick={() => setView("active")}
         >
           Active
+          {view === "active" && !loading ? (
+            <span className="admin-chip-count">{bookings.length}</span>
+          ) : null}
         </button>
         <button
           type="button"
@@ -109,6 +160,9 @@ export default function AdminBookingsPage() {
           onClick={() => setView("deleted")}
         >
           Deleted
+          {view === "deleted" && !loading ? (
+            <span className="admin-chip-count">{bookings.length}</span>
+          ) : null}
         </button>
       </div>
 
@@ -116,53 +170,115 @@ export default function AdminBookingsPage() {
       {loading ? <p className="admin-hint">Loading bookings…</p> : null}
 
       {!loading && bookings.length === 0 ? (
-        <div className="admin-card">
-          <p className="admin-hint">No bookings in this view yet.</p>
+        <div className="admin-empty-card">
+          <p>No bookings in this view yet.</p>
         </div>
       ) : null}
 
-      <div className="admin-media-list">
-        {bookings.map((booking) => (
-          <div key={booking.id} className="admin-media-list-item">
-            <div className="admin-media-list-body">
-              <p className="admin-media-list-title">
-                {booking.name} — {booking.programTitle}
-              </p>
-              <p className="admin-media-list-desc">
-                {booking.type} · {booking.roomType} · {booking.batchDate}
-              </p>
-              <p className="admin-hint admin-hint--tight">
-                {booking.email} · {booking.phone} ·{" "}
-                {formatUsd(booking.totalPayNowUsd)} paid · {booking.status} ·{" "}
-                {formatDate(booking.createdAt)}
-              </p>
-            </div>
-            <div className="admin-media-list-actions">
-              {view === "active" ? (
-                <button
-                  type="button"
-                  className="admin-btn-sm admin-btn-sm--danger"
-                  onClick={() => deleteBooking(booking.id)}
-                >
-                  Delete
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  className="admin-btn-sm"
-                  onClick={() => restoreBooking(booking.id)}
-                >
-                  Restore
-                </button>
-              )}
-            </div>
+      {!loading && bookings.length > 0 ? (
+        <div className="admin-card admin-bookings-card">
+          <div className="admin-table-scroll">
+            <table className="admin-table admin-table--section admin-bookings-table">
+              <thead>
+                <tr>
+                  <th scope="col">Guest</th>
+                  <th scope="col">Program</th>
+                  <th scope="col">Stay</th>
+                  <th scope="col">Payment</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Booked</th>
+                  <th scope="col" className="admin-table-col--actions">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {bookings.map((booking) => {
+                  const addons = booking.addons ?? [];
+                  return (
+                    <tr key={booking.id}>
+                      <td>
+                        <p className="admin-table-title">{booking.name}</p>
+                        <p className="admin-table-slug">{booking.email}</p>
+                        <p className="admin-table-slug">{booking.phone}</p>
+                        {booking.gender ? (
+                          <p className="admin-table-slug">{booking.gender}</p>
+                        ) : null}
+                      </td>
+                      <td>
+                        <p className="admin-table-title admin-bookings-program">
+                          {booking.programTitle}
+                        </p>
+                        <p className="admin-table-slug">
+                          <span className="admin-type-pill">
+                            {booking.type}
+                          </span>
+                          {booking.duration ? ` · ${booking.duration}` : ""}
+                        </p>
+                      </td>
+                      <td>
+                        <p className="admin-table-title">{booking.roomType}</p>
+                        <p className="admin-table-slug">{booking.batchDate}</p>
+                        {addons.length > 0 ? (
+                          <p className="admin-table-slug">
+                            + {addons.map((item) => item.label).join(", ")}
+                          </p>
+                        ) : null}
+                      </td>
+                      <td>
+                        <p className="admin-table-title">
+                          {formatUsd(booking.totalPayNowUsd)}
+                        </p>
+                        <p className="admin-table-slug">
+                          {booking.paymentMode === "deposit_20"
+                            ? "20% deposit"
+                            : "Full payment"}
+                        </p>
+                        {booking.remainingUsd > 0 ? (
+                          <p className="admin-table-slug">
+                            {formatUsd(booking.remainingUsd)} due on arrival
+                          </p>
+                        ) : null}
+                      </td>
+                      <td>
+                        <span
+                          className={`admin-status-chip ${statusTone(booking.status)}`}
+                        >
+                          {statusLabel(booking.status)}
+                        </span>
+                      </td>
+                      <td>
+                        <p className="admin-table-slug">
+                          {formatDate(booking.createdAt)}
+                        </p>
+                      </td>
+                      <td className="admin-row-actions">
+                        {view === "active" ? (
+                          <button
+                            type="button"
+                            className="admin-btn-sm admin-btn-sm--danger"
+                            onClick={() => deleteBooking(booking.id)}
+                          >
+                            Delete
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            className="admin-btn-sm"
+                            onClick={() => restoreBooking(booking.id)}
+                          >
+                            Restore
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
-        ))}
-      </div>
+        </div>
+      ) : null}
     </div>
   );
-}
-
-function formatUsd(amount: number): string {
-  return `${Math.round(amount)} USD`;
 }

@@ -936,13 +936,17 @@ details[open] .accordion-icon {
   transform: rotate(45deg);
 }
 
-/* Hidden scrollbar — keeps scroll functionality, hides the bar visually */
+/* Hidden scrollbar — keeps scroll functionality, hides the bar visually.
+   Must override the global `*::-webkit-scrollbar` primary theme. */
 .no-scrollbar {
   scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .no-scrollbar::-webkit-scrollbar {
   display: none;
+  width: 0;
+  height: 0;
 }
 
 /* Custom Scrollbar Utility */
