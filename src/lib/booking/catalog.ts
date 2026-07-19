@@ -3,7 +3,7 @@ import type { ResidentialCourseDocument } from "@/content/types";
 import type { BookingProgram, BookingType } from "@/content/types/booking";
 import type { RetreatDocument } from "@/content/types/retreat-page";
 import { parseUsdAmount } from "@/lib/booking/pricing";
-import { isDbEnabled, prisma } from "@/lib/db";
+import { isDbEnabled, db } from "@/lib/db";
 
 const BOOKABLE_RETREAT_SLUGS = new Set([
   "3-day-yoga-retreat-in-rishikesh-india",
@@ -14,7 +14,7 @@ const BOOKABLE_RETREAT_SLUGS = new Set([
 /**
  * Map a residential course document into a booking catalog entry.
  *
- * @param course - Course document from MySQL
+ * @param course - Course document from Neon Postgres
  */
 function courseToBookingProgram(
   course: ResidentialCourseDocument,
@@ -37,7 +37,7 @@ function courseToBookingProgram(
 /**
  * Map a retreat document into a booking catalog entry.
  *
- * @param retreat - Retreat document from MySQL
+ * @param retreat - Retreat document from Neon Postgres
  */
 function retreatToBookingProgram(retreat: RetreatDocument): BookingProgram {
   return {
@@ -56,16 +56,16 @@ function retreatToBookingProgram(retreat: RetreatDocument): BookingProgram {
 }
 
 /**
- * Build residential course catalog for the booking form from MySQL.
+ * Build residential course catalog for the booking form from Neon Postgres.
  *
  * @returns Bookable course programs
  */
 export async function getCourseBookingCatalog(): Promise<BookingProgram[]> {
   if (!isDbEnabled()) {
-    throw new Error("DATABASE_URL is required for the booking catalog.");
+    throw new Error("NEON_DB_URL is required for the booking catalog.");
   }
 
-  const pages = await prisma.page.findMany({
+  const pages = await db.page.findMany({
     where: { type: "course", published: true },
     include: { courseDoc: true },
     orderBy: { title: "asc" },
@@ -87,16 +87,16 @@ export async function getCourseBookingCatalog(): Promise<BookingProgram[]> {
 }
 
 /**
- * Build retreat catalog for the booking form from MySQL.
+ * Build retreat catalog for the booking form from Neon Postgres.
  *
  * @returns Bookable retreat programs
  */
 export async function getRetreatBookingCatalog(): Promise<BookingProgram[]> {
   if (!isDbEnabled()) {
-    throw new Error("DATABASE_URL is required for the booking catalog.");
+    throw new Error("NEON_DB_URL is required for the booking catalog.");
   }
 
-  const pages = await prisma.page.findMany({
+  const pages = await db.page.findMany({
     where: {
       type: "retreat",
       published: true,

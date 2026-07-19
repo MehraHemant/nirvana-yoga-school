@@ -8,6 +8,7 @@ import {
   CourseOverview,
   CourseStickyNav,
   CourseSyllabus,
+  ExamCertification,
   Food,
   InstagramFeed,
   PageGallerySection,
@@ -46,6 +47,7 @@ export default function KirtanClient({
   whyNirvana,
   reviews,
   instagram,
+  examCertification,
 }: SiteClientProps) {
   const copy = mapped.presentation;
   const kirtan = parseKirtanContent(page);
@@ -77,6 +79,15 @@ export default function KirtanClient({
   const showInstagram =
     (modules?.flags.showInstagram ?? mapped.showInstagram) &&
     shouldRenderSection(instagram, Boolean(instagram?.media?.length));
+  const showExam =
+    (modules?.flags.showExam ?? false) &&
+    shouldRenderSection(
+      examCertification,
+      Boolean(
+        examCertification?.steps.length &&
+          examCertification.certificates.length,
+      ),
+    );
 
   return (
     <>
@@ -187,10 +198,16 @@ export default function KirtanClient({
 
         {gallery.length > 0 && <PageGallerySection images={gallery} />}
 
-        <KirtanCertificationSection
-          description={kirtan.certification}
-          images={kirtan.certificationImages}
-        />
+        {examCertification ? (
+          showExam ? (
+            <ExamCertification content={examCertification} />
+          ) : null
+        ) : (
+          <KirtanCertificationSection
+            description={kirtan.certification}
+            images={kirtan.certificationImages}
+          />
+        )}
 
         {(modules?.flags.showAccommodation ?? mapped.showAccommodation) ? (
           <>

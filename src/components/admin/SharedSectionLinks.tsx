@@ -22,8 +22,7 @@ type SharedSectionLinksProps = {
 };
 
 /**
- * Admin panel listing deep-links to the four shared global_settings editors
- * (Why Nirvana, Map, Instagram, Travel).
+ * Admin panel listing deep-links to shared global_settings editors.
  *
  * @param props - Link list and panel chrome
  */

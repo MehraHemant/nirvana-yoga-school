@@ -31,7 +31,7 @@ import {
   upsertSitePageDocument,
 } from "@/lib/cms/document-to-db";
 import { ensureTeacherPage } from "@/lib/cms/ensure-teacher-page";
-import { prisma } from "@/lib/db";
+import { db } from "@/lib/db";
 import type { ApiRouteParams } from "@/lib/types/api";
 
 type AdminPageEditorWrite = {
@@ -75,7 +75,7 @@ export async function GET(
     await ensureTeacherPage().catch(() => null);
   }
 
-  const page = await prisma.page.findUnique({
+  const page = await db.page.findUnique({
     where: { slug },
     include: { ...pageWithRelations, courseDoc: true },
   });
@@ -130,7 +130,7 @@ export async function PUT(
     return jsonMutationOk(page.id);
   }
 
-  const page = await prisma.page.findUnique({ where: { slug } });
+  const page = await db.page.findUnique({ where: { slug } });
   if (!page) {
     return jsonNotFound();
   }

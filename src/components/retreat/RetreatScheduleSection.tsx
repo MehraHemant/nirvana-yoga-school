@@ -1,10 +1,11 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { useCallback, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { Container, SectionHeader, TabSwitcher } from "@/components/ui";
 import type { RetreatScheduleDay } from "@/content/types/retreat-page";
 import { BookOpen, Bowl, Clock, Lotus, Sunrise } from "@/icons";
+import { useStickyTabBar } from "@/lib/hooks/useStickyTabBar";
 import {
   EASE_OUT,
   fadeUp,
@@ -93,15 +94,6 @@ const getIconType = (activity: string, time: string): ScheduleIconType => {
   return "default";
 };
 
-function getScheduleTabsTop(): number {
-  const header =
-    document.querySelector("header")?.getBoundingClientRect().height ?? 76;
-  const courseNav =
-    document.querySelector(".course-sticky-nav")?.getBoundingClientRect()
-      .height ?? 52;
-  return Math.ceil(header + courseNav);
-}
-
 /**
  * Retreat day-by-day schedule with sticky day tabs and an alternating timeline.
  *
@@ -113,50 +105,15 @@ export default function RetreatScheduleSection({
 }: RetreatScheduleSectionProps) {
   const prefersReduced = useReducedMotion() ?? false;
   const [activeDay, setActiveDay] = useState<string>("1");
-  const [tabsTop, setTabsTop] = useState(128);
-  const [tabsHeight, setTabsHeight] = useState(0);
-  const [isPinned, setIsPinned] = useState(false);
-  const tabsSentinelRef = useRef<HTMLDivElement>(null);
-  const sectionEndRef = useRef<HTMLDivElement>(null);
-  const tabsRef = useRef<HTMLDivElement>(null);
+  const {
+    sentinelRef: tabsSentinelRef,
+    sectionEndRef,
+    tabsRef,
+    isPinned,
+    tabsTop,
+    tabsHeight,
+  } = useStickyTabBar();
   const dayPanelRef = useRef<HTMLDivElement>(null);
-
-  useLayoutEffect(() => {
-    const syncLayout = () => {
-      setTabsTop(getScheduleTabsTop());
-      if (tabsRef.current) {
-        setTabsHeight(tabsRef.current.offsetHeight);
-      }
-    };
-
-    syncLayout();
-    window.addEventListener("resize", syncLayout);
-    return () => window.removeEventListener("resize", syncLayout);
-  }, []);
-
-  useLayoutEffect(() => {
-    const updatePinned = () => {
-      const sentinel = tabsSentinelRef.current;
-      const sectionEnd = sectionEndRef.current;
-      if (!sentinel) return;
-
-      const sentinelTop = sentinel.getBoundingClientRect().top;
-      const sectionEndTop =
-        sectionEnd?.getBoundingClientRect().top ?? Number.POSITIVE_INFINITY;
-      const pinLine = tabsTop;
-      const unpinLine = pinLine + tabsHeight;
-
-      setIsPinned(sentinelTop <= pinLine && sectionEndTop > unpinLine);
-    };
-
-    updatePinned();
-    window.addEventListener("scroll", updatePinned, { passive: true });
-    window.addEventListener("resize", updatePinned);
-    return () => {
-      window.removeEventListener("scroll", updatePinned);
-      window.removeEventListener("resize", updatePinned);
-    };
-  }, [tabsTop, tabsHeight]);
 
   const active =
     schedule.find((day) => String(day.day) === activeDay) ?? schedule[0];
@@ -233,7 +190,7 @@ export default function RetreatScheduleSection({
       <div
         ref={tabsRef}
         style={isPinned ? { top: tabsTop } : undefined}
-        className={`z-50 bg-transparent ${
+        className={`z-30 bg-transparent ${
           isPinned ? "fixed inset-x-0" : "relative"
         }`}
       >

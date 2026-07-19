@@ -4,6 +4,11 @@ import {
   DEFAULT_ENQUIRE_PAGE_CONTENT,
   DEFAULT_HOME_PAGE_CONTENT,
 } from "@/content/data/dedicated-page-defaults";
+import { requireDb } from "@/content/repositories/db-fallback";
+import type {
+  ContentResult,
+  RepositoryOptions,
+} from "@/content/repositories/fetch";
 import type {
   BookingPageContent,
   ContactPageContent,
@@ -20,9 +25,7 @@ import type {
   HomeFaqsContent,
   ReviewsContent,
 } from "@/content/types/shared-sections";
-import { requireDb } from "@/content/repositories/db-fallback";
-import type { ContentResult, RepositoryOptions } from "@/content/repositories/fetch";
-import { prisma } from "@/lib/db";
+import { db } from "@/lib/db";
 
 /**
  * Merges partial home content with defaults so public UI never regresses.
@@ -64,81 +67,69 @@ export function normalizeHomeContent(value: unknown): HomePageContent {
       ...base.hero,
       ...value.hero,
       video: heroVideo,
-      marqueeItems:
-        value.hero?.marqueeItems?.length
-          ? value.hero.marqueeItems
-          : base.hero.marqueeItems,
-      mobileTrust:
-        value.hero?.mobileTrust?.length
-          ? value.hero.mobileTrust
-          : base.hero.mobileTrust,
+      marqueeItems: value.hero?.marqueeItems?.length
+        ? value.hero.marqueeItems
+        : base.hero.marqueeItems,
+      mobileTrust: value.hero?.mobileTrust?.length
+        ? value.hero.mobileTrust
+        : base.hero.mobileTrust,
     },
     welcome: {
       ...base.welcome,
       ...value.welcome,
       vision: welcomeVision,
       promise: welcomePromise,
-      highlights:
-        value.welcome?.highlights?.length
-          ? value.welcome.highlights
-          : base.welcome.highlights,
-      rotatingStats:
-        value.welcome?.rotatingStats?.length
-          ? value.welcome.rotatingStats
-          : base.welcome.rotatingStats,
-      images:
-        value.welcome?.images?.length
-          ? value.welcome.images
-          : base.welcome.images,
+      highlights: value.welcome?.highlights?.length
+        ? value.welcome.highlights
+        : base.welcome.highlights,
+      rotatingStats: value.welcome?.rotatingStats?.length
+        ? value.welcome.rotatingStats
+        : base.welcome.rotatingStats,
+      images: value.welcome?.images?.length
+        ? value.welcome.images
+        : base.welcome.images,
     },
     video: {
       ...base.video,
       ...value.video,
-      youtubeUrls:
-        value.video?.youtubeUrls?.length
-          ? value.video.youtubeUrls
-          : base.video.youtubeUrls,
+      youtubeUrls: value.video?.youtubeUrls?.length
+        ? value.video.youtubeUrls
+        : base.video.youtubeUrls,
     },
     gallery: {
       ...base.gallery,
       ...value.gallery,
-      items:
-        value.gallery?.items?.length
-          ? value.gallery.items
-          : base.gallery.items,
-      categories:
-        value.gallery?.categories?.length
-          ? value.gallery.categories
-          : base.gallery.categories,
+      items: value.gallery?.items?.length
+        ? value.gallery.items
+        : base.gallery.items,
+      categories: value.gallery?.categories?.length
+        ? value.gallery.categories
+        : base.gallery.categories,
     },
     whyRishikesh: {
       ...base.whyRishikesh,
       ...value.whyRishikesh,
       videoCard: whyVideoCard,
-      trustLogos:
-        value.whyRishikesh?.trustLogos?.length
-          ? value.whyRishikesh.trustLogos
-          : base.whyRishikesh.trustLogos,
-      sutras:
-        value.whyRishikesh?.sutras?.length
-          ? value.whyRishikesh.sutras
-          : base.whyRishikesh.sutras,
+      trustLogos: value.whyRishikesh?.trustLogos?.length
+        ? value.whyRishikesh.trustLogos
+        : base.whyRishikesh.trustLogos,
+      sutras: value.whyRishikesh?.sutras?.length
+        ? value.whyRishikesh.sutras
+        : base.whyRishikesh.sutras,
     },
     courses: {
       ...base.courses,
       ...value.courses,
-      cards:
-        value.courses?.cards?.length
-          ? value.courses.cards
-          : base.courses.cards,
+      cards: value.courses?.cards?.length
+        ? value.courses.cards
+        : base.courses.cards,
     },
     yogaAlliance: {
       ...base.yogaAlliance,
       ...value.yogaAlliance,
-      certifications:
-        value.yogaAlliance?.certifications?.length
-          ? value.yogaAlliance.certifications
-          : base.yogaAlliance.certifications,
+      certifications: value.yogaAlliance?.certifications?.length
+        ? value.yogaAlliance.certifications
+        : base.yogaAlliance.certifications,
     },
     teachersTeaser: {
       ...base.teachersTeaser,
@@ -147,10 +138,9 @@ export function normalizeHomeContent(value: unknown): HomePageContent {
     testimonials: {
       ...base.testimonials,
       ...(value.testimonials ?? {}),
-      reviews:
-        value.testimonials?.reviews?.length
-          ? value.testimonials.reviews
-          : base.testimonials.reviews,
+      reviews: value.testimonials?.reviews?.length
+        ? value.testimonials.reviews
+        : base.testimonials.reviews,
     },
     map: { ...base.map, ...value.map },
     faqs: {
@@ -165,10 +155,9 @@ export function normalizeHomeContent(value: unknown): HomePageContent {
       organization: {
         ...base.seo?.organization,
         ...value.seo?.organization,
-        sameAs:
-          value.seo?.organization?.sameAs?.length
-            ? value.seo.organization.sameAs
-            : base.seo?.organization?.sameAs,
+        sameAs: value.seo?.organization?.sameAs?.length
+          ? value.seo.organization.sameAs
+          : base.seo?.organization?.sameAs,
       },
       localBusiness: {
         ...base.seo?.localBusiness,
@@ -193,7 +182,7 @@ export function normalizeContactContent(value: unknown): ContactPageContent {
     meta:
       value.meta != null
         ? { ...DEFAULT_CONTACT_PAGE_CONTENT.meta, ...value.meta }
-        : value.meta ?? DEFAULT_CONTACT_PAGE_CONTENT.meta,
+        : (value.meta ?? DEFAULT_CONTACT_PAGE_CONTENT.meta),
     hero: { ...DEFAULT_CONTACT_PAGE_CONTENT.hero, ...value.hero },
     form: { ...DEFAULT_CONTACT_PAGE_CONTENT.form, ...value.form },
     map: { ...DEFAULT_CONTACT_PAGE_CONTENT.map, ...value.map },
@@ -223,7 +212,7 @@ export function normalizeEnquireContent(value: unknown): EnquirePageContent {
     meta:
       value.meta != null
         ? { ...DEFAULT_ENQUIRE_PAGE_CONTENT.meta, ...value.meta }
-        : value.meta ?? DEFAULT_ENQUIRE_PAGE_CONTENT.meta,
+        : (value.meta ?? DEFAULT_ENQUIRE_PAGE_CONTENT.meta),
     hero: { ...DEFAULT_ENQUIRE_PAGE_CONTENT.hero, ...value.hero },
     form: { ...DEFAULT_ENQUIRE_PAGE_CONTENT.form, ...value.form },
     map: { ...DEFAULT_ENQUIRE_PAGE_CONTENT.map, ...value.map },
@@ -253,7 +242,7 @@ export function normalizeBookingContent(value: unknown): BookingPageContent {
     meta:
       value.meta != null
         ? { ...DEFAULT_BOOKING_PAGE_CONTENT.meta, ...value.meta }
-        : value.meta ?? DEFAULT_BOOKING_PAGE_CONTENT.meta,
+        : (value.meta ?? DEFAULT_BOOKING_PAGE_CONTENT.meta),
     hero: { ...DEFAULT_BOOKING_PAGE_CONTENT.hero, ...value.hero },
     stepsSection: {
       ...DEFAULT_BOOKING_PAGE_CONTENT.stepsSection,
@@ -281,7 +270,7 @@ async function hydrateHomeFromLegacySettings(
   const next = structuredClone(content);
 
   if (needsFaqs) {
-    const row = await prisma.globalSettings.findUnique({
+    const row = await db.globalSettings.findUnique({
       where: { key: "homeFaqs" },
       select: { value: true },
     });
@@ -295,7 +284,7 @@ async function hydrateHomeFromLegacySettings(
   }
 
   if (needsReviews) {
-    const row = await prisma.globalSettings.findUnique({
+    const row = await db.globalSettings.findUnique({
       where: { key: "reviews" },
       select: { value: true },
     });
@@ -309,7 +298,7 @@ async function hydrateHomeFromLegacySettings(
   }
 
   // Teachers teaser from teacher page presentation when still default-empty title
-  const teacherPage = await prisma.page.findUnique({
+  const teacherPage = await db.page.findUnique({
     where: { slug: "teacher" },
     select: { contentData: true },
   });
@@ -343,7 +332,7 @@ export async function getHomePageContent(
   options?: RepositoryOptions,
 ): Promise<ContentResult<HomePageContent>> {
   return requireDb(async () => {
-    const page = await prisma.page.findUnique({
+    const page = await db.page.findUnique({
       where: { slug: "home" },
       select: { contentData: true },
     });
@@ -361,7 +350,7 @@ export async function getContactPageContent(
   options?: RepositoryOptions,
 ): Promise<ContentResult<ContactPageContent>> {
   return requireDb(async () => {
-    const page = await prisma.page.findUnique({
+    const page = await db.page.findUnique({
       where: { slug: "contact" },
       select: { contentData: true },
     });
@@ -378,7 +367,7 @@ export async function getEnquirePageContent(
   options?: RepositoryOptions,
 ): Promise<ContentResult<EnquirePageContent>> {
   return requireDb(async () => {
-    const page = await prisma.page.findUnique({
+    const page = await db.page.findUnique({
       where: { slug: "enquire-now" },
       select: { contentData: true },
     });
@@ -395,7 +384,7 @@ export async function getBookingPageContent(
   options?: RepositoryOptions,
 ): Promise<ContentResult<BookingPageContent>> {
   return requireDb(async () => {
-    const page = await prisma.page.findUnique({
+    const page = await db.page.findUnique({
       where: { slug: "booking" },
       select: { contentData: true },
     });

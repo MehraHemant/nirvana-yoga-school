@@ -9,11 +9,11 @@ import {
   centsToUsd,
   usdToCents,
 } from "@/lib/booking/pricing";
-import { prisma } from "@/lib/db";
+import { db } from "@/lib/db";
 import type { ParseResult } from "@/lib/types/api";
 
 /**
- * Map a Prisma booking row to an API record.
+ * Map a Neon booking row to an API record.
  *
  * @param row - Database booking
  */
@@ -99,7 +99,7 @@ export async function createBooking(input: CreateBookingInput) {
 
   const pricing = calculateBookingPricing(room.priceUsd, input.paymentMode);
 
-  const booking = await prisma.booking.create({
+  const booking = await db.booking.create({
     data: {
       type: input.type,
       status: "pending_payment",
@@ -135,7 +135,7 @@ export async function createBooking(input: CreateBookingInput) {
  * @param deleted - When true, return only deleted bookings
  */
 export async function listBookings(deleted = false) {
-  const rows = await prisma.booking.findMany({
+  const rows = await db.booking.findMany({
     where: deleted ? { deletedAt: { not: null } } : ACTIVE_BOOKING_FILTER,
     orderBy: deleted ? { deletedAt: "desc" } : { createdAt: "desc" },
     take: 200,
@@ -148,14 +148,14 @@ export async function listBookings(deleted = false) {
  */
 export async function getBookingStats() {
   const [confirmed, pending, deleted, recent] = await Promise.all([
-    prisma.booking.count({
+    db.booking.count({
       where: { status: "confirmed", ...ACTIVE_BOOKING_FILTER },
     }),
-    prisma.booking.count({
+    db.booking.count({
       where: { status: "pending_payment", ...ACTIVE_BOOKING_FILTER },
     }),
-    prisma.booking.count({ where: { deletedAt: { not: null } } }),
-    prisma.booking.findMany({
+    db.booking.count({ where: { deletedAt: { not: null } } }),
+    db.booking.findMany({
       where: ACTIVE_BOOKING_FILTER,
       orderBy: { createdAt: "desc" },
       take: 6,
@@ -176,7 +176,7 @@ export async function getBookingStats() {
  * @param id - Booking id
  */
 export async function getBookingById(id: string) {
-  const row = await prisma.booking.findFirst({
+  const row = await db.booking.findFirst({
     where: { id, ...ACTIVE_BOOKING_FILTER },
   });
   return row ? toBookingRecord(row) : null;
@@ -189,7 +189,7 @@ export async function getBookingById(id: string) {
  * @param paypalOrderId - PayPal order id
  */
 export async function attachPaypalOrder(id: string, paypalOrderId: string) {
-  return prisma.booking.update({
+  return db.booking.update({
     where: { id },
     data: { paypalOrderId },
   });
@@ -202,7 +202,7 @@ export async function attachPaypalOrder(id: string, paypalOrderId: string) {
  * @param paypalCaptureId - PayPal capture id
  */
 export async function confirmBooking(id: string, paypalCaptureId: string) {
-  return prisma.booking.update({
+  return db.booking.update({
     where: { id },
     data: {
       status: "confirmed",
@@ -218,7 +218,7 @@ export async function confirmBooking(id: string, paypalCaptureId: string) {
  * @param id - Booking id
  */
 export async function softDeleteBooking(id: string) {
-  return prisma.booking.update({
+  return db.booking.update({
     where: { id, ...ACTIVE_BOOKING_FILTER },
     data: { deletedAt: new Date() },
   });
@@ -230,7 +230,7 @@ export async function softDeleteBooking(id: string) {
  * @param id - Booking id
  */
 export async function restoreBooking(id: string) {
-  return prisma.booking.update({
+  return db.booking.update({
     where: { id, deletedAt: { not: null } },
     data: { deletedAt: null },
   });

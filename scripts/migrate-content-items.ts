@@ -5,7 +5,7 @@
  * Each page block becomes a component ContentItem; each page becomes a `page`
  * ContentItem whose `sections` reference field links those components in order.
  *
- * Prerequisites: run `npx prisma migrate deploy` (creates content_items /
+ * Prerequisites: run `npx db migrate deploy` (creates content_items /
  * content_references) and `npm run db:seed-content-types` (creates the `page`
  * type + components) first.
  *
@@ -22,7 +22,7 @@ import {
   parseContentFields,
 } from "@/lib/cms/content-schema-utils";
 import { syncDefaultContentTypes } from "@/lib/cms/content-types";
-import { prisma } from "@/lib/db";
+import { db } from "@/lib/db";
 
 async function main() {
   const reset = process.argv.includes("--reset");
@@ -31,26 +31,26 @@ async function main() {
   console.log("• Synced content types.");
 
   if (reset) {
-    await prisma.contentReference.deleteMany({});
-    await prisma.contentItem.deleteMany({});
+    await db.contentReference.deleteMany({});
+    await db.contentItem.deleteMany({});
     console.log("• Reset: cleared all content items + references.");
   }
 
-  const pageType = await prisma.contentType.findUnique({
+  const pageType = await db.contentType.findUnique({
     where: { key: "page" },
   });
   if (!pageType) throw new Error("Missing `page` content type. Seed first.");
   const pageFields = parseContentFields(pageType.fields);
 
-  const types = await prisma.contentType.findMany();
+  const types = await db.contentType.findMany();
   const typeByKey = new Map(types.map((t) => [t.key, t]));
 
-  const pages = await prisma.page.findMany({ orderBy: { createdAt: "asc" } });
+  const pages = await db.page.findMany({ orderBy: { createdAt: "asc" } });
   let created = 0;
   let skipped = 0;
 
   for (const page of pages) {
-    const existing = await prisma.contentItem.findUnique({
+    const existing = await db.contentItem.findUnique({
       where: { slug: page.slug },
     });
     if (existing) {
@@ -73,7 +73,7 @@ async function main() {
         ...defaultsFromFields(fields),
         ...block.data,
       });
-      const item = await prisma.contentItem.create({
+      const item = await db.contentItem.create({
         data: {
           contentTypeId: type.id,
           name: `${page.title} · ${type.name}`,
@@ -95,7 +95,7 @@ async function main() {
       sections: sectionIds,
     });
 
-    const pageItem = await prisma.contentItem.create({
+    const pageItem = await db.contentItem.create({
       data: {
         contentTypeId: pageType.id,
         slug: page.slug,
@@ -120,5 +120,5 @@ main()
     process.exit(1);
   })
   .finally(async () => {
-    await prisma.$disconnect();
+    await db.$disconnect();
   });

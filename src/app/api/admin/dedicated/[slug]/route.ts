@@ -1,10 +1,5 @@
 import type { DedicatedPageContent } from "@/content/types/dedicated-pages";
 import {
-  isDedicatedPageSlug,
-  loadDedicatedPageContent,
-  saveDedicatedPageContent,
-} from "@/lib/cms/dedicated-pages";
-import {
   jsonBadRequest,
   jsonMutationOk,
   jsonNotFound,
@@ -12,6 +7,11 @@ import {
   jsonUnauthorized,
 } from "@/lib/cms/api-response";
 import { getSessionFromRequest } from "@/lib/cms/auth";
+import {
+  isDedicatedPageSlug,
+  loadDedicatedPageContent,
+  saveDedicatedPageContent,
+} from "@/lib/cms/dedicated-pages";
 import type { ApiRouteParams } from "@/lib/types/api";
 
 /**

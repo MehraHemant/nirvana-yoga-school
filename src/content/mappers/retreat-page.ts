@@ -1,7 +1,7 @@
 import type { StickyNavItem } from "@/components/courses/CourseStickyNav";
 import type { PricingOption } from "@/components/courses/upcomingDatesShared";
-import type { RetreatAccommodationContent } from "@/content/types/shared-sections";
 import type { RetreatDocument } from "@/content/types/retreat-page";
+import type { RetreatAccommodationContent } from "@/content/types/shared-sections";
 
 const RETREAT_NAV: StickyNavItem[] = [
   { id: "#overview", label: "Overview", shortLabel: "Overview" },

@@ -9,7 +9,7 @@ type ModuleFlagsPanelProps = ModulePanelProps & {
   onChange: (flags: ModuleFlags) => void;
 };
 
-/** Live toggles for the four global shared bands only. */
+/** Live toggles for global shared bands only. */
 const SHARED_LIVE_ITEMS: {
   key: keyof ModuleFlags;
   label: string;
@@ -18,11 +18,11 @@ const SHARED_LIVE_ITEMS: {
   { key: "showMap", label: "Map" },
   { key: "showInstagram", label: "Instagram" },
   { key: "showTravel", label: "Travel" },
+  { key: "showExam", label: "Exam & certification" },
 ];
 
 /**
- * Page-level Live toggles for the four shared global sections.
- * Lodging/exam visibility also live here; lodging content is edited on the page.
+ * Page-level Live toggles for shared global sections.
  *
  * @param props - Module flags and change handler
  */
@@ -40,10 +40,10 @@ export function ModuleFlagsPanel({
       id={panelId}
       step={step}
       title="Shared sections (Live)"
-      subtitle="Show or hide global Why Nirvana, Map, Instagram, Travel on this page"
+      subtitle="Show or hide global Why Nirvana, Map, Instagram, Travel, and Exam & certification on this page"
       description={
         description ??
-        "Shared content is edited once under Shared sections. Lodging & food content is edited on this page."
+        "Shared content is edited once under Shared sections. Accommodation & food content is edited on this page."
       }
       open={open}
       onOpenChange={onOpenChange}
@@ -61,31 +61,11 @@ export function ModuleFlagsPanel({
             <span>Live · {item.label}</span>
           </label>
         ))}
-        <label className="admin-checkbox admin-checkbox-row">
-          <input
-            type="checkbox"
-            checked={flags.showExam}
-            onChange={(e) =>
-              onChange({ ...flags, showExam: e.target.checked })
-            }
-          />
-          <span>Live · Exam &amp; certification</span>
-        </label>
-        <label className="admin-checkbox admin-checkbox-row">
-          <input
-            type="checkbox"
-            checked={flags.showAccommodation}
-            onChange={(e) =>
-              onChange({ ...flags, showAccommodation: e.target.checked })
-            }
-          />
-          <span>Live · Accommodation &amp; food</span>
-        </label>
       </div>
       <p className="admin-hint" style={{ marginTop: "0.75rem" }}>
-        Accommodation &amp; food content is edited on this page. Shared globals:{" "}
+        Shared globals:{" "}
         <a href="/admin/sections/shared" className="admin-link">
-          Why Nirvana / Map / Instagram / Travel →
+          Why Nirvana / Map / Instagram / Travel / Exam &amp; Certification →
         </a>
       </p>
     </CollapsiblePanel>

@@ -3,14 +3,14 @@
 import type { FaqsModule } from "@/content/types";
 import { CollapsiblePanel } from "../CollapsiblePanel";
 import { ListRowActions } from "../ListRowActions";
+import { SectionIdField } from "../SectionIdField";
 import {
+  reorderItems,
   SortableList,
   SortableRow,
-  reorderItems,
   withSortField,
 } from "../SortableList";
 import { useStableListKeys } from "../useStableListKeys";
-import { SectionIdField } from "../SectionIdField";
 import { ModuleLiveField } from "./ModuleLiveField";
 import type { ModulePanelProps } from "./types";
 

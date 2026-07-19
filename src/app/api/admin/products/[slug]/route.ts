@@ -16,7 +16,7 @@ import {
   upsertPageModules,
   upsertProductDocument,
 } from "@/lib/cms/document-to-db";
-import { prisma } from "@/lib/db";
+import { db } from "@/lib/db";
 import type { ApiRouteParams } from "@/lib/types/api";
 
 type ProductSaveBody = {
@@ -37,7 +37,7 @@ export async function GET(
   if (!session) return jsonUnauthorized();
 
   const { slug } = await context.params;
-  const page = await prisma.page.findUnique({
+  const page = await db.page.findUnique({
     where: { slug },
     include: { courseDoc: true },
   });

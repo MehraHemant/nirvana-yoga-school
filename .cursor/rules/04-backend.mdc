@@ -3,18 +3,18 @@ description: Backend API and database rules
 globs:
   - "app/api/**/*"
   - "lib/**/*"
-  - "prisma/**/*"
+  - "scripts/**/*"
 ---
 
 # Backend
 
 Use:
 
-- mysql2 (raw SQL) for MySQL CMS data access
+- Neon Postgres adapter for CMS data access
 - JWT cookies
 - Route handlers
 
-Prisma CLI may still be used for schema migrations only (`prisma migrate`).
+Run `npm run db:migrate` for versioned Neon schema changes.
 
 Rules:
 

@@ -1,6 +1,6 @@
 import { createEmptyPageModules } from "@/content/page-modules-defaults";
 import type { PageModulesDocument } from "@/content/types";
-import { prisma } from "@/lib/db";
+import { db } from "@/lib/db";
 
 /**
  * Whether a value looks like a usable `PageModulesDocument` (has a hero type).
@@ -26,7 +26,7 @@ export function isPageModulesDocument(
 export async function fetchPageModulesRow(
   slug: string,
 ): Promise<PageModulesDocument | null> {
-  const page = await prisma.page.findUnique({
+  const page = await db.page.findUnique({
     where: { slug },
     select: { pageModules: true },
   });

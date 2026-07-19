@@ -5,9 +5,9 @@ import type { PageType } from "@/content/types/page-ref";
 import { ChevronDown, Copy, Link as LinkIcon, Plus, Trash } from "@/icons";
 import {
   DragHandle,
+  reorderItems,
   SortableList,
   SortableRow,
-  reorderItems,
 } from "./SortableList";
 import { useStableListKeys } from "./useStableListKeys";
 
@@ -121,7 +121,10 @@ export function AdminHeaderNavEditor({
                     aria-label="Menu label"
                     onChange={(event) => {
                       const next = cloneNav(navigation);
-                      next[index] = { ...next[index], label: event.target.value };
+                      next[index] = {
+                        ...next[index],
+                        label: event.target.value,
+                      };
                       update(next);
                     }}
                   />
@@ -215,7 +218,9 @@ function DropdownChildren({ items, onChange }: DropdownChildrenProps) {
   return (
     <div className="admin-nav-editor-children">
       {items.length === 0 ? (
-        <p className="admin-hint admin-hint--tight">No items in this menu yet.</p>
+        <p className="admin-hint admin-hint--tight">
+          No items in this menu yet.
+        </p>
       ) : (
         <SortableList
           ids={keys}

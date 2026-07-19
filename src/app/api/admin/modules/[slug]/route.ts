@@ -8,7 +8,7 @@ import {
 import { getSessionFromRequest } from "@/lib/cms/auth";
 import { resolvePageModulesForEditor } from "@/lib/cms/db-page-modules";
 import { upsertPageModules } from "@/lib/cms/document-to-db";
-import { prisma } from "@/lib/db";
+import { db } from "@/lib/db";
 import type { ApiRouteParams } from "@/lib/types/api";
 
 /**
@@ -25,7 +25,7 @@ export async function GET(
   }
 
   const { slug } = await context.params;
-  const page = await prisma.page.findUnique({
+  const page = await db.page.findUnique({
     where: { slug },
     select: {
       id: true,

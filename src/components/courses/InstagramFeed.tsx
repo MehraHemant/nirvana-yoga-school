@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Container } from "@/components/ui";
+import type { InstagramFeedContent } from "@/content/types/shared-sections";
 import {
   Bookmark,
   ChevronLeft,
@@ -16,9 +17,11 @@ import {
   Play,
   Send,
 } from "@/icons";
-import type { InstagramFeed as InstagramFeedData, InstagramMedia } from "@/lib/instagram";
+import type {
+  InstagramFeed as InstagramFeedData,
+  InstagramMedia,
+} from "@/lib/instagram";
 import { FALLBACK_INSTAGRAM_FEED } from "@/lib/instagram";
-import type { InstagramFeedContent } from "@/content/types/shared-sections";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 
 const _SKELETON_KEYS = ["a", "b", "c", "d", "e", "f", "g", "h"];

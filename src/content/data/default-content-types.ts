@@ -9,7 +9,7 @@
 
 import type { ContentFieldDefinition } from "@/content/types/content-schema";
 
-/** CMS page kinds that match Prisma `PageType` (except blog). */
+/** CMS page kinds that match Neon `PageType` (except blog). */
 export type CmsPageKind = "course" | "online" | "retreat" | "venue" | "site";
 
 /** Human labels for page kinds in admin UI. */
@@ -132,6 +132,25 @@ export const DEFAULT_CONTENT_TYPES: DefaultContentTypeDef[] = [
         required: true,
         defaultValue: "/logo_white.png",
         help: "Shown over the home hero video",
+      },
+      {
+        key: "logo_light_alt",
+        label: "Light logo alt text",
+        type: "text",
+        defaultValue: "Nirvana Yoga School",
+      },
+      {
+        key: "logo_dark_alt",
+        label: "Dark logo alt text",
+        type: "text",
+        defaultValue: "Nirvana Yoga School",
+      },
+      {
+        key: "logo_href",
+        label: "Logo destination",
+        type: "text",
+        defaultValue: "/",
+        help: "Internal path or full HTTPS URL used by both logo variants.",
       },
       {
         key: "ctas",

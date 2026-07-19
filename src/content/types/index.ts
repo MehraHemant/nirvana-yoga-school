@@ -28,6 +28,16 @@ export type {
   ResidentialCourseDocument,
 } from "@/content/types/course";
 export type {
+  BookingPageContent,
+  BookingStep,
+  ContactPageContent,
+  DedicatedPageContent,
+  EnquirePageContent,
+  HomePageContent,
+  HomePageMeta,
+  HomeSectionIdFields,
+} from "@/content/types/dedicated-pages";
+export type {
   LeadStats,
   LeadStatus,
   LeadSubmissionInput,
@@ -86,6 +96,10 @@ export type {
   PageType,
 } from "@/content/types/page-ref";
 export type {
+  PageSeoMeta,
+  SectionIdFields,
+} from "@/content/types/page-seo";
+export type {
   RetreatDocument,
   RetreatScheduleDay,
 } from "@/content/types/retreat-page";
@@ -110,17 +124,3 @@ export type {
   SitePageSection,
   SitePageSubsection,
 } from "@/content/types/site-page";
-export type {
-  BookingPageContent,
-  BookingStep,
-  ContactPageContent,
-  DedicatedPageContent,
-  EnquirePageContent,
-  HomePageContent,
-  HomePageMeta,
-  HomeSectionIdFields,
-} from "@/content/types/dedicated-pages";
-export type {
-  PageSeoMeta,
-  SectionIdFields,
-} from "@/content/types/page-seo";

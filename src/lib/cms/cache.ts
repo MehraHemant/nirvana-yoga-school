@@ -1,15 +1,17 @@
 import { revalidateTag, unstable_cache } from "next/cache";
+import { teacherSlug } from "@/content/teachers-slug";
 import type {
   BlogPostDocument,
   PageModulesDocument,
   SitePageDocument,
+  SitePagePerson,
 } from "@/content/types";
 import { mapPageModulesFromRow } from "@/lib/cms/db-page-modules";
 import {
   mapPageToSitePageDocument,
   pageWithRelations,
 } from "@/lib/cms/db-to-document";
-import { prisma } from "@/lib/db";
+import { db } from "@/lib/db";
 
 /**
  * Cache tag for a content slug.
@@ -19,6 +21,14 @@ import { prisma } from "@/lib/db";
 export function contentCacheTag(slug: string): string {
   return `page:${slug}`;
 }
+
+export type TeacherPickerOption = {
+  id: string;
+  slug: string;
+  name: string;
+  image?: string;
+  role?: string;
+};
 
 /**
  * Invalidate cached content for a slug after admin writes.
@@ -55,7 +65,7 @@ export async function fetchSitePageFromDb(
 ): Promise<SitePageDocument | null> {
   const cached = unstable_cache(
     async () => {
-      const page = await prisma.page.findUnique({
+      const page = await db.page.findUnique({
         where: { slug },
         include: pageWithRelations,
       });
@@ -73,6 +83,112 @@ export async function fetchSitePageFromDb(
 }
 
 /**
+ * Fetch compact, unique faculty options for admin teacher pickers.
+ * Full profiles are deliberately loaded only after a selection changes.
+ */
+export async function fetchTeacherPickerOptions(): Promise<
+  TeacherPickerOption[]
+> {
+  const cached = unstable_cache(
+    async () => {
+      const teacherPage = await db.page.findUnique({
+        where: { slug: "teacher" },
+        select: { id: true },
+      });
+      if (!teacherPage) return [];
+
+      const people = await db.pagePerson.findMany({
+        where: { pageId: teacherPage.id },
+        select: { id: true, name: true, image: true, summary: true },
+        orderBy: { sortOrder: "asc" },
+      });
+      const seen = new Set<string>();
+
+      return people.flatMap((person) => {
+        const name = person.name.trim();
+        const slug = teacherSlug(name);
+        const key = `${slug || name.toLocaleLowerCase()}`;
+        if (!name || seen.has(person.id) || seen.has(key)) return [];
+        seen.add(person.id);
+        seen.add(key);
+        return [
+          {
+            id: person.id,
+            slug,
+            name,
+            image: person.image ?? undefined,
+            role: person.summary ?? undefined,
+          },
+        ];
+      });
+    },
+    ["admin-teacher-picker-options"],
+    { tags: [contentCacheTag("teacher")], revalidate: 3600 },
+  );
+
+  return cached();
+}
+
+/**
+ * Fetch full faculty profiles for only the teachers selected in the picker.
+ *
+ * @param ids - Stable page_people IDs selected by an editor
+ */
+export async function fetchTeacherPickerProfiles(
+  ids: string[],
+): Promise<SitePagePerson[]> {
+  if (ids.length === 0) return [];
+  const teacherPage = await db.page.findUnique({
+    where: { slug: "teacher" },
+    select: { id: true },
+  });
+  if (!teacherPage) return [];
+
+  const people = await db.pagePerson.findMany({
+    where: { pageId: teacherPage.id, id: { in: ids } },
+    select: {
+      id: true,
+      name: true,
+      image: true,
+      summary: true,
+      bio: true,
+      education: true,
+      experience: true,
+      expertise: true,
+    },
+  });
+  const byId = new Map(people.map((person) => [person.id, person]));
+
+  return ids.flatMap((id) => {
+    const person = byId.get(id);
+    if (!person) return [];
+    return [
+      {
+        name: person.name,
+        image: person.image ?? undefined,
+        summary: person.summary ?? undefined,
+        bio: person.bio ?? undefined,
+        education: Array.isArray(person.education as unknown[])
+          ? (person.education as unknown[]).filter(
+              (item): item is string => typeof item === "string",
+            )
+          : [],
+        experience: Array.isArray(person.experience as unknown[])
+          ? (person.experience as unknown[]).filter(
+              (item): item is string => typeof item === "string",
+            )
+          : [],
+        expertise: Array.isArray(person.expertise as unknown[])
+          ? (person.expertise as unknown[]).filter(
+              (item): item is string => typeof item === "string",
+            )
+          : [],
+      },
+    ];
+  });
+}
+
+/**
  * Fetch a course document JSON blob from Postgres.
  *
  * @param slug - Course page slug
@@ -82,7 +198,7 @@ export async function fetchCourseDocumentFromDb<T>(
 ): Promise<T | null> {
   const cached = unstable_cache(
     async () => {
-      const page = await prisma.page.findUnique({
+      const page = await db.page.findUnique({
         where: { slug },
         include: { courseDoc: true },
       });
@@ -109,7 +225,7 @@ export async function fetchPageModulesFromDb(
 ): Promise<PageModulesDocument | null> {
   const cached = unstable_cache(
     async () => {
-      const page = await prisma.page.findUnique({
+      const page = await db.page.findUnique({
         where: { slug },
         select: { pageModules: true, published: true },
       });
@@ -136,7 +252,7 @@ export async function fetchBlogPostFromDb(
 ): Promise<BlogPostDocument | null> {
   const cached = unstable_cache(
     async () => {
-      const post = await prisma.blogPost.findUnique({
+      const post = await db.blogPost.findUnique({
         where: { slug },
       });
       if (!post || !post.published) return null;
@@ -167,7 +283,7 @@ export async function fetchBlogPostFromDb(
 export async function fetchBlogPostsFromDb(): Promise<BlogPostDocument[]> {
   const cached = unstable_cache(
     async () => {
-      const posts = await prisma.blogPost.findMany({
+      const posts = await db.blogPost.findMany({
         where: { published: true },
         orderBy: { publishedAt: "desc" },
       });
@@ -199,7 +315,7 @@ export async function fetchGlobalSettingsFromDb(
 ): Promise<unknown | null> {
   const cached = unstable_cache(
     async () => {
-      const record = await prisma.globalSettings.findUnique({ where: { key } });
+      const record = await db.globalSettings.findUnique({ where: { key } });
       return record?.value ?? null;
     },
     [`global-settings-${key}`],
@@ -222,7 +338,7 @@ export async function getGlobalSettings(key: string): Promise<unknown | null> {
 /**
  * List published page slugs filtered by CMS page type.
  *
- * @param type - Prisma `PageType` value
+ * @param type - Neon `PageType` value
  * @returns Slug strings ordered by title
  */
 export async function fetchPageSlugsByTypeFromDb(
@@ -230,7 +346,7 @@ export async function fetchPageSlugsByTypeFromDb(
 ): Promise<string[]> {
   const cached = unstable_cache(
     async () => {
-      const pages = await prisma.page.findMany({
+      const pages = await db.page.findMany({
         where: { type, published: true },
         select: { slug: true },
         orderBy: { title: "asc" },
@@ -252,7 +368,7 @@ export async function fetchPageSlugsByTypeFromDb(
 export async function fetchBlogSlugsFromDb(): Promise<string[]> {
   const cached = unstable_cache(
     async () => {
-      const posts = await prisma.blogPost.findMany({
+      const posts = await db.blogPost.findMany({
         where: { published: true },
         select: { slug: true },
         orderBy: { publishedAt: "desc" },

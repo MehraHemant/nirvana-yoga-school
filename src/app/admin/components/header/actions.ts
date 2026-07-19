@@ -7,7 +7,7 @@ import {
   globalHeaderToFields,
   headerFieldsToGlobalHeader,
 } from "@/lib/cms/header-fields";
-import { prisma } from "@/lib/db";
+import { db } from "@/lib/db";
 
 /**
  * Saves the global site header from the Header component form.
@@ -16,7 +16,7 @@ import { prisma } from "@/lib/db";
  */
 export async function saveSiteHeaderAction(formData: FormData) {
   const fields = readDataFromFormData(formData);
-  const existing = await prisma.globalSettings.findUnique({
+  const existing = await db.globalSettings.findUnique({
     where: { key: "header" },
   });
   const prev = (existing?.value ?? {}) as Record<string, unknown>;
@@ -24,7 +24,7 @@ export async function saveSiteHeaderAction(formData: FormData) {
 
   const header = headerFieldsToGlobalHeader(fields, prevNav as never);
 
-  await prisma.globalSettings.upsert({
+  await db.globalSettings.upsert({
     where: { key: "header" },
     create: { key: "header", value: header },
     update: { value: header },
@@ -40,13 +40,19 @@ export async function saveSiteHeaderAction(formData: FormData) {
  * Loads header field values for the admin editor (with defaults).
  */
 export async function loadSiteHeaderFields(): Promise<Record<string, unknown>> {
-  const row = await prisma.globalSettings.findUnique({
+  const row = await db.globalSettings.findUnique({
     where: { key: "header" },
   });
   if (!row?.value || typeof row.value !== "object") {
     return globalHeaderToFields({
       navigation: PRIMARY_NAV,
-      logo: { light: "/logo.png", dark: "/logo_white.png" },
+      logo: {
+        light: "/logo.png",
+        dark: "/logo_white.png",
+        lightAlt: "Nirvana Yoga School",
+        darkAlt: "Nirvana Yoga School",
+        href: "/",
+      },
       ctas: [
         {
           label: "Sign in",
@@ -68,7 +74,12 @@ export async function loadSiteHeaderFields(): Promise<Record<string, unknown>> {
     return globalHeaderToFields(raw as never);
   }
   if (typeof raw.logo_light === "string") {
-    return raw;
+    return {
+      logo_light_alt: "Nirvana Yoga School",
+      logo_dark_alt: "Nirvana Yoga School",
+      logo_href: "/",
+      ...raw,
+    };
   }
   return globalHeaderToFields(raw as never);
 }

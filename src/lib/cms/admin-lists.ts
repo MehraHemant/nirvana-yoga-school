@@ -1,6 +1,6 @@
 import "server-only";
 
-import { isDbEnabled, prisma } from "@/lib/db";
+import { isDbEnabled, db } from "@/lib/db";
 import type { AdminBlogRow, AdminPageRow } from "@/lib/types/db";
 
 export type { AdminBlogRow, AdminPageRow } from "@/lib/types/db";
@@ -13,7 +13,7 @@ export type { AdminBlogRow, AdminPageRow } from "@/lib/types/db";
 export async function listAdminPages(): Promise<AdminPageRow[]> {
   if (!isDbEnabled()) return [];
 
-  return prisma.page.findMany({
+  return db.page.findMany({
     orderBy: { updatedAt: "desc" },
     select: {
       id: true,
@@ -34,7 +34,7 @@ export async function listAdminPages(): Promise<AdminPageRow[]> {
 export async function listAdminCourses(): Promise<AdminPageRow[]> {
   if (!isDbEnabled()) return [];
 
-  return prisma.page.findMany({
+  return db.page.findMany({
     where: { type: { in: ["course", "online"] } },
     orderBy: { updatedAt: "desc" },
     select: {
@@ -56,7 +56,7 @@ export async function listAdminCourses(): Promise<AdminPageRow[]> {
 export async function listAdminBlogPosts(): Promise<AdminBlogRow[]> {
   if (!isDbEnabled()) return [];
 
-  return prisma.blogPost.findMany({
+  return db.blogPost.findMany({
     orderBy: { updatedAt: "desc" },
     select: {
       id: true,

@@ -69,9 +69,7 @@ export function CollapsiblePanel({
             ) : null}
           </span>
         </button>
-        {actions ? (
-          <div className="admin-panel-actions">{actions}</div>
-        ) : null}
+        {actions ? <div className="admin-panel-actions">{actions}</div> : null}
       </div>
       {open && (description || children) ? (
         <div className="admin-panel-body">

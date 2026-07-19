@@ -205,8 +205,8 @@ export default async function AdminDashboardPage() {
         <div className="admin-card">
           <h2>Leads & enquiries</h2>
           <p className="admin-hint">
-            Connect MySQL via DATABASE_URL to track contact and enquiry form
-            submissions on the dashboard.
+            Connect Neon Postgres via NEON_DB_URL to track contact and enquiry
+            form submissions on the dashboard.
           </p>
         </div>
       )}
@@ -218,8 +218,8 @@ export default async function AdminDashboardPage() {
             <h2>Data source</h2>
             <p className="admin-hint">
               {dbEnabled
-                ? "MySQL is connected via DATABASE_URL."
-                : "DATABASE_URL is not set — public site uses JSON files."}
+                ? "Neon Postgres is connected via NEON_DB_URL."
+                : "NEON_DB_URL is not set — CMS data is unavailable."}
             </p>
           </div>
           <div className="admin-card">

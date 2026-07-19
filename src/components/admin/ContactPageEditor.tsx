@@ -7,8 +7,8 @@ import { AdminSectionJumpNav } from "@/components/admin/AdminSectionJumpNav";
 import { CollapsiblePanel } from "@/components/admin/CollapsiblePanel";
 import { ImageField } from "@/components/admin/ImageField";
 import { PageSeoFields } from "@/components/admin/PageSeoFields";
-import { toSectionDomId } from "@/components/admin/sectionDomId";
 import { SectionIdField } from "@/components/admin/SectionIdField";
+import { toSectionDomId } from "@/components/admin/sectionDomId";
 import { TextField } from "@/components/admin/TextField";
 import { useSectionScrollSpy } from "@/components/admin/useSectionScrollSpy";
 import { useStableListKeys } from "@/components/admin/useStableListKeys";
@@ -155,9 +155,7 @@ export function ContactPageEditor({
             <SectionIdField
               fieldId="contact-hero-id"
               value={doc.hero._id}
-              onChange={(_id) =>
-                setDoc({ ...doc, hero: { ...doc.hero, _id } })
-              }
+              onChange={(_id) => setDoc({ ...doc, hero: { ...doc.hero, _id } })}
             />
             <ImageField
               label="Hero image"
@@ -319,9 +317,7 @@ export function ContactPageEditor({
             <SectionIdField
               fieldId="contact-form-id"
               value={doc.form._id}
-              onChange={(_id) =>
-                setDoc({ ...doc, form: { ...doc.form, _id } })
-              }
+              onChange={(_id) => setDoc({ ...doc, form: { ...doc.form, _id } })}
             />
             <TextField
               label="Eyebrow"

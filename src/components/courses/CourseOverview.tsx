@@ -150,7 +150,7 @@ export default function CourseOverview({
             whileInView="visible"
             viewport={VIEWPORT_ONCE}
             variants={fadeUp}
-            className="max-w-3xl space-y-6"
+            className="space-y-6"
           >
             <p className="type-lead text-muted first-letter:float-left first-letter:mr-4 first-letter:mt-1 first-letter:font-serif first-letter:text-6xl first-letter:font-bold first-letter:leading-[0.8] first-letter:text-primary">
               {overview}

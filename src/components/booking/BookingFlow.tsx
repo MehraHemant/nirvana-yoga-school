@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import { useMemo, useState } from "react";
+import { DarkMediaHero } from "@/components/hero";
 import {
   Container,
   PhoneInput,
@@ -247,53 +247,36 @@ export function BookingFlow({
   return (
     <>
       {shouldRenderSection(content.hero, true) ? (
-      <section
-        id={optionalSectionHtmlId(content.hero._id)}
-        data-transparent-header="true"
-        className="relative min-h-[52svh] overflow-hidden bg-ink text-white lg:min-h-[58svh]"
-      >
-        <Image
-          src={content.hero.image}
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover object-center"
-        />
-        <div
-          className="absolute inset-0 bg-linear-to-r from-ink/90 via-ink/65 to-ink/25"
-          aria-hidden="true"
-        />
-        <div
-          className="absolute inset-x-0 top-0 h-48 bg-linear-to-b from-ink/75 to-transparent"
-          aria-hidden="true"
-        />
-        <div
-          className="pointer-events-none absolute -right-16 top-1/4 h-72 w-72 rounded-full bg-primary/20 blur-[100px]"
-          aria-hidden="true"
-        />
-        <Container
-          size="xl"
-          className="relative z-10 flex min-h-[52svh] flex-col justify-center pb-12 pt-[calc(var(--site-header-height,4.75rem)+3rem)] sm:pb-14 sm:pt-[calc(var(--site-header-height,4.75rem)+3.5rem)] lg:min-h-[58svh] lg:pb-16 lg:pt-[calc(var(--site-header-height,4.75rem)+4rem)]"
+        <DarkMediaHero
+          id={optionalSectionHtmlId(content.hero._id)}
+          image={content.hero.image}
+          imageAlt=""
         >
-          <div className="max-w-2xl space-y-5">
-            <span className="type-eyebrow font-semibold tracking-widest text-white/80 uppercase">
-              {content.hero.eyebrow}
-            </span>
-            <h1 className="font-serif text-4xl font-medium leading-[1.08] tracking-tight text-white sm:text-5xl md:text-6xl">
-              {content.hero.title}
-            </h1>
-            <p className="type-lead max-w-xl pt-1 font-sans text-base leading-relaxed text-white/85 sm:text-lg">
-              {content.hero.lead}
-            </p>
-          </div>
-        </Container>
-      </section>
+          <Container
+            size="xl"
+            className="relative z-10 flex min-h-[52svh] flex-col justify-center pb-12 pt-[calc(var(--site-header-height,4.75rem)+3rem)] sm:pb-14 sm:pt-[calc(var(--site-header-height,4.75rem)+3.5rem)] lg:min-h-[58svh] lg:pb-16 lg:pt-[calc(var(--site-header-height,4.75rem)+4rem)]"
+          >
+            <div className="max-w-2xl space-y-5">
+              <span className="type-eyebrow font-semibold tracking-widest text-white/80 uppercase">
+                {content.hero.eyebrow}
+              </span>
+              <h1 className="font-serif text-4xl font-medium leading-[1.08] tracking-tight text-white sm:text-5xl md:text-6xl">
+                {content.hero.title}
+              </h1>
+              <p className="type-lead max-w-xl pt-1 font-sans text-base leading-relaxed text-white/85 sm:text-lg">
+                {content.hero.lead}
+              </p>
+            </div>
+          </Container>
+        </DarkMediaHero>
       ) : null}
 
       <section className="bg-paper py-16 md:py-20">
         <Container size="lg">
-          {shouldRenderSection(content.stepsSection, content.steps.length > 0) ? (
+          {shouldRenderSection(
+            content.stepsSection,
+            content.steps.length > 0,
+          ) ? (
             <ol
               id={optionalSectionHtmlId(content.stepsSection?._id)}
               className="mb-10 grid gap-4 sm:grid-cols-3"

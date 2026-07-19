@@ -1,3 +1,4 @@
+import bcrypt from "bcryptjs";
 import { PRIMARY_NAV, SIGN_IN_URL } from "@/constants/navigation";
 import { BLOG_POSTS } from "@/content/data/blog";
 import {
@@ -21,8 +22,7 @@ import {
 import type { SitePageDocument, SitePageSection } from "@/content/types";
 import { COURSES_DATA } from "@/data/coursesData";
 import { syncDefaultContentTypes } from "@/lib/cms/content-types-sync";
-import { prisma } from "@/lib/db/node";
-import bcrypt from "bcryptjs";
+import { db } from "@/lib/db/node";
 import { seedPageModulesOnly } from "./seed-page-modules";
 
 type PageType = "course" | "online" | "retreat" | "venue" | "site" | "blog";
@@ -55,7 +55,7 @@ async function upsertSitePageDocument(doc: SitePageDocument) {
           ...(doc.meta ? { meta: doc.meta } : {}),
         };
 
-  const page = await prisma.page.upsert({
+  const page = await db.page.upsert({
     where: { slug: doc.slug },
     create: {
       slug: doc.slug,
@@ -80,19 +80,19 @@ async function upsertSitePageDocument(doc: SitePageDocument) {
     },
   });
 
-  await prisma.pageSection.deleteMany({ where: { pageId: page.id } });
-  await prisma.pagePackage.deleteMany({ where: { pageId: page.id } });
-  await prisma.pageGalleryImage.deleteMany({ where: { pageId: page.id } });
-  await prisma.pageCard.deleteMany({ where: { pageId: page.id } });
-  await prisma.pagePerson.deleteMany({ where: { pageId: page.id } });
-  await prisma.pageHighlight.deleteMany({ where: { pageId: page.id } });
+  await db.pageSection.deleteMany({ where: { pageId: page.id } });
+  await db.pagePackage.deleteMany({ where: { pageId: page.id } });
+  await db.pageGalleryImage.deleteMany({ where: { pageId: page.id } });
+  await db.pageCard.deleteMany({ where: { pageId: page.id } });
+  await db.pagePerson.deleteMany({ where: { pageId: page.id } });
+  await db.pageHighlight.deleteMany({ where: { pageId: page.id } });
 
   for (const [index, section] of doc.sections.entries()) {
     await createSection(page.id, index, section);
   }
 
   for (const [index, pkg] of (doc.packages ?? []).entries()) {
-    await prisma.pagePackage.create({
+    await db.pagePackage.create({
       data: {
         pageId: page.id,
         sortOrder: index,
@@ -104,7 +104,7 @@ async function upsertSitePageDocument(doc: SitePageDocument) {
   }
 
   for (const [index, image] of (doc.gallery ?? []).entries()) {
-    await prisma.pageGalleryImage.create({
+    await db.pageGalleryImage.create({
       data: {
         pageId: page.id,
         sortOrder: index,
@@ -115,7 +115,7 @@ async function upsertSitePageDocument(doc: SitePageDocument) {
   }
 
   for (const [index, card] of (doc.cards ?? []).entries()) {
-    await prisma.pageCard.create({
+    await db.pageCard.create({
       data: {
         pageId: page.id,
         sortOrder: index,
@@ -127,7 +127,7 @@ async function upsertSitePageDocument(doc: SitePageDocument) {
   }
 
   for (const [index, person] of (doc.people ?? []).entries()) {
-    await prisma.pagePerson.create({
+    await db.pagePerson.create({
       data: {
         pageId: page.id,
         sortOrder: index,
@@ -143,7 +143,7 @@ async function upsertSitePageDocument(doc: SitePageDocument) {
   }
 
   for (const [index, highlight] of (doc.highlights ?? []).entries()) {
-    await prisma.pageHighlight.create({
+    await db.pageHighlight.create({
       data: {
         pageId: page.id,
         sortOrder: index,
@@ -160,7 +160,7 @@ async function createSection(
   sortOrder: number,
   section: SitePageSection,
 ) {
-  const created = await prisma.pageSection.create({
+  const created = await db.pageSection.create({
     data: {
       pageId,
       sortOrder,
@@ -175,13 +175,13 @@ async function createSection(
   });
 
   for (const [index, item] of (section.items ?? []).entries()) {
-    await prisma.sectionItem.create({
+    await db.sectionItem.create({
       data: { sectionId: created.id, sortOrder: index, value: item },
     });
   }
 
   for (const [index, subsection] of (section.subsections ?? []).entries()) {
-    const sub = await prisma.sectionSubsection.create({
+    const sub = await db.sectionSubsection.create({
       data: {
         sectionId: created.id,
         sortOrder: index,
@@ -192,7 +192,7 @@ async function createSection(
     });
 
     for (const [itemIndex, item] of (subsection.items ?? []).entries()) {
-      await prisma.subsectionItem.create({
+      await db.subsectionItem.create({
         data: {
           subsectionId: sub.id,
           sortOrder: itemIndex,
@@ -219,7 +219,7 @@ async function upsertCoursePage(
         ? document.heroImage
         : "";
 
-  const page = await prisma.page.upsert({
+  const page = await db.page.upsert({
     where: { slug },
     create: {
       slug,
@@ -237,7 +237,7 @@ async function upsertCoursePage(
     update: { type, title, image },
   });
 
-  await prisma.courseDocument.upsert({
+  await db.courseDocument.upsert({
     where: { pageId: page.id },
     create: { pageId: page.id, document },
     update: { document },
@@ -246,20 +246,20 @@ async function upsertCoursePage(
 
 async function seedNavigation() {
   for (const [key, config] of Object.entries(NAV_DROPDOWN_ENTRIES)) {
-    const group = await prisma.navigationGroup.upsert({
+    const group = await db.navigationGroup.upsert({
       where: { key },
       create: { key, label: key },
       update: { label: key },
     });
 
-    await prisma.navigationItem.deleteMany({ where: { groupId: group.id } });
+    await db.navigationItem.deleteMany({ where: { groupId: group.id } });
 
     const allItems = [...config.items];
     if (config.seeAll) allItems.push(config.seeAll);
 
     for (const item of allItems.sort((a, b) => a.sort - b.sort)) {
       if (isNavPageRef(item)) {
-        await prisma.navigationItem.create({
+        await db.navigationItem.create({
           data: {
             groupId: group.id,
             sortOrder: item.sort,
@@ -269,7 +269,7 @@ async function seedNavigation() {
           },
         });
       } else {
-        await prisma.navigationItem.create({
+        await db.navigationItem.create({
           data: {
             groupId: group.id,
             sortOrder: item.sort,
@@ -294,7 +294,13 @@ async function seedGlobalSettings() {
       key: "header",
       value: {
         navigation: PRIMARY_NAV,
-        logo: { light: "/logo.png", dark: "/logo_white.png" },
+        logo: {
+          light: "/logo.png",
+          dark: "/logo_white.png",
+          lightAlt: "Nirvana Yoga School",
+          darkAlt: "Nirvana Yoga School",
+          href: "/",
+        },
         ctas: [
           {
             label: "Sign in",
@@ -409,7 +415,7 @@ async function seedGlobalSettings() {
   ];
 
   for (const row of defaults) {
-    await prisma.globalSettings.upsert({
+    await db.globalSettings.upsert({
       where: { key: row.key },
       create: row,
       update: { value: row.value },
@@ -419,23 +425,23 @@ async function seedGlobalSettings() {
 }
 
 /**
- * Deletes all rows from a table when it exists (Hostinger-safe).
+ * Deletes all rows from a table when it exists (Neon-safe).
  *
- * @param table - MySQL table name
+ * @param table - Postgres table name
  */
 async function clearTableIfExists(table: string) {
-  const rows = (await prisma.$queryRawUnsafe(
+  const rows = (await db.$queryRawUnsafe(
     `SELECT COUNT(*) AS c FROM information_schema.tables
-     WHERE table_schema = DATABASE() AND table_name = ?`,
+     WHERE table_schema = 'public' AND table_name = ?`,
     table,
   )) as Array<{ c: bigint | number }>;
   const count = Number(rows[0]?.c ?? 0);
   if (count === 0) return;
-  await prisma.$executeRawUnsafe(`DELETE FROM \`${table}\``);
+  await db.$executeRawUnsafe(`DELETE FROM "${table}"`);
 }
 
 /**
- * Retries a DB write on Hostinger deadlocks / transient disconnects.
+ * Retries a DB write on Neon serialization and transient connection failures.
  *
  * @param label - Log label for the operation
  * @param fn - Async write
@@ -457,11 +463,11 @@ async function withRetry<T>(
           ? String((error as { code?: string }).code)
           : "";
       const retryable =
-        code === "P2034" ||
-        code === "P1001" ||
-        code === "P1017" ||
+        code === "40001" ||
+        code === "40P01" ||
+        code === "08006" ||
         (error instanceof Error &&
-          error.message.includes("Can't reach database server"));
+          error.message.toLowerCase().includes("connection"));
       if (!retryable || i === attempts) throw error;
       const waitMs = 1500 * i;
       console.warn(`  retry ${i}/${attempts} ${label} (${code || "error"})…`);
@@ -475,8 +481,7 @@ async function main() {
   console.log("Seeding CMS database…");
 
   // Wipe rows (not DROP) so a re-seed never requires migrate again.
-  // Order respects FKs; missing tables are skipped (empty Hostinger DB).
-  await prisma.$executeRawUnsafe("SET FOREIGN_KEY_CHECKS = 0");
+  // Order respects FKs; missing tables are skipped.
   for (const table of [
     "content_references",
     "content_items",
@@ -505,10 +510,9 @@ async function main() {
   ]) {
     await clearTableIfExists(table);
   }
-  await prisma.$executeRawUnsafe("SET FOREIGN_KEY_CHECKS = 1");
   console.log("  wiped existing CMS rows");
 
-  await syncDefaultContentTypes(prisma);
+  await syncDefaultContentTypes(db);
   console.log("  content types: synced");
 
   await seedGlobalSettings();
@@ -531,7 +535,8 @@ async function main() {
     {
       slug: "enquire-now",
       title: "Enquire Now",
-      description: "Enquire about yoga teacher training, retreats, and courses.",
+      description:
+        "Enquire about yoga teacher training, retreats, and courses.",
       contentData: DEFAULT_ENQUIRE_PAGE_CONTENT,
     },
     {
@@ -543,7 +548,7 @@ async function main() {
     },
   ] as const) {
     await withRetry(`${row.slug} page`, () =>
-      prisma.page.upsert({
+      db.page.upsert({
         where: { slug: row.slug },
         create: {
           slug: row.slug,
@@ -617,7 +622,7 @@ async function main() {
 
   for (const post of BLOG_POSTS) {
     await withRetry(`blog ${post.slug}`, () =>
-      prisma.blogPost.upsert({
+      db.blogPost.upsert({
         where: { slug: post.slug },
         create: {
           slug: post.slug,
@@ -649,7 +654,7 @@ async function main() {
   const adminEmail = "admin@nirvanayogaschoolindia.com";
   const passwordHash = await bcrypt.hash("admin123", 12);
   await withRetry("admin user", () =>
-    prisma.adminUser.upsert({
+    db.adminUser.upsert({
       where: { email: adminEmail },
       create: {
         email: adminEmail,
@@ -661,18 +666,16 @@ async function main() {
   );
   console.log(`  admin user: ${adminEmail}`);
 
-  const teacherPage = await prisma.page.findUnique({
+  const teacherPage = await db.page.findUnique({
     where: { slug: "teacher" },
   });
   if (!teacherPage) {
     throw new Error('Teacher page was not seeded from "site-pages.json".');
   }
-  const peopleCount = await prisma.pagePerson.count({
-    where: { page: { slug: "teacher" } },
+  const peopleCount = await db.pagePerson.count({
+    where: { pageId: teacherPage.id },
   });
-  console.log(
-    `  teacher page: ok (${peopleCount} people)`,
-  );
+  console.log(`  teacher page: ok (${peopleCount} people)`);
 
   console.log("Seed complete.");
 }
@@ -683,5 +686,5 @@ main()
     process.exit(1);
   })
   .finally(async () => {
-    await prisma.$disconnect();
+    await db.$disconnect();
   });

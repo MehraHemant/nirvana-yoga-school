@@ -8,7 +8,7 @@ import {
 } from "@/lib/cms/api-response";
 import { getSessionFromRequest } from "@/lib/cms/auth";
 import { upsertBlogPost } from "@/lib/cms/document-to-db";
-import { prisma } from "@/lib/db";
+import { db } from "@/lib/db";
 import type { ApiRouteParams } from "@/lib/types/api";
 
 /**
@@ -24,7 +24,7 @@ export async function GET(
   }
 
   const { slug } = await context.params;
-  const post = await prisma.blogPost.findUnique({ where: { slug } });
+  const post = await db.blogPost.findUnique({ where: { slug } });
 
   if (!post) {
     return jsonNotFound();

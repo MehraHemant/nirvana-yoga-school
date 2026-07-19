@@ -17,10 +17,7 @@ import {
 import { optionalSectionHtmlId } from "@/lib/html-id";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 
-const ICON_BY_KEY: Record<
-  HomeYogaAllianceCertIconKey,
-  typeof Leaf
-> = {
+const ICON_BY_KEY: Record<HomeYogaAllianceCertIconKey, typeof Leaf> = {
   leaf: Leaf,
   compass: Compass,
   certificate: Certificate,
@@ -156,8 +153,7 @@ export default function YogaAllianceSection({
           className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8"
         >
           {certifications.map((cert) => {
-            const WatermarkIcon =
-              ICON_BY_KEY[cert.iconKey] ?? ICON_BY_KEY.leaf;
+            const WatermarkIcon = ICON_BY_KEY[cert.iconKey] ?? ICON_BY_KEY.leaf;
             return (
               <motion.div
                 key={cert.hours}

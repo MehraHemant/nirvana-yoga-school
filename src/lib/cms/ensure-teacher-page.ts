@@ -5,7 +5,7 @@ import {
 } from "@/content/repositories/teachers";
 import type { SitePageDocument } from "@/content/types";
 import { upsertSitePageDocument } from "@/lib/cms/document-to-db";
-import { prisma } from "@/lib/db";
+import { db } from "@/lib/db";
 
 /**
  * Ensures the published `teacher` faculty page exists in MySQL.
@@ -17,7 +17,7 @@ export async function ensureTeacherPage(): Promise<{
   created: boolean;
   peopleCount: number;
 }> {
-  const existing = await prisma.page.findUnique({
+  const existing = await db.page.findUnique({
     where: { slug: TEACHER_PAGE_SLUG },
     include: { _count: { select: { people: true } } },
   });
@@ -50,12 +50,12 @@ export async function ensureTeacherPage(): Promise<{
   };
 
   await upsertSitePageDocument(doc);
-  await prisma.page.update({
+  await db.page.update({
     where: { slug: TEACHER_PAGE_SLUG },
     data: { published: true },
   });
 
-  const peopleCount = await prisma.pagePerson.count({
+  const peopleCount = await db.pagePerson.count({
     where: { page: { slug: TEACHER_PAGE_SLUG } },
   });
 

@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-import { isDbEnabled, prisma } from "@/lib/db";
+import { isDbEnabled, db } from "@/lib/db";
 import type { AdminSession } from "./auth-session";
 
 export type { AdminSession } from "./auth-session";
@@ -46,7 +46,7 @@ export async function authenticateAdmin(
 ): Promise<AdminSession | null> {
   if (!isDbEnabled()) return null;
 
-  const user = await prisma.adminUser.findUnique({ where: { email } });
+  const user = await db.adminUser.findUnique({ where: { email } });
   if (!user) return null;
 
   const valid = await verifyPassword(password, user.passwordHash);

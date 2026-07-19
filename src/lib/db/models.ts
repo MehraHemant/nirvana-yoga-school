@@ -1,6 +1,6 @@
 /**
- * Table metadata for the mysql2 Prisma-compatible client.
- * JS uses camelCase; MySQL columns use snake_case via Prisma `@map`.
+ * Table metadata for the Neon Postgres Neon-compatible client.
+ * JS uses camelCase; Postgres columns use snake_case via Neon `@map`.
  */
 
 export type ModelName =
@@ -28,13 +28,13 @@ export type ModelName =
   | "subsectionItem";
 
 export type ModelMeta = {
-  /** MySQL table name */
+  /** Postgres table name */
   table: string;
   /** Primary key field (camelCase) */
   primaryKey: string;
   /** camelCase field → DB column */
   fields: Record<string, string>;
-  /** Fields stored as MySQL JSON */
+  /** Fields stored as Postgres JSONB */
   jsonFields: Set<string>;
   /** Fields that must be coerced from 0/1 to boolean */
   booleanFields: Set<string>;
@@ -515,12 +515,12 @@ export const MODELS: Record<ModelName, ModelMeta> = {
  *
  * @param model - Model metadata
  * @param field - camelCase field name
- * @returns Quoted column name
+ * @returns Postgres-quoted column name
  */
 export function columnOf(model: ModelMeta, field: string): string {
   const col = model.fields[field];
   if (!col) {
     throw new Error(`Unknown field "${field}" on table ${model.table}`);
   }
-  return `\`${col}\``;
+  return `"${col}"`;
 }

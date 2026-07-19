@@ -126,10 +126,7 @@ export default function CourseEligibility({
   }));
 
   return (
-    <section
-      id={htmlId}
-      className="py-20 sm:py-28 bg-white overflow-hidden"
-    >
+    <section id={htmlId} className="py-20 sm:py-28 bg-white overflow-hidden">
       <Container size="2xl">
         <div className="grid gap-12 lg:grid-cols-12 lg:gap-16 items-start">
           {/* Column 1 (Left 4-cols): Header & Intro */}

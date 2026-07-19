@@ -13,7 +13,7 @@ import {
   jsonUnavailable,
 } from "@/lib/cms/api-response";
 import { getSessionFromRequest } from "@/lib/cms/auth";
-import { prisma } from "@/lib/db";
+import { db } from "@/lib/db";
 import { HTTP } from "@/lib/types/api";
 
 const uploadCounts = new Map<string, { count: number; resetAt: number }>();
@@ -91,7 +91,7 @@ export async function POST(request: Request) {
     filename: file.name,
   });
 
-  const asset = await prisma.mediaAsset.create({
+  const asset = await db.mediaAsset.create({
     data: {
       url: uploaded.url,
       cdnKey: uploaded.cdnKey,

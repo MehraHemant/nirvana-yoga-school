@@ -2,6 +2,7 @@ import type { TeacherProfile } from "@/components/home/TeachersSection";
 import type { MappedSitePage } from "@/content/mappers/site-page";
 import type { PageModulesDocument, SitePageDocument } from "@/content/types";
 import type {
+  ExamCertificationContent,
   InstagramFeedContent,
   ResidentialLifeContent,
   ReviewsContent,
@@ -27,6 +28,8 @@ export type SitePageData = {
   instagram: InstagramFeedContent | null;
   /** Shared travel guide from CMS */
   travel: TravelGuideContent | null;
+  /** Shared exam and certification content from CMS */
+  examCertification: ExamCertificationContent | null;
 };
 
 export type SiteClientProps = Pick<
@@ -41,6 +44,7 @@ export type SiteClientProps = Pick<
   | "siteMap"
   | "instagram"
   | "travel"
+  | "examCertification"
 > & {
   modules?: PageModulesDocument | null;
 };

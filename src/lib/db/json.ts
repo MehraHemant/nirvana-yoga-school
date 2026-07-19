@@ -1,5 +1,5 @@
 /**
- * Parses a MySQL JSON column value into a JS value.
+ * Parses a Postgres JSONB column value into a JS value.
  *
  * @param value - Driver string, object, Buffer, or null
  * @param fallback - Value when null/invalid
@@ -26,7 +26,7 @@ export function parseJson<T>(value: unknown, fallback: T): T {
 }
 
 /**
- * Serializes a value for a MySQL JSON column.
+ * Serializes a value for a Postgres JSONB column.
  *
  * @param value - JS value to store
  * @returns JSON string

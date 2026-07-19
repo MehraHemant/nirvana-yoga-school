@@ -33,6 +33,7 @@ export async function renderSitePage(page: SitePageDocument) {
     siteMap: data.siteMap,
     instagram: data.instagram,
     travel: data.travel,
+    examCertification: data.examCertification,
   };
 
   let client = <SiteClient {...props} />;
@@ -42,10 +43,7 @@ export async function renderSitePage(page: SitePageDocument) {
 
   const showMap =
     (data.modules?.flags.showMap ?? data.mapped.showMap) &&
-    shouldRenderSection(
-      data.siteMap,
-      Boolean(data.siteMap?.embedUrl?.trim()),
-    );
+    shouldRenderSection(data.siteMap, Boolean(data.siteMap?.embedUrl?.trim()));
 
   return (
     <>

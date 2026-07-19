@@ -656,7 +656,7 @@ export function ModulePageEditor({
                 {...panelProps(
                   "module-flags",
                   stepOf("module-flags"),
-                  "Show or hide shared Why Nirvana / Map / Instagram / Travel on this page.",
+                  "Show or hide shared Why Nirvana / Map / Instagram / Travel / Exam & Certification on this page.",
                 )}
               />
             </div>

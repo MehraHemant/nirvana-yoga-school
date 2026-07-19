@@ -2,6 +2,7 @@
  * Default CMS documents for dedicated routes — mirrors current hardcoded copy.
  */
 
+import banner1 from "@/assets/images/home/banner_1.webp";
 import type {
   BookingPageContent,
   ContactPageContent,
@@ -120,7 +121,7 @@ export const DEFAULT_HOME_PAGE_CONTENT: HomePageContent = {
         alt: "Sunrise yoga by the Ganges",
       },
       {
-        src: `${LIVE_SITE}/img/home/banner_1.webp`,
+        src: banner1.src,
         alt: "Meditation session at Nirvana Yoga School",
       },
     ],
@@ -411,8 +412,7 @@ export const DEFAULT_HOME_PAGE_CONTENT: HomePageContent = {
         ],
       },
       {
-        title:
-          "200 Hour Meditation, Yoga Nidra & Hatha Yoga Teacher Training",
+        title: "200 Hour Meditation, Yoga Nidra & Hatha Yoga Teacher Training",
         duration: "25 Days",
         level: "Beginner to Intermediate",
         certification: "RYT-200, Yoga Alliance",
@@ -446,8 +446,7 @@ export const DEFAULT_HOME_PAGE_CONTENT: HomePageContent = {
         ],
       },
       {
-        title:
-          "300 Hour Hatha, Ashtanga, Vinyasa & Ayurveda Teacher Training",
+        title: "300 Hour Hatha, Ashtanga, Vinyasa & Ayurveda Teacher Training",
         duration: "29 Days",
         level: "Intermediate to Advanced",
         certification: "RYT-300, Yoga Alliance",

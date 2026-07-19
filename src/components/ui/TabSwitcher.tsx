@@ -54,7 +54,7 @@ export default function TabSwitcher({
 
   return (
     <div
-      className={`flex justify-center overflow-x-auto scrollbar-none pb-2 px-4 ${className}`}
+      className={`no-scrollbar flex justify-center overflow-x-auto pb-2 px-4 ${className}`}
     >
       <div className={`${wrapperClasses} bg-white`}>
         {tabs.map((tab) => {

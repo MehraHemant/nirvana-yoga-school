@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Image from "next/image";
+import { HeroFrame, HeroMediaImage } from "@/components/hero";
 import { Button, Container, Heading, Pill } from "@/components/ui";
 import type { YttHubContent } from "@/content/types/shared-sections";
 import { optionalSectionHtmlId } from "@/lib/html-id";
@@ -25,15 +25,14 @@ export default function YttHubHeroSection({
   htmlId,
 }: YttHubHeroSectionProps) {
   return (
-    <section
+    <HeroFrame
       id={optionalSectionHtmlId(htmlId)}
-      data-transparent-header="true"
+      transparentHeader
       className="relative min-h-[460px] overflow-hidden md:min-h-[520px]"
     >
-      <Image
+      <HeroMediaImage
         src={heroImage}
         alt="Yoga teacher training by the Ganges in Rishikesh"
-        fill
         priority
         className="object-cover"
         sizes="100vw"
@@ -66,6 +65,6 @@ export default function YttHubHeroSection({
           </div>
         </motion.div>
       </Container>
-    </section>
+    </HeroFrame>
   );
 }

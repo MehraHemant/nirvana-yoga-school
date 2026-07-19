@@ -1,16 +1,16 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { invalidateGlobalSettingsCache } from "@/lib/cms/cache";
 import type { NavItem, NavLink } from "@/content/data/navigation/types";
 import type { GlobalHeader } from "@/content/types/global-settings";
 import { getServerSession, requireAdmin } from "@/lib/cms/auth";
+import { invalidateGlobalSettingsCache } from "@/lib/cms/cache";
 import {
   DEFAULT_HEADER_CTAS,
   normalizeHeaderCtas,
   prepareHeaderForSave,
 } from "@/lib/cms/header-fields";
-import { prisma } from "@/lib/db";
+import { db } from "@/lib/db";
 
 /** Row shape for `navigation_items` create payloads. */
 type NavigationItemCreateInput = {
@@ -29,7 +29,7 @@ type NavigationItemCreateInput = {
  * @returns Header nav items (empty when unset)
  */
 export async function loadHeaderNavigation(): Promise<NavItem[]> {
-  const record = await prisma.globalSettings.findUnique({
+  const record = await db.globalSettings.findUnique({
     where: { key: "header" },
   });
   if (!record?.value || typeof record.value !== "object") return [];
@@ -51,7 +51,7 @@ export async function saveHeaderNavigationAction(
     return { error: "Invalid navigation payload." };
   }
 
-  const record = await prisma.globalSettings.findUnique({
+  const record = await db.globalSettings.findUnique({
     where: { key: "header" },
   });
   const previous =
@@ -61,7 +61,13 @@ export async function saveHeaderNavigationAction(
 
   const nextHeader = prepareHeaderForSave({
     navigation,
-    logo: previous?.logo ?? { light: "/logo.png", dark: "/logo_white.png" },
+    logo: previous?.logo ?? {
+      light: "/logo.png",
+      dark: "/logo_white.png",
+      lightAlt: "Nirvana Yoga School",
+      darkAlt: "Nirvana Yoga School",
+      href: "/",
+    },
     ctas: previous
       ? normalizeHeaderCtas(previous)
       : DEFAULT_HEADER_CTAS.map((c) => ({ ...c })),
@@ -69,7 +75,7 @@ export async function saveHeaderNavigationAction(
     cta: previous?.cta,
   });
 
-  await prisma.globalSettings.upsert({
+  await db.globalSettings.upsert({
     where: { key: "header" },
     update: { value: nextHeader },
     create: {
@@ -102,7 +108,7 @@ export async function saveFullHeaderAction(
 
   const nextHeader = prepareHeaderForSave(header);
 
-  await prisma.globalSettings.upsert({
+  await db.globalSettings.upsert({
     where: { key: "header" },
     update: { value: nextHeader },
     create: {
@@ -129,7 +135,7 @@ export async function saveFullHeaderAction(
  * @returns Header settings or null when unset
  */
 export async function loadFullHeader(): Promise<GlobalHeader | null> {
-  const record = await prisma.globalSettings.findUnique({
+  const record = await db.globalSettings.findUnique({
     where: { key: "header" },
   });
   if (!record?.value || typeof record.value !== "object") return null;
@@ -147,14 +153,14 @@ export async function syncNavigationGroupsFromHeader(
   for (const item of navigation) {
     if (item.type !== "dropdown") continue;
     const key = groupKeyFromLabel(item.label);
-    const group = await prisma.navigationGroup.upsert({
+    const group = await db.navigationGroup.upsert({
       where: { key },
       create: { key, label: item.label },
       update: { label: item.label },
     });
-    await prisma.navigationItem.deleteMany({ where: { groupId: group.id } });
+    await db.navigationItem.deleteMany({ where: { groupId: group.id } });
     for (const [index, child] of item.items.entries()) {
-      await prisma.navigationItem.create({
+      await db.navigationItem.create({
         data: navLinkToGroupItem(group.id, index + 1, child),
       });
     }

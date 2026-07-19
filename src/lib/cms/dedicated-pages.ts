@@ -19,7 +19,7 @@ import type {
   ReviewsContent,
 } from "@/content/types/shared-sections";
 import { invalidateContentCache } from "@/lib/cms/cache";
-import { prisma } from "@/lib/db";
+import { db } from "@/lib/db";
 
 const DEDICATED_SLUGS = ["home", "contact", "enquire-now", "booking"] as const;
 export type DedicatedPageSlug = (typeof DEDICATED_SLUGS)[number];
@@ -80,7 +80,7 @@ async function hydrateHomeFromDatabase(
   const next = structuredClone(content);
 
   if (!next.faqs?.faqs?.length) {
-    const row = await prisma.globalSettings.findUnique({
+    const row = await db.globalSettings.findUnique({
       where: { key: "homeFaqs" },
       select: { value: true },
     });
@@ -89,7 +89,7 @@ async function hydrateHomeFromDatabase(
   }
 
   if (!next.testimonials?.reviews?.length) {
-    const row = await prisma.globalSettings.findUnique({
+    const row = await db.globalSettings.findUnique({
       where: { key: "reviews" },
       select: { value: true },
     });
@@ -99,7 +99,7 @@ async function hydrateHomeFromDatabase(
     }
   }
 
-  const teacherPage = await prisma.page.findUnique({
+  const teacherPage = await db.page.findUnique({
     where: { slug: "teacher" },
     select: { contentData: true },
   });
@@ -114,12 +114,10 @@ async function hydrateHomeFromDatabase(
   if (presentation?.homeTitle?.trim()) {
     next.teachersTeaser = {
       ...next.teachersTeaser,
-      eyebrow:
-        presentation.homeEyebrow?.trim() || next.teachersTeaser.eyebrow,
+      eyebrow: presentation.homeEyebrow?.trim() || next.teachersTeaser.eyebrow,
       title: presentation.homeTitle.trim(),
       description:
-        presentation.homeDescription?.trim() ||
-        next.teachersTeaser.description,
+        presentation.homeDescription?.trim() || next.teachersTeaser.description,
     };
   }
 
@@ -135,7 +133,7 @@ async function hydrateHomeFromDatabase(
 export async function loadDedicatedPageContent(
   slug: DedicatedPageSlug,
 ): Promise<DedicatedPageContent> {
-  const page = await prisma.page.findUnique({
+  const page = await db.page.findUnique({
     where: { slug },
     select: { contentData: true },
   });
@@ -163,9 +161,9 @@ export async function saveDedicatedPageContent(
         ? "Contact"
         : slug === "booking"
           ? "Booking"
-        : "Enquire Now";
+          : "Enquire Now";
 
-  const page = await prisma.page.upsert({
+  const page = await db.page.upsert({
     where: { slug },
     create: {
       slug,

@@ -1,6 +1,6 @@
 # CMS Architecture — Nirvana Yoga School
 
-Architecture for MySQL-backed content management with JSON fallback, public read APIs, Cloudinary media, and an admin portal on the same Next.js 16 app (`:3000`).
+Architecture for Neon Postgres-backed content management, public read APIs, Cloudinary media, and an admin portal on the same Next.js 16 app (`:3000`).
 
 ---
 
@@ -12,7 +12,7 @@ Architecture for MySQL-backed content management with JSON fallback, public read
 | **Admin CRUD** | `/admin` UI + `/api/admin/*` REST on port 3000 |
 | **Image CDN** | Upload → validate 1MB → Cloudinary → secure URL in `media_assets` |
 | **Zero frontend churn** | DB rows map to existing TypeScript types (`SitePageDocument`, `ResidentialCourseDocument`, etc.); mappers unchanged |
-| **Local dev without Docker** | `DATABASE_URL` unset → existing JSON/TS file repositories |
+| **Serverless database** | Neon Postgres via `@neondatabase/serverless` |
 
 **Target:** single page DB query &lt; 50ms (warm connection, indexed `slug`).
 
@@ -247,13 +247,12 @@ erDiagram
 ```
 Server Component (page.tsx)
     → getSitePage(slug) / getResidentialCourse(slug)  [@/content/repositories]
-        → if DATABASE_URL:
-              prisma.page.findUnique({ where: { slug }, include: { sections: { orderBy, include: ... } } })
+        → if NEON_DB_URL:
+              db.page.findUnique({ where: { slug }, include: { sections: { orderBy, include: ... } } })
               → mapPageToSitePageDocument(row)
               → return { data, source: "db" }
           else:
-              getStaticSitePage(slug) from JSON
-              → return { data, source: "json" }
+              → return database configuration error
     → loadSitePageData(page) / course mappers (unchanged)
     → Client components
 ```
@@ -292,7 +291,7 @@ Admin UI
     → Navigation: group item ordering
 
 On save:
-    → Prisma transaction
+    → Neon database transaction
     → content_revisions snapshot (optional audit)
     → revalidateTag(`page:${slug}`)
 ```
@@ -337,7 +336,7 @@ Admin selects file (+ optional caption, description, tags)
 ### Environment variables
 
 ```env
-DATABASE_URL=mysql://nirvana:nirvana@localhost:3306/nirvana_cms
+NEON_DB_URL=postgresql://user:password@your-neon-host/neondb?sslmode=require
 
 CLOUDINARY_CLOUD_NAME=your-cloud-name
 CLOUDINARY_API_KEY=...
@@ -411,8 +410,8 @@ tags?: string          # JSON array or comma-separated
 
 ## 7. Migration & seed plan
 
-1. `docker compose up -d mysql` — MySQL 8
-2. `npx prisma migrate dev`
+1. Set `NEON_DB_URL` in `.env` (never commit this file).
+2. `npm run db:migrate` — applies `scripts/sql/0001_init.sql` once.
 3. `npm run db:seed` — idempotent upsert:
 
 | Source file | Target |
@@ -455,15 +454,15 @@ Seed uses **upsert by slug** so re-running is safe.
 
 ```
 docs/cms-architecture.md          ← this file
-docker-compose.yml
-prisma/
-  schema.prisma
-  seed.ts
+scripts/
+  sql/0001_init.sql               Versioned Neon schema baseline
+  seed-cms.ts                     CMS seed command
+  seed-page-modules.ts            Page-module seed command
 src/lib/
-  db.ts                           Prisma singleton
+  db.ts                           Neon database exports
   cms/
     db-to-document.ts             Row → SitePageDocument
-    document-to-db.ts             SitePageDocument → Prisma writes
+    document-to-db.ts             SitePageDocument → database writes
     cache.ts                      unstable_cache helpers
     auth.ts                       JWT session helpers
   cdn/
@@ -498,11 +497,9 @@ src/middleware.ts                 Protect /admin + /api/admin
 ## 11. Commands
 
 ```bash
-npm run db:up          # docker compose up -d mysql
-npm run db:down        # docker compose down
-npm run db:migrate     # prisma migrate dev
-npm run db:seed        # prisma db seed
-npm run db:studio      # prisma studio
+npm run db:migrate     # applies the versioned Neon baseline
+npm run db:seed        # seeds CMS content
+npm run db:seed:missing # seeds only absent bundled CMS content
 ```
 
-With `DATABASE_URL` set, repositories and public APIs read from MySQL. Without it, behavior is identical to today (JSON files).
+With `NEON_DB_URL` set, repositories and public APIs read from Neon Postgres.

@@ -12,7 +12,7 @@ import {
   parseContentFields,
 } from "@/lib/cms/content-schema-utils";
 import { allocateCopySlug } from "@/lib/cms/unique-slug";
-import { prisma } from "@/lib/db";
+import { db } from "@/lib/db";
 
 export { resolvedItemToSiteDocument };
 
@@ -48,7 +48,7 @@ export type ResolveOptions = {
   publishedOnly?: boolean;
 };
 
-/** Maps a Prisma row (with its content type) to a raw item record. */
+/** Maps a Neon row (with its content type) to a raw item record. */
 function mapRow(row: ItemRow): ContentItemRecord {
   return {
     id: row.id,
@@ -68,7 +68,7 @@ function mapRow(row: ItemRow): ContentItemRecord {
 /** Loads item rows for a set of ids (batched). */
 async function loadRowsByIds(ids: string[]): Promise<ItemRow[]> {
   if (ids.length === 0) return [];
-  return prisma.contentItem.findMany({
+  return db.contentItem.findMany({
     where: { id: { in: ids } },
     include: itemWithType,
   });
@@ -157,7 +157,7 @@ export async function getResolvedItemBySlug(
   options: ResolveOptions = {},
 ): Promise<ResolvedContentItem | null> {
   const publishedOnly = options.publishedOnly ?? true;
-  const row = await prisma.contentItem.findUnique({
+  const row = await db.contentItem.findUnique({
     where: { slug },
     include: itemWithType,
   });
@@ -182,7 +182,7 @@ export async function getResolvedItemById(
   options: ResolveOptions = {},
 ): Promise<ResolvedContentItem | null> {
   const publishedOnly = options.publishedOnly ?? true;
-  const row = await prisma.contentItem.findUnique({
+  const row = await db.contentItem.findUnique({
     where: { id },
     include: itemWithType,
   });
@@ -213,7 +213,7 @@ export async function listResolvedItems(
   options: ListItemsOptions = {},
 ): Promise<ResolvedContentItem[]> {
   const publishedOnly = options.publishedOnly ?? true;
-  const rows = await prisma.contentItem.findMany({
+  const rows = await db.contentItem.findMany({
     where: {
       ...(options.typeKey ? { contentType: { key: options.typeKey } } : {}),
       ...(publishedOnly ? { published: true } : {}),
@@ -247,7 +247,7 @@ export async function syncItemReferences(
 
   const existing =
     targetIds.length > 0
-      ? await prisma.contentItem.findMany({
+      ? await db.contentItem.findMany({
           where: { id: { in: targetIds } },
           select: { id: true },
         })
@@ -262,10 +262,10 @@ export async function syncItemReferences(
     });
   }
 
-  await prisma.$transaction([
-    prisma.contentReference.deleteMany({ where: { fromId: itemId } }),
+  await db.$transaction([
+    db.contentReference.deleteMany({ where: { fromId: itemId } }),
     ...(edges.length > 0
-      ? [prisma.contentReference.createMany({ data: edges })]
+      ? [db.contentReference.createMany({ data: edges })]
       : []),
   ]);
 }
@@ -290,7 +290,7 @@ export type ItemMutationResult = {
   error?: string;
 };
 
-/** True when a Prisma error is a unique-constraint violation. */
+/** True when a Neon error is a unique-constraint violation. */
 function isUniqueError(error: unknown): boolean {
   return (
     !!error &&
@@ -336,7 +336,7 @@ export async function listAdminItems(options: {
   ids?: string[];
   search?: string;
 }): Promise<AdminItemSummary[]> {
-  const rows = await prisma.contentItem.findMany({
+  const rows = await db.contentItem.findMany({
     where: {
       ...(options.typeKey ? { contentType: { key: options.typeKey } } : {}),
       ...(options.ids ? { id: { in: options.ids } } : {}),
@@ -362,7 +362,7 @@ export async function createContentItem(input: {
   const name = input.name.trim();
   if (!name) return { error: "Name is required." };
 
-  const type = await prisma.contentType.findUnique({
+  const type = await db.contentType.findUnique({
     where: { key: input.typeKey },
   });
   if (!type) return { error: "Unknown content type." };
@@ -374,12 +374,12 @@ export async function createContentItem(input: {
   }
 
   const fields = parseContentFields(type.fields);
-  const max = await prisma.contentItem.aggregate({
+  const max = await db.contentItem.aggregate({
     where: { contentTypeId: type.id },
     _max: { sortOrder: true },
   });
   try {
-    const item = await prisma.contentItem.create({
+    const item = await db.contentItem.create({
       data: {
         contentTypeId: type.id,
         name,
@@ -422,7 +422,7 @@ export async function updateContentItemMeta(
     }
   }
   try {
-    const item = await prisma.contentItem.update({
+    const item = await db.contentItem.update({
       where: { id },
       data: patch,
       include: { contentType: { select: { key: true, name: true } } },
@@ -444,7 +444,7 @@ export async function updateContentItemData(
   id: string,
   rawData: Record<string, unknown>,
 ): Promise<ItemMutationResult> {
-  const row = await prisma.contentItem.findUnique({
+  const row = await db.contentItem.findUnique({
     where: { id },
     include: { contentType: true },
   });
@@ -452,7 +452,7 @@ export async function updateContentItemData(
 
   const fields = parseContentFields(row.contentType.fields);
   const data = normalizeItemData(fields, rawData);
-  await prisma.contentItem.update({
+  await db.contentItem.update({
     where: { id },
     data: { data: data as object },
   });
@@ -470,7 +470,7 @@ export async function setContentItemPublished(
   id: string,
   published: boolean,
 ): Promise<void> {
-  await prisma.contentItem.update({
+  await db.contentItem.update({
     where: { id },
     data: { published, publishedAt: published ? new Date() : null },
   });
@@ -484,7 +484,7 @@ export async function setContentItemPublished(
 export async function deleteContentItem(
   id: string,
 ): Promise<{ ok?: true; error?: string }> {
-  const referencedBy = await prisma.contentReference.count({
+  const referencedBy = await db.contentReference.count({
     where: { toId: id },
   });
   if (referencedBy > 0) {
@@ -492,7 +492,7 @@ export async function deleteContentItem(
       error: `This item is linked from ${referencedBy} place(s). Remove those links first.`,
     };
   }
-  await prisma.contentItem.delete({ where: { id } });
+  await db.contentItem.delete({ where: { id } });
   return { ok: true };
 }
 
@@ -504,7 +504,7 @@ export async function deleteContentItem(
 export async function duplicateContentItem(
   id: string,
 ): Promise<ItemMutationResult> {
-  const row = await prisma.contentItem.findUnique({
+  const row = await db.contentItem.findUnique({
     where: { id },
     include: { contentType: true },
   });
@@ -513,7 +513,7 @@ export async function duplicateContentItem(
   let slug: string | null = null;
   if (row.slug) {
     slug = await allocateCopySlug(row.slug, async (candidate) => {
-      const existing = await prisma.contentItem.findUnique({
+      const existing = await db.contentItem.findUnique({
         where: { slug: candidate },
         select: { id: true },
       });
@@ -526,12 +526,12 @@ export async function duplicateContentItem(
       ? (row.data as Record<string, unknown>)
       : {};
 
-  const max = await prisma.contentItem.aggregate({
+  const max = await db.contentItem.aggregate({
     where: { contentTypeId: row.contentTypeId },
     _max: { sortOrder: true },
   });
   try {
-    const item = await prisma.contentItem.create({
+    const item = await db.contentItem.create({
       data: {
         contentTypeId: row.contentTypeId,
         name: `${row.name} (copy)`,

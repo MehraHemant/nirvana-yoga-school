@@ -2,9 +2,9 @@
 
 import type { InclusionsModule } from "@/content/types";
 import { CollapsiblePanel } from "../CollapsiblePanel";
+import { SectionIdField } from "../SectionIdField";
 import { StringListField } from "../StringListField";
 import { TextField } from "../TextField";
-import { SectionIdField } from "../SectionIdField";
 import { ModuleLiveField } from "./ModuleLiveField";
 import type { ModulePanelProps } from "./types";
 

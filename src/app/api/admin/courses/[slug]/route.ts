@@ -8,7 +8,7 @@ import {
 } from "@/lib/cms/api-response";
 import { getSessionFromRequest } from "@/lib/cms/auth";
 import { upsertCourseDocument } from "@/lib/cms/document-to-db";
-import { prisma } from "@/lib/db";
+import { db } from "@/lib/db";
 import type { ApiRouteParams } from "@/lib/types/api";
 
 /**
@@ -24,7 +24,7 @@ export async function GET(
   }
 
   const { slug } = await context.params;
-  const page = await prisma.page.findUnique({
+  const page = await db.page.findUnique({
     where: { slug },
     include: { courseDoc: true },
   });
@@ -61,7 +61,7 @@ export async function PUT(
     return jsonBadRequest("Slug mismatch");
   }
 
-  const existing = await prisma.page.findUnique({ where: { slug } });
+  const existing = await db.page.findUnique({ where: { slug } });
   const pageType =
     existing?.type === "online" || existing?.type === "course"
       ? existing.type

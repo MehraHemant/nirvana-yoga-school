@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { invalidateContentCache } from "@/lib/cms/cache";
-import { isDbEnabled, prisma } from "@/lib/db";
+import { isDbEnabled, db } from "@/lib/db";
 
 /** Slugs that already have dedicated file routes or reserved meaning. */
 const RESERVED_SLUGS = new Set([
@@ -61,10 +61,10 @@ export async function createPageAction(
     return { error: `“/${slug}” is reserved — choose another slug.` };
   }
 
-  const existing = await prisma.page.findUnique({ where: { slug } });
+  const existing = await db.page.findUnique({ where: { slug } });
   if (existing) return { error: `A page at “/${slug}” already exists.` };
 
-  await prisma.page.create({
+  await db.page.create({
     data: {
       slug,
       type: "site",
@@ -89,7 +89,7 @@ export async function setPagePublishedAction(formData: FormData) {
   const published = String(formData.get("published") ?? "") === "true";
   if (!id) return;
 
-  const page = await prisma.page.update({
+  const page = await db.page.update({
     where: { id },
     data: { published },
   });

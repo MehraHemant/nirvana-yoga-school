@@ -4,7 +4,7 @@
  * This deliberately omits the Next.js `server-only` marker because `tsx`
  * executes outside Next's server-module loader.
  */
-export { prisma, type DbClient, type ModelDelegate } from "./client";
+export { type DbClient, type ModelDelegate, db } from "./client";
 export { createId } from "./ids";
 export { parseJson, stringifyJson } from "./json";
 export {
@@ -18,6 +18,6 @@ export {
   execute,
   queryOne,
   queryRows,
-  withTransaction,
   type SqlConn,
+  withTransaction,
 } from "./sql";

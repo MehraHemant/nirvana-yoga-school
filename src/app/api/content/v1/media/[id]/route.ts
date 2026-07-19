@@ -5,7 +5,7 @@ import {
   jsonUnavailable,
 } from "@/lib/cms/api-response";
 import { deliveryPreflight } from "@/lib/cms/delivery-auth";
-import { isDbConnectionError, prisma } from "@/lib/db";
+import { isDbConnectionError, db } from "@/lib/db";
 import type { ApiRouteParams } from "@/lib/types/api";
 
 /**
@@ -23,7 +23,7 @@ export async function GET(
 
   const { id } = await context.params;
   try {
-    const asset = await prisma.mediaAsset.findUnique({ where: { id } });
+    const asset = await db.mediaAsset.findUnique({ where: { id } });
     if (!asset) return jsonNotFound("Media not found");
     return jsonCached({
       media: {

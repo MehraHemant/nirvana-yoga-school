@@ -20,7 +20,9 @@ export function ListRowActions({
 }: ListRowActionsProps) {
   return (
     <div className="admin-list-row-actions admin-list-row-actions--compact">
-      {dragHandleProps ? <DragHandle dragHandleProps={dragHandleProps} /> : null}
+      {dragHandleProps ? (
+        <DragHandle dragHandleProps={dragHandleProps} />
+      ) : null}
       <button
         type="button"
         className="admin-icon-btn admin-icon-btn--sm admin-icon-btn--danger"

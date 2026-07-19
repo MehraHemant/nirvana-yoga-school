@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { prisma } from "@/lib/db";
+import { db } from "@/lib/db";
 
 /**
  * Server action to delete a navigation item and revalidate navigation cache.
@@ -11,7 +11,7 @@ import { prisma } from "@/lib/db";
 export async function deleteNavigationItemAction(formData: FormData) {
   const id = formData.get("id") as string;
   if (!id) return;
-  await prisma.navigationItem.delete({ where: { id } });
+  await db.navigationItem.delete({ where: { id } });
   revalidatePath("/admin/navigation");
   revalidatePath("/admin/components/navigation");
 }
@@ -25,7 +25,7 @@ export async function createNavigationGroupAction(formData: FormData) {
   const key = formData.get("key") as string;
   const label = formData.get("label") as string;
   if (!key || !label) return;
-  await prisma.navigationGroup.create({
+  await db.navigationGroup.create({
     data: { key, label },
   });
   revalidatePath("/admin/navigation");
@@ -43,7 +43,7 @@ export async function createNavigationItemAction(formData: FormData) {
   const label = String(formData.get("label") ?? "").trim();
   if (!groupId || !label) return;
 
-  const max = await prisma.navigationItem.aggregate({
+  const max = await db.navigationItem.aggregate({
     where: { groupId },
     _max: { sortOrder: true },
   });
@@ -52,7 +52,7 @@ export async function createNavigationItemAction(formData: FormData) {
   if (itemType === "static") {
     const href = String(formData.get("href") ?? "").trim();
     if (!href) return;
-    await prisma.navigationItem.create({
+    await db.navigationItem.create({
       data: {
         groupId,
         sortOrder,
@@ -65,7 +65,7 @@ export async function createNavigationItemAction(formData: FormData) {
     const pageType = String(formData.get("pageType") ?? "").trim();
     const pageSlug = String(formData.get("pageSlug") ?? "").trim();
     if (!pageType || !pageSlug) return;
-    await prisma.navigationItem.create({
+    await db.navigationItem.create({
       data: {
         groupId,
         sortOrder,
@@ -90,15 +90,15 @@ export async function duplicateNavigationItemAction(formData: FormData) {
   const id = String(formData.get("id") ?? "");
   if (!id) return;
 
-  const item = await prisma.navigationItem.findUnique({ where: { id } });
+  const item = await db.navigationItem.findUnique({ where: { id } });
   if (!item) return;
 
-  const max = await prisma.navigationItem.aggregate({
+  const max = await db.navigationItem.aggregate({
     where: { groupId: item.groupId },
     _max: { sortOrder: true },
   });
 
-  await prisma.navigationItem.create({
+  await db.navigationItem.create({
     data: {
       groupId: item.groupId,
       sortOrder: (max._max.sortOrder ?? item.sortOrder) + 1,

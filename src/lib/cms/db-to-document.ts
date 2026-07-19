@@ -11,7 +11,7 @@ import type {
 
 /**
  * Include tree for loading a page with ordered child relations.
- * Pass to `prisma.page.findUnique({ include: pageWithRelations })`.
+ * Pass to `db.page.findUnique({ include: pageWithRelations })`.
  */
 export const pageWithRelations = {
   sections: {
@@ -302,7 +302,9 @@ function parseContentData(value: unknown): {
   };
   const hasAny = Object.values(presentation).some(Boolean);
   const meta =
-    record.meta && typeof record.meta === "object" && !Array.isArray(record.meta)
+    record.meta &&
+    typeof record.meta === "object" &&
+    !Array.isArray(record.meta)
       ? (record.meta as SitePageDocument["meta"])
       : undefined;
   return {

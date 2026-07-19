@@ -1,6 +1,6 @@
 import { jsonOk, jsonUnauthorized } from "@/lib/cms/api-response";
 import { getSessionFromRequest } from "@/lib/cms/auth";
-import { prisma } from "@/lib/db";
+import { db } from "@/lib/db";
 
 /**
  * Read navigation groups and items.
@@ -11,7 +11,7 @@ export async function GET(request: Request) {
     return jsonUnauthorized();
   }
 
-  const groups = await prisma.navigationGroup.findMany({
+  const groups = await db.navigationGroup.findMany({
     include: {
       items: { orderBy: { sortOrder: "asc" } },
     },

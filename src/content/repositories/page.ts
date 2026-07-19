@@ -2,7 +2,7 @@ import { loadPageBySlug } from "@/content/pages/load";
 import { requireDb } from "@/content/repositories/db-fallback";
 import type { RepositoryOptions } from "@/content/repositories/fetch";
 import type { PageDocument } from "@/content/types";
-import { prisma } from "@/lib/db";
+import { db } from "@/lib/db";
 
 /**
  * Resolve any page by slug — uses the pages registry for type, then loads data.
@@ -22,7 +22,7 @@ export async function getPageBySlug(
  */
 export async function getAllPageSlugs(): Promise<string[]> {
   const result = await requireDb(async () => {
-    const pages = await prisma.page.findMany({
+    const pages = await db.page.findMany({
       where: { published: true },
       select: { slug: true },
       orderBy: { title: "asc" },

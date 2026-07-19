@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { HeroFrame } from "@/components/hero";
 import { Button, Container, Heading } from "@/components/ui";
 import { fadeUp } from "@/lib/motion";
 import { retreatEnquireHref } from "./utils";
@@ -30,7 +31,7 @@ export default function RetreatHero({
   ctaHref,
 }: RetreatHeroProps) {
   return (
-    <section className="retreat-hero relative overflow-hidden bg-linear-to-br from-secondary via-ink to-secondary/90 text-white">
+    <HeroFrame className="retreat-hero relative overflow-hidden bg-linear-to-br from-secondary via-ink to-secondary/90 text-white">
       {/* Background ambient radial gradients */}
       <div
         className="pointer-events-none absolute inset-0 opacity-40"
@@ -149,6 +150,6 @@ export default function RetreatHero({
           </motion.div>
         </div>
       </Container>
-    </section>
+    </HeroFrame>
   );
 }

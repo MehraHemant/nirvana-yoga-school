@@ -15,7 +15,9 @@ export function homeSectionHasData(
 ): boolean {
   switch (key) {
     case "hero":
-      return Boolean(home.hero.titleLead.trim() || home.hero.titleAccent.trim());
+      return Boolean(
+        home.hero.titleLead.trim() || home.hero.titleAccent.trim(),
+      );
     case "welcome":
       return Boolean(home.welcome.title.trim() || home.welcome.lead.trim());
     case "video":

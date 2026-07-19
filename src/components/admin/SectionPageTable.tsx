@@ -5,8 +5,8 @@ import NextLink from "next/link";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { duplicatePageAction } from "@/app/admin/sections/actions";
-import { publicViewHref } from "@/lib/cms/page-layout-registry";
 import { Copy, Link as LinkIcon, Pencil } from "@/icons";
+import { publicViewHref } from "@/lib/cms/page-layout-registry";
 import { AdminPublishToggle } from "./AdminPublishToggle";
 
 type SectionPageItem = {

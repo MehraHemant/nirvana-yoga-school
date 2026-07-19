@@ -237,7 +237,7 @@ export default function TeachersPageClient({
           />
 
           {/* Mobile TOC */}
-          <div className="mt-8 flex gap-2 overflow-x-auto pb-1 scrollbar-none lg:hidden">
+          <div className="no-scrollbar mt-8 flex gap-2 overflow-x-auto pb-1 lg:hidden">
             {teachers.map((teacher) => {
               const slug = teacherSlug(teacher.name);
               const isActive = activeSlug === slug;

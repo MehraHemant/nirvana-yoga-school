@@ -7,7 +7,7 @@ export type ContentResult<T> = {
 
 export type RepositoryOptions = {
   /**
-   * @deprecated JSON source is disabled. Repositories always require MySQL.
+   * @deprecated JSON source is disabled. Repositories always require Neon.
    */
   source?: ContentSource;
 };
@@ -29,11 +29,11 @@ export function fromJson<T>(data: T): ContentResult<T> {
 }
 
 /**
- * Whether repositories should read from MySQL.
- * Always true when `DATABASE_URL` is set; JSON overrides are ignored.
+ * Whether repositories should read from Neon Postgres.
+ * Always true when `NEON_DB_URL` is set; JSON overrides are ignored.
  *
  * @param _options - Ignored (kept for call-site compatibility)
  */
 export function useDbSource(_options?: RepositoryOptions): boolean {
-  return Boolean(process.env.DATABASE_URL?.trim());
+  return Boolean(process.env.NEON_DB_URL?.trim());
 }

@@ -1,9 +1,9 @@
-import { Compass, Leaf, Plane, Shield, Wallet, Wifi } from "@/icons";
 import { DEFAULT_TRAVEL_GUIDE } from "@/content/data/travel-guide-defaults";
 import type {
   TravelGuideContent,
   TravelTopicIconKey,
 } from "@/content/types/shared-sections";
+import { Compass, Leaf, Plane, Shield, Wallet, Wifi } from "@/icons";
 
 const ICON_MAP: Record<TravelTopicIconKey, typeof Shield> = {
   shield: Shield,
@@ -44,7 +44,8 @@ export function mapTravelTopics(
 }
 
 /** Static fallback topics when CMS content is unavailable. */
-export const TRAVEL_TOPICS: TravelTopic[] = mapTravelTopics(DEFAULT_TRAVEL_GUIDE);
+export const TRAVEL_TOPICS: TravelTopic[] =
+  mapTravelTopics(DEFAULT_TRAVEL_GUIDE);
 
 export const QUICK_FACTS = DEFAULT_TRAVEL_GUIDE.quickFacts;
 

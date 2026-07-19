@@ -1,7 +1,7 @@
 import type { MappedSitePage } from "@/content/mappers/site-page";
 import { buildNavItems, mapSitePage } from "@/content/mappers/site-page";
-import type { SharedFaq } from "@/content/types/shared-sections";
 import type { SitePageDocument } from "@/content/types";
+import type { SharedFaq } from "@/content/types/shared-sections";
 
 const VENUE_SLUGS = new Set(["course-venue", "retreat-venue"]);
 

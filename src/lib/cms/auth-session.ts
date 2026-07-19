@@ -5,7 +5,7 @@ import type { NextRequest } from "next/server";
 const COOKIE_NAME = "nirvana_admin_session";
 const SESSION_TTL = "8h";
 
-/** Admin role stored in the session JWT (kept Edge-safe — no Prisma import). */
+/** Admin role stored in the session JWT (kept Edge-safe — no Neon import). */
 export type AdminSessionRole = "admin" | "editor";
 
 export type AdminSession = {
@@ -84,7 +84,7 @@ export async function getSessionFromRequest(
 }
 
 /**
- * Read session from NextRequest cookies (Edge-safe — no Prisma).
+ * Read session from NextRequest cookies (Edge-safe — no Neon).
  *
  * @param request - Next.js middleware / edge request
  */

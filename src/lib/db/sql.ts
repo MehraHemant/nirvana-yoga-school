@@ -1,7 +1,26 @@
-import type { Pool, PoolConnection, ResultSetHeader, RowDataPacket } from "mysql2/promise";
+import type {
+  Pool,
+  PoolClient,
+  QueryResultRow,
+} from "@neondatabase/serverless";
 import { getPool } from "./pool";
 
-export type SqlConn = Pool | PoolConnection;
+export type SqlConn = Pool | PoolClient;
+
+export type ExecuteResult = {
+  affectedRows: number;
+};
+
+/**
+ * Converts legacy positional markers to PostgreSQL positional markers.
+ *
+ * @param statement - SQL using `?` positional markers
+ * @returns PostgreSQL SQL using `$1`, `$2`, etc.
+ */
+function postgresSql(statement: string): string {
+  let parameterIndex = 0;
+  return statement.replace(/\?/g, () => `$${++parameterIndex}`);
+}
 
 /**
  * Runs a SELECT and returns all rows.
@@ -10,13 +29,13 @@ export type SqlConn = Pool | PoolConnection;
  * @param params - Bound values
  * @param conn - Optional connection (for transactions)
  */
-export async function queryRows<T extends RowDataPacket>(
+export async function queryRows<T extends QueryResultRow>(
   sql: string,
   params: unknown[] = [],
   conn: SqlConn = getPool(),
 ): Promise<T[]> {
-  const [rows] = await conn.query<T[]>(sql, params);
-  return rows;
+  const result = await conn.query<T>(postgresSql(sql), params);
+  return result.rows;
 }
 
 /**
@@ -26,7 +45,7 @@ export async function queryRows<T extends RowDataPacket>(
  * @param params - Bound values
  * @param conn - Optional connection
  */
-export async function queryOne<T extends RowDataPacket>(
+export async function queryOne<T extends QueryResultRow>(
   sql: string,
   params: unknown[] = [],
   conn: SqlConn = getPool(),
@@ -46,31 +65,27 @@ export async function execute(
   sql: string,
   params: unknown[] = [],
   conn: SqlConn = getPool(),
-): Promise<ResultSetHeader> {
-  // mysql2 overload resolution is brittle across Pool | PoolConnection
-  const [result] = (await (conn as Pool).query(sql, params)) as [
-    ResultSetHeader,
-    unknown,
-  ];
-  return result;
+): Promise<ExecuteResult> {
+  const result = await conn.query(postgresSql(sql), params);
+  return { affectedRows: result.rowCount ?? 0 };
 }
 
 /**
- * Runs work inside a MySQL transaction.
+ * Runs work inside a Neon Postgres transaction.
  *
  * @param fn - Callback receiving the transaction connection
  */
 export async function withTransaction<T>(
-  fn: (conn: PoolConnection) => Promise<T>,
+  fn: (conn: PoolClient) => Promise<T>,
 ): Promise<T> {
-  const conn = await getPool().getConnection();
+  const conn = await getPool().connect();
   try {
-    await conn.beginTransaction();
+    await conn.query("BEGIN");
     const result = await fn(conn);
-    await conn.commit();
+    await conn.query("COMMIT");
     return result;
   } catch (error) {
-    await conn.rollback();
+    await conn.query("ROLLBACK");
     throw error;
   } finally {
     conn.release();

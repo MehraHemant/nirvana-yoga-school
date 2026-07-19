@@ -1,9 +1,9 @@
+import type { WhyNirvanaContent } from "@/content/types/shared-sections";
 import {
   WHY_NIRVANA_BANNER,
   WHY_NIRVANA_CLOSING,
   WHY_NIRVANA_HIGHLIGHTS,
 } from "@/data/whyNirvana";
-import type { WhyNirvanaContent } from "@/content/types/shared-sections";
 
 /**
  * Default Why Nirvana shared document for seed / admin ensure.

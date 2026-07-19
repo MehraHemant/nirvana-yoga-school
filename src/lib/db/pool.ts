@@ -1,53 +1,42 @@
-import mysql from "mysql2/promise";
+import { neonConfig, Pool } from "@neondatabase/serverless";
+import WebSocket from "ws";
 
 const globalForPool = globalThis as unknown as {
-  mysqlPool?: mysql.Pool;
+  neonPool?: Pool;
 };
 
+// Node.js 20 needs an explicit WebSocket implementation for Neon `Pool`
+// transactions. Modern edge runtimes use their built-in implementation instead.
+if (typeof WebSocket !== "undefined") {
+  neonConfig.webSocketConstructor = WebSocket;
+}
+
 /**
- * Whether MySQL CMS is enabled via `DATABASE_URL`.
+ * Whether Neon Postgres is enabled via `NEON_DB_URL`.
  *
- * @returns True when `DATABASE_URL` is set
+ * @returns True when `NEON_DB_URL` is set
  */
 export function isDbEnabled(): boolean {
-  return Boolean(process.env.DATABASE_URL?.trim());
+  return Boolean(process.env.NEON_DB_URL?.trim());
 }
 
 /**
- * Parses `DATABASE_URL` into mysql2 pool options.
- *
- * @param databaseUrl - mysql://user:pass@host:port/db
- */
-function poolOptionsFromUrl(databaseUrl: string): mysql.PoolOptions {
-  const url = new URL(databaseUrl);
-  return {
-    host: url.hostname,
-    port: Number(url.port || 3306),
-    user: decodeURIComponent(url.username),
-    password: decodeURIComponent(url.password),
-    database: url.pathname.replace(/^\//, "").split("?")[0],
-    waitForConnections: true,
-    connectionLimit: 10,
-    namedPlaceholders: false,
-    dateStrings: false,
-  };
-}
-
-/**
- * Shared mysql2 pool (singleton in dev to survive HMR).
+ * Shared Neon Postgres pool (singleton in development to survive HMR).
  *
  * @returns Connection pool
  */
-export function getPool(): mysql.Pool {
-  if (!isDbEnabled()) {
-    throw new Error("DATABASE_URL is not set");
+export function getPool(): Pool {
+  const connectionString = process.env.NEON_DB_URL?.trim();
+  if (!connectionString) {
+    throw new Error("NEON_DB_URL is not set");
   }
-  if (!globalForPool.mysqlPool) {
-    globalForPool.mysqlPool = mysql.createPool(
-      poolOptionsFromUrl(process.env.DATABASE_URL!.trim()),
-    );
+  if (!globalForPool.neonPool) {
+    globalForPool.neonPool = new Pool({
+      connectionString,
+      max: 10,
+    });
   }
-  return globalForPool.mysqlPool;
+  return globalForPool.neonPool;
 }
 
 /**
@@ -63,19 +52,21 @@ export function isDbConnectionError(error: unknown): boolean {
     code === "ECONNREFUSED" ||
     code === "ENOTFOUND" ||
     code === "ETIMEDOUT" ||
-    code === "PROTOCOL_CONNECTION_LOST" ||
-    code === "ER_NO_SUCH_TABLE" ||
-    code === "ER_BAD_FIELD_ERROR" ||
-    msg.includes("can't connect") ||
+    code === "ECONNRESET" ||
+    code === "3D000" ||
+    code === "42P01" ||
+    code === "42703" ||
+    msg.includes("connection") ||
     msg.includes("econnrefused") ||
-    msg.includes("unknown database") ||
-    msg.includes("doesn't exist")
+    msg.includes("database") ||
+    msg.includes("relation") ||
+    msg.includes("does not exist")
   );
 }
 
 /**
  * Whether content-type tables are expected to exist (DB configured).
- * Kept sync for call-site compatibility with the old Prisma helper.
+ * Kept sync for call-site compatibility with the old Neon helper.
  */
 export function isContentTypesSchemaReady(): boolean {
   return isDbEnabled();

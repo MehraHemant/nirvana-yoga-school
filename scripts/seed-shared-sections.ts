@@ -1,9 +1,14 @@
 /**
  * Builds seed payloads for shared site sections from legacy `@/data` modules.
- * Used only by `prisma/seed.ts` — runtime UI reads MySQL via `/api/content/*`.
+ * Used by `scripts/seed-cms.ts` — runtime UI reads Neon via `/api/content/*`.
  *
  * Home FAQs are inlined (string image URLs) so seed does not import Next static assets.
  */
+
+import { DEFAULT_HOME_PAGE_CONTENT } from "../src/content/data/dedicated-page-defaults";
+import { DEFAULT_EXAM_CERTIFICATION } from "../src/content/data/exam-certification-defaults";
+import { DEFAULT_TRAVEL_GUIDE } from "../src/content/data/travel-guide-defaults";
+import { VENUE_FAQS } from "../src/content/data/venue-faqs";
 import {
   ACCOMMODATION_GALLERIES,
   COMFORTABLE_STAY,
@@ -11,14 +16,12 @@ import {
   FOOD_CONTENT,
   FOOD_GALLERY,
 } from "../src/data/accommodationFood";
-import { VENUE_FAQS } from "../src/content/data/venue-faqs";
 import {
   RETREAT_FOOD_GALLERY,
   RETREAT_MEAL_HIGHLIGHTS,
   RETREAT_ROOM_GALLERIES,
 } from "../src/data/retreatAccommodation";
 import { REVIEWS } from "../src/data/reviews";
-import { DEFAULT_HOME_PAGE_CONTENT } from "../src/content/data/dedicated-page-defaults";
 import {
   WHY_NIRVANA_BANNER,
   WHY_NIRVANA_CLOSING,
@@ -36,7 +39,6 @@ import {
   YTT_HUB_OVERVIEW_INSET_IMAGE,
   YTT_HUB_WHY_RISHIKESH,
 } from "../src/data/yttHubPage";
-import { DEFAULT_TRAVEL_GUIDE } from "../src/content/data/travel-guide-defaults";
 import { FALLBACK_INSTAGRAM_FEED } from "../src/lib/instagram";
 
 const FACILITY_ICON_KEYS: Record<string, string> = {
@@ -165,6 +167,16 @@ export function buildSharedSectionSeeds(): Array<{
       },
     },
     {
+      key: "examCertification",
+      value: {
+        ...DEFAULT_EXAM_CERTIFICATION,
+        steps: DEFAULT_EXAM_CERTIFICATION.steps.map((step) => ({ ...step })),
+        certificates: DEFAULT_EXAM_CERTIFICATION.certificates.map(
+          (certificate) => ({ ...certificate }),
+        ),
+      },
+    },
+    {
       key: "siteMap",
       value: {
         live: true,
@@ -263,7 +275,9 @@ export function buildSharedSectionSeeds(): Array<{
       key: "travel",
       value: {
         ...DEFAULT_TRAVEL_GUIDE,
-        quickFacts: DEFAULT_TRAVEL_GUIDE.quickFacts.map((fact) => ({ ...fact })),
+        quickFacts: DEFAULT_TRAVEL_GUIDE.quickFacts.map((fact) => ({
+          ...fact,
+        })),
         topics: DEFAULT_TRAVEL_GUIDE.topics.map((topic) => ({ ...topic })),
       },
     },

@@ -37,11 +37,13 @@ function parseSchedule(html) {
     const rowRe =
       /<div class="day-time">([^<]*)<\/div>\s*<div class="day-content">([^<]*)<\/div>/gi;
     let row;
-    while ((row = rowRe.exec(chunk))) {
+    row = rowRe.exec(chunk);
+    while (row) {
       activities.push({
         time: decode(row[1]),
         activity: decode(row[2]),
       });
+      row = rowRe.exec(chunk);
     }
 
     items.push({

@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getServerSession, requireAdmin } from "@/lib/cms/auth";
 import { allocateCopySlug } from "@/lib/cms/unique-slug";
-import { prisma } from "@/lib/db";
+import { db } from "@/lib/db";
 
 /**
  * Duplicates a blog post as an unpublished copy with a unique slug.
@@ -16,18 +16,18 @@ export async function duplicateBlogPostAction(formData: FormData) {
   const id = String(formData.get("id") ?? "");
   if (!id) return;
 
-  const post = await prisma.blogPost.findUnique({ where: { id } });
+  const post = await db.blogPost.findUnique({ where: { id } });
   if (!post) return;
 
   const slug = await allocateCopySlug(post.slug, async (candidate) => {
-    const existing = await prisma.blogPost.findUnique({
+    const existing = await db.blogPost.findUnique({
       where: { slug: candidate },
       select: { id: true },
     });
     return Boolean(existing);
   });
 
-  await prisma.blogPost.create({
+  await db.blogPost.create({
     data: {
       slug,
       title: `${post.title} (copy)`,

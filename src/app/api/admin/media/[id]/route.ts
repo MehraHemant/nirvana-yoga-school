@@ -9,7 +9,7 @@ import {
 } from "@/lib/cms/api-response";
 import { getSessionFromRequest } from "@/lib/cms/auth";
 import { getMediaAssetUsage } from "@/lib/cms/media-usage";
-import { prisma } from "@/lib/db";
+import { db } from "@/lib/db";
 import type { ApiRouteParams } from "@/lib/types/api";
 
 type MediaUpdateBody = {
@@ -32,7 +32,7 @@ export async function GET(
   }
 
   const { id } = await context.params;
-  const asset = await prisma.mediaAsset.findUnique({ where: { id } });
+  const asset = await db.mediaAsset.findUnique({ where: { id } });
   if (!asset) {
     return jsonNotFound();
   }
@@ -64,7 +64,7 @@ export async function PUT(
   const { id } = await context.params;
   const body = (await request.json()) as MediaUpdateBody;
 
-  const asset = await prisma.mediaAsset.update({
+  const asset = await db.mediaAsset.update({
     where: { id },
     data: {
       ...(body.caption !== undefined
@@ -105,7 +105,7 @@ export async function DELETE(
   }
 
   const { id } = await context.params;
-  const asset = await prisma.mediaAsset.findUnique({ where: { id } });
+  const asset = await db.mediaAsset.findUnique({ where: { id } });
   if (!asset) {
     return jsonNotFound();
   }
@@ -119,7 +119,7 @@ export async function DELETE(
   }
 
   await deleteFromCloudinary(asset.cdnKey);
-  await prisma.mediaAsset.delete({ where: { id } });
+  await db.mediaAsset.delete({ where: { id } });
 
   return jsonMutationOk();
 }

@@ -1,11 +1,9 @@
-import { PrismaClient } from "@prisma/client";
 import { DEFAULT_HOME_PAGE_CONTENT } from "../src/content/data/dedicated-page-defaults";
 import { DEFAULT_TRAVEL_GUIDE } from "../src/content/data/travel-guide-defaults";
 import { createDefaultWhyNirvana } from "../src/content/data/why-nirvana-defaults";
 import { TEACHER_PAGE_SLUG } from "../src/content/teachers-slug";
+import { db } from "../src/lib/db/node";
 import { FALLBACK_INSTAGRAM_FEED } from "../src/lib/instagram";
-
-const prisma = new PrismaClient();
 
 /**
  * Upserts the four shared CMS keys (Why Nirvana, Map, Instagram, Travel).
@@ -45,7 +43,7 @@ async function main() {
     instagram,
     travel,
   })) {
-    await prisma.globalSettings.upsert({
+    await db.globalSettings.upsert({
       where: { key },
       create: { key, value },
       update: { value },
@@ -53,19 +51,21 @@ async function main() {
     console.log("upserted", key);
   }
 
-  const teacher = await prisma.page.findUnique({
+  const teacher = await db.page.findUnique({
     where: { slug: TEACHER_PAGE_SLUG },
-    include: { _count: { select: { people: true } } },
   });
-  if (!teacher?.published || teacher._count.people === 0) {
+  const peopleCount = teacher
+    ? await db.pagePerson.count({ where: { pageId: teacher.id } })
+    : 0;
+  if (!teacher?.published || peopleCount === 0) {
     console.warn(
       `Teacher page missing or empty — run \`npm run db:seed\` to seed faculty.`,
     );
   } else {
-    console.log("teacher page ok", teacher._count.people, "people");
+    console.log("teacher page ok", peopleCount, "people");
   }
 
-  const keys = await prisma.globalSettings.findMany({ select: { key: true } });
+  const keys = await db.globalSettings.findMany({ select: { key: true } });
   console.log(
     "keys:",
     keys
@@ -81,5 +81,5 @@ main()
     process.exit(1);
   })
   .finally(async () => {
-    await prisma.$disconnect();
+    await db.$disconnect();
   });

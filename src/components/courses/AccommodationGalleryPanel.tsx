@@ -217,7 +217,7 @@ export function ImageGalleryPanel({
         <div className="surface-panel overflow-hidden rounded-xl p-2 shadow-xs">
           <ul
             ref={scrollRef}
-            className="flex gap-2 overflow-x-auto overscroll-x-contain scrollbar-none snap-x snap-mandatory p-1 max-w-full"
+            className="no-scrollbar flex gap-2 overflow-x-auto overscroll-x-contain snap-x snap-mandatory p-1 max-w-full"
             aria-label={`${label} thumbnails`}
           >
             {images.map((item, index) => {

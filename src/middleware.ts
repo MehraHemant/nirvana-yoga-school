@@ -7,7 +7,7 @@ const PUBLIC_ADMIN_PATHS = ["/admin/login", "/api/admin/auth/login"];
 
 /**
  * Protect admin UI and API routes with session auth.
- * Edge-safe: JWT verification only (no Prisma).
+ * Edge-safe: JWT verification only (no Neon).
  */
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;

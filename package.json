@@ -8,22 +8,19 @@
     "start": "next start",
     "lint": "biome check",
     "format": "biome format --write",
-    "db:up": "sudo docker compose up -d",
-    "db:down": "sudo docker compose down",
-    "db:reset": "prisma migrate reset --force",
-    "db:migrate": "prisma migrate deploy",
-    "db:migrate:dev": "prisma migrate dev",
-    "db:seed": "tsx --env-file=.env prisma/seed.ts",
-    "db:seed-modules": "tsx --env-file=.env prisma/seed-page-modules.ts",
-    "db:studio": "prisma studio"
+    "db:migrate": "tsx --env-file=.env scripts/apply-neon-migration.ts",
+    "db:migrate:hostinger-data": "tsx --env-file=.env scripts/migrate-hostinger-mysql-to-neon.ts",
+    "db:seed": "tsx --env-file=.env scripts/seed-cms.ts",
+    "db:seed:missing": "tsx --env-file=.env scripts/seed-missing-cms.ts",
+    "db:seed-modules": "tsx --env-file=.env scripts/seed-page-modules.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
+    "@neondatabase/serverless": "^1.1.0",
     "@paralleldrive/cuid2": "^2.2.2",
     "@paypal/react-paypal-js": "^10.1.2",
-    "@prisma/client": "^5.22.0",
     "@tiptap/extension-link": "^3.27.3",
     "@tiptap/extension-placeholder": "^3.27.3",
     "@tiptap/react": "^3.27.3",
@@ -44,6 +41,7 @@
     "remark-gfm": "^4.0.1",
     "server-only": "^0.0.1",
     "three": "^0.184.0",
+    "ws": "^8.21.1",
     "zod": "^4.4.3"
   },
   "devDependencies": {
@@ -54,13 +52,10 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/three": "^0.184.1",
+    "@types/ws": "^8.18.1",
     "babel-plugin-react-compiler": "1.0.0",
-    "prisma": "^5.22.0",
     "tailwindcss": "^4",
     "tsx": "^4.23.0",
     "typescript": "^5"
-  },
-  "prisma": {
-    "seed": "tsx --env-file=.env prisma/seed.ts"
   }
 }

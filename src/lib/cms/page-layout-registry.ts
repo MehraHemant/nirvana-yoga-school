@@ -150,15 +150,23 @@ export const PAGE_LAYOUTS: Record<PageLayoutId, PageLayoutDefinition> = {
       { id: "eligibility", label: "Eligibility", source: "pageModules" },
       { id: "syllabus", label: "Syllabus", source: "pageModules" },
       { id: "schedule", label: "Schedule", source: "pageModules" },
-      { id: "exam", label: "Exam (visibility)", source: "pageModules" },
       SHARED_LINK("whyNirvana", "Why Nirvana (shared)"),
       SHARED_LINK("siteMap", "Map (shared)"),
       SHARED_LINK("instagram", "Instagram (shared)"),
       SHARED_LINK("travel", "Travel (shared)"),
-      { id: "accommodation", label: "Accommodation & food", source: "pageModules" },
+      SHARED_LINK("examCertification", "Exam & certification (shared)"),
+      {
+        id: "accommodation",
+        label: "Accommodation & food",
+        source: "pageModules",
+      },
       { id: "pricing", label: "Pricing", source: "pageModules" },
       { id: "travel-live", label: "Travel (page live)", source: "pageModules" },
-      { id: "instagram-live", label: "Instagram (page live)", source: "pageModules" },
+      {
+        id: "instagram-live",
+        label: "Instagram (page live)",
+        source: "pageModules",
+      },
       { id: "map", label: "Map (page live)", source: "pageModules" },
       { id: "faq", label: "FAQ", source: "pageModules" },
     ],
@@ -176,6 +184,7 @@ export const PAGE_LAYOUTS: Record<PageLayoutId, PageLayoutDefinition> = {
       { id: "curriculum", label: "Curriculum", source: "courseDocument" },
       { id: "teachers", label: "Teachers", source: "courseDocument" },
       { id: "testimonials", label: "Testimonials", source: "courseDocument" },
+      SHARED_LINK("examCertification", "Exam & certification (shared)"),
       { id: "faq", label: "FAQ", source: "courseDocument" },
     ],
   },
@@ -189,13 +198,18 @@ export const PAGE_LAYOUTS: Record<PageLayoutId, PageLayoutDefinition> = {
       { id: "overview", label: "Overview", source: "courseDocument" },
       { id: "inclusions", label: "Inclusions", source: "courseDocument" },
       { id: "schedule", label: "Day schedule", source: "courseDocument" },
-      { id: "accommodation", label: "Accommodation & food", source: "pageModules" },
+      {
+        id: "accommodation",
+        label: "Accommodation & food",
+        source: "pageModules",
+      },
       { id: "packages", label: "Packages & dates", source: "courseDocument" },
       { id: "testimonials", label: "Testimonials", source: "courseDocument" },
       SHARED_LINK("whyNirvana", "Why Nirvana (shared)"),
       SHARED_LINK("siteMap", "Map (shared)"),
       SHARED_LINK("instagram", "Instagram (shared)"),
       SHARED_LINK("travel", "Travel (shared)"),
+      SHARED_LINK("examCertification", "Exam & certification (shared)"),
       { id: "faq", label: "FAQ", source: "courseDocument" },
     ],
   },
@@ -209,11 +223,20 @@ export const PAGE_LAYOUTS: Record<PageLayoutId, PageLayoutDefinition> = {
       { id: "programs", label: "Programs", source: "contentData" },
       { id: "gallery", label: "Gallery", source: "contentData" },
       { id: "editorial", label: "Editorial", source: "contentData" },
-      { id: "accommodation", label: "Accommodation & food", source: "pageModules" },
+      {
+        id: "accommodation",
+        label: "Accommodation & food",
+        source: "pageModules",
+      },
       SHARED_LINK("whyNirvana", "Why Nirvana (shared)"),
       SHARED_LINK("siteMap", "Map (shared)"),
       SHARED_LINK("instagram", "Instagram (shared)"),
-      { id: "instagram-live", label: "Instagram (page live)", source: "pageModules" },
+      SHARED_LINK("examCertification", "Exam & certification (shared)"),
+      {
+        id: "instagram-live",
+        label: "Instagram (page live)",
+        source: "pageModules",
+      },
       { id: "faqs", label: "Venue FAQs", source: "pageModules" },
       { id: "map", label: "Map (page live)", source: "pageModules" },
     ],
@@ -222,7 +245,12 @@ export const PAGE_LAYOUTS: Record<PageLayoutId, PageLayoutDefinition> = {
     layoutId: "yttHub",
     label: "YTT Hub",
     sections: [
-      { id: "hero", label: "Hero", source: "globalSettings", settingsKey: "yttHub" },
+      {
+        id: "hero",
+        label: "Hero",
+        source: "globalSettings",
+        settingsKey: "yttHub",
+      },
       {
         id: "sticky-nav",
         label: "Sticky nav",
@@ -265,6 +293,7 @@ export const PAGE_LAYOUTS: Record<PageLayoutId, PageLayoutDefinition> = {
       SHARED_LINK("siteMap", "Map (shared)"),
       SHARED_LINK("instagram", "Instagram (shared)"),
       SHARED_LINK("travel", "Travel (shared)"),
+      SHARED_LINK("examCertification", "Exam & certification (shared)"),
       {
         id: "faq",
         label: "FAQ",
@@ -285,13 +314,22 @@ export const PAGE_LAYOUTS: Record<PageLayoutId, PageLayoutDefinition> = {
       { id: "programs", label: "Programs", source: "contentData" },
       { id: "gallery", label: "Gallery", source: "contentData" },
       { id: "editorial", label: "Editorial", source: "contentData" },
-      { id: "accommodation", label: "Accommodation & food", source: "pageModules" },
+      {
+        id: "accommodation",
+        label: "Accommodation & food",
+        source: "pageModules",
+      },
       SHARED_LINK("whyNirvana", "Why Nirvana (shared)"),
       SHARED_LINK("siteMap", "Map (shared)"),
       SHARED_LINK("instagram", "Instagram (shared)"),
+      SHARED_LINK("examCertification", "Exam & certification (shared)"),
       SHARED_LINK("travel", "Travel (shared)"),
       { id: "travel-live", label: "Travel (page live)", source: "pageModules" },
-      { id: "instagram-live", label: "Instagram (page live)", source: "pageModules" },
+      {
+        id: "instagram-live",
+        label: "Instagram (page live)",
+        source: "pageModules",
+      },
       { id: "faq", label: "FAQ", source: "pageModules" },
       { id: "map", label: "Map (page live)", source: "pageModules" },
     ],
@@ -308,13 +346,22 @@ export const PAGE_LAYOUTS: Record<PageLayoutId, PageLayoutDefinition> = {
       { id: "syllabus", label: "Syllabus", source: "pageModules" },
       { id: "gallery", label: "Gallery", source: "contentData" },
       { id: "certification", label: "Certification", source: "contentData" },
-      { id: "accommodation", label: "Accommodation & food", source: "pageModules" },
+      {
+        id: "accommodation",
+        label: "Accommodation & food",
+        source: "pageModules",
+      },
       { id: "dates", label: "Dates / pricing", source: "pageModules" },
       { id: "highlights", label: "Highlights", source: "contentData" },
       SHARED_LINK("whyNirvana", "Why Nirvana (shared)"),
       SHARED_LINK("siteMap", "Map (shared)"),
       SHARED_LINK("instagram", "Instagram (shared)"),
-      { id: "instagram-live", label: "Instagram (page live)", source: "pageModules" },
+      SHARED_LINK("examCertification", "Exam & certification (shared)"),
+      {
+        id: "instagram-live",
+        label: "Instagram (page live)",
+        source: "pageModules",
+      },
       { id: "faq", label: "FAQ", source: "pageModules" },
       { id: "map", label: "Map (page live)", source: "pageModules" },
     ],
@@ -348,7 +395,7 @@ export const PAGE_LAYOUTS: Record<PageLayoutId, PageLayoutDefinition> = {
 /**
  * Resolves the layout family for a CMS page.
  *
- * @param type - Prisma / PageRef type string
+ * @param type - Neon / PageRef type string
  * @param slug - Page slug
  * @returns Layout id used by the admin router
  */
@@ -394,7 +441,7 @@ export function getPageLayout(
 }
 
 /**
- * Shared-section deep-links for a layout (Why Nirvana, Map, Instagram, Travel).
+ * Shared-section deep-links for a layout.
  *
  * @param layoutId - Resolved layout id
  */

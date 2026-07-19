@@ -5,7 +5,7 @@
  * Client-safe: `TEACHER_PAGE_SLUG`, `teacherSlug` (from teachers-slug).
  * Server-only: `getTeachers`, `getTeachersPage`, `mapTeachersFromPeople`.
  */
-export { TEACHER_PAGE_SLUG, teacherSlug } from "@/content/teachers-slug";
+
 export {
   getTeachers,
   getTeachersPage,
@@ -13,3 +13,4 @@ export {
   type TeachersPageData,
   type TeachersPagePresentation,
 } from "@/content/repositories/teachers";
+export { TEACHER_PAGE_SLUG, teacherSlug } from "@/content/teachers-slug";

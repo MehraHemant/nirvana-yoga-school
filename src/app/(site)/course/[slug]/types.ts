@@ -4,6 +4,7 @@ import type {
   ResidentialCourseDocument,
 } from "@/content/types";
 import type {
+  ExamCertificationContent,
   ResidentialLifeContent,
   ReviewsContent,
   SiteMapContent,
@@ -22,7 +23,11 @@ export type CoursePageData = {
   /** Shared site map embed from CMS */
   siteMap: SiteMapContent | null;
   /** Shared Instagram feed from CMS */
-  instagram: import("@/content/types/shared-sections").InstagramFeedContent | null;
+  instagram:
+    | import("@/content/types/shared-sections").InstagramFeedContent
+    | null;
   /** Shared travel guide from CMS */
   travel: import("@/content/types/shared-sections").TravelGuideContent | null;
+  /** Shared exam and certification content from CMS */
+  examCertification: ExamCertificationContent | null;
 };

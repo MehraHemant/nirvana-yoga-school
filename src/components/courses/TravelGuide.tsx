@@ -9,8 +9,8 @@ import {
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { Container, Heading, Pill, SectionHeader } from "@/components/ui";
-import { ChevronDown } from "@/icons";
 import type { TravelGuideContent } from "@/content/types/shared-sections";
+import { ChevronDown } from "@/icons";
 import { EASE_OUT } from "@/lib/motion";
 import {
   mapTravelTopics,
@@ -68,13 +68,14 @@ export default function TravelGuide({
     : TRAVEL_TOPICS;
   const intro = content?.intro?.trim() || TRAVEL_INTRO;
 
-  const [activeId, setActiveId] = useState<string | null>(topics[0]?.id ?? null);
+  const [activeId, setActiveId] = useState<string | null>(
+    topics[0]?.id ?? null,
+  );
   const [isPaused, setIsPaused] = useState(false);
   const prefersReduced = useReducedMotion() ?? false;
   const sectionRef = useRef<HTMLElement>(null);
   const isInView = useInView(sectionRef, { amount: 0.3 });
-  const active =
-    topics.find((topic) => topic.id === activeId) ?? topics[0];
+  const active = topics.find((topic) => topic.id === activeId) ?? topics[0];
 
   useEffect(() => {
     if (!isInView || isPaused || prefersReduced || topics.length <= 1) {

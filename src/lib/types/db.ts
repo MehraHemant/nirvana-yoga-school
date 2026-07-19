@@ -33,7 +33,7 @@ export type DbPublishable = {
 };
 
 /**
- * Serialize Prisma `DateTime` fields on a row to ISO strings for JSON APIs.
+ * Serialize Neon `DateTime` fields on a row to ISO strings for JSON APIs.
  *
  * @param row - Database row with Date timestamps
  * @returns Same row with ISO date strings

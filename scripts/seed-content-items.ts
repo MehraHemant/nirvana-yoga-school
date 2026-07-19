@@ -12,7 +12,7 @@ import {
   updateContentItemData,
 } from "@/lib/cms/content-items";
 import { syncDefaultContentTypes } from "@/lib/cms/content-types";
-import { prisma } from "@/lib/db";
+import { db } from "@/lib/db";
 
 /**
  * Creates a published component item of a given type and returns its id.
@@ -67,8 +67,8 @@ async function page(
 async function main() {
   // Reset first so pruning obsolete content types (which cascade-delete their
   // items) is never blocked by a reference `to_id` RESTRICT constraint.
-  await prisma.contentReference.deleteMany({});
-  await prisma.contentItem.deleteMany({});
+  await db.contentReference.deleteMany({});
+  await db.contentItem.deleteMany({});
   console.log("• Reset content items + references.");
 
   await syncDefaultContentTypes();
@@ -146,5 +146,5 @@ main()
     process.exit(1);
   })
   .finally(async () => {
-    await prisma.$disconnect();
+    await db.$disconnect();
   });

@@ -1,9 +1,10 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
-import { useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { useCallback, useRef, useState } from "react";
 import { Container, SectionHeader, TabSwitcher } from "@/components/ui";
 import { BookOpen, Bowl, Clock, Lotus, Sunrise } from "@/icons";
+import { useStickyTabBar } from "@/lib/hooks/useStickyTabBar";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 
 interface ScheduleItem {
@@ -52,7 +53,26 @@ export default function DailySchedule({
   schedule,
   htmlId = "schedule",
 }: DailyScheduleProps) {
+  const prefersReduced = useReducedMotion() ?? false;
   const [activeTab, setActiveTab] = useState<string>("full");
+  const { sentinelRef, sectionEndRef, tabsRef, isPinned, tabsTop, tabsHeight } =
+    useStickyTabBar();
+  const feedRef = useRef<HTMLDivElement>(null);
+
+  // Re-anchors the viewport to the top of the filtered feed so the sticky
+  // tab bar stays visually connected to its content after switching tabs.
+  const handleTabChange = useCallback(
+    (id: string) => {
+      setActiveTab(id);
+      requestAnimationFrame(() => {
+        feedRef.current?.scrollIntoView({
+          behavior: prefersReduced ? "auto" : "smooth",
+          block: "start",
+        });
+      });
+    },
+    [prefersReduced],
+  );
 
   // Determine icon type based on activity name or time
   const getIconType = (activity: string, time: string): ScheduleIconType => {
@@ -149,18 +169,44 @@ export default function DailySchedule({
             {description}
           </p>
         </motion.div>
+      </Container>
 
-        {/* Tab filters */}
-        <TabSwitcher
-          tabs={tabs}
-          activeId={activeTab}
-          onChange={setActiveTab}
-          layoutId="activeScheduleTab"
-          className="mb-12"
+      {/* Tab filters */}
+      <div ref={sentinelRef} className="h-px w-full" aria-hidden="true" />
+
+      {isPinned && (
+        <div
+          style={{ height: tabsHeight }}
+          className="w-full"
+          aria-hidden="true"
         />
+      )}
 
+      <div
+        ref={tabsRef}
+        style={isPinned ? { top: tabsTop } : undefined}
+        className={`z-30 bg-transparent ${
+          isPinned ? "fixed inset-x-0" : "relative"
+        }`}
+      >
+        <Container size="2xl" className="py-3">
+          <TabSwitcher
+            tabs={tabs}
+            activeId={activeTab}
+            onChange={handleTabChange}
+            layoutId="activeScheduleTab"
+            className="mb-0! pb-0!"
+          />
+        </Container>
+      </div>
+
+      <Container size="2xl" className="pt-8">
         {/* Dynamic Schedule Feed */}
-        <div className="relative max-w-3xl mx-auto min-h-[400px]">
+        <div
+          ref={feedRef}
+          className="relative max-w-3xl mx-auto min-h-[400px]"
+          style={{ scrollMarginTop: tabsTop + tabsHeight + 16 }}
+        >
           {/* Vertical central timeline guide */}
           <div className="absolute left-[30px] sm:left-1/2 top-4 bottom-4 w-0.5 bg-ink/10 -translate-x-1/2 hidden sm:block" />
 
@@ -232,6 +278,8 @@ export default function DailySchedule({
           special ceremonies.
         </div>
       </Container>
+
+      <div ref={sectionEndRef} className="h-px w-full" aria-hidden="true" />
     </section>
   );
 }

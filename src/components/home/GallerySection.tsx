@@ -47,10 +47,9 @@ export default function GallerySection({
       ? content.items
       : DEFAULT_HOME_PAGE_CONTENT.gallery.items;
 
-  const categories =
-    content.categories?.length
-      ? content.categories
-      : (DEFAULT_HOME_PAGE_CONTENT.gallery.categories ?? []);
+  const categories = content.categories?.length
+    ? content.categories
+    : (DEFAULT_HOME_PAGE_CONTENT.gallery.categories ?? []);
 
   const [selectedCategory, setSelectedCategory] = useState("all");
   const prefersReduced = useReducedMotion() ?? false;

@@ -2,6 +2,7 @@
 
 import {
   Accommodation,
+  ExamCertification,
   Food,
   InstagramFeed,
   PageGallerySection,
@@ -37,6 +38,7 @@ export default function HubClient({
   reviews,
   instagram,
   travel,
+  examCertification,
 }: SiteClientProps) {
   const inclusionItems = modules?.inclusions.items ?? mapped.inclusions;
   const programs = modules?.programs?.cards ?? mapped.programs;
@@ -58,6 +60,15 @@ export default function HubClient({
   const showInstagram =
     (modules?.flags.showInstagram ?? mapped.showInstagram) &&
     shouldRenderSection(instagram, Boolean(instagram?.media?.length));
+  const showExam =
+    (modules?.flags.showExam ?? false) &&
+    shouldRenderSection(
+      examCertification,
+      Boolean(
+        examCertification?.steps.length &&
+          examCertification.certificates.length,
+      ),
+    );
 
   return (
     <>
@@ -101,6 +112,9 @@ export default function HubClient({
         {programs.length > 0 && <PageProgramsSection cards={programs} />}
         {gallery.length > 0 && <PageGallerySection images={gallery} />}
         <SiteEditorial mapped={mapped} />
+        {showExam && examCertification ? (
+          <ExamCertification content={examCertification} />
+        ) : null}
         {(modules?.flags.showAccommodation ?? mapped.showAccommodation) ? (
           <>
             <Accommodation content={residentialLife} />

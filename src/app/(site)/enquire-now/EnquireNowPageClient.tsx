@@ -1,8 +1,8 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import Image from "next/image";
 import { useState } from "react";
+import { DarkMediaHero } from "@/components/hero";
 import { MapSection } from "@/components/home";
 import {
   Button,
@@ -133,32 +133,7 @@ export default function EnquireNowPageClient({
 
   return (
     <div className="bg-sand/15">
-      <section
-        id={heroHtmlId}
-        data-transparent-header="true"
-        className="relative min-h-[52svh] overflow-hidden bg-ink text-white lg:min-h-[58svh]"
-      >
-        <Image
-          src={content.hero.image}
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover object-center"
-        />
-        <div
-          className="absolute inset-0 bg-linear-to-r from-ink/90 via-ink/65 to-ink/25"
-          aria-hidden="true"
-        />
-        <div
-          className="absolute inset-x-0 top-0 h-48 bg-linear-to-b from-ink/75 to-transparent"
-          aria-hidden="true"
-        />
-        <div
-          className="pointer-events-none absolute -right-16 top-1/4 h-72 w-72 rounded-full bg-primary/20 blur-[100px]"
-          aria-hidden="true"
-        />
-
+      <DarkMediaHero id={heroHtmlId} image={content.hero.image} imageAlt="">
         <Container
           size="xl"
           className="relative z-10 flex min-h-[52svh] flex-col justify-center pb-12 pt-[calc(var(--site-header-height,4.75rem)+3rem)] sm:pb-14 sm:pt-[calc(var(--site-header-height,4.75rem)+3.5rem)] lg:min-h-[58svh] lg:pb-16 lg:pt-[calc(var(--site-header-height,4.75rem)+4rem)]"
@@ -211,7 +186,7 @@ export default function EnquireNowPageClient({
             </div>
           </motion.div>
         </Container>
-      </section>
+      </DarkMediaHero>
 
       <section
         id={formHtmlId}

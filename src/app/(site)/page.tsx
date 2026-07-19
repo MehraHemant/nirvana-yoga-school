@@ -1,5 +1,5 @@
-import dynamic from "next/dynamic";
 import type { Metadata } from "next";
+import dynamic from "next/dynamic";
 import { Suspense } from "react";
 import { HeroSection, JsonLd, WelcomeSection } from "@/components";
 import { DEFAULT_HOME_PAGE_CONTENT } from "@/content/data/dedicated-page-defaults";
@@ -64,10 +64,9 @@ function SectionSkeleton({
  * @param home - Normalized homepage CMS document
  */
 function buildHomeJsonLd(home: typeof DEFAULT_HOME_PAGE_CONTENT) {
-  const sameAs =
-    home.seo?.organization?.sameAs?.length
-      ? home.seo.organization.sameAs
-      : (DEFAULT_HOME_PAGE_CONTENT.seo?.organization?.sameAs ?? []);
+  const sameAs = home.seo?.organization?.sameAs?.length
+    ? home.seo.organization.sameAs
+    : (DEFAULT_HOME_PAGE_CONTENT.seo?.organization?.sameAs ?? []);
   const lb = {
     ...DEFAULT_HOME_PAGE_CONTENT.seo?.localBusiness,
     ...home.seo?.localBusiness,

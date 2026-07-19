@@ -79,6 +79,7 @@ export default async function Page({ params }: PageProps) {
       siteMap={data.siteMap}
       instagram={data.instagram}
       travel={data.travel}
+      examCertification={data.examCertification}
     />
   );
 }

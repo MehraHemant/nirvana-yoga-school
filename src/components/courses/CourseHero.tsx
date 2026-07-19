@@ -3,6 +3,7 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { HeroFrame } from "@/components/hero";
 import { Container, Heading, MediaLightbox } from "@/components/ui";
 import type { CourseImageDetail } from "@/content/types";
 import type { CmsInteractiveImage } from "@/content/types/cms-image";
@@ -300,7 +301,7 @@ export default function CourseHero({
   const activeClickAction = activePhoto?.clickAction ?? "fullscreen";
 
   return (
-    <section className="course-hero-section relative flex h-svh min-h-svh w-full shrink-0 flex-col overflow-hidden bg-white">
+    <HeroFrame className="course-hero-section relative flex h-svh min-h-svh w-full shrink-0 flex-col overflow-hidden bg-white">
       {/* Fixed max header height — avoids layout shift when the bar shrinks on scroll */}
       <div className="h-[4.75rem] shrink-0 md:h-[5.5rem]" aria-hidden="true" />
       {/* Ambient glow */}
@@ -734,6 +735,6 @@ export default function CourseHero({
         onChangeActiveIndex={setLightboxIdx}
         title={title}
       />
-    </section>
+    </HeroFrame>
   );
 }

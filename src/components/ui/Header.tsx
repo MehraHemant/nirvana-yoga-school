@@ -16,7 +16,7 @@ const LEGACY_TRANSPARENT_HERO_PATHS = new Set(["/", "/enquire-now"]);
 
 type HeaderData = Partial<GlobalHeader> & {
   navigation?: NavItem[];
-  logo?: { light: string; dark: string };
+  logo?: Partial<GlobalHeader["logo"]>;
 };
 
 /**
@@ -88,6 +88,18 @@ function linkProps(href: string, external?: boolean) {
     };
   }
   return { href };
+}
+
+/**
+ * Returns a safe internal or HTTP(S) destination for the header logo.
+ *
+ * @param value - Configured logo destination
+ */
+function safeLogoHref(value: unknown): string {
+  if (typeof value !== "string") return "/";
+  const href = value.trim();
+  if (href.startsWith("/") || /^https?:\/\//i.test(href)) return href;
+  return "/";
 }
 
 /**
@@ -415,6 +427,11 @@ export default function Header({ initialData = null }: HeaderProps) {
   const navigation = headerData?.navigation ?? [];
   const logoLight = headerData?.logo?.light ?? DEFAULT_LOGO_LIGHT;
   const logoDark = headerData?.logo?.dark ?? DEFAULT_LOGO_DARK;
+  const logoLightAlt =
+    headerData?.logo?.lightAlt?.trim() || "Nirvana Yoga School";
+  const logoDarkAlt =
+    headerData?.logo?.darkAlt?.trim() || "Nirvana Yoga School";
+  const logoHref = safeLogoHref(headerData?.logo?.href);
   const ctas = normalizeHeaderCtas(headerData);
 
   return (
@@ -426,14 +443,14 @@ export default function Header({ initialData = null }: HeaderProps) {
           className={`header-inner mx-auto max-w-368 px-5 md:px-8 flex items-center justify-between gap-4 ${innerHeightClass}`}
         >
           <Link
-            href="/"
+            {...linkProps(logoHref)}
             className="flex items-center shrink-0 group"
-            aria-label="Nirvana Yoga School home"
+            aria-label={logoLightAlt}
           >
             <div className="relative h-16 md:h-20 w-[168px] md:w-[196px]">
               <Image
                 src={logoDark}
-                alt=""
+                alt={logoDarkAlt}
                 width={196}
                 height={78}
                 priority
@@ -441,7 +458,7 @@ export default function Header({ initialData = null }: HeaderProps) {
               />
               <Image
                 src={logoLight}
-                alt="Nirvana Yoga School"
+                alt={logoLightAlt}
                 width={196}
                 height={78}
                 priority

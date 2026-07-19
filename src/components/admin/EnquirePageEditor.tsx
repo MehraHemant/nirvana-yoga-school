@@ -68,8 +68,7 @@ export function EnquirePageEditor({
   const jumpDefs = showEnquirySections
     ? ENQUIRE_JUMP_DEFS
     : ENQUIRE_JUMP_DEFS.filter(
-        (definition) =>
-          definition.key !== "form" && definition.key !== "map",
+        (definition) => definition.key !== "form" && definition.key !== "map",
       );
 
   const jumpItems = useMemo(() => {
@@ -122,9 +121,7 @@ export function EnquirePageEditor({
   }
 
   return (
-    <div
-      className={`admin-editor${isBooking ? " admin-booking-editor" : ""}`}
-    >
+    <div className={`admin-editor${isBooking ? " admin-booking-editor" : ""}`}>
       <div className="admin-editor-header">
         <div>
           <Link href={backHref} className="admin-back-link">
@@ -183,9 +180,7 @@ export function EnquirePageEditor({
             <SectionIdField
               fieldId="enquire-hero-id"
               value={doc.hero._id}
-              onChange={(_id) =>
-                setDoc({ ...doc, hero: { ...doc.hero, _id } })
-              }
+              onChange={(_id) => setDoc({ ...doc, hero: { ...doc.hero, _id } })}
             />
             <ImageField
               label="Hero image"
@@ -284,7 +279,10 @@ export function EnquirePageEditor({
               }}
             >
               {doc.steps.map((item, index) => (
-                <SortableRow key={stepKeys.keys[index]} id={stepKeys.keys[index]}>
+                <SortableRow
+                  key={stepKeys.keys[index]}
+                  id={stepKeys.keys[index]}
+                >
                   {({ dragHandleProps }) => (
                     <NestedItemCard
                       title={item.title || `Step ${index + 1}`}
@@ -338,74 +336,76 @@ export function EnquirePageEditor({
 
           {showEnquirySections ? (
             <>
-          <CollapsiblePanel
-            id={panelId("form")}
-            title="Form copy"
-            subtitle="Labels next to the enquiry form"
-          >
-            <SectionIdField
-              fieldId="enquire-form-id"
-              value={doc.form._id}
-              onChange={(_id) =>
-                setDoc({ ...doc, form: { ...doc.form, _id } })
-              }
-            />
-            <TextField
-              label="Eyebrow"
-              value={doc.form.eyebrow}
-              onChange={(eyebrow) =>
-                setDoc({ ...doc, form: { ...doc.form, eyebrow } })
-              }
-            />
-            <TextField
-              label="Title"
-              value={doc.form.title}
-              onChange={(title) =>
-                setDoc({ ...doc, form: { ...doc.form, title } })
-              }
-            />
-            <TextField
-              label="Lead"
-              value={doc.form.lead}
-              onChange={(lead) =>
-                setDoc({ ...doc, form: { ...doc.form, lead } })
-              }
-              multiline
-              rows={3}
-            />
-            <TextField
-              label="Submit label"
-              value={doc.form.submitLabel}
-              onChange={(submitLabel) =>
-                setDoc({ ...doc, form: { ...doc.form, submitLabel } })
-              }
-            />
-          </CollapsiblePanel>
+              <CollapsiblePanel
+                id={panelId("form")}
+                title="Form copy"
+                subtitle="Labels next to the enquiry form"
+              >
+                <SectionIdField
+                  fieldId="enquire-form-id"
+                  value={doc.form._id}
+                  onChange={(_id) =>
+                    setDoc({ ...doc, form: { ...doc.form, _id } })
+                  }
+                />
+                <TextField
+                  label="Eyebrow"
+                  value={doc.form.eyebrow}
+                  onChange={(eyebrow) =>
+                    setDoc({ ...doc, form: { ...doc.form, eyebrow } })
+                  }
+                />
+                <TextField
+                  label="Title"
+                  value={doc.form.title}
+                  onChange={(title) =>
+                    setDoc({ ...doc, form: { ...doc.form, title } })
+                  }
+                />
+                <TextField
+                  label="Lead"
+                  value={doc.form.lead}
+                  onChange={(lead) =>
+                    setDoc({ ...doc, form: { ...doc.form, lead } })
+                  }
+                  multiline
+                  rows={3}
+                />
+                <TextField
+                  label="Submit label"
+                  value={doc.form.submitLabel}
+                  onChange={(submitLabel) =>
+                    setDoc({ ...doc, form: { ...doc.form, submitLabel } })
+                  }
+                />
+              </CollapsiblePanel>
 
-          <CollapsiblePanel
-            id={panelId("map")}
-            title="Map"
-            subtitle="Show or hide the map embed"
-          >
-            <SectionIdField
-              fieldId="enquire-map-id"
-              value={doc.map._id}
-              onChange={(_id) => setDoc({ ...doc, map: { ...doc.map, _id } })}
-            />
-            <label className="admin-checkbox-row">
-              <input
-                type="checkbox"
-                checked={doc.map.show}
-                onChange={(event) =>
-                  setDoc({
-                    ...doc,
-                    map: { ...doc.map, show: event.target.checked },
-                  })
-                }
-              />
-              <span>Show map section</span>
-            </label>
-          </CollapsiblePanel>
+              <CollapsiblePanel
+                id={panelId("map")}
+                title="Map"
+                subtitle="Show or hide the map embed"
+              >
+                <SectionIdField
+                  fieldId="enquire-map-id"
+                  value={doc.map._id}
+                  onChange={(_id) =>
+                    setDoc({ ...doc, map: { ...doc.map, _id } })
+                  }
+                />
+                <label className="admin-checkbox-row">
+                  <input
+                    type="checkbox"
+                    checked={doc.map.show}
+                    onChange={(event) =>
+                      setDoc({
+                        ...doc,
+                        map: { ...doc.map, show: event.target.checked },
+                      })
+                    }
+                  />
+                  <span>Show map section</span>
+                </label>
+              </CollapsiblePanel>
             </>
           ) : null}
         </div>

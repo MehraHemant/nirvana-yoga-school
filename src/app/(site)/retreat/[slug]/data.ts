@@ -1,6 +1,7 @@
 import { mapRetreatPage } from "@/content/mappers/retreat-page";
 import { getPageModules } from "@/content/repositories/page-modules";
 import {
+  getExamCertification,
   getRetreatAccommodation,
   normalizeRetreatAccommodation,
 } from "@/content/repositories/shared-sections";
@@ -15,10 +16,12 @@ import type { RetreatPageData } from "./types";
 export async function loadRetreatPageData(
   retreat: RetreatDocument,
 ): Promise<RetreatPageData> {
-  const [modulesResult, lodgingResult] = await Promise.all([
-    getPageModules(retreat.slug),
-    getRetreatAccommodation(),
-  ]);
+  const [modulesResult, lodgingResult, examCertificationResult] =
+    await Promise.all([
+      getPageModules(retreat.slug),
+      getRetreatAccommodation(),
+      getExamCertification().catch(() => null),
+    ]);
 
   const lodging = modulesResult.data?.retreatAccommodation
     ? normalizeRetreatAccommodation(modulesResult.data.retreatAccommodation)
@@ -29,5 +32,6 @@ export async function loadRetreatPageData(
     mapped: mapRetreatPage(retreat, lodging),
     modules: modulesResult.data,
     lodging,
+    examCertification: examCertificationResult?.data ?? null,
   };
 }

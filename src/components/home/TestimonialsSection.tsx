@@ -27,11 +27,9 @@ export default function TestimonialsSection({
 }: TestimonialsSectionProps = {}) {
   const eyebrow =
     content?.eyebrow ?? DEFAULT_HOME_PAGE_CONTENT.testimonials.eyebrow;
-  const title =
-    content?.title ?? DEFAULT_HOME_PAGE_CONTENT.testimonials.title;
+  const title = content?.title ?? DEFAULT_HOME_PAGE_CONTENT.testimonials.title;
   const description =
-    content?.description ??
-    DEFAULT_HOME_PAGE_CONTENT.testimonials.description;
+    content?.description ?? DEFAULT_HOME_PAGE_CONTENT.testimonials.description;
 
   return (
     <section

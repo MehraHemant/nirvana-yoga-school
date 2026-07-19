@@ -8,13 +8,13 @@ import {
 } from "framer-motion";
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { resolveFacilityByLabel } from "@/components/courses/facility-icons";
 import {
   Container,
   MediaLightbox,
   SectionHeader,
   TabSwitcher,
 } from "@/components/ui";
-import { resolveFacilityByLabel } from "@/components/courses/facility-icons";
 import type { RetreatAccommodation } from "@/content/types/retreat-page";
 import type {
   RetreatAccommodationContent,
@@ -224,7 +224,7 @@ function RetreatGalleryPanel({
         <div className="surface-panel overflow-hidden rounded-xl p-2 shadow-xs">
           <ul
             ref={scrollRef}
-            className="scrollbar-none flex max-w-full touch-pan-x gap-2 overflow-x-auto overscroll-x-contain py-0.5 snap-x snap-mandatory"
+            className="no-scrollbar flex max-w-full touch-pan-x gap-2 overflow-x-auto overscroll-x-contain py-0.5 snap-x snap-mandatory"
             aria-label={`${label} thumbnails`}
           >
             {images.map((item, index) => {
@@ -453,7 +453,9 @@ export default function RetreatAccommodationSection({
   }
 
   const lodgingFoodTabs = [
-    ...(showLodging ? [{ id: "lodging" as const, label: "Ashram Lodging" }] : []),
+    ...(showLodging
+      ? [{ id: "lodging" as const, label: "Ashram Lodging" }]
+      : []),
     ...(showFood ? [{ id: "food" as const, label: "Sattvic Food" }] : []),
   ];
 

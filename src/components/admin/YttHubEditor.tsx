@@ -8,9 +8,9 @@ import { CollapsiblePanel } from "@/components/admin/CollapsiblePanel";
 import { ImageField } from "@/components/admin/ImageField";
 import { ImageListField } from "@/components/admin/ImageListField";
 import { PageSeoFields } from "@/components/admin/PageSeoFields";
-import { toSectionDomId } from "@/components/admin/sectionDomId";
 import { SectionIdField } from "@/components/admin/SectionIdField";
 import { StringListField } from "@/components/admin/StringListField";
+import { toSectionDomId } from "@/components/admin/sectionDomId";
 import { TextField } from "@/components/admin/TextField";
 import { useSectionScrollSpy } from "@/components/admin/useSectionScrollSpy";
 import { useStableListKeys } from "@/components/admin/useStableListKeys";
@@ -29,7 +29,11 @@ const YTT_HUB_JUMP_DEFS = [
   { slug: "hero", label: "Hero", key: "hero" as const },
   { slug: "sticky-nav", label: "Sticky nav", key: "stickyNav" as const },
   { slug: "overview", label: "Overview", key: "overview" as const },
-  { slug: "why-rishikesh", label: "Why Rishikesh", key: "whyRishikesh" as const },
+  {
+    slug: "why-rishikesh",
+    label: "Why Rishikesh",
+    key: "whyRishikesh" as const,
+  },
   { slug: "courses", label: "Courses", key: "courses" as const },
   { slug: "eligibility", label: "Eligibility", key: "eligibility" as const },
   { slug: "faq", label: "FAQ", key: "faq" as const },
@@ -43,10 +47,7 @@ type SectionIdKey = keyof NonNullable<YttHubContent["sectionIds"]>;
  * @param doc - Current YTT hub document
  * @param key - Section key in `sectionIds`
  */
-function sectionIdRef(
-  doc: YttHubContent,
-  key: SectionIdKey,
-): { _id?: string } {
+function sectionIdRef(doc: YttHubContent, key: SectionIdKey): { _id?: string } {
   return { _id: doc.sectionIds?.[key] };
 }
 
@@ -74,9 +75,7 @@ export function YttHubEditor({
   const jumpItems = useMemo(() => {
     return YTT_HUB_JUMP_DEFS.map((def) => {
       const section =
-        def.key === "meta"
-          ? doc.meta
-          : sectionIdRef(doc, def.key);
+        def.key === "meta" ? doc.meta : sectionIdRef(doc, def.key);
       return {
         id: toSectionDomId(def.slug, section),
         label: def.label,
@@ -94,8 +93,7 @@ export function YttHubEditor({
   function panelId(slug: (typeof YTT_HUB_JUMP_DEFS)[number]["slug"]): string {
     const def = YTT_HUB_JUMP_DEFS.find((d) => d.slug === slug);
     if (!def) return toSectionDomId(slug);
-    const section =
-      def.key === "meta" ? doc.meta : sectionIdRef(doc, def.key);
+    const section = def.key === "meta" ? doc.meta : sectionIdRef(doc, def.key);
     return toSectionDomId(def.slug, section);
   }
 

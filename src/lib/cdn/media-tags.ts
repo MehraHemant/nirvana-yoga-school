@@ -33,7 +33,7 @@ export function normalizeMediaTags(
 }
 
 /**
- * Parse tags stored as Prisma Json (MySQL JSON column).
+ * Parse tags stored as Neon Json (MySQL JSON column).
  *
  * @param value - Raw value from database
  * @returns Normalized tag list

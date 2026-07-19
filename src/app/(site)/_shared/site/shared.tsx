@@ -8,7 +8,10 @@ import {
 } from "@/components/courses";
 import { FAQSection } from "@/components/ui";
 import type { OverviewTitleKey } from "@/content/mappers/site-page-copy";
-import { isSectionLive, shouldRenderSection } from "@/lib/cms/section-visibility";
+import {
+  isSectionLive,
+  shouldRenderSection,
+} from "@/lib/cms/section-visibility";
 import { resolveSectionHtmlId } from "@/lib/html-id";
 import type { SiteClientProps } from "./types";
 

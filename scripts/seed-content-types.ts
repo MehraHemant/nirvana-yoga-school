@@ -4,7 +4,7 @@
  * Usage: npm run db:seed-content-types
  */
 import { syncDefaultContentTypes } from "@/lib/cms/content-types";
-import { prisma } from "@/lib/db";
+import { db } from "@/lib/db";
 
 async function main() {
   await syncDefaultContentTypes();
@@ -12,9 +12,9 @@ async function main() {
 
   // Remove obsolete keys from the first CMS iteration
   for (const key of ["cta", "switch_block"]) {
-    const row = await prisma.contentType.findUnique({ where: { key } });
+    const row = await db.contentType.findUnique({ where: { key } });
     if (row && !row.isSystem) {
-      await prisma.contentType.delete({ where: { key } });
+      await db.contentType.delete({ where: { key } });
       console.log(`removed legacy ${key}`);
     }
   }
@@ -26,5 +26,5 @@ main()
     process.exit(1);
   })
   .finally(async () => {
-    await prisma.$disconnect();
+    await db.$disconnect();
   });

@@ -19,6 +19,7 @@ import {
   WhyNirvana,
 } from "@/components/courses";
 import { COURSE_FAQ_CATEGORIES, FAQSection } from "@/components/ui";
+import { DEFAULT_EXAM_CERTIFICATION } from "@/content/data/exam-certification-defaults";
 import {
   isSectionLive,
   shouldRenderSection,
@@ -42,6 +43,7 @@ export default function CourseClient({
   siteMap,
   instagram,
   travel,
+  examCertification,
 }: CoursePageData) {
   const m = modules;
   const heroFee = m?.hero.type === "bento-media" ? m.hero.fee : course.fee;
@@ -91,6 +93,15 @@ export default function CourseClient({
   const showInstagram =
     (m?.flags.showInstagram ?? true) &&
     shouldRenderSection(instagram, Boolean(instagram?.media?.length));
+  const showExam =
+    (m?.flags.showExam ?? true) &&
+    shouldRenderSection(
+      examCertification,
+      Boolean(
+        examCertification?.steps.length &&
+          examCertification.certificates.length,
+      ),
+    );
 
   return (
     <>
@@ -220,7 +231,11 @@ export default function CourseClient({
           />
         ) : null}
 
-        {(m?.flags.showExam ?? true) ? <ExamCertification /> : null}
+        {showExam && examCertification ? (
+          <ExamCertification content={examCertification} />
+        ) : !examCertification && (m?.flags.showExam ?? true) ? (
+          <ExamCertification content={DEFAULT_EXAM_CERTIFICATION} />
+        ) : null}
 
         {showAccommodation ? (
           <>

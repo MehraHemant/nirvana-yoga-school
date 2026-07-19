@@ -3,16 +3,16 @@
 import type { SyllabusModule } from "@/content/types";
 import { CollapsiblePanel } from "../CollapsiblePanel";
 import { NestedItemCard } from "../NestedItemCard";
+import { SectionIdField } from "../SectionIdField";
 import {
+  reorderItems,
   SortableList,
   SortableRow,
-  reorderItems,
   withSortField,
 } from "../SortableList";
 import { StringListField } from "../StringListField";
 import { TextField } from "../TextField";
 import { useStableListKeys } from "../useStableListKeys";
-import { SectionIdField } from "../SectionIdField";
 import { ModuleLiveField } from "./ModuleLiveField";
 import type { ModulePanelProps } from "./types";
 

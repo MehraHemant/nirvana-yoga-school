@@ -7,7 +7,7 @@ import {
   footerFieldsToGlobalFooter,
   globalFooterToFields,
 } from "@/lib/cms/footer-fields";
-import { prisma } from "@/lib/db";
+import { db } from "@/lib/db";
 
 const DEFAULT_FOOTER_FIELDS = globalFooterToFields({
   brand: {
@@ -84,7 +84,7 @@ const DEFAULT_FOOTER_FIELDS = globalFooterToFields({
  */
 export async function saveSiteFooterAction(formData: FormData) {
   const fields = readDataFromFormData(formData);
-  const existing = await prisma.globalSettings.findUnique({
+  const existing = await db.globalSettings.findUnique({
     where: { key: "footer" },
   });
   const previous =
@@ -94,7 +94,7 @@ export async function saveSiteFooterAction(formData: FormData) {
 
   const footer = footerFieldsToGlobalFooter(fields, previous);
 
-  await prisma.globalSettings.upsert({
+  await db.globalSettings.upsert({
     where: { key: "footer" },
     create: { key: "footer", value: footer },
     update: { value: footer },
@@ -110,7 +110,7 @@ export async function saveSiteFooterAction(formData: FormData) {
  * Loads footer field values for the admin editor.
  */
 export async function loadSiteFooterFields(): Promise<Record<string, unknown>> {
-  const row = await prisma.globalSettings.findUnique({
+  const row = await db.globalSettings.findUnique({
     where: { key: "footer" },
   });
   if (!row?.value || typeof row.value !== "object") {

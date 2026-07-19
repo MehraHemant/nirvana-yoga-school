@@ -1,5 +1,6 @@
 import { revalidateTag } from "next/cache";
 import { getPageRef } from "@/content/pages/registry";
+import { teacherSlug } from "@/content/teachers-slug";
 import type {
   BlogPostDocument,
   CourseDocument,
@@ -14,7 +15,7 @@ import {
   buildModulesFromOnlineCourse,
   syncPageFieldsFromModules,
 } from "@/lib/cms/page-modules-builder";
-import { prisma, type DbClient } from "@/lib/db";
+import { type DbClient, db } from "@/lib/db";
 
 /**
  * Upsert a `SitePageDocument` and all child rows from admin API input.
@@ -34,6 +35,24 @@ function sitePageContentData(doc: SitePageDocument): Record<string, unknown> {
 }
 
 /**
+ * Keeps the canonical faculty store unique by its public selection identity.
+ *
+ * @param people - Teacher profile rows submitted by the faculty editor
+ */
+function uniqueTeacherPeople(
+  people: NonNullable<SitePageDocument["people"]>,
+): NonNullable<SitePageDocument["people"]> {
+  const seen = new Set<string>();
+  return people.flatMap((person) => {
+    const name = person.name.trim();
+    const identity = teacherSlug(name) || name.toLocaleLowerCase();
+    if (!name || seen.has(identity)) return [];
+    seen.add(identity);
+    return [{ ...person, name }];
+  });
+}
+
+/**
  * Upsert a `SitePageDocument` and all child rows from admin API input.
  *
  * @param doc - Full site page document
@@ -42,7 +61,7 @@ export async function upsertSitePageDocument(doc: SitePageDocument) {
   const ref = getPageRef(doc.slug);
   const type = ref?.type ?? "site";
   const contentData = sitePageContentData(doc);
-  const page = await prisma.page.upsert({
+  const page = await db.page.upsert({
     where: { slug: doc.slug },
     create: {
       slug: doc.slug,
@@ -69,7 +88,7 @@ export async function upsertSitePageDocument(doc: SitePageDocument) {
     select: { id: true, type: true },
   });
 
-  await prisma.$transaction(async (tx) => {
+  await db.$transaction(async (tx) => {
     await Promise.all([
       tx.pageSection.deleteMany({ where: { pageId: page.id } }),
       tx.pagePackage.deleteMany({ where: { pageId: page.id } }),
@@ -121,7 +140,10 @@ export async function upsertSitePageDocument(doc: SitePageDocument) {
       });
     }
 
-    const people = doc.people ?? [];
+    const people =
+      doc.slug === "teacher"
+        ? uniqueTeacherPeople(doc.people ?? [])
+        : (doc.people ?? []);
     if (people.length > 0) {
       await tx.pagePerson.createMany({
         data: people.map((person, index) => ({
@@ -181,18 +203,18 @@ export async function upsertPageModules(
     pageModules: modules,
   };
 
-  const existing = await prisma.page.findUnique({
+  const existing = await db.page.findUnique({
     where: { slug },
     select: { id: true },
   });
 
   const page = existing
-    ? await prisma.page.update({
+    ? await db.page.update({
         where: { id: existing.id },
         data,
         select: { id: true, type: true },
       })
-    : await prisma.page.create({
+    : await db.page.create({
         data: { slug, ...data },
         select: { id: true, type: true },
       });
@@ -231,9 +253,9 @@ async function createSection(
   pageId: string,
   sortOrder: number,
   section: SitePageSection,
-  db: DbClient = prisma,
+  database: DbClient = db,
 ) {
-  const created = await db.pageSection.create({
+  const created = await database.pageSection.create({
     data: {
       pageId,
       sortOrder,
@@ -249,7 +271,7 @@ async function createSection(
 
   const items = section.items ?? [];
   if (items.length > 0) {
-    await db.sectionItem.createMany({
+    await database.sectionItem.createMany({
       data: items.map((value, index) => ({
         sectionId: created.id,
         sortOrder: index,
@@ -259,7 +281,7 @@ async function createSection(
   }
 
   for (const [index, subsection] of (section.subsections ?? []).entries()) {
-    const sub = await db.sectionSubsection.create({
+    const sub = await database.sectionSubsection.create({
       data: {
         sectionId: created.id,
         sortOrder: index,
@@ -271,7 +293,7 @@ async function createSection(
 
     const subItems = subsection.items ?? [];
     if (subItems.length > 0) {
-      await db.subsectionItem.createMany({
+      await database.subsectionItem.createMany({
         data: subItems.map((value, itemIndex) => ({
           subsectionId: sub.id,
           sortOrder: itemIndex,
@@ -292,7 +314,7 @@ export async function upsertCourseDocument(
   doc: CourseDocument,
   pageType: "course" | "online" = "course",
 ) {
-  const page = await prisma.page.upsert({
+  const page = await db.page.upsert({
     where: { slug: doc.slug },
     create: {
       slug: doc.slug,
@@ -311,7 +333,7 @@ export async function upsertCourseDocument(
     },
   });
 
-  await prisma.courseDocument.upsert({
+  await db.courseDocument.upsert({
     where: { pageId: page.id },
     create: {
       pageId: page.id,
@@ -360,7 +382,7 @@ export async function upsertProductDocument(
         ? document.subtitle
         : "");
 
-  const page = await prisma.page.upsert({
+  const page = await db.page.upsert({
     where: { slug },
     create: {
       slug,
@@ -378,7 +400,7 @@ export async function upsertProductDocument(
     update: { type: pageType, title, description, image },
   });
 
-  await prisma.courseDocument.upsert({
+  await db.courseDocument.upsert({
     where: { pageId: page.id },
     create: { pageId: page.id, document },
     update: { document },
@@ -396,7 +418,7 @@ export async function upsertProductDocument(
 export async function upsertBlogPost(doc: BlogPostDocument) {
   const publishedAt = doc.publishedAt ? new Date(doc.publishedAt) : null;
 
-  const post = await prisma.blogPost.upsert({
+  const post = await db.blogPost.upsert({
     where: { slug: doc.slug },
     create: {
       slug: doc.slug,
@@ -430,7 +452,7 @@ export async function upsertBlogPost(doc: BlogPostDocument) {
  * @param slug - Page slug
  */
 export async function unpublishPage(slug: string): Promise<void> {
-  await prisma.page.update({
+  await db.page.update({
     where: { slug },
     data: { published: false },
   });

@@ -3,7 +3,7 @@
  * Home FAQs/reviews are copied from global_settings when present.
  *
  * Run: `npx tsx scripts/seed-dedicated-pages.ts`
- * Also called from `prisma/seed.ts`.
+ * Also called from `scripts/seed-cms.ts`.
  */
 import {
   DEFAULT_CONTACT_PAGE_CONTENT,
@@ -15,7 +15,7 @@ import type {
   HomeFaqsContent,
   ReviewsContent,
 } from "../src/content/types/shared-sections";
-import { prisma } from "../src/lib/db/client";
+import { db } from "../src/lib/db/client";
 
 type DedicatedSeed = {
   slug: string;
@@ -30,15 +30,15 @@ async function buildHomeContent(): Promise<HomePageContent> {
   const home = structuredClone(DEFAULT_HOME_PAGE_CONTENT);
 
   const [faqsRow, reviewsRow, teacherPage] = await Promise.all([
-    prisma.globalSettings.findUnique({
+    db.globalSettings.findUnique({
       where: { key: "homeFaqs" },
       select: { value: true },
     }),
-    prisma.globalSettings.findUnique({
+    db.globalSettings.findUnique({
       where: { key: "reviews" },
       select: { value: true },
     }),
-    prisma.page.findUnique({
+    db.page.findUnique({
       where: { slug: "teacher" },
       select: { contentData: true },
     }),
@@ -68,8 +68,7 @@ async function buildHomeContent(): Promise<HomePageContent> {
       eyebrow: presentation.homeEyebrow?.trim() || home.teachersTeaser.eyebrow,
       title: presentation.homeTitle.trim(),
       description:
-        presentation.homeDescription?.trim() ||
-        home.teachersTeaser.description,
+        presentation.homeDescription?.trim() || home.teachersTeaser.description,
     };
   }
 
@@ -97,7 +96,7 @@ export async function seedDedicatedPages() {
   ];
 
   for (const seed of seeds) {
-    await prisma.page.upsert({
+    await db.page.upsert({
       where: { slug: seed.slug },
       create: {
         slug: seed.slug,
@@ -134,6 +133,6 @@ if (isDirectRun) {
       process.exitCode = 1;
     })
     .finally(async () => {
-      await prisma.$disconnect();
+      await db.$disconnect();
     });
 }

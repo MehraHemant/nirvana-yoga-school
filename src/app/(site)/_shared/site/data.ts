@@ -3,8 +3,8 @@ import { isKirtanPage, mapKirtanPage } from "@/content/mappers/kirtan-page";
 import { mapSitePage } from "@/content/mappers/site-page";
 import { isVenuePage, mapVenuePage } from "@/content/mappers/venue-page";
 import { mapTeachersFromPeople } from "@/content/repositories/teachers";
-import type { SharedFaq } from "@/content/types/shared-sections";
 import type { PageModulesDocument, SitePageDocument } from "@/content/types";
+import type { SharedFaq } from "@/content/types/shared-sections";
 import type { SitePageData, SitePageVariant } from "./types";
 
 export function sitePageVariant(slug: string): SitePageVariant {
@@ -60,5 +60,6 @@ export function loadSitePageData(
     siteMap: null,
     instagram: null,
     travel: null,
+    examCertification: null,
   };
 }

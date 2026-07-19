@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/db";
+import { db } from "@/lib/db";
 
 export type MediaUsageResult = {
   inUse: boolean;
@@ -26,8 +26,8 @@ async function countJsonContains(
   column: string,
   pattern: string,
 ): Promise<number> {
-  const rows = await prisma.$queryRawUnsafe<{ count: bigint }[]>(
-    `SELECT COUNT(*) AS count FROM \`${table}\` WHERE CAST(\`${column}\` AS CHAR) LIKE ? ESCAPE '\\\\'`,
+  const rows = await db.$queryRawUnsafe<{ count: bigint }[]>(
+    `SELECT COUNT(*) AS count FROM "${table}" WHERE CAST("${column}" AS TEXT) LIKE ? ESCAPE '\\'`,
     pattern,
   );
   return Number(rows[0]?.count ?? 0);
@@ -46,7 +46,7 @@ export async function getMediaAssetUsage(asset: {
   const references: string[] = [];
   const pattern = `%${escapeLikePattern(asset.url)}%`;
 
-  const galleryCount = await prisma.pageGalleryImage.count({
+  const galleryCount = await db.pageGalleryImage.count({
     where: {
       OR: [{ mediaAssetId: asset.id }, { url: asset.url }],
     },
@@ -55,14 +55,14 @@ export async function getMediaAssetUsage(asset: {
     references.push(`${galleryCount} gallery row(s)`);
   }
 
-  const pageHeroCount = await prisma.page.count({
+  const pageHeroCount = await db.page.count({
     where: { image: asset.url },
   });
   if (pageHeroCount > 0) {
     references.push(`${pageHeroCount} page hero image(s)`);
   }
 
-  const sectionImageCount = await prisma.pageSection.count({
+  const sectionImageCount = await db.pageSection.count({
     where: { image: asset.url },
   });
   if (sectionImageCount > 0) {
@@ -78,35 +78,35 @@ export async function getMediaAssetUsage(asset: {
     references.push(`${sectionImagesJson} section gallery JSON`);
   }
 
-  const subsectionCount = await prisma.sectionSubsection.count({
+  const subsectionCount = await db.sectionSubsection.count({
     where: { image: asset.url },
   });
   if (subsectionCount > 0) {
     references.push(`${subsectionCount} subsection image(s)`);
   }
 
-  const packageCount = await prisma.pagePackage.count({
+  const packageCount = await db.pagePackage.count({
     where: { image: asset.url },
   });
   if (packageCount > 0) {
     references.push(`${packageCount} package image(s)`);
   }
 
-  const peopleCount = await prisma.pagePerson.count({
+  const peopleCount = await db.pagePerson.count({
     where: { image: asset.url },
   });
   if (peopleCount > 0) {
     references.push(`${peopleCount} teacher/people image(s)`);
   }
 
-  const highlightCount = await prisma.pageHighlight.count({
+  const highlightCount = await db.pageHighlight.count({
     where: { image: asset.url },
   });
   if (highlightCount > 0) {
     references.push(`${highlightCount} highlight image(s)`);
   }
 
-  const blogCount = await prisma.blogPost.count({
+  const blogCount = await db.blogPost.count({
     where: { image: asset.url },
   });
   if (blogCount > 0) {

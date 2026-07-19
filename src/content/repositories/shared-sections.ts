@@ -1,4 +1,8 @@
+import { DEFAULT_HOME_PAGE_CONTENT } from "@/content/data/dedicated-page-defaults";
+import { DEFAULT_EXAM_CERTIFICATION } from "@/content/data/exam-certification-defaults";
+import { DEFAULT_TRAVEL_GUIDE } from "@/content/data/travel-guide-defaults";
 import type {
+  ExamCertificationContent,
   HomeFaqsContent,
   InstagramFeedContent,
   ResidentialLifeContent,
@@ -10,14 +14,12 @@ import type {
   WhyNirvanaContent,
   YttHubContent,
 } from "@/content/types/shared-sections";
-import { DEFAULT_TRAVEL_GUIDE } from "@/content/data/travel-guide-defaults";
-import { FALLBACK_INSTAGRAM_FEED } from "@/lib/instagram";
 import { fetchGlobalSettingsFromDb } from "@/lib/cms/cache";
+import { FALLBACK_INSTAGRAM_FEED } from "@/lib/instagram";
 import { requireDb } from "./db-fallback";
 import { getHomePageContent } from "./dedicated-pages";
 import type { ContentResult, RepositoryOptions } from "./fetch";
 import { requireGlobalSetting } from "./global-settings";
-import { DEFAULT_HOME_PAGE_CONTENT } from "@/content/data/dedicated-page-defaults";
 
 /**
  * Normalizes retreat lodging docs so nested live flags always exist.
@@ -124,6 +126,37 @@ export async function getWhyNirvana(
 }
 
 /**
+ * Shared exam and certification content from MySQL (`global_settings.examCertification`).
+ *
+ * @param options - Optional repository options
+ */
+export async function getExamCertification(
+  options?: RepositoryOptions,
+): Promise<ContentResult<ExamCertificationContent>> {
+  return requireDb(async () => {
+    const stored = await fetchGlobalSettingsFromDb("examCertification");
+    if (stored && typeof stored === "object") {
+      const content = stored as Partial<ExamCertificationContent>;
+      if (
+        Array.isArray(content.steps) &&
+        content.steps.length > 0 &&
+        Array.isArray(content.certificates) &&
+        content.certificates.length > 0
+      ) {
+        return {
+          ...DEFAULT_EXAM_CERTIFICATION,
+          ...content,
+          live: content.live !== false,
+          steps: content.steps,
+          certificates: content.certificates,
+        };
+      }
+    }
+    return { ...DEFAULT_EXAM_CERTIFICATION };
+  }, options);
+}
+
+/**
  * Venue page FAQs from MySQL.
  *
  * @param options - Optional repository options
@@ -147,10 +180,9 @@ export async function getRetreatAccommodation(
   options?: RepositoryOptions,
 ): Promise<ContentResult<RetreatAccommodationContent>> {
   return requireDb(async () => {
-    const raw =
-      await requireGlobalSetting<RetreatAccommodationContent>(
-        "retreatAccommodation",
-      );
+    const raw = await requireGlobalSetting<RetreatAccommodationContent>(
+      "retreatAccommodation",
+    );
     return normalizeRetreatAccommodation(raw);
   }, options);
 }

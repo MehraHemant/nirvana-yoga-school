@@ -92,6 +92,24 @@ export type WhyNirvanaContent = SharedSectionLiveFields & {
   banner?: string;
 };
 
+/** Global exam and certificate details shared across product pages. */
+export type ExamCertificationContent = SharedSectionLiveFields & {
+  eyebrow: string;
+  title: string;
+  description: string;
+  steps: Array<{
+    title: string;
+    tag: string;
+    description: string;
+    image: string;
+  }>;
+  certificates: Array<{
+    title: string;
+    subtitle: string;
+    image: string;
+  }>;
+};
+
 export type VenueFaqsContent = SharedSectionLiveFields & {
   faqs: SharedFaq[];
 };
@@ -166,12 +184,13 @@ export type InstagramFeedContent = SharedSectionLiveFields & {
   }>;
 };
 
-/** The four global shared section keys editable in Shared sections CMS. */
+/** Global shared section keys editable in Shared sections CMS. */
 export const GLOBAL_SHARED_SECTION_KEYS = [
   "whyNirvana",
   "siteMap",
   "instagram",
   "travel",
+  "examCertification",
 ] as const;
 
 /** @see GLOBAL_SHARED_SECTION_KEYS */

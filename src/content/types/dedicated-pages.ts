@@ -3,10 +3,7 @@
  * (home, contact, enquire-now). Defaults mirror today’s hardcoded copy.
  */
 
-import type {
-  PageSeoMeta,
-  SectionIdFields,
-} from "@/content/types/page-seo";
+import type { PageSeoMeta, SectionIdFields } from "@/content/types/page-seo";
 import type { SharedFaq, SharedReview } from "@/content/types/shared-sections";
 
 /**

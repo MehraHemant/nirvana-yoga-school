@@ -2,11 +2,7 @@
 
 import { useState } from "react";
 import { ListRowActions } from "./ListRowActions";
-import {
-  SortableList,
-  SortableRow,
-  reorderItems,
-} from "./SortableList";
+import { reorderItems, SortableList, SortableRow } from "./SortableList";
 import { useStableListKeys } from "./useStableListKeys";
 
 type StringListFieldProps = {

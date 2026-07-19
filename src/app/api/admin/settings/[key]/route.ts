@@ -1,9 +1,10 @@
 import { revalidatePath } from "next/cache";
+import { DEFAULT_EXAM_CERTIFICATION } from "@/content/data/exam-certification-defaults";
 import { createDefaultWhyNirvana } from "@/content/data/why-nirvana-defaults";
 import { jsonError, jsonForbidden, jsonOk } from "@/lib/cms/api-response";
 import { getServerSession } from "@/lib/cms/auth";
 import { invalidateGlobalSettingsCache } from "@/lib/cms/cache";
-import { prisma } from "@/lib/db";
+import { db } from "@/lib/db";
 import type { ApiRouteParams } from "@/lib/types/api";
 
 const ALLOWED_KEYS = [
@@ -12,6 +13,7 @@ const ALLOWED_KEYS = [
   "siteConfig",
   "residentialLife",
   "whyNirvana",
+  "examCertification",
   "siteMap",
   "instagram",
   "travel",
@@ -23,20 +25,21 @@ const ALLOWED_KEYS = [
 ] as const;
 
 /**
- * Ensures Why Nirvana exists so Shared sections admin can open the panel.
+ * Ensures a default shared document exists so Shared sections admin can open it.
  *
- * @returns Persisted whyNirvana value
+ * @param key - Shared setting key
+ * @param value - Default value to persist
+ * @returns Persisted shared settings value
  */
-async function ensureWhyNirvanaSettings() {
-  const existing = await prisma.globalSettings.findUnique({
-    where: { key: "whyNirvana" },
+async function ensureSharedSettings(key: string, value: object) {
+  const existing = await db.globalSettings.findUnique({
+    where: { key },
   });
   if (existing) return existing.value;
-  const value = createDefaultWhyNirvana();
-  await prisma.globalSettings.create({
-    data: { key: "whyNirvana", value },
+  await db.globalSettings.create({
+    data: { key, value },
   });
-  invalidateGlobalSettingsCache("whyNirvana");
+  invalidateGlobalSettingsCache(key);
   return value;
 }
 
@@ -50,11 +53,16 @@ export async function GET(
   }
 
   if (key === "whyNirvana") {
-    const value = await ensureWhyNirvanaSettings();
+    const value = await ensureSharedSettings(key, createDefaultWhyNirvana());
     return jsonOk({ settings: value });
   }
 
-  const record = await prisma.globalSettings.findUnique({ where: { key } });
+  if (key === "examCertification") {
+    const value = await ensureSharedSettings(key, DEFAULT_EXAM_CERTIFICATION);
+    return jsonOk({ settings: value });
+  }
+
+  const record = await db.globalSettings.findUnique({ where: { key } });
   if (!record)
     return jsonError("Settings not found", 404, { code: "NOT_FOUND" });
 
@@ -75,7 +83,7 @@ export async function PUT(
 
   const { value } = await request.json();
 
-  await prisma.globalSettings.upsert({
+  await db.globalSettings.upsert({
     where: { key },
     update: { value },
     create: { key, value },

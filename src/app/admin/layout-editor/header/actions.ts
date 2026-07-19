@@ -1,20 +1,26 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { prisma } from "@/lib/db";
+import { db } from "@/lib/db";
 
 /**
  * Load header settings from the database, or return defaults.
  */
 export async function loadHeaderData(): Promise<Record<string, unknown>> {
-  const row = await prisma.globalSettings.findUnique({
+  const row = await db.globalSettings.findUnique({
     where: { key: "header" },
   });
   if (row?.value && typeof row.value === "object") {
     return row.value as Record<string, unknown>;
   }
   return {
-    logo: { light: "/logo.png", dark: "/logo_white.png" },
+    logo: {
+      light: "/logo.png",
+      dark: "/logo_white.png",
+      lightAlt: "Nirvana Yoga School",
+      darkAlt: "Nirvana Yoga School",
+      href: "/",
+    },
     ctas: [
       {
         label: "Sign in",
@@ -39,7 +45,7 @@ export async function loadHeaderData(): Promise<Record<string, unknown>> {
  * Load navigation items from the NavigationGroup/NavigationItem tables.
  */
 export async function loadNavigationData() {
-  const groups = await prisma.navigationGroup.findMany({
+  const groups = await db.navigationGroup.findMany({
     include: {
       items: {
         orderBy: { sortOrder: "asc" },
@@ -52,10 +58,10 @@ export async function loadNavigationData() {
 /**
  * Save header settings (logo + ordered CTAs from legacy flat fields).
  *
- * @param formData - Form fields: logo_light, logo_dark, sign_in_url, cta_label, cta_href, cta_variant
+ * @param formData - Header logo and legacy CTA form fields
  */
 export async function saveHeaderAction(formData: FormData) {
-  const existing = await prisma.globalSettings.findUnique({
+  const existing = await db.globalSettings.findUnique({
     where: { key: "header" },
   });
   const prev = (existing?.value ?? {}) as Record<string, unknown>;
@@ -68,12 +74,26 @@ export async function saveHeaderAction(formData: FormData) {
     (formData.get("cta_variant") as string) === "secondary"
       ? "secondary"
       : "primary";
+  const previousLogo =
+    prev.logo && typeof prev.logo === "object"
+      ? (prev.logo as Record<string, unknown>)
+      : {};
 
   const header = {
     ...prev,
     logo: {
+      ...previousLogo,
       light: (formData.get("logo_light") as string) || "/logo.png",
       dark: (formData.get("logo_dark") as string) || "/logo_white.png",
+      lightAlt:
+        (formData.get("logo_light_alt") as string) ||
+        previousLogo.lightAlt ||
+        "Nirvana Yoga School",
+      darkAlt:
+        (formData.get("logo_dark_alt") as string) ||
+        previousLogo.darkAlt ||
+        "Nirvana Yoga School",
+      href: (formData.get("logo_href") as string) || previousLogo.href || "/",
     },
     ctas: [
       { label: "Sign in", href: signInUrl, variant: "link" as const, sort: 0 },
@@ -92,7 +112,7 @@ export async function saveHeaderAction(formData: FormData) {
     },
   };
 
-  await prisma.globalSettings.upsert({
+  await db.globalSettings.upsert({
     where: { key: "header" },
     create: { key: "header", value: header },
     update: { value: header },
@@ -115,7 +135,7 @@ export async function saveNavItemAction(formData: FormData) {
 
   if (!id) return;
 
-  await prisma.navigationItem.update({
+  await db.navigationItem.update({
     where: { id },
     data: {
       label: label || undefined,

@@ -2,7 +2,7 @@ import { parseMediaTagsFromDb } from "@/lib/cdn/media-tags";
 import { jsonOk, jsonUnauthorized } from "@/lib/cms/api-response";
 import { getSessionFromRequest } from "@/lib/cms/auth";
 import { getMediaAssetsUsage } from "@/lib/cms/media-usage";
-import { prisma } from "@/lib/db";
+import { db } from "@/lib/db";
 
 /**
  * List media assets for the admin media library.
@@ -16,7 +16,7 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const tag = url.searchParams.get("tag");
 
-  const rows = await prisma.mediaAsset.findMany({
+  const rows = await db.mediaAsset.findMany({
     orderBy: { createdAt: "desc" },
     take: 200,
   });

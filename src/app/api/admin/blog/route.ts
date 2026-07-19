@@ -1,6 +1,6 @@
 import { jsonOk, jsonUnauthorized } from "@/lib/cms/api-response";
 import { getSessionFromRequest } from "@/lib/cms/auth";
-import { prisma } from "@/lib/db";
+import { db } from "@/lib/db";
 
 /**
  * List blog posts for the admin dashboard.
@@ -11,7 +11,7 @@ export async function GET(request: Request) {
     return jsonUnauthorized();
   }
 
-  const posts = await prisma.blogPost.findMany({
+  const posts = await db.blogPost.findMany({
     orderBy: { updatedAt: "desc" },
     select: {
       id: true,

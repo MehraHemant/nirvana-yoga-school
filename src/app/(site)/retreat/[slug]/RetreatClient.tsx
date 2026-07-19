@@ -4,6 +4,7 @@ import {
   CourseBookingFab,
   CourseOverview,
   CourseStickyNav,
+  ExamCertification,
   PageHeroRenderer,
   UpcomingDates,
   WhatIsIncluded,
@@ -85,6 +86,7 @@ export default function RetreatClient({
   mapped,
   modules,
   lodging,
+  examCertification,
 }: RetreatPageData) {
   const details = modules
     ? null
@@ -116,6 +118,15 @@ export default function RetreatClient({
       lodging.roomGalleries.length > 0 ||
         lodging.foodGallery.length > 0 ||
         lodging.mealHighlights.length > 0,
+    );
+  const showExam =
+    (modules?.flags.showExam ?? false) &&
+    shouldRenderSection(
+      examCertification,
+      Boolean(
+        examCertification?.steps.length &&
+          examCertification.certificates.length,
+      ),
     );
 
   return (
@@ -222,6 +233,10 @@ export default function RetreatClient({
         {/* Section 3: Day-Wise Schedule Timeline */}
         {retreat.schedule?.length ? (
           <RetreatScheduleSection schedule={retreat.schedule} />
+        ) : null}
+
+        {showExam && examCertification ? (
+          <ExamCertification content={examCertification} />
         ) : null}
 
         {/* Section 4: Accommodation & Food (CMS lodging + page flag) */}

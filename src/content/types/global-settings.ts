@@ -22,8 +22,16 @@ export interface HeaderCta {
 export interface GlobalHeader {
   navigation: NavItem[];
   logo: {
+    /** Image shown when the header has a light or solid background. */
     light: string;
+    /** Image shown over dark or transparent hero backgrounds. */
     dark: string;
+    /** Accessible description for the light logo image. */
+    lightAlt: string;
+    /** Accessible description for the dark logo image. */
+    darkAlt: string;
+    /** Internal path or absolute URL used by both header logo variants. */
+    href: string;
   };
   /** Ordered header CTAs (Sign in, Enquire now, custom…) */
   ctas: HeaderCta[];

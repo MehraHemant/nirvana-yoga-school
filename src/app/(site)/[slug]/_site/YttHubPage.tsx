@@ -14,10 +14,7 @@ import {
 import { COURSE_FAQ_CATEGORIES, FAQSection } from "@/components/ui";
 import { getYttHub } from "@/content/repositories/shared-sections";
 import { getTeachers } from "@/content/repositories/teachers";
-import {
-  optionalSectionHtmlId,
-  resolveSectionHtmlId,
-} from "@/lib/html-id";
+import { optionalSectionHtmlId, resolveSectionHtmlId } from "@/lib/html-id";
 import YttHubStickyNav from "./YttHubStickyNav";
 
 /**
@@ -25,10 +22,7 @@ import YttHubStickyNav from "./YttHubStickyNav";
  * Section HTML ids come from `hub.sectionIds` when set.
  */
 export default async function YttHubPage() {
-  const [teachers, hubResult] = await Promise.all([
-    getTeachers(),
-    getYttHub(),
-  ]);
+  const [teachers, hubResult] = await Promise.all([getTeachers(), getYttHub()]);
   const hub = hubResult.data;
   const sectionIds = hub.sectionIds;
   const stickyNavHtmlId = optionalSectionHtmlId(sectionIds?.stickyNav);

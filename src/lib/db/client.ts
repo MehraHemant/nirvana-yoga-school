@@ -1,55 +1,18 @@
 import { AsyncLocalStorage } from "node:async_hooks";
-import type { PoolConnection, RowDataPacket } from "mysql2/promise";
+import type { QueryResultRow } from "@neondatabase/serverless";
 import { createId } from "./ids";
 import { parseJson, stringifyJson } from "./json";
-import {
-  type ModelMeta,
-  type ModelName,
-  MODELS,
-  columnOf,
-} from "./models";
+import { columnOf, MODELS, type ModelMeta, type ModelName } from "./models";
 import { getPool } from "./pool";
 import {
-  type SqlConn,
   execute,
   queryOne,
   queryRows,
+  type SqlConn,
   withTransaction,
 } from "./sql";
 
 const txStorage = new AsyncLocalStorage<SqlConn>();
-
-/** Serializes queries on a single connection (mysql2 is not concurrent-safe). */
-type QueuedConn = SqlConn & { __queued?: true };
-
-/**
- * Wraps a pool connection so query/execute calls run one at a time.
- *
- * @param conn - Transaction connection
- */
-function queueConnection(conn: PoolConnection): QueuedConn {
-  let chain: Promise<unknown> = Promise.resolve();
-  const wrap =
-    (method: "query" | "execute") =>
-    (...args: unknown[]) => {
-      const run = chain.then(() =>
-        (conn[method] as (...a: unknown[]) => Promise<unknown>)(...args),
-      );
-      chain = run.then(
-        () => undefined,
-        () => undefined,
-      );
-      return run;
-    };
-  return new Proxy(conn, {
-    get(target, prop, receiver) {
-      if (prop === "query") return wrap("query");
-      if (prop === "execute") return wrap("execute");
-      if (prop === "__queued") return true;
-      return Reflect.get(target, prop, receiver);
-    },
-  }) as QueuedConn;
-}
 
 /**
  * Active SQL connection (transaction connection when inside `$transaction`).
@@ -59,7 +22,9 @@ function getConn(): SqlConn {
 }
 
 type WhereInput = Record<string, unknown>;
-type OrderByInput = Record<string, "asc" | "desc"> | Record<string, "asc" | "desc">[];
+type OrderByInput =
+  | Record<string, "asc" | "desc">
+  | Record<string, "asc" | "desc">[];
 type SelectInput = Record<string, boolean>;
 type IncludeInput = Record<string, unknown>;
 
@@ -113,7 +78,7 @@ type AggregateArgs = {
 };
 
 /**
- * Defers execution until the promise is awaited (PrismaPromise-compatible).
+ * Defers execution until the promise is awaited (NeonPromise-compatible).
  * Lets `$transaction([...])` bind the connection before work runs.
  *
  * @param fn - Work to run on first await
@@ -125,6 +90,7 @@ function defer<T>(fn: () => Promise<T>): Promise<T> {
     return started;
   };
   return {
+    // biome-ignore lint/suspicious/noThenProperty: Implements NeonPromise-compatible lazy execution.
     then(onFulfilled, onRejected) {
       return run().then(onFulfilled, onRejected);
     },
@@ -139,7 +105,7 @@ function defer<T>(fn: () => Promise<T>): Promise<T> {
 }
 
 /**
- * Builds a WHERE clause from a Prisma-like filter object.
+ * Builds a WHERE clause from a Neon-like filter object.
  *
  * @param model - Model metadata
  * @param where - Filter object
@@ -214,7 +180,12 @@ function buildFieldPredicate(
     return `${col} IS NULL`;
   }
 
-  if (value !== null && typeof value === "object" && !Array.isArray(value) && !(value instanceof Date)) {
+  if (
+    value !== null &&
+    typeof value === "object" &&
+    !Array.isArray(value) &&
+    !(value instanceof Date)
+  ) {
     const ops = value as Record<string, unknown>;
 
     if ("in" in ops) {
@@ -293,9 +264,12 @@ function buildFieldPredicate(
  * Builds ORDER BY from object or array form.
  *
  * @param model - Model metadata
- * @param orderBy - Prisma-like orderBy
+ * @param orderBy - Neon-like orderBy
  */
-function buildOrderBy(model: ModelMeta, orderBy: OrderByInput | undefined): string {
+function buildOrderBy(
+  model: ModelMeta,
+  orderBy: OrderByInput | undefined,
+): string {
   if (!orderBy) return "";
   const items = Array.isArray(orderBy) ? orderBy : [orderBy];
   const parts: string[] = [];
@@ -308,19 +282,23 @@ function buildOrderBy(model: ModelMeta, orderBy: OrderByInput | undefined): stri
   return parts.length > 0 ? `ORDER BY ${parts.join(", ")}` : "";
 }
 
-function prepareWriteValue(model: ModelMeta, field: string, value: unknown): unknown {
+function prepareWriteValue(
+  model: ModelMeta,
+  field: string,
+  value: unknown,
+): unknown {
   if (value === undefined) return null;
   if (model.jsonFields.has(field)) {
     return stringifyJson(value);
   }
   if (model.booleanFields.has(field)) {
-    return value ? 1 : 0;
+    return Boolean(value);
   }
   return value;
 }
 
 /**
- * Maps a raw MySQL row to camelCase JS object with JSON/boolean coercion.
+ * Maps a raw Postgres row to camelCase JS object with JSON/boolean coercion.
  *
  * @param model - Model metadata
  * @param row - Driver row
@@ -343,7 +321,7 @@ function mapRow(
     if (model.jsonFields.has(field)) {
       value = parseJson(value, value === null ? null : {});
     } else if (model.booleanFields.has(field)) {
-      value = value == null ? value : Boolean(Number(value));
+      value = value == null ? value : Boolean(value);
     }
     out[field] = value;
   }
@@ -356,7 +334,7 @@ function selectedColumns(model: ModelMeta, select?: SelectInput): string {
     : Object.keys(model.fields);
   if (fields.length === 0) {
     return Object.values(model.fields)
-      .map((c) => `\`${c}\``)
+      .map((c) => `"${c}"`)
       .join(", ");
   }
   return fields.map((f) => columnOf(model, f)).join(", ");
@@ -369,6 +347,12 @@ function applyCreateDefaults(
   const merged: Record<string, unknown> = { ...model.defaultCreate, ...data };
   if (merged.id == null || merged.id === "") {
     merged.id = createId();
+  }
+  if ("createdAt" in model.fields && merged.createdAt === undefined) {
+    merged.createdAt = new Date();
+  }
+  if (model.updatedAt && merged[model.updatedAt] === undefined) {
+    merged[model.updatedAt] = new Date();
   }
   return merged;
 }
@@ -472,12 +456,42 @@ async function loadPageIncludes(
     fk: string;
     defaultOrder: OrderByInput;
   }> = [
-    { key: "sections", model: "pageSection", fk: "pageId", defaultOrder: { sortOrder: "asc" } },
-    { key: "packages", model: "pagePackage", fk: "pageId", defaultOrder: { sortOrder: "asc" } },
-    { key: "gallery", model: "pageGalleryImage", fk: "pageId", defaultOrder: { sortOrder: "asc" } },
-    { key: "cards", model: "pageCard", fk: "pageId", defaultOrder: { sortOrder: "asc" } },
-    { key: "people", model: "pagePerson", fk: "pageId", defaultOrder: { sortOrder: "asc" } },
-    { key: "highlights", model: "pageHighlight", fk: "pageId", defaultOrder: { sortOrder: "asc" } },
+    {
+      key: "sections",
+      model: "pageSection",
+      fk: "pageId",
+      defaultOrder: { sortOrder: "asc" },
+    },
+    {
+      key: "packages",
+      model: "pagePackage",
+      fk: "pageId",
+      defaultOrder: { sortOrder: "asc" },
+    },
+    {
+      key: "gallery",
+      model: "pageGalleryImage",
+      fk: "pageId",
+      defaultOrder: { sortOrder: "asc" },
+    },
+    {
+      key: "cards",
+      model: "pageCard",
+      fk: "pageId",
+      defaultOrder: { sortOrder: "asc" },
+    },
+    {
+      key: "people",
+      model: "pagePerson",
+      fk: "pageId",
+      defaultOrder: { sortOrder: "asc" },
+    },
+    {
+      key: "highlights",
+      model: "pageHighlight",
+      fk: "pageId",
+      defaultOrder: { sortOrder: "asc" },
+    },
   ];
 
   for (const spec of childSpecs) {
@@ -539,14 +553,14 @@ async function loadHasMany(
   const whereSql = buildWhere(childModel, where, params);
   const orderSql = buildOrderBy(childModel, args.orderBy ?? defaultOrderBy);
   const cols = selectedColumns(childModel, args.select);
-  let sql = `SELECT ${cols} FROM \`${childModel.table}\` ${whereSql} ${orderSql}`;
+  let sql = `SELECT ${cols} FROM "${childModel.table}" ${whereSql} ${orderSql}`;
   if (args.skip != null) {
     sql += ` LIMIT ${Number(args.take ?? 4294967295)} OFFSET ${Number(args.skip)}`;
   } else if (args.take != null) {
     sql += ` LIMIT ${Number(args.take)}`;
   }
 
-  const raw = await queryRows<RowDataPacket>(sql, params, getConn());
+  const raw = await queryRows<QueryResultRow>(sql, params, getConn());
   const children = raw.map((row) => mapRow(childModel, row, args.select));
 
   if (args.include) {
@@ -586,8 +600,8 @@ async function loadHasOne(
   const params: unknown[] = [];
   const whereSql = buildWhere(childModel, where, params);
   const cols = selectedColumns(childModel, args.select);
-  const sql = `SELECT ${cols} FROM \`${childModel.table}\` ${whereSql}`;
-  const raw = await queryRows<RowDataPacket>(sql, params, getConn());
+  const sql = `SELECT ${cols} FROM "${childModel.table}" ${whereSql}`;
+  const raw = await queryRows<QueryResultRow>(sql, params, getConn());
   const children = raw.map((row) => mapRow(childModel, row, args.select));
   if (args.include) {
     await loadIncludes(childModelName, children, args.include);
@@ -620,8 +634,8 @@ async function loadBelongsTo(
   const params: unknown[] = [];
   const whereSql = buildWhere(parentModel, where, params);
   const cols = selectedColumns(parentModel, args.select);
-  const sql = `SELECT ${cols} FROM \`${parentModel.table}\` ${whereSql}`;
-  const raw = await queryRows<RowDataPacket>(sql, params, getConn());
+  const sql = `SELECT ${cols} FROM "${parentModel.table}" ${whereSql}`;
+  const raw = await queryRows<QueryResultRow>(sql, params, getConn());
   const parents = raw.map((row) => mapRow(parentModel, row, args.select));
   const byId = new Map(parents.map((p) => [p.id, p]));
   for (const child of children) {
@@ -638,13 +652,13 @@ async function findManyInternal(
   const whereSql = buildWhere(model, args.where, params);
   const orderSql = buildOrderBy(model, args.orderBy);
   const cols = selectedColumns(model, args.select);
-  let sql = `SELECT ${cols} FROM \`${model.table}\` ${whereSql} ${orderSql}`;
+  let sql = `SELECT ${cols} FROM "${model.table}" ${whereSql} ${orderSql}`;
   if (args.skip != null) {
     sql += ` LIMIT ${Number(args.take ?? 4294967295)} OFFSET ${Number(args.skip)}`;
   } else if (args.take != null) {
     sql += ` LIMIT ${Number(args.take)}`;
   }
-  const raw = await queryRows<RowDataPacket>(sql, params, getConn());
+  const raw = await queryRows<QueryResultRow>(sql, params, getConn());
   const rows = raw.map((row) => mapRow(model, row, args.select));
   if (!args.select) {
     await loadIncludes(modelName, rows, args.include);
@@ -671,7 +685,7 @@ async function createInternal(
   const placeholders = fields.map(() => "?").join(", ");
   const params = fields.map((f) => prepareWriteValue(model, f, data[f]));
   await execute(
-    `INSERT INTO \`${model.table}\` (${cols.join(", ")}) VALUES (${placeholders})`,
+    `INSERT INTO "${model.table}" (${cols.join(", ")}) VALUES (${placeholders})`,
     params,
     getConn(),
   );
@@ -701,14 +715,17 @@ async function updateInternal(
       select: args.select,
       include: args.include,
     });
-    if (!existing) throw new Error(`Record not found for update on ${model.table}`);
+    if (!existing)
+      throw new Error(`Record not found for update on ${model.table}`);
     return existing;
   }
   const sets = fields.map((f) => `${columnOf(model, f)} = ?`);
-  const params: unknown[] = fields.map((f) => prepareWriteValue(model, f, data[f]));
+  const params: unknown[] = fields.map((f) =>
+    prepareWriteValue(model, f, data[f]),
+  );
   const whereSql = buildWhere(model, args.where, params);
   const result = await execute(
-    `UPDATE \`${model.table}\` SET ${sets.join(", ")} ${whereSql}`,
+    `UPDATE "${model.table}" SET ${sets.join(", ")} ${whereSql}`,
     params,
     getConn(),
   );
@@ -720,7 +737,8 @@ async function updateInternal(
     select: args.select,
     include: args.include,
   });
-  if (!updated) throw new Error(`Record not found for update on ${model.table}`);
+  if (!updated)
+    throw new Error(`Record not found for update on ${model.table}`);
   return updated;
 }
 
@@ -752,11 +770,14 @@ async function deleteInternal(
   args: { where: WhereInput },
 ): Promise<Record<string, unknown>> {
   const existing = await findFirstInternal(modelName, { where: args.where });
-  if (!existing) throw new Error(`Record not found for delete on ${MODELS[modelName].table}`);
+  if (!existing)
+    throw new Error(
+      `Record not found for delete on ${MODELS[modelName].table}`,
+    );
   const model = MODELS[modelName];
   const params: unknown[] = [];
   const whereSql = buildWhere(model, args.where, params);
-  await execute(`DELETE FROM \`${model.table}\` ${whereSql}`, params, getConn());
+  await execute(`DELETE FROM "${model.table}" ${whereSql}`, params, getConn());
   return existing;
 }
 
@@ -768,7 +789,7 @@ async function deleteManyInternal(
   const params: unknown[] = [];
   const whereSql = buildWhere(model, args.where, params);
   const result = await execute(
-    `DELETE FROM \`${model.table}\` ${whereSql || "WHERE 1=1"}`,
+    `DELETE FROM "${model.table}" ${whereSql || "WHERE 1=1"}`,
     params,
     getConn(),
   );
@@ -799,13 +820,15 @@ async function createManyInternal(
     valueGroups.push(`(${fields.map(() => "?").join(", ")})`);
     for (const f of fields) {
       params.push(
-        f in row ? prepareWriteValue(model, f, row[f]) : prepareWriteValue(model, f, model.defaultCreate[f] ?? null),
+        f in row
+          ? prepareWriteValue(model, f, row[f])
+          : prepareWriteValue(model, f, model.defaultCreate[f] ?? null),
       );
     }
   }
-  const ignore = args.skipDuplicates ? "IGNORE" : "";
+  const onConflict = args.skipDuplicates ? " ON CONFLICT DO NOTHING" : "";
   const result = await execute(
-    `INSERT ${ignore} INTO \`${model.table}\` (${cols.join(", ")}) VALUES ${valueGroups.join(", ")}`,
+    `INSERT INTO "${model.table}" (${cols.join(", ")}) VALUES ${valueGroups.join(", ")}${onConflict}`,
     params,
     getConn(),
   );
@@ -824,10 +847,12 @@ async function updateManyInternal(
   const fields = Object.keys(data).filter((f) => f in model.fields);
   if (fields.length === 0) return { count: 0 };
   const sets = fields.map((f) => `${columnOf(model, f)} = ?`);
-  const params: unknown[] = fields.map((f) => prepareWriteValue(model, f, data[f]));
+  const params: unknown[] = fields.map((f) =>
+    prepareWriteValue(model, f, data[f]),
+  );
   const whereSql = buildWhere(model, args.where, params);
   const result = await execute(
-    `UPDATE \`${model.table}\` SET ${sets.join(", ")} ${whereSql || "WHERE 1=1"}`,
+    `UPDATE "${model.table}" SET ${sets.join(", ")} ${whereSql || "WHERE 1=1"}`,
     params,
     getConn(),
   );
@@ -841,8 +866,8 @@ async function countInternal(
   const model = MODELS[modelName];
   const params: unknown[] = [];
   const whereSql = buildWhere(model, args.where, params);
-  const row = await queryOne<RowDataPacket & { count: number }>(
-    `SELECT COUNT(*) AS count FROM \`${model.table}\` ${whereSql}`,
+  const row = await queryOne<QueryResultRow & { count: number }>(
+    `SELECT COUNT(*) AS count FROM "${model.table}" ${whereSql}`,
     params,
     getConn(),
   );
@@ -867,7 +892,7 @@ async function aggregateInternal(
     for (const [field, enabled] of Object.entries(fields)) {
       if (!enabled) continue;
       selectParts.push(
-        `${sqlFn}(${columnOf(model, field)}) AS \`${prefix}_${field}\``,
+        `${sqlFn}(${columnOf(model, field)}) AS "${prefix}_${field}"`,
       );
     }
   };
@@ -878,26 +903,26 @@ async function aggregateInternal(
   addAgg("_sum", "SUM", args._sum);
 
   if (args._count === true) {
-    selectParts.push("COUNT(*) AS `_count`");
+    selectParts.push('COUNT(*) AS "_count"');
   } else if (args._count && typeof args._count === "object") {
     for (const [field, enabled] of Object.entries(args._count)) {
       if (!enabled) continue;
       if (field === "_all") {
-        selectParts.push("COUNT(*) AS `_count__all`");
+        selectParts.push('COUNT(*) AS "_count__all"');
       } else {
         selectParts.push(
-          `COUNT(${columnOf(model, field)}) AS \`_count_${field}\``,
+          `COUNT(${columnOf(model, field)}) AS "_count_${field}"`,
         );
       }
     }
   }
 
   if (selectParts.length === 0) {
-    selectParts.push("COUNT(*) AS `_count`");
+    selectParts.push('COUNT(*) AS "_count"');
   }
 
-  const row = ((await queryOne<RowDataPacket>(
-    `SELECT ${selectParts.join(", ")} FROM \`${model.table}\` ${whereSql}`,
+  const row = ((await queryOne<QueryResultRow>(
+    `SELECT ${selectParts.join(", ")} FROM "${model.table}" ${whereSql}`,
     params,
     getConn(),
   )) ?? {}) as Record<string, unknown>;
@@ -939,9 +964,9 @@ async function aggregateInternal(
 }
 
 /**
- * Creates a Prisma-like model delegate for one table.
+ * Creates a Neon-like model delegate for one table.
  * Return types are intentionally loose (`any`) so existing call sites
- * keep typechecking while migrating off `@prisma/client`.
+ * keep typechecking while migrating off `@neondatabase/serverless`.
  *
  * @param modelName - Model key
  */
@@ -1005,12 +1030,12 @@ export type DbClient = {
   ) => Promise<T>;
   /** Runs a parameterized raw SQL statement (INSERT/UPDATE/DELETE). */
   $executeRawUnsafe: (sql: string, ...params: unknown[]) => Promise<number>;
-  /** Releases the shared mysql2 pool. */
+  /** Releases the shared Neon Postgres pool. */
   $disconnect: () => Promise<void>;
 };
 
 /**
- * Builds the Prisma-compatible mysql2 client (model delegates + transaction helpers).
+ * Builds the Neon-compatible Neon client (model delegates + transaction helpers).
  */
 function createDbClient(): DbClient {
   const client = {} as DbClient;
@@ -1024,8 +1049,7 @@ function createDbClient(): DbClient {
   ) => {
     if (Array.isArray(arg)) {
       return withTransaction(async (conn) => {
-        const queued = queueConnection(conn);
-        return txStorage.run(queued, async () => {
+        return txStorage.run(conn, async () => {
           const results: unknown[] = [];
           for (const op of arg) {
             results.push(await op);
@@ -1035,8 +1059,7 @@ function createDbClient(): DbClient {
       });
     }
     return withTransaction(async (conn) => {
-      const queued = queueConnection(conn);
-      return txStorage.run(queued, () => arg(client));
+      return txStorage.run(conn, () => arg(client));
     });
   }) as DbClient["$transaction"];
 
@@ -1045,7 +1068,7 @@ function createDbClient(): DbClient {
     ...params: unknown[]
   ) =>
     defer(async () => {
-      const rows = await queryRows<RowDataPacket>(sql, params, getConn());
+      const rows = await queryRows<QueryResultRow>(sql, params, getConn());
       return rows as unknown as T;
     });
 
@@ -1057,25 +1080,25 @@ function createDbClient(): DbClient {
 
   client.$disconnect = async () => {
     const globalForPool = globalThis as unknown as {
-      mysqlPool?: { end: () => Promise<void> };
+      neonPool?: { end: () => Promise<void> };
     };
-    if (globalForPool.mysqlPool) {
-      await globalForPool.mysqlPool.end();
-      globalForPool.mysqlPool = undefined;
+    if (globalForPool.neonPool) {
+      await globalForPool.neonPool.end();
+      globalForPool.neonPool = undefined;
     }
   };
 
   return client;
 }
 
-const globalForDb = globalThis as unknown as { mysqlDb?: DbClient };
+const globalForDb = globalThis as unknown as { neonDb?: DbClient };
 
 /**
- * Shared mysql2 Prisma-compatible client (singleton in dev to survive HMR).
- * Drop-in replacement for `@prisma/client` model delegates used by the CMS.
+ * Shared Neon Neon-compatible client (singleton in dev to survive HMR).
+ * Drop-in replacement for `@neondatabase/serverless` model delegates used by the CMS.
  */
-export const prisma: DbClient = globalForDb.mysqlDb ?? createDbClient();
+export const db: DbClient = globalForDb.neonDb ?? createDbClient();
 
 if (process.env.NODE_ENV !== "production") {
-  globalForDb.mysqlDb = prisma;
+  globalForDb.neonDb = db;
 }

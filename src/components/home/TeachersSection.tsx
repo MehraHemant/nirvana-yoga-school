@@ -110,7 +110,7 @@ export default function TeachersSection({
               const isSelected = selectedIdx === index;
               return (
                 <button
-                  key={`spotlight-btn-${teacher.name}`}
+                  key={`spotlight-btn-${index}-${teacher.name}`}
                   onClick={() => setSelectedIdx(index)}
                   type="button"
                   className={`relative w-full p-4 rounded-xl flex items-center gap-4.5 transition-all duration-300 border text-left cursor-pointer ${
@@ -264,7 +264,7 @@ export default function TeachersSection({
             const isOpen = selectedIdx === index;
             return (
               <div
-                key={`mobile-accordion-${teacher.name}`}
+                key={`mobile-accordion-${index}-${teacher.name}`}
                 className="bg-white rounded-2xl border border-ink/5 overflow-hidden transition-all duration-300 shadow-sm"
               >
                 {/* Accordion Trigger Header */}

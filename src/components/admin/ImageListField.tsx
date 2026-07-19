@@ -6,7 +6,7 @@ import {
 } from "@/content/types/cms-image";
 import { ImageField } from "./ImageField";
 import { ListRowActions } from "./ListRowActions";
-import { SortableList, SortableRow, reorderItems } from "./SortableList";
+import { reorderItems, SortableList, SortableRow } from "./SortableList";
 import { useStableListKeys } from "./useStableListKeys";
 
 type ImageListFieldProps = {
@@ -74,7 +74,9 @@ export function ImageListField({
         <div className="admin-compact-table-scroll">
           <div className="admin-compact-table admin-compact-table--form admin-compact-table--images">
             <div className="admin-compact-table-head admin-compact-table-row">
-              <span className="admin-compact-col admin-compact-col--num">#</span>
+              <span className="admin-compact-col admin-compact-col--num">
+                #
+              </span>
               <span className="admin-compact-col admin-compact-col--image">
                 Image
               </span>

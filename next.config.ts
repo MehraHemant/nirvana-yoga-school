@@ -66,9 +66,7 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "i.ytimg.com",
       },
-      ...(cdnHost
-        ? [{ protocol: "https" as const, hostname: cdnHost }]
-        : []),
+      ...(cdnHost ? [{ protocol: "https" as const, hostname: cdnHost }] : []),
     ],
   },
   async redirects() {

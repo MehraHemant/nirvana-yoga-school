@@ -4,15 +4,15 @@ import type { OverviewMediaItem, OverviewModule } from "@/content/types";
 import { CollapsiblePanel } from "../CollapsiblePanel";
 import { ImageField } from "../ImageField";
 import { ListRowActions } from "../ListRowActions";
+import { SectionIdField } from "../SectionIdField";
 import {
+  reorderItems,
   SortableList,
   SortableRow,
-  reorderItems,
   withSortField,
 } from "../SortableList";
 import { TextField } from "../TextField";
 import { useStableListKeys } from "../useStableListKeys";
-import { SectionIdField } from "../SectionIdField";
 import { ModuleLiveField } from "./ModuleLiveField";
 import type { ModulePanelProps } from "./types";
 
@@ -170,11 +170,7 @@ export function OverviewModuleEditor({
         {overview.media.items.length === 0 ? (
           <div className="admin-empty-card">
             <p>No media yet.</p>
-            <button
-              type="button"
-              className="admin-btn-sm"
-              onClick={addMedia}
-            >
+            <button type="button" className="admin-btn-sm" onClick={addMedia}>
               Add first media
             </button>
           </div>
@@ -198,10 +194,7 @@ export function OverviewModuleEditor({
                   <span className="sr-only">Actions</span>
                 </span>
               </div>
-              <SortableList
-                ids={mediaKeys.keys}
-                onReorder={handleMediaReorder}
-              >
+              <SortableList ids={mediaKeys.keys} onReorder={handleMediaReorder}>
                 {overview.media.items.map((item, index) => (
                   <SortableRow
                     key={mediaKeys.keys[index]}
@@ -308,11 +301,7 @@ export function OverviewModuleEditor({
         {overview.glance.length === 0 ? (
           <div className="admin-empty-card">
             <p>No glance items yet.</p>
-            <button
-              type="button"
-              className="admin-btn-sm"
-              onClick={addGlance}
-            >
+            <button type="button" className="admin-btn-sm" onClick={addGlance}>
               Add first row
             </button>
           </div>
@@ -358,7 +347,10 @@ export function OverviewModuleEditor({
                             aria-label={`Glance label ${index + 1}`}
                             onChange={(e) => {
                               const glance = [...overview.glance];
-                              glance[index] = { ...item, label: e.target.value };
+                              glance[index] = {
+                                ...item,
+                                label: e.target.value,
+                              };
                               onChange({ ...overview, glance });
                             }}
                           />
@@ -371,7 +363,10 @@ export function OverviewModuleEditor({
                             aria-label={`Glance value ${index + 1}`}
                             onChange={(e) => {
                               const glance = [...overview.glance];
-                              glance[index] = { ...item, value: e.target.value };
+                              glance[index] = {
+                                ...item,
+                                value: e.target.value,
+                              };
                               onChange({ ...overview, glance });
                             }}
                           />

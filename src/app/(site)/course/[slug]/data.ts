@@ -1,6 +1,7 @@
 import { extractMediaFromModules } from "@/content/mappers/page-modules";
 import { getPageModules } from "@/content/repositories/page-modules";
 import {
+  getExamCertification,
   getInstagramFeed,
   getResidentialLife,
   getReviews,
@@ -30,6 +31,7 @@ export async function loadCoursePageData(
     siteMap,
     instagram,
     travel,
+    examCertification,
   ] = await Promise.all([
     getPageModules(slug),
     getResidentialLife().catch(() => null),
@@ -38,6 +40,7 @@ export async function loadCoursePageData(
     getSiteMap().catch(() => null),
     getInstagramFeed().catch(() => null),
     getTravelGuide().catch(() => null),
+    getExamCertification().catch(() => null),
   ]);
 
   const modules = modulesResult.data;
@@ -55,12 +58,12 @@ export async function loadCoursePageData(
     media,
     videos,
     modules,
-    residentialLife:
-      modules?.residentialLife ?? residentialLife?.data ?? null,
+    residentialLife: modules?.residentialLife ?? residentialLife?.data ?? null,
     whyNirvana: whyNirvana?.data ?? null,
     reviews: reviews?.data ?? null,
     siteMap: siteMap?.data ?? null,
     instagram: instagram?.data ?? null,
     travel: travel?.data ?? null,
+    examCertification: examCertification?.data ?? null,
   };
 }

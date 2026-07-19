@@ -218,7 +218,7 @@ export default function MediaLightbox({
           <div className="w-full max-w-3xl z-10">
             <div
               ref={scrollRef}
-              className="w-full overflow-x-auto py-2 flex gap-3 justify-start sm:justify-center scrollbar-none snap-x snap-mandatory scroll-smooth"
+              className="no-scrollbar w-full overflow-x-auto py-2 flex gap-3 justify-start sm:justify-center snap-x snap-mandatory scroll-smooth"
             >
               {items.map((item, idx) => {
                 const isActive = idx === activeIndex;

@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import CourseHero from "@/components/courses/CourseHero";
+import { HeroFrame, HeroMediaImage } from "@/components/hero";
 import OnlineCourseHero from "@/components/online/OnlineCourseHero";
 import { Button, Container, Heading } from "@/components/ui";
 import { extractMediaFromModules } from "@/content/mappers/page-modules";
@@ -52,14 +52,13 @@ export default function PageHeroRenderer({ modules }: PageHeroRendererProps) {
 
   if (hero.type === "simple-banner") {
     return (
-      <section
-        data-transparent-header="true"
+      <HeroFrame
+        transparentHeader
         className="relative h-[60svh] min-h-[420px] overflow-hidden"
       >
-        <Image
+        <HeroMediaImage
           src={hero.backgroundImage}
           alt=""
-          fill
           className="object-cover"
           sizes="100vw"
           priority
@@ -83,13 +82,13 @@ export default function PageHeroRenderer({ modules }: PageHeroRendererProps) {
             ) : null}
           </div>
         </Container>
-      </section>
+      </HeroFrame>
     );
   }
 
   if (hero.type === "page-minimal") {
     return (
-      <section className="relative overflow-hidden bg-sand pt-[var(--site-header-height)]">
+      <HeroFrame className="relative overflow-hidden bg-sand pt-[var(--site-header-height)]">
         <Container size="xl" className="py-12 md:py-16">
           <div className="grid gap-8 lg:grid-cols-2 lg:items-center">
             <div className="space-y-4">
@@ -113,10 +112,9 @@ export default function PageHeroRenderer({ modules }: PageHeroRendererProps) {
             </div>
             {hero.heroImage ? (
               <div className="relative aspect-[4/3] overflow-hidden rounded-3xl">
-                <Image
+                <HeroMediaImage
                   src={hero.heroImage}
                   alt=""
-                  fill
                   className="object-cover"
                   sizes="(max-width: 1024px) 100vw, 50vw"
                   priority
@@ -125,7 +123,7 @@ export default function PageHeroRenderer({ modules }: PageHeroRendererProps) {
             ) : null}
           </div>
         </Container>
-      </section>
+      </HeroFrame>
     );
   }
 

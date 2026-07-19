@@ -7,16 +7,16 @@ import { AdminSectionJumpNav } from "@/components/admin/AdminSectionJumpNav";
 import { CollapsiblePanel } from "@/components/admin/CollapsiblePanel";
 import { ImageField } from "@/components/admin/ImageField";
 import { PageSeoFields } from "@/components/admin/PageSeoFields";
-import { toSectionDomId } from "@/components/admin/sectionDomId";
 import { SectionIdField } from "@/components/admin/SectionIdField";
 import {
   DragHandle,
+  reorderItems,
   SortableList,
   SortableRow,
-  reorderItems,
   withSortField,
 } from "@/components/admin/SortableList";
 import { StringListField } from "@/components/admin/StringListField";
+import { toSectionDomId } from "@/components/admin/sectionDomId";
 import { TextField } from "@/components/admin/TextField";
 import { useSectionScrollSpy } from "@/components/admin/useSectionScrollSpy";
 import { useStableListKeys } from "@/components/admin/useStableListKeys";
@@ -84,7 +84,12 @@ export function TeachersFacultyEditor({
         label: def.label,
       };
     });
-  }, [doc.meta, presentation.facultyId, presentation.heroId, presentation.homeTeaserId]);
+  }, [
+    doc.meta,
+    presentation.facultyId,
+    presentation.heroId,
+    presentation.homeTeaserId,
+  ]);
 
   const sectionIds = useMemo(
     () => jumpItems.map((item) => item.id),

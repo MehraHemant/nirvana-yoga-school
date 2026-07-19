@@ -6,14 +6,14 @@ import {
 import { isDbEnabled } from "@/lib/db";
 
 /**
- * Error thrown when content repositories cannot use MySQL.
+ * Error thrown when content repositories cannot use Neon Postgres.
  */
 export class DatabaseRequiredError extends Error {
   /**
    * @param message - Human-readable reason
    */
   constructor(
-    message = "DATABASE_URL is required; JSON content fallback is disabled.",
+    message = "NEON_DB_URL is required; JSON content fallback is disabled.",
   ) {
     super(message);
     this.name = "DatabaseRequiredError";
@@ -21,12 +21,12 @@ export class DatabaseRequiredError extends Error {
 }
 
 /**
- * Load content exclusively from MySQL. Never falls back to bundled JSON/TS.
+ * Load content exclusively from Neon Postgres. Never falls back to bundled JSON/TS.
  *
- * @param dbFn - Async loader from Prisma
+ * @param dbFn - Async loader from Neon
  * @param _options - Optional repository options (source overrides are ignored)
  * @returns Content wrapped as a DB result
- * @throws {DatabaseRequiredError} When `DATABASE_URL` is unset
+ * @throws {DatabaseRequiredError} When `NEON_DB_URL` is unset
  */
 export async function requireDb<T>(
   dbFn: () => Promise<T>,

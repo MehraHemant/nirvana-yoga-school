@@ -3,11 +3,11 @@
 import type { SitePageSection, SitePageSubsection } from "@/content/types";
 import { CollapsiblePanel } from "./CollapsiblePanel";
 import { ImageField } from "./ImageField";
-import { toSectionDomId } from "./sectionDomId";
 import { SectionIdField } from "./SectionIdField";
 import { DragHandle, type DragHandleProps } from "./SortableList";
 import { StringListField } from "./StringListField";
 import { SubsectionEditor } from "./SubsectionEditor";
+import { toSectionDomId } from "./sectionDomId";
 import { TextField } from "./TextField";
 import { useStableListKeys } from "./useStableListKeys";
 

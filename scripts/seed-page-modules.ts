@@ -1,10 +1,10 @@
 import { COURSES_MEDIA } from "@/content/data/media";
 import retreatsJson from "@/content/data/retreats/retreats.json";
 import sitePagesJson from "@/content/data/site-pages/site-pages.json";
-import { VENUE_SLUGS } from "@/content/pages/slugs";
 import {
   ONLINE_COURSE_SLUGS,
   RESIDENTIAL_COURSE_SLUGS,
+  VENUE_SLUGS,
 } from "@/content/pages/slugs";
 import type { SitePageDocument } from "@/content/types";
 import { COURSES_DATA } from "@/data/coursesData";
@@ -14,7 +14,7 @@ import {
   buildModulesFromRetreat,
   buildModulesFromSitePage,
 } from "@/lib/cms/page-modules-builder";
-import { prisma } from "@/lib/db/node";
+import { db } from "@/lib/db/node";
 
 /**
  * Populate `page_modules` for all existing page rows.
@@ -39,7 +39,7 @@ export async function seedPageModulesOnly() {
     const isHub = slug.includes("teacher-training") || slug.includes("retreat");
     const modules = buildModulesFromSitePage(doc, { isVenue, isHub });
 
-    await prisma.page.update({
+    await db.page.update({
       where: { slug },
       data: { pageModules: modules },
     });
@@ -51,7 +51,7 @@ export async function seedPageModulesOnly() {
     if (!course) continue;
     const media = COURSES_MEDIA[slug];
     const modules = buildModulesFromCourse(course, media);
-    await prisma.page.update({
+    await db.page.update({
       where: { slug },
       data: { pageModules: modules },
     });
@@ -61,7 +61,7 @@ export async function seedPageModulesOnly() {
   for (const slug of ONLINE_COURSE_SLUGS) {
     try {
       const modules = buildModulesFromOnlineSlug(slug);
-      await prisma.page.update({
+      await db.page.update({
         where: { slug },
         data: { pageModules: modules },
       });
@@ -74,7 +74,7 @@ export async function seedPageModulesOnly() {
   for (const retreat of retreatsJson.retreats) {
     const modules = buildModulesFromRetreat(retreat);
     try {
-      await prisma.page.update({
+      await db.page.update({
         where: { slug: retreat.slug },
         data: { pageModules: modules },
       });

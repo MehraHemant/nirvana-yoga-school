@@ -1,6 +1,7 @@
+import { HeroFrame } from "@/components/hero";
 import { Button, Container, Heading } from "@/components/ui";
-import type { HomeHeroContent } from "@/content/types/dedicated-pages";
 import { DEFAULT_HOME_PAGE_CONTENT } from "@/content/data/dedicated-page-defaults";
+import type { HomeHeroContent } from "@/content/types/dedicated-pages";
 import { ArrowRight, HeroFlourish, HeroUnderline } from "@/icons";
 import { optionalSectionHtmlId } from "@/lib/html-id";
 import HeroBackgroundVideo from "./HeroBackgroundVideo";
@@ -30,7 +31,7 @@ export default function HeroSection({
   } = content;
 
   return (
-    <section
+    <HeroFrame
       id={optionalSectionHtmlId(content._id)}
       className="relative min-h-svh w-full overflow-hidden bg-ink"
     >
@@ -76,13 +77,14 @@ export default function HeroSection({
                 className="animate-fade-up fade-delay-300 text-balance"
               >
                 {titleLead}{" "}
-                <span className="relative inline-block whitespace-nowrap">
+                <br/>
+                <div className="relative inline-block whitespace-nowrap">
                   <span className="font-serif font-normal text-accent">
                     {titleAccent}
                   </span>
                   <HeroUnderline className="absolute -bottom-1 md:-bottom-2 left-0 w-full text-accent" />
-                </span>
-                <span className="text-white/90">.</span>
+                </div>
+                <span className="text-accent">.</span>
               </Heading>
               <div className="animate-fade-up fade-delay-500 mt-5 sm:mt-8 flex flex-wrap gap-2 sm:gap-3">
                 <Button
@@ -141,6 +143,6 @@ export default function HeroSection({
           </div>
         </div>
       </div>
-    </section>
+    </HeroFrame>
   );
 }

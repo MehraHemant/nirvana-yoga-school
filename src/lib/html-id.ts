@@ -37,8 +37,6 @@ export function optionalSectionHtmlId(
 ): string | undefined {
   const raw = typeof sectionId === "string" ? sectionId.trim() : "";
   if (!raw) return undefined;
-  const cleaned = raw
-    .replace(/\s+/g, "-")
-    .replace(/[^a-zA-Z0-9\-_]/g, "");
+  const cleaned = raw.replace(/\s+/g, "-").replace(/[^a-zA-Z0-9\-_]/g, "");
   return cleaned || undefined;
 }

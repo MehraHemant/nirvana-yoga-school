@@ -1,8 +1,8 @@
 "use client";
 
 import {
-  AdminSectionJumpNav,
   type AdminSectionJumpItem,
+  AdminSectionJumpNav,
 } from "@/components/admin/AdminSectionJumpNav";
 
 const COMMON_ANCHORS = [

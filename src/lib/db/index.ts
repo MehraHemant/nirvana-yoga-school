@@ -1,6 +1,6 @@
 import "server-only";
 
-export { prisma, type DbClient, type ModelDelegate } from "./client";
+export { type DbClient, type ModelDelegate, db } from "./client";
 export { createId } from "./ids";
 export { parseJson, stringifyJson } from "./json";
 export {
@@ -14,6 +14,6 @@ export {
   execute,
   queryOne,
   queryRows,
-  withTransaction,
   type SqlConn,
+  withTransaction,
 } from "./sql";

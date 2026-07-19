@@ -1,6 +1,10 @@
 "use client";
 
-import { CourseStickyNav, PageHeroRenderer } from "@/components/courses";
+import {
+  CourseStickyNav,
+  ExamCertification,
+  PageHeroRenderer,
+} from "@/components/courses";
 import {
   OnlineCurriculumSection,
   OnlineFAQSection,
@@ -23,6 +27,7 @@ export default function OnlineCourseClient({
   course,
   media,
   modules,
+  examCertification,
 }: OnlineCoursePageData) {
   const overview = modules?.overview;
   const inclusions = modules?.inclusions;
@@ -50,6 +55,15 @@ export default function OnlineCourseClient({
     faqs,
     (faqs?.items ?? course.faqs).length > 0,
   );
+  const showExam =
+    (modules?.flags.showExam ?? false) &&
+    shouldRenderSection(
+      examCertification,
+      Boolean(
+        examCertification?.steps.length &&
+          examCertification.certificates.length,
+      ),
+    );
 
   const pricingCard =
     showPricing && pricing ? (
@@ -160,6 +174,10 @@ export default function OnlineCourseClient({
                 }
                 syllabus={syllabus?.chapters ?? course.syllabus}
               />
+            ) : null}
+
+            {showExam && examCertification ? (
+              <ExamCertification content={examCertification} />
             ) : null}
 
             <OnlineTeachersSection teachers={course.teachers} />

@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getServerSession, requireAdmin } from "@/lib/cms/auth";
 import { allocateCopySlug } from "@/lib/cms/unique-slug";
-import { prisma } from "@/lib/db";
+import { db } from "@/lib/db";
 
 /**
  * Duplicates a CMS page (modules + course document) as an unpublished copy.
@@ -16,21 +16,21 @@ export async function duplicatePageAction(formData: FormData) {
   const id = String(formData.get("id") ?? "");
   if (!id) return;
 
-  const page = await prisma.page.findUnique({
+  const page = await db.page.findUnique({
     where: { id },
     include: { courseDoc: true },
   });
   if (!page) return;
 
   const slug = await allocateCopySlug(page.slug, async (candidate) => {
-    const existing = await prisma.page.findUnique({
+    const existing = await db.page.findUnique({
       where: { slug: candidate },
       select: { id: true },
     });
     return Boolean(existing);
   });
 
-  await prisma.page.create({
+  await db.page.create({
     data: {
       slug,
       type: page.type,

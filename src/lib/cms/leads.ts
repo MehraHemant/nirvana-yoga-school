@@ -3,10 +3,10 @@ import type {
   LeadStatus,
   LeadSubmissionInput,
 } from "@/content/types/lead";
-import { prisma } from "@/lib/db";
+import { db } from "@/lib/db";
 import type { ParseResult } from "@/lib/types/api";
 
-/** Prisma filter for active (non-deleted) leads. */
+/** Neon filter for active (non-deleted) leads. */
 const ACTIVE_LEAD_FILTER = { deletedAt: null } as const;
 
 /**
@@ -16,7 +16,7 @@ const ACTIVE_LEAD_FILTER = { deletedAt: null } as const;
  * @returns Created lead id
  */
 export async function createLeadSubmission(input: LeadSubmissionInput) {
-  const lead = await prisma.leadSubmission.create({
+  const lead = await db.leadSubmission.create({
     data: {
       type: input.type,
       name: input.name.trim(),
@@ -35,7 +35,7 @@ export async function createLeadSubmission(input: LeadSubmissionInput) {
 }
 
 /**
- * Map a Prisma lead row to an API record.
+ * Map a Neon lead row to an API record.
  *
  * @param lead - Database row
  */
@@ -98,47 +98,47 @@ export async function getLeadStats(): Promise<LeadStats> {
     contactThisMonth,
     recentRows,
   ] = await Promise.all([
-    prisma.leadSubmission.count({
+    db.leadSubmission.count({
       where: { type: "enquiry", ...ACTIVE_LEAD_FILTER },
     }),
-    prisma.leadSubmission.count({
+    db.leadSubmission.count({
       where: { type: "contact", ...ACTIVE_LEAD_FILTER },
     }),
-    prisma.leadSubmission.count({
+    db.leadSubmission.count({
       where: { status: "new", ...ACTIVE_LEAD_FILTER },
     }),
-    prisma.leadSubmission.count({
+    db.leadSubmission.count({
       where: { deletedAt: { not: null } },
     }),
-    prisma.leadSubmission.count({
+    db.leadSubmission.count({
       where: {
         type: "enquiry",
         createdAt: { gte: weekAgo },
         ...ACTIVE_LEAD_FILTER,
       },
     }),
-    prisma.leadSubmission.count({
+    db.leadSubmission.count({
       where: {
         type: "contact",
         createdAt: { gte: weekAgo },
         ...ACTIVE_LEAD_FILTER,
       },
     }),
-    prisma.leadSubmission.count({
+    db.leadSubmission.count({
       where: {
         type: "enquiry",
         createdAt: { gte: monthAgo },
         ...ACTIVE_LEAD_FILTER,
       },
     }),
-    prisma.leadSubmission.count({
+    db.leadSubmission.count({
       where: {
         type: "contact",
         createdAt: { gte: monthAgo },
         ...ACTIVE_LEAD_FILTER,
       },
     }),
-    prisma.leadSubmission.findMany({
+    db.leadSubmission.findMany({
       where: ACTIVE_LEAD_FILTER,
       orderBy: { createdAt: "desc" },
       take: 8,
@@ -182,7 +182,7 @@ export async function listLeadSubmissions(filters?: {
         ? { status: { not: "new" as const } }
         : {};
 
-  const rows = await prisma.leadSubmission.findMany({
+  const rows = await db.leadSubmission.findMany({
     where: {
       ...deletedFilter,
       ...(filters?.type ? { type: filters.type } : {}),
@@ -210,7 +210,7 @@ export async function updateLeadStatus(id: string, status: LeadStatus) {
         ? null
         : undefined;
 
-  return prisma.leadSubmission.update({
+  return db.leadSubmission.update({
     where: { id, ...ACTIVE_LEAD_FILTER },
     data: {
       status,
@@ -225,7 +225,7 @@ export async function updateLeadStatus(id: string, status: LeadStatus) {
  * @param id - Lead id
  */
 export async function softDeleteLead(id: string) {
-  return prisma.leadSubmission.update({
+  return db.leadSubmission.update({
     where: { id, ...ACTIVE_LEAD_FILTER },
     data: { deletedAt: new Date() },
   });
@@ -237,7 +237,7 @@ export async function softDeleteLead(id: string) {
  * @param id - Lead id
  */
 export async function restoreLead(id: string) {
-  return prisma.leadSubmission.update({
+  return db.leadSubmission.update({
     where: { id, deletedAt: { not: null } },
     data: { deletedAt: null },
   });

@@ -5,9 +5,9 @@ import { CollapsiblePanel } from "../CollapsiblePanel";
 import { HeroTypePicker } from "../HeroTypePicker";
 import { ImageField } from "../ImageField";
 import { ImageListField } from "../ImageListField";
+import { SectionIdField } from "../SectionIdField";
 import { StringListField } from "../StringListField";
 import { TextField } from "../TextField";
-import { SectionIdField } from "../SectionIdField";
 import { ModuleLiveField } from "./ModuleLiveField";
 import type { ModulePanelProps } from "./types";
 
@@ -222,6 +222,7 @@ export function HeroModuleEditor({
               label="Preview URL"
               value={hero.previewUrl}
               onChange={(previewUrl) => onChange({ ...hero, previewUrl })}
+              hint="Shown as a framed image (or YouTube thumbnail with a play link) on the right side of the hero — not a full-bleed background."
             />
           </div>
         </div>

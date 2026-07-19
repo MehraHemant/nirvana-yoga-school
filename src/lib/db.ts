@@ -1,22 +1,22 @@
 /**
  * Compatibility bridge: existing `from "@/lib/db"` imports resolve here.
- * Implementation lives in `./db/*` (mysql2 Prisma-compatible client).
+ * Implementation lives in `./db/*` (Neon Neon-compatible client).
  */
 export {
   createId,
+  type DbClient,
   execute,
   getPool,
   isContentItemsSchemaReady,
   isContentTypesSchemaReady,
   isDbConnectionError,
   isDbEnabled,
+  type ModelDelegate,
   parseJson,
-  prisma,
+  db,
   queryOne,
   queryRows,
+  type SqlConn,
   stringifyJson,
   withTransaction,
-  type DbClient,
-  type ModelDelegate,
-  type SqlConn,
 } from "./db/index";

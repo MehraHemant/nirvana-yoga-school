@@ -9,16 +9,16 @@ import type { StickyNavItem } from "@/content/types";
 import { Plus } from "@/icons";
 import { CollapsiblePanel } from "../CollapsiblePanel";
 import { ListRowActions } from "../ListRowActions";
+import { SectionIdField } from "../SectionIdField";
 import {
+  reorderItems,
   SortableList,
   SortableRow,
-  reorderItems,
   withSortField,
 } from "../SortableList";
 import { useStableListKeys } from "../useStableListKeys";
-import { COMMON_ANCHORS } from "./ModuleNav";
-import { SectionIdField } from "../SectionIdField";
 import { ModuleLiveField } from "./ModuleLiveField";
+import { COMMON_ANCHORS } from "./ModuleNav";
 import type { ModulePanelProps } from "./types";
 
 type StickyNavModuleEditorProps = ModulePanelProps & {
@@ -54,9 +54,7 @@ const EMPTY_ITEM: StickyNavItem = {
  */
 function normalizeAnchorId(value: string): StickyNavItem["id"] {
   if (!value) return "" as StickyNavItem["id"];
-  return (
-    value.startsWith("#") ? value : `#${value}`
-  ) as StickyNavItem["id"];
+  return (value.startsWith("#") ? value : `#${value}`) as StickyNavItem["id"];
 }
 
 /**
@@ -102,9 +100,7 @@ export function StickyNavModuleEditor({
   function applyPreset(presetItems: StickyNavItem[]) {
     if (
       items.length > 0 &&
-      !window.confirm(
-        "Replace the current sticky nav links with this preset?",
-      )
+      !window.confirm("Replace the current sticky nav links with this preset?")
     ) {
       return;
     }

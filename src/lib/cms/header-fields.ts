@@ -30,6 +30,46 @@ export const DEFAULT_HEADER_CTAS: HeaderCta[] = [
   },
 ];
 
+const DEFAULT_HEADER_LOGO = {
+  light: "/logo.png",
+  dark: "/logo_white.png",
+  lightAlt: "Nirvana Yoga School",
+  darkAlt: "Nirvana Yoga School",
+  href: "/",
+} as const;
+
+/**
+ * Adds defaults to a legacy or incomplete header logo configuration.
+ *
+ * @param logo - Stored header logo configuration
+ */
+function normalizeHeaderLogo(
+  logo: Partial<GlobalHeader["logo"]> | null | undefined,
+): GlobalHeader["logo"] {
+  return {
+    light:
+      typeof logo?.light === "string" && logo.light.trim()
+        ? logo.light.trim()
+        : DEFAULT_HEADER_LOGO.light,
+    dark:
+      typeof logo?.dark === "string" && logo.dark.trim()
+        ? logo.dark.trim()
+        : DEFAULT_HEADER_LOGO.dark,
+    lightAlt:
+      typeof logo?.lightAlt === "string" && logo.lightAlt.trim()
+        ? logo.lightAlt.trim()
+        : DEFAULT_HEADER_LOGO.lightAlt,
+    darkAlt:
+      typeof logo?.darkAlt === "string" && logo.darkAlt.trim()
+        ? logo.darkAlt.trim()
+        : DEFAULT_HEADER_LOGO.darkAlt,
+    href:
+      typeof logo?.href === "string" && logo.href.trim()
+        ? logo.href.trim()
+        : DEFAULT_HEADER_LOGO.href,
+  };
+}
+
 /**
  * Coerces a raw variant string into a supported header CTA style.
  *
@@ -56,8 +96,7 @@ function normalizeCtaRow(raw: unknown, index: number): HeaderCta | null {
     typeof row.sort === "number" && Number.isFinite(row.sort)
       ? row.sort
       : index * 10;
-  const external =
-    typeof row.external === "boolean" ? row.external : undefined;
+  const external = typeof row.external === "boolean" ? row.external : undefined;
   return {
     label: label || "CTA",
     href: href || "#",
@@ -89,10 +128,10 @@ export function normalizeHeaderCtas(
     if (normalized.length > 0) return normalized;
   }
 
+  const configuredSignInUrl = (header as GlobalHeader).signInUrl;
   const signInUrl =
-    typeof (header as GlobalHeader).signInUrl === "string" &&
-    (header as GlobalHeader).signInUrl!.trim()
-      ? (header as GlobalHeader).signInUrl!.trim()
+    typeof configuredSignInUrl === "string" && configuredSignInUrl.trim()
+      ? configuredSignInUrl.trim()
       : SIGN_IN_URL;
   const legacyCta = (header as GlobalHeader).cta;
   const enquireLabel =
@@ -135,14 +174,14 @@ export function prepareHeaderForSave(header: GlobalHeader): GlobalHeader {
   );
   return {
     ...header,
+    logo: normalizeHeaderLogo(header.logo),
     ctas,
     signInUrl: linkCta?.href ?? SIGN_IN_URL,
     cta: buttonCta
       ? {
           label: buttonCta.label,
           href: buttonCta.href,
-          variant:
-            buttonCta.variant === "secondary" ? "secondary" : "primary",
+          variant: buttonCta.variant === "secondary" ? "secondary" : "primary",
         }
       : {
           label: "Enquire Now",
@@ -181,9 +220,8 @@ export function headerFieldsToGlobalHeader(
     cta: {
       label: str("cta_label", "Enquire Now"),
       href: str("cta_href", "/enquire-now"),
-      variant: str("cta_variant", "primary") === "secondary"
-        ? "secondary"
-        : "primary",
+      variant:
+        str("cta_variant", "primary") === "secondary" ? "secondary" : "primary",
     },
   };
 
@@ -192,6 +230,9 @@ export function headerFieldsToGlobalHeader(
     logo: {
       light: str("logo_light", "/logo.png"),
       dark: str("logo_dark", "/logo_white.png"),
+      lightAlt: str("logo_light_alt", "Nirvana Yoga School"),
+      darkAlt: str("logo_dark_alt", "Nirvana Yoga School"),
+      href: str("logo_href", "/"),
     },
     ctas: ctas ?? normalizeHeaderCtas(legacy),
     ...legacy,
@@ -210,6 +251,9 @@ export function globalHeaderToFields(
   return {
     logo_light: prepared.logo.light,
     logo_dark: prepared.logo.dark,
+    logo_light_alt: prepared.logo.lightAlt,
+    logo_dark_alt: prepared.logo.darkAlt,
+    logo_href: prepared.logo.href,
     sign_in_url: prepared.signInUrl ?? SIGN_IN_URL,
     cta_label: prepared.cta?.label ?? "Enquire Now",
     cta_href: prepared.cta?.href ?? "/enquire-now",

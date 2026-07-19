@@ -22,11 +22,7 @@ export default function YttHubEligibilitySection({
   htmlId = "certification",
 }: YttHubEligibilitySectionProps) {
   return (
-    <YttHubSection
-      id={htmlId}
-      title={eligibility.title}
-      className="bg-white"
-    >
+    <YttHubSection id={htmlId} title={eligibility.title} className="bg-white">
       <ul className="grid max-w-none gap-4">
         {eligibility.paragraphs.map((paragraph) => (
           <motion.li

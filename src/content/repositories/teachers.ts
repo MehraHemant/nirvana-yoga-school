@@ -6,17 +6,14 @@ import {
 } from "@/content/mappers/site-page-copy";
 import { requireDb } from "@/content/repositories/db-fallback";
 import type { ContentResult } from "@/content/repositories/fetch";
-import {
-  TEACHER_PAGE_SLUG,
-  teacherSlug,
-} from "@/content/teachers-slug";
+import { TEACHER_PAGE_SLUG, teacherSlug } from "@/content/teachers-slug";
 import type { SitePageDocument, SitePagePerson } from "@/content/types";
 import { contentCacheTag } from "@/lib/cms/cache";
 import {
   mapPageToSitePageDocument,
   pageWithRelations,
 } from "@/lib/cms/db-to-document";
-import { prisma } from "@/lib/db";
+import { db } from "@/lib/db";
 
 export { TEACHER_PAGE_SLUG, teacherSlug };
 
@@ -52,25 +49,35 @@ export type TeachersPageData = {
 export function mapTeachersFromPeople(
   people: SitePagePerson[] | undefined,
 ): TeacherProfile[] {
-  return (people ?? []).map((person) => ({
-    name: person.name,
-    experienceSummary: refineTeacherSummary(
-      person.summary ?? "Experienced faculty",
-    ),
-    image:
-      person.image ??
-      "https://www.nirvanayogaschoolindia.com/img/teacher/jeet-thapliyal.webp",
-    bio: refineTeacherBio(person.bio ?? ""),
-    education: person.education ?? [],
-    detailedExperience: person.experience ?? [],
-    expertise: person.expertise ?? [],
-  }));
+  const seen = new Set<string>();
+  const teachers: TeacherProfile[] = [];
+
+  for (const person of people ?? []) {
+    const slug = teacherSlug(person.name);
+    if (!slug || seen.has(slug)) continue;
+    seen.add(slug);
+    teachers.push({
+      name: person.name,
+      experienceSummary: refineTeacherSummary(
+        person.summary ?? "Experienced faculty",
+      ),
+      image:
+        person.image ??
+        "https://www.nirvanayogaschoolindia.com/img/teacher/jeet-thapliyal.webp",
+      bio: refineTeacherBio(person.bio ?? ""),
+      education: person.education ?? [],
+      detailedExperience: person.experience ?? [],
+      expertise: person.expertise ?? [],
+    });
+  }
+
+  return teachers;
 }
 
 /**
  * Parse teacher presentation fields from `content_data`.
  *
- * @param value - Raw JSON from Prisma
+ * @param value - Raw JSON from Neon
  */
 export function parseTeachersPresentation(
   value: unknown,
@@ -113,7 +120,7 @@ export const DEFAULT_TEACHERS_PRESENTATION: TeachersPagePresentation = {
 };
 
 async function loadTeachersPageFromDb(): Promise<TeachersPageData | null> {
-  let page = await prisma.page.findUnique({
+  let page = await db.page.findUnique({
     where: { slug: TEACHER_PAGE_SLUG },
     include: pageWithRelations,
   });
@@ -121,7 +128,7 @@ async function loadTeachersPageFromDb(): Promise<TeachersPageData | null> {
   if (!page || !page.published || page.people.length === 0) {
     const { ensureTeacherPage } = await import("@/lib/cms/ensure-teacher-page");
     await ensureTeacherPage().catch(() => null);
-    page = await prisma.page.findUnique({
+    page = await db.page.findUnique({
       where: { slug: TEACHER_PAGE_SLUG },
       include: pageWithRelations,
     });
@@ -161,11 +168,12 @@ export async function getTeachers(): Promise<TeacherProfile[]> {
 }
 
 /**
- * Filters faculty profiles by selected teacher slugs (page modules picker).
+ * Filters faculty profiles by selected teacher slugs (page modules picker),
+ * rendered in the persisted `selectedSlugs` order (admin drag-and-drop order).
  * `undefined` keeps `fallback` (legacy page.people). An empty array shows none.
  *
  * @param faculty - Full faculty list from the teachers store
- * @param selectedSlugs - Slugs chosen on a page (`teacherSlug(name)`)
+ * @param selectedSlugs - Slugs chosen on a page, in display order (`teacherSlug(name)`)
  * @param fallback - Profiles used when the picker has never been saved
  */
 export function resolveSelectedTeachers(
@@ -175,6 +183,14 @@ export function resolveSelectedTeachers(
 ): TeacherProfile[] {
   if (selectedSlugs === undefined) return fallback;
   if (selectedSlugs.length === 0) return [];
-  const selected = new Set(selectedSlugs);
-  return faculty.filter((teacher) => selected.has(teacherSlug(teacher.name)));
+  const bySlug = new Map(
+    faculty.map((teacher) => [teacherSlug(teacher.name), teacher] as const),
+  );
+  const seen = new Set<string>();
+  return selectedSlugs.flatMap((slug) => {
+    if (seen.has(slug)) return [];
+    seen.add(slug);
+    const teacher = bySlug.get(slug);
+    return teacher ? [teacher] : [];
+  });
 }

@@ -1,5 +1,7 @@
+import { isVenuePage } from "@/content/mappers/venue-page";
 import { getPageModules } from "@/content/repositories/page-modules";
 import {
+  getExamCertification,
   getInstagramFeed,
   getResidentialLife,
   getReviews,
@@ -13,7 +15,6 @@ import {
   resolveSelectedTeachers,
 } from "@/content/repositories/teachers";
 import type { SitePageDocument } from "@/content/types";
-import { isVenuePage } from "@/content/mappers/venue-page";
 import { loadSitePageData } from "./data";
 
 /**
@@ -32,6 +33,7 @@ export async function loadSitePageDataAsync(page: SitePageDocument) {
     siteMap,
     instagram,
     travel,
+    examCertification,
     faculty,
   ] = await Promise.all([
     getPageModules(page.slug),
@@ -42,6 +44,7 @@ export async function loadSitePageDataAsync(page: SitePageDocument) {
     getSiteMap().catch(() => null),
     getInstagramFeed().catch(() => null),
     getTravelGuide().catch(() => null),
+    getExamCertification().catch(() => null),
     getTeachers().catch(() => []),
   ]);
 
@@ -67,5 +70,6 @@ export async function loadSitePageDataAsync(page: SitePageDocument) {
     siteMap: siteMap?.data ?? null,
     instagram: instagram?.data ?? null,
     travel: travel?.data ?? null,
+    examCertification: examCertification?.data ?? null,
   };
 }

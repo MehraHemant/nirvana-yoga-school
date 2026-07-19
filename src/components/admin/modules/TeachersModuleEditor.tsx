@@ -2,8 +2,8 @@
 
 import type { TeachersModule } from "@/content/types";
 import { CollapsiblePanel } from "../CollapsiblePanel";
-import { TeachersPicker } from "../TeachersPicker";
 import { SectionIdField } from "../SectionIdField";
+import { TeachersPicker } from "../TeachersPicker";
 import { ModuleLiveField } from "./ModuleLiveField";
 import type { ModulePanelProps } from "./types";
 

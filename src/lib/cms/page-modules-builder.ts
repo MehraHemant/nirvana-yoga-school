@@ -16,6 +16,7 @@ import {
   DEFAULT_SITE_NAV,
   DEFAULT_VENUE_FLAGS,
 } from "@/content/page-modules-defaults";
+import { teacherSlug } from "@/content/teachers-slug";
 import type {
   CourseDocument,
   CourseMedia,
@@ -23,7 +24,6 @@ import type {
   SitePageDocument,
 } from "@/content/types";
 import { cmsImageUrl } from "@/content/types/cms-image";
-import { teacherSlug } from "@/content/teachers-slug";
 import type {
   BentoMediaHero,
   GlanceItem,

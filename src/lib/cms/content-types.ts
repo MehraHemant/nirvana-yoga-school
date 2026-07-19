@@ -9,14 +9,14 @@ import {
   parsePageCmsDocument,
 } from "@/content/types/page-cms";
 import { invalidateContentCache } from "@/lib/cms/cache";
-import { syncDefaultContentTypes as syncDefaultContentTypesWith } from "@/lib/cms/content-types-sync";
 import {
   defaultsFromFields,
   isValidContentKey,
   normalizeItemData,
   parseContentFields,
 } from "@/lib/cms/content-schema-utils";
-import { prisma } from "@/lib/db";
+import { syncDefaultContentTypes as syncDefaultContentTypesWith } from "@/lib/cms/content-types-sync";
+import { db } from "@/lib/db";
 
 export {
   defaultsFromFields,
@@ -42,7 +42,7 @@ export function parsePageTypes(raw: unknown): string[] {
  *   When set, excludes global components (empty pageTypes).
  */
 export async function listContentTypes(pageKind?: string) {
-  const rows = await prisma.contentType.findMany({
+  const rows = await db.contentType.findMany({
     orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
   });
   if (!pageKind) return rows;
@@ -61,7 +61,7 @@ export async function listContentTypes(pageKind?: string) {
  * @param id - Content type id
  */
 export async function getContentTypeById(id: string) {
-  return prisma.contentType.findUnique({ where: { id } });
+  return db.contentType.findUnique({ where: { id } });
 }
 
 /**
@@ -85,15 +85,15 @@ export async function createContentType(
   }
   if (!name) return { error: "Name is required." };
 
-  const existing = await prisma.contentType.findUnique({ where: { key } });
+  const existing = await db.contentType.findUnique({ where: { key } });
   if (existing) return { error: `Type key “${key}” already exists.` };
 
   const fields = parseContentFields(input.fields ?? []);
-  const max = await prisma.contentType.aggregate({ _max: { sortOrder: true } });
+  const max = await db.contentType.aggregate({ _max: { sortOrder: true } });
   const pageTypes =
     input.pageTypes && input.pageTypes.length > 0 ? input.pageTypes : ["site"];
 
-  const row = await prisma.contentType.create({
+  const row = await db.contentType.create({
     data: {
       key,
       name,
@@ -121,7 +121,7 @@ export async function updateContentType(
     pageTypes?: string[];
   },
 ) {
-  const existing = await prisma.contentType.findUnique({ where: { id } });
+  const existing = await db.contentType.findUnique({ where: { id } });
   if (!existing) return { error: "Content type not found." };
 
   const name = (input.name ?? existing.name).trim();
@@ -132,7 +132,7 @@ export async function updateContentType(
       ? parseContentFields(input.fields)
       : parseContentFields(existing.fields);
 
-  const row = await prisma.contentType.update({
+  const row = await db.contentType.update({
     where: { id },
     data: {
       name,
@@ -152,12 +152,12 @@ export async function updateContentType(
  * @param id - Content type id
  */
 export async function deleteContentType(id: string) {
-  const existing = await prisma.contentType.findUnique({ where: { id } });
+  const existing = await db.contentType.findUnique({ where: { id } });
   if (!existing) return { error: "Content type not found." };
   if (existing.isSystem) {
     return { error: "System content types cannot be deleted." };
   }
-  await prisma.contentType.delete({ where: { id } });
+  await db.contentType.delete({ where: { id } });
   return { ok: true as const };
 }
 
@@ -165,7 +165,7 @@ export async function deleteContentType(id: string) {
  * Upserts all default system content types from the shared catalog.
  */
 export async function syncDefaultContentTypes() {
-  return syncDefaultContentTypesWith(prisma);
+  return syncDefaultContentTypesWith(db);
 }
 
 /**
@@ -201,7 +201,7 @@ export async function seedPageBlocks(
   pageSlug?: string,
   replace = false,
 ) {
-  const page = await prisma.page.findUnique({ where: { id: pageId } });
+  const page = await db.page.findUnique({ where: { id: pageId } });
   if (!page) return { error: "Page not found." };
 
   const existing = parsePageCmsDocument(page.contentData);
@@ -212,7 +212,7 @@ export async function seedPageBlocks(
   const blocks = await buildDefaultBlocksForKind(pageKind);
   const doc: PageCmsDocument = { blocks };
 
-  await prisma.page.update({
+  await db.page.update({
     where: { id: pageId },
     data: {
       contentData: doc,
@@ -236,10 +236,10 @@ export async function savePageCmsDocument(
   document: PageCmsDocument,
   pageSlug?: string,
 ) {
-  const page = await prisma.page.findUnique({ where: { id: pageId } });
+  const page = await db.page.findUnique({ where: { id: pageId } });
   if (!page) return { error: "Page not found." };
 
-  const types = await prisma.contentType.findMany();
+  const types = await db.contentType.findMany();
   const byKey = new Map(types.map((t) => [t.key, t]));
 
   const blocks: CmsContentBlock[] = [];
@@ -258,7 +258,7 @@ export async function savePageCmsDocument(
   }
 
   const doc: PageCmsDocument = { blocks };
-  await prisma.page.update({
+  await db.page.update({
     where: { id: pageId },
     data: { contentData: doc },
   });
@@ -273,7 +273,7 @@ export async function assignContentTypeToPage(
   pageSlug?: string,
 ) {
   if (!contentTypeId) {
-    const row = await prisma.page.update({
+    const row = await db.page.update({
       where: { id: pageId },
       data: { contentTypeId: null },
     });
@@ -281,12 +281,12 @@ export async function assignContentTypeToPage(
     return { data: row };
   }
 
-  const type = await prisma.contentType.findUnique({
+  const type = await db.contentType.findUnique({
     where: { id: contentTypeId },
   });
   if (!type) return { error: "Content type not found." };
 
-  const page = await prisma.page.findUnique({ where: { id: pageId } });
+  const page = await db.page.findUnique({ where: { id: pageId } });
   if (!page) return { error: "Page not found." };
 
   const fields = parseContentFields(type.fields);
@@ -297,7 +297,7 @@ export async function assignContentTypeToPage(
     data: defaultsFromFields(fields),
   });
 
-  const row = await prisma.page.update({
+  const row = await db.page.update({
     where: { id: pageId },
     data: {
       contentTypeId: null,
@@ -316,7 +316,7 @@ export async function savePageContentData(
   rawData: Record<string, unknown>,
   pageSlug?: string,
 ) {
-  const page = await prisma.page.findUnique({ where: { id: pageId } });
+  const page = await db.page.findUnique({ where: { id: pageId } });
   if (!page) return { error: "Page not found." };
   const doc = parsePageCmsDocument(page.contentData);
   if (doc.blocks.length === 0) {

@@ -1,6 +1,6 @@
 import "server-only";
 
-import { isDbEnabled, prisma } from "@/lib/db";
+import { isDbEnabled, db } from "@/lib/db";
 
 export type SectionPageRow = {
   id: string;
@@ -27,12 +27,10 @@ export async function listSectionPages(
 ): Promise<SectionPageRow[]> {
   if (!isDbEnabled()) return [];
 
-  const pages = await prisma.page.findMany({
+  const pages = await db.page.findMany({
     where: {
       type: type as never,
-      ...(excludeSlugs?.length
-        ? { slug: { notIn: excludeSlugs } }
-        : undefined),
+      ...(excludeSlugs?.length ? { slug: { notIn: excludeSlugs } } : undefined),
     },
     orderBy: { title: "asc" },
     select: {

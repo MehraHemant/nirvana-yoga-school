@@ -13,6 +13,7 @@ import { useSectionScrollSpy } from "@/components/admin/useSectionScrollSpy";
 import { useStableListKeys } from "@/components/admin/useStableListKeys";
 import { createDefaultWhyNirvana } from "@/content/data/why-nirvana-defaults";
 import type {
+  ExamCertificationContent,
   InstagramFeedContent,
   SiteMapContent,
   TravelGuideContent,
@@ -27,6 +28,7 @@ type SharedKey = (typeof SHARED_KEYS)[number];
 
 type SharedValue =
   | WhyNirvanaContent
+  | ExamCertificationContent
   | SiteMapContent
   | InstagramFeedContent
   | TravelGuideContent
@@ -34,6 +36,7 @@ type SharedValue =
 
 const LABELS: Record<SharedKey, string> = {
   whyNirvana: "Why Nirvana",
+  examCertification: "Exam & certification",
   siteMap: "Map",
   instagram: "Instagram",
   travel: "Travel",
@@ -44,6 +47,9 @@ const SHARED_PANEL_ITEMS: Record<
   readonly { id: string; label: string }[]
 > = {
   whyNirvana: [{ id: "shared-why-nirvana", label: "Why Nirvana" }],
+  examCertification: [
+    { id: "shared-exam-certification", label: "Exam & certification" },
+  ],
   siteMap: [{ id: "shared-site-map", label: "Map" }],
   instagram: [{ id: "shared-instagram", label: "Instagram" }],
   travel: [
@@ -60,6 +66,16 @@ const SHARED_PANEL_ITEMS: Record<
  */
 function emptySharedDoc(key: SharedKey): SharedValue {
   if (key === "whyNirvana") return createDefaultWhyNirvana();
+  if (key === "examCertification") {
+    return {
+      live: true,
+      eyebrow: "",
+      title: "",
+      description: "",
+      steps: [],
+      certificates: [],
+    } satisfies ExamCertificationContent;
+  }
   if (key === "siteMap") {
     return {
       live: true,
@@ -88,8 +104,7 @@ function emptySharedDoc(key: SharedKey): SharedValue {
 }
 
 /**
- * Admin hub for the four global shared section documents
- * (Why Nirvana, Map, Instagram, Travel). Lodging/food are edited per page.
+ * Admin hub for global shared section documents. Lodging/food are edited per page.
  */
 export function SharedSectionsEditor() {
   const [active, setActive] = useState<SharedKey>("whyNirvana");
@@ -169,6 +184,11 @@ export function SharedSectionsEditor() {
   const fields = value ? (
     active === "whyNirvana" ? (
       <WhyNirvanaFields doc={value as WhyNirvanaContent} onChange={setValue} />
+    ) : active === "examCertification" ? (
+      <ExamCertificationFields
+        doc={value as ExamCertificationContent}
+        onChange={setValue}
+      />
     ) : active === "siteMap" ? (
       <SiteMapFields doc={value as SiteMapContent} onChange={setValue} />
     ) : active === "instagram" ? (
@@ -190,9 +210,9 @@ export function SharedSectionsEditor() {
           </Link>
           <h1 className="admin-title">Shared sections</h1>
           <p className="admin-subtitle">
-            Global content only — Why Nirvana, Map, Instagram, and Travel. Edit
-            once; each page toggles Live. Lodging and food are edited on each
-            page.
+            Global content only — Why Nirvana, Map, Instagram, Travel, and Exam
+            &amp; Certification. Edit once; each page toggles Live. Lodging and
+            food are edited on each page.
           </p>
         </div>
       </div>
@@ -315,6 +335,134 @@ function WhyNirvanaFields({
       >
         Add highlight
       </button>
+    </CollapsiblePanel>
+  );
+}
+
+/**
+ * Shared exam and certificate fields.
+ *
+ * @param props - Document and change handler
+ */
+function ExamCertificationFields({
+  doc,
+  onChange,
+}: {
+  doc: ExamCertificationContent;
+  onChange: (next: ExamCertificationContent) => void;
+}) {
+  const stepKeys = useStableListKeys(doc.steps.length);
+  const certificateKeys = useStableListKeys(doc.certificates.length);
+
+  return (
+    <CollapsiblePanel
+      id="shared-exam-certification"
+      title="Exam & certification"
+      defaultOpen
+      description="Shared evaluation and certificate content. Product pages only toggle Live."
+      actions={
+        <SectionLiveField
+          id="exam-certification-live"
+          value={doc.live}
+          onChange={(live) => onChange({ ...doc, live })}
+        />
+      }
+    >
+      <div className="admin-grid-2">
+        <TextField
+          label="Eyebrow"
+          value={doc.eyebrow}
+          onChange={(eyebrow) => onChange({ ...doc, eyebrow })}
+        />
+        <TextField
+          label="Title"
+          value={doc.title}
+          onChange={(title) => onChange({ ...doc, title })}
+        />
+      </div>
+      <TextField
+        label="Description"
+        value={doc.description}
+        onChange={(description) => onChange({ ...doc, description })}
+        multiline
+        rows={4}
+      />
+      <h3 className="admin-subsection-title">Evaluation steps</h3>
+      {doc.steps.map((step, index) => (
+        <div key={stepKeys.keys[index]} className="admin-nested-card">
+          <div className="admin-grid-2">
+            <TextField
+              label="Title"
+              value={step.title}
+              onChange={(title) => {
+                const steps = [...doc.steps];
+                steps[index] = { ...step, title };
+                onChange({ ...doc, steps });
+              }}
+            />
+            <TextField
+              label="Tag"
+              value={step.tag}
+              onChange={(tag) => {
+                const steps = [...doc.steps];
+                steps[index] = { ...step, tag };
+                onChange({ ...doc, steps });
+              }}
+            />
+          </div>
+          <TextField
+            label="Description"
+            value={step.description}
+            onChange={(description) => {
+              const steps = [...doc.steps];
+              steps[index] = { ...step, description };
+              onChange({ ...doc, steps });
+            }}
+            multiline
+          />
+          <ImageField
+            label="Image"
+            value={step.image}
+            onChange={(image) => {
+              const steps = [...doc.steps];
+              steps[index] = { ...step, image };
+              onChange({ ...doc, steps });
+            }}
+          />
+        </div>
+      ))}
+      <h3 className="admin-subsection-title">Certificates</h3>
+      {doc.certificates.map((certificate, index) => (
+        <div key={certificateKeys.keys[index]} className="admin-nested-card">
+          <TextField
+            label="Title"
+            value={certificate.title}
+            onChange={(title) => {
+              const certificates = [...doc.certificates];
+              certificates[index] = { ...certificate, title };
+              onChange({ ...doc, certificates });
+            }}
+          />
+          <TextField
+            label="Subtitle"
+            value={certificate.subtitle}
+            onChange={(subtitle) => {
+              const certificates = [...doc.certificates];
+              certificates[index] = { ...certificate, subtitle };
+              onChange({ ...doc, certificates });
+            }}
+          />
+          <ImageField
+            label="Certificate image"
+            value={certificate.image}
+            onChange={(image) => {
+              const certificates = [...doc.certificates];
+              certificates[index] = { ...certificate, image };
+              onChange({ ...doc, certificates });
+            }}
+          />
+        </div>
+      ))}
     </CollapsiblePanel>
   );
 }

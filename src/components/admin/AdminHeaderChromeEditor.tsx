@@ -7,18 +7,101 @@ import { AdminHeaderNavEditor } from "@/components/admin/AdminHeaderNavEditor";
 import { AdminSaveBar } from "@/components/admin/AdminSaveBar";
 import { ImageField } from "@/components/admin/ImageField";
 import type { GlobalHeader } from "@/content/types/global-settings";
+import { fetchAdminGlobalSettings } from "@/lib/api/admin-client";
 import {
   DEFAULT_HEADER_CTAS,
   normalizeHeaderCtas,
   prepareHeaderForSave,
 } from "@/lib/cms/header-fields";
-import { fetchAdminGlobalSettings } from "@/lib/api/admin-client";
 
 const DEFAULT_HEADER: GlobalHeader = {
   navigation: [],
-  logo: { light: "/logo.png", dark: "/logo_white.png" },
+  logo: {
+    light: "/logo.png",
+    dark: "/logo_white.png",
+    lightAlt: "Nirvana Yoga School",
+    darkAlt: "Nirvana Yoga School",
+    href: "/",
+  },
   ctas: DEFAULT_HEADER_CTAS.map((c) => ({ ...c })),
 };
+
+type LogoVariant = "light" | "dark";
+
+/**
+ * Compact editor for one header logo variant and its accessibility text.
+ *
+ * @param props - Logo settings and change callback
+ */
+function HeaderLogoFields({
+  variant,
+  settings,
+  onChange,
+}: {
+  variant: LogoVariant;
+  settings: GlobalHeader;
+  onChange: (logo: GlobalHeader["logo"]) => void;
+}) {
+  const isLight = variant === "light";
+  const label = isLight ? "Light background logo" : "Dark / hero logo";
+  const hint = isLight
+    ? "Used when the header sits on sand or white."
+    : "Used over transparent and hero headers.";
+  const altKey = isLight ? "lightAlt" : "darkAlt";
+
+  return (
+    <div className="admin-header-logo-card">
+      <div className="admin-header-logo-card-head">
+        <div>
+          <h3 className="admin-header-logo-card-title">{label}</h3>
+          <p className="admin-hint admin-hint--tight">{hint}</p>
+        </div>
+      </div>
+      <ImageField
+        label={label}
+        value={settings.logo[variant]}
+        onChange={(value) => onChange({ ...settings.logo, [variant]: value })}
+        hideLabel
+        compact
+      />
+      <div className="admin-header-logo-fields">
+        <div className="admin-field admin-field--flush">
+          <label className="admin-label" htmlFor={`header-logo-${variant}-alt`}>
+            Alt text
+          </label>
+          <input
+            id={`header-logo-${variant}-alt`}
+            className="admin-input"
+            type="text"
+            value={settings.logo[altKey]}
+            placeholder="Nirvana Yoga School"
+            onChange={(event) =>
+              onChange({ ...settings.logo, [altKey]: event.target.value })
+            }
+          />
+        </div>
+        <div className="admin-field admin-field--flush">
+          <label
+            className="admin-label"
+            htmlFor={`header-logo-${variant}-href`}
+          >
+            Logo destination (shared)
+          </label>
+          <input
+            id={`header-logo-${variant}-href`}
+            className="admin-input"
+            type="text"
+            value={settings.logo.href}
+            placeholder="/"
+            onChange={(event) =>
+              onChange({ ...settings.logo, href: event.target.value })
+            }
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 /**
  * Unified admin editor for site header branding, ordered CTAs, and navigation.
@@ -81,28 +164,16 @@ export function AdminHeaderChromeEditor() {
             </p>
           </div>
         </div>
-        <div className="admin-field-grid">
-          <ImageField
-            label="Logo (light backgrounds)"
-            value={settings.logo.light}
-            onChange={(value) =>
-              setSettings({
-                ...settings,
-                logo: { ...settings.logo, light: value },
-              })
-            }
-            hint="Used when the header sits on sand / white"
+        <div className="admin-header-logo-grid">
+          <HeaderLogoFields
+            variant="light"
+            settings={settings}
+            onChange={(logo) => setSettings({ ...settings, logo })}
           />
-          <ImageField
-            label="Logo (dark / hero)"
-            value={settings.logo.dark}
-            onChange={(value) =>
-              setSettings({
-                ...settings,
-                logo: { ...settings.logo, dark: value },
-              })
-            }
-            hint="Used over the home hero video"
+          <HeaderLogoFields
+            variant="dark"
+            settings={settings}
+            onChange={(logo) => setSettings({ ...settings, logo })}
           />
         </div>
         <AdminHeaderCtasEditor
