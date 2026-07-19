@@ -112,9 +112,9 @@ export default function VenueGallery({
     <section id="gallery" className="bg-paper pb-16 pt-2 sm:pb-20">
       <Container size="2xl">
         {sections.length > 1 ? (
-          <div className="sticky top-16 z-30 -mx-5 mb-8 border-b border-ink/10 bg-paper/95 px-5 py-3 backdrop-blur-md md:top-18 md:-mx-8 md:mb-10 md:px-8">
+          <div className="sticky top-16 z-30 -mx-5 mb-8 border-b border-ink/10 bg-paper px-5 py-3 md:top-18 md:-mx-8 md:mb-10 md:px-8">
             <div
-              className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              className="flex flex-wrap gap-2"
               role="tablist"
               aria-label="Gallery categories"
             >
@@ -127,7 +127,7 @@ export default function VenueGallery({
                     role="tab"
                     aria-selected={active}
                     onClick={() => setActiveSection(filter.id)}
-                    className={`shrink-0 rounded-sm px-4 py-2 font-sans text-sm tracking-wide transition-colors ${
+                    className={`rounded-sm px-3 py-1.5 font-sans text-sm tracking-wide transition-colors sm:px-4 sm:py-2 ${
                       active
                         ? "bg-primary text-white"
                         : "bg-ink/5 text-ink hover:bg-ink/10"
