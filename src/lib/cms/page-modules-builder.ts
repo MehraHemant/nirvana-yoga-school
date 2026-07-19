@@ -1,5 +1,10 @@
 import { COURSES_MEDIA } from "@/content/data/media";
+import { createRetreatResidentialLife } from "@/content/data/retreat-residential-life";
 import type retreatsJson from "@/content/data/retreats/retreats.json";
+import {
+  createCourseVenueGallery,
+  createRetreatVenueGallery,
+} from "@/content/data/venue-galleries";
 import { buildOnlineCourseFromSitePage } from "@/content/mappers/online-course";
 import {
   getPagePresentation,
@@ -349,7 +354,20 @@ export function buildModulesFromSitePage(
     teachers: page.people?.length
       ? { selectedSlugs: page.people.map((p) => teacherSlug(p.name)) }
       : undefined,
-    gallery: page.gallery?.length ? { images: page.gallery } : undefined,
+    gallery: isVenue
+      ? page.slug.includes("retreat")
+        ? page.gallery?.length
+          ? {
+              ...createRetreatVenueGallery(),
+              images: page.gallery,
+            }
+          : createRetreatVenueGallery()
+        : page.gallery?.length
+          ? createCourseVenueGallery(page.gallery)
+          : undefined
+      : page.gallery?.length
+        ? { images: page.gallery }
+        : undefined,
     programs: page.cards?.length ? { cards: page.cards } : undefined,
     flags,
   };
@@ -430,6 +448,7 @@ export function buildModulesFromRetreat(
           })),
         }
       : undefined,
+    residentialLife: createRetreatResidentialLife(),
     flags: {
       showExam: false,
       showAccommodation: true,

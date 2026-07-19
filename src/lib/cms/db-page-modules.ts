@@ -1,5 +1,11 @@
+import {
+  createEmptyGalleryModule,
+  galleryCategoryLabel,
+  resolveGallerySections,
+} from "@/content/mappers/gallery-module";
 import { createEmptyPageModules } from "@/content/page-modules-defaults";
 import type { PageModulesDocument } from "@/content/types";
+import type { SitePageGalleryImage } from "@/content/types/site-page";
 import { db } from "@/lib/db";
 
 /**
@@ -50,21 +56,45 @@ export function mapPageModulesFromRow(page: {
 
 /**
  * Modules for the admin editor: stored document, or an empty scaffold.
+ * When gallery images exist in `page_gallery_images` but not in modules,
+ * hydrate the gallery module so venue editors always see DB photos.
  *
  * @param pageModules - Raw JSON from the page row
  * @param title - Optional title to seed into the scaffold hero
+ * @param galleryRows - Optional relational gallery rows from the database
  * @returns Always a complete `PageModulesDocument`
  */
 export function resolvePageModulesForEditor(
   pageModules: unknown,
   title?: string,
+  galleryRows: SitePageGalleryImage[] = [],
 ): PageModulesDocument {
   const existing = mapPageModulesFromRow({ pageModules });
-  if (existing) return existing;
+  const doc =
+    existing ??
+    (() => {
+      const scaffold = createEmptyPageModules("page-minimal");
+      if (title?.trim()) {
+        scaffold.hero = { ...scaffold.hero, title: title.trim() };
+      }
+      return scaffold;
+    })();
 
-  const scaffold = createEmptyPageModules("page-minimal");
-  if (title?.trim()) {
-    scaffold.hero = { ...scaffold.hero, title: title.trim() };
+  const hasModuleImages = (doc.gallery?.images?.length ?? 0) > 0;
+  if (!hasModuleImages && galleryRows.length > 0) {
+    const sections = resolveGallerySections(galleryRows);
+    doc.gallery = {
+      ...createEmptyGalleryModule(),
+      ...doc.gallery,
+      live: doc.gallery?.live !== false,
+      images: galleryRows,
+      sectionOrder: sections.map((section) => ({
+        id: section.id,
+        label: section.label || galleryCategoryLabel(section.id),
+        description: section.description,
+      })),
+    };
   }
-  return scaffold;
+
+  return doc;
 }

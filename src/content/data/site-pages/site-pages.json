@@ -2543,8 +2543,121 @@
       }
     ],
     "ctaLabel": "Enquire Now",
-    "ctaHref": "#contact",
-    "gallery": []
+    "ctaHref": "#gallery",
+    "gallery": [
+      {
+        "url": "https://www.nirvanayogaschoolindia.com/img/retreat-venue/hall/1.webp",
+        "category": "yogahall"
+      },
+      {
+        "url": "https://www.nirvanayogaschoolindia.com/img/retreat-venue/hall/2.webp",
+        "category": "yogahall"
+      },
+      {
+        "url": "https://www.nirvanayogaschoolindia.com/img/retreat-venue/hall/3.webp",
+        "category": "yogahall"
+      },
+      {
+        "url": "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/1.webp",
+        "category": "private"
+      },
+      {
+        "url": "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/2.webp",
+        "category": "private"
+      },
+      {
+        "url": "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/3.webp",
+        "category": "private"
+      },
+      {
+        "url": "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/4.webp",
+        "category": "private"
+      },
+      {
+        "url": "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/5.webp",
+        "category": "private"
+      },
+      {
+        "url": "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/6.webp",
+        "category": "private"
+      },
+      {
+        "url": "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/7.webp",
+        "category": "private"
+      },
+      {
+        "url": "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/8.webp",
+        "category": "private"
+      },
+      {
+        "url": "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/9.webp",
+        "category": "private"
+      },
+      {
+        "url": "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/10.webp",
+        "category": "private"
+      },
+      {
+        "url": "https://www.nirvanayogaschoolindia.com/img/retreat-venue/2-shared/1.webp",
+        "category": "2 shared"
+      },
+      {
+        "url": "https://www.nirvanayogaschoolindia.com/img/retreat-venue/2-shared/2.webp",
+        "category": "2 shared"
+      },
+      {
+        "url": "https://www.nirvanayogaschoolindia.com/img/retreat-venue/2-shared/3.webp",
+        "category": "2 shared"
+      },
+      {
+        "url": "https://www.nirvanayogaschoolindia.com/img/retreat-venue/2-shared/4.webp",
+        "category": "2 shared"
+      },
+      {
+        "url": "https://www.nirvanayogaschoolindia.com/img/retreat-venue/2-shared/5.webp",
+        "category": "2 shared"
+      },
+      {
+        "url": "https://www.nirvanayogaschoolindia.com/img/retreat-venue/2-shared/6.webp",
+        "category": "2 shared"
+      },
+      {
+        "url": "https://www.nirvanayogaschoolindia.com/img/retreat-venue/2-shared/7.webp",
+        "category": "2 shared"
+      },
+      {
+        "url": "https://www.nirvanayogaschoolindia.com/img/retreat-venue/2-shared/8.webp",
+        "category": "2 shared"
+      },
+      {
+        "url": "https://www.nirvanayogaschoolindia.com/img/retreat-venue/2-shared/9.webp",
+        "category": "2 shared"
+      },
+      {
+        "url": "https://www.nirvanayogaschoolindia.com/img/retreat-venue/2-shared/10.webp",
+        "category": "2 shared"
+      },
+      {
+        "url": "https://www.nirvanayogaschoolindia.com/img/retreat-venue/2-shared/11.webp",
+        "category": "2 shared"
+      },
+      {
+        "url": "https://www.nirvanayogaschoolindia.com/img/retreat-venue/2-shared/12.webp",
+        "category": "2 shared"
+      },
+      {
+        "url": "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/8.webp",
+        "category": "premisis"
+      },
+      {
+        "url": "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/9.webp",
+        "category": "premisis"
+      },
+      {
+        "url": "https://www.nirvanayogaschoolindia.com/img/retreat-venue/private/10.webp",
+        "category": "premisis"
+      }
+    ]
   },
   "contact": {
     "slug": "contact",

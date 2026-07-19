@@ -3,12 +3,17 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createEmptyResidentialLife } from "@/content/data/residential-life-defaults";
+import { createEmptyGalleryModule } from "@/content/mappers/gallery-module";
+import { normalizeVenueHero } from "@/content/mappers/venue-hero";
 import { createEmptyPageModules } from "@/content/page-modules-defaults";
 import { pagePath } from "@/content/pages/path";
 import { getPageRef } from "@/content/pages/registry";
-import type { PageModulesDocument } from "@/content/types";
+import type { HeroType, PageModulesDocument } from "@/content/types";
 import type { ResidentialLifeContent } from "@/content/types/shared-sections";
-import { publicViewHref } from "@/lib/cms/page-layout-registry";
+import {
+  type PageLayoutId,
+  publicViewHref,
+} from "@/lib/cms/page-layout-registry";
 import { parseApiJson } from "@/lib/types/api";
 import { AdminSaveBar } from "../AdminSaveBar";
 import { AdminSectionJumpNav } from "../AdminSectionJumpNav";
@@ -23,6 +28,7 @@ import { scrollToSection, toSectionDomId } from "../sectionDomId";
 import { useSectionScrollSpy } from "../useSectionScrollSpy";
 import { EligibilityModuleEditor } from "./EligibilityModuleEditor";
 import { FaqModuleEditor } from "./FaqModuleEditor";
+import { GalleryModuleEditor } from "./GalleryModuleEditor";
 import { HeroModuleEditor } from "./HeroModuleEditor";
 import { InclusionsModuleEditor } from "./InclusionsModuleEditor";
 import { ModuleFlagsPanel } from "./ModuleFlagsPanel";
@@ -45,6 +51,7 @@ export type ModulePanelId =
   | "module-syllabus"
   | "module-schedule"
   | "module-accommodation"
+  | "module-gallery"
   | "module-teachers"
   | "module-flags"
   | "module-pricing"
@@ -64,7 +71,12 @@ type ModulePageEditorProps = {
   layoutHint?: string;
   /** Public preview override */
   previewHref?: string;
+  /** Layout family — drives venue hero normalization and tip copy */
+  layoutId?: PageLayoutId;
 };
+
+/** Hero layouts offered on venue gallery pages. */
+const VENUE_HERO_TYPES: HeroType[] = ["simple-banner"];
 
 const MODULE_SECTIONS: Array<{
   id: ModulePanelId;
@@ -138,23 +150,30 @@ const MODULE_SECTIONS: Array<{
     moduleKey: "residentialLife",
   },
   {
-    id: "module-teachers",
+    id: "module-gallery",
     step: 9,
+    label: "Gallery",
+    hint: "Photos & videos",
+    moduleKey: "gallery",
+  },
+  {
+    id: "module-teachers",
+    step: 10,
     label: "Teachers",
     hint: "From faculty",
     moduleKey: "teachers",
   },
-  { id: "module-flags", step: 10, label: "Shared live", hint: "Global bands" },
+  { id: "module-flags", step: 11, label: "Shared live", hint: "Global bands" },
   {
     id: "module-pricing",
-    step: 11,
+    step: 12,
     label: "Pricing",
     hint: "Dates & fees",
     moduleKey: "pricing",
   },
   {
     id: "module-faq",
-    step: 12,
+    step: 13,
     label: "FAQ",
     hint: "Questions",
     moduleKey: "faqs",
@@ -164,6 +183,7 @@ const MODULE_SECTIONS: Array<{
 const DEFAULT_OPEN: Record<string, boolean> = {
   "module-hero": true,
   "module-sticky-nav": true,
+  "module-gallery": true,
 };
 
 /** Full residential course panel set. */
@@ -192,14 +212,11 @@ export const EDITORIAL_MODULE_PANELS: ModulePanelId[] = [
   "module-faq",
 ];
 
-/** Venue layout panels. */
+/** Venue layout panels — photo gallery is the primary editor. */
 export const VENUE_MODULE_PANELS: ModulePanelId[] = [
-  "module-meta",
+  "module-gallery",
   "module-hero",
-  "module-sticky-nav",
-  "module-overview",
-  "module-accommodation",
-  "module-flags",
+  "module-meta",
   "module-faq",
 ];
 
@@ -236,19 +253,37 @@ function modulePanelDomId(panelId: ModulePanelId, module?: unknown): string {
  *
  * @param value - Modules from the API (may be partial/empty)
  * @param fallbackTitle - Title used when scaffolding a missing hero
+ * @param venueLayout - When true, coerce hero to simple-banner for DarkMediaHero
  */
 function normalizeModules(
   value: PageModulesDocument | null | undefined,
   fallbackTitle = "",
+  venueLayout = false,
 ): PageModulesDocument {
+  let doc: PageModulesDocument;
   if (value?.hero && typeof value.hero.type === "string") {
-    return value;
+    doc = value;
+  } else {
+    const scaffold = createEmptyPageModules(
+      venueLayout ? "simple-banner" : "page-minimal",
+    );
+    if (fallbackTitle.trim()) {
+      scaffold.hero = { ...scaffold.hero, title: fallbackTitle.trim() };
+    }
+    doc = scaffold;
   }
-  const scaffold = createEmptyPageModules("page-minimal");
-  if (fallbackTitle.trim()) {
-    scaffold.hero = { ...scaffold.hero, title: fallbackTitle.trim() };
-  }
-  return scaffold;
+
+  if (!venueLayout) return doc;
+
+  const fallbackImage =
+    doc.gallery?.images?.[0]?.url ||
+    (doc.hero.type === "page-minimal" ? doc.hero.heroImage : "") ||
+    (doc.hero.type === "simple-banner" ? doc.hero.backgroundImage : "") ||
+    "";
+  return {
+    ...doc,
+    hero: normalizeVenueHero(doc.hero, fallbackImage),
+  };
 }
 
 /**
@@ -266,10 +301,14 @@ export function ModulePageEditor({
   sharedLinks = [],
   layoutHint,
   previewHref: previewHrefProp,
+  layoutId,
 }: ModulePageEditorProps) {
-  const [modules, setModules] = useState(() => normalizeModules(initial, slug));
+  const isVenueLayout = layoutId === "venue";
+  const [modules, setModules] = useState(() =>
+    normalizeModules(initial, slug, isVenueLayout),
+  );
   const [baseline, setBaseline] = useState(() =>
-    JSON.stringify(normalizeModules(initial, slug)),
+    JSON.stringify(normalizeModules(initial, slug, isVenueLayout)),
   );
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -315,25 +354,32 @@ export function ModulePageEditor({
   }, [modules.residentialLife, visiblePanels]);
 
   const sections = useMemo(() => {
-    const allowed = visiblePanels
-      ? new Set(visiblePanels)
-      : new Set(RESIDENTIAL_MODULE_PANELS);
-    // Always include page SEO at the top
-    allowed.add("module-meta");
-    return MODULE_SECTIONS.filter((s) => allowed.has(s.id)).map((s, index) => {
-      const moduleValue =
-        s.moduleKey === "meta"
-          ? modules.meta
-          : s.moduleKey
-            ? modules[s.moduleKey]
-            : undefined;
-      const domId = modulePanelDomId(s.id, moduleValue);
-      return {
-        ...s,
-        step: index + 1,
-        domId,
-      };
-    });
+    const orderedIds = visiblePanels?.length
+      ? [...visiblePanels]
+      : [...RESIDENTIAL_MODULE_PANELS];
+    if (!orderedIds.includes("module-meta")) {
+      orderedIds.unshift("module-meta");
+    }
+
+    return orderedIds
+      .filter((id, index, list) => list.indexOf(id) === index)
+      .flatMap((id, index) => {
+        const section = MODULE_SECTIONS.find((entry) => entry.id === id);
+        if (!section) return [];
+        const moduleValue =
+          section.moduleKey === "meta"
+            ? modules.meta
+            : section.moduleKey
+              ? modules[section.moduleKey]
+              : undefined;
+        return [
+          {
+            ...section,
+            step: index + 1,
+            domId: modulePanelDomId(section.id, moduleValue),
+          },
+        ];
+      });
   }, [visiblePanels, modules]);
 
   const sectionIds = useMemo(
@@ -456,9 +502,21 @@ export function ModulePageEditor({
       </div>
 
       <div className="admin-tip-banner">
-        <strong>Quick guide:</strong> Panels match this page&apos;s live layout.
-        Lodging &amp; food are edited on this page. Shared Why Nirvana / Map /
-        Instagram / Travel are linked below when applicable.
+        <strong>Quick guide:</strong>{" "}
+        {isVenueLayout ? (
+          <>
+            Photo gallery is the main content for this page. Edit the hero
+            banner image and title, then manage gallery sections and images
+            below. Changes save to the database and show on{" "}
+            <code>/venue/{slug}</code>.
+          </>
+        ) : (
+          <>
+            Panels match this page&apos;s live layout. Lodging &amp; food are
+            edited on this page. Shared Why Nirvana / Map / Instagram / Travel
+            are linked below when applicable.
+          </>
+        )}
       </div>
 
       <div className="admin-editor-layout">
@@ -476,6 +534,37 @@ export function ModulePageEditor({
         ) : null}
 
         <div className="admin-editor-sections">
+          {isVenueLayout && show("module-gallery") ? (
+            <div className="admin-section-shell">
+              <GalleryModuleEditor
+                gallery={modules.gallery ?? createEmptyGalleryModule()}
+                onChange={(gallery) => setModules({ ...modules, gallery })}
+                panelId={domIdFor("module-gallery")}
+                step={stepOf("module-gallery")}
+                open={openPanels["module-gallery"] ?? true}
+                onOpenChange={(open) =>
+                  setOpenPanels((prev) => ({
+                    ...prev,
+                    "module-gallery": open,
+                  }))
+                }
+              />
+            </div>
+          ) : null}
+          {isVenueLayout && show("module-hero") ? (
+            <div className="admin-section-shell">
+              <HeroModuleEditor
+                hero={modules.hero}
+                onChange={(hero) => setModules({ ...modules, hero })}
+                allowedTypes={VENUE_HERO_TYPES}
+                {...panelProps(
+                  "module-hero",
+                  stepOf("module-hero"),
+                  "Full-bleed banner at the top of the venue page — background image, title, and short description.",
+                )}
+              />
+            </div>
+          ) : null}
           {show("module-meta") ? (
             <div className="admin-section-shell">
               <CollapsiblePanel
@@ -496,7 +585,7 @@ export function ModulePageEditor({
               </CollapsiblePanel>
             </div>
           ) : null}
-          {show("module-hero") ? (
+          {!isVenueLayout && show("module-hero") ? (
             <div className="admin-section-shell">
               <HeroModuleEditor
                 hero={modules.hero}
@@ -633,6 +722,23 @@ export function ModulePageEditor({
                   }
                 />
               </CollapsiblePanel>
+            </div>
+          ) : null}
+          {!isVenueLayout && show("module-gallery") ? (
+            <div className="admin-section-shell">
+              <GalleryModuleEditor
+                gallery={modules.gallery ?? createEmptyGalleryModule()}
+                onChange={(gallery) => setModules({ ...modules, gallery })}
+                panelId={domIdFor("module-gallery")}
+                step={stepOf("module-gallery")}
+                open={openPanels["module-gallery"] ?? true}
+                onOpenChange={(open) =>
+                  setOpenPanels((prev) => ({
+                    ...prev,
+                    "module-gallery": open,
+                  }))
+                }
+              />
             </div>
           ) : null}
           {show("module-teachers") ? (

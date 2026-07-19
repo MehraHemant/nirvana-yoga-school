@@ -14,6 +14,8 @@ import type { ModulePanelProps } from "./types";
 type HeroModuleEditorProps = ModulePanelProps & {
   hero: HeroModule;
   onChange: (hero: HeroModule) => void;
+  /** Restrict layout picker (e.g. venue pages only allow simple-banner) */
+  allowedTypes?: HeroType[];
 };
 
 /**
@@ -29,6 +31,7 @@ export function HeroModuleEditor({
   description = "Page top banner — pick a layout, then fill in title, images, and CTAs.",
   open,
   onOpenChange,
+  allowedTypes,
 }: HeroModuleEditorProps) {
   function setType(type: HeroType) {
     if (type === hero.type) return;
@@ -88,7 +91,11 @@ export function HeroModuleEditor({
         value={hero._id}
         onChange={(_id) => onChange({ ...hero, _id })}
       />
-      <HeroTypePicker value={hero.type} onChange={setType} />
+      <HeroTypePicker
+        value={hero.type}
+        onChange={setType}
+        allowedTypes={allowedTypes}
+      />
 
       {hero.type === "bento-media" ? (
         <div className="admin-field-group">
@@ -232,6 +239,11 @@ export function HeroModuleEditor({
         <div className="admin-field-group">
           <p className="admin-field-group-label">Banner hero</p>
           <TextField
+            label="Eyebrow"
+            value={hero.eyebrow ?? ""}
+            onChange={(eyebrow) => onChange({ ...hero, eyebrow })}
+          />
+          <TextField
             label="Title"
             value={hero.title}
             onChange={(title) => onChange({ ...hero, title })}
@@ -248,6 +260,7 @@ export function HeroModuleEditor({
             onChange={(backgroundImage) =>
               onChange({ ...hero, backgroundImage })
             }
+            hint="Full-bleed hero image at the top of the public page."
           />
           <div className="admin-grid-2">
             <TextField

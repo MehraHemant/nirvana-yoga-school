@@ -70,6 +70,8 @@ export type {
   EligibilityRequirement,
   FaqsModule,
   GalleryModule,
+  GallerySectionMeta,
+  GalleryVideoItem,
   GlanceItem,
   HeroModule,
   HeroType,

@@ -1,7 +1,7 @@
 import type { StickyNavItem } from "@/components/courses/CourseStickyNav";
 import type { PricingOption } from "@/components/courses/upcomingDatesShared";
 import type { RetreatDocument } from "@/content/types/retreat-page";
-import type { RetreatAccommodationContent } from "@/content/types/shared-sections";
+import type { ResidentialLifeContent } from "@/content/types/shared-sections";
 
 const RETREAT_NAV: StickyNavItem[] = [
   { id: "#overview", label: "Overview", shortLabel: "Overview" },
@@ -80,16 +80,16 @@ function mapBatches(dates: RetreatDocument["dates"]) {
 }
 
 /**
- * Builds a deduplicated hero media list for retreat pages — venue webp
- * room galleries first, then program and lodging photos from content JSON.
+ * Builds a deduplicated hero media list for retreat pages — room galleries
+ * first, then program and lodging photos from content JSON.
  *
  * @param retreat - Retreat document from MySQL
- * @param lodging - Retreat accommodation galleries (page modules or legacy global)
+ * @param residentialLife - Course-compatible lodging/food document
  * @returns Unique image URLs for CourseHero (no stock fallbacks)
  */
 export function buildRetreatHeroImages(
   retreat: RetreatDocument,
-  lodging: RetreatAccommodationContent,
+  residentialLife: ResidentialLifeContent | null,
 ): string[] {
   const seen = new Set<string>();
   const urls: string[] = [];
@@ -100,7 +100,7 @@ export function buildRetreatHeroImages(
     urls.push(src);
   };
 
-  for (const room of lodging.roomGalleries) {
+  for (const room of residentialLife?.accommodation.galleries ?? []) {
     for (const image of room.images) add(image.url);
   }
 
@@ -116,7 +116,9 @@ export function buildRetreatHeroImages(
   for (const day of retreat.schedule ?? []) add(day.image);
   for (const pkg of retreat.packages ?? []) add(pkg.image);
 
-  for (const image of lodging.foodGallery.slice(0, 4)) add(image.url);
+  for (const image of (residentialLife?.food.gallery ?? []).slice(0, 4)) {
+    add(image.url);
+  }
 
   return urls;
 }
@@ -129,20 +131,19 @@ export type MappedRetreatPage = {
   pricing: PricingOption[];
   pricingDescription: string;
   batches: ReturnType<typeof mapBatches>;
-  accommodationFacilities: string[];
 };
 
 /**
  * Maps a retreat document into UI props for the retreat client.
  *
  * @param retreat - Retreat document from MySQL
- * @param lodging - Retreat accommodation content (page modules or legacy global)
+ * @param residentialLife - Course-compatible lodging/food document
  */
 export function mapRetreatPage(
   retreat: RetreatDocument,
-  lodging: RetreatAccommodationContent,
+  residentialLife: ResidentialLifeContent | null,
 ): MappedRetreatPage {
-  const heroImages = buildRetreatHeroImages(retreat, lodging);
+  const heroImages = buildRetreatHeroImages(retreat, residentialLife);
 
   return {
     navItems: RETREAT_NAV,
@@ -153,11 +154,6 @@ export function mapRetreatPage(
     pricingDescription:
       "Choose your dates and room — packages include stay, meals, and the full retreat program.",
     batches: mapBatches(retreat.dates),
-    accommodationFacilities:
-      retreat.accommodation.facilities &&
-      retreat.accommodation.facilities.length > 0
-        ? retreat.accommodation.facilities
-        : lodging.defaultFacilities,
   };
 }
 

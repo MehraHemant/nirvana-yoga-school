@@ -56,7 +56,25 @@ export function invalidateGlobalSettingsCache(key: string): void {
 }
 
 /**
+ * Loads a published site page from Postgres (uncached).
+ *
+ * @param slug - Page slug
+ */
+async function loadSitePageUncached(
+  slug: string,
+): Promise<SitePageDocument | null> {
+  const page = await db.page.findUnique({
+    where: { slug },
+    include: pageWithRelations,
+  });
+  if (!page || !page.published) return null;
+  return mapPageToSitePageDocument(page);
+}
+
+/**
  * Fetch a site page from Postgres with Next.js data cache.
+ * Cache misses are re-checked live so newly created pages are not stuck 404
+ * for the full revalidate window.
  *
  * @param slug - Page slug
  */
@@ -64,14 +82,7 @@ export async function fetchSitePageFromDb(
   slug: string,
 ): Promise<SitePageDocument | null> {
   const cached = unstable_cache(
-    async () => {
-      const page = await db.page.findUnique({
-        where: { slug },
-        include: pageWithRelations,
-      });
-      if (!page || !page.published) return null;
-      return mapPageToSitePageDocument(page);
-    },
+    () => loadSitePageUncached(slug),
     [`site-page-${slug}`],
     {
       tags: [contentCacheTag(slug)],
@@ -79,7 +90,9 @@ export async function fetchSitePageFromDb(
     },
   );
 
-  return cached();
+  const result = await cached();
+  if (result) return result;
+  return loadSitePageUncached(slug);
 }
 
 /**
@@ -216,7 +229,24 @@ export async function fetchCourseDocumentFromDb<T>(
 }
 
 /**
+ * Loads page modules from Postgres (uncached).
+ *
+ * @param slug - Page slug
+ */
+async function loadPageModulesUncached(
+  slug: string,
+): Promise<PageModulesDocument | null> {
+  const page = await db.page.findUnique({
+    where: { slug },
+    select: { pageModules: true, published: true },
+  });
+  if (!page || !page.published) return null;
+  return mapPageModulesFromRow(page);
+}
+
+/**
  * Fetch page modules from Postgres with Next.js data cache.
+ * Cache misses are re-checked live so newly published modules appear promptly.
  *
  * @param slug - Page slug
  */
@@ -224,14 +254,7 @@ export async function fetchPageModulesFromDb(
   slug: string,
 ): Promise<PageModulesDocument | null> {
   const cached = unstable_cache(
-    async () => {
-      const page = await db.page.findUnique({
-        where: { slug },
-        select: { pageModules: true, published: true },
-      });
-      if (!page || !page.published) return null;
-      return mapPageModulesFromRow(page);
-    },
+    () => loadPageModulesUncached(slug),
     [`page-modules-${slug}`],
     {
       tags: [contentCacheTag(slug)],
@@ -239,7 +262,9 @@ export async function fetchPageModulesFromDb(
     },
   );
 
-  return cached();
+  const result = await cached();
+  if (result) return result;
+  return loadPageModulesUncached(slug);
 }
 
 /**

@@ -1,9 +1,8 @@
 "use client";
 
 import {
-  Accommodation,
+  AccommodationFood,
   ExamCertification,
-  Food,
   InstagramFeed,
   PageGallerySection,
   PageProgramsSection,
@@ -117,8 +116,7 @@ export default function HubClient({
         ) : null}
         {(modules?.flags.showAccommodation ?? mapped.showAccommodation) ? (
           <>
-            <Accommodation content={residentialLife} />
-            <Food content={residentialLife} />
+            <AccommodationFood content={residentialLife} />
           </>
         ) : null}
         {showWhyNirvana ? (

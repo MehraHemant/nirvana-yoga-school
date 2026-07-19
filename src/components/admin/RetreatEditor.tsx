@@ -7,7 +7,7 @@ import { AdminSectionJumpNav } from "@/components/admin/AdminSectionJumpNav";
 import { CollapsiblePanel } from "@/components/admin/CollapsiblePanel";
 import { ImageField } from "@/components/admin/ImageField";
 import { ImageListField } from "@/components/admin/ImageListField";
-import { RetreatLodgingFields } from "@/components/admin/LodgingFields";
+import { ResidentialLifeFields } from "@/components/admin/LodgingFields";
 import { HeroModuleEditor } from "@/components/admin/modules/HeroModuleEditor";
 import { ModuleFlagsPanel } from "@/components/admin/modules/ModuleFlagsPanel";
 import { StickyNavModuleEditor } from "@/components/admin/modules/StickyNavModuleEditor";
@@ -18,9 +18,17 @@ import { toSectionDomId } from "@/components/admin/sectionDomId";
 import { TextField } from "@/components/admin/TextField";
 import { useSectionScrollSpy } from "@/components/admin/useSectionScrollSpy";
 import { useStableListKeys } from "@/components/admin/useStableListKeys";
+import {
+  createRetreatResidentialLife,
+  hasResidentialLifeContent,
+} from "@/content/data/retreat-residential-life";
+import { retreatAccommodationToResidentialLife } from "@/content/mappers/residential-life";
 import { createEmptyPageModules } from "@/content/page-modules-defaults";
 import type { PageModulesDocument, RetreatDocument } from "@/content/types";
-import type { RetreatAccommodationContent } from "@/content/types/shared-sections";
+import type {
+  ResidentialLifeContent,
+  RetreatAccommodationContent,
+} from "@/content/types/shared-sections";
 import { sharedSectionLinksForLayout } from "@/lib/cms/page-layout-registry";
 import { parseApiJson } from "@/lib/types/api";
 
@@ -47,7 +55,7 @@ const RETREAT_JUMP_SECTIONS = [
   { slug: "inclusions", label: "Inclusions" },
   { slug: "schedule", label: "Day schedule" },
   { slug: "flags", label: "Shared live" },
-  { slug: "accommodation", label: "Accommodation & food" },
+  { slug: "accommodation", label: "Lodging & food" },
   { slug: "packages", label: "Packages & dates" },
   { slug: "faq", label: "FAQ" },
 ] as const;
@@ -125,27 +133,52 @@ export function RetreatEditor({
   }, [initialRetreat, initialModules]);
 
   useEffect(() => {
-    if (modules.retreatAccommodation) return;
+    if (hasResidentialLifeContent(modules.residentialLife)) return;
+
+    // One-time migrate from legacy retreat lodging shape when present.
+    if (modules.retreatAccommodation) {
+      const legacy = modules.retreatAccommodation;
+      setModules((prev) =>
+        hasResidentialLifeContent(prev.residentialLife)
+          ? prev
+          : {
+              ...prev,
+              residentialLife: retreatAccommodationToResidentialLife(legacy),
+            },
+      );
+      return;
+    }
+
     let cancelled = false;
+    // Prefer retreat lodging defaults — not the YTT course residentialLife set.
     fetch("/api/admin/settings/retreatAccommodation")
       .then((res) =>
         parseApiJson<{ settings: RetreatAccommodationContent }>(res),
       )
       .then((body) => {
-        if (cancelled || !body.settings) return;
+        if (cancelled) return;
         setModules((prev) =>
-          prev.retreatAccommodation
+          hasResidentialLifeContent(prev.residentialLife)
             ? prev
-            : { ...prev, retreatAccommodation: body.settings },
+            : {
+                ...prev,
+                residentialLife: body.settings
+                  ? retreatAccommodationToResidentialLife(body.settings)
+                  : createRetreatResidentialLife(),
+              },
         );
       })
       .catch(() => {
-        /* page can still save without lodging copy */
+        setModules((prev) =>
+          hasResidentialLifeContent(prev.residentialLife)
+            ? prev
+            : { ...prev, residentialLife: createRetreatResidentialLife() },
+        );
       });
     return () => {
       cancelled = true;
     };
-  }, [modules.retreatAccommodation]);
+  }, [modules.residentialLife, modules.retreatAccommodation]);
 
   const jumpItems = useMemo(
     () =>
@@ -181,8 +214,12 @@ export function RetreatEditor({
     setSaved(false);
     setError("");
     try {
-      await onSave({ retreat, modules });
-      setBaseline(JSON.stringify({ retreat, modules }));
+      // Persist the course-compatible shape; drop legacy retreat lodging key.
+      const { retreatAccommodation: _legacy, ...modulesToSave } = modules;
+      void _legacy;
+      await onSave({ retreat, modules: modulesToSave });
+      setModules(modulesToSave);
+      setBaseline(JSON.stringify({ retreat, modules: modulesToSave }));
       setSaved(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Save failed");
@@ -445,41 +482,19 @@ export function RetreatEditor({
               step={9}
               title="Accommodation & food"
               subtitle="Per-page lodging — not shared globally"
-              description="Room galleries, food media, and intro copy for this retreat. Saves on the page."
+              description="Same lodging & food editor as yoga courses. Edit room galleries, food, and facilities for this retreat."
               defaultOpen
             >
-              {modules.retreatAccommodation ? (
-                <RetreatLodgingFields
-                  doc={modules.retreatAccommodation}
-                  onChange={(retreatAccommodation) =>
-                    setModules({ ...modules, retreatAccommodation })
+              {modules.residentialLife ? (
+                <ResidentialLifeFields
+                  doc={modules.residentialLife}
+                  onChange={(residentialLife) =>
+                    setModules({ ...modules, residentialLife })
                   }
                 />
               ) : (
                 <p className="admin-hint">Loading lodging defaults…</p>
               )}
-              <TextField
-                label="Intro body"
-                value={retreat.accommodation.body}
-                onChange={(body) =>
-                  setRetreat({
-                    ...retreat,
-                    accommodation: { ...retreat.accommodation, body },
-                  })
-                }
-                multiline
-                hint="Retreat-specific intro copy above the room galleries."
-              />
-              <StringListField
-                label="Facilities (override)"
-                items={retreat.accommodation.facilities ?? []}
-                onChange={(facilities) =>
-                  setRetreat({
-                    ...retreat,
-                    accommodation: { ...retreat.accommodation, facilities },
-                  })
-                }
-              />
             </CollapsiblePanel>
           </div>
 

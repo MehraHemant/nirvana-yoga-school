@@ -66,6 +66,8 @@ export type SplitCopyHero = ModuleLiveFields & {
 
 export type SimpleBannerHero = ModuleLiveFields & {
   type: "simple-banner";
+  /** Small label above the title (venue / banner pages) */
+  eyebrow?: string;
   title: string;
   subtitle?: string;
   backgroundImage: string;
@@ -182,8 +184,28 @@ export type TeachersModule = ModuleLiveFields & {
   selectedSlugs: string[];
 };
 
+/** Ordered gallery section metadata (admin reorder of categories). */
+export type GallerySectionMeta = {
+  id: string;
+  label: string;
+  description?: string;
+};
+
+/** YouTube clip shown in the venue video strip. */
+export type GalleryVideoItem = {
+  /** YouTube video id (preferred) or full watch URL */
+  url: string;
+  title?: string;
+};
+
 export type GalleryModule = ModuleLiveFields & {
+  eyebrow?: string;
+  title?: string;
+  description?: string;
   images: SitePageGalleryImage[];
+  /** Ordered section list; when omitted, order follows first appearance in `images` */
+  sectionOrder?: GallerySectionMeta[];
+  videos?: GalleryVideoItem[];
 };
 
 export type ProgramsModule = ModuleLiveFields & {
@@ -220,13 +242,13 @@ export type PageModulesDocument = {
   gallery?: GalleryModule;
   programs?: ProgramsModule;
   /**
-   * Per-page lodging & food (course/venue/hub/kirtan). Not a global shared section.
+   * Per-page lodging & food (course/retreat/venue/hub/kirtan). Not a global shared section.
    * When omitted, frontend may fall back to legacy `global_settings.residentialLife`.
    */
   residentialLife?: import("@/content/types/shared-sections").ResidentialLifeContent;
   /**
-   * Per-page retreat lodging & food galleries. Not a global shared section.
-   * When omitted, frontend may fall back to legacy `global_settings.retreatAccommodation`.
+   * @deprecated Prefer `residentialLife` (same as yoga courses). Kept so legacy
+   * retreat pages can migrate until they are re-saved in admin.
    */
   retreatAccommodation?: import("@/content/types/shared-sections").RetreatAccommodationContent;
   flags: ModuleFlags;

@@ -2,7 +2,7 @@
 
 import { MapSection } from "@/components";
 import {
-  Accommodation,
+  AccommodationFood,
   CourseBookingFab,
   CourseEligibility,
   CourseOverview,
@@ -10,7 +10,6 @@ import {
   CourseSyllabus,
   DailySchedule,
   ExamCertification,
-  Food,
   InstagramFeed,
   PageHeroRenderer,
   TravelGuide,
@@ -238,10 +237,7 @@ export default function CourseClient({
         ) : null}
 
         {showAccommodation ? (
-          <>
-            <Accommodation content={residentialLife} />
-            <Food content={residentialLife} />
-          </>
+          <AccommodationFood content={residentialLife} />
         ) : null}
 
         {showPricing ? (

@@ -1,6 +1,10 @@
 import { DEFAULT_HOME_PAGE_CONTENT } from "@/content/data/dedicated-page-defaults";
 import { DEFAULT_EXAM_CERTIFICATION } from "@/content/data/exam-certification-defaults";
 import { DEFAULT_TRAVEL_GUIDE } from "@/content/data/travel-guide-defaults";
+import {
+  normalizeRetreatAccommodation,
+  retreatAccommodationToResidentialLife,
+} from "@/content/mappers/residential-life";
 import type {
   ExamCertificationContent,
   HomeFaqsContent,
@@ -21,28 +25,10 @@ import { getHomePageContent } from "./dedicated-pages";
 import type { ContentResult, RepositoryOptions } from "./fetch";
 import { requireGlobalSetting } from "./global-settings";
 
-/**
- * Normalizes retreat lodging docs so nested live flags always exist.
- *
- * @param raw - Stored retreat accommodation JSON
- */
-export function normalizeRetreatAccommodation(
-  raw: RetreatAccommodationContent,
-): RetreatAccommodationContent {
-  const lodgingLive =
-    raw.accommodation?.live !== false && raw.lodgingLive !== false;
-  const foodLive = raw.food?.live !== false && raw.foodLive !== false;
-  return {
-    ...raw,
-    live: raw.live !== false,
-    accommodation: { live: lodgingLive },
-    food: { live: foodLive },
-    roomGalleries: raw.roomGalleries ?? [],
-    foodGallery: raw.foodGallery ?? [],
-    mealHighlights: raw.mealHighlights ?? [],
-    defaultFacilities: raw.defaultFacilities ?? [],
-  };
-}
+export {
+  normalizeRetreatAccommodation,
+  retreatAccommodationToResidentialLife,
+};
 
 /**
  * Builds a SiteMapContent from homepage map fields (legacy fallback).
@@ -171,8 +157,8 @@ export async function getVenueFaqs(
 }
 
 /**
- * Retreat lodging / food galleries from MySQL (legacy global default).
- * Prefer per-page `page_modules.retreatAccommodation` on the frontend.
+ * Legacy retreat lodging / food galleries from MySQL.
+ * Prefer per-page `page_modules.residentialLife` (same as courses).
  *
  * @param options - Optional repository options
  */

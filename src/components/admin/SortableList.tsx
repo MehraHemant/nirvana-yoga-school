@@ -11,6 +11,7 @@ import {
 } from "@dnd-kit/core";
 import {
   arrayMove,
+  rectSortingStrategy,
   SortableContext,
   sortableKeyboardCoordinates,
   useSortable,
@@ -65,10 +66,12 @@ type SortableListProps = {
   children: ReactNode;
   /** Extra class on the list wrapper */
   className?: string;
+  /** `grid` uses rect sorting for thumbnail boards; default is vertical list */
+  layout?: "list" | "grid";
 };
 
 /**
- * Vertical drag-and-drop list context for admin reorderable rows/cards.
+ * Drag-and-drop list/grid context for admin reorderable rows/cards.
  *
  * @param props - Item ids, reorder handler, and sortable children
  */
@@ -77,6 +80,7 @@ export function SortableList({
   onReorder,
   children,
   className,
+  layout = "list",
 }: SortableListProps) {
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -94,13 +98,16 @@ export function SortableList({
     onReorder(fromIndex, toIndex);
   }
 
+  const strategy =
+    layout === "grid" ? rectSortingStrategy : verticalListSortingStrategy;
+
   return (
     <DndContext
       sensors={sensors}
       collisionDetection={closestCenter}
       onDragEnd={handleDragEnd}
     >
-      <SortableContext items={ids} strategy={verticalListSortingStrategy}>
+      <SortableContext items={ids} strategy={strategy}>
         {className ? <div className={className}>{children}</div> : children}
       </SortableContext>
     </DndContext>

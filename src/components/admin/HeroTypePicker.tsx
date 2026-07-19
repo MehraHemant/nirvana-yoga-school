@@ -37,6 +37,8 @@ const HERO_OPTIONS: {
 type HeroTypePickerProps = {
   value: HeroType;
   onChange: (type: HeroType) => void;
+  /** When set, only these layout cards are offered */
+  allowedTypes?: HeroType[];
 };
 
 /**
@@ -44,7 +46,17 @@ type HeroTypePickerProps = {
  *
  * @param props - Current type and change handler
  */
-export function HeroTypePicker({ value, onChange }: HeroTypePickerProps) {
+export function HeroTypePicker({
+  value,
+  onChange,
+  allowedTypes,
+}: HeroTypePickerProps) {
+  const options = allowedTypes?.length
+    ? HERO_OPTIONS.filter((option) => allowedTypes.includes(option.value))
+    : HERO_OPTIONS;
+
+  if (options.length <= 1) return null;
+
   return (
     <div className="admin-field">
       <span className="admin-label">Hero layout</span>
@@ -52,7 +64,7 @@ export function HeroTypePicker({ value, onChange }: HeroTypePickerProps) {
         Pick the layout — only relevant fields will show below.
       </p>
       <div className="admin-hero-type-grid">
-        {HERO_OPTIONS.map((option) => {
+        {options.map((option) => {
           const active = option.value === value;
           return (
             <button

@@ -180,6 +180,7 @@ function TypedLayoutEditor({ slug }: { slug: string }) {
       onSave={onSave}
       visiblePanels={panels}
       layoutHint={hint}
+      layoutId={layoutId}
       previewHref={publicViewHref(pageType, slug)}
       sharedLinks={sharedSectionLinksForLayout(layoutId)}
     />

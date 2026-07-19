@@ -9,6 +9,7 @@ import type {
   SitePageDocument,
   SitePageSection,
 } from "@/content/types";
+import { revalidatePath } from "next/cache";
 import { invalidateContentCache } from "@/lib/cms/cache";
 import {
   buildModulesFromCourse,
@@ -219,7 +220,27 @@ export async function upsertPageModules(
         select: { id: true, type: true },
       });
 
+  // Keep relational gallery rows in sync (venue admin edits modules.gallery).
+  if (modules.gallery) {
+    await db.pageGalleryImage.deleteMany({ where: { pageId: page.id } });
+    const images = modules.gallery.images ?? [];
+    if (images.length > 0) {
+      await db.pageGalleryImage.createMany({
+        data: images.map((image, index) => ({
+          pageId: page.id,
+          url: image.url,
+          category: image.category || "general",
+          sortOrder: index * 10,
+          mediaAssetId: image.mediaAssetId ?? undefined,
+        })),
+      });
+    }
+  }
+
   invalidateContentCache(slug, page.type);
+  if (page.type === "venue") {
+    revalidatePath(`/venue/${slug}`);
+  }
   return page;
 }
 

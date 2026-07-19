@@ -79,6 +79,14 @@ export type SitePagePackage = {
 export type SitePageGalleryImage = {
   url: string;
   category: string;
+  /** Optional display title */
+  title?: string;
+  /** Accessible alt text */
+  alt?: string;
+  /** Media type — videos use YouTube ids in `url` */
+  type?: "image" | "video";
+  /** Optional media library asset id */
+  mediaAssetId?: string;
 };
 
 export type SitePageDocument = {

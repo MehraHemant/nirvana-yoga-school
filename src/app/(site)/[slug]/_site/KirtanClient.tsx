@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  Accommodation,
+  AccommodationFood,
   CourseBookingFab,
   CourseEligibility,
   CourseHero,
@@ -9,7 +9,6 @@ import {
   CourseStickyNav,
   CourseSyllabus,
   ExamCertification,
-  Food,
   InstagramFeed,
   PageGallerySection,
   PageHeroRenderer,
@@ -211,8 +210,7 @@ export default function KirtanClient({
 
         {(modules?.flags.showAccommodation ?? mapped.showAccommodation) ? (
           <>
-            <Accommodation content={residentialLife} />
-            <Food content={residentialLife} />
+            <AccommodationFood content={residentialLife} />
           </>
         ) : null}
 

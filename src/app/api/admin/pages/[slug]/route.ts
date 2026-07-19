@@ -96,9 +96,25 @@ export async function GET(
         }
       : null;
 
+  const galleryRows = page.gallery.map(
+    (image: {
+      url: string;
+      category: string;
+      mediaAssetId: string | null;
+    }) => ({
+      url: image.url,
+      category: image.category,
+      mediaAssetId: image.mediaAssetId ?? undefined,
+    }),
+  );
+
   return jsonOk({
     page: mapPageToSitePageDocument(page),
-    modules: resolvePageModulesForEditor(page.pageModules, page.title),
+    modules: resolvePageModulesForEditor(
+      page.pageModules,
+      page.title,
+      galleryRows,
+    ),
     content,
     product,
     meta: { id: page.id, type: page.type, published: page.published },

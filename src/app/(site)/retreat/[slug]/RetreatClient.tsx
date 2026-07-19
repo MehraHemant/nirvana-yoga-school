@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  AccommodationFood,
   CourseBookingFab,
   CourseOverview,
   CourseStickyNav,
@@ -11,7 +12,6 @@ import {
 } from "@/components/courses";
 import { TestimonialsSection } from "@/components/home";
 import {
-  RetreatAccommodationSection,
   RetreatHighlightsBar,
   RetreatScheduleSection,
 } from "@/components/retreat";
@@ -85,7 +85,7 @@ export default function RetreatClient({
   retreat,
   mapped,
   modules,
-  lodging,
+  residentialLife,
   examCertification,
 }: RetreatPageData) {
   const details = modules
@@ -111,14 +111,7 @@ export default function RetreatClient({
     modules?.faqs,
     (modules?.faqs.items ?? retreat.faqs ?? []).length > 0,
   );
-  const showAccommodation =
-    (modules?.flags.showAccommodation ?? true) &&
-    shouldRenderSection(
-      lodging,
-      lodging.roomGalleries.length > 0 ||
-        lodging.foodGallery.length > 0 ||
-        lodging.mealHighlights.length > 0,
-    );
+  const showAccommodation = modules?.flags.showAccommodation ?? true;
   const showExam =
     (modules?.flags.showExam ?? false) &&
     shouldRenderSection(
@@ -239,16 +232,9 @@ export default function RetreatClient({
           <ExamCertification content={examCertification} />
         ) : null}
 
-        {/* Section 4: Accommodation & Food (CMS lodging + page flag) */}
+        {/* Section 4: Accommodation & Food — shared with yoga courses */}
         {showAccommodation ? (
-          <RetreatAccommodationSection
-            accommodation={retreat.accommodation}
-            facilities={mapped.accommodationFacilities}
-            roomGalleries={lodging.roomGalleries}
-            foodGallery={lodging.foodGallery}
-            mealHighlights={lodging.mealHighlights}
-            lodgingContent={lodging}
-          />
+          <AccommodationFood content={residentialLife} />
         ) : null}
 
         {/* Section 5: Packages & Dates — shared UpcomingDates UI, retreat rooms only */}

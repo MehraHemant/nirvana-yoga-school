@@ -1,5 +1,5 @@
 import type { MappedSitePage } from "@/content/mappers/site-page";
-import { buildNavItems, mapSitePage } from "@/content/mappers/site-page";
+import { mapSitePage } from "@/content/mappers/site-page";
 import type { SitePageDocument } from "@/content/types";
 import type { SharedFaq } from "@/content/types/shared-sections";
 
@@ -34,6 +34,11 @@ export function mapVenuePage(
 
   return {
     ...partial,
-    navItems: buildNavItems(partial),
+    navItems: [
+      { id: "#gallery", label: "Gallery", shortLabel: "Gallery" },
+      ...(partial.faqs.length > 0
+        ? [{ id: "#faq" as const, label: "FAQ", shortLabel: "FAQ" }]
+        : []),
+    ],
   };
 }

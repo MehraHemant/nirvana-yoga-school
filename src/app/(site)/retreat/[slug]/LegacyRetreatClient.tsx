@@ -1,9 +1,8 @@
 "use client";
 
 import {
-  Accommodation,
+  AccommodationFood,
   DailySchedule,
-  Food,
   InstagramFeed,
   TravelGuide,
   UpcomingDates,
@@ -78,10 +77,7 @@ export default function LegacyRetreatClient({
         {teachers.length > 0 && <TeachersSection teachers={teachers} />}
         <SiteEditorial mapped={mapped} />
         {(modules?.flags.showAccommodation ?? mapped.showAccommodation) ? (
-          <>
-            <Accommodation content={residentialLife} />
-            <Food content={residentialLife} />
-          </>
+          <AccommodationFood content={residentialLife} />
         ) : null}
         {showWhyNirvana ? (
           <WhyNirvana content={whyNirvana} reviews={reviews} />

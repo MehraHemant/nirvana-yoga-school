@@ -1,5 +1,6 @@
 export { EligibilityModuleEditor } from "./EligibilityModuleEditor";
 export { FaqModuleEditor } from "./FaqModuleEditor";
+export { GalleryModuleEditor } from "./GalleryModuleEditor";
 export { HeroModuleEditor } from "./HeroModuleEditor";
 export { InclusionsModuleEditor } from "./InclusionsModuleEditor";
 export { ModuleFlagsPanel } from "./ModuleFlagsPanel";

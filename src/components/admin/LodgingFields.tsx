@@ -167,7 +167,7 @@ function RoomGalleriesEditor({
 
 /**
  * Per-page residential life editor — lodging (room types) and food.
- * Used on course / venue / hub / kirtan page admins (not Shared sections).
+ * Used on course / retreat / venue / hub / kirtan page admins (not Shared sections).
  *
  * @param props - Document and change handler
  */

@@ -8,8 +8,8 @@ type AccommodationFoodProps = {
 };
 
 /**
- * Renders accommodation and food as two separate stacked sections.
- * Prefer importing `Accommodation` and `Food` directly in new pages.
+ * Shared lodging + food block for courses, retreats, venues, hubs, and kirtan.
+ * Renders `#accommodation` and `#food` with the same CMS `residentialLife` shape.
  *
  * @param props - Server-provided residential-life content
  */
