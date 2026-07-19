@@ -1,13 +1,13 @@
 # Neon Postgres migration
 
-The application runtime uses `NEON_DB_URL` and
+The application runtime uses `NEON_DB_POSTGRES_URL` and
 `@neondatabase/serverless`. The versioned Neon baseline is stored in
 `scripts/sql`.
 
 ## Initialize an empty Neon database
 
 1. Put the Neon connection string in the untracked `.env` file as
-   `NEON_DB_URL`.
+   `NEON_DB_POSTGRES_URL`.
 2. Run:
 
    ```bash
@@ -36,7 +36,7 @@ booleans are converted to PostgreSQL booleans, and timestamp strings are
 preserved without locale conversion.
 
 1. Take a consistent MySQL backup and pause Hostinger writes for the import.
-2. Put `NEON_DB_URL` in ignored `.env`, and put the legacy URL in an ignored
+2. Put `NEON_DB_POSTGRES_URL` in ignored `.env`, and put the legacy URL in an ignored
    `HOSTINGER_DATABASE_URL` (or `LEGACY_MYSQL_URL`) environment variable.
    The application does not read either legacy variable at runtime.
 3. Inspect the import without writing:

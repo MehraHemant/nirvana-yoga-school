@@ -30,10 +30,10 @@ export function fromJson<T>(data: T): ContentResult<T> {
 
 /**
  * Whether repositories should read from Neon Postgres.
- * Always true when `NEON_DB_URL` is set; JSON overrides are ignored.
+ * Always true when `NEON_DB_POSTGRES_URL` is set; JSON overrides are ignored.
  *
  * @param _options - Ignored (kept for call-site compatibility)
  */
 export function useDbSource(_options?: RepositoryOptions): boolean {
-  return Boolean(process.env.NEON_DB_URL?.trim());
+  return Boolean(process.env.NEON_DB_POSTGRES_URL?.trim());
 }

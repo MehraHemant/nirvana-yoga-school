@@ -12,12 +12,12 @@ if (typeof WebSocket !== "undefined") {
 }
 
 /**
- * Whether Neon Postgres is enabled via `NEON_DB_URL`.
+ * Whether Neon Postgres is enabled via `NEON_DB_POSTGRES_URL`.
  *
- * @returns True when `NEON_DB_URL` is set
+ * @returns True when `NEON_DB_POSTGRES_URL` is set
  */
 export function isDbEnabled(): boolean {
-  return Boolean(process.env.NEON_DB_URL?.trim());
+  return Boolean(process.env.NEON_DB_POSTGRES_URL?.trim());
 }
 
 /**
@@ -26,9 +26,9 @@ export function isDbEnabled(): boolean {
  * @returns Connection pool
  */
 export function getPool(): Pool {
-  const connectionString = process.env.NEON_DB_URL?.trim();
+  const connectionString = process.env.NEON_DB_POSTGRES_URL?.trim();
   if (!connectionString) {
-    throw new Error("NEON_DB_URL is not set");
+    throw new Error("NEON_DB_POSTGRES_URL is not set");
   }
   if (!globalForPool.neonPool) {
     globalForPool.neonPool = new Pool({
