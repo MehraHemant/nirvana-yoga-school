@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getOnlineCourse, getOnlineCourseSlugs } from "@/content";
 import { getPageModules } from "@/content/repositories/page-modules";
-import { mergePageMetadata } from "../../_shared/metadata";
+import { metadataFromPageSeo } from "../../_shared/metadata";
 import { loadOnlineCoursePageData } from "./data";
 import OnlineCourseClient from "./OnlineCourseClient";
 
@@ -20,24 +20,17 @@ export async function generateStaticParams() {
   return slugs.map((slug) => ({ slug }));
 }
 
+/**
+ * Online course SEO from CMS page modules meta only.
+ *
+ * @param props - Route params with course slug
+ */
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const [result, modulesResult] = await Promise.all([
-    getOnlineCourse(slug),
-    getPageModules(slug).catch(() => null),
-  ]);
-  if (!result.data) return { title: "Course Not Found" };
-
-  return mergePageMetadata(
-    {
-      title: result.data.title,
-      description: result.data.subtitle,
-      image: result.data.image,
-    },
-    modulesResult?.data?.meta,
-  );
+  const modulesResult = await getPageModules(slug).catch(() => null);
+  return metadataFromPageSeo(modulesResult?.data?.meta);
 }
 
 export default async function Page({ params }: PageProps) {

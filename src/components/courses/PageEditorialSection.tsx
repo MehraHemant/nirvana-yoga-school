@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import SectionBlocksRenderer from "@/components/courses/SectionBlocksRenderer";
 import { Container, SectionHeader } from "@/components/ui";
-import type { SitePageSection } from "@/data/sitePages";
+import type { SitePageSection } from "@/content/types";
 import { Check } from "@/icons";
 import { optionalSectionHtmlId } from "@/lib/html-id";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";

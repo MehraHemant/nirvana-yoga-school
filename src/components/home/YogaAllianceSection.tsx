@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Button, Container, Pill } from "@/components/ui";
-import { DEFAULT_HOME_PAGE_CONTENT } from "@/content/data/dedicated-page-defaults";
+import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 import type {
   HomeYogaAllianceCertIconKey,
   HomeYogaAllianceContent,
@@ -56,12 +56,12 @@ type YogaAllianceSectionProps = {
  * @param props - Optional CMS Yoga Alliance section
  */
 export default function YogaAllianceSection({
-  content = DEFAULT_HOME_PAGE_CONTENT.yogaAlliance,
+  content = createEmptyHomePageContent().yogaAlliance,
 }: YogaAllianceSectionProps = {}) {
   const certifications =
     content.certifications?.length > 0
       ? content.certifications
-      : DEFAULT_HOME_PAGE_CONTENT.yogaAlliance.certifications;
+      : createEmptyHomePageContent().yogaAlliance.certifications;
 
   return (
     <section

@@ -1,15 +1,14 @@
-import sitePagesJson from "@/content/data/site-pages/site-pages.json";
 import {
   DEFAULT_TEACHERS_PRESENTATION,
   TEACHER_PAGE_SLUG,
 } from "@/content/repositories/teachers";
 import type { SitePageDocument } from "@/content/types";
+import { fetchSitePageFromDb } from "@/lib/cms/cache";
 import { upsertSitePageDocument } from "@/lib/cms/document-to-db";
 import { db } from "@/lib/db";
 
 /**
  * Ensures the published `teacher` faculty page exists in MySQL.
- * Seeds from `site-pages.json` when missing or when people rows are empty.
  *
  * @returns Whether a write was performed
  */
@@ -26,12 +25,10 @@ export async function ensureTeacherPage(): Promise<{
     return { created: false, peopleCount: existing._count.people };
   }
 
-  const raw = (sitePagesJson as Record<string, SitePageDocument>)[
-    TEACHER_PAGE_SLUG
-  ];
+  const raw = await fetchSitePageFromDb(TEACHER_PAGE_SLUG);
   if (!raw) {
     throw new Error(
-      `Missing "${TEACHER_PAGE_SLUG}" in site-pages.json — cannot seed faculty page.`,
+      `Missing published "${TEACHER_PAGE_SLUG}" page in Postgres — seed CMS first.`,
     );
   }
 

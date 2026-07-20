@@ -1,14 +1,24 @@
 import type { Metadata } from "next";
 import { BookingFlow } from "@/components/booking";
+import { getSitePage } from "@/content";
+import { getPageModules } from "@/content/repositories/page-modules";
 import { getBookingAddons } from "@/content/repositories/shared-sections";
 import { getRetreatBookingCatalog } from "@/lib/booking/catalog";
 import { getPayPalClientId } from "@/lib/payments/paypal";
+import { metadataFromPageSeo } from "../_shared/metadata";
 
-export const metadata: Metadata = {
-  title: "Retreat Booking | Nirvana Yoga School",
-  description:
-    "Book your yoga retreat in Rishikesh. Select dates and accommodation, then pay your 20% deposit via PayPal.",
-};
+/**
+ * Retreat booking SEO from CMS modules/page meta only.
+ */
+export async function generateMetadata(): Promise<Metadata> {
+  const [modulesResult, pageResult] = await Promise.all([
+    getPageModules("retreat-booking").catch(() => null),
+    getSitePage("retreat-booking").catch(() => null),
+  ]);
+  return metadataFromPageSeo(
+    modulesResult?.data?.meta ?? pageResult?.data?.meta,
+  );
+}
 
 type RetreatBookingPageProps = {
   searchParams: Promise<{

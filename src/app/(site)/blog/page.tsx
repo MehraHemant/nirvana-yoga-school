@@ -2,14 +2,24 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { Container, SectionHeader } from "@/components/ui";
+import { getSitePage } from "@/content";
 import { getBlogPosts } from "@/content/repositories/blog-post";
+import { getPageModules } from "@/content/repositories/page-modules";
 import { ArrowRight } from "@/icons";
+import { metadataFromPageSeo } from "../_shared/metadata";
 
-export const metadata: Metadata = {
-  title: "Yoga Blog",
-  description:
-    "Yoga, Ayurveda, meditation, teacher training, and Rishikesh guides from Nirvana Yoga School.",
-};
+/**
+ * Blog index SEO from CMS modules/page meta only.
+ */
+export async function generateMetadata(): Promise<Metadata> {
+  const [modulesResult, pageResult] = await Promise.all([
+    getPageModules("blog").catch(() => null),
+    getSitePage("blog").catch(() => null),
+  ]);
+  return metadataFromPageSeo(
+    modulesResult?.data?.meta ?? pageResult?.data?.meta,
+  );
+}
 
 /**
  * Blog index — posts load from MySQL via `getBlogPosts()`.

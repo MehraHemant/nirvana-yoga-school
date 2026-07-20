@@ -1,9 +1,9 @@
 import {
-  DEFAULT_BOOKING_PAGE_CONTENT,
-  DEFAULT_CONTACT_PAGE_CONTENT,
-  DEFAULT_ENQUIRE_PAGE_CONTENT,
-  DEFAULT_HOME_PAGE_CONTENT,
-} from "@/content/data/dedicated-page-defaults";
+  createEmptyBookingPageContent,
+  createEmptyContactPageContent,
+  createEmptyEnquirePageContent,
+  createEmptyHomePageContent,
+} from "@/lib/cms/structural-defaults";
 import { requireDb } from "@/content/repositories/db-fallback";
 import type {
   ContentResult,
@@ -33,7 +33,7 @@ import { db } from "@/lib/db";
  * @param value - Raw content_data
  */
 export function normalizeHomeContent(value: unknown): HomePageContent {
-  const base = structuredClone(DEFAULT_HOME_PAGE_CONTENT);
+  const base = structuredClone(createEmptyHomePageContent());
   if (!isHomePageContent(value)) return base;
 
   const heroVideo = {
@@ -174,26 +174,24 @@ export function normalizeHomeContent(value: unknown): HomePageContent {
  */
 export function normalizeContactContent(value: unknown): ContactPageContent {
   if (!isContactPageContent(value)) {
-    return structuredClone(DEFAULT_CONTACT_PAGE_CONTENT);
+    return structuredClone(createEmptyContactPageContent());
   }
+  const base = createEmptyContactPageContent();
   return {
-    ...DEFAULT_CONTACT_PAGE_CONTENT,
+    ...base,
     ...value,
     meta:
       value.meta != null
-        ? { ...DEFAULT_CONTACT_PAGE_CONTENT.meta, ...value.meta }
-        : (value.meta ?? DEFAULT_CONTACT_PAGE_CONTENT.meta),
-    hero: { ...DEFAULT_CONTACT_PAGE_CONTENT.hero, ...value.hero },
-    form: { ...DEFAULT_CONTACT_PAGE_CONTENT.form, ...value.form },
-    map: { ...DEFAULT_CONTACT_PAGE_CONTENT.map, ...value.map },
+        ? { ...base.meta, ...value.meta }
+        : (value.meta ?? base.meta),
+    hero: { ...base.hero, ...value.hero },
+    form: { ...base.form, ...value.form },
+    map: { ...base.map, ...value.map },
     detailsSection: {
-      ...DEFAULT_CONTACT_PAGE_CONTENT.detailsSection,
+      ...base.detailsSection,
       ...value.detailsSection,
     },
-    details:
-      value.details?.length > 0
-        ? value.details
-        : DEFAULT_CONTACT_PAGE_CONTENT.details,
+    details: value.details?.length > 0 ? value.details : base.details,
   };
 }
 
@@ -204,26 +202,24 @@ export function normalizeContactContent(value: unknown): ContactPageContent {
  */
 export function normalizeEnquireContent(value: unknown): EnquirePageContent {
   if (!isEnquirePageContent(value)) {
-    return structuredClone(DEFAULT_ENQUIRE_PAGE_CONTENT);
+    return structuredClone(createEmptyEnquirePageContent());
   }
+  const base = createEmptyEnquirePageContent();
   return {
-    ...DEFAULT_ENQUIRE_PAGE_CONTENT,
+    ...base,
     ...value,
     meta:
       value.meta != null
-        ? { ...DEFAULT_ENQUIRE_PAGE_CONTENT.meta, ...value.meta }
-        : (value.meta ?? DEFAULT_ENQUIRE_PAGE_CONTENT.meta),
-    hero: { ...DEFAULT_ENQUIRE_PAGE_CONTENT.hero, ...value.hero },
-    form: { ...DEFAULT_ENQUIRE_PAGE_CONTENT.form, ...value.form },
-    map: { ...DEFAULT_ENQUIRE_PAGE_CONTENT.map, ...value.map },
+        ? { ...base.meta, ...value.meta }
+        : (value.meta ?? base.meta),
+    hero: { ...base.hero, ...value.hero },
+    form: { ...base.form, ...value.form },
+    map: { ...base.map, ...value.map },
     stepsSection: {
-      ...DEFAULT_ENQUIRE_PAGE_CONTENT.stepsSection,
+      ...base.stepsSection,
       ...value.stepsSection,
     },
-    steps:
-      value.steps?.length > 0
-        ? value.steps
-        : DEFAULT_ENQUIRE_PAGE_CONTENT.steps,
+    steps: value.steps?.length > 0 ? value.steps : base.steps,
   };
 }
 
@@ -234,24 +230,22 @@ export function normalizeEnquireContent(value: unknown): EnquirePageContent {
  */
 export function normalizeBookingContent(value: unknown): BookingPageContent {
   if (!isBookingPageContent(value)) {
-    return structuredClone(DEFAULT_BOOKING_PAGE_CONTENT);
+    return structuredClone(createEmptyBookingPageContent());
   }
+  const base = createEmptyBookingPageContent();
   return {
-    ...DEFAULT_BOOKING_PAGE_CONTENT,
+    ...base,
     ...value,
     meta:
       value.meta != null
-        ? { ...DEFAULT_BOOKING_PAGE_CONTENT.meta, ...value.meta }
-        : (value.meta ?? DEFAULT_BOOKING_PAGE_CONTENT.meta),
-    hero: { ...DEFAULT_BOOKING_PAGE_CONTENT.hero, ...value.hero },
+        ? { ...base.meta, ...value.meta }
+        : (value.meta ?? base.meta),
+    hero: { ...base.hero, ...value.hero },
     stepsSection: {
-      ...DEFAULT_BOOKING_PAGE_CONTENT.stepsSection,
+      ...base.stepsSection,
       ...value.stepsSection,
     },
-    steps:
-      value.steps?.length > 0
-        ? value.steps
-        : DEFAULT_BOOKING_PAGE_CONTENT.steps,
+    steps: value.steps?.length > 0 ? value.steps : base.steps,
   };
 }
 

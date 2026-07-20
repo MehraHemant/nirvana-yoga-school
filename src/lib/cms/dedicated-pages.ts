@@ -1,9 +1,9 @@
 import {
-  DEFAULT_BOOKING_PAGE_CONTENT,
-  DEFAULT_CONTACT_PAGE_CONTENT,
-  DEFAULT_ENQUIRE_PAGE_CONTENT,
-  DEFAULT_HOME_PAGE_CONTENT,
-} from "@/content/data/dedicated-page-defaults";
+  createEmptyBookingPageContent,
+  createEmptyContactPageContent,
+  createEmptyEnquirePageContent,
+  createEmptyHomePageContent,
+} from "@/lib/cms/structural-defaults";
 import {
   normalizeBookingContent,
   normalizeContactContent,
@@ -43,13 +43,13 @@ export function defaultDedicatedContent(
 ): DedicatedPageContent {
   switch (slug) {
     case "home":
-      return structuredClone(DEFAULT_HOME_PAGE_CONTENT);
+      return structuredClone(createEmptyHomePageContent());
     case "booking":
-      return structuredClone(DEFAULT_BOOKING_PAGE_CONTENT);
+      return structuredClone(createEmptyBookingPageContent());
     case "contact":
-      return structuredClone(DEFAULT_CONTACT_PAGE_CONTENT);
+      return structuredClone(createEmptyContactPageContent());
     case "enquire-now":
-      return structuredClone(DEFAULT_ENQUIRE_PAGE_CONTENT);
+      return structuredClone(createEmptyEnquirePageContent());
   }
 }
 

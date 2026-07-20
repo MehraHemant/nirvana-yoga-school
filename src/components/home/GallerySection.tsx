@@ -4,7 +4,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { Container, MediaLightbox, SectionHeader } from "@/components/ui";
-import { DEFAULT_HOME_PAGE_CONTENT } from "@/content/data/dedicated-page-defaults";
+import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 import type {
   HomeGalleryItem,
   HomeGallerySectionContent,
@@ -40,16 +40,16 @@ type GallerySectionProps = {
  * @param props - Optional CMS gallery section
  */
 export default function GallerySection({
-  content = DEFAULT_HOME_PAGE_CONTENT.gallery,
+  content = createEmptyHomePageContent().gallery,
 }: GallerySectionProps) {
   const sourceItems =
     content.items?.length > 0
       ? content.items
-      : DEFAULT_HOME_PAGE_CONTENT.gallery.items;
+      : createEmptyHomePageContent().gallery.items;
 
   const categories = content.categories?.length
     ? content.categories
-    : (DEFAULT_HOME_PAGE_CONTENT.gallery.categories ?? []);
+    : (createEmptyHomePageContent().gallery.categories ?? []);
 
   const [selectedCategory, setSelectedCategory] = useState("all");
   const prefersReduced = useReducedMotion() ?? false;

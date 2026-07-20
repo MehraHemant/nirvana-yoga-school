@@ -4,7 +4,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { Container, MediaLightbox, SectionHeader } from "@/components/ui";
-import type { SitePageGalleryImage } from "@/data/sitePages";
+import type { SitePageGalleryImage } from "@/content/types";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 
 const CATEGORY_LABELS: Record<string, string> = {

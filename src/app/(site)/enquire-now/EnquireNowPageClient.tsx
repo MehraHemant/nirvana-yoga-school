@@ -10,14 +10,14 @@ import {
   PhoneInput,
   SearchableSelect,
 } from "@/components/ui";
-import { DEFAULT_ENQUIRE_PAGE_CONTENT } from "@/content/data/dedicated-page-defaults";
+import type { SearchableSelectOption } from "@/components/ui";
+import { createEmptyEnquirePageContent } from "@/lib/cms/structural-defaults";
 import type { EnquirePageContent } from "@/content/types/dedicated-pages";
 import type { SiteMapContent } from "@/content/types/shared-sections";
 import { Check, Compass, Send, WhatsApp } from "@/icons";
 import { shouldRenderSection } from "@/lib/cms/section-visibility";
 import {
   ACCOMMODATION_PREFERENCE_OPTIONS,
-  ENQUIRE_PROGRAM_OPTIONS,
 } from "@/lib/enquire-programs";
 import { optionalSectionHtmlId, resolveSectionHtmlId } from "@/lib/html-id";
 import { openMailtoFallback, submitLead } from "@/lib/leads/submit-lead";
@@ -39,6 +39,8 @@ type EnquireNowPageClientProps = {
   content?: EnquirePageContent;
   /** Shared site map embed from CMS */
   siteMap?: SiteMapContent | null;
+  /** Program dropdown options loaded from Postgres on the server */
+  programOptions: SearchableSelectOption[];
 };
 
 /**
@@ -49,8 +51,9 @@ type EnquireNowPageClientProps = {
 export default function EnquireNowPageClient({
   initialProgram = "",
   initialAccommodation = "",
-  content = DEFAULT_ENQUIRE_PAGE_CONTENT,
+  content = createEmptyEnquirePageContent(),
   siteMap = null,
+  programOptions,
 }: EnquireNowPageClientProps) {
   const prefersReduced = useReducedMotion() ?? false;
   const [formState, setFormState] = useState<
@@ -401,7 +404,7 @@ export default function EnquireNowPageClient({
                             onChange={(value) =>
                               setFormData({ ...formData, program: value })
                             }
-                            options={ENQUIRE_PROGRAM_OPTIONS}
+                            options={programOptions}
                             placeholder="Search or select a program…"
                             allowCustom
                           />

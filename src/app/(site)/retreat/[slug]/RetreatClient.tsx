@@ -1,14 +1,18 @@
 "use client";
 
+import { MapSection } from "@/components";
 import {
   AccommodationFood,
   CourseBookingFab,
   CourseOverview,
   CourseStickyNav,
   ExamCertification,
+  InstagramFeed,
   PageHeroRenderer,
+  TravelGuide,
   UpcomingDates,
   WhatIsIncluded,
+  WhyNirvana,
 } from "@/components/courses";
 import { TestimonialsSection } from "@/components/home";
 import {
@@ -86,6 +90,11 @@ export default function RetreatClient({
   mapped,
   modules,
   residentialLife,
+  whyNirvana,
+  reviews,
+  siteMap,
+  instagram,
+  travel,
   examCertification,
 }: RetreatPageData) {
   const details = modules
@@ -107,11 +116,23 @@ export default function RetreatClient({
     modules?.pricing,
     (modules?.pricing.options ?? mapped.pricing).length > 0,
   );
-  const showFaqs = shouldRenderSection(
-    modules?.faqs,
-    (modules?.faqs.items ?? retreat.faqs ?? []).length > 0,
-  );
+  const faqItems = modules?.faqs.items?.length
+    ? modules.faqs.items
+    : (retreat.faqs ?? []);
+  const showFaqs = shouldRenderSection(modules?.faqs, faqItems.length > 0);
   const showAccommodation = modules?.flags.showAccommodation ?? true;
+  const showWhyNirvana =
+    (modules?.flags.showWhyNirvana ?? true) &&
+    shouldRenderSection(whyNirvana, Boolean(whyNirvana?.highlights?.length));
+  const showMap =
+    (modules?.flags.showMap ?? true) &&
+    shouldRenderSection(siteMap, Boolean(siteMap?.embedUrl?.trim()));
+  const showTravel =
+    (modules?.flags.showTravel ?? true) &&
+    shouldRenderSection(travel, Boolean(travel?.topics?.length));
+  const showInstagram =
+    (modules?.flags.showInstagram ?? true) &&
+    shouldRenderSection(instagram, Boolean(instagram?.media?.length));
   const showExam =
     (modules?.flags.showExam ?? false) &&
     shouldRenderSection(
@@ -256,14 +277,28 @@ export default function RetreatClient({
         ) : null}
 
         {/* Section 6: Testimonials */}
-        <TestimonialsSection />
+        {/* <TestimonialsSection /> */}
+
+        {showWhyNirvana ? (
+          <WhyNirvana content={whyNirvana} reviews={reviews} />
+        ) : null}
+
+        {showTravel && travel ? <TravelGuide content={travel} /> : null}
+
+        {showInstagram && instagram ? (
+          <InstagramFeed content={instagram} />
+        ) : null}
+
+        {showMap && siteMap ? (
+          <MapSection className="bg-white" content={siteMap} />
+        ) : null}
 
         {/* Section 7: FAQs (if available) */}
         {showFaqs ? (
           <div className="bg-white">
             <FAQSection
               id={resolveSectionHtmlId("faq", modules?.faqs._id)}
-              faqs={modules?.faqs.items ?? retreat.faqs ?? []}
+              faqs={faqItems}
               categories={COURSE_FAQ_CATEGORIES}
               sectionClassName="bg-white border-t border-secondary/10"
               eyebrow="Retreat Details"

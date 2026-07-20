@@ -1,60 +1,31 @@
-import { buildDropdownItems } from "@/content/data/navigation";
-import type { NavItem, NavLink } from "@/content/data/navigation/types";
 import { pagePath } from "@/content/pages/path";
+import type { NavItem, NavLink } from "@/content/types/navigation";
 
 export type {
   NavItem,
   NavLink,
   NavPageTarget,
-} from "@/content/data/navigation/types";
+} from "@/content/types/navigation";
 
+/**
+ * Resolves the href for a nav dropdown link.
+ *
+ * @param link - Nav link row
+ */
 export function navLinkHref(link: NavLink): string {
   if ("href" in link) return link.href;
   return pagePath({ type: link.type, slug: link.slug });
 }
 
+/**
+ * Resolves the href for a top-level nav item when configured.
+ *
+ * @param item - Nav item row
+ */
 export function navItemHref(item: NavItem): string | undefined {
   if (item.href) return item.href;
   if (item.page) return pagePath(item.page);
   return undefined;
 }
 
-/** Primary nav — top-level items hardcoded; dropdown items from content data. */
-export const PRIMARY_NAV: NavItem[] = [
-  { type: "link", label: "HOME", href: "/" },
-  {
-    type: "dropdown",
-    label: "YOGA COURSES",
-    items: buildDropdownItems("courses"),
-  },
-  {
-    type: "dropdown",
-    label: "ONLINE COURSES",
-    page: { type: "site", slug: "online-yoga-teacher-training-courses" },
-    items: buildDropdownItems("online"),
-  },
-  {
-    type: "dropdown",
-    label: "RETREATS",
-    items: buildDropdownItems("retreats"),
-  },
-  {
-    type: "link",
-    label: "TEACHERS",
-    page: { type: "site", slug: "teacher" },
-  },
-  {
-    type: "dropdown",
-    label: "VENUE",
-    items: buildDropdownItems("venue"),
-  },
-  { type: "link", label: "BLOG", href: "/blog" },
-  {
-    type: "link",
-    label: "CONTACT",
-    page: { type: "site", slug: "contact" },
-  },
-];
-
-export const SIGN_IN_URL =
-  "https://www.nirvanayogaschoolindia.com/student-login";
+export { SIGN_IN_URL } from "@/lib/cms/structural-defaults";

@@ -1,7 +1,7 @@
 import {
   DEFAULT_CONTENT_TYPES,
   LEGACY_TYPE_REMAP,
-} from "@/content/data/default-content-types";
+} from "@/lib/cms/default-content-types";
 import { parsePageCmsDocument } from "@/content/types/page-cms";
 import type { DbClient } from "@/lib/db/client";
 

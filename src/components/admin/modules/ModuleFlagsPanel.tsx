@@ -4,14 +4,23 @@ import type { ModuleFlags } from "@/content/types";
 import { CollapsiblePanel } from "../CollapsiblePanel";
 import type { ModulePanelProps } from "./types";
 
+type SharedFlagKey =
+  | "showWhyNirvana"
+  | "showMap"
+  | "showInstagram"
+  | "showTravel"
+  | "showExam";
+
 type ModuleFlagsPanelProps = ModulePanelProps & {
   flags: ModuleFlags;
   onChange: (flags: ModuleFlags) => void;
+  /** Subset of shared Live toggles to show; defaults to all */
+  visibleKeys?: SharedFlagKey[];
 };
 
 /** Live toggles for global shared bands only. */
 const SHARED_LIVE_ITEMS: {
-  key: keyof ModuleFlags;
+  key: SharedFlagKey;
   label: string;
 }[] = [
   { key: "showWhyNirvana", label: "Why Nirvana" },
@@ -34,13 +43,22 @@ export function ModuleFlagsPanel({
   description,
   open,
   onOpenChange,
+  visibleKeys,
 }: ModuleFlagsPanelProps) {
+  const items = visibleKeys?.length
+    ? SHARED_LIVE_ITEMS.filter((item) => visibleKeys.includes(item.key))
+    : SHARED_LIVE_ITEMS;
+
   return (
     <CollapsiblePanel
       id={panelId}
       step={step}
       title="Shared sections (Live)"
-      subtitle="Show or hide global Why Nirvana, Map, Instagram, Travel, and Exam & certification on this page"
+      subtitle={
+        visibleKeys?.length === 1 && visibleKeys[0] === "showMap"
+          ? "Show or hide the map on this page"
+          : "Show or hide global Why Nirvana, Map, Instagram, Travel, and Exam & certification on this page"
+      }
       description={
         description ??
         "Shared content is edited once under Shared sections. Accommodation & food content is edited on this page."
@@ -49,7 +67,7 @@ export function ModuleFlagsPanel({
       onOpenChange={onOpenChange}
     >
       <div className="admin-flags-grid">
-        {SHARED_LIVE_ITEMS.map((item) => (
+        {items.map((item) => (
           <label key={item.key} className="admin-checkbox admin-checkbox-row">
             <input
               type="checkbox"

@@ -14,7 +14,7 @@ import {
 } from "@/components/admin/SortableList";
 import { TextField } from "@/components/admin/TextField";
 import { useStableListKeys } from "@/components/admin/useStableListKeys";
-import { createDefaultBookingAddons } from "@/content/data/booking-addons-defaults";
+import { createEmptyBookingAddons } from "@/lib/cms/structural-defaults";
 import type {
   BookingAddon,
   BookingAddonsContent,
@@ -62,13 +62,13 @@ export function BookingAddonsEditor() {
       .then((res) => parseApiJson<{ settings: BookingAddonsContent }>(res))
       .then((body) => {
         if (cancelled) return;
-        const next = body.settings ?? createDefaultBookingAddons();
+        const next = body.settings ?? createEmptyBookingAddons();
         setDoc(next);
         setBaseline(JSON.stringify(next));
       })
       .catch((err: Error) => {
         if (cancelled) return;
-        const fallback = createDefaultBookingAddons();
+        const fallback = createEmptyBookingAddons();
         setDoc(fallback);
         setBaseline(JSON.stringify(fallback));
         setError(err.message);

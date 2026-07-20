@@ -1,22 +1,16 @@
 import type { Metadata } from "next";
 import { getEnquirePageContent } from "@/content/repositories/dedicated-pages";
 import { getSiteMap } from "@/content/repositories/shared-sections";
-import { mergePageMetadata } from "../_shared/metadata";
+import { buildEnquireProgramOptions } from "@/lib/enquire-programs.server";
+import { metadataFromPageSeo } from "../_shared/metadata";
 import EnquireNowPageClient from "./EnquireNowPageClient";
 
 /**
- * Enquire page SEO from CMS meta, with static fallbacks when fields are empty.
+ * Enquire page SEO from CMS meta only.
  */
 export async function generateMetadata(): Promise<Metadata> {
   const result = await getEnquirePageContent().catch(() => null);
-  return mergePageMetadata(
-    {
-      title: "Enquire Now | Nirvana Yoga School Rishikesh India",
-      description:
-        "Submit an enquiry for residential yoga teacher training, online courses, or yoga retreats at Nirvana Yoga School in Rishikesh. Our ashram team replies within 24 hours.",
-    },
-    result?.data?.meta,
-  );
+  return metadataFromPageSeo(result?.data?.meta);
 }
 
 type EnquireNowPageProps = {
@@ -33,9 +27,10 @@ export default async function EnquireNowPage({
   searchParams,
 }: EnquireNowPageProps) {
   const params = await searchParams;
-  const [result, siteMapResult] = await Promise.all([
+  const [result, siteMapResult, programOptions] = await Promise.all([
     getEnquirePageContent().catch(() => null),
     getSiteMap().catch(() => null),
+    buildEnquireProgramOptions(),
   ]);
 
   return (
@@ -44,6 +39,7 @@ export default async function EnquireNowPage({
       initialAccommodation={params.accommodation ?? ""}
       content={result?.data}
       siteMap={siteMapResult?.data ?? null}
+      programOptions={programOptions}
     />
   );
 }

@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Container, CourseCard, SectionHeader } from "@/components/ui";
-import type { SitePageCard } from "@/data/sitePages";
+import type { SitePageCard } from "@/content/types";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 
 export default function PageProgramsSection({

@@ -8,7 +8,7 @@ import {
   SearchableSelect,
   type SearchableSelectOption,
 } from "@/components/ui";
-import { DEFAULT_BOOKING_PAGE_CONTENT } from "@/content/data/dedicated-page-defaults";
+import { createEmptyBookingPageContent } from "@/lib/cms/structural-defaults";
 import type {
   BookingAddon,
   BookingAddonsContent,
@@ -103,7 +103,7 @@ const PAYMENT_MODE_OPTIONS: SearchableSelectOption[] = [
 export function BookingFlow({
   type,
   programs,
-  content = DEFAULT_BOOKING_PAGE_CONTENT,
+  content = createEmptyBookingPageContent(),
   addons = null,
   paypalClientId,
   initialProgramSlug = "",

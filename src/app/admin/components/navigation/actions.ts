@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import type { NavItem, NavLink } from "@/content/data/navigation/types";
+import type { NavItem, NavLink } from "@/content/types/navigation";
 import type { GlobalHeader } from "@/content/types/global-settings";
 import { getServerSession, requireAdmin } from "@/lib/cms/auth";
 import { invalidateGlobalSettingsCache } from "@/lib/cms/cache";

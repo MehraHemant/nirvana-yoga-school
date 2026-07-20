@@ -20,6 +20,11 @@ export type NavStaticLink = {
 
 export type NavDropdownItemRef = NavPageRef | NavStaticLink;
 
+/**
+ * Whether a dropdown entry references a CMS page.
+ *
+ * @param item - Dropdown entry
+ */
 export function isNavPageRef(item: NavDropdownItemRef): item is NavPageRef {
   return "type" in item && "slug" in item;
 }
@@ -28,7 +33,7 @@ export type NavDropdownKey = "courses" | "online" | "retreats" | "venue";
 
 export type NavDropdownConfig = {
   items: NavDropdownItemRef[];
-  /** Appended last — label resolved from page title in content data. */
+  /** Appended last — label resolved from page title in the database. */
   seeAll?: NavPageRef;
 };
 
@@ -40,7 +45,7 @@ const courseItems: NavPageRef[] = RESIDENTIAL_COURSE_SLUGS.map(
   }),
 );
 
-/** Dropdown item order — slugs + sort only; labels come from content via `getPageLabel`. */
+/** Dropdown item order — slugs + sort only; labels come from the database. */
 export const NAV_DROPDOWN_ENTRIES: Record<NavDropdownKey, NavDropdownConfig> = {
   courses: {
     items: [

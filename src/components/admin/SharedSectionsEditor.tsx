@@ -11,7 +11,7 @@ import { SelectField } from "@/components/admin/SelectField";
 import { TextField } from "@/components/admin/TextField";
 import { useSectionScrollSpy } from "@/components/admin/useSectionScrollSpy";
 import { useStableListKeys } from "@/components/admin/useStableListKeys";
-import { createDefaultWhyNirvana } from "@/content/data/why-nirvana-defaults";
+import { createEmptyWhyNirvana } from "@/lib/cms/structural-defaults";
 import type {
   ExamCertificationContent,
   InstagramFeedContent,
@@ -65,7 +65,7 @@ const SHARED_PANEL_ITEMS: Record<
  * @param key - Active shared settings key
  */
 function emptySharedDoc(key: SharedKey): SharedValue {
-  if (key === "whyNirvana") return createDefaultWhyNirvana();
+  if (key === "whyNirvana") return createEmptyWhyNirvana();
   if (key === "examCertification") {
     return {
       live: true,

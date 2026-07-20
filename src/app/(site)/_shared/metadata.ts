@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import type { PageSeoMeta } from "@/content/types/page-seo";
 
 /**
- * Builds Next.js metadata from optional CMS page SEO fields.
- * Empty fields fall through to root layout / site-config defaults.
+ * Builds Next.js metadata from CMS page SEO fields only.
+ * Empty / missing fields fall through to root layout site-config defaults.
  *
  * @param meta - Optional page SEO edited in admin
  */
@@ -38,51 +38,20 @@ export function metadataFromPageSeo(meta?: PageSeoMeta | null): Metadata {
 }
 
 /**
- * Merges product/page fallback fields with optional CMS `meta` overrides.
- * CMS `meta` wins per field when set; otherwise falls back to product/page values.
+ * @deprecated Prefer {@link metadataFromPageSeo}. Kept for any remaining callers.
  *
- * @param fallback - Title / description / image from the product or page doc
+ * @param fallback - Ignored product/page fallbacks (CMS-only policy)
  * @param meta - Optional CMS page SEO
  */
 export function mergePageMetadata(
-  fallback: { title?: string; description?: string; image?: string },
+  _fallback: { title?: string; description?: string; image?: string },
   meta?: PageSeoMeta | null,
 ): Metadata {
-  const title = meta?.title?.trim() || fallback.title?.trim() || "";
-  const description =
-    meta?.description?.trim() || fallback.description?.trim() || "";
-  const image = meta?.ogImage?.trim() || fallback.image?.trim() || "";
-  const keywords = meta?.keywords?.trim();
-
-  if (!title && !description && !image && !keywords && !meta?.noIndex) {
-    return {};
-  }
-
-  return {
-    ...(title ? { title } : {}),
-    ...(description ? { description } : {}),
-    ...(keywords ? { keywords } : {}),
-    ...(meta?.noIndex ? { robots: { index: false, follow: false } } : {}),
-    ...(title || description || image
-      ? {
-          openGraph: {
-            ...(title ? { title: `${title} | Nirvana Yoga School` } : {}),
-            ...(description ? { description } : {}),
-            ...(image
-              ? {
-                  images: [
-                    { url: image, width: 1200, height: 630, alt: title },
-                  ],
-                }
-              : {}),
-          },
-        }
-      : {}),
-  };
+  return metadataFromPageSeo(meta);
 }
 
 /**
- * Classic product metadata helper (title + description + OG image).
+ * Classic product metadata helper — maps fields into CMS SEO shape.
  *
  * @param title - Page title
  * @param description - Meta description
@@ -93,5 +62,9 @@ export function courseMetadata(
   description: string,
   image: string,
 ): Metadata {
-  return mergePageMetadata({ title, description, image });
+  return metadataFromPageSeo({
+    title,
+    description,
+    ogImage: image,
+  });
 }

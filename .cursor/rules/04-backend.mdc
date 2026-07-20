@@ -3,7 +3,6 @@ description: Backend API and database rules
 globs:
   - "app/api/**/*"
   - "lib/**/*"
-  - "scripts/**/*"
 ---
 
 # Backend
@@ -13,8 +12,6 @@ Use:
 - Neon Postgres adapter for CMS data access
 - JWT cookies
 - Route handlers
-
-Run `npm run db:migrate` for versioned Neon schema changes.
 
 Rules:
 

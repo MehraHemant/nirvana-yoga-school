@@ -2783,6 +2783,30 @@
     ) 6.75rem;
 }
 
+.admin-compact-table--facilities {
+  min-width: 42rem;
+}
+
+.admin-compact-table--facilities .admin-compact-table-row {
+  grid-template-columns: 2.5rem minmax(10rem, 1.2fr) 9rem minmax(8rem, 1fr)
+    6.75rem;
+}
+
+.admin-compact-col--label,
+.admin-compact-col--icon,
+.admin-compact-col--note {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.admin-select--compact {
+  width: 100%;
+  min-height: 2.15rem;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.85rem;
+}
+
 .admin-input--inline {
   max-width: 14rem;
   margin-bottom: 0.75rem;

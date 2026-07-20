@@ -1,4 +1,4 @@
-import fallbackInstagramFeed from "@/data/instagramFeed.json";
+import { createEmptyInstagramFeed } from "@/lib/cms/structural-defaults";
 
 export type InstagramMediaType = "IMAGE" | "VIDEO" | "CAROUSEL_ALBUM";
 
@@ -56,7 +56,7 @@ type RawInstagramMedia = {
 };
 
 export const FALLBACK_INSTAGRAM_FEED = normalizeFeed(
-  fallbackInstagramFeed as InstagramFeed,
+  createEmptyInstagramFeed() as InstagramFeed,
 );
 
 const MEDIA_FIELDS = [

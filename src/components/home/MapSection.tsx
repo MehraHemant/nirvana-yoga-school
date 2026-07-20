@@ -1,4 +1,4 @@
-import { DEFAULT_HOME_PAGE_CONTENT } from "@/content/data/dedicated-page-defaults";
+import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 import type { HomeMapSectionContent } from "@/content/types/dedicated-pages";
 import type { SiteMapContent } from "@/content/types/shared-sections";
 import { shouldRenderSection } from "@/lib/cms/section-visibility";
@@ -25,7 +25,7 @@ export default function MapSection({
   content,
   htmlId,
 }: MapSectionProps) {
-  const map = content ?? DEFAULT_HOME_PAGE_CONTENT.map;
+  const map = content ?? createEmptyHomePageContent().map;
   if (!shouldRenderSection(map, Boolean(map.embedUrl?.trim()))) {
     return null;
   }

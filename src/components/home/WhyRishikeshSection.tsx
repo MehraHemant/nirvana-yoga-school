@@ -1,4 +1,4 @@
-import { DEFAULT_HOME_PAGE_CONTENT } from "@/content/data/dedicated-page-defaults";
+import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 import type { HomeWhyRishikeshContent } from "@/content/types/dedicated-pages";
 import { resolveSectionHtmlId } from "@/lib/html-id";
 import {
@@ -22,11 +22,11 @@ type WhyRishikeshSectionProps = {
  * @param props - Optional CMS Why Rishikesh content
  */
 export default async function WhyRishikeshSection({
-  content = DEFAULT_HOME_PAGE_CONTENT.whyRishikesh,
+  content = createEmptyHomePageContent().whyRishikesh,
   sectionId,
 }: WhyRishikeshSectionProps) {
   const youtubeUrl =
-    content.youtubeUrl || DEFAULT_HOME_PAGE_CONTENT.whyRishikesh.youtubeUrl;
+    content.youtubeUrl || createEmptyHomePageContent().whyRishikesh.youtubeUrl;
   const videoId = parseYouTubeId(youtubeUrl);
   if (!videoId) return null;
 

@@ -1,11 +1,8 @@
-import { COURSES_MEDIA } from "@/content/data/media";
-import { createRetreatResidentialLife } from "@/content/data/retreat-residential-life";
-import type retreatsJson from "@/content/data/retreats/retreats.json";
+import { createEmptyResidentialLife } from "@/lib/cms/structural-defaults";
 import {
   createCourseVenueGallery,
   createRetreatVenueGallery,
-} from "@/content/data/venue-galleries";
-import { buildOnlineCourseFromSitePage } from "@/content/mappers/online-course";
+} from "@/lib/cms/venue-galleries";
 import {
   getPagePresentation,
   refineInclusions,
@@ -35,9 +32,7 @@ import type {
   PageModulesDocument,
   SplitCopyHero,
 } from "@/content/types/page-modules";
-import type { CourseData } from "@/data/coursesData";
-
-type RetreatRecord = (typeof retreatsJson.retreats)[number];
+import type { RetreatDocument } from "@/content/types/retreat-page";
 
 function findSection(page: SitePageDocument, pattern: RegExp) {
   return page.sections.find((s) => pattern.test(s.title)) ?? page.sections[0];
@@ -68,11 +63,10 @@ function buildGlanceFromCourse(course: {
  * @param media - Hero gallery media
  */
 export function buildModulesFromCourse(
-  course: CourseDocument | CourseData,
+  course: CourseDocument,
   media?: CourseMedia,
 ): PageModulesDocument {
-  const courseMedia = media ??
-    COURSES_MEDIA[course.slug] ?? { images: [], videos: [] };
+  const courseMedia = media ?? { images: [], videos: [] };
 
   const hero: BentoMediaHero = {
     type: "bento-media",
@@ -379,7 +373,7 @@ export function buildModulesFromSitePage(
  * @param retreat - Retreat record from retreats.json
  */
 export function buildModulesFromRetreat(
-  retreat: RetreatRecord,
+  retreat: RetreatDocument,
 ): PageModulesDocument {
   const heroImages = [
     retreat.heroImage,
@@ -448,7 +442,7 @@ export function buildModulesFromRetreat(
           })),
         }
       : undefined,
-    residentialLife: createRetreatResidentialLife(),
+    residentialLife: createEmptyResidentialLife(),
     flags: {
       showExam: false,
       showAccommodation: true,
@@ -461,13 +455,12 @@ export function buildModulesFromRetreat(
 }
 
 /**
- * Build online course modules from site page slug via existing mapper.
- *
- * @param slug - Online course slug
+ * @deprecated Online courses must be loaded from Postgres before building modules.
  */
-export function buildModulesFromOnlineSlug(slug: string): PageModulesDocument {
-  const course = buildOnlineCourseFromSitePage(slug);
-  return buildModulesFromOnlineCourse(course);
+export function buildModulesFromOnlineSlug(_slug: string): PageModulesDocument {
+  throw new Error(
+    "buildModulesFromOnlineSlug requires a seeded OnlineCourseDocument; load from Postgres instead.",
+  );
 }
 
 /**

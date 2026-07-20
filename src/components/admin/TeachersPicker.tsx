@@ -243,8 +243,7 @@ export function TeachersPicker({
   if (error) {
     return (
       <p className="admin-error">
-        {error}. Ensure the Teachers page is seeded (`npm run db:seed`), then
-        retry.
+        {error}. Ensure the Teachers page exists in the CMS, then retry.
       </p>
     );
   }

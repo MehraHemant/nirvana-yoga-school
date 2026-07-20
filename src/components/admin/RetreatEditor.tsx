@@ -8,20 +8,23 @@ import { CollapsiblePanel } from "@/components/admin/CollapsiblePanel";
 import { ImageField } from "@/components/admin/ImageField";
 import { ImageListField } from "@/components/admin/ImageListField";
 import { ResidentialLifeFields } from "@/components/admin/LodgingFields";
+import { FaqModuleEditor } from "@/components/admin/modules/FaqModuleEditor";
 import { HeroModuleEditor } from "@/components/admin/modules/HeroModuleEditor";
 import { ModuleFlagsPanel } from "@/components/admin/modules/ModuleFlagsPanel";
 import { StickyNavModuleEditor } from "@/components/admin/modules/StickyNavModuleEditor";
 import { PageSeoFields } from "@/components/admin/PageSeoFields";
 import { SharedSectionLinks } from "@/components/admin/SharedSectionLinks";
 import { StringListField } from "@/components/admin/StringListField";
-import { toSectionDomId } from "@/components/admin/sectionDomId";
+import {
+  scrollToSection,
+  toSectionDomId,
+} from "@/components/admin/sectionDomId";
 import { TextField } from "@/components/admin/TextField";
+import { useAdminSectionAccordion } from "@/components/admin/useAdminSectionAccordion";
 import { useSectionScrollSpy } from "@/components/admin/useSectionScrollSpy";
 import { useStableListKeys } from "@/components/admin/useStableListKeys";
-import {
-  createRetreatResidentialLife,
-  hasResidentialLifeContent,
-} from "@/content/data/retreat-residential-life";
+import { hasResidentialLifeContent } from "@/content/mappers/residential-life-utils";
+import { createEmptyResidentialLife } from "@/lib/cms/structural-defaults";
 import { retreatAccommodationToResidentialLife } from "@/content/mappers/residential-life";
 import { createEmptyPageModules } from "@/content/page-modules-defaults";
 import type { PageModulesDocument, RetreatDocument } from "@/content/types";
@@ -60,27 +63,48 @@ const RETREAT_JUMP_SECTIONS = [
   { slug: "faq", label: "FAQ" },
 ] as const;
 
+const RETREAT_PANEL_KEYS = RETREAT_JUMP_SECTIONS.map(
+  (section) => section.slug,
+);
+
 /**
  * Builds the modules document when a legacy retreat lacks persisted modules.
+ * Seeds FAQ items from the retreat product when modules FAQs are empty.
  *
  * @param initialModules - Persisted modules, when available
- * @param retreat - Retreat document used to scaffold the hero
+ * @param retreat - Retreat document used to scaffold the hero / FAQs
  */
 function retreatModules(
   initialModules: PageModulesDocument | null,
   retreat: RetreatDocument,
 ): PageModulesDocument {
-  if (initialModules?.hero) return initialModules;
-  const scaffold = createEmptyPageModules("page-minimal");
-  scaffold.hero = {
-    type: "page-minimal",
-    title: retreat.title,
-    subtitle: retreat.description,
-    heroImage: retreat.heroImage,
-    ctaLabel: retreat.ctaLabel,
-    ctaHref: retreat.ctaHref,
+  const base = initialModules?.hero
+    ? initialModules
+    : (() => {
+        const scaffold = createEmptyPageModules("page-minimal");
+        scaffold.hero = {
+          type: "page-minimal",
+          title: retreat.title,
+          subtitle: retreat.description,
+          heroImage: retreat.heroImage,
+          ctaLabel: retreat.ctaLabel,
+          ctaHref: retreat.ctaHref,
+        };
+        return scaffold;
+      })();
+
+  if (base.faqs?.items?.length || !retreat.faqs?.length) return base;
+
+  return {
+    ...base,
+    faqs: {
+      ...base.faqs,
+      items: retreat.faqs.map((faq) => ({
+        question: faq.question,
+        answer: faq.answer,
+      })),
+    },
   };
-  return scaffold;
 }
 
 /**
@@ -119,7 +143,8 @@ export function RetreatEditor({
   const dayKeys = useStableListKeys(retreat.schedule.length);
   const packageKeys = useStableListKeys(retreat.packages.length);
   const dateKeys = useStableListKeys(retreat.dates.length);
-  const faqKeys = useStableListKeys(retreat.faqs.length);
+  const { openOnly, panelOpenProps } =
+    useAdminSectionAccordion(RETREAT_PANEL_KEYS);
 
   useEffect(() => {
     const nextModules = retreatModules(initialModules, initialRetreat);
@@ -164,7 +189,7 @@ export function RetreatEditor({
                 ...prev,
                 residentialLife: body.settings
                   ? retreatAccommodationToResidentialLife(body.settings)
-                  : createRetreatResidentialLife(),
+                  : createEmptyResidentialLife(),
               },
         );
       })
@@ -172,7 +197,7 @@ export function RetreatEditor({
         setModules((prev) =>
           hasResidentialLifeContent(prev.residentialLife)
             ? prev
-            : { ...prev, residentialLife: createRetreatResidentialLife() },
+            : { ...prev, residentialLife: createEmptyResidentialLife() },
         );
       });
     return () => {
@@ -209,6 +234,17 @@ export function RetreatEditor({
     );
   }
 
+  /**
+   * Jump nav: open only the target section, collapse the rest, then scroll.
+   *
+   * @param domId - Target panel DOM id
+   */
+  function jumpTo(domId: string) {
+    const item = jumpItems.find((entry) => entry.id === domId);
+    if (item) openOnly(item.slug);
+    requestAnimationFrame(() => scrollToSection(domId));
+  }
+
   async function handleSave() {
     setSaving(true);
     setSaved(false);
@@ -217,9 +253,20 @@ export function RetreatEditor({
       // Persist the course-compatible shape; drop legacy retreat lodging key.
       const { retreatAccommodation: _legacy, ...modulesToSave } = modules;
       void _legacy;
-      await onSave({ retreat, modules: modulesToSave });
+      const faqItems = modulesToSave.faqs?.items ?? [];
+      const retreatToSave = {
+        ...retreat,
+        faqs: faqItems.map((faq) => ({
+          question: faq.question,
+          answer: faq.answer,
+        })),
+      };
+      await onSave({ retreat: retreatToSave, modules: modulesToSave });
+      setRetreat(retreatToSave);
       setModules(modulesToSave);
-      setBaseline(JSON.stringify({ retreat, modules: modulesToSave }));
+      setBaseline(
+        JSON.stringify({ retreat: retreatToSave, modules: modulesToSave }),
+      );
       setSaved(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Save failed");
@@ -252,7 +299,11 @@ export function RetreatEditor({
       </div>
 
       <div className="admin-editor-layout">
-        <AdminSectionJumpNav items={jumpItems} activeId={activeSectionId} />
+        <AdminSectionJumpNav
+          items={jumpItems}
+          activeId={activeSectionId}
+          onJump={jumpTo}
+        />
 
         <div className="admin-editor-sections">
           <div className="admin-section-shell">
@@ -261,7 +312,7 @@ export function RetreatEditor({
               step={1}
               title="Page metadata"
               subtitle="SEO title, description, OG image — overrides site defaults when set"
-              defaultOpen
+              {...panelOpenProps("meta")}
             >
               <PageSeoFields
                 value={modules.meta}
@@ -276,8 +327,7 @@ export function RetreatEditor({
               onChange={(hero) => setModules({ ...modules, hero })}
               panelId={panelId("hero")}
               step={2}
-              open
-              onOpenChange={() => {}}
+              {...panelOpenProps("hero")}
             />
           </div>
 
@@ -286,6 +336,7 @@ export function RetreatEditor({
               id={panelId("highlights")}
               step={3}
               title="Highlights"
+              {...panelOpenProps("highlights")}
             >
               {retreat.highlights.map((item, index) => (
                 <div
@@ -343,7 +394,7 @@ export function RetreatEditor({
               }
               panelId={panelId("sticky-nav")}
               step={4}
-              onOpenChange={() => {}}
+              {...panelOpenProps("sticky-nav")}
             />
           </div>
 
@@ -352,6 +403,7 @@ export function RetreatEditor({
               id={panelId("overview")}
               step={5}
               title="Overview"
+              {...panelOpenProps("overview")}
             >
               <TextField
                 label="Eyebrow"
@@ -398,6 +450,7 @@ export function RetreatEditor({
               id={panelId("inclusions")}
               step={6}
               title="Inclusions"
+              {...panelOpenProps("inclusions")}
             >
               <StringListField
                 label="Included"
@@ -414,6 +467,7 @@ export function RetreatEditor({
               id={panelId("schedule")}
               step={7}
               title="Day schedule"
+              {...panelOpenProps("schedule")}
             >
               {retreat.schedule.map((day, index) => (
                 <div key={dayKeys.keys[index]} className="admin-nested-card">
@@ -465,8 +519,7 @@ export function RetreatEditor({
               panelId={panelId("flags")}
               step={8}
               description="Page-level Live for Why Nirvana, Map, Instagram, Travel, and Exam & Certification."
-              open
-              onOpenChange={() => {}}
+              {...panelOpenProps("flags")}
             />
           </div>
 
@@ -483,7 +536,7 @@ export function RetreatEditor({
               title="Accommodation & food"
               subtitle="Per-page lodging — not shared globally"
               description="Same lodging & food editor as yoga courses. Edit room galleries, food, and facilities for this retreat."
-              defaultOpen
+              {...panelOpenProps("accommodation")}
             >
               {modules.residentialLife ? (
                 <ResidentialLifeFields
@@ -503,6 +556,7 @@ export function RetreatEditor({
               id={panelId("packages")}
               step={10}
               title="Packages & dates"
+              {...panelOpenProps("packages")}
             >
               {retreat.packages.map((pkg, index) => (
                 <div
@@ -566,31 +620,14 @@ export function RetreatEditor({
           </div>
 
           <div className="admin-section-shell">
-            <CollapsiblePanel id={panelId("faq")} step={11} title="FAQ">
-              {retreat.faqs.map((faq, index) => (
-                <div key={faqKeys.keys[index]} className="admin-nested-card">
-                  <TextField
-                    label="Question"
-                    value={faq.question}
-                    onChange={(question) => {
-                      const faqs = [...retreat.faqs];
-                      faqs[index] = { ...faq, question };
-                      setRetreat({ ...retreat, faqs });
-                    }}
-                  />
-                  <TextField
-                    label="Answer"
-                    value={faq.answer}
-                    onChange={(answer) => {
-                      const faqs = [...retreat.faqs];
-                      faqs[index] = { ...faq, answer };
-                      setRetreat({ ...retreat, faqs });
-                    }}
-                    multiline
-                  />
-                </div>
-              ))}
-            </CollapsiblePanel>
+            <FaqModuleEditor
+              faqs={modules.faqs ?? { items: [] }}
+              onChange={(faqs) => setModules({ ...modules, faqs })}
+              panelId={panelId("faq")}
+              step={11}
+              description="Questions and answers shown in the retreat FAQ accordion. Drag to reorder."
+              {...panelOpenProps("faq")}
+            />
           </div>
         </div>
       </div>

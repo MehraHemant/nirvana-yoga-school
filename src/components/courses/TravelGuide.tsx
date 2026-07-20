@@ -12,12 +12,7 @@ import { Container, Heading, Pill, SectionHeader } from "@/components/ui";
 import type { TravelGuideContent } from "@/content/types/shared-sections";
 import { ChevronDown } from "@/icons";
 import { EASE_OUT } from "@/lib/motion";
-import {
-  mapTravelTopics,
-  TRAVEL_INTRO,
-  TRAVEL_TOPICS,
-  type TravelTopic,
-} from "./travelGuideShared";
+import { mapTravelTopics, type TravelTopic } from "./travelGuideShared";
 
 function HeroBanner({ topic }: { topic: TravelTopic }) {
   const prefersReduced = useReducedMotion() ?? false;
@@ -63,10 +58,10 @@ export default function TravelGuide({
 }: {
   content?: TravelGuideContent | null;
 } = {}) {
-  const topics = content?.topics?.length
-    ? mapTravelTopics(content)
-    : TRAVEL_TOPICS;
-  const intro = content?.intro?.trim() || TRAVEL_INTRO;
+  if (!content?.topics?.length) return null;
+
+  const topics = mapTravelTopics(content);
+  const intro = content.intro?.trim() || "";
 
   const [activeId, setActiveId] = useState<string | null>(
     topics[0]?.id ?? null,

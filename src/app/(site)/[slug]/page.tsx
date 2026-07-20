@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getSitePage, getSitePageSlugs } from "@/content";
 import { isDedicatedRouteSlug } from "@/content/pages";
+import { getPageModules } from "@/content/repositories/page-modules";
 import { getYttHub } from "@/content/repositories/shared-sections";
 import type { PageSeoMeta } from "@/content/types/page-seo";
-import { mergePageMetadata } from "../_shared/metadata";
+import { metadataFromPageSeo } from "../_shared/metadata";
 import { renderSitePage } from "./_site/render";
 
 const YTT_HUB_SLUG = "yoga-teacher-training-in-rishikesh-india";
@@ -27,8 +28,7 @@ export async function generateStaticParams() {
 }
 
 /**
- * Site page SEO — merges product/page fallbacks with CMS `meta`.
- * YTT hub also merges `yttHub.meta` (hub fields win when set).
+ * Site page SEO from CMS meta only (modules → page → YTT hub).
  *
  * @param props - Route params with page slug
  */
@@ -36,29 +36,25 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  if (slug === "contact" || slug === "teacher") return { title: "Not Found" };
-  const result = await getSitePage(slug);
-  if (!result.data) return { title: "Page Not Found" };
+  if (slug === "contact" || slug === "teacher") return {};
 
-  const page = result.data;
-  let meta: PageSeoMeta | undefined = page.meta;
+  const [pageResult, modulesResult] = await Promise.all([
+    getSitePage(slug).catch(() => null),
+    getPageModules(slug).catch(() => null),
+  ]);
+
+  let meta: PageSeoMeta | undefined =
+    modulesResult?.data?.meta ?? pageResult?.data?.meta;
 
   if (slug === YTT_HUB_SLUG) {
     const hubResult = await getYttHub().catch(() => null);
     const hubMeta = hubResult?.data?.meta;
-    if (hubMeta || page.meta) {
-      meta = { ...page.meta, ...hubMeta };
+    if (hubMeta || meta) {
+      meta = { ...meta, ...hubMeta };
     }
   }
 
-  return mergePageMetadata(
-    {
-      title: page.title,
-      description: page.description,
-      image: page.image,
-    },
-    meta,
-  );
+  return metadataFromPageSeo(meta);
 }
 
 export default async function Page({ params }: PageProps) {

@@ -10,9 +10,13 @@ import { HeroModuleEditor } from "@/components/admin/modules/HeroModuleEditor";
 import { StickyNavModuleEditor } from "@/components/admin/modules/StickyNavModuleEditor";
 import { PageSeoFields } from "@/components/admin/PageSeoFields";
 import { StringListField } from "@/components/admin/StringListField";
-import { toSectionDomId } from "@/components/admin/sectionDomId";
+import {
+  scrollToSection,
+  toSectionDomId,
+} from "@/components/admin/sectionDomId";
 import { TeachersPicker } from "@/components/admin/TeachersPicker";
 import { TextField } from "@/components/admin/TextField";
+import { useAdminSectionAccordion } from "@/components/admin/useAdminSectionAccordion";
 import { useSectionScrollSpy } from "@/components/admin/useSectionScrollSpy";
 import { useStableListKeys } from "@/components/admin/useStableListKeys";
 import { createEmptyPageModules } from "@/content/page-modules-defaults";
@@ -50,6 +54,10 @@ const ONLINE_COURSE_JUMP_SECTIONS = [
   { slug: "testimonials", label: "Testimonials" },
   { slug: "faq", label: "FAQ" },
 ] as const;
+
+const ONLINE_PANEL_KEYS = ONLINE_COURSE_JUMP_SECTIONS.map(
+  (section) => section.slug,
+);
 
 /**
  * Builds the modules document when a legacy online course lacks persisted modules.
@@ -113,6 +121,8 @@ export function OnlineCourseEditor({
   const testimonialKeys = useStableListKeys(course.testimonials.length);
   const faqKeys = useStableListKeys(course.faqs.length);
   const selectedTeacherSlugs = course.teachers.map((t) => teacherSlug(t.name));
+  const { openOnly, panelOpenProps } =
+    useAdminSectionAccordion(ONLINE_PANEL_KEYS);
 
   useEffect(() => {
     const nextModules = onlineCourseModules(initialModules, initialCourse);
@@ -152,6 +162,17 @@ export function OnlineCourseEditor({
     return (
       jumpItems.find((item) => item.slug === slug)?.id ?? toSectionDomId(slug)
     );
+  }
+
+  /**
+   * Jump nav: open only the target section, collapse the rest, then scroll.
+   *
+   * @param domId - Target panel DOM id
+   */
+  function jumpTo(domId: string) {
+    const item = jumpItems.find((entry) => entry.id === domId);
+    if (item) openOnly(item.slug);
+    requestAnimationFrame(() => scrollToSection(domId));
   }
 
   async function handleSave() {
@@ -198,7 +219,11 @@ export function OnlineCourseEditor({
       </div>
 
       <div className="admin-editor-layout">
-        <AdminSectionJumpNav items={jumpItems} activeId={activeSectionId} />
+        <AdminSectionJumpNav
+          items={jumpItems}
+          activeId={activeSectionId}
+          onJump={jumpTo}
+        />
 
         <div className="admin-editor-sections">
           <div className="admin-section-shell">
@@ -207,7 +232,7 @@ export function OnlineCourseEditor({
               step={1}
               title="Page metadata"
               subtitle="SEO title, description, OG image — overrides site defaults when set"
-              defaultOpen
+              {...panelOpenProps("meta")}
             >
               <PageSeoFields
                 value={modules.meta}
@@ -222,8 +247,7 @@ export function OnlineCourseEditor({
               onChange={(hero) => setModules({ ...modules, hero })}
               panelId={panelId("hero")}
               step={2}
-              open
-              onOpenChange={() => {}}
+              {...panelOpenProps("hero")}
             />
           </div>
 
@@ -233,6 +257,7 @@ export function OnlineCourseEditor({
               step={3}
               title="Trust bar / basics"
               subtitle="Meta shown under hero"
+              {...panelOpenProps("basics")}
             >
               <div className="admin-grid-2">
                 <TextField
@@ -286,7 +311,7 @@ export function OnlineCourseEditor({
               }
               panelId={panelId("sticky-nav")}
               step={4}
-              onOpenChange={() => {}}
+              {...panelOpenProps("sticky-nav")}
             />
           </div>
 
@@ -295,6 +320,7 @@ export function OnlineCourseEditor({
               id={panelId("overview")}
               step={5}
               title="Overview"
+              {...panelOpenProps("overview")}
             >
               <TextField
                 label="Title"
@@ -328,6 +354,7 @@ export function OnlineCourseEditor({
               id={panelId("inclusions")}
               step={6}
               title="Inclusions"
+              {...panelOpenProps("inclusions")}
             >
               <StringListField
                 label="Included"
@@ -338,7 +365,12 @@ export function OnlineCourseEditor({
           </div>
 
           <div className="admin-section-shell">
-            <CollapsiblePanel id={panelId("pricing")} step={7} title="Pricing">
+            <CollapsiblePanel
+              id={panelId("pricing")}
+              step={7}
+              title="Pricing"
+              {...panelOpenProps("pricing")}
+            >
               <TextField
                 label="Pricing description"
                 value={course.pricingDescription}
@@ -407,6 +439,7 @@ export function OnlineCourseEditor({
               id={panelId("curriculum")}
               step={8}
               title="Curriculum"
+              {...panelOpenProps("curriculum")}
             >
               <TextField
                 label="Description"
@@ -451,6 +484,7 @@ export function OnlineCourseEditor({
               title="Teachers"
               subtitle={`${course.teachers.length} selected from faculty`}
               description="Pick faculty from the Teachers data store. Profiles are edited under Teachers."
+              {...panelOpenProps("teachers")}
             >
               <TeachersPicker
                 selectedSlugs={selectedTeacherSlugs}
@@ -477,6 +511,7 @@ export function OnlineCourseEditor({
               id={panelId("testimonials")}
               step={10}
               title="Testimonials"
+              {...panelOpenProps("testimonials")}
             >
               {course.testimonials.map((item, index) => (
                 <div
@@ -508,7 +543,12 @@ export function OnlineCourseEditor({
           </div>
 
           <div className="admin-section-shell">
-            <CollapsiblePanel id={panelId("faq")} step={11} title="FAQ">
+            <CollapsiblePanel
+              id={panelId("faq")}
+              step={11}
+              title="FAQ"
+              {...panelOpenProps("faq")}
+            >
               {course.faqs.map((faq, index) => (
                 <div key={faqKeys.keys[index]} className="admin-nested-card">
                   <TextField

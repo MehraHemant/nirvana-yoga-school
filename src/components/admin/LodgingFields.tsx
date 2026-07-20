@@ -2,9 +2,14 @@
 
 import { CollapsiblePanel } from "@/components/admin/CollapsiblePanel";
 import { ImageListField } from "@/components/admin/ImageListField";
+import { ListRowActions } from "@/components/admin/ListRowActions";
 import { NestedItemCard } from "@/components/admin/NestedItemCard";
 import { SectionLiveField } from "@/components/admin/SectionLiveField";
-import { SelectField } from "@/components/admin/SelectField";
+import {
+  reorderItems,
+  SortableList,
+  SortableRow,
+} from "@/components/admin/SortableList";
 import { StringListField } from "@/components/admin/StringListField";
 import { TextField } from "@/components/admin/TextField";
 import { useStableListKeys } from "@/components/admin/useStableListKeys";
@@ -166,6 +171,164 @@ function RoomGalleriesEditor({
 }
 
 /**
+ * One-line drag-and-drop campus facilities list (label, icon, optional note).
+ *
+ * @param props - Facilities array and change handler
+ */
+function CampusFacilitiesEditor({
+  facilities,
+  onChange,
+}: {
+  facilities: SharedFacility[];
+  onChange: (next: SharedFacility[]) => void;
+}) {
+  const { keys, addKey, removeKey, reorderKeys } = useStableListKeys(
+    facilities.length,
+  );
+
+  /**
+   * Reorders facilities after a drag-and-drop move.
+   *
+   * @param fromIndex - Source index
+   * @param toIndex - Destination index
+   */
+  function handleReorder(fromIndex: number, toIndex: number) {
+    reorderKeys(fromIndex, toIndex);
+    onChange(reorderItems(facilities, fromIndex, toIndex));
+  }
+
+  /**
+   * Patches one facility row.
+   *
+   * @param index - Row index
+   * @param patch - Partial facility fields
+   */
+  function patchFacility(index: number, patch: Partial<SharedFacility>) {
+    const next = [...facilities];
+    next[index] = { ...next[index], ...patch };
+    onChange(next);
+  }
+
+  return (
+    <div className="admin-field">
+      {facilities.length === 0 ? (
+        <div className="admin-empty-card">
+          <p>No facilities yet.</p>
+          <button
+            type="button"
+            className="admin-btn-sm"
+            onClick={() => {
+              addKey();
+              onChange([{ label: "", iconKey: "leaf" }]);
+            }}
+          >
+            Add first facility
+          </button>
+        </div>
+      ) : (
+        <div className="admin-compact-table-scroll">
+          <div className="admin-compact-table admin-compact-table--form admin-compact-table--facilities">
+            <div className="admin-compact-table-head admin-compact-table-row">
+              <span className="admin-compact-col admin-compact-col--num">#</span>
+              <span className="admin-compact-col admin-compact-col--label">
+                Label
+              </span>
+              <span className="admin-compact-col admin-compact-col--icon">
+                Icon
+              </span>
+              <span className="admin-compact-col admin-compact-col--note">
+                Note
+              </span>
+              <span className="admin-compact-col admin-compact-col--actions">
+                <span className="sr-only">Actions</span>
+              </span>
+            </div>
+            <SortableList ids={keys} onReorder={handleReorder}>
+              {facilities.map((facility, index) => (
+                <SortableRow key={keys[index]} id={keys[index]}>
+                  {({ dragHandleProps }) => (
+                    <div className="admin-compact-table-row">
+                      <span className="admin-compact-col admin-compact-col--num">
+                        {index + 1}
+                      </span>
+                      <span className="admin-compact-col admin-compact-col--label">
+                        <input
+                          className="admin-input admin-input--compact"
+                          value={facility.label}
+                          placeholder="e.g. Free Wi‑Fi"
+                          onChange={(event) =>
+                            patchFacility(index, {
+                              label: event.target.value,
+                            })
+                          }
+                        />
+                      </span>
+                      <span className="admin-compact-col admin-compact-col--icon">
+                        <select
+                          className="admin-select admin-select--compact"
+                          value={facility.iconKey}
+                          onChange={(event) =>
+                            patchFacility(index, {
+                              iconKey: event.target.value,
+                            })
+                          }
+                          aria-label={`Icon for facility ${index + 1}`}
+                        >
+                          {FACILITY_ICON_OPTIONS.map((option) => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </select>
+                      </span>
+                      <span className="admin-compact-col admin-compact-col--note">
+                        <input
+                          className="admin-input admin-input--compact"
+                          value={facility.note ?? ""}
+                          placeholder="Optional note"
+                          onChange={(event) =>
+                            patchFacility(index, {
+                              note: event.target.value.trim() || undefined,
+                            })
+                          }
+                        />
+                      </span>
+                      <span className="admin-compact-col admin-compact-col--actions">
+                        <ListRowActions
+                          dragHandleProps={dragHandleProps}
+                          onRemove={() => {
+                            removeKey(index);
+                            onChange(
+                              facilities.filter((_, i) => i !== index),
+                            );
+                          }}
+                        />
+                      </span>
+                    </div>
+                  )}
+                </SortableRow>
+              ))}
+            </SortableList>
+          </div>
+        </div>
+      )}
+      {facilities.length > 0 ? (
+        <button
+          type="button"
+          className="admin-btn-sm"
+          onClick={() => {
+            addKey();
+            onChange([...facilities, { label: "", iconKey: "leaf" }]);
+          }}
+        >
+          Add facility
+        </button>
+      ) : null}
+    </div>
+  );
+}
+
+/**
  * Per-page residential life editor — lodging (room types) and food.
  * Used on course / retreat / venue / hub / kirtan page admins (not Shared sections).
  *
@@ -178,14 +341,11 @@ export function ResidentialLifeFields({
   doc: ResidentialLifeContent;
   onChange: (next: ResidentialLifeContent) => void;
 }) {
-  const facilityKeys = useStableListKeys(doc.facilities.length);
-
   return (
     <>
       <CollapsiblePanel
         title="Residential life"
         subtitle="Entire block visibility"
-        defaultOpen
         description="When hidden, accommodation and food are omitted on this page."
         actions={
           <SectionLiveField
@@ -197,7 +357,6 @@ export function ResidentialLifeFields({
       />
       <CollapsiblePanel
         title="Accommodation / lodging"
-        defaultOpen
         description="Private, 2-shared, and 4-shared room galleries with copy."
         actions={
           <SectionLiveField
@@ -253,78 +412,17 @@ export function ResidentialLifeFields({
 
       <CollapsiblePanel
         title="Campus facilities"
-        description="Amenity grid under the accommodation gallery."
+        subtitle={`${doc.facilities.length} amenities`}
+        description="One row per amenity — drag to reorder. Shown under the accommodation gallery."
       >
-        {doc.facilities.map((facility, index) => (
-          <NestedItemCard
-            key={facilityKeys.keys[index]}
-            title={facility.label || "Facility"}
-            index={index}
-            onRemove={() => {
-              facilityKeys.removeKey(index);
-              onChange({
-                ...doc,
-                facilities: doc.facilities.filter((_, i) => i !== index),
-              });
-            }}
-          >
-            <div className="admin-grid-2">
-              <TextField
-                label="Label"
-                value={facility.label}
-                onChange={(label) => {
-                  const facilities = [...doc.facilities];
-                  facilities[index] = { ...facility, label };
-                  onChange({ ...doc, facilities });
-                }}
-              />
-              <SelectField
-                label="Icon"
-                value={facility.iconKey}
-                options={FACILITY_ICON_OPTIONS}
-                onChange={(iconKey) => {
-                  const facilities = [...doc.facilities];
-                  facilities[index] = { ...facility, iconKey };
-                  onChange({ ...doc, facilities });
-                }}
-              />
-            </div>
-            <TextField
-              label="Note (optional)"
-              value={facility.note ?? ""}
-              onChange={(note) => {
-                const facilities: SharedFacility[] = [...doc.facilities];
-                facilities[index] = {
-                  ...facility,
-                  note: note.trim() || undefined,
-                };
-                onChange({ ...doc, facilities });
-              }}
-              hint="e.g. Paid extra in winter"
-            />
-          </NestedItemCard>
-        ))}
-        <button
-          type="button"
-          className="admin-btn-sm"
-          onClick={() => {
-            facilityKeys.addKey();
-            onChange({
-              ...doc,
-              facilities: [
-                ...doc.facilities,
-                { label: "New facility", iconKey: "leaf" },
-              ],
-            });
-          }}
-        >
-          Add facility
-        </button>
+        <CampusFacilitiesEditor
+          facilities={doc.facilities}
+          onChange={(facilities) => onChange({ ...doc, facilities })}
+        />
       </CollapsiblePanel>
 
       <CollapsiblePanel
         title="Food"
-        defaultOpen
         description="Sattvic dining copy and gallery — separate from lodging."
         actions={
           <SectionLiveField
@@ -432,7 +530,6 @@ export function RetreatLodgingFields({
     <>
       <CollapsiblePanel
         title="Retreat lodging"
-        defaultOpen
         description="Room and food media for this retreat page."
         actions={
           <SectionLiveField
@@ -444,7 +541,6 @@ export function RetreatLodgingFields({
       />
       <CollapsiblePanel
         title="Lodging / rooms"
-        defaultOpen
         actions={
           <SectionLiveField
             id="retreat-lodging-live"
@@ -465,16 +561,18 @@ export function RetreatLodgingFields({
           onChange={(roomGalleries) => onChange({ ...doc, roomGalleries })}
         />
         <StringListField
-          label="Default facilities"
+          label="Campus facilities"
           items={doc.defaultFacilities ?? []}
           onChange={(defaultFacilities) =>
             onChange({ ...doc, defaultFacilities })
           }
+          addLabel="Add facility"
+          placeholder="e.g. Free Wi‑Fi"
+          hint="One facility per line — drag to reorder. Converted to amenity icons on the public page."
         />
       </CollapsiblePanel>
       <CollapsiblePanel
         title="Food"
-        defaultOpen
         actions={
           <SectionLiveField
             id="retreat-food-live"

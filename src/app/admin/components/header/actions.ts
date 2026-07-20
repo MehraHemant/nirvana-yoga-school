@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { PRIMARY_NAV } from "@/constants/navigation";
+import { createEmptyPrimaryNav, SIGN_IN_URL } from "@/lib/cms/structural-defaults";
 import { readDataFromFormData } from "@/lib/cms/content-schema-utils";
 import {
   globalHeaderToFields,
@@ -45,7 +45,7 @@ export async function loadSiteHeaderFields(): Promise<Record<string, unknown>> {
   });
   if (!row?.value || typeof row.value !== "object") {
     return globalHeaderToFields({
-      navigation: PRIMARY_NAV,
+      navigation: createEmptyPrimaryNav(),
       logo: {
         light: "/logo.png",
         dark: "/logo_white.png",

@@ -217,10 +217,11 @@ export const PAGE_LAYOUTS: Record<PageLayoutId, PageLayoutDefinition> = {
     layoutId: "venue",
     label: "Venue gallery",
     sections: [
-      { id: "gallery", label: "Photo gallery", source: "pageModules" },
+      { id: "meta", label: "SEO", source: "pageModules" },
       { id: "hero", label: "Page title", source: "pageModules" },
-      { id: "faq", label: "FAQ", source: "pageModules" },
+      { id: "gallery", label: "Photo gallery", source: "pageModules" },
       SHARED_LINK("siteMap", "Map (shared)"),
+      { id: "faq", label: "FAQ", source: "pageModules" },
     ],
   },
   yttHub: {

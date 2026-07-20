@@ -1,4 +1,3 @@
-import sitePagesJson from "@/content/data/site-pages/site-pages.json";
 import {
   ONLINE_COURSE_SLUGS,
   RESIDENTIAL_COURSE_SLUGS,
@@ -14,46 +13,60 @@ const DEDICATED_SLUGS = new Set<string>([
   ...VENUE_SLUGS,
 ]);
 
-function buildPages(): PageRef[] {
-  const siteSlugs = Object.keys(sitePagesJson).filter(
-    (slug) => !DEDICATED_SLUGS.has(slug),
-  );
+const SLUG_TYPE_PAIRS: Array<[readonly string[], PageType]> = [
+  [RESIDENTIAL_COURSE_SLUGS, "course"],
+  [ONLINE_COURSE_SLUGS, "online"],
+  [RETREAT_SLUGS, "retreat"],
+  [VENUE_SLUGS, "venue"],
+];
 
-  return [
-    ...RESIDENTIAL_COURSE_SLUGS.map(
-      (slug): PageRef => ({ type: "course", slug }),
-    ),
-    ...ONLINE_COURSE_SLUGS.map((slug): PageRef => ({ type: "online", slug })),
-    ...RETREAT_SLUGS.map((slug): PageRef => ({ type: "retreat", slug })),
-    ...VENUE_SLUGS.map((slug): PageRef => ({ type: "venue", slug })),
-    ...siteSlugs.map((slug): PageRef => ({ type: "site", slug })),
-  ];
+/**
+ * Infers page type from known dedicated slug lists (sync helper for admin).
+ *
+ * @param slug - Page slug
+ */
+export function inferPageType(slug: string): PageType {
+  for (const [slugs, type] of SLUG_TYPE_PAIRS) {
+    if ((slugs as readonly string[]).includes(slug)) return type;
+  }
+  return "site";
 }
 
-/** Every routable page — type + slug is the source of truth for URLs and data loading. */
-export const PAGES: PageRef[] = buildPages();
-
-const PAGE_BY_SLUG = new Map(PAGES.map((page) => [page.slug, page]));
-
-export function getPageRef(slug: string): PageRef | null {
-  return PAGE_BY_SLUG.get(slug) ?? null;
+/**
+ * Resolves a page ref synchronously when an explicit type is known or slug is listed.
+ *
+ * @param slug - Page slug
+ * @param type - Optional explicit page type from DB/admin
+ */
+export function getPageRef(slug: string, type?: PageType): PageRef {
+  return { slug, type: type ?? inferPageType(slug) };
 }
 
-export function getPageType(slug: string): PageType | null {
-  return getPageRef(slug)?.type ?? null;
+/**
+ * Returns page type for a slug using dedicated lists, defaulting to site.
+ *
+ * @param slug - Page slug
+ */
+export function getPageType(slug: string): PageType {
+  return inferPageType(slug);
 }
 
-export function getSlugsByType(type: PageType): string[] {
-  return PAGES.filter((page) => page.type === type).map((page) => page.slug);
-}
-
+/**
+ * Whether a page type uses a dedicated route segment.
+ *
+ * @param type - CMS page type
+ */
 export function isDedicatedPageType(type: PageType): boolean {
   return type !== "site";
 }
 
+/**
+ * Whether a slug is routed via a dedicated segment (course, retreat, etc.).
+ *
+ * @param slug - Page slug
+ */
 export function isDedicatedRouteSlug(slug: string): boolean {
-  const type = getPageType(slug);
-  return type !== null && isDedicatedPageType(type);
+  return DEDICATED_SLUGS.has(slug);
 }
 
 export {

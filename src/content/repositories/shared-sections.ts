@@ -1,7 +1,9 @@
-import { createDefaultBookingAddons } from "@/content/data/booking-addons-defaults";
-import { DEFAULT_HOME_PAGE_CONTENT } from "@/content/data/dedicated-page-defaults";
-import { DEFAULT_EXAM_CERTIFICATION } from "@/content/data/exam-certification-defaults";
-import { DEFAULT_TRAVEL_GUIDE } from "@/content/data/travel-guide-defaults";
+import {
+  createEmptyBookingAddons,
+  createEmptyExamCertification,
+  createEmptyHomePageContent,
+  createEmptyTravelGuide,
+} from "@/lib/cms/structural-defaults";
 import {
   normalizeRetreatAccommodation,
   retreatAccommodationToResidentialLife,
@@ -21,7 +23,7 @@ import type {
   YttHubContent,
 } from "@/content/types/shared-sections";
 import { fetchGlobalSettingsFromDb } from "@/lib/cms/cache";
-import { FALLBACK_INSTAGRAM_FEED } from "@/lib/instagram";
+import { createEmptyInstagramFeed } from "@/lib/cms/structural-defaults";
 import { requireDb } from "./db-fallback";
 import { getHomePageContent } from "./dedicated-pages";
 import type { ContentResult, RepositoryOptions } from "./fetch";
@@ -132,7 +134,7 @@ export async function getExamCertification(
         content.certificates.length > 0
       ) {
         return {
-          ...DEFAULT_EXAM_CERTIFICATION,
+          ...createEmptyExamCertification(),
           ...content,
           live: content.live !== false,
           steps: content.steps,
@@ -140,7 +142,7 @@ export async function getExamCertification(
         };
       }
     }
-    return { ...DEFAULT_EXAM_CERTIFICATION };
+    return { ...createEmptyExamCertification() };
   }, options);
 }
 
@@ -194,7 +196,7 @@ export async function getSiteMap(
           live: map.live !== false,
           iframeTitle:
             map.iframeTitle?.trim() ||
-            DEFAULT_HOME_PAGE_CONTENT.map.iframeTitle,
+            createEmptyHomePageContent().map.iframeTitle,
         };
       }
     }
@@ -208,7 +210,7 @@ export async function getSiteMap(
       /* fall through to defaults */
     }
 
-    return siteMapFromHomeMap(DEFAULT_HOME_PAGE_CONTENT.map);
+    return siteMapFromHomeMap(createEmptyHomePageContent().map);
   }, options);
 }
 
@@ -229,13 +231,13 @@ export async function getInstagramFeed(
           ...feed,
           live: feed.live !== false,
           profileUrl:
-            feed.profileUrl?.trim() || FALLBACK_INSTAGRAM_FEED.profileUrl,
+            feed.profileUrl?.trim() || createEmptyInstagramFeed().profileUrl,
         };
       }
     }
     return {
       live: true,
-      ...FALLBACK_INSTAGRAM_FEED,
+      ...createEmptyInstagramFeed(),
     };
   }, options);
 }
@@ -254,17 +256,17 @@ export async function getTravelGuide(
       const guide = stored as TravelGuideContent;
       if (Array.isArray(guide.topics) && guide.topics.length > 0) {
         return {
-          ...DEFAULT_TRAVEL_GUIDE,
+          ...createEmptyTravelGuide(),
           ...guide,
           live: guide.live !== false,
           topics: guide.topics,
           quickFacts: guide.quickFacts?.length
             ? guide.quickFacts
-            : DEFAULT_TRAVEL_GUIDE.quickFacts,
+            : createEmptyTravelGuide().quickFacts,
         };
       }
     }
-    return { ...DEFAULT_TRAVEL_GUIDE };
+    return { ...createEmptyTravelGuide() };
   }, options);
 }
 
@@ -296,14 +298,14 @@ export async function getBookingAddons(
       const doc = stored as BookingAddonsContent;
       if (Array.isArray(doc.items)) {
         return {
-          ...createDefaultBookingAddons(),
+          ...createEmptyBookingAddons(),
           ...doc,
           live: doc.live !== false,
           items: doc.items,
         };
       }
     }
-    return createDefaultBookingAddons();
+    return createEmptyBookingAddons();
   }, options);
 }
 

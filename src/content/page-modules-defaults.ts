@@ -85,10 +85,10 @@ export const DEFAULT_SITE_FLAGS: ModuleFlags = {
 export const DEFAULT_VENUE_FLAGS: ModuleFlags = {
   showExam: false,
   showAccommodation: false,
-  showWhyNirvana: true,
+  showWhyNirvana: false,
   showTravel: false,
   showInstagram: false,
-  showMap: false,
+  showMap: true,
 };
 
 /**

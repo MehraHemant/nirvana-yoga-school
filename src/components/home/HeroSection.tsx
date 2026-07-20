@@ -1,6 +1,6 @@
 import { HeroFrame } from "@/components/hero";
 import { Button, Container, Heading } from "@/components/ui";
-import { DEFAULT_HOME_PAGE_CONTENT } from "@/content/data/dedicated-page-defaults";
+import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 import type { HomeHeroContent } from "@/content/types/dedicated-pages";
 import { ArrowRight, HeroFlourish, HeroUnderline } from "@/icons";
 import { optionalSectionHtmlId } from "@/lib/html-id";
@@ -17,7 +17,7 @@ type HeroSectionProps = {
  * @param props - Optional CMS hero fields
  */
 export default function HeroSection({
-  content = DEFAULT_HOME_PAGE_CONTENT.hero,
+  content = createEmptyHomePageContent().hero,
 }: HeroSectionProps) {
   const {
     badge,

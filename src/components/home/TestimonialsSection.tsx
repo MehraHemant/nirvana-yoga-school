@@ -1,7 +1,7 @@
 "use client";
 
 import { Container, PlatformReviewsRows, SectionHeader } from "@/components/ui";
-import { DEFAULT_HOME_PAGE_CONTENT } from "@/content/data/dedicated-page-defaults";
+import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 import type { HomeReviewsSectionContent } from "@/content/types/dedicated-pages";
 import type { ReviewsContent } from "@/content/types/shared-sections";
 import { resolveSectionHtmlId } from "@/lib/html-id";
@@ -26,10 +26,10 @@ export default function TestimonialsSection({
   content,
 }: TestimonialsSectionProps = {}) {
   const eyebrow =
-    content?.eyebrow ?? DEFAULT_HOME_PAGE_CONTENT.testimonials.eyebrow;
-  const title = content?.title ?? DEFAULT_HOME_PAGE_CONTENT.testimonials.title;
+    content?.eyebrow ?? createEmptyHomePageContent().testimonials.eyebrow;
+  const title = content?.title ?? createEmptyHomePageContent().testimonials.title;
   const description =
-    content?.description ?? DEFAULT_HOME_PAGE_CONTENT.testimonials.description;
+    content?.description ?? createEmptyHomePageContent().testimonials.description;
 
   return (
     <section

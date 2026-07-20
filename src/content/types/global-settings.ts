@@ -1,4 +1,4 @@
-import type { NavItem } from "@/content/data/navigation/types";
+import type { NavItem } from "@/content/types/navigation";
 
 /** Visual style for a header CTA button or text link. */
 export type HeaderCtaVariant = "primary" | "secondary" | "link";

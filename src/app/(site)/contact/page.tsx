@@ -1,22 +1,15 @@
 import type { Metadata } from "next";
 import { getContactPageContent } from "@/content/repositories/dedicated-pages";
 import { getSiteMap } from "@/content/repositories/shared-sections";
-import { mergePageMetadata } from "../_shared/metadata";
+import { metadataFromPageSeo } from "../_shared/metadata";
 import ContactPageClient from "./ContactPageClient";
 
 /**
- * Contact page SEO from CMS meta, with static fallbacks when fields are empty.
+ * Contact page SEO from CMS meta only.
  */
 export async function generateMetadata(): Promise<Metadata> {
   const result = await getContactPageContent().catch(() => null);
-  return mergePageMetadata(
-    {
-      title: "Contact Us | Nirvana Yoga School Rishikesh India",
-      description:
-        "Reach out to Nirvana Yoga School in Rishikesh, India. Get in touch with our ashram team to ask about residential yoga teacher training, retreats, and airport taxi transfers.",
-    },
-    result?.data?.meta,
-  );
+  return metadataFromPageSeo(result?.data?.meta);
 }
 
 /**

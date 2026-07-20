@@ -2,7 +2,9 @@ import { loadPageBySlug } from "@/content/pages/load";
 import { requireDb } from "@/content/repositories/db-fallback";
 import type { RepositoryOptions } from "@/content/repositories/fetch";
 import type { PageDocument } from "@/content/types";
+import { fetchPageSlugsByTypeFromDb } from "@/lib/cms/cache";
 import { db } from "@/lib/db";
+import type { PageType } from "@/content/types/page-ref";
 
 /**
  * Resolve any page by slug — uses the pages registry for type, then loads data.
@@ -32,12 +34,21 @@ export async function getAllPageSlugs(): Promise<string[]> {
   return result.data;
 }
 
+/**
+ * All published page slugs of a given type from Postgres.
+ *
+ * @param type - CMS page type
+ */
+export async function getSlugsByType(type: PageType): Promise<string[]> {
+  const result = await requireDb(() => fetchPageSlugsByTypeFromDb(type));
+  return result.data;
+}
+
 export { loadPage, loadPageBySlug } from "@/content/pages/load";
 export { pagePath } from "@/content/pages/path";
 export {
   getPageRef,
   getPageType,
-  getSlugsByType,
 } from "@/content/pages/registry";
 export {
   getBlogPost,

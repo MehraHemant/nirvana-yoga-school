@@ -9,7 +9,7 @@ import {
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Button, Container, Heading, Pill } from "@/components/ui";
-import { DEFAULT_HOME_PAGE_CONTENT } from "@/content/data/dedicated-page-defaults";
+import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 import type { HomeWelcomeContent } from "@/content/types/dedicated-pages";
 import { Check } from "@/icons";
 import { resolveSectionHtmlId } from "@/lib/html-id";
@@ -68,7 +68,7 @@ const rightColumnItem: Variants = {
  * @param props - Optional CMS welcome fields
  */
 export default function WelcomeSection({
-  content = DEFAULT_HOME_PAGE_CONTENT.welcome,
+  content = createEmptyHomePageContent().welcome,
 }: WelcomeSectionProps) {
   const reducedMotion = useReducedMotion();
   const prefersReduced = reducedMotion ?? false;
@@ -77,7 +77,7 @@ export default function WelcomeSection({
   const highlights = content.highlights;
   const images = content.images.length
     ? content.images
-    : DEFAULT_HOME_PAGE_CONTENT.welcome.images;
+    : createEmptyHomePageContent().welcome.images;
   const [imageA, imageB, imageC] = images;
 
   useEffect(() => {

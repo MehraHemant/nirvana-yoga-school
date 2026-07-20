@@ -11,7 +11,7 @@ import {
   PhoneInput,
   SearchableSelect,
 } from "@/components/ui";
-import { DEFAULT_CONTACT_PAGE_CONTENT } from "@/content/data/dedicated-page-defaults";
+import { createEmptyContactPageContent } from "@/lib/cms/structural-defaults";
 import type { ContactPageContent } from "@/content/types/dedicated-pages";
 import type { SiteMapContent } from "@/content/types/shared-sections";
 import { Check, Compass, Send, WhatsApp } from "@/icons";
@@ -41,7 +41,7 @@ type ContactPageClientProps = {
  * @param props - Optional CMS content document and shared map
  */
 export default function ContactPageClient({
-  content = DEFAULT_CONTACT_PAGE_CONTENT,
+  content = createEmptyContactPageContent(),
   siteMap = null,
 }: ContactPageClientProps) {
   const prefersReduced = useReducedMotion() ?? false;

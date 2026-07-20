@@ -1,13 +1,16 @@
-import {
-  createRetreatResidentialLife,
-  hasResidentialLifeContent,
-} from "@/content/data/retreat-residential-life";
+import { hasResidentialLifeContent } from "@/content/mappers/residential-life-utils";
+import { createEmptyResidentialLife } from "@/lib/cms/structural-defaults";
 import { retreatAccommodationToResidentialLife } from "@/content/mappers/residential-life";
 import { mapRetreatPage } from "@/content/mappers/retreat-page";
 import { getPageModules } from "@/content/repositories/page-modules";
 import {
   getExamCertification,
+  getInstagramFeed,
   getRetreatAccommodation,
+  getReviews,
+  getSiteMap,
+  getTravelGuide,
+  getWhyNirvana,
 } from "@/content/repositories/shared-sections";
 import type { RetreatDocument } from "@/content/types/retreat-page";
 import type {
@@ -39,24 +42,36 @@ function resolveRetreatResidentialLife(
   if (globalRetreatLodging) {
     return retreatAccommodationToResidentialLife(globalRetreatLodging);
   }
-  return createRetreatResidentialLife();
+  return createEmptyResidentialLife();
 }
 
 /**
- * Loads retreat modules and lodging/food (same residentialLife shape as courses,
- * with retreat-specific room/food defaults).
+ * Loads retreat modules, lodging/food, and shared CMS sections for the page.
  *
  * @param retreat - Retreat document
  */
 export async function loadRetreatPageData(
   retreat: RetreatDocument,
 ): Promise<RetreatPageData> {
-  const [modulesResult, retreatLodgingResult, examCertificationResult] =
-    await Promise.all([
-      getPageModules(retreat.slug),
-      getRetreatAccommodation().catch(() => null),
-      getExamCertification().catch(() => null),
-    ]);
+  const [
+    modulesResult,
+    retreatLodgingResult,
+    whyNirvana,
+    reviews,
+    siteMap,
+    instagram,
+    travel,
+    examCertificationResult,
+  ] = await Promise.all([
+    getPageModules(retreat.slug),
+    getRetreatAccommodation().catch(() => null),
+    getWhyNirvana().catch(() => null),
+    getReviews().catch(() => null),
+    getSiteMap().catch(() => null),
+    getInstagramFeed().catch(() => null),
+    getTravelGuide().catch(() => null),
+    getExamCertification().catch(() => null),
+  ]);
 
   const residentialLife = resolveRetreatResidentialLife(
     modulesResult.data?.residentialLife,
@@ -69,6 +84,11 @@ export async function loadRetreatPageData(
     mapped: mapRetreatPage(retreat, residentialLife),
     modules: modulesResult.data,
     residentialLife,
+    whyNirvana: whyNirvana?.data ?? null,
+    reviews: reviews?.data ?? null,
+    siteMap: siteMap?.data ?? null,
+    instagram: instagram?.data ?? null,
+    travel: travel?.data ?? null,
     examCertification: examCertificationResult?.data ?? null,
   };
 }

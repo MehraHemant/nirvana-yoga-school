@@ -39,7 +39,6 @@ export function SharedSectionLinks({
       step={step}
       title="Shared sections"
       subtitle="Edit once — reused across product pages"
-      defaultOpen
     >
       <ul className="admin-shared-links">
         {links.map((link) => (

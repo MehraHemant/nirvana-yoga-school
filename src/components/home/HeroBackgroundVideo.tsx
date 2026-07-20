@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { DEFAULT_HOME_PAGE_CONTENT } from "@/content/data/dedicated-page-defaults";
+import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 import type { HomeHeroVideoContent } from "@/content/types/dedicated-pages";
 
 type HeroBackgroundVideoProps = {
@@ -15,7 +15,7 @@ type HeroBackgroundVideoProps = {
  * @param props - Optional CMS video source paths
  */
 export default function HeroBackgroundVideo({
-  video = DEFAULT_HOME_PAGE_CONTENT.hero.video,
+  video = createEmptyHomePageContent().hero.video,
 }: HeroBackgroundVideoProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { createEmptyResidentialLife } from "@/content/data/residential-life-defaults";
+import { createEmptyResidentialLife } from "@/lib/cms/structural-defaults";
 import { createEmptyGalleryModule } from "@/content/mappers/gallery-module";
 import { normalizeVenueHero } from "@/content/mappers/venue-hero";
 import { createEmptyPageModules } from "@/content/page-modules-defaults";
@@ -180,11 +180,8 @@ const MODULE_SECTIONS: Array<{
   },
 ];
 
-const DEFAULT_OPEN: Record<string, boolean> = {
-  "module-hero": true,
-  "module-sticky-nav": true,
-  "module-gallery": true,
-};
+/** Start with the first visible panel open; jump-to opens one at a time. */
+const DEFAULT_OPEN: Record<string, boolean> = {};
 
 /** Full residential course panel set. */
 export const RESIDENTIAL_MODULE_PANELS: ModulePanelId[] = MODULE_SECTIONS.map(
@@ -212,11 +209,12 @@ export const EDITORIAL_MODULE_PANELS: ModulePanelId[] = [
   "module-faq",
 ];
 
-/** Venue layout panels — photo gallery is the primary editor. */
+/** Venue layout panels — SEO + page title first, then gallery, map Live, FAQ. */
 export const VENUE_MODULE_PANELS: ModulePanelId[] = [
-  "module-gallery",
-  "module-hero",
   "module-meta",
+  "module-hero",
+  "module-gallery",
+  "module-flags",
   "module-faq",
 ];
 
@@ -313,8 +311,10 @@ export function ModulePageEditor({
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
-  const [openPanels, setOpenPanels] =
-    useState<Record<string, boolean>>(DEFAULT_OPEN);
+  const [openPanels, setOpenPanels] = useState<Record<string, boolean>>(() => {
+    const first = visiblePanels?.[0] ?? "module-meta";
+    return { ...DEFAULT_OPEN, [first]: true };
+  });
   const dirty = useMemo(
     () => JSON.stringify(modules) !== baseline,
     [modules, baseline],
@@ -372,15 +372,24 @@ export function ModulePageEditor({
             : section.moduleKey
               ? modules[section.moduleKey]
               : undefined;
+        const label =
+          isVenueLayout && section.id === "module-hero"
+            ? "Page title"
+            : isVenueLayout && section.id === "module-meta"
+              ? "SEO"
+              : isVenueLayout && section.id === "module-flags"
+                ? "Map live"
+                : section.label;
         return [
           {
             ...section,
+            label,
             step: index + 1,
             domId: modulePanelDomId(section.id, moduleValue),
           },
         ];
       });
-  }, [visiblePanels, modules]);
+  }, [visiblePanels, modules, isVenueLayout]);
 
   const sectionIds = useMemo(
     () => sections.map((section) => section.domId),
@@ -421,10 +430,19 @@ export function ModulePageEditor({
       step,
       description,
       open: openPanels[stableId] ?? false,
-      onOpenChange: (open) =>
-        setOpenPanels((prev) => ({ ...prev, [stableId]: open })),
+      onOpenChange: (open) => {
+        if (!open) {
+          setOpenPanels((prev) => ({ ...prev, [stableId]: false }));
+          return;
+        }
+        const next: Record<string, boolean> = {};
+        for (const section of sections) {
+          next[section.id] = section.id === stableId;
+        }
+        setOpenPanels(next);
+      },
     }),
-    [openPanels, domIdFor],
+    [openPanels, domIdFor, sections],
   );
 
   const show = (id: ModulePanelId) =>
@@ -433,7 +451,11 @@ export function ModulePageEditor({
   function jumpTo(domId: string) {
     const section = sections.find((s) => s.domId === domId);
     if (section) {
-      setOpenPanels((prev) => ({ ...prev, [section.id]: true }));
+      const next: Record<string, boolean> = {};
+      for (const entry of sections) {
+        next[entry.id] = entry.id === section.id;
+      }
+      setOpenPanels(next);
     }
     requestAnimationFrame(() => scrollToSection(domId));
   }
@@ -534,21 +556,35 @@ export function ModulePageEditor({
         ) : null}
 
         <div className="admin-editor-sections">
-          {isVenueLayout && show("module-gallery") ? (
+          {show("module-meta") ? (
             <div className="admin-section-shell">
-              <GalleryModuleEditor
-                gallery={modules.gallery ?? createEmptyGalleryModule()}
-                onChange={(gallery) => setModules({ ...modules, gallery })}
-                panelId={domIdFor("module-gallery")}
-                step={stepOf("module-gallery")}
-                open={openPanels["module-gallery"] ?? true}
-                onOpenChange={(open) =>
-                  setOpenPanels((prev) => ({
-                    ...prev,
-                    "module-gallery": open,
-                  }))
-                }
-              />
+              <CollapsiblePanel
+                id={domIdFor("module-meta")}
+                step={stepOf("module-meta")}
+                title="SEO & page details"
+                subtitle="Optional search and social overrides"
+                description="Empty fields use the site defaults."
+                open={openPanels["module-meta"] ?? false}
+                onOpenChange={(open) => {
+                  if (!open) {
+                    setOpenPanels((prev) => ({
+                      ...prev,
+                      "module-meta": false,
+                    }));
+                    return;
+                  }
+                  const next: Record<string, boolean> = {};
+                  for (const section of sections) {
+                    next[section.id] = section.id === "module-meta";
+                  }
+                  setOpenPanels(next);
+                }}
+              >
+                <PageSeoFields
+                  value={modules.meta}
+                  onChange={(meta) => setModules({ ...modules, meta })}
+                />
+              </CollapsiblePanel>
             </div>
           ) : null}
           {isVenueLayout && show("module-hero") ? (
@@ -560,29 +596,18 @@ export function ModulePageEditor({
                 {...panelProps(
                   "module-hero",
                   stepOf("module-hero"),
-                  "Full-bleed banner at the top of the venue page — background image, title, and short description.",
+                  "Page title band — background image, title, and short description at the top of the venue page.",
                 )}
               />
             </div>
           ) : null}
-          {show("module-meta") ? (
+          {isVenueLayout && show("module-gallery") ? (
             <div className="admin-section-shell">
-              <CollapsiblePanel
-                id={domIdFor("module-meta")}
-                step={stepOf("module-meta")}
-                title="SEO & page details"
-                subtitle="Optional search and social overrides"
-                description="Empty fields use the site defaults."
-                open={openPanels["module-meta"] ?? false}
-                onOpenChange={(open) =>
-                  setOpenPanels((prev) => ({ ...prev, "module-meta": open }))
-                }
-              >
-                <PageSeoFields
-                  value={modules.meta}
-                  onChange={(meta) => setModules({ ...modules, meta })}
-                />
-              </CollapsiblePanel>
+              <GalleryModuleEditor
+                gallery={modules.gallery ?? createEmptyGalleryModule()}
+                onChange={(gallery) => setModules({ ...modules, gallery })}
+                {...panelProps("module-gallery", stepOf("module-gallery"))}
+              />
             </div>
           ) : null}
           {!isVenueLayout && show("module-hero") ? (
@@ -708,11 +733,11 @@ export function ModulePageEditor({
                 subtitle="Per-page lodging — not shared globally"
                 description="Edit room galleries and food for this page. Use Shared sections (Live) below to show/hide Accommodation & food on the public page."
                 open={openPanels["module-accommodation"] ?? false}
-                onOpenChange={(open) =>
-                  setOpenPanels((prev) => ({
-                    ...prev,
-                    "module-accommodation": open,
-                  }))
+                onOpenChange={
+                  panelProps(
+                    "module-accommodation",
+                    stepOf("module-accommodation"),
+                  ).onOpenChange
                 }
               >
                 <ResidentialLifeFields
@@ -729,15 +754,7 @@ export function ModulePageEditor({
               <GalleryModuleEditor
                 gallery={modules.gallery ?? createEmptyGalleryModule()}
                 onChange={(gallery) => setModules({ ...modules, gallery })}
-                panelId={domIdFor("module-gallery")}
-                step={stepOf("module-gallery")}
-                open={openPanels["module-gallery"] ?? true}
-                onOpenChange={(open) =>
-                  setOpenPanels((prev) => ({
-                    ...prev,
-                    "module-gallery": open,
-                  }))
-                }
+                {...panelProps("module-gallery", stepOf("module-gallery"))}
               />
             </div>
           ) : null}
@@ -759,10 +776,13 @@ export function ModulePageEditor({
               <ModuleFlagsPanel
                 flags={modules.flags}
                 onChange={(flags) => setModules({ ...modules, flags })}
+                visibleKeys={isVenueLayout ? ["showMap"] : undefined}
                 {...panelProps(
                   "module-flags",
                   stepOf("module-flags"),
-                  "Show or hide shared Why Nirvana / Map / Instagram / Travel / Exam & Certification on this page.",
+                  isVenueLayout
+                    ? "Uncheck Live · Map to hide the map on this venue page. Edit the map embed under Shared sections."
+                    : "Show or hide shared Why Nirvana / Map / Instagram / Travel / Exam & Certification on this page.",
                 )}
               />
             </div>

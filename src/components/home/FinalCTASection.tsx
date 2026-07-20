@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { Button, Container, Heading, Pill } from "@/components/ui";
-import { DEFAULT_HOME_PAGE_CONTENT } from "@/content/data/dedicated-page-defaults";
+import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 import type { HomeFinalCtaContent } from "@/content/types/dedicated-pages";
 import { ArrowRight, WhatsApp } from "@/icons";
 import { resolveSectionHtmlId } from "@/lib/html-id";
@@ -16,7 +16,7 @@ type FinalCTASectionProps = {
  * @param props - Optional CMS final CTA fields
  */
 export default function FinalCTASection({
-  content = DEFAULT_HOME_PAGE_CONTENT.finalCta,
+  content = createEmptyHomePageContent().finalCta,
 }: FinalCTASectionProps) {
   const {
     pill,

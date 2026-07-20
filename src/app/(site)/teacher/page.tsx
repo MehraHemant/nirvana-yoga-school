@@ -5,25 +5,16 @@ import TeachersPageClient from "@/components/teachers/TeachersPageClient";
 import { getSiteMap } from "@/content/repositories/shared-sections";
 import { getTeachersPage } from "@/content/repositories/teachers";
 import { shouldRenderSection } from "@/lib/cms/section-visibility";
-import { mergePageMetadata } from "../_shared/metadata";
+import { metadataFromPageSeo } from "../_shared/metadata";
 
 export const revalidate = 3600;
 
 /**
- * Metadata for the faculty page from MySQL, with CMS `page.meta` overrides.
+ * Teachers page SEO from CMS `page.meta` only.
  */
 export async function generateMetadata(): Promise<Metadata> {
   const result = await getTeachersPage();
-  if (!result.data) return { title: "Teachers" };
-  const { page, presentation } = result.data;
-  return mergePageMetadata(
-    {
-      title: page.title,
-      description: presentation.heroLead ?? page.description,
-      image: page.image,
-    },
-    page.meta,
-  );
+  return metadataFromPageSeo(result.data?.page.meta);
 }
 
 /**

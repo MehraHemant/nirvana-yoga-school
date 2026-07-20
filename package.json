@@ -7,12 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "biome check",
-    "format": "biome format --write",
-    "db:migrate": "tsx --env-file=.env scripts/apply-neon-migration.ts",
-    "db:migrate:hostinger-data": "tsx --env-file=.env scripts/migrate-hostinger-mysql-to-neon.ts",
-    "db:seed": "tsx --env-file=.env scripts/seed-cms.ts",
-    "db:seed:missing": "tsx --env-file=.env scripts/seed-missing-cms.ts",
-    "db:seed-modules": "tsx --env-file=.env scripts/seed-page-modules.ts"
+    "format": "biome format --write"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

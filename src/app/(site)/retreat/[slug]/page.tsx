@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getRetreat, getRetreatSlugs, getSitePage } from "@/content";
 import { getPageModules } from "@/content/repositories/page-modules";
-import { mergePageMetadata } from "../../_shared/metadata";
+import { metadataFromPageSeo } from "../../_shared/metadata";
 import { loadSitePageDataAsync } from "../../_shared/site/data.server";
 import { loadRetreatPageData } from "./data";
 import LegacyRetreatClient from "./LegacyRetreatClient";
@@ -22,35 +22,21 @@ export async function generateStaticParams() {
   return slugs.map((slug) => ({ slug }));
 }
 
+/**
+ * Retreat SEO from CMS modules/page meta only.
+ *
+ * @param props - Route params with retreat slug
+ */
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const [retreatResult, modulesResult] = await Promise.all([
-    getRetreat(slug),
+  const [modulesResult, sitePageResult] = await Promise.all([
     getPageModules(slug).catch(() => null),
+    getSitePage(slug).catch(() => null),
   ]);
-  if (retreatResult.data) {
-    return mergePageMetadata(
-      {
-        title: retreatResult.data.title,
-        description: retreatResult.data.description,
-        image: retreatResult.data.heroImage,
-      },
-      modulesResult?.data?.meta,
-    );
-  }
-
-  const result = await getSitePage(slug);
-  if (!result.data) return { title: "Retreat Not Found" };
-
-  return mergePageMetadata(
-    {
-      title: result.data.title,
-      description: result.data.description,
-      image: result.data.image,
-    },
-    result.data.meta ?? modulesResult?.data?.meta,
+  return metadataFromPageSeo(
+    modulesResult?.data?.meta ?? sitePageResult?.data?.meta,
   );
 }
 

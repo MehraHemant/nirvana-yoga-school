@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Container, CourseCard, SectionHeader } from "@/components/ui";
-import { DEFAULT_HOME_PAGE_CONTENT } from "@/content/data/dedicated-page-defaults";
+import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 import type { HomeCoursesSectionContent } from "@/content/types/dedicated-pages";
 import { resolveSectionHtmlId } from "@/lib/html-id";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
@@ -18,12 +18,12 @@ type CoursesSectionProps = {
  * @param props - Optional CMS courses section
  */
 export default function CoursesSection({
-  content = DEFAULT_HOME_PAGE_CONTENT.courses,
+  content = createEmptyHomePageContent().courses,
 }: CoursesSectionProps = {}) {
   const cards =
     content.cards?.length > 0
       ? content.cards
-      : DEFAULT_HOME_PAGE_CONTENT.courses.cards;
+      : createEmptyHomePageContent().courses.cards;
 
   return (
     <section

@@ -18,7 +18,6 @@ import {
   WhyNirvana,
 } from "@/components/courses";
 import { COURSE_FAQ_CATEGORIES, FAQSection } from "@/components/ui";
-import { DEFAULT_EXAM_CERTIFICATION } from "@/content/data/exam-certification-defaults";
 import {
   isSectionLive,
   shouldRenderSection,
@@ -232,8 +231,6 @@ export default function CourseClient({
 
         {showExam && examCertification ? (
           <ExamCertification content={examCertification} />
-        ) : !examCertification && (m?.flags.showExam ?? true) ? (
-          <ExamCertification content={DEFAULT_EXAM_CERTIFICATION} />
         ) : null}
 
         {showAccommodation ? (

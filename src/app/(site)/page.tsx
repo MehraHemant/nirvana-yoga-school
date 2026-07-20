@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import { Suspense } from "react";
 import { HeroSection, JsonLd, WelcomeSection } from "@/components";
-import { DEFAULT_HOME_PAGE_CONTENT } from "@/content/data/dedicated-page-defaults";
+import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 import { getHomePageContent } from "@/content/repositories/dedicated-pages";
 import { getSiteMap } from "@/content/repositories/shared-sections";
 import { getTeachersPage } from "@/content/repositories/teachers";
@@ -63,17 +63,16 @@ function SectionSkeleton({
  *
  * @param home - Normalized homepage CMS document
  */
-function buildHomeJsonLd(home: typeof DEFAULT_HOME_PAGE_CONTENT) {
+function buildHomeJsonLd(home: ReturnType<typeof createEmptyHomePageContent>) {
+  const empty = createEmptyHomePageContent();
   const sameAs = home.seo?.organization?.sameAs?.length
     ? home.seo.organization.sameAs
-    : (DEFAULT_HOME_PAGE_CONTENT.seo?.organization?.sameAs ?? []);
+    : (empty.seo?.organization?.sameAs ?? []);
   const lb = {
-    ...DEFAULT_HOME_PAGE_CONTENT.seo?.localBusiness,
+    ...empty.seo?.localBusiness,
     ...home.seo?.localBusiness,
   };
-  const faqs = home.faqs.faqs.length
-    ? home.faqs.faqs
-    : DEFAULT_HOME_PAGE_CONTENT.faqs.faqs;
+  const faqs = home.faqs.faqs.length ? home.faqs.faqs : empty.faqs.faqs;
 
   return {
     "@context": "https://schema.org",
@@ -131,7 +130,7 @@ export default async function Home() {
     getTeachersPage(),
     getSiteMap().catch(() => null),
   ]);
-  const home = homeResult?.data ?? DEFAULT_HOME_PAGE_CONTENT;
+  const home = homeResult?.data ?? createEmptyHomePageContent();
   const teachers = teachersResult.data?.teachers ?? [];
   const siteMap = siteMapResult?.data ?? null;
   const heroVideo = home.hero.video;

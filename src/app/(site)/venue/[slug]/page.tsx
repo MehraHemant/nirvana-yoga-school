@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getSitePage } from "@/content";
+import { getPageModules } from "@/content/repositories/page-modules";
 import { fetchPageSlugsByTypeFromDb } from "@/lib/cms/cache";
-import { mergePageMetadata } from "../../_shared/metadata";
+import { metadataFromPageSeo } from "../../_shared/metadata";
 import { loadSitePageDataAsync } from "../../_shared/site/data.server";
 import VenueClient from "./VenueClient";
 
@@ -18,20 +19,21 @@ export async function generateStaticParams() {
   return slugs.map((slug) => ({ slug }));
 }
 
+/**
+ * Venue SEO from CMS modules meta (admin SEO panel), else page meta.
+ *
+ * @param props - Route params with venue slug
+ */
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const result = await getSitePage(slug);
-  if (!result.data) return { title: "Venue Not Found" };
-
-  return mergePageMetadata(
-    {
-      title: result.data.title,
-      description: result.data.description,
-      image: result.data.image,
-    },
-    result.data.meta,
+  const [modulesResult, pageResult] = await Promise.all([
+    getPageModules(slug).catch(() => null),
+    getSitePage(slug).catch(() => null),
+  ]);
+  return metadataFromPageSeo(
+    modulesResult?.data?.meta ?? pageResult?.data?.meta,
   );
 }
 

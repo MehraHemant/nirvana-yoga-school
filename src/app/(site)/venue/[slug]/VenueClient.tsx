@@ -1,6 +1,7 @@
 "use client";
 
 import { DarkMediaHero } from "@/components/hero";
+import { MapSection } from "@/components/home";
 import { Container } from "@/components/ui";
 import VenueGallery from "@/components/venue/VenueGallery";
 import {
@@ -10,6 +11,7 @@ import {
 import { normalizeVenueHero } from "@/content/mappers/venue-hero";
 import type { GalleryModule } from "@/content/types/page-modules";
 import type { SitePageGalleryImage } from "@/content/types/site-page";
+import { shouldRenderSection } from "@/lib/cms/section-visibility";
 import { SiteFaq } from "../../_shared/site/shared";
 import type { SiteClientProps } from "../../_shared/site/types";
 
@@ -38,6 +40,7 @@ export default function VenueClient({
   page,
   mapped,
   modules,
+  siteMap,
 }: SiteClientProps) {
   const moduleGallery = modules?.gallery;
   const images = resolveVenueImages(mapped.gallery ?? [], moduleGallery);
@@ -66,6 +69,10 @@ export default function VenueClient({
   const eyebrow =
     hero.eyebrow || gallery.eyebrow || page.eyebrow || "Venue";
   const heroImage = hero.backgroundImage || page.image || images[0]?.url || "";
+
+  const showMap =
+    (modules?.flags.showMap ?? mapped.showMap ?? true) &&
+    shouldRenderSection(siteMap, Boolean(siteMap?.embedUrl?.trim()));
 
   return (
     <>
@@ -120,6 +127,9 @@ export default function VenueClient({
           images={images}
           lightboxTitle={String(title)}
         />
+        {showMap && siteMap ? (
+          <MapSection className="bg-white" content={siteMap} />
+        ) : null}
         <SiteFaq mapped={mapped} modules={modules} />
       </article>
     </>

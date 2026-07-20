@@ -4,21 +4,14 @@ import { getBookingPageContent } from "@/content/repositories/dedicated-pages";
 import { getBookingAddons } from "@/content/repositories/shared-sections";
 import { getCourseBookingCatalog } from "@/lib/booking/catalog";
 import { getPayPalClientId } from "@/lib/payments/paypal";
-import { mergePageMetadata } from "../_shared/metadata";
+import { metadataFromPageSeo } from "../_shared/metadata";
 
 /**
- * Booking page SEO from CMS meta, with static fallbacks when fields are empty.
+ * Booking page SEO from CMS meta only.
  */
 export async function generateMetadata(): Promise<Metadata> {
   const result = await getBookingPageContent().catch(() => null);
-  return mergePageMetadata(
-    {
-      title: "Book Yoga Teacher Training | Nirvana Yoga School",
-      description:
-        "Reserve your residential yoga teacher training in Rishikesh. Pay 20% deposit or full fee securely via PayPal.",
-    },
-    result?.data?.meta,
-  );
+  return metadataFromPageSeo(result?.data?.meta);
 }
 
 type BookingPageProps = {

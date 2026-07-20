@@ -1,7 +1,5 @@
 import { revalidatePath } from "next/cache";
-import { createDefaultBookingAddons } from "@/content/data/booking-addons-defaults";
-import { DEFAULT_EXAM_CERTIFICATION } from "@/content/data/exam-certification-defaults";
-import { createDefaultWhyNirvana } from "@/content/data/why-nirvana-defaults";
+import { createEmptyBookingAddons, createEmptyExamCertification, createEmptyWhyNirvana } from "@/lib/cms/structural-defaults";
 import { jsonError, jsonForbidden, jsonOk } from "@/lib/cms/api-response";
 import { getServerSession } from "@/lib/cms/auth";
 import { invalidateGlobalSettingsCache } from "@/lib/cms/cache";
@@ -55,17 +53,17 @@ export async function GET(
   }
 
   if (key === "whyNirvana") {
-    const value = await ensureSharedSettings(key, createDefaultWhyNirvana());
+    const value = await ensureSharedSettings(key, createEmptyWhyNirvana());
     return jsonOk({ settings: value });
   }
 
   if (key === "examCertification") {
-    const value = await ensureSharedSettings(key, DEFAULT_EXAM_CERTIFICATION);
+    const value = await ensureSharedSettings(key, createEmptyExamCertification());
     return jsonOk({ settings: value });
   }
 
   if (key === "bookingAddons") {
-    const value = await ensureSharedSettings(key, createDefaultBookingAddons());
+    const value = await ensureSharedSettings(key, createEmptyBookingAddons());
     return jsonOk({ settings: value });
   }
 

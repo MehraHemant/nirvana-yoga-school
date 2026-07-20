@@ -1,4 +1,4 @@
-import type { CmsPageKind } from "@/content/data/default-content-types";
+import type { CmsPageKind } from "@/lib/cms/default-content-types";
 import type { ContentTypeInput } from "@/content/types/content-schema";
 import type {
   CmsContentBlock,

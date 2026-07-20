@@ -1,4 +1,3 @@
-import { DEFAULT_TRAVEL_GUIDE } from "@/content/data/travel-guide-defaults";
 import type {
   TravelGuideContent,
   TravelTopicIconKey,
@@ -27,11 +26,9 @@ export type TravelTopic = {
 /**
  * Maps a CMS travel document into client topics with icon components.
  *
- * @param content - Shared travel guide from MySQL (or defaults)
+ * @param content - Shared travel guide from MySQL
  */
-export function mapTravelTopics(
-  content: TravelGuideContent = DEFAULT_TRAVEL_GUIDE,
-): TravelTopic[] {
+export function mapTravelTopics(content: TravelGuideContent): TravelTopic[] {
   return content.topics.map((topic) => ({
     id: topic.id,
     title: topic.title,
@@ -42,11 +39,3 @@ export function mapTravelTopics(
     Icon: ICON_MAP[topic.iconKey] ?? Compass,
   }));
 }
-
-/** Static fallback topics when CMS content is unavailable. */
-export const TRAVEL_TOPICS: TravelTopic[] =
-  mapTravelTopics(DEFAULT_TRAVEL_GUIDE);
-
-export const QUICK_FACTS = DEFAULT_TRAVEL_GUIDE.quickFacts;
-
-export const TRAVEL_INTRO = DEFAULT_TRAVEL_GUIDE.intro;

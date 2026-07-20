@@ -4,10 +4,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BlogHtmlContent } from "@/components/blog/BlogHtmlContent";
 import { Container } from "@/components/ui";
-import type { BlogContentBlock } from "@/data/blogPosts";
+import type { BlogContentBlock } from "@/content/types";
 import { ArrowRight } from "@/icons";
 import { resolveBlogBodyHtml } from "@/lib/cms/blog-html";
 import { fetchBlogPost, getAllBlogSlugs } from "@/lib/content";
+import { metadataFromPageSeo } from "../../_shared/metadata";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -24,30 +25,22 @@ export async function generateStaticParams() {
 }
 
 /**
- * Resolves HTML metadata tag titles and descriptions for individual blog posts.
+ * Blog post SEO from CMS post fields (title, excerpt, image).
  *
  * @param props - Dynamic route properties containing target slug promise
- * @returns Resolved page metadata attributes
  */
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const post = await fetchBlogPost(slug);
+  if (!post) return {};
 
-  if (!post) {
-    return { title: "Article Not Found" };
-  }
-
-  return {
+  return metadataFromPageSeo({
     title: post.title,
     description: post.excerpt,
-    openGraph: {
-      title: `${post.title} | Nirvana Yoga School`,
-      description: post.excerpt,
-      images: [{ url: post.image, width: 1200, height: 630, alt: post.title }],
-    },
-  };
+    ogImage: post.image,
+  });
 }
 
 function blockKey(block: BlogContentBlock, index: number) {

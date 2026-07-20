@@ -1,6 +1,6 @@
 "use client";
 
-import type { NavItem, NavLink } from "@/content/data/navigation/types";
+import type { NavItem, NavLink } from "@/content/types/navigation";
 import type { PageType } from "@/content/types/page-ref";
 import { ChevronDown, Copy, Link as LinkIcon, Plus, Trash } from "@/icons";
 import {

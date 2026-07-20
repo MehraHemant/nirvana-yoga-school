@@ -9,7 +9,7 @@ import {
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Container, Heading, Pill } from "@/components/ui";
-import { DEFAULT_HOME_PAGE_CONTENT } from "@/content/data/dedicated-page-defaults";
+import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 import type { HomeWhyRishikeshContent } from "@/content/types/dedicated-pages";
 import { Play } from "@/icons";
 import { EASE_OUT, fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
@@ -90,7 +90,7 @@ type WhyRishikeshClientProps = {
  * @param props - CMS content plus resolved YouTube metadata
  */
 export default function WhyRishikeshClient({
-  content = DEFAULT_HOME_PAGE_CONTENT.whyRishikesh,
+  content = createEmptyHomePageContent().whyRishikesh,
   videoId,
   videoTitle,
   thumbnailUrl,
@@ -99,13 +99,13 @@ export default function WhyRishikeshClient({
   const sutras =
     content.sutras?.length > 0
       ? content.sutras
-      : DEFAULT_HOME_PAGE_CONTENT.whyRishikesh.sutras;
+      : createEmptyHomePageContent().whyRishikesh.sutras;
   const trustLogos =
     content.trustLogos?.length > 0
       ? content.trustLogos
-      : DEFAULT_HOME_PAGE_CONTENT.whyRishikesh.trustLogos;
+      : createEmptyHomePageContent().whyRishikesh.trustLogos;
   const videoCard =
-    content.videoCard ?? DEFAULT_HOME_PAGE_CONTENT.whyRishikesh.videoCard;
+    content.videoCard ?? createEmptyHomePageContent().whyRishikesh.videoCard;
 
   const [activeSutraIndex, setActiveSutraIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
