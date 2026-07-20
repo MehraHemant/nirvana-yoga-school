@@ -1185,6 +1185,32 @@ details[open] .accordion-icon {
   background: rgb(255 255 255 / 0.96);
 }
 
+/* Yoga Alliance band — force light text on primary red (overrides accent gray). */
+.yoga-alliance-band {
+  color: #fff;
+  /* If any child still uses text-accent / text-muted, map to light on red. */
+  --color-accent: #ffffff;
+  --color-muted: rgb(255 255 255 / 0.82);
+}
+
+.yoga-alliance-band .yoga-alliance-copy {
+  color: rgb(255 255 255 / 0.95) !important;
+}
+
+.yoga-alliance-band .yoga-alliance-muted {
+  color: rgb(255 255 255 / 0.85) !important;
+}
+
+.yoga-alliance-band .yoga-alliance-tag,
+.yoga-alliance-band .yoga-alliance-tag * {
+  color: #fff !important;
+}
+
+.yoga-alliance-band .yoga-alliance-tag {
+  background-color: rgb(255 255 255 / 0.18) !important;
+  border-color: rgb(255 255 255 / 0.35) !important;
+}
+
 /* ── Retreat wellness theme (legacy) ── */
 .retreat-theme {
   --retreat-sand: #f2f6f3;

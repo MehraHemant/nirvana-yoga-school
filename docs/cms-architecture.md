@@ -282,7 +282,7 @@ Server Component (page.tsx)
 ```
 Browser → /admin/*
     → Session cookie (JWT in httpOnly cookie, 8h TTL)
-    → /api/admin/* (middleware validates session + role)
+    → /api/admin/* (proxy validates session + role)
 
 Admin UI
     → Page editor (site/retreat/venue): metadata + ordered sections
@@ -489,7 +489,7 @@ src/app/admin/
   pages/page.tsx
   pages/[slug]/page.tsx
   media/page.tsx
-src/middleware.ts                 Protect /admin + /api/admin
+src/proxy.ts                      Protect /admin + /api/admin
 ```
 
 ---

@@ -7,9 +7,12 @@ const PUBLIC_ADMIN_PATHS = ["/admin/login", "/api/admin/auth/login"];
 
 /**
  * Protect admin UI and API routes with session auth.
- * Edge-safe: JWT verification only (no Neon).
+ * Next.js Proxy always runs on the Node.js runtime.
+ * Session check is JWT-only (no Neon) so it stays lightweight.
+ *
+ * @param request - Incoming Next.js request
  */
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const isAdminUi = pathname.startsWith("/admin");

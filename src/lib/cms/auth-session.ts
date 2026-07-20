@@ -86,7 +86,7 @@ export async function getSessionFromRequest(
 /**
  * Read session from NextRequest cookies (Edge-safe — no Neon).
  *
- * @param request - Next.js middleware / edge request
+ * @param request - Next.js proxy / edge request
  */
 export async function getSessionFromNextRequest(
   request: NextRequest,
