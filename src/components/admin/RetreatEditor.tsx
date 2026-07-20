@@ -6,11 +6,12 @@ import { AdminSaveBar } from "@/components/admin/AdminSaveBar";
 import { AdminSectionJumpNav } from "@/components/admin/AdminSectionJumpNav";
 import { CollapsiblePanel } from "@/components/admin/CollapsiblePanel";
 import { ImageField } from "@/components/admin/ImageField";
-import { ImageListField } from "@/components/admin/ImageListField";
 import { ResidentialLifeFields } from "@/components/admin/LodgingFields";
 import { FaqModuleEditor } from "@/components/admin/modules/FaqModuleEditor";
 import { HeroModuleEditor } from "@/components/admin/modules/HeroModuleEditor";
+import { InclusionsModuleEditor } from "@/components/admin/modules/InclusionsModuleEditor";
 import { ModuleFlagsPanel } from "@/components/admin/modules/ModuleFlagsPanel";
+import { OverviewModuleEditor } from "@/components/admin/modules/OverviewModuleEditor";
 import { StickyNavModuleEditor } from "@/components/admin/modules/StickyNavModuleEditor";
 import { PageSeoFields } from "@/components/admin/PageSeoFields";
 import { SharedSectionLinks } from "@/components/admin/SharedSectionLinks";
@@ -38,7 +39,7 @@ import { parseApiJson } from "@/lib/types/api";
 type RetreatEditorProps = {
   /** Retreat product document */
   initialRetreat: RetreatDocument;
-  /** Hero / sticky nav modules */
+  /** Page modules (hero, overview, pricing copy, lodging, FAQ, …) */
   initialModules: PageModulesDocument | null;
   slug: string;
   backHref?: string;
@@ -68,8 +69,72 @@ const RETREAT_PANEL_KEYS = RETREAT_JUMP_SECTIONS.map(
 );
 
 /**
+ * True when overview presentation fields are unset (legacy product-only pages).
+ *
+ * @param overview - Overview module from page_modules
+ */
+function isOverviewEmpty(
+  overview: PageModulesDocument["overview"],
+): boolean {
+  return (
+    !overview.eyebrow?.trim() &&
+    !overview.title?.trim() &&
+    !overview.lead?.trim() &&
+    !overview.supportingCopy?.trim() &&
+    overview.glance.length === 0 &&
+    overview.media.items.length === 0
+  );
+}
+
+/**
+ * Seeds empty overview / inclusions module fields from the retreat product.
+ *
+ * @param modules - Modules document (possibly scaffolded)
+ * @param retreat - Retreat product used as fallback source
+ */
+function withProductModuleFallbacks(
+  modules: PageModulesDocument,
+  retreat: RetreatDocument,
+): PageModulesDocument {
+  let next = modules;
+
+  if (isOverviewEmpty(next.overview)) {
+    next = {
+      ...next,
+      overview: {
+        ...next.overview,
+        eyebrow: retreat.eyebrow ?? "",
+        title: retreat.title,
+        lead: retreat.overview,
+        supportingCopy: next.overview.supportingCopy ?? "",
+        glance: retreat.duration
+          ? [{ label: "Duration", value: retreat.duration }]
+          : [],
+        media: {
+          mode: "carousel",
+          items: (retreat.overviewImages ?? []).map((url) => ({
+            type: "image" as const,
+            url,
+            alt: "",
+          })),
+        },
+      },
+    };
+  }
+
+  if (!next.inclusions.items.length && retreat.inclusions.length) {
+    next = {
+      ...next,
+      inclusions: { ...next.inclusions, items: [...retreat.inclusions] },
+    };
+  }
+
+  return next;
+}
+
+/**
  * Builds the modules document when a legacy retreat lacks persisted modules.
- * Seeds FAQ items from the retreat product when modules FAQs are empty.
+ * Seeds overview, inclusions, and FAQ items from the retreat product when empty.
  *
  * @param initialModules - Persisted modules, when available
  * @param retreat - Retreat document used to scaffold the hero / FAQs
@@ -93,12 +158,16 @@ function retreatModules(
         return scaffold;
       })();
 
-  if (base.faqs?.items?.length || !retreat.faqs?.length) return base;
+  const withFallbacks = withProductModuleFallbacks(base, retreat);
+
+  if (withFallbacks.faqs?.items?.length || !retreat.faqs?.length) {
+    return withFallbacks;
+  }
 
   return {
-    ...base,
+    ...withFallbacks,
     faqs: {
-      ...base.faqs,
+      ...withFallbacks.faqs,
       items: retreat.faqs.map((faq) => ({
         question: faq.question,
         answer: faq.answer,
@@ -218,7 +287,13 @@ export function RetreatEditor({
               ? modules.hero
               : section.slug === "sticky-nav"
                 ? modules.stickyNav
-                : undefined,
+                : section.slug === "overview"
+                  ? modules.overview
+                  : section.slug === "inclusions"
+                    ? modules.inclusions
+                    : section.slug === "packages"
+                      ? modules.pricing
+                      : undefined,
         ),
       })),
     [modules],
@@ -256,6 +331,13 @@ export function RetreatEditor({
       const faqItems = modulesToSave.faqs?.items ?? [];
       const retreatToSave = {
         ...retreat,
+        // Keep product fallbacks aligned with modules the live page prefers.
+        eyebrow: modulesToSave.overview.eyebrow || retreat.eyebrow,
+        overview: modulesToSave.overview.lead || retreat.overview,
+        overviewImages: modulesToSave.overview.media.items
+          .filter((item) => item.type === "image" && item.url.trim())
+          .map((item) => item.url),
+        inclusions: modulesToSave.inclusions.items,
         faqs: faqItems.map((faq) => ({
           question: faq.question,
           answer: faq.answer,
@@ -284,8 +366,8 @@ export function RetreatEditor({
           </Link>
           <h1 className="admin-title">{retreat.title}</h1>
           <p className="admin-subtitle">
-            Retreat layout — schedule, packages, lodging &amp; food (no
-            syllabus).
+            Retreat layout — overview/pricing presentation via page modules;
+            day schedule, packages, lodging (no syllabus).
           </p>
         </div>
         <a
@@ -314,6 +396,21 @@ export function RetreatEditor({
               subtitle="SEO title, description, OG image — overrides site defaults when set"
               {...panelOpenProps("meta")}
             >
+              <TextField
+                label="Listing title"
+                value={retreat.title}
+                onChange={(title) => setRetreat({ ...retreat, title })}
+                hint="Admin lists, booking links, and fallbacks when overview/hero titles are empty."
+              />
+              <TextField
+                label="Listing description"
+                value={retreat.description}
+                onChange={(description) =>
+                  setRetreat({ ...retreat, description })
+                }
+                multiline
+                hint="Short summary used as a fallback when the hero subtitle is empty."
+              />
               <PageSeoFields
                 value={modules.meta}
                 onChange={(meta) => setModules({ ...modules, meta })}
@@ -399,67 +496,27 @@ export function RetreatEditor({
           </div>
 
           <div className="admin-section-shell">
-            <CollapsiblePanel
-              id={panelId("overview")}
+            <OverviewModuleEditor
+              overview={modules.overview}
+              onChange={(overview) => setModules({ ...modules, overview })}
+              panelId={panelId("overview")}
               step={5}
-              title="Overview"
+              description="Live overview section — eyebrow, title, lead, supporting copy, glance stats, and media."
               {...panelOpenProps("overview")}
-            >
-              <TextField
-                label="Eyebrow"
-                value={retreat.eyebrow}
-                onChange={(eyebrow) => setRetreat({ ...retreat, eyebrow })}
-              />
-              <TextField
-                label="Title"
-                value={retreat.title}
-                onChange={(title) => setRetreat({ ...retreat, title })}
-              />
-              <TextField
-                label="Description"
-                value={retreat.description}
-                onChange={(description) =>
-                  setRetreat({ ...retreat, description })
-                }
-                multiline
-                rows={6}
-              />
-              <TextField
-                label="Overview body"
-                value={retreat.overview}
-                onChange={(overview) => setRetreat({ ...retreat, overview })}
-                multiline
-                rows={10}
-                hint="Full overview body — no length limit."
-              />
-              <ImageListField
-                label="Overview images"
-                items={retreat.overviewImages}
-                onChange={(images) =>
-                  setRetreat({
-                    ...retreat,
-                    overviewImages: images.map((img) => img.url),
-                  })
-                }
-              />
-            </CollapsiblePanel>
+            />
           </div>
 
           <div className="admin-section-shell">
-            <CollapsiblePanel
-              id={panelId("inclusions")}
+            <InclusionsModuleEditor
+              inclusions={modules.inclusions}
+              onChange={(inclusions) =>
+                setModules({ ...modules, inclusions })
+              }
+              panelId={panelId("inclusions")}
               step={6}
-              title="Inclusions"
+              description="What is included on the public retreat page."
               {...panelOpenProps("inclusions")}
-            >
-              <StringListField
-                label="Included"
-                items={retreat.inclusions}
-                onChange={(inclusions) =>
-                  setRetreat({ ...retreat, inclusions })
-                }
-              />
-            </CollapsiblePanel>
+            />
           </div>
 
           <div className="admin-section-shell">
@@ -556,8 +613,31 @@ export function RetreatEditor({
               id={panelId("packages")}
               step={10}
               title="Packages & dates"
+              subtitle="Pricing intro copy lives in page modules; packages/dates stay on the retreat product"
               {...panelOpenProps("packages")}
             >
+              <TextField
+                label="Pricing description"
+                value={modules.pricing.description}
+                onChange={(description) =>
+                  setModules({
+                    ...modules,
+                    pricing: { ...modules.pricing, description },
+                  })
+                }
+                multiline
+                hint="Intro copy above packages on the public Dates & Fees section."
+              />
+              <TextField
+                label="Duration label"
+                value={modules.pricing.duration ?? ""}
+                onChange={(duration) =>
+                  setModules({
+                    ...modules,
+                    pricing: { ...modules.pricing, duration },
+                  })
+                }
+              />
               {retreat.packages.map((pkg, index) => (
                 <div
                   key={packageKeys.keys[index]}

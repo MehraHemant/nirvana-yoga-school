@@ -14,7 +14,6 @@ import {
   WhatIsIncluded,
   WhyNirvana,
 } from "@/components/courses";
-import { TestimonialsSection } from "@/components/home";
 import {
   RetreatHighlightsBar,
   RetreatScheduleSection,
@@ -28,63 +27,6 @@ import {
 import { resolveSectionHtmlId } from "@/lib/html-id";
 import type { RetreatPageData } from "./types";
 
-const RETREAT_OVERVIEW_DETAILS: Record<
-  string,
-  {
-    title: React.ReactNode;
-    supportingCopy: string;
-    level: string;
-    certification: string;
-    quoteText: string;
-    quoteAttribution: string;
-  }
-> = {
-  "3-day-yoga-retreat-in-rishikesh-india": {
-    title: (
-      <>
-        Experience a Restorative{" "}
-        <span className="text-primary">Himalayan Escape</span>
-      </>
-    ),
-    supportingCopy:
-      "Our 3-day short yoga and meditation retreat is designed specifically for individuals looking to step away from busy routines and reset their energy in a quiet environment. Located near the sacred Ganges river, this program provides a gentle introduction to traditional Hatha yoga postures, pranayama breathing, and holistic ayurvedic massages. It is the perfect weekend getaway or travel extension to experience the spiritual atmosphere of Rishikesh without a long-term commitment.",
-    level: "Beginner Friendly",
-    certification: "Sound & Yoga Wellness",
-    quoteText:
-      "Sometimes the most productive thing you can do is relax and let your mind drift in the lap of nature.",
-    quoteAttribution: "Himalayan Wisdom",
-  },
-  "5-day-yoga-retreat-in-rishikesh-india": {
-    title: (
-      <>
-        Reconnect, Rebalance &amp; <span className="text-primary">Heal</span> in
-        Rishikesh
-      </>
-    ),
-    supportingCopy:
-      "The 5-day yoga and meditation retreat is a complete immersive experience that allows you to dive deeper into traditional wellness practices. Throughout the five days, you will experience daily Hatha and Yin classes, interactive sound healing therapies, and traditional cleansing ceremonies. With freshly prepared organic meals and excursions to nearby mountain shrines, this program offers a supportive, nurturing container to release accumulated stress, process emotional blocks, and carry a deep sense of peace back home.",
-    level: "All Experience Levels",
-    certification: "Ayurveda & Yoga Wellness",
-    quoteText: "An experience that enriches your soul — not just your memory.",
-    quoteAttribution: "Nirvana Wellness Guide",
-  },
-  "7-day-yoga-retreat-in-rishikesh-india": {
-    title: (
-      <>
-        A Transformative Week of{" "}
-        <span className="text-primary">Spiritual Renewal</span>
-      </>
-    ),
-    supportingCopy:
-      "Our 7-day retreat is a week-long journey of self-reflection, detoxification, and alignment. This comprehensive program blends daily dynamic asana sessions with restorative afternoon practices, detailed pranayama studies, and ancient mantra chanting. In addition to ashram-based classes, you will embark on guided hikes to scenic temple peaks and attend evening prayer ceremonies on the banks of the Ganga. It is an ideal sanctuary for students, yoga teachers, and wellness seekers seeking a profound reset of their body, mind, and spirit.",
-    level: "Beginner to Intermediate",
-    certification: "Holistic Yoga & Meditation",
-    quoteText:
-      "Yoga is a light, which once lit, will never dim. The better your practice, the brighter the flame.",
-    quoteAttribution: "B.K.S. Iyengar",
-  },
-};
-
 export default function RetreatClient({
   retreat,
   mapped,
@@ -97,11 +39,8 @@ export default function RetreatClient({
   travel,
   examCertification,
 }: RetreatPageData) {
-  const details = modules
-    ? null
-    : (RETREAT_OVERVIEW_DETAILS[retreat.slug] ??
-      RETREAT_OVERVIEW_DETAILS["5-day-yoga-retreat-in-rishikesh-india"]);
-  const overviewValue = (label: string, fallback: string) =>
+  /** Glance value from CMS modules, else empty (no improvised filler). */
+  const overviewValue = (label: string, fallback = "") =>
     modules?.overview.glance.find((item) => item.label === label)?.value ??
     fallback;
 
@@ -211,26 +150,22 @@ export default function RetreatClient({
           <CourseOverview
             htmlId={resolveSectionHtmlId("overview", modules?.overview._id)}
             overview={modules?.overview.lead ?? retreat.overview}
-            level={overviewValue(
-              "Level",
-              details?.level ?? "All levels welcome",
-            )}
+            level={overviewValue("Level")}
             duration={overviewValue("Duration", retreat.duration)}
-            certification={overviewValue(
-              "Certification",
-              details?.certification ?? "Yoga & Meditation",
-            )}
-            fee={mapped.fee}
+            certification={overviewValue("Certification")}
+            fee={
+              overviewValue("Program Fee") ||
+              overviewValue("Fee") ||
+              mapped.fee
+            }
             featureImages={
               modules?.overview.media.items
                 .filter((item) => item.type === "image")
                 .map((item) => item.url) ?? retreat.overviewImages
             }
             eyebrow={modules?.overview.eyebrow ?? retreat.eyebrow}
-            title={modules?.overview.title ?? details?.title ?? retreat.title}
-            supportingCopy={
-              modules?.overview.supportingCopy ?? details?.supportingCopy ?? ""
-            }
+            title={modules?.overview.title ?? retreat.title}
+            supportingCopy={modules?.overview.supportingCopy ?? ""}
           />
         ) : null}
 
@@ -275,9 +210,6 @@ export default function RetreatClient({
             buildWhatsAppHref={retreatWhatsAppHref}
           />
         ) : null}
-
-        {/* Section 6: Testimonials */}
-        {/* <TestimonialsSection /> */}
 
         {showWhyNirvana ? (
           <WhyNirvana content={whyNirvana} reviews={reviews} />

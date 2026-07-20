@@ -58,12 +58,8 @@ export function mapTeachersFromPeople(
     seen.add(slug);
     teachers.push({
       name: person.name,
-      experienceSummary: refineTeacherSummary(
-        person.summary ?? "Experienced faculty",
-      ),
-      image:
-        person.image ??
-        "https://www.nirvanayogaschoolindia.com/img/teacher/jeet-thapliyal.webp",
+      experienceSummary: refineTeacherSummary(person.summary ?? ""),
+      image: person.image ?? "",
       bio: refineTeacherBio(person.bio ?? ""),
       education: person.education ?? [],
       detailedExperience: person.experience ?? [],

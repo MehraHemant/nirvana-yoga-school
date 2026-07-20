@@ -7,6 +7,8 @@ import { AdminSectionJumpNav } from "@/components/admin/AdminSectionJumpNav";
 import { CollapsiblePanel } from "@/components/admin/CollapsiblePanel";
 import { ImageField } from "@/components/admin/ImageField";
 import { HeroModuleEditor } from "@/components/admin/modules/HeroModuleEditor";
+import { InclusionsModuleEditor } from "@/components/admin/modules/InclusionsModuleEditor";
+import { OverviewModuleEditor } from "@/components/admin/modules/OverviewModuleEditor";
 import { StickyNavModuleEditor } from "@/components/admin/modules/StickyNavModuleEditor";
 import { PageSeoFields } from "@/components/admin/PageSeoFields";
 import { StringListField } from "@/components/admin/StringListField";
@@ -29,7 +31,7 @@ import type {
 type OnlineCourseEditorProps = {
   /** Online course document (live body source) */
   initialCourse: OnlineCourseDocument;
-  /** Page modules (hero + sticky nav only) */
+  /** Page modules (hero, overview, pricing copy, sticky nav, …) */
   initialModules: PageModulesDocument | null;
   slug: string;
   backHref?: string;
@@ -60,6 +62,71 @@ const ONLINE_PANEL_KEYS = ONLINE_COURSE_JUMP_SECTIONS.map(
 );
 
 /**
+ * True when overview presentation fields are unset (legacy product-only pages).
+ *
+ * @param overview - Overview module from page_modules
+ */
+function isOverviewEmpty(
+  overview: PageModulesDocument["overview"],
+): boolean {
+  return (
+    !overview.eyebrow?.trim() &&
+    !overview.title?.trim() &&
+    !overview.lead?.trim() &&
+    !overview.supportingCopy?.trim() &&
+    overview.glance.length === 0 &&
+    overview.media.items.length === 0
+  );
+}
+
+/**
+ * Seeds empty overview / inclusions / pricing copy from the online course product.
+ *
+ * @param modules - Modules document (possibly scaffolded)
+ * @param course - Online course product used as fallback source
+ */
+function withProductModuleFallbacks(
+  modules: PageModulesDocument,
+  course: OnlineCourseDocument,
+): PageModulesDocument {
+  let next = modules;
+
+  if (isOverviewEmpty(next.overview)) {
+    next = {
+      ...next,
+      overview: {
+        ...next.overview,
+        title: course.title,
+        lead: course.overview,
+        supportingCopy: course.subtitle || (next.overview.supportingCopy ?? ""),
+      },
+    };
+  }
+
+  if (!next.inclusions.items.length && course.inclusions.length) {
+    next = {
+      ...next,
+      inclusions: { ...next.inclusions, items: [...course.inclusions] },
+    };
+  }
+
+  if (
+    !next.pricing.description?.trim() &&
+    course.pricingDescription?.trim()
+  ) {
+    next = {
+      ...next,
+      pricing: {
+        ...next.pricing,
+        description: course.pricingDescription,
+      },
+    };
+  }
+
+  return next;
+}
+
+/**
  * Builds the modules document when a legacy online course lacks persisted modules.
  *
  * @param initialModules - Persisted modules, when available
@@ -69,18 +136,23 @@ function onlineCourseModules(
   initialModules: PageModulesDocument | null,
   course: OnlineCourseDocument,
 ): PageModulesDocument {
-  if (initialModules?.hero) return initialModules;
-  const scaffold = createEmptyPageModules("split-copy");
-  scaffold.hero = {
-    ...scaffold.hero,
-    type: "split-copy",
-    title: course.title,
-    subtitle: course.subtitle,
-    previewType: "image",
-    previewUrl: course.image || "",
-  };
-  scaffold.stickyNav = { items: course.navItems ?? [] };
-  return scaffold;
+  const base = initialModules?.hero
+    ? initialModules
+    : (() => {
+        const scaffold = createEmptyPageModules("split-copy");
+        scaffold.hero = {
+          ...scaffold.hero,
+          type: "split-copy",
+          title: course.title,
+          subtitle: course.subtitle,
+          previewType: "image",
+          previewUrl: course.image || "",
+        };
+        scaffold.stickyNav = { items: course.navItems ?? [] };
+        return scaffold;
+      })();
+
+  return withProductModuleFallbacks(base, course);
 }
 
 /**
@@ -148,7 +220,13 @@ export function OnlineCourseEditor({
               ? modules.hero
               : section.slug === "sticky-nav"
                 ? modules.stickyNav
-                : undefined,
+                : section.slug === "overview"
+                  ? modules.overview
+                  : section.slug === "inclusions"
+                    ? modules.inclusions
+                    : section.slug === "pricing"
+                      ? modules.pricing
+                      : undefined,
         ),
       })),
     [modules],
@@ -180,14 +258,23 @@ export function OnlineCourseEditor({
     setSaved(false);
     setError("");
     try {
+      // Keep product fallbacks aligned with modules the live page prefers.
+      const courseToSave = {
+        ...course,
+        overview: modules.overview.lead || course.overview,
+        inclusions: modules.inclusions.items.length
+          ? modules.inclusions.items
+          : course.inclusions,
+        pricingDescription:
+          modules.pricing.description || course.pricingDescription,
+        navItems: modules.stickyNav?.items ?? course.navItems,
+      };
       await onSave({
-        course: {
-          ...course,
-          navItems: modules.stickyNav?.items ?? course.navItems,
-        },
+        course: courseToSave,
         modules,
       });
-      setBaseline(JSON.stringify({ course, modules }));
+      setCourse(courseToSave);
+      setBaseline(JSON.stringify({ course: courseToSave, modules }));
       setSaved(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Save failed");
@@ -205,7 +292,7 @@ export function OnlineCourseEditor({
           </Link>
           <h1 className="admin-title">{course.title}</h1>
           <p className="admin-subtitle">
-            Online layout — document fields + hero/nav modules only.
+            Online layout — overview/pricing presentation via page modules.
           </p>
         </div>
         <a
@@ -256,9 +343,22 @@ export function OnlineCourseEditor({
               id={panelId("basics")}
               step={3}
               title="Trust bar / basics"
-              subtitle="Meta shown under hero"
+              subtitle="Listing identity and meta shown under hero"
               {...panelOpenProps("basics")}
             >
+              <TextField
+                label="Listing title"
+                value={course.title}
+                onChange={(title) => setCourse({ ...course, title })}
+                hint="Admin lists and booking — overview section title is edited under Overview."
+              />
+              <TextField
+                label="Listing subtitle"
+                value={course.subtitle}
+                onChange={(subtitle) => setCourse({ ...course, subtitle })}
+                multiline
+                hint="Fallback when the hero subtitle is empty."
+              />
               <div className="admin-grid-2">
                 <TextField
                   label="Duration"
@@ -290,6 +390,11 @@ export function OnlineCourseEditor({
                 value={course.image}
                 onChange={(image) => setCourse({ ...course, image })}
               />
+              <StringListField
+                label="Highlights"
+                items={course.highlights}
+                onChange={(highlights) => setCourse({ ...course, highlights })}
+              />
             </CollapsiblePanel>
           </div>
 
@@ -316,52 +421,27 @@ export function OnlineCourseEditor({
           </div>
 
           <div className="admin-section-shell">
-            <CollapsiblePanel
-              id={panelId("overview")}
+            <OverviewModuleEditor
+              overview={modules.overview}
+              onChange={(overview) => setModules({ ...modules, overview })}
+              panelId={panelId("overview")}
               step={5}
-              title="Overview"
+              description="Live overview — title, lead, and supporting copy (shown as the section description)."
               {...panelOpenProps("overview")}
-            >
-              <TextField
-                label="Title"
-                value={course.title}
-                onChange={(title) => setCourse({ ...course, title })}
-              />
-              <TextField
-                label="Subtitle"
-                value={course.subtitle}
-                onChange={(subtitle) => setCourse({ ...course, subtitle })}
-                multiline
-              />
-              <TextField
-                label="Overview"
-                value={course.overview}
-                onChange={(overview) => setCourse({ ...course, overview })}
-                multiline
-                rows={10}
-                hint="Full overview body — no length limit."
-              />
-              <StringListField
-                label="Highlights"
-                items={course.highlights}
-                onChange={(highlights) => setCourse({ ...course, highlights })}
-              />
-            </CollapsiblePanel>
+            />
           </div>
 
           <div className="admin-section-shell">
-            <CollapsiblePanel
-              id={panelId("inclusions")}
+            <InclusionsModuleEditor
+              inclusions={modules.inclusions}
+              onChange={(inclusions) =>
+                setModules({ ...modules, inclusions })
+              }
+              panelId={panelId("inclusions")}
               step={6}
-              title="Inclusions"
+              description="What is included on the public online course page."
               {...panelOpenProps("inclusions")}
-            >
-              <StringListField
-                label="Included"
-                items={course.inclusions}
-                onChange={(inclusions) => setCourse({ ...course, inclusions })}
-              />
-            </CollapsiblePanel>
+            />
           </div>
 
           <div className="admin-section-shell">
@@ -373,11 +453,15 @@ export function OnlineCourseEditor({
             >
               <TextField
                 label="Pricing description"
-                value={course.pricingDescription}
-                onChange={(pricingDescription) =>
-                  setCourse({ ...course, pricingDescription })
+                value={modules.pricing.description}
+                onChange={(description) =>
+                  setModules({
+                    ...modules,
+                    pricing: { ...modules.pricing, description },
+                  })
                 }
                 multiline
+                hint="Intro copy on the public pricing card."
               />
               {course.pricing.map((opt, index) => (
                 <div

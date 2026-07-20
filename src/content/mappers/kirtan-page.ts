@@ -456,8 +456,7 @@ export function mapKirtanPage(page: SitePageDocument): MappedSitePage {
     ctaPrimaryHref: enquireNowHref(page.title),
     ctaSecondary: "View Curriculum",
     ctaSecondaryHref: "#syllabus",
-    pricingDescription:
-      "All-inclusive packages cover your 5-day program, sattvic meals, and ashram stay. Some rooms have private balconies; others share a balcony.",
+    pricingDescription: base.pricingDescription,
   };
 
   return {

@@ -25,14 +25,8 @@ function mapPricing(packages: RetreatDocument["packages"]): PricingOption[] {
     roomType: pkg.title,
     price: pkg.price,
     originalPrice: pkg.originalPrice,
-    description:
-      pkg.description ??
-      "Includes stay, sattvic meals, and the full retreat program.",
-    features: pkg.features ?? [
-      "Daily yoga & meditation",
-      "Sattvic meals included",
-      "Excursions & ceremonies",
-    ],
+    description: pkg.description ?? "",
+    features: pkg.features ?? [],
     image: pkg.image,
   }));
 }
@@ -151,8 +145,7 @@ export function mapRetreatPage(
     heroImage: heroImages[0] ?? retreat.heroImage,
     heroImages,
     pricing: filterRetreatLodgingPricing(mapPricing(retreat.packages)),
-    pricingDescription:
-      "Choose your dates and room — packages include stay, meals, and the full retreat program.",
+    pricingDescription: "",
     batches: mapBatches(retreat.dates),
   };
 }

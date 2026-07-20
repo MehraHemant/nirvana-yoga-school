@@ -7,7 +7,6 @@ import {
   PageHeroRenderer,
 } from "@/components/courses";
 import { FAQSection } from "@/components/ui";
-import type { OverviewTitleKey } from "@/content/mappers/site-page-copy";
 import {
   isSectionLive,
   shouldRenderSection,
@@ -16,55 +15,6 @@ import { resolveSectionHtmlId } from "@/lib/html-id";
 import type { SiteClientProps } from "./types";
 
 export type { SiteClientProps };
-
-function siteOverviewTitle(key: OverviewTitleKey, eyebrow: string) {
-  switch (key) {
-    case "retreat-3":
-      return (
-        <>
-          A short <span className="text-primary">Himalayan</span> reset
-        </>
-      );
-    case "retreat-5":
-      return (
-        <>
-          Five days to <span className="text-primary">restore</span> & renew
-        </>
-      );
-    case "retreat-7":
-      return (
-        <>
-          A week of <span className="text-primary">deep</span> immersion
-        </>
-      );
-    case "ytt-hub":
-      return (
-        <>
-          Train where yoga <span className="text-primary">began</span>
-        </>
-      );
-    case "teachers":
-      return (
-        <>
-          Lineage teachers, <span className="text-primary">living</span>{" "}
-          tradition
-        </>
-      );
-    case "about":
-      return (
-        <>
-          Our story in <span className="text-primary">Rishikesh</span>
-        </>
-      );
-    default:
-      return (
-        <>
-          Discover <span className="text-primary">{eyebrow.toLowerCase()}</span>{" "}
-          at Nirvana
-        </>
-      );
-  }
-}
 
 /**
  * Site page hero + sticky nav, gated by module live flags.
@@ -146,12 +96,27 @@ export function SiteOverview({
   if (modules) {
     if (!isSectionLive(modules.overview)) return null;
     const overview = modules.overview;
+    const level =
+      overview.glance.find((item) => item.label === "Level")?.value ?? "";
+    const duration =
+      overview.glance.find((item) => item.label === "Duration")?.value ??
+      mapped.duration;
+    const certification =
+      overview.glance.find((item) => item.label === "Certification")?.value ??
+      "";
+    const fee =
+      overview.glance.find((item) => item.label === "Program Fee")?.value ??
+      overview.glance.find((item) => item.label === "Fee")?.value ??
+      "";
+
     return (
       <CourseOverview
         htmlId={resolveSectionHtmlId("overview", overview._id)}
         overview={overview.lead}
-        level="All levels welcome"
-        duration={mapped.duration}
+        level={level}
+        duration={duration}
+        certification={certification}
+        fee={fee}
         featureImages={overview.media.items
           .filter((item) => item.type === "image")
           .map((item) => item.url)}
@@ -169,11 +134,13 @@ export function SiteOverview({
   return (
     <CourseOverview
       overview={mapped.overview}
-      level="All levels welcome"
+      level=""
       duration={mapped.duration}
+      certification=""
+      fee=""
       featureImages={mapped.heroImages.slice(1, 5)}
       eyebrow={copy.overviewEyebrow}
-      title={siteOverviewTitle(copy.overviewTitleKey, page.eyebrow)}
+      title={page.title}
       supportingCopy={copy.overviewSupporting ?? ""}
     />
   );

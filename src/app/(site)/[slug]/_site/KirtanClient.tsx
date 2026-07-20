@@ -125,7 +125,7 @@ export default function KirtanClient({
             overview={modules?.overview.lead ?? mapped.overview ?? ""}
             level={
               modules?.overview.glance.find((item) => item.label === "Level")
-                ?.value ?? "Beginners welcome"
+                ?.value ?? ""
             }
             duration={
               modules?.overview.glance.find((item) => item.label === "Duration")
@@ -134,12 +134,15 @@ export default function KirtanClient({
             fee={
               modules?.overview.glance.find(
                 (item) => item.label === "Program Fee",
-              )?.value ?? fee
+              )?.value ??
+              modules?.overview.glance.find((item) => item.label === "Fee")
+                ?.value ??
+              fee
             }
             certification={
               modules?.overview.glance.find(
                 (item) => item.label === "Certification",
-              )?.value ?? "Certificate on completion"
+              )?.value ?? ""
             }
             featureImages={
               modules?.overview.media.items
@@ -149,11 +152,9 @@ export default function KirtanClient({
                 ? kirtan.overviewImages
                 : mapped.heroImages.slice(1, 5))
             }
-            eyebrow={modules?.overview.eyebrow ?? "Program Overview"}
+            eyebrow={modules?.overview.eyebrow ?? page.eyebrow}
             title={modules?.overview.title ?? page.title}
-            supportingCopy={
-              modules?.overview.supportingCopy ?? copy.overviewSupporting ?? ""
-            }
+            supportingCopy={modules?.overview.supportingCopy ?? ""}
           />
         ) : null}
 

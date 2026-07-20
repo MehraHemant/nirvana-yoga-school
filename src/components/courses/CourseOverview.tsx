@@ -60,24 +60,21 @@ export default function CourseOverview({
   overview,
   level,
   duration,
-  certification = "RYT-200, Yoga Alliance",
-  fee = "649 USD",
+  certification = "",
+  fee = "",
   videos = [],
   featureImages = [],
   overviewImages = [],
-  eyebrow = "The Inner Path",
-  title = (
-    <>
-      Transform your practice &amp; <span className="text-primary">awaken</span>{" "}
-      your true purpose.
-    </>
-  ),
-  supportingCopy = "Our residential yoga training program is designed to facilitate physical purification, emotional release, and intellectual understanding. By immersing yourself completely in the ashram lifecycle, you step away from modern distractions to cultivate discipline, self-inquiry, and authentic teachings handed down through generations.",
+  eyebrow = "",
+  title = "",
+  supportingCopy = "",
   htmlId = "overview",
 }: CourseOverviewProps) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
-  const resolvedSupporting = supportingCopy === "" ? undefined : supportingCopy;
+  const resolvedSupporting = supportingCopy.trim()
+    ? supportingCopy
+    : undefined;
   const showVideoPanel = videos.length > 0;
   const carouselImages =
     overviewImages.length > 0
@@ -115,7 +112,7 @@ export default function CourseOverview({
       hint: "All-inclusive tuition & board",
       highlight: true,
     },
-  ] as const;
+  ].filter((spec) => Boolean(spec.value?.trim()));
 
   return (
     <section
@@ -255,6 +252,7 @@ export default function CourseOverview({
             </motion.div>
           ) : null}
 
+          {overviewSpecs.length > 0 ? (
           <motion.div
             initial="hidden"
             whileInView="visible"
@@ -321,6 +319,7 @@ export default function CourseOverview({
               ))}
             </div>
           </motion.div>
+          ) : null}
         </div>
       </Container>
     </section>

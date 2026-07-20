@@ -131,9 +131,10 @@ export function createEmptyPageModules(
     hero,
     stickyNav: { items: [...DEFAULT_RESIDENTIAL_NAV] },
     overview: {
-      eyebrow: "The Inner Path",
-      title: "Overview",
+      eyebrow: "",
+      title: "",
       lead: "",
+      supportingCopy: "",
       glance: [],
       media: { mode: "image", items: [] },
     },

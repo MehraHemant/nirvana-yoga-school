@@ -4,10 +4,9 @@ import {
   createRetreatVenueGallery,
 } from "@/lib/cms/venue-galleries";
 import {
-  getPagePresentation,
+  refineHeroSubtitle,
   refineInclusions,
   refineOverview,
-  refineSupportingCopy,
 } from "@/content/mappers/site-page-copy";
 import {
   DEFAULT_ELIGIBILITY_REQUIREMENTS,
@@ -86,11 +85,10 @@ export function buildModulesFromCourse(
     hero,
     stickyNav: { items: [...DEFAULT_RESIDENTIAL_NAV] },
     overview: {
-      eyebrow: "The Inner Path",
-      title: "Course Overview",
+      eyebrow: "",
+      title: course.title,
       lead: course.overview,
-      supportingCopy:
-        "Live the ashram rhythm — morning practice, philosophy, anatomy, teaching labs, and community meals — while earning a credential recognized worldwide.",
+      supportingCopy: "",
       glance: buildGlanceFromCourse(course),
       media: {
         mode: courseMedia.videos.length > 0 ? "video" : "carousel",
@@ -108,17 +106,15 @@ export function buildModulesFromCourse(
       },
     },
     inclusions: {
-      eyebrow: "Fine Print",
-      title: "What is Included in Your Fee",
-      description:
-        "We operate on complete transparency. Your program fee covers all essential living, training, and excursion expenses during your stay so you can focus entirely on your training.",
+      eyebrow: "",
+      title: "",
+      description: "",
       items: course.inclusions,
     },
     eligibility: {
-      eyebrow: "Admission Standards",
-      title: "Who Can Join",
-      description:
-        "Our programs welcome sincere students ready for immersive ashram living and dedicated study.",
+      eyebrow: "",
+      title: "",
+      description: "",
       requirements: [...DEFAULT_ELIGIBILITY_REQUIREMENTS],
       showAllianceBadge: true,
     },
@@ -226,16 +222,23 @@ export function buildModulesFromSitePage(
   page: SitePageDocument,
   options?: { isVenue?: boolean; isHub?: boolean },
 ): PageModulesDocument {
-  const presentation = getPagePresentation(page);
   const overviewSection = findSection(page, /^overview|about|introduction/i);
   const inclusionsSection = findSection(page, /inclusions|what's included/i);
   const scheduleSection = findSection(page, /schedule|itinerary/i);
+  const pricingSection = findSection(page, /packages|pricing|dates & fees/i);
   const faqSection = findSection(page, /faq/i);
 
   const inclusions = refineInclusions(
     inclusionsSection?.items ?? [],
     inclusionsSection?.body,
   );
+  const heroSubtitle = refineHeroSubtitle(page);
+  const scheduleDescription = (
+    scheduleSection?.body?.split("\n\n")[0] ?? ""
+  ).trim();
+  const pricingDescription = (
+    pricingSection?.body?.split("\n\n")[0] ?? ""
+  ).trim();
 
   const isVenue = options?.isVenue ?? page.slug.includes("venue");
   const flags = isVenue
@@ -262,14 +265,14 @@ export function buildModulesFromSitePage(
     ? ({
         type: "bento-media",
         title: page.title,
-        subtitle: presentation.heroSubtitle,
+        subtitle: heroSubtitle,
         heroImages: heroImages.slice(0, 12),
       } satisfies BentoMediaHero)
     : ({
         type: "page-minimal",
         eyebrow: page.eyebrow,
         title: page.title,
-        subtitle: presentation.heroSubtitle,
+        subtitle: heroSubtitle,
         description: page.description,
         heroImage: page.image,
         ctaLabel: page.ctaLabel ?? undefined,
@@ -291,10 +294,10 @@ export function buildModulesFromSitePage(
     hero,
     stickyNav: { items: [...DEFAULT_SITE_NAV] },
     overview: {
-      eyebrow: presentation.overviewEyebrow || "Overview",
+      eyebrow: (page.eyebrow ?? "").trim(),
       title: page.title,
       lead: refineOverview(page, overviewSection?.body),
-      supportingCopy: refineSupportingCopy(page),
+      supportingCopy: "",
       glance: [],
       media: {
         mode: overviewSection?.images?.length
@@ -321,11 +324,11 @@ export function buildModulesFromSitePage(
     },
     syllabus: { description: "", chapters: [] },
     schedule: {
-      description: presentation.scheduleDescription,
+      description: scheduleDescription,
       items: scheduleItems,
     },
     pricing: {
-      description: presentation.pricingDescription,
+      description: pricingDescription,
       options:
         page.packages?.map((pkg) => ({
           roomType: pkg.title,
@@ -390,11 +393,10 @@ export function buildModulesFromRetreat(
     },
     stickyNav: { items: [...DEFAULT_RESIDENTIAL_NAV] },
     overview: {
-      eyebrow: retreat.eyebrow ?? "Retreat",
+      eyebrow: retreat.eyebrow ?? "",
       title: retreat.title,
       lead: retreat.overview,
-      supportingCopy:
-        "Wake to herbal tea, move through guided practice, share sattvic meals, and end the day with kirtan, Ganga Aarti, or quiet reflection.",
+      supportingCopy: "",
       glance: [{ label: "Duration", value: retreat.duration }],
       media: {
         mode: "carousel",
@@ -411,7 +413,7 @@ export function buildModulesFromRetreat(
     },
     syllabus: { description: "", chapters: [] },
     schedule: {
-      description: `A ${retreat.duration.toLowerCase()} rhythm balancing practice, rest, excursions, and sacred time by the Ganges.`,
+      description: "",
       items:
         retreat.schedule?.flatMap((day) =>
           day.activities.map((a) => ({
@@ -421,8 +423,7 @@ export function buildModulesFromRetreat(
         ) ?? [],
     },
     pricing: {
-      description:
-        "Choose your dates and room — packages include stay, meals, and the full retreat program.",
+      description: "",
       duration: retreat.duration,
       options:
         retreat.packages?.map((pkg) => ({

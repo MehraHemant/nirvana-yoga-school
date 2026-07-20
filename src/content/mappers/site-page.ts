@@ -104,48 +104,20 @@ function parseSchedule(section?: SitePageSection) {
   }));
 
   return {
-    description:
-      section.body?.split("\n\n")[0] ??
-      "A thoughtfully paced retreat itinerary designed for rest, practice, and renewal.",
+    description: section.body?.split("\n\n")[0]?.trim() ?? "",
     schedule,
   };
 }
 
+/**
+ * Parse FAQ entries from CMS subsections / Q&A items (no inferred questions).
+ *
+ * @param section - FAQ section from the page document
+ */
 function parseFaqs(section?: SitePageSection): FAQEntry[] {
   if (!section) return [];
 
   const faqs: FAQEntry[] = [];
-  const faqPatterns = [
-    { pattern: /^To book/i, question: "How do I book my spot?" },
-    { pattern: /^Yes, our/i, question: "Is this retreat family-friendly?" },
-    {
-      pattern: /^When you arrive|From Dehradun|domestic flight/i,
-      question: "How do I reach the school?",
-    },
-    { pattern: /^Absolutely/i, question: "Do I need prior yoga experience?" },
-    { pattern: /^Make sure to bring/i, question: "What should I pack?" },
-    {
-      pattern: /^The best time/i,
-      question: "When is the best time to visit Rishikesh?",
-    },
-    {
-      pattern: /^An advance payment|^Advance payment/i,
-      question: "What is the cancellation policy?",
-    },
-  ];
-
-  if (section.body) {
-    for (const paragraph of section.body.split("\n\n")) {
-      const text = paragraph.trim();
-      if (text.length < 40 || /25% OFF|WHATSAPP|\$\{price\}/i.test(text)) {
-        continue;
-      }
-      const inferred = faqPatterns.find((entry) => entry.pattern.test(text));
-      if (inferred) {
-        faqs.push({ question: inferred.question, answer: text });
-      }
-    }
-  }
 
   if (section.subsections?.length) {
     for (const sub of section.subsections) {
@@ -155,13 +127,19 @@ function parseFaqs(section?: SitePageSection): FAQEntry[] {
     }
   }
 
-  if (faqs.length > 0) return refineFaqs(faqs);
+  for (const item of section.items ?? []) {
+    const trimmed = item.trim();
+    if (!trimmed || /25% OFF|WHATSAPP|\$\{price\}/i.test(trimmed)) continue;
+    const qIndex = trimmed.indexOf("?");
+    if (qIndex > 0) {
+      faqs.push({
+        question: trimmed.slice(0, qIndex + 1).trim(),
+        answer: trimmed.slice(qIndex + 1).trim(),
+      });
+    }
+  }
 
-  return refineFaqs(
-    section.body
-      ? [{ question: "Common questions", answer: section.body }]
-      : [],
-  );
+  return refineFaqs(faqs);
 }
 
 function parseBatches(section?: SitePageSection) {
@@ -197,12 +175,8 @@ function parsePricing(page: SitePageDocument) {
   return packages.map((pkg) => ({
     roomType: pkg.title,
     price: pkg.price,
-    description: "Includes stay, sattvic meals, and the full retreat program.",
-    features: [
-      "Daily yoga & meditation",
-      "Ayurveda wellness",
-      "Excursions & ceremonies",
-    ],
+    description: "",
+    features: [] as string[],
     image: pkg.image,
   })) satisfies PricingOption[];
 }
@@ -384,9 +358,7 @@ export function mapSitePage(page: SitePageDocument): MappedSitePage {
     inclusions,
     exclusions,
     scheduleDescription:
-      schedule.length > 0
-        ? presentation.scheduleDescription
-        : rawScheduleDescription,
+      presentation.scheduleDescription || rawScheduleDescription,
     schedule,
     pricing,
     pricingDescription: presentation.pricingDescription,
