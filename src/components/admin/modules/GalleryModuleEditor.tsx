@@ -24,15 +24,11 @@ import {
 } from "@/content/mappers/gallery-module";
 import type { GalleryModule } from "@/content/types/page-modules";
 import type { SitePageGalleryImage } from "@/content/types/site-page";
+import type { ModulePanelProps } from "./types";
 
-type GalleryModuleEditorProps = {
+type GalleryModuleEditorProps = ModulePanelProps & {
   gallery: GalleryModule;
   onChange: (gallery: GalleryModule) => void;
-  panelId: string;
-  step: number;
-  description?: string;
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
 };
 
 const SECTION_TAG_HINTS: Record<string, string> = {
@@ -72,8 +68,8 @@ function commitSections(
 export function GalleryModuleEditor({
   gallery,
   onChange,
-  panelId,
-  step,
+  panelId = "module-gallery",
+  step = 1,
   description = "Photo album for this venue. Add images from Media (multi-select + tag filter), organize into sections, and drag to reorder. Saves to the database.",
   open,
   onOpenChange,
