@@ -28,11 +28,6 @@ export const ACCOMMODATION_PREFERENCE_OPTIONS: SearchableSelectOption[] = [
     hint: "Twin sharing · balcony options available",
   },
   {
-    value: "3-Shared Room",
-    label: "3-Shared Room",
-    hint: "Triple sharing · clean and community-oriented",
-  },
-  {
     value: "4-Shared Dorm",
     label: "4-Shared Dorm",
     hint: "Budget-friendly · all essential amenities",
