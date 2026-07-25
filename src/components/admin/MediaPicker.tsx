@@ -30,7 +30,9 @@ export function MediaPicker({
 
     setLoading(true);
     fetchAdminMedia(tagFilter)
-      .then((body) => setAssets(body.assets))
+      .then((body) =>
+        setAssets(body.assets.filter((asset) => asset.mime.startsWith("image/"))),
+      )
       .catch(() => setAssets([]))
       .finally(() => setLoading(false));
   }, [open, tagFilter]);

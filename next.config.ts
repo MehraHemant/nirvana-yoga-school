@@ -41,6 +41,11 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     optimizePackageImports: ["framer-motion"],
+    // Allow CMS Cloudinary video uploads through the admin proxy (images stay ≤1MB).
+    proxyClientMaxBodySize: "100mb",
+    serverActions: {
+      bodySizeLimit: "100mb",
+    },
   },
   images: {
     formats: ["image/avif", "image/webp"],

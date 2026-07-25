@@ -208,6 +208,47 @@ export type GalleryModule = ModuleLiveFields & {
   videos?: GalleryVideoItem[];
 };
 
+/** Source kind for a videos-module playlist item. */
+export type VideosModuleItemType = "youtube" | "cloudinary";
+
+/**
+ * One clip in `page_modules.videos` — YouTube URL or Cloudinary upload.
+ */
+export type VideosModuleItem = {
+  type: VideosModuleItemType;
+  /** YouTube watch URL or 11-character id when `type` is `youtube` */
+  youtubeUrl?: string;
+  /** Secure Cloudinary delivery URL when `type` is `cloudinary` */
+  cloudinaryUrl?: string;
+  /** Cloudinary `public_id` for the uploaded video */
+  publicId?: string;
+  /** Optional display title (overrides YouTube title when set) */
+  title?: string;
+  /** Optional poster URL (Cloudinary still or custom) */
+  thumbnailUrl?: string;
+  /** Optional duration in seconds (from Cloudinary upload metadata) */
+  durationSeconds?: number;
+};
+
+/**
+ * Dedicated video playlist section (venue and other module pages).
+ * Stored at `page_modules.videos`.
+ * Prefer `items` for mixed YouTube / Cloudinary sources; `youtubeUrls` is
+ * kept in sync for legacy readers and older DB documents.
+ */
+export type VideosModule = ModuleLiveFields & {
+  eyebrow?: string;
+  title?: string;
+  description?: string;
+  /**
+   * Legacy YouTube-only list (watch URLs or 11-character ids).
+   * Normalized from / synced with YouTube `items`.
+   */
+  youtubeUrls: string[];
+  /** Mixed-source playlist (YouTube and/or Cloudinary) */
+  items: VideosModuleItem[];
+};
+
 export type ProgramsModule = ModuleLiveFields & {
   cards: SitePageCard[];
 };
@@ -240,6 +281,8 @@ export type PageModulesDocument = {
   faqs: FaqsModule;
   teachers?: TeachersModule;
   gallery?: GalleryModule;
+  /** YouTube playlist band — venue pages and other layouts that opt in */
+  videos?: VideosModule;
   programs?: ProgramsModule;
   /**
    * Per-page lodging & food (course/retreat/venue/hub/kirtan). Not a global shared section.

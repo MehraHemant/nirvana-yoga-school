@@ -18,6 +18,14 @@ function savingsPct(price: string, original: string) {
   return `${Math.round((1 - p / o) * 100)}% off`;
 }
 
+/**
+ * Room pricing card. Compact dashed layout is only for "Without Accommodation";
+ * `wide` spans a normal card across both columns (odd last item) and still shows features.
+ *
+ * @param option - CMS pricing option (roomType, price, features, etc.)
+ * @param wide - When true, span both grid columns on sm+
+ * @param reserveHref - Book-now destination
+ */
 function RoomCard({
   option,
   wide = false,
@@ -31,12 +39,13 @@ function RoomCard({
   const saving = option.originalPrice
     ? savingsPct(option.price, option.originalPrice)
     : null;
+  const features = option.features ?? [];
 
-  if (noRoom || wide) {
+  if (noRoom) {
     return (
-      <article className="col-span-2 flex flex-col gap-3 rounded-2xl border border-dashed border-ink/20 bg-surface px-4 py-4 shadow-xs sm:flex-row sm:items-center sm:justify-between sm:gap-5">
+      <article className="col-span-2 flex flex-col gap-3 rounded-2xl border border-dashed border-ink/20 bg-white px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-5">
         <div className="min-w-0">
-          <h4 className="font-serif text-sm font-medium leading-snug text-ink">
+          <h4 className="font-serif text-lg font-medium leading-snug text-ink">
             {option.roomType}
           </h4>
           <div className="mt-2 flex flex-wrap items-baseline gap-2">
@@ -57,6 +66,19 @@ function RoomCard({
           <p className="mt-1.5 line-clamp-2 font-sans text-xs leading-relaxed text-muted">
             {option.description}
           </p>
+          {features.length > 0 && (
+            <ul className="mt-2 space-y-1.5">
+              {features.map((f) => (
+                <li
+                  key={f}
+                  className="flex items-start gap-2 font-sans text-[11px] leading-snug text-ink/75"
+                >
+                  <Check size={10} className="mt-0.5 shrink-0 text-primary" />
+                  {f}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
         <Button
           href={reserveHref}
@@ -71,7 +93,11 @@ function RoomCard({
   }
 
   return (
-    <article className="surface-card flex flex-col rounded-2xl p-4 transition-all duration-300 hover:border-primary/15 hover:shadow-soft">
+    <article
+      className={`flex flex-col rounded-2xl border border-ink/9 bg-white p-4 transition-all duration-300 hover:border-primary/15${
+        wide ? " sm:col-span-2" : ""
+      }`}
+    >
       <h4 className="line-clamp-2 font-serif type-lead  font-medium leading-snug text-ink">
         {option.roomType}
       </h4>
@@ -94,17 +120,19 @@ function RoomCard({
         </div>
       </div>
 
-      <ul className="mb-3 mt-3 flex-1 space-y-1.5">
-        {option.features.slice(0, 4).map((f) => (
-          <li
-            key={f}
-            className="flex items-start gap-2 font-sans text-[11px] leading-snug text-ink/75"
-          >
-            <Check size={10} className="mt-0.5 shrink-0 text-primary" />
-            {f}
-          </li>
-        ))}
-      </ul>
+      {features.length > 0 && (
+        <ul className="mb-3 mt-3 flex-1 space-y-1.5">
+          {features.map((f) => (
+            <li
+              key={f}
+              className="flex items-start gap-2 font-sans text-[11px] leading-snug text-ink/75"
+            >
+              <Check size={10} className="mt-0.5 shrink-0 text-primary" />
+              {f}
+            </li>
+          ))}
+        </ul>
+      )}
 
       <Button
         href={reserveHref}
@@ -197,15 +225,19 @@ export default function UpcomingDates({
             </p>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {pricing.map((option, idx) => {
-                const isLast = idx === pricing.length - 1;
                 const noRoom = option.roomType
                   .toLowerCase()
                   .includes("without");
+                // Span last room card only when odd count leaves a single cell; never use compact no-features layout for rooms.
+                const wide =
+                  !noRoom &&
+                  idx === pricing.length - 1 &&
+                  pricing.length % 2 === 1;
                 return (
                   <RoomCard
                     key={option.roomType}
                     option={option}
-                    wide={isLast || noRoom}
+                    wide={wide}
                     reserveHref={getReserveHref(option.roomType)}
                   />
                 );

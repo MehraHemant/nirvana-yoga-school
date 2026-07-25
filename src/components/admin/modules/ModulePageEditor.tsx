@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { createEmptyResidentialLife } from "@/lib/cms/structural-defaults";
 import { createEmptyGalleryModule } from "@/content/mappers/gallery-module";
 import { normalizeVenueHero } from "@/content/mappers/venue-hero";
+import { createEmptyVideosModule } from "@/content/mappers/videos-module";
 import { createEmptyPageModules } from "@/content/page-modules-defaults";
 import { pagePath } from "@/content/pages/path";
 import { getPageRef } from "@/content/pages/registry";
@@ -38,6 +39,7 @@ import { ScheduleModuleEditor } from "./ScheduleModuleEditor";
 import { StickyNavModuleEditor } from "./StickyNavModuleEditor";
 import { SyllabusModuleEditor } from "./SyllabusModuleEditor";
 import { TeachersModuleEditor } from "./TeachersModuleEditor";
+import { VideosModuleEditor } from "./VideosModuleEditor";
 import type { ModulePanelProps } from "./types";
 
 /** Module panel ids that can be filtered per layout. */
@@ -52,6 +54,7 @@ export type ModulePanelId =
   | "module-schedule"
   | "module-accommodation"
   | "module-gallery"
+  | "module-videos"
   | "module-teachers"
   | "module-flags"
   | "module-pricing"
@@ -153,27 +156,34 @@ const MODULE_SECTIONS: Array<{
     id: "module-gallery",
     step: 9,
     label: "Gallery",
-    hint: "Photos & videos",
+    hint: "Photos",
     moduleKey: "gallery",
   },
   {
-    id: "module-teachers",
+    id: "module-videos",
     step: 10,
+    label: "Videos",
+    hint: "YouTube playlist",
+    moduleKey: "videos",
+  },
+  {
+    id: "module-teachers",
+    step: 11,
     label: "Teachers",
     hint: "From faculty",
     moduleKey: "teachers",
   },
-  { id: "module-flags", step: 11, label: "Shared live", hint: "Global bands" },
+  { id: "module-flags", step: 12, label: "Shared live", hint: "Global bands" },
   {
     id: "module-pricing",
-    step: 12,
+    step: 13,
     label: "Pricing",
     hint: "Dates & fees",
     moduleKey: "pricing",
   },
   {
     id: "module-faq",
-    step: 13,
+    step: 14,
     label: "FAQ",
     hint: "Questions",
     moduleKey: "faqs",
@@ -183,10 +193,10 @@ const MODULE_SECTIONS: Array<{
 /** Start with the first visible panel open; jump-to opens one at a time. */
 const DEFAULT_OPEN: Record<string, boolean> = {};
 
-/** Full residential course panel set. */
+/** Full residential course panel set (videos band is venue-only for now). */
 export const RESIDENTIAL_MODULE_PANELS: ModulePanelId[] = MODULE_SECTIONS.map(
   (s) => s.id,
-);
+).filter((id) => id !== "module-videos");
 
 /** Hub / marketing layout panels. */
 export const HUB_MODULE_PANELS: ModulePanelId[] = [
@@ -209,11 +219,12 @@ export const EDITORIAL_MODULE_PANELS: ModulePanelId[] = [
   "module-faq",
 ];
 
-/** Venue layout panels — SEO + page title first, then gallery, map Live, FAQ. */
+/** Venue layout panels — SEO + page title first, then gallery, videos, map Live, FAQ. */
 export const VENUE_MODULE_PANELS: ModulePanelId[] = [
   "module-meta",
   "module-hero",
   "module-gallery",
+  "module-videos",
   "module-flags",
   "module-faq",
 ];
@@ -281,6 +292,8 @@ function normalizeModules(
   return {
     ...doc,
     hero: normalizeVenueHero(doc.hero, fallbackImage),
+    gallery: doc.gallery ?? createEmptyGalleryModule(),
+    videos: doc.videos ?? createEmptyVideosModule(),
   };
 }
 
@@ -528,9 +541,9 @@ export function ModulePageEditor({
         {isVenueLayout ? (
           <>
             Photo gallery is the main content for this page. Edit the hero
-            banner image and title, then manage gallery sections and images
-            below. Changes save to the database and show on{" "}
-            <code>/venue/{slug}</code>.
+            banner image and title, manage gallery sections, then add YouTube
+            URLs under Videos (Live + at least one URL to show). Changes save to
+            the database and show on <code>/venue/{slug}</code>.
           </>
         ) : (
           <>
@@ -607,6 +620,19 @@ export function ModulePageEditor({
                 gallery={modules.gallery ?? createEmptyGalleryModule()}
                 onChange={(gallery) => setModules({ ...modules, gallery })}
                 {...panelProps("module-gallery", stepOf("module-gallery"))}
+              />
+            </div>
+          ) : null}
+          {show("module-videos") ? (
+            <div className="admin-section-shell">
+              <VideosModuleEditor
+                videos={modules.videos ?? createEmptyVideosModule()}
+                onChange={(videos) => setModules({ ...modules, videos })}
+                {...panelProps(
+                  "module-videos",
+                  stepOf("module-videos"),
+                  "Video playlist band — Live must be on and at least one YouTube URL or Cloudinary upload set to show on the public page.",
+                )}
               />
             </div>
           ) : null}

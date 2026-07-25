@@ -7,6 +7,7 @@ import { Container, SectionHeader } from "@/components/ui";
 import { Play } from "@/icons";
 import { resolveSectionHtmlId } from "@/lib/html-id";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
+import type { PlaylistVideo } from "@/lib/playlist-video";
 import type { YouTubeVideo } from "@/lib/youtube";
 
 function formatDuration(totalSeconds: number) {
@@ -29,7 +30,7 @@ function buildEmbedUrl(videoId: string, autoplay: boolean) {
 }
 
 type VideoPlaylistItemProps = {
-  video: YouTubeVideo;
+  video: PlaylistVideo;
   isActive: boolean;
   onSelect: (id: string) => void;
 };
@@ -81,9 +82,11 @@ function VideoPlaylistItem({
             </span>
           </span>
         )}
-        <span className="type-ui absolute bottom-2 right-2 rounded-md bg-ink/80 px-1.5 py-0.5 text-[10px] font-medium text-white backdrop-blur-sm">
-          {formatDuration(video.durationSeconds)}
-        </span>
+        {video.durationSeconds > 0 ? (
+          <span className="type-ui absolute bottom-2 right-2 rounded-md bg-ink/80 px-1.5 py-0.5 text-[10px] font-medium text-white backdrop-blur-sm">
+            {formatDuration(video.durationSeconds)}
+          </span>
+        ) : null}
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col justify-center gap-1 p-3 md:py-1 md:pr-1 md:pl-0">
@@ -92,7 +95,11 @@ function VideoPlaylistItem({
             isActive ? "text-primary" : "text-muted"
           }`}
         >
-          {isActive ? "Now playing" : video.channel}
+          {isActive
+            ? "Now playing"
+            : video.source === "cloudinary"
+              ? "Uploaded"
+              : video.channel}
         </span>
         <span
           className={`type-ui line-clamp-2 font-medium leading-snug md:line-clamp-3 md:text-[0.9375rem] ${
@@ -107,7 +114,8 @@ function VideoPlaylistItem({
 }
 
 type VideoSectionPlayerProps = {
-  videos: YouTubeVideo[];
+  /** YouTube-only (home) or mixed YouTube + Cloudinary playlist */
+  videos: PlaylistVideo[] | YouTubeVideo[];
   /** Optional CMS section `_id` (falls back to `video`) */
   sectionId?: string;
   /** Optional CMS section header */
@@ -115,15 +123,21 @@ type VideoSectionPlayerProps = {
 };
 
 /**
- * Homepage video playlist player with optional CMS header copy.
+ * Video playlist player — YouTube iframe or native Cloudinary `<video>`.
  *
- * @param props - YouTube videos and optional header / section id
+ * @param props - Playlist videos and optional header / section id
  */
 export default function VideoSectionPlayer({
-  videos,
+  videos: videosProp,
   sectionId,
   header,
 }: VideoSectionPlayerProps) {
+  const videos: PlaylistVideo[] = videosProp.map((video) =>
+    "source" in video && video.source
+      ? (video as PlaylistVideo)
+      : { ...(video as YouTubeVideo), source: "youtube" as const },
+  );
+
   const sectionRef = useRef<HTMLElement>(null);
   const hasAutoplayedOnce = useRef(false);
   const [activeId, setActiveId] = useState(videos[0]?.id ?? "");
@@ -210,16 +224,33 @@ export default function VideoSectionPlayer({
                 aria-hidden="true"
               />
               <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl">
-                <div className="relative aspect-video w-full">
-                  <iframe
-                    key={playerKey}
-                    src={buildEmbedUrl(activeId, autoplay)}
-                    title={`${active.title} — ${active.channel}`}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    referrerPolicy="strict-origin-when-cross-origin"
-                    allowFullScreen
-                    className="absolute inset-0 h-full w-full border-0"
-                  />
+                <div className="relative aspect-video w-full bg-ink">
+                  {active.source === "cloudinary" && active.playbackUrl ? (
+                    <video
+                      key={playerKey}
+                      src={active.playbackUrl}
+                      poster={
+                        active.thumbnailUrl !== active.playbackUrl
+                          ? active.thumbnailUrl
+                          : undefined
+                      }
+                      controls
+                      playsInline
+                      autoPlay={autoplay}
+                      muted={autoplay}
+                      className="absolute inset-0 h-full w-full object-contain"
+                    />
+                  ) : (
+                    <iframe
+                      key={playerKey}
+                      src={buildEmbedUrl(activeId, autoplay)}
+                      title={`${active.title} — ${active.channel}`}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      referrerPolicy="strict-origin-when-cross-origin"
+                      allowFullScreen
+                      className="absolute inset-0 h-full w-full border-0"
+                    />
+                  )}
                 </div>
               </div>
             </div>

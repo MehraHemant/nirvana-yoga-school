@@ -1,8 +1,10 @@
 import {
   isCdnConfigured,
   maxUploadBytes,
+  maxVideoUploadBytes,
+  resourceTypeFromMime,
   uploadToCloudinary,
-  validateImageUpload,
+  validateMediaUpload,
 } from "@/lib/cdn/cloudinary";
 import { normalizeMediaTags, parseMediaTagsFromDb } from "@/lib/cdn/media-tags";
 import {
@@ -48,7 +50,8 @@ function parseTagsFromForm(raw: FormDataEntryValue | null): string[] {
 }
 
 /**
- * Upload an image to Cloudinary (max 1MB) with optional caption, description, and tags.
+ * Upload an image (max 1MB) or video (max 100MB) to Cloudinary with optional
+ * caption, description, and tags.
  */
 export async function POST(request: Request) {
   const session = await getSessionFromRequest(request);
@@ -76,12 +79,15 @@ export async function POST(request: Request) {
     return jsonBadRequest("file field required");
   }
 
-  const validationError = validateImageUpload({
+  const resourceType = resourceTypeFromMime(file.type);
+  const validationError = validateMediaUpload({
     size: file.size,
     type: file.type,
   });
   if (validationError) {
-    const status = file.size > maxUploadBytes() ? 413 : 415;
+    const maxBytes =
+      resourceType === "video" ? maxVideoUploadBytes() : maxUploadBytes();
+    const status = file.size > maxBytes ? 413 : 415;
     return jsonError(validationError, status);
   }
 
@@ -89,6 +95,7 @@ export async function POST(request: Request) {
   const uploaded = await uploadToCloudinary(buffer, {
     mime: file.type,
     filename: file.name,
+    resourceType: resourceType ?? "image",
   });
 
   const asset = await db.mediaAsset.create({
@@ -108,11 +115,13 @@ export async function POST(request: Request) {
     {
       id: asset.id,
       url: asset.url,
+      cdnKey: asset.cdnKey,
       sizeBytes: asset.sizeBytes,
       mime: asset.mime,
       caption: asset.caption,
       description: asset.description,
       tags: parseMediaTagsFromDb(asset.tags),
+      durationSeconds: uploaded.durationSeconds ?? null,
     },
     { status: HTTP.CREATED },
   );

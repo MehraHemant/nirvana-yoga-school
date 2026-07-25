@@ -57,43 +57,50 @@ function RoomTypeSelector({
               type="button"
               onClick={() => onChange(room.id)}
               aria-pressed={isActive}
-              className={`group flex w-full items-center gap-3 rounded-2xl border px-2.5 py-2 text-left transition-all duration-300 ${
+              className={`group flex w-full items-center justify-between gap-4 rounded-2xl border px-3 py-2.5 text-left transition-all duration-300 ${
                 isActive
                   ? "border-primary/25 bg-primary/5 shadow-xs ring-1 ring-primary/10"
                   : "surface-panel border-ink/8 hover:border-primary/15"
               }`}
             >
-              <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl shadow-xs">
-                {thumb && (
-                  <Image
-                    src={thumb}
-                    alt={room.label}
-                    fill
-                    sizes="48px"
-                    className={`object-cover transition-transform duration-500 ${
-                      isActive ? "scale-105" : "group-hover:scale-105"
+              <div className="flex min-w-0 items-center gap-3">
+                <span
+                  className="flex h-4 w-4 shrink-0 items-center justify-center"
+                  aria-hidden="true"
+                >
+                  <span
+                    className={`h-2 w-2 rounded-full transition-colors duration-300 ${
+                      isActive ? "bg-primary" : "bg-transparent"
                     }`}
                   />
-                )}
-              </div>
+                </span>
 
-              <div className="min-w-0 flex-1">
+                <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl shadow-xs">
+                  {thumb && (
+                    <Image
+                      src={thumb}
+                      alt={room.label}
+                      fill
+                      sizes="48px"
+                      className={`object-cover transition-transform duration-500 ${
+                        isActive ? "scale-105" : "group-hover:scale-105"
+                      }`}
+                    />
+                  )}
+                </div>
+
                 <p
-                  className={`type-ui font-medium leading-snug ${isActive ? "text-ink" : "text-ink/75"}`}
+                  className={`type-ui min-w-0 truncate font-medium leading-snug ${
+                    isActive ? "text-ink" : "text-ink/75"
+                  }`}
                 >
                   {room.label}
                 </p>
-                <p className="type-eyebrow mt-0.5 line-clamp-1 text-muted">
-                  {room.images.length} photos
-                </p>
               </div>
 
-              {isActive && (
-                <span
-                  className="h-2 w-2 shrink-0 rounded-full bg-primary"
-                  aria-hidden="true"
-                />
-              )}
+              <p className="type-eyebrow ml-auto shrink-0 text-muted">
+                {room.images.length} photos
+              </p>
             </button>
           );
         })}

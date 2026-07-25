@@ -107,7 +107,12 @@ export type AdminBlogPostGetResponse = ApiEntityBody<
 export type AdminMediaUploadResponse = Pick<
   AdminMediaAsset,
   "id" | "url" | "sizeBytes" | "mime" | "caption" | "description" | "tags"
->;
+> & {
+  /** Cloudinary public_id (`media_assets.cdn_key`) */
+  cdnKey: string;
+  /** Video duration from Cloudinary when uploading a video */
+  durationSeconds: number | null;
+};
 
 /** POST /api/admin/auth/login */
 export type AdminLoginInput = {

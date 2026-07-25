@@ -95,6 +95,9 @@ export type {
   SplitCopyHero,
   SyllabusModule,
   TeachersModule,
+  VideosModule,
+  VideosModuleItem,
+  VideosModuleItemType,
 } from "@/content/types/page-modules";
 export type {
   PageRef,

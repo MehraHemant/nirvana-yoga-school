@@ -1,8 +1,14 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getSitePage } from "@/content";
+import {
+  normalizeVideosModule,
+  videosModuleHasClips,
+} from "@/content/mappers/videos-module";
 import { getPageModules } from "@/content/repositories/page-modules";
 import { fetchPageSlugsByTypeFromDb } from "@/lib/cms/cache";
+import { shouldRenderSection } from "@/lib/cms/section-visibility";
+import { resolvePlaylistVideos } from "@/lib/playlist-video";
 import { metadataFromPageSeo } from "../../_shared/metadata";
 import { loadSitePageDataAsync } from "../../_shared/site/data.server";
 import VenueClient from "./VenueClient";
@@ -46,6 +52,15 @@ export default async function Page({ params }: PageProps) {
   if (!result.data) notFound();
 
   const data = await loadSitePageDataAsync(result.data);
+  const videosModule = normalizeVideosModule(data.modules?.videos);
+  const showVideos = shouldRenderSection(
+    videosModule,
+    videosModuleHasClips(videosModule),
+  );
+  const videos = showVideos
+    ? await resolvePlaylistVideos(videosModule.items)
+    : [];
+
   return (
     <VenueClient
       page={data.page}
@@ -59,6 +74,7 @@ export default async function Page({ params }: PageProps) {
       instagram={data.instagram}
       travel={data.travel}
       examCertification={data.examCertification}
+      videos={videos}
     />
   );
 }

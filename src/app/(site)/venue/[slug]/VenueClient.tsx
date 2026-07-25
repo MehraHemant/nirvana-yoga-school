@@ -2,6 +2,7 @@
 
 import { DarkMediaHero } from "@/components/hero";
 import { MapSection } from "@/components/home";
+import VideoSectionPlayer from "@/components/home/VideoSectionPlayer";
 import { Container } from "@/components/ui";
 import VenueGallery from "@/components/venue/VenueGallery";
 import {
@@ -9,11 +10,18 @@ import {
   resolveGallerySections,
 } from "@/content/mappers/gallery-module";
 import { normalizeVenueHero } from "@/content/mappers/venue-hero";
+import { normalizeVideosModule } from "@/content/mappers/videos-module";
 import type { GalleryModule } from "@/content/types/page-modules";
 import type { SitePageGalleryImage } from "@/content/types/site-page";
 import { shouldRenderSection } from "@/lib/cms/section-visibility";
+import type { PlaylistVideo } from "@/lib/playlist-video";
 import { SiteFaq } from "../../_shared/site/shared";
 import type { SiteClientProps } from "../../_shared/site/types";
+
+type VenueClientProps = SiteClientProps & {
+  /** Pre-fetched playlist for `page_modules.videos` (YouTube and/or Cloudinary) */
+  videos?: PlaylistVideo[];
+};
 
 /**
  * Resolves the gallery image list from DB-backed sources.
@@ -34,14 +42,15 @@ function resolveVenueImages(
  * Gallery-first venue page — course venue and retreat venue.
  * Dark media hero from CMS simple-banner + sectioned photo gallery + FAQ.
  *
- * @param props - Mapped venue content and page modules
+ * @param props - Mapped venue content, page modules, and optional videos
  */
 export default function VenueClient({
   page,
   mapped,
   modules,
   siteMap,
-}: SiteClientProps) {
+  videos = [],
+}: VenueClientProps) {
   const moduleGallery = modules?.gallery;
   const images = resolveVenueImages(mapped.gallery ?? [], moduleGallery);
 
@@ -73,6 +82,9 @@ export default function VenueClient({
   const showMap =
     (modules?.flags.showMap ?? mapped.showMap ?? true) &&
     shouldRenderSection(siteMap, Boolean(siteMap?.embedUrl?.trim()));
+
+  const videosModule = normalizeVideosModule(modules?.videos);
+  const showVideos = shouldRenderSection(videosModule, videos.length > 0);
 
   return (
     <>
@@ -127,6 +139,17 @@ export default function VenueClient({
           images={images}
           lightboxTitle={String(title)}
         />
+        {showVideos ? (
+          <VideoSectionPlayer
+            videos={videos}
+            sectionId={videosModule._id}
+            header={{
+              eyebrow: videosModule.eyebrow || "Venue",
+              title: videosModule.title || "Campus videos",
+              description: videosModule.description,
+            }}
+          />
+        ) : null}
         {showMap && siteMap ? (
           <MapSection className="bg-white" content={siteMap} />
         ) : null}

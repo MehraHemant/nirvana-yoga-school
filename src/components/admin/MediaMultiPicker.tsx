@@ -66,11 +66,14 @@ export function MediaMultiPicker({
     fetchAdminMedia(tag || undefined)
       .then((body) => {
         if (cancelled) return;
-        setAssets(body.assets);
+        const images = body.assets.filter((asset) =>
+          asset.mime.startsWith("image/"),
+        );
+        setAssets(images);
         // Section tag hints often have no library matches — fall back once to all media.
         if (
           tag &&
-          body.assets.length === 0 &&
+          images.length === 0 &&
           !didTagFallback &&
           tag === initialTag
         ) {

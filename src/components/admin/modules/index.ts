@@ -20,3 +20,4 @@ export { ScheduleModuleEditor } from "./ScheduleModuleEditor";
 export { StickyNavModuleEditor } from "./StickyNavModuleEditor";
 export { SyllabusModuleEditor } from "./SyllabusModuleEditor";
 export { TeachersModuleEditor } from "./TeachersModuleEditor";
+export { VideosModuleEditor } from "./VideosModuleEditor";

@@ -220,6 +220,7 @@ export const PAGE_LAYOUTS: Record<PageLayoutId, PageLayoutDefinition> = {
       { id: "meta", label: "SEO", source: "pageModules" },
       { id: "hero", label: "Page title", source: "pageModules" },
       { id: "gallery", label: "Photo gallery", source: "pageModules" },
+      { id: "videos", label: "Videos", source: "pageModules" },
       SHARED_LINK("siteMap", "Map (shared)"),
       { id: "faq", label: "FAQ", source: "pageModules" },
     ],

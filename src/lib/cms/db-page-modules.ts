@@ -3,6 +3,7 @@ import {
   galleryCategoryLabel,
   resolveGallerySections,
 } from "@/content/mappers/gallery-module";
+import { createEmptyVideosModule } from "@/content/mappers/videos-module";
 import { createEmptyPageModules } from "@/content/page-modules-defaults";
 import type { PageModulesDocument } from "@/content/types";
 import type { SitePageGalleryImage } from "@/content/types/site-page";
@@ -94,6 +95,11 @@ export function resolvePageModulesForEditor(
         description: section.description,
       })),
     };
+  }
+
+  // Ensure venue (and other) editors always have an editable videos scaffold.
+  if (!doc.videos) {
+    doc.videos = createEmptyVideosModule();
   }
 
   return doc;

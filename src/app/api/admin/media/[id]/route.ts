@@ -1,4 +1,7 @@
-import { deleteFromCloudinary } from "@/lib/cdn/cloudinary";
+import {
+  deleteFromCloudinary,
+  resourceTypeFromMime,
+} from "@/lib/cdn/cloudinary";
 import { normalizeMediaTags, parseMediaTagsFromDb } from "@/lib/cdn/media-tags";
 import {
   jsonConflict,
@@ -118,7 +121,10 @@ export async function DELETE(
     );
   }
 
-  await deleteFromCloudinary(asset.cdnKey);
+  await deleteFromCloudinary(
+    asset.cdnKey,
+    resourceTypeFromMime(asset.mime) ?? "image",
+  );
   await db.mediaAsset.delete({ where: { id } });
 
   return jsonMutationOk();
