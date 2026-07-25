@@ -2,7 +2,6 @@
 
 import { DarkMediaHero } from "@/components/hero";
 import { MapSection } from "@/components/home";
-import VideoSectionPlayer from "@/components/home/VideoSectionPlayer";
 import { Container } from "@/components/ui";
 import VenueGallery from "@/components/venue/VenueGallery";
 import {
@@ -40,7 +39,7 @@ function resolveVenueImages(
 
 /**
  * Gallery-first venue page — course venue and retreat venue.
- * Dark media hero from CMS simple-banner + sectioned photo gallery + FAQ.
+ * Dark media hero, CMS videos above the photo gallery, map, and FAQ.
  *
  * @param props - Mapped venue content, page modules, and optional videos
  */
@@ -138,18 +137,12 @@ export default function VenueClient({
           gallery={gallery}
           images={images}
           lightboxTitle={String(title)}
+          playlistVideos={showVideos ? videos : []}
+          videosHeader={{
+            title: videosModule.title || "Videos",
+            description: videosModule.description,
+          }}
         />
-        {showVideos ? (
-          <VideoSectionPlayer
-            videos={videos}
-            sectionId={videosModule._id}
-            header={{
-              eyebrow: videosModule.eyebrow || "Venue",
-              title: videosModule.title || "Campus videos",
-              description: videosModule.description,
-            }}
-          />
-        ) : null}
         {showMap && siteMap ? (
           <MapSection className="bg-white" content={siteMap} />
         ) : null}

@@ -54,7 +54,7 @@ export function SharedSectionLinks({
       </ul>
       <p className="admin-hint" style={{ marginTop: "0.75rem" }}>
         Visibility for shared blocks on this page is controlled by the Shared
-        sections (Live) toggles on this editor.
+        sections toggles above.
       </p>
     </CollapsiblePanel>
   );

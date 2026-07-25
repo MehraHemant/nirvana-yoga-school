@@ -6,12 +6,17 @@ import { AdminSaveBar } from "@/components/admin/AdminSaveBar";
 import { AdminSectionJumpNav } from "@/components/admin/AdminSectionJumpNav";
 import { CollapsiblePanel } from "@/components/admin/CollapsiblePanel";
 import { ImageField } from "@/components/admin/ImageField";
+import { NestedItemCard } from "@/components/admin/NestedItemCard";
 import { SectionLiveField } from "@/components/admin/SectionLiveField";
 import { SelectField } from "@/components/admin/SelectField";
 import { TextField } from "@/components/admin/TextField";
 import { useSectionScrollSpy } from "@/components/admin/useSectionScrollSpy";
 import { useStableListKeys } from "@/components/admin/useStableListKeys";
-import { createEmptyWhyNirvana } from "@/lib/cms/structural-defaults";
+import {
+  createEmptyWhyNirvana,
+  createExamCertificationAdminScaffold,
+} from "@/lib/cms/structural-defaults";
+import { hasExamCertificationContent } from "@/lib/cms/section-visibility";
 import type {
   ExamCertificationContent,
   InstagramFeedContent,
@@ -48,7 +53,9 @@ const SHARED_PANEL_ITEMS: Record<
 > = {
   whyNirvana: [{ id: "shared-why-nirvana", label: "Why Nirvana" }],
   examCertification: [
-    { id: "shared-exam-certification", label: "Exam & certification" },
+    { id: "shared-exam-intro", label: "Intro" },
+    { id: "shared-exam-steps", label: "Evaluation steps" },
+    { id: "shared-exam-certificates", label: "Certificates" },
   ],
   siteMap: [{ id: "shared-site-map", label: "Map" }],
   instagram: [{ id: "shared-instagram", label: "Instagram" }],
@@ -67,14 +74,7 @@ const SHARED_PANEL_ITEMS: Record<
 function emptySharedDoc(key: SharedKey): SharedValue {
   if (key === "whyNirvana") return createEmptyWhyNirvana();
   if (key === "examCertification") {
-    return {
-      live: true,
-      eyebrow: "",
-      title: "",
-      description: "",
-      steps: [],
-      certificates: [],
-    } satisfies ExamCertificationContent;
+    return createExamCertificationAdminScaffold();
   }
   if (key === "siteMap") {
     return {
@@ -180,7 +180,7 @@ export function SharedSectionsEditor() {
   const dirty = Boolean(value) && JSON.stringify(value) !== baseline;
   const panelItems = SHARED_PANEL_ITEMS[active];
   const activePanelId = useSectionScrollSpy(panelItems.map((item) => item.id));
-  const showJumpNav = panelItems.length >= 4;
+  const showJumpNav = panelItems.length >= 3;
   const fields = value ? (
     active === "whyNirvana" ? (
       <WhyNirvanaFields doc={value as WhyNirvanaContent} onChange={setValue} />
@@ -340,7 +340,7 @@ function WhyNirvanaFields({
 }
 
 /**
- * Shared exam and certificate fields.
+ * Shared exam and certificate fields with add/remove and public-visibility preview.
  *
  * @param props - Document and change handler
  */
@@ -351,119 +351,242 @@ function ExamCertificationFields({
   doc: ExamCertificationContent;
   onChange: (next: ExamCertificationContent) => void;
 }) {
-  const stepKeys = useStableListKeys(doc.steps.length);
-  const certificateKeys = useStableListKeys(doc.certificates.length);
+  const steps = doc.steps ?? [];
+  const certificates = doc.certificates ?? [];
+  const stepKeys = useStableListKeys(steps.length);
+  const certificateKeys = useStableListKeys(certificates.length);
+  const filledSteps = steps.filter(
+    (s) => s.title?.trim() || s.description?.trim() || s.tag?.trim(),
+  ).length;
+  const filledCerts = certificates.filter(
+    (c) => c.title?.trim() || c.subtitle?.trim() || c.image?.trim(),
+  ).length;
+  const hasCopy = Boolean(
+    doc.eyebrow?.trim() || doc.title?.trim() || doc.description?.trim(),
+  );
+  const willShowPublicly =
+    doc.live !== false && hasExamCertificationContent(doc);
 
   return (
-    <CollapsiblePanel
-      id="shared-exam-certification"
-      title="Exam & certification"
-      defaultOpen
-      description="Shared evaluation and certificate content. Product pages only toggle Live."
-      actions={
-        <SectionLiveField
-          id="exam-certification-live"
-          value={doc.live}
-          onChange={(live) => onChange({ ...doc, live })}
-        />
-      }
-    >
-      <div className="admin-grid-2">
-        <TextField
-          label="Eyebrow"
-          value={doc.eyebrow}
-          onChange={(eyebrow) => onChange({ ...doc, eyebrow })}
-        />
-        <TextField
-          label="Title"
-          value={doc.title}
-          onChange={(title) => onChange({ ...doc, title })}
-        />
-      </div>
-      <TextField
-        label="Description"
-        value={doc.description}
-        onChange={(description) => onChange({ ...doc, description })}
-        multiline
-        rows={4}
-      />
-      <h3 className="admin-subsection-title">Evaluation steps</h3>
-      {doc.steps.map((step, index) => (
-        <div key={stepKeys.keys[index]} className="admin-nested-card">
-          <div className="admin-grid-2">
-            <TextField
-              label="Title"
-              value={step.title}
-              onChange={(title) => {
-                const steps = [...doc.steps];
-                steps[index] = { ...step, title };
-                onChange({ ...doc, steps });
-              }}
-            />
-            <TextField
-              label="Tag"
-              value={step.tag}
-              onChange={(tag) => {
-                const steps = [...doc.steps];
-                steps[index] = { ...step, tag };
-                onChange({ ...doc, steps });
-              }}
-            />
-          </div>
+    <>
+      <CollapsiblePanel
+        id="shared-exam-intro"
+        title="Intro"
+        defaultOpen
+        description="Shared across course, online course, retreat, and hub pages. Each page toggles Exam & certification under Modules → Visibility."
+        actions={
+          <SectionLiveField
+            id="exam-certification-live"
+            value={doc.live}
+            onChange={(live) => onChange({ ...doc, live })}
+          />
+        }
+      >
+        <div className="admin-grid-2">
           <TextField
-            label="Description"
-            value={step.description}
-            onChange={(description) => {
-              const steps = [...doc.steps];
-              steps[index] = { ...step, description };
-              onChange({ ...doc, steps });
-            }}
-            multiline
+            label="Eyebrow"
+            value={doc.eyebrow}
+            onChange={(eyebrow) => onChange({ ...doc, eyebrow })}
           />
-          <ImageField
-            label="Image"
-            value={step.image}
-            onChange={(image) => {
-              const steps = [...doc.steps];
-              steps[index] = { ...step, image };
-              onChange({ ...doc, steps });
-            }}
-          />
-        </div>
-      ))}
-      <h3 className="admin-subsection-title">Certificates</h3>
-      {doc.certificates.map((certificate, index) => (
-        <div key={certificateKeys.keys[index]} className="admin-nested-card">
           <TextField
             label="Title"
-            value={certificate.title}
-            onChange={(title) => {
-              const certificates = [...doc.certificates];
-              certificates[index] = { ...certificate, title };
-              onChange({ ...doc, certificates });
-            }}
-          />
-          <TextField
-            label="Subtitle"
-            value={certificate.subtitle}
-            onChange={(subtitle) => {
-              const certificates = [...doc.certificates];
-              certificates[index] = { ...certificate, subtitle };
-              onChange({ ...doc, certificates });
-            }}
-          />
-          <ImageField
-            label="Certificate image"
-            value={certificate.image}
-            onChange={(image) => {
-              const certificates = [...doc.certificates];
-              certificates[index] = { ...certificate, image };
-              onChange({ ...doc, certificates });
-            }}
+            value={doc.title}
+            onChange={(title) => onChange({ ...doc, title })}
           />
         </div>
-      ))}
-    </CollapsiblePanel>
+        <TextField
+          label="Description"
+          value={doc.description}
+          onChange={(description) => onChange({ ...doc, description })}
+          multiline
+          rows={4}
+        />
+        <div className="admin-hint admin-hint--padded" role="status">
+          <p style={{ margin: 0, fontWeight: 600 }}>
+            Public visibility checklist
+          </p>
+          <ul style={{ margin: "0.5rem 0 0", paddingLeft: "1.25rem" }}>
+            <li>
+              Shared Live: {doc.live !== false ? "on" : "off (hidden everywhere)"}
+            </li>
+            <li>
+              Intro copy: {hasCopy ? "filled" : "empty (optional if steps/certs exist)"}
+            </li>
+            <li>
+              Evaluation steps with content: {filledSteps}
+            </li>
+            <li>
+              Certificates with content: {filledCerts}
+            </li>
+            <li>
+              Will appear on pages with Exam &amp; certification enabled:{" "}
+              {willShowPublicly
+                ? "yes — after save"
+                : "no — turn Live on and add title/description, steps, or certificates"}
+            </li>
+          </ul>
+        </div>
+      </CollapsiblePanel>
+
+      <CollapsiblePanel
+        id="shared-exam-steps"
+        title="Evaluation steps"
+        defaultOpen
+        description="Numbered process shown beside certificates on the public section."
+      >
+        <div className="admin-nested-list-head">
+          <span className="admin-label">Steps</span>
+          <button
+            type="button"
+            className="admin-btn-sm"
+            onClick={() => {
+              stepKeys.addKey();
+              onChange({
+                ...doc,
+                steps: [
+                  ...steps,
+                  { title: "", tag: "", description: "", image: "" },
+                ],
+              });
+            }}
+          >
+            Add step
+          </button>
+        </div>
+        {steps.length === 0 ? (
+          <p className="admin-hint">No steps yet. Add at least one for the process list.</p>
+        ) : null}
+        {steps.map((step, index) => (
+          <NestedItemCard
+            key={stepKeys.keys[index]}
+            title={step.title || `Step ${index + 1}`}
+            index={index}
+            onRemove={() => {
+              stepKeys.removeKey(index);
+              onChange({
+                ...doc,
+                steps: steps.filter((_, i) => i !== index),
+              });
+            }}
+          >
+            <div className="admin-grid-2">
+              <TextField
+                label="Title"
+                value={step.title}
+                onChange={(title) => {
+                  const next = [...steps];
+                  next[index] = { ...step, title };
+                  onChange({ ...doc, steps: next });
+                }}
+              />
+              <TextField
+                label="Tag"
+                value={step.tag}
+                onChange={(tag) => {
+                  const next = [...steps];
+                  next[index] = { ...step, tag };
+                  onChange({ ...doc, steps: next });
+                }}
+              />
+            </div>
+            <TextField
+              label="Description"
+              value={step.description}
+              onChange={(description) => {
+                const next = [...steps];
+                next[index] = { ...step, description };
+                onChange({ ...doc, steps: next });
+              }}
+              multiline
+              rows={3}
+            />
+            <ImageField
+              label="Image (optional)"
+              value={step.image}
+              onChange={(image) => {
+                const next = [...steps];
+                next[index] = { ...step, image };
+                onChange({ ...doc, steps: next });
+              }}
+            />
+          </NestedItemCard>
+        ))}
+      </CollapsiblePanel>
+
+      <CollapsiblePanel
+        id="shared-exam-certificates"
+        title="Certificates"
+        defaultOpen
+        description="Certificate images open in a lightbox on the public section."
+      >
+        <div className="admin-nested-list-head">
+          <span className="admin-label">Certificates</span>
+          <button
+            type="button"
+            className="admin-btn-sm"
+            onClick={() => {
+              certificateKeys.addKey();
+              onChange({
+                ...doc,
+                certificates: [
+                  ...certificates,
+                  { title: "", subtitle: "", image: "" },
+                ],
+              });
+            }}
+          >
+            Add certificate
+          </button>
+        </div>
+        {certificates.length === 0 ? (
+          <p className="admin-hint">
+            No certificates yet. Add images via the media picker.
+          </p>
+        ) : null}
+        {certificates.map((certificate, index) => (
+          <NestedItemCard
+            key={certificateKeys.keys[index]}
+            title={certificate.title || `Certificate ${index + 1}`}
+            index={index}
+            onRemove={() => {
+              certificateKeys.removeKey(index);
+              onChange({
+                ...doc,
+                certificates: certificates.filter((_, i) => i !== index),
+              });
+            }}
+          >
+            <TextField
+              label="Title"
+              value={certificate.title}
+              onChange={(title) => {
+                const next = [...certificates];
+                next[index] = { ...certificate, title };
+                onChange({ ...doc, certificates: next });
+              }}
+            />
+            <TextField
+              label="Subtitle"
+              value={certificate.subtitle}
+              onChange={(subtitle) => {
+                const next = [...certificates];
+                next[index] = { ...certificate, subtitle };
+                onChange({ ...doc, certificates: next });
+              }}
+            />
+            <ImageField
+              label="Certificate image"
+              value={certificate.image}
+              onChange={(image) => {
+                const next = [...certificates];
+                next[index] = { ...certificate, image };
+                onChange({ ...doc, certificates: next });
+              }}
+            />
+          </NestedItemCard>
+        ))}
+      </CollapsiblePanel>
+    </>
   );
 }
 

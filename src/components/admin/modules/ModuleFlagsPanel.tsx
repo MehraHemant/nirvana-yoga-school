@@ -1,7 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import type { ModuleFlags } from "@/content/types";
 import { CollapsiblePanel } from "../CollapsiblePanel";
+import { SectionLiveField } from "../SectionLiveField";
 import type { ModulePanelProps } from "./types";
 
 type SharedFlagKey =
@@ -45,6 +47,8 @@ export function ModuleFlagsPanel({
   onOpenChange,
   visibleKeys,
 }: ModuleFlagsPanelProps) {
+  const mapOnly =
+    visibleKeys?.length === 1 && visibleKeys[0] === "showMap";
   const items = visibleKeys?.length
     ? SHARED_LIVE_ITEMS.filter((item) => visibleKeys.includes(item.key))
     : SHARED_LIVE_ITEMS;
@@ -53,39 +57,39 @@ export function ModuleFlagsPanel({
     <CollapsiblePanel
       id={panelId}
       step={step}
-      title="Shared sections (Live)"
+      title="Shared sections"
       subtitle={
-        visibleKeys?.length === 1 && visibleKeys[0] === "showMap"
+        mapOnly
           ? "Show or hide the map on this page"
-          : "Show or hide global Why Nirvana, Map, Instagram, Travel, and Exam & certification on this page"
+          : "Show or hide on this page"
       }
-      description={
-        description ??
-        "Shared content is edited once under Shared sections. Accommodation & food content is edited on this page."
-      }
+      description={description}
       open={open}
       onOpenChange={onOpenChange}
     >
-      <div className="admin-flags-grid">
+      <ul className="admin-flags-list">
         {items.map((item) => (
-          <label key={item.key} className="admin-checkbox admin-checkbox-row">
-            <input
-              type="checkbox"
-              checked={flags[item.key]}
-              onChange={(e) =>
-                onChange({ ...flags, [item.key]: e.target.checked })
-              }
+          <li key={item.key} className="admin-flags-row">
+            <span className="admin-flags-row__label">{item.label}</span>
+            <SectionLiveField
+              id={`${panelId}-${item.key}`}
+              value={flags[item.key]}
+              onChange={(live) => onChange({ ...flags, [item.key]: live })}
             />
-            <span>Live · {item.label}</span>
-          </label>
+          </li>
         ))}
+      </ul>
+      <div className="admin-flags-footer">
+        <p className="admin-hint admin-hint--tight">
+          Content is edited under Shared sections.
+        </p>
+        <Link
+          href="/admin/sections/shared"
+          className="admin-btn-sm admin-btn-sm--ghost"
+        >
+          Edit shared content →
+        </Link>
       </div>
-      <p className="admin-hint" style={{ marginTop: "0.75rem" }}>
-        Shared globals:{" "}
-        <a href="/admin/sections/shared" className="admin-link">
-          Why Nirvana / Map / Instagram / Travel / Exam &amp; Certification →
-        </a>
-      </p>
     </CollapsiblePanel>
   );
 }

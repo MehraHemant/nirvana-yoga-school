@@ -1244,10 +1244,47 @@
   gap: 0.25rem;
 }
 
-.admin-flags-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.25rem 1rem;
+.admin-flags-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid rgb(26 20 16 / 8%);
+  border-radius: 0.75rem;
+  background: #fff;
+  overflow: hidden;
+}
+
+.admin-flags-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.7rem 0.9rem;
+  border-bottom: 1px solid rgb(26 20 16 / 6%);
+}
+
+.admin-flags-row:last-child {
+  border-bottom: none;
+}
+
+.admin-flags-row__label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1a1410;
+  min-width: 0;
+}
+
+.admin-flags-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 0.875rem;
+}
+
+.admin-flags-footer .admin-hint {
+  margin: 0;
 }
 
 .admin-teachers-picker__header {
@@ -3206,10 +3243,6 @@
   }
 
   .admin-hero-type-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .admin-flags-grid {
     grid-template-columns: 1fr;
   }
 

@@ -21,10 +21,6 @@ import { AdminSectionJumpNav } from "../AdminSectionJumpNav";
 import { CollapsiblePanel } from "../CollapsiblePanel";
 import { ResidentialLifeFields } from "../LodgingFields";
 import { PageSeoFields } from "../PageSeoFields";
-import {
-  type SharedSectionLink,
-  SharedSectionLinks,
-} from "../SharedSectionLinks";
 import { scrollToSection, toSectionDomId } from "../sectionDomId";
 import { useSectionScrollSpy } from "../useSectionScrollSpy";
 import { EligibilityModuleEditor } from "./EligibilityModuleEditor";
@@ -68,8 +64,6 @@ type ModulePageEditorProps = {
   onSave: (modules: PageModulesDocument) => Promise<void>;
   /** When set, only these panels render (residential = all). */
   visiblePanels?: ModulePanelId[];
-  /** Deep-links to shared global_settings editors */
-  sharedLinks?: SharedSectionLink[];
   /** Optional subtitle under the title */
   layoutHint?: string;
   /** Public preview override */
@@ -309,7 +303,6 @@ export function ModulePageEditor({
   backLabel,
   onSave,
   visiblePanels,
-  sharedLinks = [],
   layoutHint,
   previewHref: previewHrefProp,
   layoutId,
@@ -548,8 +541,8 @@ export function ModulePageEditor({
         ) : (
           <>
             Panels match this page&apos;s live layout. Lodging &amp; food are
-            edited on this page. Shared Why Nirvana / Map / Instagram / Travel
-            are linked below when applicable.
+            edited on this page. Shared section Live toggles appear below when
+            applicable.
           </>
         )}
       </div>
@@ -808,14 +801,9 @@ export function ModulePageEditor({
                   stepOf("module-flags"),
                   isVenueLayout
                     ? "Uncheck Live · Map to hide the map on this venue page. Edit the map embed under Shared sections."
-                    : "Show or hide shared Why Nirvana / Map / Instagram / Travel / Exam & Certification on this page.",
+                    : undefined,
                 )}
               />
-            </div>
-          ) : null}
-          {sharedLinks.length > 0 ? (
-            <div className="admin-section-shell">
-              <SharedSectionLinks links={sharedLinks} />
             </div>
           ) : null}
           {show("module-pricing") ? (

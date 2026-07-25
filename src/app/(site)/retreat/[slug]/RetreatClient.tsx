@@ -21,6 +21,7 @@ import {
 import { COURSE_FAQ_CATEGORIES, FAQSection } from "@/components/ui";
 import { retreatWhatsAppHref } from "@/content/mappers/retreat-page";
 import {
+  hasExamCertificationContent,
   isSectionLive,
   shouldRenderSection,
 } from "@/lib/cms/section-visibility";
@@ -76,10 +77,7 @@ export default function RetreatClient({
     (modules?.flags.showExam ?? false) &&
     shouldRenderSection(
       examCertification,
-      Boolean(
-        examCertification?.steps.length &&
-          examCertification.certificates.length,
-      ),
+      hasExamCertificationContent(examCertification),
     );
 
   return (

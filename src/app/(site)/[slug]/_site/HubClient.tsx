@@ -12,7 +12,10 @@ import {
   WhyNirvana,
 } from "@/components/courses";
 import { TeachersSection } from "@/components/home";
-import { shouldRenderSection } from "@/lib/cms/section-visibility";
+import {
+  hasExamCertificationContent,
+  shouldRenderSection,
+} from "@/lib/cms/section-visibility";
 import { resolveSectionHtmlId } from "@/lib/html-id";
 import {
   SiteEditorial,
@@ -63,10 +66,7 @@ export default function HubClient({
     (modules?.flags.showExam ?? false) &&
     shouldRenderSection(
       examCertification,
-      Boolean(
-        examCertification?.steps.length &&
-          examCertification.certificates.length,
-      ),
+      hasExamCertificationContent(examCertification),
     );
 
   return (

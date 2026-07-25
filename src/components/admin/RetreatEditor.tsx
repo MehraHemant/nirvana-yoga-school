@@ -575,7 +575,6 @@ export function RetreatEditor({
               onChange={(flags) => setModules({ ...modules, flags })}
               panelId={panelId("flags")}
               step={8}
-              description="Page-level Live for Why Nirvana, Map, Instagram, Travel, and Exam & Certification."
               {...panelOpenProps("flags")}
             />
           </div>

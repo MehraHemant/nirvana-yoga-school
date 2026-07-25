@@ -9,6 +9,8 @@ import { EASE_OUT } from "@/lib/motion";
 interface MediaItem {
   type: "image" | "video";
   url: string;
+  /** Optional poster for video thumbnails (Cloudinary / custom) */
+  thumbnailUrl?: string;
 }
 
 interface MediaLightboxProps {
@@ -246,7 +248,10 @@ export default function MediaLightbox({
                     ) : (
                       <div className="relative w-full h-full bg-black/50">
                         <Image
-                          src={getYouTubeThumbnail(item.url)}
+                          src={
+                            item.thumbnailUrl ||
+                            getYouTubeThumbnail(item.url)
+                          }
                           alt=""
                           fill
                           sizes="64px"

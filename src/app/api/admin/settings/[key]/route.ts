@@ -1,9 +1,17 @@
 import { revalidatePath } from "next/cache";
-import { createEmptyBookingAddons, createEmptyExamCertification, createEmptyWhyNirvana } from "@/lib/cms/structural-defaults";
+import {
+  createEmptyBookingAddons,
+  createDefaultExamCertification,
+  createExamCertificationAdminScaffold,
+  createEmptyWhyNirvana,
+  normalizeExamCertification,
+} from "@/lib/cms/structural-defaults";
+import { hasExamCertificationContent } from "@/lib/cms/section-visibility";
 import { jsonError, jsonForbidden, jsonOk } from "@/lib/cms/api-response";
 import { getServerSession } from "@/lib/cms/auth";
 import { invalidateGlobalSettingsCache } from "@/lib/cms/cache";
 import { db } from "@/lib/db";
+import type { ExamCertificationContent } from "@/content/types/shared-sections";
 import type { ApiRouteParams } from "@/lib/types/api";
 
 const ALLOWED_KEYS = [
@@ -43,6 +51,37 @@ async function ensureSharedSettings(key: string, value: object) {
   return value;
 }
 
+/**
+ * Loads exam certification, healing empty scaffolds to the site default.
+ *
+ * @returns Normalized exam document
+ */
+async function loadExamCertificationSettings(): Promise<ExamCertificationContent> {
+  const defaults = createDefaultExamCertification();
+  const value = await ensureSharedSettings("examCertification", defaults);
+  const normalized = normalizeExamCertification(
+    value && typeof value === "object"
+      ? (value as Partial<ExamCertificationContent>)
+      : null,
+  );
+
+  if (hasExamCertificationContent(normalized)) {
+    return normalized;
+  }
+
+  const healed = {
+    ...defaults,
+    live: normalized.live !== false,
+  };
+  await db.globalSettings.upsert({
+    where: { key: "examCertification" },
+    update: { value: healed },
+    create: { key: "examCertification", value: healed },
+  });
+  invalidateGlobalSettingsCache("examCertification");
+  return healed;
+}
+
 export async function GET(
   _request: Request,
   context: ApiRouteParams<{ key: string }>,
@@ -58,8 +97,8 @@ export async function GET(
   }
 
   if (key === "examCertification") {
-    const value = await ensureSharedSettings(key, createEmptyExamCertification());
-    return jsonOk({ settings: value });
+    const settings = await loadExamCertificationSettings();
+    return jsonOk({ settings });
   }
 
   if (key === "bookingAddons") {
@@ -86,7 +125,16 @@ export async function PUT(
     return jsonError("Invalid settings key", 400, { code: "BAD_REQUEST" });
   }
 
-  const { value } = await request.json();
+  const body = await request.json();
+  let value = body.value;
+
+  if (key === "examCertification") {
+    value = normalizeExamCertification(
+      value && typeof value === "object"
+        ? (value as Partial<ExamCertificationContent>)
+        : createExamCertificationAdminScaffold(),
+    );
+  }
 
   await db.globalSettings.upsert({
     where: { key },
@@ -97,6 +145,12 @@ export async function PUT(
   invalidateGlobalSettingsCache(key);
   revalidatePath("/");
   revalidatePath(`/api/content/${key}`);
+  if (key === "examCertification") {
+    revalidatePath("/api/content/exam-certification");
+    revalidatePath("/course", "layout");
+    revalidatePath("/online-course", "layout");
+    revalidatePath("/retreat", "layout");
+  }
 
   return jsonOk({ success: true });
 }

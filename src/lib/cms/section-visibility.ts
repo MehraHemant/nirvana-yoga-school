@@ -6,6 +6,8 @@
  * treated the same for backward compatibility.
  */
 
+import type { ExamCertificationContent } from "@/content/types/shared-sections";
+
 /** Section objects that may carry a live / show flag. */
 export type SectionVisibilityFields = {
   /** When false, section is hidden on the public site. Default true. */
@@ -40,4 +42,37 @@ export function shouldRenderSection(
   hasData: boolean,
 ): boolean {
   return hasData && isSectionLive(section);
+}
+
+/**
+ * Whether exam & certification CMS has anything worth showing publicly.
+ * Accepts intro copy, evaluation steps, or certificates — not both sides.
+ *
+ * @param content - Shared examCertification document
+ */
+export function hasExamCertificationContent(
+  content: ExamCertificationContent | null | undefined,
+): boolean {
+  if (!content) return false;
+  const hasCopy = Boolean(
+    content.eyebrow?.trim() ||
+      content.title?.trim() ||
+      content.description?.trim(),
+  );
+  const hasSteps = Boolean(
+    content.steps?.some(
+      (step) =>
+        step.title?.trim() ||
+        step.tag?.trim() ||
+        step.description?.trim() ||
+        step.image?.trim(),
+    ),
+  );
+  const hasCertificates = Boolean(
+    content.certificates?.some(
+      (cert) =>
+        cert.title?.trim() || cert.subtitle?.trim() || cert.image?.trim(),
+    ),
+  );
+  return hasCopy || hasSteps || hasCertificates;
 }

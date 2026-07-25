@@ -40,7 +40,10 @@ export async function loadCoursePageData(
     getSiteMap().catch(() => null),
     getInstagramFeed().catch(() => null),
     getTravelGuide().catch(() => null),
-    getExamCertification().catch(() => null),
+    getExamCertification().catch((error) => {
+      console.error("[loadCoursePageData] getExamCertification failed", error);
+      return null;
+    }),
   ]);
 
   const modules = modulesResult.data;

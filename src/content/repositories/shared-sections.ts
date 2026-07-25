@@ -1,10 +1,4 @@
 import {
-  createEmptyBookingAddons,
-  createEmptyExamCertification,
-  createEmptyHomePageContent,
-  createEmptyTravelGuide,
-} from "@/lib/cms/structural-defaults";
-import {
   normalizeRetreatAccommodation,
   retreatAccommodationToResidentialLife,
 } from "@/content/mappers/residential-life";
@@ -23,7 +17,15 @@ import type {
   YttHubContent,
 } from "@/content/types/shared-sections";
 import { fetchGlobalSettingsFromDb } from "@/lib/cms/cache";
-import { createEmptyInstagramFeed } from "@/lib/cms/structural-defaults";
+import { hasExamCertificationContent } from "@/lib/cms/section-visibility";
+import {
+  createDefaultExamCertification,
+  createEmptyBookingAddons,
+  createEmptyHomePageContent,
+  createEmptyInstagramFeed,
+  createEmptyTravelGuide,
+  normalizeExamCertification,
+} from "@/lib/cms/structural-defaults";
 import { requireDb } from "./db-fallback";
 import { getHomePageContent } from "./dedicated-pages";
 import type { ContentResult, RepositoryOptions } from "./fetch";
@@ -116,7 +118,9 @@ export async function getWhyNirvana(
 }
 
 /**
- * Shared exam and certification content from MySQL (`global_settings.examCertification`).
+ * Shared exam and certification content from Postgres (`global_settings.examCertification`).
+ * Empty scaffolds fall back to site defaults in-memory (no writes during render —
+ * persistence/healing happens in the admin settings route).
  *
  * @param options - Optional repository options
  */
@@ -126,23 +130,19 @@ export async function getExamCertification(
   return requireDb(async () => {
     const stored = await fetchGlobalSettingsFromDb("examCertification");
     if (stored && typeof stored === "object") {
-      const content = stored as Partial<ExamCertificationContent>;
-      if (
-        Array.isArray(content.steps) &&
-        content.steps.length > 0 &&
-        Array.isArray(content.certificates) &&
-        content.certificates.length > 0
-      ) {
-        return {
-          ...createEmptyExamCertification(),
-          ...content,
-          live: content.live !== false,
-          steps: content.steps,
-          certificates: content.certificates,
-        };
+      const content = normalizeExamCertification(
+        stored as Partial<ExamCertificationContent>,
+      );
+      if (hasExamCertificationContent(content)) {
+        return content;
       }
+      // Blank scaffold in DB/cache — serve defaults so Live pages still render.
+      return {
+        ...createDefaultExamCertification(),
+        live: content.live !== false,
+      };
     }
-    return { ...createEmptyExamCertification() };
+    return createDefaultExamCertification();
   }, options);
 }
 

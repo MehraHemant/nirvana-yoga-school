@@ -29,7 +29,6 @@ import {
   type PageLayoutId,
   publicViewHref,
   resolvePageLayoutId,
-  sharedSectionLinksForLayout,
 } from "@/lib/cms/page-layout-registry";
 import { parseApiJson } from "@/lib/types/api";
 
@@ -182,7 +181,6 @@ function TypedLayoutEditor({ slug }: { slug: string }) {
       layoutHint={hint}
       layoutId={layoutId}
       previewHref={publicViewHref(pageType, slug)}
-      sharedLinks={sharedSectionLinksForLayout(layoutId)}
     />
   );
 }

@@ -16,8 +16,6 @@ type SectionPageItem = {
   title: string;
   image: string;
   published: boolean;
-  fee?: string;
-  duration?: string;
 };
 
 type SectionPageTableProps = {
@@ -54,14 +52,12 @@ export function SectionPageTable({
         <table className="admin-table admin-table--section">
           <colgroup>
             <col className="admin-table-col-page" />
-            <col className="admin-table-col-details" />
             <col className="admin-table-col-status" />
             <col className="admin-table-col-actions" />
           </colgroup>
           <thead>
             <tr>
               <th>Page</th>
-              <th>Details</th>
               <th>Status</th>
               <th className="admin-table-col--actions">
                 <span className="sr-only">Actions</span>
@@ -80,21 +76,6 @@ export function SectionPageTable({
                         <span className="admin-table-title">{page.title}</span>
                         <code className="admin-table-slug">/{page.slug}</code>
                       </div>
-                    </div>
-                  </td>
-                  <td>
-                    <div className="admin-table-meta">
-                      {page.duration ? (
-                        <span className="admin-meta-chip">{page.duration}</span>
-                      ) : null}
-                      {page.fee ? (
-                        <span className="admin-meta-chip admin-meta-chip--fee">
-                          {page.fee}
-                        </span>
-                      ) : null}
-                      {!page.duration && !page.fee ? (
-                        <span className="admin-hint">—</span>
-                      ) : null}
                     </div>
                   </td>
                   <td>

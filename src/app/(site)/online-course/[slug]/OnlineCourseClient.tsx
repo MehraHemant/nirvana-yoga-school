@@ -17,6 +17,7 @@ import {
 } from "@/components/online";
 import { Container } from "@/components/ui";
 import {
+  hasExamCertificationContent,
   isSectionLive,
   shouldRenderSection,
 } from "@/lib/cms/section-visibility";
@@ -59,10 +60,7 @@ export default function OnlineCourseClient({
     (modules?.flags.showExam ?? false) &&
     shouldRenderSection(
       examCertification,
-      Boolean(
-        examCertification?.steps.length &&
-          examCertification.certificates.length,
-      ),
+      hasExamCertificationContent(examCertification),
     );
 
   const pricingCard =

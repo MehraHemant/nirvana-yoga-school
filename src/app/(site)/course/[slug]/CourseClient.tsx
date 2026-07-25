@@ -19,6 +19,7 @@ import {
 } from "@/components/courses";
 import { COURSE_FAQ_CATEGORIES, FAQSection } from "@/components/ui";
 import {
+  hasExamCertificationContent,
   isSectionLive,
   shouldRenderSection,
 } from "@/lib/cms/section-visibility";
@@ -95,10 +96,7 @@ export default function CourseClient({
     (m?.flags.showExam ?? true) &&
     shouldRenderSection(
       examCertification,
-      Boolean(
-        examCertification?.steps.length &&
-          examCertification.certificates.length,
-      ),
+      hasExamCertificationContent(examCertification),
     );
 
   return (

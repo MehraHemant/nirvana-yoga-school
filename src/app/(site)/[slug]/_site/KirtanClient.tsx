@@ -27,6 +27,7 @@ import {
   parseKirtanContent,
 } from "@/content/mappers/kirtan-page";
 import {
+  hasExamCertificationContent,
   isSectionLive,
   shouldRenderSection,
 } from "@/lib/cms/section-visibility";
@@ -82,10 +83,7 @@ export default function KirtanClient({
     (modules?.flags.showExam ?? false) &&
     shouldRenderSection(
       examCertification,
-      Boolean(
-        examCertification?.steps.length &&
-          examCertification.certificates.length,
-      ),
+      hasExamCertificationContent(examCertification),
     );
 
   return (
