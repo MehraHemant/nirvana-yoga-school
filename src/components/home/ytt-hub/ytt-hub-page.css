@@ -1,0 +1,33 @@
+/**
+ * Hub-only section rhythm + shared-section polish.
+ * Scoped under `.ytt-hub-page` so homepage / course pages are untouched.
+ */
+
+/* Pure white bands below hero — no sand / paper texture / muted fills */
+.ytt-hub-page > section,
+.ytt-hub-page .ytt-hub-shared > section {
+  background-color: #fff;
+  background-image: none;
+  scroll-margin-top: 7rem;
+}
+
+/* Shared bands get hub rhythm; FAQ keeps course FAQSection padding */
+.ytt-hub-page .ytt-hub-shared > section {
+  padding-block: 5rem;
+}
+
+@media (min-width: 768px) {
+  .ytt-hub-page .ytt-hub-shared > section {
+    padding-block: 7rem;
+  }
+}
+
+/* Gallery category sticky bar uses bg-sand/90 on the homepage */
+.ytt-hub-page .ytt-hub-gallery .sticky {
+  background-color: rgb(255 255 255 / 0.9);
+}
+
+/* Quieter sticky jump-nav on the hub */
+.ytt-hub-page > .course-sticky-nav {
+  border-bottom-color: rgb(28 25 23 / 0.06);
+}

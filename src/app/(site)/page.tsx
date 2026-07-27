@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import { Suspense } from "react";
 import { HeroSection, JsonLd, WelcomeSection } from "@/components";
-import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 import { getHomePageContent } from "@/content/repositories/dedicated-pages";
 import { getSiteMap } from "@/content/repositories/shared-sections";
 import { getTeachersPage } from "@/content/repositories/teachers";
 import { shouldRenderHomeSection } from "@/lib/cms/home-section-visibility";
 import { shouldRenderSection } from "@/lib/cms/section-visibility";
+import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 import { resolveSectionHtmlId } from "@/lib/html-id";
 import { metadataFromPageSeo } from "./_shared/metadata";
 
@@ -188,8 +188,6 @@ export default async function Home() {
           eyebrow={home.teachersTeaser.eyebrow}
           title={home.teachersTeaser.title}
           description={home.teachersTeaser.description}
-          ctaLabel={home.teachersTeaser.ctaLabel}
-          ctaHref={home.teachersTeaser.ctaHref}
           sectionId={home.teachersTeaser._id}
         />
       ) : null}

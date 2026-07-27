@@ -1,8 +1,8 @@
 import { HeroFrame } from "@/components/hero";
 import { Button, Container, Heading } from "@/components/ui";
-import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 import type { HomeHeroContent } from "@/content/types/dedicated-pages";
 import { ArrowRight, HeroFlourish, HeroUnderline } from "@/icons";
+import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 import { optionalSectionHtmlId } from "@/lib/html-id";
 import HeroBackgroundVideo from "./HeroBackgroundVideo";
 
@@ -33,6 +33,7 @@ export default function HeroSection({
   return (
     <HeroFrame
       id={optionalSectionHtmlId(content._id)}
+      transparentHeader
       className="relative min-h-svh w-full overflow-hidden bg-ink"
     >
       <HeroBackgroundVideo video={video} />
@@ -76,8 +77,7 @@ export default function HeroSection({
                 size="h1"
                 className="animate-fade-up fade-delay-300 text-balance"
               >
-                {titleLead}{" "}
-                <br/>
+                {titleLead} <br />
                 <div className="relative inline-block whitespace-nowrap">
                   <span className="font-serif font-normal text-accent">
                     {titleAccent}
