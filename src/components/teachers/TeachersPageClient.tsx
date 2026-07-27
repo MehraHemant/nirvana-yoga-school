@@ -1,10 +1,12 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
-import Image from "next/image";
+import { useReducedMotion } from "framer-motion";
 import { useCallback, useEffect, useState } from "react";
 import type { TeacherProfile } from "@/components/home/TeachersSection";
-import { Container, Heading, SectionHeader } from "@/components/ui";
+import TeacherProfileCard, {
+  TEACHER_PAGE_PREVIEW,
+} from "@/components/teachers/TeacherProfileCard";
+import { Container, SectionHeader } from "@/components/ui";
 import { teacherSlug } from "@/content/teachers-slug";
 import { resolveSectionHtmlId } from "@/lib/html-id";
 
@@ -21,141 +23,10 @@ function getHeaderHeight(): number {
   return document.querySelector("header")?.getBoundingClientRect().height ?? 76;
 }
 
-function TeacherArticle({
-  teacher,
-  index,
-  prefersReducedMotion,
-}: {
-  teacher: TeacherProfile;
-  index: number;
-  prefersReducedMotion: boolean;
-}) {
-  const id = teacherSlug(teacher.name);
-  // Even index (0,2,4…) → name/bio LEFT, image RIGHT
-  // Odd index  (1,3,5…) → image LEFT,   name/bio RIGHT
-  const imageRight = index % 2 === 0;
-
-  const imageCell = (
-    <div className="relative h-72 w-full sm:h-80 md:h-96">
-      <Image
-        src={teacher.image}
-        alt={teacher.name}
-        fill
-        sizes="(max-width: 640px) 100vw, 50vw"
-        className="object-cover object-top"
-      />
-    </div>
-  );
-
-  const textCell = (
-    <div className="flex flex-col justify-center p-7 sm:p-8 md:p-10">
-      <Heading as="h2" size="h3">
-        {teacher.name}
-      </Heading>
-      <p className="type-eyebrow mt-2 text-muted">
-        {teacher.experienceSummary}
-      </p>
-      <p className="type-body mt-5 leading-relaxed text-ink">{teacher.bio}</p>
-    </div>
-  );
-
-  return (
-    <motion.article
-      id={id}
-      className="scroll-mt-28 surface-card overflow-hidden rounded-3xl transition-shadow duration-300 hover:shadow-soft"
-      whileHover={prefersReducedMotion ? {} : { y: -3 }}
-      transition={{ type: "spring", stiffness: 300, damping: 28 }}
-    >
-      {/*
-        2 × 2 grid on sm+:
-          top row  → [text | image]  or  [image | text]  (alternates by index)
-          bottom   → spans full width: Education / Experience / Expertise
-        Mobile: stacked (image always on top for visual impact).
-      */}
-      <div className="grid grid-cols-1 sm:grid-cols-2">
-        {/* Top row — swap DOM order to achieve alternating layout */}
-        {imageRight ? (
-          <>
-            {textCell}
-            {imageCell}
-          </>
-        ) : (
-          <>
-            {imageCell}
-            {textCell}
-          </>
-        )}
-
-        {/* Bottom row: 3-column details strip, no inner cards */}
-        <div className="col-span-1 border-t border-ink/8 bg-white sm:col-span-2">
-          <div className="grid divide-y divide-secondary/20 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-            {/* Education */}
-            <div className="px-7 py-6 md:px-9 md:py-7 bg-white transition-colors duration-300 hover:bg-primary/[0.02]">
-              <p className="type-eyebrow mb-4 font-semibold tracking-widest text-primary">
-                Education
-              </p>
-              <ul className="space-y-2.5">
-                {teacher.education.map((item) => (
-                  <li key={item} className="flex items-start gap-2.5">
-                    <span
-                      className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary/60"
-                      aria-hidden="true"
-                    />
-                    <span className="type-body leading-snug text-ink/85">
-                      {item}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Experience */}
-            <div className="px-7 py-6 md:px-9 md:py-7 bg-white transition-colors duration-300 hover:bg-primary/[0.02]">
-              <p className="type-eyebrow mb-4 font-semibold tracking-widest text-primary">
-                Experience
-              </p>
-              <ul className="space-y-2.5">
-                {teacher.detailedExperience.map((item) => (
-                  <li key={item} className="flex items-start gap-2.5">
-                    <span
-                      className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary/50"
-                      aria-hidden="true"
-                    />
-                    <span className="type-body leading-snug text-ink/85">
-                      {item}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Expertise */}
-            <div className="px-7 py-6 md:px-9 md:py-7 bg-white transition-colors duration-300 hover:bg-accent/[0.03]">
-              <p className="type-eyebrow mb-4 font-semibold tracking-widest text-primary/80">
-                Expertise
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {teacher.expertise.map((item) => (
-                  <span
-                    key={item}
-                    className="type-ui inline-flex items-center rounded-full border border-accent/35 bg-white px-3 py-1 text-ink/90 transition-all duration-150 hover:border-primary/35 hover:bg-white hover:shadow-2xs"
-                  >
-                    {item}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </motion.article>
-  );
-}
-
 /**
- * TeachersPageClient renders the faculty page's sticky table of contents and biographies.
+ * Faculty magazine layout for `/teacher` — sticky TOC + alternating profile cards.
  *
- * @param props - Component properties conforming to TeachersPageClientProps
+ * @param props - Teachers, CMS section copy, optional faculty section id
  */
 export default function TeachersPageClient({
   teachers,
@@ -168,7 +39,8 @@ export default function TeachersPageClient({
   const [activeSlug, setActiveSlug] = useState(
     teacherSlug(teachers[0]?.name ?? ""),
   );
-
+  const sectionClassName =
+    "bg-white pb-14 pt-[calc(var(--site-header-height)+3.5rem)] sm:pb-16 sm:pt-[calc(var(--site-header-height)+4rem)] lg:pb-20 lg:pt-[calc(var(--site-header-height)+5rem)]";
   const scrollToTeacher = useCallback(
     (slug: string) => {
       const node = document.getElementById(slug);
@@ -223,10 +95,7 @@ export default function TeachersPageClient({
   return (
     <>
       {/* Magazine layout: sticky TOC + scrollable profiles */}
-      <section
-        id={facultyHtmlId}
-        className="bg-white pb-14 pt-[calc(var(--site-header-height)+3.5rem)] sm:pb-16 sm:pt-[calc(var(--site-header-height)+4rem)] lg:pb-20 lg:pt-[calc(var(--site-header-height)+5rem)]"
-      >
+      <section id={facultyHtmlId} className={sectionClassName}>
         <Container size="2xl">
           <SectionHeader
             eyebrow={sectionEyebrow}
@@ -259,18 +128,13 @@ export default function TeachersPageClient({
           </div>
 
           <div className="mt-10 lg:mt-12 lg:grid lg:grid-cols-[200px_1fr] lg:gap-12 xl:grid-cols-[220px_1fr]">
-            {/* Desktop sticky TOC */}
-            <aside className="hidden lg:block">
-              <div
-                className="sticky flex max-h-[calc(100svh-var(--site-header-height,4.75rem)-3rem)] flex-col"
-                style={{
-                  top: "calc(var(--site-header-height, 4.75rem) + 1.5rem)",
-                }}
-              >
-                <p className="type-eyebrow mb-3 text-muted">Jump to</p>
+            {/* Desktop sticky TOC — scrolls when faculty list exceeds viewport */}
+            <aside className="hidden self-start lg:block">
+              <div className="sticky top-[calc(var(--site-header-height,4.75rem)+1.5rem)] flex max-h-[calc(100svh-var(--site-header-height,4.75rem)-3rem)] w-full flex-col overflow-hidden">
+                <p className="type-eyebrow mb-3 shrink-0 text-muted">Jump to</p>
                 <nav
                   aria-label="Faculty profiles"
-                  className="min-h-0 flex-1 space-y-0.5 overflow-y-auto overscroll-y-contain pr-1 scrollbar-thin-primary"
+                  className="scrollbar-thin-primary min-h-0 flex-1 space-y-0.5 overflow-y-auto overscroll-y-contain pr-1"
                 >
                   {teachers.map((teacher) => {
                     const slug = teacherSlug(teacher.name);
@@ -297,11 +161,13 @@ export default function TeachersPageClient({
             {/* Profile stream */}
             <div className="min-w-0 space-y-6">
               {teachers.map((teacher, i) => (
-                <TeacherArticle
+                <TeacherProfileCard
                   key={teacher.name}
                   teacher={teacher}
                   index={i}
                   prefersReducedMotion={prefersReducedMotion}
+                  preview={TEACHER_PAGE_PREVIEW}
+                  showMoreMode="toggle"
                 />
               ))}
             </div>

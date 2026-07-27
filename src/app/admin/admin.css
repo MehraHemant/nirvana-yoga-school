@@ -1419,6 +1419,41 @@
   min-width: 0;
 }
 
+.admin-courses-picker__selected-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.admin-courses-picker__selected-row {
+  display: block;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid rgb(163 36 50 / 20%);
+  border-radius: 0.5rem;
+  background: rgb(163 36 50 / 4%);
+}
+
+.admin-courses-picker__selected-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.admin-courses-picker__selected-top {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.admin-courses-picker__selected-top .admin-teachers-picker__person {
+  flex: 1;
+  min-width: 0;
+}
+
+.admin-courses-picker__selected-row .admin-field {
+  margin-bottom: 0;
+}
+
 /* Layout with sidebar */
 .admin-layout {
   display: grid;

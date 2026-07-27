@@ -219,7 +219,45 @@ export type RetreatAccommodationContent = SharedSectionLiveFields & {
   defaultFacilities: string[];
 };
 
-export type YttHubCourse = {
+/**
+ * Ordered course placement on the YTT hub — references a course page entity.
+ * Card fields (title, fee, image, …) resolve from `course_documents` at read time.
+ */
+export type YttHubCourseRef = {
+  /** `pages.slug` for a published `course` or `online` page */
+  courseSlug: string;
+  /** Optional short description for this placement only */
+  description?: string;
+};
+
+/**
+ * @deprecated Legacy embedded course card. Still accepted on read for DB compat;
+ * prefer {@link YttHubCourseRef}. New admin saves write refs only.
+ */
+export type YttHubCourseEmbedded = {
+  title: string;
+  description: string;
+  overview: string;
+  focusAreas: string[];
+  level: string;
+  certification: string;
+  duration: string;
+  fee: string;
+  image: string;
+  certBadge: string;
+  href: string;
+  /** Present when dual-written during migration */
+  courseSlug?: string;
+};
+
+/** Stored YTT hub course entry (entity ref or legacy embedded card). */
+export type YttHubCourse = YttHubCourseRef | YttHubCourseEmbedded;
+
+/**
+ * Resolved course card for public YTT hub UI (entity fields + placement override).
+ */
+export type ResolvedYttHubCourse = {
+  courseSlug?: string;
   title: string;
   description: string;
   overview: string;
@@ -250,32 +288,87 @@ export type YttHubContent = SharedSectionLiveFields & {
     hero?: string;
     stickyNav?: string;
     overview?: string;
+    /** @deprecated Demoted — prefer shared Why Nirvana */
     whyRishikesh?: string;
     courses?: string;
+    /** @deprecated Demoted — prefer shared Exam & certification */
     eligibility?: string;
     faq?: string;
   };
+  /**
+   * Per-section inclusion flags for shared bands.
+   * Omit or `true` shows the section when shared content has data.
+   */
+  flags?: {
+    showVideos?: boolean;
+    showGallery?: boolean;
+    showExam?: boolean;
+    showWhyNirvana?: boolean;
+    showTeachers?: boolean;
+    showMap?: boolean;
+  };
+  /** Still / poster fallback when hero video posters are unset */
   heroImage: string;
+  /**
+   * Hub-only hero background video (responsive).
+   * Do not reuse homepage video files unless intentionally set in CMS.
+   */
+  heroVideo?: import("@/content/types/dedicated-pages").HomeHeroVideoContent;
   overviewImage: string;
   overviewInsetImage: string;
+  /** Optional third collage tile for the homepage-style overview band */
+  overviewThirdImage?: string;
   intro: {
     pill: string;
     title: string;
     lead: string;
     overviewPoints: string[];
     stats: Array<{ value: string; label: string }>;
+    /** Homepage-style hero first line (falls back to `title`) */
+    titleLead?: string;
+    /** Homepage-style hero accent phrase */
+    titleAccent?: string;
+    /** Hero marquee strip items */
+    marqueeItems?: string[];
+    /** Overview section eyebrow */
+    overviewEyebrow?: string;
+    /** Overview section heading */
+    overviewTitle?: string;
+    /** Overview supporting description under the heading */
+    overviewDescription?: string;
+    /** Body copy above the overview points list */
+    overviewBody?: string;
+    /** Small badge over the overview image (legacy collage) */
+    imageBadge?: string;
+    /** Vision labeled block (homepage welcome pattern) */
+    vision?: { label: string; body: string };
+    /** Promise labeled block (homepage welcome pattern) */
+    promise?: { label: string; body: string };
+    /** Primary hero CTA label */
+    primaryCtaLabel?: string;
+    /** Primary hero CTA href */
+    primaryCtaHref?: string;
+    /** Secondary hero CTA label */
+    secondaryCtaLabel?: string;
+    /** Secondary hero CTA href */
+    secondaryCtaHref?: string;
   };
+  /** @deprecated Demoted from live hub order — kept for CMS legacy data */
   whyRishikesh: {
+    eyebrow?: string;
     title: string;
     paragraphs: string[];
     images: string[];
   };
   coursesIntro: {
+    eyebrow?: string;
     title: string;
     paragraphs: string[];
   };
   courses: YttHubCourse[];
+  /** @deprecated Demoted — Exam & certification shared section replaces this */
   eligibility: {
+    eyebrow?: string;
     title: string;
     paragraphs: string[];
   };

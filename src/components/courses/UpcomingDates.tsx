@@ -102,7 +102,7 @@ function RoomCard({
         {option.roomType}
       </h4>
 
-      <div className="surface-inset mt-3 rounded-xl px-3 py-2.5">
+      <div className="mt-3 rounded-xl border border-ink/7 bg-white shadow-soft px-3 py-2.5">
         <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
           <span className="font-serif text-2xl font-medium leading-none text-primary">
             {option.price}
