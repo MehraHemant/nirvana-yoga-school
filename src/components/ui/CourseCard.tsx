@@ -100,6 +100,12 @@ function FocusList({ highlights }: { highlights: string[] }) {
   );
 }
 
+/**
+ * Course card media with chrome inset. Padding is applied via absolute inset
+ * (not aspect-ratio + padding on one box) so the photo fills the frame with no gaps.
+ *
+ * @param props - Image, badges, fee overlay, and layout mode
+ */
 function CourseCardImage({
   title,
   image,
@@ -121,23 +127,27 @@ function CourseCardImage({
   prefersReduced: boolean;
   editorial: boolean;
 }) {
+  const frameClass = editorial
+    ? "absolute inset-4 overflow-hidden rounded-2xl md:inset-5"
+    : "absolute inset-4 overflow-hidden rounded-2xl";
+
   return (
     <div
       className={
         editorial
           ? "relative w-full shrink-0 md:w-[40%] lg:w-[38%]"
-          : "relative aspect-[16/10] w-full shrink-0 p-4"
+          : "relative aspect-[16/10] w-full shrink-0"
       }
       style={{ transformStyle: "preserve-3d" }}
     >
       <div
         className={
           editorial
-            ? "relative aspect-[4/3] h-full min-h-[220px] overflow-hidden p-4 md:absolute md:inset-0 md:aspect-auto md:min-h-0 md:p-5"
-            : "relative h-full w-full overflow-hidden rounded-xl"
+            ? "relative aspect-[4/3] min-h-[220px] md:absolute md:inset-0 md:aspect-auto md:min-h-0"
+            : "absolute inset-0"
         }
       >
-        <div className="relative h-full w-full overflow-hidden rounded-2xl">
+        <div className={frameClass}>
           <Image
             src={image}
             alt={title}
@@ -147,53 +157,53 @@ function CourseCardImage({
                 ? "(max-width: 768px) 100vw, 40vw"
                 : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             }
-            className="object-cover transition-transform duration-700 group-hover:scale-105"
+            className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
             priority={revealDelay === 0}
           />
           <div
             className="absolute inset-0 bg-linear-to-t from-ink/35 via-transparent to-transparent"
             aria-hidden="true"
           />
-        </div>
 
-        {hours ? (
-          <span
-            className="absolute left-7 top-7 z-20 rounded-full bg-primary px-3 py-1 type-eyebrow font-bold text-white shadow-sm sm:left-8 sm:top-8"
+          {hours ? (
+            <span
+              className="absolute left-3 top-3 z-20 rounded-full bg-primary px-3 py-1 type-eyebrow font-bold text-white shadow-sm sm:left-3.5 sm:top-3.5"
+              style={{
+                transform: prefersReduced ? "none" : "translateZ(15px)",
+              }}
+            >
+              {hours}
+            </span>
+          ) : null}
+
+          <div
+            className="absolute right-3 top-3 z-20 flex size-10 items-center justify-center rounded-full border border-white/20 bg-white/90 p-1 shadow-sm backdrop-blur-xs sm:right-3.5 sm:top-3.5"
             style={{
               transform: prefersReduced ? "none" : "translateZ(15px)",
             }}
           >
-            {hours}
-          </span>
-        ) : null}
-
-        <div
-          className="absolute right-7 top-7 z-20 flex size-10 items-center justify-center rounded-full border border-white/20 bg-white/90 p-1 shadow-sm backdrop-blur-xs sm:right-8 sm:top-8"
-          style={{
-            transform: prefersReduced ? "none" : "translateZ(15px)",
-          }}
-        >
-          <div className="relative h-full w-full overflow-hidden rounded-full">
-            <Image
-              src={certBadge}
-              alt={certification}
-              fill
-              sizes="36px"
-              className="object-cover"
-            />
+            <div className="relative h-full w-full overflow-hidden rounded-full">
+              <Image
+                src={certBadge}
+                alt={certification}
+                fill
+                sizes="36px"
+                className="object-cover"
+              />
+            </div>
           </div>
-        </div>
 
-        {!editorial ? (
-          <span
-            className="absolute bottom-7 left-7 z-20 rounded-full border border-primary/20 bg-primary/80 px-3.5 py-1.5 text-[10px] font-semibold tracking-wide text-white shadow-xs backdrop-blur-md sm:bottom-8 sm:left-8 sm:text-[11px]"
-            style={{
-              transform: prefersReduced ? "none" : "translateZ(15px)",
-            }}
-          >
-            {fee}
-          </span>
-        ) : null}
+          {!editorial ? (
+            <span
+              className="absolute bottom-3 left-3 z-20 rounded-full border border-primary/20 bg-primary/80 px-3.5 py-1.5 text-[10px] font-semibold tracking-wide text-white shadow-xs backdrop-blur-md sm:bottom-3.5 sm:left-3.5 sm:text-[11px]"
+              style={{
+                transform: prefersReduced ? "none" : "translateZ(15px)",
+              }}
+            >
+              {fee}
+            </span>
+          ) : null}
+        </div>
       </div>
     </div>
   );
@@ -226,7 +236,7 @@ function CourseCardBody({
       className={
         editorial
           ? "flex flex-1 flex-col px-5 pb-5 pt-4 md:px-6 md:py-6"
-          : "flex flex-1 flex-col px-5 pb-2 pt-1"
+          : "flex flex-1 flex-col px-5 pb-2 pt-2"
       }
     >
       <div className="type-eyebrow text-primary">

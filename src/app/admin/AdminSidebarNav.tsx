@@ -71,6 +71,11 @@ const NAV_SECTIONS: NavSection[] = [
         Icon: Layers,
       },
       { label: "Media", href: "/admin/media", Icon: Leaf },
+      {
+        label: "Chat knowledge",
+        href: "/admin/settings/chat",
+        Icon: BookOpen,
+      },
     ],
   },
   {

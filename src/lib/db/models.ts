@@ -25,7 +25,11 @@ export type ModelName =
   | "pageHighlight"
   | "sectionSubsection"
   | "sectionItem"
-  | "subsectionItem";
+  | "subsectionItem"
+  | "chatConversation"
+  | "chatMessage"
+  | "knowledgeBaseChunk"
+  | "chatKnowledgePdf";
 
 export type ModelMeta = {
   /** Postgres table name */
@@ -509,6 +513,87 @@ export const MODELS: Record<ModelName, ModelMeta> = {
     },
     {
       defaultCreate: { sortOrder: 0 },
+    },
+  ),
+
+  chatConversation: meta(
+    "chat_conversations",
+    {
+      id: "id",
+      sessionId: "session_id",
+      adminUserId: "admin_user_id",
+      title: "title",
+      createdAt: "created_at",
+      updatedAt: "updated_at",
+    },
+    {
+      updatedAt: "updatedAt",
+    },
+  ),
+
+  chatMessage: meta(
+    "chat_messages",
+    {
+      id: "id",
+      conversationId: "conversation_id",
+      role: "role",
+      content: "content",
+      createdAt: "created_at",
+    },
+    {},
+  ),
+
+  knowledgeBaseChunk: meta(
+    "knowledge_base_chunks",
+    {
+      id: "id",
+      sourceType: "source_type",
+      sourceId: "source_id",
+      sourcePath: "source_path",
+      title: "title",
+      content: "content",
+      metadata: "metadata",
+      embedding: "embedding",
+      createdAt: "created_at",
+      updatedAt: "updated_at",
+    },
+    {
+      jsonFields: ["metadata", "embedding"],
+      defaultCreate: {
+        title: "",
+        metadata: {},
+      },
+      updatedAt: "updatedAt",
+    },
+  ),
+
+  chatKnowledgePdf: meta(
+    "chat_knowledge_pdfs",
+    {
+      id: "id",
+      title: "title",
+      filename: "filename",
+      storageUrl: "storage_url",
+      cdnKey: "cdn_key",
+      mime: "mime",
+      sizeBytes: "size_bytes",
+      contentHash: "content_hash",
+      extractedText: "extracted_text",
+      status: "status",
+      chunkCount: "chunk_count",
+      errorMessage: "error_message",
+      createdAt: "created_at",
+      updatedAt: "updated_at",
+    },
+    {
+      defaultCreate: {
+        title: "",
+        mime: "application/pdf",
+        sizeBytes: 0,
+        status: "pending",
+        chunkCount: 0,
+      },
+      updatedAt: "updatedAt",
     },
   ),
 };

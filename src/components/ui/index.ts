@@ -1,5 +1,6 @@
 export { default as Button } from "./Button";
 export { default as Card } from "./Card";
+export { default as ChatWidget } from "./ChatWidget";
 export { default as Container } from "./Container";
 export type { CountryCodeSelectProps } from "./CountryCodeSelect";
 export { default as CountryCodeSelect } from "./CountryCodeSelect";

@@ -7,13 +7,18 @@ import {
   useReducedMotion,
 } from "framer-motion";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Container, Heading, Pill, SectionHeader } from "@/components/ui";
 import type { TravelGuideContent } from "@/content/types/shared-sections";
 import { ChevronDown } from "@/icons";
 import { EASE_OUT } from "@/lib/motion";
 import { mapTravelTopics, type TravelTopic } from "./travelGuideShared";
 
+/**
+ * Topic hero image for the travel guide banner.
+ *
+ * @param props.topic - Active travel topic
+ */
 function HeroBanner({ topic }: { topic: TravelTopic }) {
   const prefersReduced = useReducedMotion() ?? false;
 
@@ -50,6 +55,8 @@ function HeroBanner({ topic }: { topic: TravelTopic }) {
 
 /**
  * Travel guide section — prefers CMS shared content.
+ * Accordion column uses a fixed height so auto-rotating topics cannot
+ * resize the page and fight scroll anchoring.
  *
  * @param props.content - Shared travel document from MySQL
  */
@@ -58,34 +65,79 @@ export default function TravelGuide({
 }: {
   content?: TravelGuideContent | null;
 } = {}) {
-  if (!content?.topics?.length) return null;
-
-  const topics = mapTravelTopics(content);
-  const intro = content.intro?.trim() || "";
-
-  const [activeId, setActiveId] = useState<string | null>(
-    topics[0]?.id ?? null,
+  const topics = useMemo(
+    () => (content?.topics?.length ? mapTravelTopics(content) : []),
+    [content],
   );
+  const intro = content?.intro?.trim() || "";
+  const topicCount = topics.length;
+
+  const [activeId, setActiveId] = useState<string | null>(null);
   const [isPaused, setIsPaused] = useState(false);
+  const [canAutoRotate, setCanAutoRotate] = useState(false);
   const prefersReduced = useReducedMotion() ?? false;
   const sectionRef = useRef<HTMLElement>(null);
-  const isInView = useInView(sectionRef, { amount: 0.3 });
-  const active = topics.find((topic) => topic.id === activeId) ?? topics[0];
+  const isInView = useInView(sectionRef, {
+    amount: 0.25,
+    margin: "-12% 0px -12% 0px",
+  });
 
+  // Auto-rotate only on large screens where the accordion column is fixed-height.
   useEffect(() => {
-    if (!isInView || isPaused || prefersReduced || topics.length <= 1) {
+    if (typeof window === "undefined" || !window.matchMedia) return;
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const sync = () => setCanAutoRotate(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
+  // Keep selection valid when CMS topics load / change.
+  useEffect(() => {
+    if (topicCount === 0) {
+      setActiveId(null);
+      return;
+    }
+    setActiveId((current) => {
+      if (current && topics.some((topic) => topic.id === current)) {
+        return current;
+      }
+      return topics[0].id;
+    });
+  }, [topicCount, topics]);
+
+  // Auto-rotate topics only while the section is stably in view (desktop).
+  useEffect(() => {
+    if (
+      !canAutoRotate ||
+      !isInView ||
+      isPaused ||
+      prefersReduced ||
+      topicCount <= 1
+    ) {
       return;
     }
     const interval = setInterval(() => {
       setActiveId((current) => {
-        if (current === null) return topics[0].id;
+        if (current === null) return topics[0]?.id ?? null;
         const idx = topics.findIndex((topic) => topic.id === current);
-        return topics[(idx + 1) % topics.length].id;
+        const safeIdx = idx >= 0 ? idx : 0;
+        return topics[(safeIdx + 1) % topics.length].id;
       });
     }, 4500);
     return () => clearInterval(interval);
-  }, [isInView, isPaused, prefersReduced, topics]);
+  }, [
+    canAutoRotate,
+    isInView,
+    isPaused,
+    prefersReduced,
+    topicCount,
+    topics,
+  ]);
 
+  if (topicCount === 0) return null;
+
+  const active = topics.find((topic) => topic.id === activeId) ?? topics[0];
   if (!active) return null;
 
   return (
@@ -93,7 +145,7 @@ export default function TravelGuide({
       ref={sectionRef}
       id="travel"
       aria-label="Guide to travelling to India"
-      className="relative overflow-x-clip bg-white py-20 sm:py-28"
+      className="travel-guide-section relative overflow-x-clip bg-white py-20 sm:py-28"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       onFocusCapture={() => setIsPaused(true)}
@@ -105,7 +157,6 @@ export default function TravelGuide({
       />
 
       <Container size="2xl" className="relative">
-        {/* Split header */}
         <div className="grid grid-cols-1 items-end gap-8 lg:grid-cols-[1.15fr_1fr] lg:gap-14">
           <SectionHeader
             eyebrow="Logistics"
@@ -121,22 +172,26 @@ export default function TravelGuide({
           </p>
         </div>
 
-        {/* Main grid: banner left (fixed height), accordion right (free height) */}
-        <div className="mt-12 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_380px] lg:items-start">
-          {/* Hero banner — fixed height so accordion expanding never resizes it */}
-          <div className="h-[260px] sm:h-[340px] lg:h-[520px]">
+        {/*
+          Fixed row height on lg: rotating accordion panels expand inside the
+          column instead of growing the document and nudging scroll position.
+        */}
+        <div className="mt-12 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_380px] lg:items-stretch lg:h-[520px]">
+          <div className="h-[260px] sm:h-[340px] lg:h-full">
             <HeroBanner topic={active} />
           </div>
 
-          {/* Topic accordion */}
-          <aside className="flex flex-col gap-2" aria-label="Travel topics">
+          <aside
+            className="flex min-h-0 flex-col gap-2 lg:h-full lg:overflow-y-auto lg:overscroll-y-contain lg:pr-1 scrollbar-thin-primary"
+            aria-label="Travel topics"
+          >
             {topics.map((topic) => {
               const isActive = activeId === topic.id;
               const { Icon } = topic;
               return (
                 <div
                   key={topic.id}
-                  className="overflow-hidden rounded-2xl border border-ink/8 transition-colors duration-200"
+                  className="shrink-0 overflow-hidden rounded-2xl border border-ink/8 transition-colors duration-200"
                 >
                   <button
                     type="button"
@@ -149,7 +204,6 @@ export default function TravelGuide({
                         : "bg-sand/40 hover:bg-sand"
                     }`}
                   >
-                    {/* icon */}
                     <span
                       className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl transition-colors duration-200 ${
                         isActive ? "bg-white/15" : "bg-primary/10"
@@ -162,7 +216,6 @@ export default function TravelGuide({
                       />
                     </span>
 
-                    {/* labels */}
                     <span className="min-w-0 flex-1">
                       <span
                         className={`type-eyebrow block ${isActive ? "text-accent" : "text-primary"}`}
@@ -176,7 +229,6 @@ export default function TravelGuide({
                       </span>
                     </span>
 
-                    {/* chevron */}
                     <ChevronDown
                       size={14}
                       className={`shrink-0 transition-transform duration-300 ${
@@ -185,7 +237,6 @@ export default function TravelGuide({
                     />
                   </button>
 
-                  {/* Inline detail panel — expands below the active button */}
                   <AnimatePresence initial={false}>
                     {isActive && (
                       <motion.div
@@ -194,8 +245,8 @@ export default function TravelGuide({
                         animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
                         transition={{
-                          height: { duration: 0.3, ease: EASE_OUT },
-                          opacity: { duration: 0.2 },
+                          height: { duration: 0.25, ease: EASE_OUT },
+                          opacity: { duration: 0.18 },
                         }}
                         className="overflow-hidden"
                       >

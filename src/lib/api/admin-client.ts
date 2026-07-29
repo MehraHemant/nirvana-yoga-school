@@ -346,6 +346,105 @@ export async function saveAdminDedicatedPage(
   });
 }
 
+/** Response from POST /api/admin/chat/index. */
+export type AdminChatIndexSyncResponse = {
+  success: boolean;
+  upserted: number;
+  deleted: number;
+  skipped: number;
+  total: number;
+  durationMs: number;
+  mode: "incremental" | "full";
+  collection: string;
+};
+
+/** Chat knowledge PDF row for admin UI. */
+export type AdminChatKnowledgePdf = {
+  id: string;
+  title: string;
+  filename: string;
+  storageUrl: string;
+  cdnKey: string | null;
+  mime: string;
+  sizeBytes: number;
+  contentHash: string | null;
+  status: "pending" | "indexed" | "error";
+  chunkCount: number;
+  errorMessage: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+/** Response from GET /api/admin/chat/pdfs. */
+export type AdminChatPdfsListResponse = {
+  pdfs: AdminChatKnowledgePdf[];
+};
+
+/** Response from POST /api/admin/chat/pdfs. */
+export type AdminChatPdfsUploadResponse = {
+  pdfs: AdminChatKnowledgePdf[];
+  errors: string[];
+};
+
+/** Response from DELETE /api/admin/chat/pdfs/[id]. */
+export type AdminChatPdfDeleteResponse = {
+  success: boolean;
+  deletedId: string;
+  wiped: boolean;
+  reindex: Omit<AdminChatIndexSyncResponse, "success"> | null;
+  warning?: string;
+};
+
+/**
+ * Sync live CMS/KB/PDF chunks into the Qdrant chat RAG index.
+ *
+ * @param mode - Incremental (skip unchanged) or full re-embed
+ */
+export async function syncAdminChatIndex(
+  mode: "incremental" | "full" = "incremental",
+): Promise<AdminChatIndexSyncResponse> {
+  return adminFetch<AdminChatIndexSyncResponse>("/api/admin/chat/index", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ mode }),
+  });
+}
+
+/**
+ * List chat knowledge PDFs.
+ */
+export async function fetchAdminChatPdfs(): Promise<AdminChatPdfsListResponse> {
+  return adminFetch<AdminChatPdfsListResponse>("/api/admin/chat/pdfs");
+}
+
+/**
+ * Upload one or more PDFs for chat RAG.
+ *
+ * @param form - Multipart form with `file`/`files` and optional `title`
+ */
+export async function uploadAdminChatPdfs(
+  form: FormData,
+): Promise<AdminChatPdfsUploadResponse> {
+  return adminFetch<AdminChatPdfsUploadResponse>("/api/admin/chat/pdfs", {
+    method: "POST",
+    body: form,
+  });
+}
+
+/**
+ * Delete a chat knowledge PDF (wipes Qdrant, then re-indexes remaining).
+ *
+ * @param id - PDF document id
+ */
+export async function deleteAdminChatPdf(
+  id: string,
+): Promise<AdminChatPdfDeleteResponse> {
+  return adminFetch<AdminChatPdfDeleteResponse>(
+    `/api/admin/chat/pdfs/${encodeURIComponent(id)}`,
+    { method: "DELETE" },
+  );
+}
+
 /**
  * Fetch global settings (chrome + shared section keys).
  *

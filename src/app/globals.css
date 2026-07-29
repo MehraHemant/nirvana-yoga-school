@@ -1260,6 +1260,15 @@ details[open] .accordion-icon {
   background: white;
 }
 
+/*
+ * Travel guide auto-rotates accordion panels. Disable scroll anchoring so
+ * height changes inside the fixed column cannot nudge the page up/down.
+ */
+.travel-guide-section,
+#travel {
+  overflow-anchor: none;
+}
+
 /* Book-now flow */
 .booking-input {
   width: 100%;
@@ -1384,6 +1393,33 @@ details[open] .accordion-icon {
 /* AI Chatbot widget                                                          */
 /* -------------------------------------------------------------------------- */
 
+/* Floating chat dock — stacked above Book Now on desktop course pages */
+.chat-fab-dock {
+  pointer-events: none;
+}
+
+.chat-fab-dock > * {
+  pointer-events: auto;
+}
+
+.chat-fab-panel {
+  box-shadow:
+    0 18px 48px -16px rgb(26 20 16 / 35%),
+    0 8px 24px -10px rgb(163 36 50 / 28%);
+}
+
+.chat-fab-trigger {
+  box-shadow:
+    0 10px 36px -10px rgb(26 20 16 / 55%),
+    0 8px 28px -8px rgb(163 36 50 / 45%);
+}
+
+.chat-fab-trigger:hover {
+  box-shadow:
+    0 14px 44px -10px rgb(26 20 16 / 60%),
+    0 12px 36px -8px rgb(163 36 50 / 55%);
+}
+
 .chat-typing-dot {
   display: inline-block;
   width: 0.45rem;
@@ -1414,8 +1450,12 @@ details[open] .accordion-icon {
   }
 }
 
+.chat-markdown {
+  overflow-wrap: anywhere;
+}
+
 .chat-markdown p {
-  margin: 0 0 0.75rem;
+  margin: 0 0 0.5rem;
 }
 
 .chat-markdown p:last-child {
@@ -1424,12 +1464,33 @@ details[open] .accordion-icon {
 
 .chat-markdown ul,
 .chat-markdown ol {
-  margin: 0 0 0.75rem 1.1rem;
-  padding: 0;
+  margin: 0 0 0.5rem;
+  padding-left: 1.15rem;
+}
+
+.chat-markdown ul {
+  list-style: disc;
+}
+
+.chat-markdown ol {
+  list-style: decimal;
 }
 
 .chat-markdown li {
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.25rem;
+  line-height: 1.5;
+}
+
+.chat-markdown li:last-child {
+  margin-bottom: 0;
+}
+
+.chat-markdown strong {
+  font-weight: 600;
+}
+
+.chat-markdown em {
+  font-style: italic;
 }
 
 .chat-markdown pre {
@@ -1456,8 +1517,13 @@ details[open] .accordion-icon {
 
 .chat-markdown a {
   color: var(--color-primary);
+  font-weight: 500;
   text-decoration: underline;
   text-underline-offset: 2px;
+}
+
+.chat-markdown a:hover {
+  color: var(--color-primary-dark);
 }
 
 @media (prefers-reduced-motion: reduce) {

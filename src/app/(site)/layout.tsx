@@ -1,4 +1,5 @@
 import Footer from "@/components/layout/Footer";
+import ChatWidget from "@/components/ui/ChatWidget";
 import Header from "@/components/ui/Header";
 import MobileStickyBar from "@/components/ui/MobileStickyBar";
 import WhatsAppFab from "@/components/ui/WhatsAppFab";
@@ -52,6 +53,7 @@ export default async function SiteLayout({
       <SiteMain>{children}</SiteMain>
       <Footer initialData={footer} />
       <WhatsAppFab phone={whatsappNumber} />
+      <ChatWidget />
       <MobileStickyBar />
     </>
   );
