@@ -16,6 +16,11 @@ import {
 import { getSessionFromRequest } from "@/lib/cms/auth-session";
 import { isDbEnabled } from "@/lib/db";
 
+/** Node runtime required for Neon + Gemini streaming on Vercel. */
+export const runtime = "nodejs";
+/** Allow RAG + paced SSE on Vercel serverless (Hobby max is plan-capped). */
+export const maxDuration = 60;
+
 /**
  * Encode a chat stream event as an SSE data line.
  *
@@ -23,6 +28,34 @@ import { isDbEnabled } from "@/lib/db";
  */
 function toSse(event: ChatStreamEvent): string {
   return `data: ${JSON.stringify(event)}\n\n`;
+}
+
+/**
+ * Map thrown errors to a visitor-safe SSE error message.
+ *
+ * @param error - Caught error from the chat stream
+ */
+function toPublicChatError(error: unknown): string {
+  const message =
+    error instanceof Error ? error.message : "Failed to send chat message";
+
+  if (/chat_conversations|chat_messages|does not exist/i.test(message)) {
+    return "Chat storage is not ready. Apply the chat DB migration (npm run db:migrate:chat).";
+  }
+  if (message === "Conversation not found") return message;
+  if (
+    message.includes("GEMINI_API_KEY") ||
+    message.includes("Gemini") ||
+    message.toLowerCase().includes("quota")
+  ) {
+    return message;
+  }
+  if (/ECONNREFUSED|timeout|ENOTFOUND|connection/i.test(message)) {
+    return "Chat temporarily unavailable. Please try again in a moment.";
+  }
+
+  console.error("[chat] stream failed:", message);
+  return "Failed to send chat message";
 }
 
 /**
@@ -52,7 +85,13 @@ export async function GET(request: Request) {
       return jsonNotFound("Conversation not found");
     }
     return jsonOk({ conversation });
-  } catch {
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "";
+    if (/chat_conversations|chat_messages|does not exist/i.test(message)) {
+      return jsonUnavailable(
+        "Chat storage is not ready. Apply the chat DB migration.",
+      );
+    }
     return jsonInternal("Failed to load conversation");
   }
 }
@@ -137,19 +176,7 @@ export async function POST(request: Request) {
         }
         controller.close();
       } catch (error) {
-        const message =
-          error instanceof Error ? error.message : "Failed to send chat message";
-        if (message === "Conversation not found") {
-          send({ type: "error", message });
-        } else if (
-          message.includes("GEMINI_API_KEY") ||
-          message.includes("Gemini") ||
-          message.toLowerCase().includes("quota")
-        ) {
-          send({ type: "error", message });
-        } else {
-          send({ type: "error", message: "Failed to send chat message" });
-        }
+        send({ type: "error", message: toPublicChatError(error) });
         controller.close();
       }
     },

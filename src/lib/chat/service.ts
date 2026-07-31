@@ -10,6 +10,10 @@ import { type AiChatMessage, getAiProvider } from "@/lib/ai";
 import { db } from "@/lib/db";
 import type { ParseResult } from "@/lib/types/api";
 import {
+  formatEnquiryResultForPrompt,
+  maybeSubmitChatEnquiry,
+} from "./enquiry";
+import {
   formatRetrievedContext,
   getChatSiteOrigin,
   retrieveChatContext,
@@ -32,9 +36,9 @@ export type ChatStreamEvent =
   | { type: "error"; message: string };
 
 /** Characters per streamed paint (smaller = smoother typewriter). */
-const STREAM_PIECE_CHARS = 2;
-/** Delay between pieces in ms (higher = slower). */
-const STREAM_PIECE_DELAY_MS = 24;
+const STREAM_PIECE_CHARS = 3;
+/** Delay between pieces in ms (higher = slower; keep low for Vercel maxDuration). */
+const STREAM_PIECE_DELAY_MS = 12;
 
 /**
  * Remove bare numeric footnote markers like [1] without touching Markdown links.
@@ -237,6 +241,7 @@ async function ensureConversation(
 
 /**
  * Build system prompt + recent provider messages for a turn (includes RAG).
+ * May submit a website enquiry when the visitor confirms collected details.
  *
  * @param conversationId - Conversation id
  * @param userMessage - Latest user message
@@ -247,6 +252,21 @@ async function prepareChatTurn(
   userMessage: string,
   siteOrigin?: string,
 ): Promise<{ system: string; messages: AiChatMessage[] }> {
+  const priorRows = await db.chatMessage.findMany({
+    where: { conversationId },
+    orderBy: { createdAt: "desc" },
+    take: HISTORY_LIMIT,
+  });
+  const prior = [...priorRows].reverse();
+
+  const enquiryResult = await maybeSubmitChatEnquiry({
+    latestUserMessage: userMessage,
+    recentMessages: prior
+      .filter((row) => row.role === "user" || row.role === "assistant")
+      .map((row) => ({ role: row.role, content: row.content })),
+  });
+  const enquiryNote = formatEnquiryResultForPrompt(enquiryResult);
+
   await db.chatMessage.create({
     data: {
       conversationId,
@@ -273,7 +293,8 @@ async function prepareChatTurn(
     }));
 
   const origin = getChatSiteOrigin(siteOrigin);
-  const system = `${CHAT_SYSTEM_PROMPT}\n\nPublic site origin: ${origin}\n\n---\nSITE KNOWLEDGE\n${formatRetrievedContext(chunks, siteOrigin)}`;
+  const enquiryBlock = enquiryNote ? `\n\n---\n${enquiryNote}` : "";
+  const system = `${CHAT_SYSTEM_PROMPT}\n\nPublic site origin: ${origin}${enquiryBlock}\n\n---\nSITE KNOWLEDGE\n${formatRetrievedContext(chunks, siteOrigin)}`;
 
   return { system, messages };
 }

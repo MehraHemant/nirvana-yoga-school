@@ -295,6 +295,7 @@ export default function ChatWidget() {
       const decoder = new TextDecoder();
       let buffer = "";
       let sawDone = false;
+      let streamError: string | null = null;
 
       while (true) {
         const { done, value } = await reader.read();
@@ -350,30 +351,40 @@ export default function ChatWidget() {
               // ignore
             }
           } else if (event.type === "error") {
-            throw new Error(event.message);
+            streamError = event.message || "Failed to send chat message";
           }
         }
       }
 
+      if (streamError) {
+        throw new Error(streamError);
+      }
+
       if (!sawDone) {
-        setMessages((prev) => {
-          const streamed = prev.find((message) => message.id === activeStreamId);
-          if (streamed?.content.trim()) return prev;
-          return prev.filter(
+        const keptContent = streamTextRef.current.trim();
+        if (keptContent) {
+          // Stream ended early (proxy/timeout) but deltas arrived — keep them.
+          return;
+        }
+        setMessages((prev) =>
+          prev.filter(
             (message) =>
               message.id !== activeStreamId && message.id !== optimisticUser.id,
-          );
-        });
+          ),
+        );
         throw new Error("Could not send message");
       }
     } catch (err) {
-      setMessages((prev) =>
-        prev.filter(
-          (message) =>
-            message.id !== activeStreamId && message.id !== optimisticUser.id,
-        ),
-      );
-      setInput(text);
+      const keptContent = streamTextRef.current.trim();
+      if (!keptContent) {
+        setMessages((prev) =>
+          prev.filter(
+            (message) =>
+              message.id !== activeStreamId && message.id !== optimisticUser.id,
+          ),
+        );
+        setInput(text);
+      }
       setError(err instanceof Error ? err.message : "Could not send message");
     } finally {
       setSending(false);
