@@ -41,7 +41,6 @@ export async function duplicatePageAction(formData: FormData) {
       ctaLabel: page.ctaLabel,
       ctaHref: page.ctaHref,
       published: false,
-      contentTypeId: page.contentTypeId,
       contentData: page.contentData,
       pageModules: page.pageModules ?? undefined,
       courseDoc: page.courseDoc

@@ -146,7 +146,6 @@ export type PageWithRelations = {
   ctaLabel: string | null;
   ctaHref: string | null;
   published: boolean;
-  contentTypeId: string | null;
   contentData: unknown;
   createdAt: Date;
   updatedAt: Date;

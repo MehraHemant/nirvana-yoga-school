@@ -37,6 +37,18 @@ function isMultipartFile(entry: FormDataEntryValue): entry is File {
 }
 
 /**
+ * Coerce a multipart Blob/File into a File instance for upload handlers.
+ *
+ * @param entry - Uploaded blob (may not pass `instanceof File` under undici)
+ */
+function ensureUploadFile(entry: Blob & { name?: string }): File {
+  if (entry instanceof File) return entry;
+  return new File([entry], entry.name || "document.pdf", {
+    type: entry.type || "application/pdf",
+  });
+}
+
+/**
  * Simple per-IP rate limit for PDF uploads.
  *
  * @param ip - Client IP
@@ -109,16 +121,8 @@ export async function POST(request: Request) {
   const errors: string[] = [];
 
   for (const entry of files) {
-    const filename =
-      entry instanceof File && entry.name
-        ? entry.name
-        : (entry as File).name || "document.pdf";
-    const file =
-      entry instanceof File
-        ? entry
-        : new File([entry], filename, {
-            type: entry.type || "application/pdf",
-          });
+    const file = ensureUploadFile(entry);
+    const filename = file.name || "document.pdf";
     try {
       if (file.size > maxPdfUploadBytes()) {
         errors.push(`${filename}: exceeds ${MAX_PDF_UPLOAD_LABEL} limit`);

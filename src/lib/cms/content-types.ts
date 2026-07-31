@@ -216,7 +216,6 @@ export async function seedPageBlocks(
     where: { id: pageId },
     data: {
       contentData: doc,
-      contentTypeId: null,
     },
   });
 
@@ -273,10 +272,7 @@ export async function assignContentTypeToPage(
   pageSlug?: string,
 ) {
   if (!contentTypeId) {
-    const row = await db.page.update({
-      where: { id: pageId },
-      data: { contentTypeId: null },
-    });
+    const row = await db.page.findUnique({ where: { id: pageId } });
     if (pageSlug) invalidateContentCache(pageSlug);
     return { data: row };
   }
@@ -300,7 +296,6 @@ export async function assignContentTypeToPage(
   const row = await db.page.update({
     where: { id: pageId },
     data: {
-      contentTypeId: null,
       contentData: doc,
     },
   });

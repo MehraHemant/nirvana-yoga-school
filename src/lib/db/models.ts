@@ -87,7 +87,6 @@ export const MODELS: Record<ModelName, ModelMeta> = {
       ctaLabel: "cta_label",
       ctaHref: "cta_href",
       published: "published",
-      contentTypeId: "content_type_id",
       contentData: "content_data",
       createdAt: "created_at",
       updatedAt: "updated_at",
