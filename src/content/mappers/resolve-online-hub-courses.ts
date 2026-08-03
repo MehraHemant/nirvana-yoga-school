@@ -9,7 +9,7 @@ import { mapCourseDocumentToYttHubCard } from "./ytt-hub-courses";
 const FALLBACK_IMAGE = liveImage("/img/home/banner_3.webp");
 const FALLBACK_CERT_BADGE = liveImage("/img/rys200.png");
 
-const NAV_ORDER = new Map(
+const NAV_ORDER = new Map<string, number>(
   ONLINE_COURSE_SLUGS.map((slug, index) => [slug, index]),
 );
 

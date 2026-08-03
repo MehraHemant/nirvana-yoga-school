@@ -37,7 +37,7 @@ export function courseAddonRoomOptionId(
  * @param item - Add-on from CMS (preferably enriched)
  */
 export function getAddonOptions(item: BookingAddon): BookingAddonOption[] {
-  if (item.options && item.options.length > 0) {
+  if (item.type === "course" && item.options && item.options.length > 0) {
     return item.options.map((option) => ({
       id: option.id,
       label: option.label,
