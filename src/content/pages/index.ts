@@ -6,6 +6,7 @@ export {
   isDedicatedPageType,
   isDedicatedRouteSlug,
   ONLINE_COURSE_SLUGS,
+  ONLINE_HUB_SLUG,
   RESIDENTIAL_COURSE_SLUGS,
   RETREAT_SLUGS,
   VENUE_SLUGS,

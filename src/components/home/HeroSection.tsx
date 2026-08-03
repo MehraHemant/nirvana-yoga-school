@@ -23,12 +23,19 @@ export default function HeroSection({
     badge,
     titleLead,
     titleAccent,
+    support,
     ctaLabel,
     ctaHref,
+    secondaryCtaLabel,
+    secondaryCtaHref,
     marqueeItems,
     mobileTrust,
     video,
   } = content;
+  const supportText = support?.trim() || "";
+  const secondaryLabel = secondaryCtaLabel?.trim() || "";
+  const secondaryHref = secondaryCtaHref?.trim() || "";
+  const showSecondary = Boolean(secondaryLabel && secondaryHref);
 
   return (
     <HeroFrame
@@ -39,11 +46,11 @@ export default function HeroSection({
       <HeroBackgroundVideo video={video} />
 
       <div
-        className="absolute inset-0 bg-linear-to-t from-black/90 via-black/25 via-45% to-transparent"
+        className="absolute inset-0 bg-linear-to-t from-black/92 via-black/40 via-50% to-black/20"
         aria-hidden="true"
       />
       <div
-        className="absolute inset-x-0 top-0 h-28 bg-linear-to-b from-black/50 to-transparent"
+        className="absolute inset-x-0 top-0 h-28 bg-linear-to-b from-black/55 to-transparent"
         aria-hidden="true"
       />
       <div
@@ -86,6 +93,13 @@ export default function HeroSection({
                 </div>
                 <span className="text-accent">.</span>
               </Heading>
+
+              {supportText ? (
+                <p className="animate-fade-up fade-delay-400 mt-4 max-w-xl text-pretty type-body text-white/85 sm:mt-5 sm:text-lg">
+                  {supportText}
+                </p>
+              ) : null}
+
               <div className="animate-fade-up fade-delay-500 mt-5 sm:mt-8 flex flex-wrap gap-2 sm:gap-3">
                 <Button
                   href={ctaHref}
@@ -99,50 +113,59 @@ export default function HeroSection({
                     className="sm:w-[18px] sm:h-[18px] transition-transform group-hover:translate-x-1"
                   />
                 </Button>
+                {showSecondary ? (
+                  <Button href={secondaryHref} variant="outline-light" responsive>
+                    {secondaryLabel}
+                  </Button>
+                ) : null}
               </div>
 
-              <div className="animate-fade-up fade-delay-600 lg:hidden mt-5 sm:mt-8 flex gap-2 sm:gap-3 overflow-x-auto pb-1">
-                {mobileTrust.map((item) => (
-                  <div
-                    key={item.label}
-                    className="hero-glass shrink-0 rounded-xl sm:rounded-2xl px-3 py-2 sm:px-4 sm:py-3 min-w-[76px] sm:min-w-[88px] text-center"
-                  >
-                    <div className="type-display-sm font-semibold text-white leading-none">
-                      {item.value}
+              {mobileTrust.length > 0 ? (
+                <div className="animate-fade-up fade-delay-600 lg:hidden mt-5 sm:mt-8 flex gap-2 sm:gap-3 overflow-x-auto pb-1">
+                  {mobileTrust.map((item) => (
+                    <div
+                      key={item.label}
+                      className="hero-glass shrink-0 rounded-xl sm:rounded-2xl px-3 py-2 sm:px-4 sm:py-3 min-w-[76px] sm:min-w-[88px] text-center"
+                    >
+                      <div className="type-display-sm font-semibold text-white leading-none">
+                        {item.value}
+                      </div>
+                      <div className="type-eyebrow text-white/60 mt-1">
+                        {item.label}
+                      </div>
                     </div>
-                    <div className="type-eyebrow text-white/60 mt-1">
-                      {item.label}
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : null}
             </div>
           </div>
         </Container>
       </div>
 
-      <div className="absolute bottom-0 inset-x-0 z-10 border-t border-white/10 bg-black/50 backdrop-blur-md">
-        <div className="marquee-mask overflow-hidden py-3">
-          <div className="flex w-max animate-marquee" aria-hidden="true">
-            {["a", "b"].map((set) => (
-              <div key={set} className="flex">
-                {marqueeItems.map((item) => (
-                  <div
-                    key={`${set}-${item}`}
-                    className="flex items-center gap-5 md:gap-10 px-5 md:px-10 text-white/75 text-xs md:text-sm whitespace-nowrap"
-                  >
-                    <span className="font-sans tracking-wide">{item}</span>
-                    <span
-                      className="w-1 h-1 rounded-full bg-accent/70"
-                      aria-hidden="true"
-                    />
-                  </div>
-                ))}
-              </div>
-            ))}
+      {marqueeItems.length > 0 ? (
+        <div className="absolute bottom-0 inset-x-0 z-10 border-t border-white/10 bg-black/55 backdrop-blur-md">
+          <div className="marquee-mask overflow-hidden py-3">
+            <div className="flex w-max animate-marquee" aria-hidden="true">
+              {["a", "b"].map((set) => (
+                <div key={set} className="flex">
+                  {marqueeItems.map((item) => (
+                    <div
+                      key={`${set}-${item}`}
+                      className="flex items-center gap-5 md:gap-10 px-5 md:px-10 text-white/75 text-xs md:text-sm whitespace-nowrap"
+                    >
+                      <span className="font-sans tracking-wide">{item}</span>
+                      <span
+                        className="w-1 h-1 rounded-full bg-accent/70"
+                        aria-hidden="true"
+                      />
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
+      ) : null}
     </HeroFrame>
   );
 }

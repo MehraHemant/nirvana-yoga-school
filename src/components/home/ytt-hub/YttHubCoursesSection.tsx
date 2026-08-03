@@ -17,7 +17,7 @@ type YttHubCoursesSectionProps = {
 };
 
 /**
- * YTT hub course cards grid — cards resolve from course entities at page load.
+ * Hub course cards grid (YTT + online) — dense hub CourseCard (16:10 image).
  *
  * @param props - Courses intro copy and resolved course cards
  */
@@ -33,14 +33,14 @@ export default function YttHubCoursesSection({
   if (!coursesIntro.title.trim() && courses.length === 0) return null;
 
   return (
-    <section id={htmlId} className="scroll-mt-28 bg-sand py-20 md:py-28">
+    <section id={htmlId} className="scroll-mt-28 bg-sand py-16 md:py-24">
       <Container size="2xl">
         <motion.div
           initial="hidden"
           whileInView="visible"
           viewport={VIEWPORT_ONCE}
           variants={fadeUp}
-          className="mb-12 max-w-3xl md:mb-16"
+          className="mb-10 max-w-3xl md:mb-12"
         >
           <SectionHeader
             eyebrow={coursesIntro.eyebrow?.trim() || "Programs"}
@@ -62,14 +62,14 @@ export default function YttHubCoursesSection({
             </div>
           ) : null}
           {courses.length > 0 ? (
-            <p className="mt-6 type-eyebrow text-primary">
+            <p className="mt-5 type-eyebrow text-primary">
               {courses.length} programs
             </p>
           ) : null}
         </motion.div>
 
         {courses.length > 0 ? (
-          <div className="grid gap-8 lg:grid-cols-2 lg:gap-10">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 lg:gap-6">
             {courses.map((course, index) => (
               <motion.div
                 key={course.courseSlug || course.href || course.title || index}
@@ -80,7 +80,7 @@ export default function YttHubCoursesSection({
                 custom={index * 0.06}
               >
                 <CourseCard
-                  layout="editorial"
+                  layout="hub"
                   title={course.title}
                   description={course.description || course.overview}
                   duration={course.duration}

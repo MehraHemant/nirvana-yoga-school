@@ -8,11 +8,7 @@ export type { CourseCardProps } from "./CourseCard";
 export { default as CourseCard } from "./CourseCard";
 export { default as FAQItem } from "./FAQItem";
 export type { FAQEntry, FAQSectionProps } from "./FAQSection";
-export {
-  COURSE_FAQ_CATEGORIES,
-  default as FAQSection,
-  getCourseFaqCategory,
-} from "./FAQSection";
+export { default as FAQSection } from "./FAQSection";
 export { default as Header } from "./Header";
 export * from "./Heading";
 export { default as Heading } from "./Heading";

@@ -1,3 +1,4 @@
+import { ONLINE_HUB_SLUG } from "@/content/pages/slugs";
 import type {
   DedicatedPageContent,
   OnlineCourseDocument,
@@ -73,6 +74,13 @@ export async function GET(
 
   if (slug === "teacher") {
     await ensureTeacherPage().catch(() => null);
+  }
+
+  if (slug === ONLINE_HUB_SLUG) {
+    const { ensureOnlineHubPage } = await import(
+      "@/lib/cms/ensure-online-hub-page"
+    );
+    await ensureOnlineHubPage().catch(() => null);
   }
 
   const page = await db.page.findUnique({

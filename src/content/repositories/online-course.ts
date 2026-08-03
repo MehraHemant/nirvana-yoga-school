@@ -32,3 +32,5 @@ export async function getOnlineCourseSlugs(): Promise<string[]> {
   const result = await requireDb(() => fetchPageSlugsByTypeFromDb("online"));
   return result.data;
 }
+
+export { resolveOnlineHubCourses } from "@/content/mappers/resolve-online-hub-courses";

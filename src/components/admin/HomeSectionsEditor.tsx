@@ -331,9 +331,13 @@ export function HomeSectionsEditor({
             </div>
             <div className="admin-nested-card">
               <strong>Background video</strong>
+              <p className="admin-hint">
+                Full-bleed muted MP4 loop (autoplay, no controls). Leave srcs
+                empty for poster only.
+              </p>
               <div className="admin-grid-2">
                 <TextField
-                  label="Mobile src"
+                  label="Mobile MP4 src"
                   value={doc.hero.video.mobileSrc}
                   onChange={(mobileSrc) =>
                     setDoc({
@@ -361,7 +365,7 @@ export function HomeSectionsEditor({
               </div>
               <div className="admin-grid-2">
                 <TextField
-                  label="Desktop src"
+                  label="Desktop MP4 src"
                   value={doc.hero.video.desktopSrc}
                   onChange={(desktopSrc) =>
                     setDoc({

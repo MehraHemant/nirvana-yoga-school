@@ -17,7 +17,7 @@ import {
   WhatIsIncluded,
   WhyNirvana,
 } from "@/components/courses";
-import { COURSE_FAQ_CATEGORIES, FAQSection } from "@/components/ui";
+import { FAQSection } from "@/components/ui";
 import {
   hasExamCertificationContent,
   isSectionLive,
@@ -267,7 +267,6 @@ export default function CourseClient({
           <FAQSection
             id={resolveSectionHtmlId("faq", m?.faqs._id)}
             faqs={faqItems}
-            categories={COURSE_FAQ_CATEGORIES}
             sectionClassName="bg-white"
             eyebrow="Got Questions?"
             title={

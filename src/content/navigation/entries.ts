@@ -1,5 +1,6 @@
 import {
   ONLINE_COURSE_SLUGS,
+  ONLINE_HUB_SLUG,
   RESIDENTIAL_COURSE_SLUGS,
   RETREAT_SLUGS,
 } from "@/content/pages/slugs";
@@ -71,7 +72,7 @@ export const NAV_DROPDOWN_ENTRIES: Record<NavDropdownKey, NavDropdownConfig> = {
     seeAll: {
       sort: 999,
       type: "site",
-      slug: "online-yoga-teacher-training-courses",
+      slug: ONLINE_HUB_SLUG,
     },
   },
   retreats: {

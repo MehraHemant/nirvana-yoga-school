@@ -3,7 +3,10 @@ import { BookingFlow } from "@/components/booking";
 import { getSitePage } from "@/content";
 import { getPageModules } from "@/content/repositories/page-modules";
 import { getBookingAddons } from "@/content/repositories/shared-sections";
-import { getRetreatBookingCatalog } from "@/lib/booking/catalog";
+import {
+  getCourseBookingCatalog,
+  getRetreatBookingCatalog,
+} from "@/lib/booking/catalog";
 import { getPayPalClientId } from "@/lib/payments/paypal";
 import { metadataFromPageSeo } from "../_shared/metadata";
 
@@ -35,8 +38,9 @@ export default async function RetreatBookingPage({
   searchParams,
 }: RetreatBookingPageProps) {
   const params = await searchParams;
-  const [programs, addonsResult] = await Promise.all([
+  const [programs, courseCatalog, addonsResult] = await Promise.all([
     getRetreatBookingCatalog(),
+    getCourseBookingCatalog(),
     getBookingAddons().catch(() => null),
   ]);
 
@@ -45,6 +49,7 @@ export default async function RetreatBookingPage({
       type="retreat"
       programs={programs}
       addons={addonsResult?.data ?? null}
+      addonCatalog={[...programs, ...courseCatalog]}
       paypalClientId={getPayPalClientId()}
       initialProgramSlug={params.course ?? ""}
       initialRoomType={params.room ?? ""}

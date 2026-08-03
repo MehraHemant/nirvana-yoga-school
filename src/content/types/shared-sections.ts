@@ -77,7 +77,6 @@ export type SharedFaq = {
   answer: string;
   image?: string;
   tag?: string;
-  category?: string;
   /** Display order (0, 10, 20…); array order is authoritative when omitted */
   sort?: number;
 };

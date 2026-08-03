@@ -1,10 +1,12 @@
 import { MapSection } from "@/components/home";
 import { isKirtanPage } from "@/content/mappers/kirtan-page";
+import { ONLINE_HUB_SLUG } from "@/content/pages/slugs";
 import type { SitePageDocument } from "@/content/types";
 import { shouldRenderSection } from "@/lib/cms/section-visibility";
 import { loadSitePageDataAsync } from "../../_shared/site/data.server";
 import HubClient from "./HubClient";
 import KirtanClient from "./KirtanClient";
+import OnlineHubPage from "./OnlineHubPage";
 import SiteClient from "./SiteClient";
 import TeachersClient from "./TeachersClient";
 import YttHubPage from "./YttHubPage";
@@ -19,6 +21,10 @@ const YTT_HUB_SLUG = "yoga-teacher-training-in-rishikesh-india";
 export async function renderSitePage(page: SitePageDocument) {
   if (page.slug === YTT_HUB_SLUG) {
     return <YttHubPage />;
+  }
+
+  if (page.slug === ONLINE_HUB_SLUG) {
+    return <OnlineHubPage page={page} />;
   }
 
   const data = await loadSitePageDataAsync(page);

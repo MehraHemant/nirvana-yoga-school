@@ -11,6 +11,7 @@ import {
   KIRTAN_MODULE_PANELS,
   ModulePageEditor,
   type ModulePanelId,
+  ONLINE_HUB_MODULE_PANELS,
   RESIDENTIAL_MODULE_PANELS,
   VENUE_MODULE_PANELS,
 } from "@/components/admin/modules/ModulePageEditor";
@@ -209,6 +210,11 @@ function layoutModuleConfig(layoutId: PageLayoutId): {
       return {
         panels: HUB_MODULE_PANELS,
         hint: "Marketing hub",
+      };
+    case "onlineHub":
+      return {
+        panels: ONLINE_HUB_MODULE_PANELS,
+        hint: "Online courses hub — course cards load from published online pages",
       };
     case "kirtan":
       return {

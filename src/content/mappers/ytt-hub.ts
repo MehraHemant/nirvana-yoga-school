@@ -46,7 +46,6 @@ export function resolveYttHubHeroVideo(
     desktopPoster: video.desktopPoster?.trim() || posterFallback,
   };
 }
-
 /**
  * Maps hub CMS fields onto the homepage {@link HomeHeroContent} shape.
  *

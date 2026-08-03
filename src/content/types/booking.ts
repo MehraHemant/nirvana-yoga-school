@@ -24,17 +24,56 @@ export type BookingProgram = {
   batches: string[];
 };
 
-/** One optional paid add-on offered at checkout (global_settings.bookingAddons). */
-export type BookingAddon = {
+/** Add-on kind in CMS: freeform custom, or a linked course (rooms from catalog). */
+export type BookingAddonKind = "manual" | "course";
+
+/** One room / package choice under a course add-on (usually enriched from catalog). */
+export type BookingAddonOption = {
   id: string;
   label: string;
   priceUsd: number;
+};
+
+/** Fields shared by every booking add-on. */
+type BookingAddonCommon = {
+  id: string;
+  /** Display title; for course add-ons, empty means use linked course title */
+  label: string;
   description?: string;
   /** When set, only shown for these booking types. Empty / omitted = both. */
   appliesTo?: BookingType[];
+  /**
+   * When non-empty, only shown when booking one of these program slugs.
+   * Empty / omitted = all programs for the applicable booking type(s).
+   */
+  programSlugs?: string[];
   /** When false, hidden from checkout. Default true. */
   active?: boolean;
 };
+
+/**
+ * Optional paid add-on offered at checkout (`global_settings.bookingAddons`).
+ * Legacy rows omit `type` and are treated as `manual`.
+ */
+export type BookingAddon =
+  | (BookingAddonCommon & {
+      /** Custom label / price / description */
+      type?: "manual";
+      priceUsd: number;
+    })
+  | (BookingAddonCommon & {
+      /** Upsell another bookable course; guest picks a room from that course */
+      type: "course";
+      /** Linked residential course slug */
+      courseSlug: string;
+      /**
+       * Room choices. Usually filled at enrich time from the course catalog;
+       * not required in CMS storage.
+       */
+      options?: BookingAddonOption[];
+      /** Optional display hint (e.g. min room price after enrich) */
+      priceUsd?: number;
+    });
 
 /** CMS document for booking add-ons. */
 export type BookingAddonsContent = {
@@ -49,6 +88,16 @@ export type BookingSelectedAddon = {
   id: string;
   label: string;
   priceUsd: number;
+  /** Parent add-on id when a nested room option was chosen */
+  groupId?: string;
+  /** Parent add-on label (course title / custom label) */
+  groupLabel?: string;
+  /** Resolved kind for admin / display */
+  type?: BookingAddonKind;
+  /** Linked course slug when type is course */
+  courseSlug?: string;
+  /** Chosen room / package label when type is course */
+  roomType?: string;
 };
 
 export type BookingPricingBreakdown = {
@@ -77,7 +126,10 @@ export type CreateBookingInput = {
   hearAbout?: string;
   paymentMode: PaymentMode;
   promoCode?: string;
-  /** Selected add-on ids from global bookingAddons catalog */
+  /**
+   * Selected add-on option ids (manual add-on id, or course room option id).
+   * At most one room option per course add-on group.
+   */
   selectedAddonIds?: string[];
 };
 

@@ -280,12 +280,12 @@ export function YttHubEditor({
             <div className="admin-nested-card">
               <strong>Background video (hub-only)</strong>
               <p className="admin-hint">
-                Separate from homepage hero video. Leave src empty to show the
-                poster still only.
+                Full-bleed muted MP4 loop (autoplay, no controls). Separate from
+                homepage hero video.
               </p>
               <div className="admin-grid-2">
                 <TextField
-                  label="Mobile src"
+                  label="Mobile MP4 src"
                   value={heroVideo.mobileSrc}
                   onChange={(mobileSrc) =>
                     setDoc({
@@ -307,7 +307,7 @@ export function YttHubEditor({
               </div>
               <div className="admin-grid-2">
                 <TextField
-                  label="Desktop src"
+                  label="Desktop MP4 src"
                   value={heroVideo.desktopSrc}
                   onChange={(desktopSrc) =>
                     setDoc({

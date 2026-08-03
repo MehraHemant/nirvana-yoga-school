@@ -28,6 +28,15 @@ export const DEFAULT_SITE_NAV: StickyNavItem[] = [
   { id: "#faq", label: "FAQ", shortLabel: "FAQ" },
 ];
 
+/** Sticky nav for the online courses marketing hub. */
+export const DEFAULT_ONLINE_HUB_NAV: StickyNavItem[] = [
+  { id: "#about", label: "Overview", shortLabel: "Overview" },
+  { id: "#why-online", label: "Why Online", shortLabel: "Why" },
+  { id: "#courses", label: "Courses", shortLabel: "Courses" },
+  { id: "#exam", label: "Certification", shortLabel: "Cert" },
+  { id: "#faq", label: "FAQ", shortLabel: "FAQ" },
+];
+
 /** Default online course sticky nav. */
 export const DEFAULT_ONLINE_NAV: StickyNavItem[] = [
   { id: "#overview", label: "Overview", shortLabel: "Overview" },

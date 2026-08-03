@@ -205,6 +205,16 @@ export const HUB_MODULE_PANELS: ModulePanelId[] = [
   "module-faq",
 ];
 
+/** Online courses hub — hero/overview/FAQ; course grid is auto from DB. */
+export const ONLINE_HUB_MODULE_PANELS: ModulePanelId[] = [
+  "module-meta",
+  "module-hero",
+  "module-sticky-nav",
+  "module-overview",
+  "module-flags",
+  "module-faq",
+];
+
 /** Editorial / gallery layout panels. */
 export const EDITORIAL_MODULE_PANELS: ModulePanelId[] = [
   "module-meta",
@@ -308,6 +318,7 @@ export function ModulePageEditor({
   layoutId,
 }: ModulePageEditorProps) {
   const isVenueLayout = layoutId === "venue";
+  const isOnlineHubLayout = layoutId === "onlineHub";
   const [modules, setModules] = useState(() =>
     normalizeModules(initial, slug, isVenueLayout),
   );
@@ -637,7 +648,9 @@ export function ModulePageEditor({
                 {...panelProps(
                   "module-hero",
                   stepOf("module-hero"),
-                  "Page top banner — pick a layout, then fill in title, images, and CTAs.",
+                  isOnlineHubLayout
+                    ? "Homepage-style full-bleed hero — badge, title lead/accent, CTA, marquee, and optional video (poster falls back to hero image)."
+                    : "Page top banner — pick a layout, then fill in title, images, and CTAs.",
                 )}
               />
             </div>
@@ -679,10 +692,13 @@ export function ModulePageEditor({
               <OverviewModuleEditor
                 overview={modules.overview}
                 onChange={(overview) => setModules({ ...modules, overview })}
+                welcomeStyle={isOnlineHubLayout}
                 {...panelProps(
                   "module-overview",
                   stepOf("module-overview"),
-                  "Intro section with lead copy, media panel, and glance stats.",
+                  isOnlineHubLayout
+                    ? "YTT-style welcome overview — copy, vision/promise, highlights, and a single video (URL + optional poster)."
+                    : "Intro section with lead copy, media panel, and glance stats.",
                 )}
               />
             </div>

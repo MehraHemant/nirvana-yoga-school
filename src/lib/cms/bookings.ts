@@ -4,14 +4,22 @@ import type {
   BookingStatus,
   CreateBookingInput,
 } from "@/content/types/booking";
-import { getBookingProgram } from "@/lib/booking/catalog";
+import {
+  getBookingProgram,
+  getCourseBookingCatalog,
+  getRetreatBookingCatalog,
+} from "@/lib/booking/catalog";
 import {
   calculateBookingPricing,
   centsToUsd,
   usdToCents,
 } from "@/lib/booking/pricing";
 import { getBookingAddons } from "@/content/repositories/shared-sections";
-import { filterBookingAddonsForType } from "@/lib/booking/addons";
+import {
+  enrichBookingAddons,
+  filterBookingAddonsForType,
+  resolveSelectedAddons,
+} from "@/lib/booking/addons";
 import { db } from "@/lib/db";
 import type { ParseResult } from "@/lib/types/api";
 
@@ -107,18 +115,24 @@ export async function createBooking(input: CreateBookingInput) {
   }
 
   const addonsResult = await getBookingAddons();
-  const catalog = filterBookingAddonsForType(
-    input.type,
-    addonsResult.data ?? null,
+  // Course add-ons resolve rooms from the residential course catalog.
+  const courseCatalog = await getCourseBookingCatalog();
+  const addonCatalogPrograms =
+    input.type === "course"
+      ? courseCatalog
+      : [...(await getRetreatBookingCatalog()), ...courseCatalog];
+  const catalog = enrichBookingAddons(
+    filterBookingAddonsForType(
+      input.type,
+      addonsResult.data ?? null,
+      input.programSlug,
+    ),
+    addonCatalogPrograms,
   );
-  const selectedIds = new Set(input.selectedAddonIds ?? []);
-  const selectedAddons: BookingSelectedAddon[] = catalog
-    .filter((item) => selectedIds.has(item.id))
-    .map((item) => ({
-      id: item.id,
-      label: item.label,
-      priceUsd: Math.max(0, Math.round(item.priceUsd)),
-    }));
+  const selectedAddons: BookingSelectedAddon[] = resolveSelectedAddons(
+    catalog,
+    input.selectedAddonIds,
+  );
   const addonsTotal = selectedAddons.reduce(
     (sum, item) => sum + item.priceUsd,
     0,

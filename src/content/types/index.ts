@@ -4,6 +4,8 @@ export type {
 } from "@/content/types/blog-post";
 export type {
   BookingAddon,
+  BookingAddonKind,
+  BookingAddonOption,
   BookingAddonsContent,
   BookingProgram,
   BookingRecord,

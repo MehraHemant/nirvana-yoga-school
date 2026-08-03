@@ -17,7 +17,15 @@ import type {
   PaymentMode,
 } from "@/content/types/booking";
 import type { BookingPageContent } from "@/content/types/dedicated-pages";
-import { filterBookingAddonsForType } from "@/lib/booking/addons";
+import {
+  enrichBookingAddons,
+  filterBookingAddonsForType,
+  getAddonKind,
+  getAddonOptions,
+  getSelectedOptionIdForGroup,
+  resolveSelectedAddons,
+  setAddonGroupSelection,
+} from "@/lib/booking/addons";
 import {
   calculateBookingPricing,
   formatUsd,
@@ -37,8 +45,13 @@ type BookingFlowProps = {
   programs: BookingProgram[];
   /** CMS booking page content */
   content?: BookingPageContent;
-  /** Optional checkout add-ons from admin (global_settings.bookingAddons) */
+  /** Optional checkout add-ons from admin (`global_settings.bookingAddons`) */
   addons?: BookingAddonsContent | null;
+  /**
+   * Catalog used to resolve course add-on rooms.
+   * Defaults to `programs`. Pass the course catalog on retreat booking.
+   */
+  addonCatalog?: BookingProgram[];
   paypalClientId: string | null;
   initialProgramSlug?: string;
   initialRoomType?: string;
@@ -105,6 +118,7 @@ export function BookingFlow({
   programs,
   content = createEmptyBookingPageContent(),
   addons = null,
+  addonCatalog,
   paypalClientId,
   initialProgramSlug = "",
   initialRoomType = "",
@@ -133,22 +147,23 @@ export function BookingFlow({
   const [success, setSuccess] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  const availableAddons = useMemo(
-    () => filterBookingAddonsForType(type, addons),
-    [type, addons],
-  );
-
-  const selectedAddons = useMemo(
-    () =>
-      availableAddons.filter((item) =>
-        form.selectedAddonIds.includes(item.id),
-      ),
-    [availableAddons, form.selectedAddonIds],
-  );
-
   const selectedProgram = useMemo(
     () => programs.find((program) => program.slug === form.programSlug) ?? null,
     [programs, form.programSlug],
+  );
+
+  const availableAddons = useMemo(
+    () =>
+      enrichBookingAddons(
+        filterBookingAddonsForType(type, addons, form.programSlug),
+        addonCatalog ?? programs,
+      ),
+    [type, addons, form.programSlug, addonCatalog, programs],
+  );
+
+  const selectedAddons = useMemo(
+    () => resolveSelectedAddons(availableAddons, form.selectedAddonIds),
+    [availableAddons, form.selectedAddonIds],
   );
 
   const selectedRoom = useMemo(
@@ -204,16 +219,44 @@ export function BookingFlow({
   const programLabel = type === "course" ? "Course" : "Retreat";
 
   /**
-   * Toggles an add-on in the selection set.
+   * Toggles a custom (manual) add-on.
    *
-   * @param id - Add-on id
+   * @param item - Manual add-on
    */
-  function toggleAddon(id: string) {
+  function toggleManualAddon(item: BookingAddon) {
+    setForm((prev) => {
+      const selected = getSelectedOptionIdForGroup(
+        item,
+        prev.selectedAddonIds,
+      );
+      return {
+        ...prev,
+        selectedAddonIds: setAddonGroupSelection(
+          prev.selectedAddonIds,
+          item,
+          selected ? null : item.id,
+        ),
+      };
+    });
+  }
+
+  /**
+   * Selects or clears a room option under a course add-on.
+   *
+   * @param item - Course add-on
+   * @param optionId - Room option id, or null to skip
+   */
+  function selectCourseAddonRoom(
+    item: BookingAddon,
+    optionId: string | null,
+  ) {
     setForm((prev) => ({
       ...prev,
-      selectedAddonIds: prev.selectedAddonIds.includes(id)
-        ? prev.selectedAddonIds.filter((item) => item !== id)
-        : [...prev.selectedAddonIds, id],
+      selectedAddonIds: setAddonGroupSelection(
+        prev.selectedAddonIds,
+        item,
+        optionId,
+      ),
     }));
   }
 
@@ -403,6 +446,7 @@ export function BookingFlow({
                           programSlug: value,
                           roomType: "",
                           batchDate: "",
+                          selectedAddonIds: [],
                         })
                       }
                       options={programOptions}
@@ -656,9 +700,104 @@ export function BookingFlow({
 
                   {availableAddons.length > 0 ? (
                     <ul className="space-y-3">
-                      {availableAddons.map((item: BookingAddon) => {
-                        const checked = form.selectedAddonIds.includes(
-                          item.id,
+                      {availableAddons.map((item) => {
+                        const kind = getAddonKind(item);
+                        if (kind === "course") {
+                          const options = getAddonOptions(item);
+                          const selectedOptionId = getSelectedOptionIdForGroup(
+                            item,
+                            form.selectedAddonIds,
+                          );
+                          return (
+                            <li
+                              key={item.id}
+                              className={`rounded-2xl border p-4 transition-colors ${
+                                selectedOptionId
+                                  ? "border-primary/40 bg-primary/5"
+                                  : "border-ink/10 bg-sand/30"
+                              }`}
+                            >
+                              <div className="flex flex-wrap items-baseline justify-between gap-2">
+                                <span className="font-sans text-sm font-semibold text-ink">
+                                  {item.label}
+                                </span>
+                                {typeof item.priceUsd === "number" &&
+                                item.priceUsd > 0 &&
+                                !selectedOptionId ? (
+                                  <span className="font-sans text-xs text-muted">
+                                    from {formatUsd(item.priceUsd)}
+                                  </span>
+                                ) : null}
+                              </div>
+                              {item.description ? (
+                                <p className="mt-1 font-sans text-sm text-muted">
+                                  {item.description}
+                                </p>
+                              ) : null}
+                              <fieldset className="mt-3 space-y-2">
+                                <legend className="sr-only">
+                                  Room options for {item.label}
+                                </legend>
+                                <label className="flex cursor-pointer items-center gap-3 rounded-xl px-2 py-1.5 hover:bg-white/60">
+                                  <input
+                                    type="radio"
+                                    name={`addon-${item.id}`}
+                                    className="h-4 w-4 accent-[var(--color-primary,#a32432)]"
+                                    checked={!selectedOptionId}
+                                    onChange={() =>
+                                      selectCourseAddonRoom(item, null)
+                                    }
+                                  />
+                                  <span className="font-sans text-sm text-muted">
+                                    None — skip
+                                  </span>
+                                </label>
+                                {options.length === 0 ? (
+                                  <p className="px-2 font-sans text-xs text-muted">
+                                    No rooms available for this course right
+                                    now.
+                                  </p>
+                                ) : (
+                                  options.map((option) => (
+                                    <label
+                                      key={option.id}
+                                      className="flex cursor-pointer items-center justify-between gap-3 rounded-xl px-2 py-1.5 hover:bg-white/60"
+                                    >
+                                      <span className="flex items-center gap-3">
+                                        <input
+                                          type="radio"
+                                          name={`addon-${item.id}`}
+                                          className="h-4 w-4 accent-[var(--color-primary,#a32432)]"
+                                          checked={
+                                            selectedOptionId === option.id
+                                          }
+                                          onChange={() =>
+                                            selectCourseAddonRoom(
+                                              item,
+                                              option.id,
+                                            )
+                                          }
+                                        />
+                                        <span className="font-sans text-sm text-ink">
+                                          {option.label}
+                                        </span>
+                                      </span>
+                                      <span className="font-serif text-sm text-primary">
+                                        {formatUsd(option.priceUsd)}
+                                      </span>
+                                    </label>
+                                  ))
+                                )}
+                              </fieldset>
+                            </li>
+                          );
+                        }
+
+                        const checked = Boolean(
+                          getSelectedOptionIdForGroup(
+                            item,
+                            form.selectedAddonIds,
+                          ),
                         );
                         return (
                           <li key={item.id}>
@@ -673,7 +812,7 @@ export function BookingFlow({
                                 type="checkbox"
                                 className="mt-1 h-4 w-4 accent-[var(--color-primary,#a32432)]"
                                 checked={checked}
-                                onChange={() => toggleAddon(item.id)}
+                                onChange={() => toggleManualAddon(item)}
                               />
                               <span className="min-w-0 flex-1">
                                 <span className="flex flex-wrap items-baseline justify-between gap-2">
@@ -681,7 +820,7 @@ export function BookingFlow({
                                     {item.label}
                                   </span>
                                   <span className="font-serif text-base text-primary">
-                                    {formatUsd(item.priceUsd)}
+                                    {formatUsd(item.priceUsd ?? 0)}
                                   </span>
                                 </span>
                                 {item.description ? (

@@ -12,7 +12,7 @@ import type { SharedFaq, SharedReview } from "@/content/types/shared-sections";
  */
 export type HomeSectionIdFields = SectionIdFields;
 
-/** Hero background video sources (responsive). */
+/** Hero background video sources (responsive MP4 + posters). */
 export type HomeHeroVideoContent = {
   mobileSrc: string;
   mobilePoster: string;
@@ -26,8 +26,13 @@ export type HomeHeroContent = HomeSectionIdFields & {
   titleLead: string;
   /** Accent phrase (e.g. “Himalayas”) */
   titleAccent: string;
+  /** Optional supporting line under the title (hubs; home leaves unset) */
+  support?: string;
   ctaLabel: string;
   ctaHref: string;
+  /** Optional secondary CTA (e.g. Enquire beside Browse courses) */
+  secondaryCtaLabel?: string;
+  secondaryCtaHref?: string;
   marqueeItems: string[];
   mobileTrust: Array<{ value: string; label: string }>;
   /** Full-bleed background video + posters */
@@ -46,6 +51,16 @@ export type HomeWelcomeLabeledBlock = {
   body: string;
 };
 
+/** Optional overview video (YouTube URL/id or MP4) for welcome-style hubs. */
+export type HomeWelcomeVideo = {
+  /** YouTube watch/embed URL, bare id, or MP4 src */
+  url: string;
+  /** Optional poster / thumbnail override */
+  poster?: string;
+  /** Accessible title for the player */
+  title?: string;
+};
+
 export type HomeWelcomeContent = HomeSectionIdFields & {
   eyebrow: string;
   title: string;
@@ -56,6 +71,16 @@ export type HomeWelcomeContent = HomeSectionIdFields & {
   ctaHref: string;
   /** Three gallery tiles beside the rotating stats */
   images: HomeWelcomeImage[];
+  /**
+   * When set with a playable URL, the left column shows a single video
+   * player instead of the image collage (online hub overview).
+   */
+  video?: HomeWelcomeVideo;
+  /**
+   * Fallback public section `id` when `_id` is unset (default `about`).
+   * Online hub sticky nav uses `about` to match the YTT hub.
+   */
+  sectionFallbackId?: string;
   vision: HomeWelcomeLabeledBlock;
   promise: HomeWelcomeLabeledBlock;
 };

@@ -10,7 +10,9 @@ import { type AiChatMessage, getAiProvider } from "@/lib/ai";
 import { db } from "@/lib/db";
 import type { ParseResult } from "@/lib/types/api";
 import {
+  extractEnquiryDraft,
   formatEnquiryResultForPrompt,
+  formatEnquiryStateForPrompt,
   maybeSubmitChatEnquiry,
 } from "./enquiry";
 import {
@@ -259,13 +261,20 @@ async function prepareChatTurn(
   });
   const prior = [...priorRows].reverse();
 
+  const recentForEnquiry = prior
+    .filter((row) => row.role === "user" || row.role === "assistant")
+    .map((row) => ({ role: row.role, content: row.content }));
+
   const enquiryResult = await maybeSubmitChatEnquiry({
     latestUserMessage: userMessage,
-    recentMessages: prior
-      .filter((row) => row.role === "user" || row.role === "assistant")
-      .map((row) => ({ role: row.role, content: row.content })),
+    recentMessages: recentForEnquiry,
   });
   const enquiryNote = formatEnquiryResultForPrompt(enquiryResult);
+  const enquiryDraft = extractEnquiryDraft([
+    ...recentForEnquiry,
+    { role: "user", content: userMessage },
+  ]);
+  const enquiryState = formatEnquiryStateForPrompt(enquiryDraft);
 
   await db.chatMessage.create({
     data: {
@@ -293,7 +302,9 @@ async function prepareChatTurn(
     }));
 
   const origin = getChatSiteOrigin(siteOrigin);
-  const enquiryBlock = enquiryNote ? `\n\n---\n${enquiryNote}` : "";
+  const enquiryParts = [enquiryState, enquiryNote].filter(Boolean);
+  const enquiryBlock =
+    enquiryParts.length > 0 ? `\n\n---\n${enquiryParts.join("\n")}` : "";
   const system = `${CHAT_SYSTEM_PROMPT}\n\nPublic site origin: ${origin}${enquiryBlock}\n\n---\nSITE KNOWLEDGE\n${formatRetrievedContext(chunks, siteOrigin)}`;
 
   return { system, messages };

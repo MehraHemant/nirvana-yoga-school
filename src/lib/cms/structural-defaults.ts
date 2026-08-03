@@ -208,7 +208,7 @@ export function createEmptyResidentialLife(): ResidentialLifeContent {
 export function createEmptyBookingAddons(): BookingAddonsContent {
   return {
     live: true,
-    intro: "",
+    intro: "Choose optional add-ons for this program, or skip this step.",
     items: [],
   };
 }

@@ -93,6 +93,13 @@ export const YOUTUBE_METADATA_REGISTRY: Record<
     thumbnail_url: "https://i.ytimg.com/vi/_NOezBf-LYs/hqdefault.jpg",
     durationSeconds: 827,
   },
+  hHjuGhx8qSk: {
+    title: "Online Yoga Teacher Training | Nirvana Yoga School",
+    author_name: "Nirvana Yoga School",
+    author_url: "https://www.youtube.com/@NirvanaYogaSchool",
+    thumbnail_url: "https://i.ytimg.com/vi/hHjuGhx8qSk/hqdefault.jpg",
+    durationSeconds: 600,
+  },
 };
 
 export async function fetchYouTubeOEmbed(

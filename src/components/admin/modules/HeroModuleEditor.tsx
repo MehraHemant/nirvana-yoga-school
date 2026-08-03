@@ -1,6 +1,7 @@
 "use client";
 
-import type { HeroModule, HeroType } from "@/content/types";
+import type { HeroModule, HeroType, PageMinimalHero } from "@/content/types";
+import type { HomeHeroVideoContent } from "@/content/types/dedicated-pages";
 import { CollapsiblePanel } from "../CollapsiblePanel";
 import { HeroTypePicker } from "../HeroTypePicker";
 import { ImageField } from "../ImageField";
@@ -8,8 +9,16 @@ import { ImageListField } from "../ImageListField";
 import { SectionIdField } from "../SectionIdField";
 import { StringListField } from "../StringListField";
 import { TextField } from "../TextField";
+import { useStableListKeys } from "../useStableListKeys";
 import { ModuleLiveField } from "./ModuleLiveField";
 import type { ModulePanelProps } from "./types";
+
+const EMPTY_HERO_VIDEO: HomeHeroVideoContent = {
+  mobileSrc: "",
+  mobilePoster: "",
+  desktopSrc: "",
+  desktopPoster: "",
+};
 
 type HeroModuleEditorProps = ModulePanelProps & {
   hero: HeroModule;
@@ -17,6 +26,198 @@ type HeroModuleEditorProps = ModulePanelProps & {
   /** Restrict layout picker (e.g. venue pages only allow simple-banner) */
   allowedTypes?: HeroType[];
 };
+
+type PageMinimalHeroFieldsProps = {
+  hero: PageMinimalHero;
+  onChange: (hero: PageMinimalHero) => void;
+};
+
+/**
+ * Page-minimal hero fields including homepage-style lead/accent/marquee/video.
+ *
+ * @param props - Page-minimal hero and change handler
+ */
+function PageMinimalHeroFields({
+  hero,
+  onChange,
+}: PageMinimalHeroFieldsProps) {
+  const trustKeys = useStableListKeys(hero.mobileTrust?.length ?? 0);
+  const heroVideo = hero.heroVideo ?? EMPTY_HERO_VIDEO;
+  const mobileTrust = hero.mobileTrust ?? [];
+
+  return (
+    <div className="admin-field-group">
+      <p className="admin-field-group-label">Page / hub hero</p>
+      <TextField
+        label="Badge / eyebrow"
+        value={hero.eyebrow ?? ""}
+        onChange={(eyebrow) => onChange({ ...hero, eyebrow })}
+      />
+      <div className="admin-grid-2">
+        <TextField
+          label="Title lead"
+          value={hero.titleLead ?? hero.title}
+          onChange={(titleLead) =>
+            onChange({ ...hero, titleLead, title: titleLead })
+          }
+          hint="First line of the homepage-style hero title."
+        />
+        <TextField
+          label="Title accent"
+          value={hero.titleAccent ?? ""}
+          onChange={(titleAccent) => onChange({ ...hero, titleAccent })}
+          hint="Accent phrase under the lead (serif / primary)."
+        />
+      </div>
+      <TextField
+        label="Full title (fallback)"
+        value={hero.title}
+        onChange={(title) => onChange({ ...hero, title })}
+        hint="Used when lead/accent are empty; also kept for SEO/listings."
+      />
+      <TextField
+        label="Subtitle"
+        value={hero.subtitle ?? ""}
+        onChange={(subtitle) => onChange({ ...hero, subtitle })}
+      />
+      <TextField
+        label="Description"
+        value={hero.description ?? ""}
+        onChange={(description) => onChange({ ...hero, description })}
+        multiline
+      />
+      <ImageField
+        label="Hero image / poster fallback"
+        value={hero.heroImage}
+        onChange={(heroImage) => onChange({ ...hero, heroImage })}
+        hint="Still image shown as full-bleed poster when video src is empty."
+      />
+      <div className="admin-nested-card">
+        <strong>Background video (optional)</strong>
+        <p className="admin-hint">
+          Full-bleed muted MP4 loop (autoplay, no controls). Leave srcs empty
+          for poster / still image only.
+        </p>
+        <div className="admin-grid-2">
+          <TextField
+            label="Mobile MP4 src"
+            value={heroVideo.mobileSrc}
+            onChange={(mobileSrc) =>
+              onChange({
+                ...hero,
+                heroVideo: { ...heroVideo, mobileSrc },
+              })
+            }
+          />
+          <TextField
+            label="Mobile poster"
+            value={heroVideo.mobilePoster}
+            onChange={(mobilePoster) =>
+              onChange({
+                ...hero,
+                heroVideo: { ...heroVideo, mobilePoster },
+              })
+            }
+          />
+        </div>
+        <div className="admin-grid-2">
+          <TextField
+            label="Desktop MP4 src"
+            value={heroVideo.desktopSrc}
+            onChange={(desktopSrc) =>
+              onChange({
+                ...hero,
+                heroVideo: { ...heroVideo, desktopSrc },
+              })
+            }
+          />
+          <TextField
+            label="Desktop poster"
+            value={heroVideo.desktopPoster}
+            onChange={(desktopPoster) =>
+              onChange({
+                ...hero,
+                heroVideo: { ...heroVideo, desktopPoster },
+              })
+            }
+          />
+        </div>
+      </div>
+      <div className="admin-grid-2">
+        <TextField
+          label="CTA label"
+          value={hero.ctaLabel ?? ""}
+          onChange={(ctaLabel) => onChange({ ...hero, ctaLabel })}
+        />
+        <TextField
+          label="CTA link"
+          value={hero.ctaHref ?? ""}
+          onChange={(ctaHref) => onChange({ ...hero, ctaHref })}
+        />
+      </div>
+      <StringListField
+        label="Marquee items"
+        items={hero.marqueeItems ?? []}
+        onChange={(marqueeItems) => onChange({ ...hero, marqueeItems })}
+      />
+      <div className="admin-nested-list">
+        <div className="admin-nested-list-head">
+          <span className="admin-label">Mobile trust chips</span>
+          <button
+            type="button"
+            className="admin-btn-sm"
+            onClick={() => {
+              trustKeys.addKey();
+              onChange({
+                ...hero,
+                mobileTrust: [...mobileTrust, { value: "", label: "" }],
+              });
+            }}
+          >
+            Add chip
+          </button>
+        </div>
+        {mobileTrust.map((chip, index) => (
+          <div key={trustKeys.keys[index]} className="admin-nested-card">
+            <div className="admin-grid-2">
+              <TextField
+                label="Value"
+                value={chip.value}
+                onChange={(value) => {
+                  const next = [...mobileTrust];
+                  next[index] = { ...chip, value };
+                  onChange({ ...hero, mobileTrust: next });
+                }}
+              />
+              <TextField
+                label="Label"
+                value={chip.label}
+                onChange={(label) => {
+                  const next = [...mobileTrust];
+                  next[index] = { ...chip, label };
+                  onChange({ ...hero, mobileTrust: next });
+                }}
+              />
+            </div>
+            <button
+              type="button"
+              className="admin-btn-sm admin-btn-sm--ghost"
+              onClick={() => {
+                trustKeys.removeKey(index);
+                onChange({
+                  ...hero,
+                  mobileTrust: mobileTrust.filter((_, i) => i !== index),
+                });
+              }}
+            >
+              Remove
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 /**
  * Hero module editor with conditional fields per hero type.
@@ -278,47 +479,7 @@ export function HeroModuleEditor({
       ) : null}
 
       {hero.type === "page-minimal" ? (
-        <div className="admin-field-group">
-          <p className="admin-field-group-label">Simple page hero</p>
-          <TextField
-            label="Eyebrow"
-            value={hero.eyebrow ?? ""}
-            onChange={(eyebrow) => onChange({ ...hero, eyebrow })}
-          />
-          <TextField
-            label="Title"
-            value={hero.title}
-            onChange={(title) => onChange({ ...hero, title })}
-          />
-          <TextField
-            label="Subtitle"
-            value={hero.subtitle ?? ""}
-            onChange={(subtitle) => onChange({ ...hero, subtitle })}
-          />
-          <TextField
-            label="Description"
-            value={hero.description ?? ""}
-            onChange={(description) => onChange({ ...hero, description })}
-            multiline
-          />
-          <ImageField
-            label="Hero image"
-            value={hero.heroImage}
-            onChange={(heroImage) => onChange({ ...hero, heroImage })}
-          />
-          <div className="admin-grid-2">
-            <TextField
-              label="CTA label"
-              value={hero.ctaLabel ?? ""}
-              onChange={(ctaLabel) => onChange({ ...hero, ctaLabel })}
-            />
-            <TextField
-              label="CTA link"
-              value={hero.ctaHref ?? ""}
-              onChange={(ctaHref) => onChange({ ...hero, ctaHref })}
-            />
-          </div>
-        </div>
+        <PageMinimalHeroFields hero={hero} onChange={onChange} />
       ) : null}
     </CollapsiblePanel>
   );

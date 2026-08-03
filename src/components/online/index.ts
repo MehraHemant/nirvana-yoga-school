@@ -1,6 +1,10 @@
 export { default as OnlineCourseHero } from "./OnlineCourseHero";
 export { default as OnlineCurriculumSection } from "./OnlineCurriculumSection";
 export { default as OnlineFAQSection } from "./OnlineFAQSection";
+export { default as OnlineHubBenefits } from "./OnlineHubBenefits";
+export { default as OnlineHubCtaSection } from "./OnlineHubCtaSection";
+export { default as OnlineHubHeroSection } from "./OnlineHubHeroSection";
+export { default as OnlineHubOverviewSection } from "./OnlineHubOverviewSection";
 export { default as OnlineInclusionsSection } from "./OnlineInclusionsSection";
 export { default as OnlineOverviewSection } from "./OnlineOverviewSection";
 export { default as OnlinePricingCard } from "./OnlinePricingCard";

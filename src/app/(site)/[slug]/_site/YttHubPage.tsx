@@ -8,7 +8,7 @@ import {
   YttHubTeachersSection,
   YttHubVideoSection,
 } from "@/components/home/ytt-hub";
-import { COURSE_FAQ_CATEGORIES, FAQSection } from "@/components/ui";
+import { FAQSection } from "@/components/ui";
 import { resolveYttHubCourses } from "@/content/mappers/resolve-ytt-hub-courses";
 import { resolveYttHubNav } from "@/content/mappers/ytt-hub";
 import { getHomePageContent } from "@/content/repositories/dedicated-pages";
@@ -137,7 +137,6 @@ export default async function YttHubPage() {
         <FAQSection
           id={resolveSectionHtmlId("faq", sectionIds?.faq)}
           faqs={hub.faqs}
-          categories={COURSE_FAQ_CATEGORIES}
           sectionClassName="bg-white"
           eyebrow="Got Questions?"
           title={

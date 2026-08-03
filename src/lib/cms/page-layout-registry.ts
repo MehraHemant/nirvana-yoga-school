@@ -6,6 +6,7 @@
 import { KIRTAN_SLUG } from "@/content/mappers/kirtan-page";
 import {
   ONLINE_COURSE_SLUGS,
+  ONLINE_HUB_SLUG,
   RESIDENTIAL_COURSE_SLUGS,
   RETREAT_SLUGS,
   VENUE_SLUGS,
@@ -22,6 +23,7 @@ export type PageLayoutId =
   | "retreat"
   | "venue"
   | "yttHub"
+  | "onlineHub"
   | "hub"
   | "kirtan"
   | "editorial"
@@ -62,7 +64,6 @@ export type PageLayoutDefinition = {
 const YTT_HUB_SLUG = "yoga-teacher-training-in-rishikesh-india";
 
 const MARKETING_HUB_SLUGS = new Set([
-  "online-yoga-teacher-training-courses",
   "kundalini-yoga-teacher-training-in-rishikesh-india",
 ]);
 
@@ -270,6 +271,27 @@ export const PAGE_LAYOUTS: Record<PageLayoutId, PageLayoutDefinition> = {
       },
     ],
   },
+  onlineHub: {
+    layoutId: "onlineHub",
+    label: "Online courses hub",
+    sections: [
+      { id: "hero", label: "Hero", source: "pageModules" },
+      { id: "sticky-nav", label: "Sticky nav", source: "pageModules" },
+      { id: "overview", label: "Overview", source: "pageModules" },
+      {
+        id: "why-online",
+        label: "Why online (static benefits)",
+        source: "hardcoded",
+      },
+      {
+        id: "courses",
+        label: "Courses (all published online)",
+        source: "hardcoded",
+      },
+      SHARED_LINK("examCertification", "Exam & certification (shared)"),
+      { id: "faq", label: "FAQ", source: "pageModules" },
+    ],
+  },
   hub: {
     layoutId: "hub",
     label: "Marketing hub",
@@ -389,6 +411,7 @@ export function resolvePageLayoutId(type: string, slug: string): PageLayoutId {
   if (slug === "enquire-now") return "enquire";
   if (slug === "teacher") return "teachers";
   if (slug === YTT_HUB_SLUG) return "yttHub";
+  if (slug === ONLINE_HUB_SLUG) return "onlineHub";
   if (slug === KIRTAN_SLUG) return "kirtan";
   if (MARKETING_HUB_SLUGS.has(slug)) return "hub";
 

@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  DEFAULT_ONLINE_HUB_NAV,
   DEFAULT_ONLINE_NAV,
   DEFAULT_RESIDENTIAL_NAV,
   DEFAULT_SITE_NAV,
@@ -38,6 +39,7 @@ const NAV_PRESETS: { label: string; items: StickyNavItem[] }[] = [
   { label: "Course page", items: DEFAULT_RESIDENTIAL_NAV },
   { label: "Site page", items: DEFAULT_SITE_NAV },
   { label: "Online course", items: DEFAULT_ONLINE_NAV },
+  { label: "Online hub", items: DEFAULT_ONLINE_HUB_NAV },
 ];
 
 const EMPTY_ITEM: StickyNavItem = {

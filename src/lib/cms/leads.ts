@@ -4,13 +4,15 @@ import type {
   LeadSubmissionInput,
 } from "@/content/types/lead";
 import { db } from "@/lib/db";
+import { sendLeadNotificationEmails } from "@/lib/mail/lead-notification";
 import type { ParseResult } from "@/lib/types/api";
 
 /** Neon filter for active (non-deleted) leads. */
 const ACTIVE_LEAD_FILTER = { deletedAt: null } as const;
 
 /**
- * Persist a contact or enquiry form submission.
+ * Persist a contact or enquiry form submission, then email admin + visitor.
+ * Lead storage succeeds even when SMTP is unset or mail fails.
  *
  * @param input - Validated lead payload
  * @returns Created lead id
@@ -30,6 +32,12 @@ export async function createLeadSubmission(input: LeadSubmissionInput) {
       source: input.source?.trim() || null,
     },
   });
+
+  try {
+    await sendLeadNotificationEmails(input);
+  } catch (error) {
+    console.warn("[leads] notification email failed", error);
+  }
 
   return lead.id;
 }

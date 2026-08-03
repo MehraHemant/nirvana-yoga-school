@@ -18,7 +18,7 @@ import {
   RetreatHighlightsBar,
   RetreatScheduleSection,
 } from "@/components/retreat";
-import { COURSE_FAQ_CATEGORIES, FAQSection } from "@/components/ui";
+import { FAQSection } from "@/components/ui";
 import { retreatWhatsAppHref } from "@/content/mappers/retreat-page";
 import {
   hasExamCertificationContent,
@@ -229,7 +229,6 @@ export default function RetreatClient({
             <FAQSection
               id={resolveSectionHtmlId("faq", modules?.faqs._id)}
               faqs={faqItems}
-              categories={COURSE_FAQ_CATEGORIES}
               sectionClassName="bg-white border-t border-secondary/10"
               eyebrow="Retreat Details"
               title={

@@ -85,6 +85,19 @@ export type PageMinimalHero = ModuleLiveFields & {
   heroImage: string;
   ctaLabel?: string;
   ctaHref?: string;
+  /** Homepage-style hero first line (falls back to `title`) */
+  titleLead?: string;
+  /** Homepage-style hero accent phrase */
+  titleAccent?: string;
+  /** Bottom marquee strip items (homepage hero pattern) */
+  marqueeItems?: string[];
+  /** Mobile trust chips under the CTA (homepage hero pattern) */
+  mobileTrust?: Array<{ value: string; label: string }>;
+  /**
+   * Optional full-bleed background video (homepage hero pattern).
+   * Posters fall back to `heroImage` when unset.
+   */
+  heroVideo?: import("@/content/types/dedicated-pages").HomeHeroVideoContent;
 };
 
 export type HeroModule =
@@ -100,6 +113,8 @@ export type OverviewMediaItem = {
   description?: string;
   /** Alt text for image media */
   alt?: string;
+  /** Optional poster for video media (YouTube thumbnail fallback when empty) */
+  poster?: string;
   /** Click behaviour for image media */
   clickAction?: import("@/content/types/cms-image").ImageClickAction;
   /** Redirect target when clickAction is `redirect` */
@@ -122,6 +137,18 @@ export type OverviewModule = ModuleLiveFields & {
     mode: "image" | "video" | "carousel";
     items: OverviewMediaItem[];
   };
+  /** Vision labeled block (homepage / YTT welcome pattern) */
+  vision?: { label: string; body: string };
+  /** Promise labeled block (homepage / YTT welcome pattern) */
+  promise?: { label: string; body: string };
+  /** Checklist under the lead (welcome-style overview) */
+  highlights?: string[];
+  /** Rotating stats card (image collage layout; unused when video is set) */
+  rotatingStats?: Array<{ value: string; label: string }>;
+  /** Primary CTA label for welcome-style overview */
+  ctaLabel?: string;
+  /** Primary CTA href for welcome-style overview */
+  ctaHref?: string;
 };
 
 export type InclusionsModule = ModuleLiveFields & {
@@ -172,7 +199,6 @@ export type PricingModule = ModuleLiveFields & {
 
 export type FaqsModule = ModuleLiveFields & {
   items: FAQ[];
-  categories?: string[];
 };
 
 /**

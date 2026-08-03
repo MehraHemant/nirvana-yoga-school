@@ -11,6 +11,7 @@ import {
   SortableRow,
   withSortField,
 } from "../SortableList";
+import { StringListField } from "../StringListField";
 import { TextField } from "../TextField";
 import { useStableListKeys } from "../useStableListKeys";
 import { ModuleLiveField } from "./ModuleLiveField";
@@ -19,6 +20,11 @@ import type { ModulePanelProps } from "./types";
 type OverviewModuleEditorProps = ModulePanelProps & {
   overview: OverviewModule;
   onChange: (overview: OverviewModule) => void;
+  /**
+   * When true, shows YTT/welcome-style fields (vision, promise, highlights,
+   * CTA) and emphasizes overview video URL + poster.
+   */
+  welcomeStyle?: boolean;
 };
 
 const EMPTY_MEDIA: OverviewMediaItem = { type: "image", url: "", alt: "" };
@@ -36,9 +42,15 @@ export function OverviewModuleEditor({
   description,
   open,
   onOpenChange,
+  welcomeStyle = false,
 }: OverviewModuleEditorProps) {
   const mediaKeys = useStableListKeys(overview.media.items.length);
   const glanceKeys = useStableListKeys(overview.glance.length);
+  const videoItemIndex = overview.media.items.findIndex(
+    (item) => item.type === "video",
+  );
+  const primaryVideo =
+    videoItemIndex >= 0 ? overview.media.items[videoItemIndex] : null;
 
   function updateMedia(index: number, patch: Partial<OverviewMediaItem>) {
     const items = [...overview.media.items];
@@ -129,15 +141,153 @@ export function OverviewModuleEditor({
         onChange={(supportingCopy) => onChange({ ...overview, supportingCopy })}
         multiline
         rows={8}
-        hint="Optional second paragraph — no length limit."
+        hint={
+          welcomeStyle
+            ? "Fallback for Promise body when Promise body is empty."
+            : "Optional second paragraph — no length limit."
+        }
       />
+
+      {welcomeStyle ? (
+        <>
+          <div className="admin-grid-2">
+            <TextField
+              label="Vision label"
+              value={overview.vision?.label ?? ""}
+              onChange={(label) =>
+                onChange({
+                  ...overview,
+                  vision: { label, body: overview.vision?.body ?? "" },
+                })
+              }
+            />
+            <TextField
+              label="Vision body"
+              value={overview.vision?.body ?? ""}
+              onChange={(body) =>
+                onChange({
+                  ...overview,
+                  vision: { label: overview.vision?.label ?? "", body },
+                })
+              }
+              multiline
+            />
+            <TextField
+              label="Promise label"
+              value={overview.promise?.label ?? ""}
+              onChange={(label) =>
+                onChange({
+                  ...overview,
+                  promise: { label, body: overview.promise?.body ?? "" },
+                })
+              }
+            />
+            <TextField
+              label="Promise body"
+              value={overview.promise?.body ?? ""}
+              onChange={(body) =>
+                onChange({
+                  ...overview,
+                  promise: { label: overview.promise?.label ?? "", body },
+                })
+              }
+              multiline
+            />
+          </div>
+          <StringListField
+            label="Highlights"
+            items={overview.highlights ?? []}
+            onChange={(highlights) => onChange({ ...overview, highlights })}
+          />
+          <div className="admin-grid-2">
+            <TextField
+              label="CTA label"
+              value={overview.ctaLabel ?? ""}
+              onChange={(ctaLabel) => onChange({ ...overview, ctaLabel })}
+            />
+            <TextField
+              label="CTA href"
+              value={overview.ctaHref ?? ""}
+              onChange={(ctaHref) => onChange({ ...overview, ctaHref })}
+              hint="e.g. #courses"
+            />
+          </div>
+          <div className="admin-field">
+            <div className="admin-field-header">
+              <div>
+                <span className="admin-label">Overview video</span>
+                <p className="admin-hint admin-hint--tight">
+                  Single content video beside the overview copy (YouTube URL or
+                  MP4). Matches YTT overview images, but one video instead.
+                </p>
+              </div>
+            </div>
+            <TextField
+              label="Video URL"
+              value={primaryVideo?.url ?? ""}
+              onChange={(url) => {
+                if (videoItemIndex >= 0) {
+                  updateMedia(videoItemIndex, { type: "video", url });
+                  return;
+                }
+                onChange({
+                  ...overview,
+                  media: {
+                    mode: "video",
+                    items: [
+                      {
+                        type: "video",
+                        url,
+                        poster: "",
+                        title: "Overview video",
+                      },
+                      ...overview.media.items,
+                    ],
+                  },
+                });
+              }}
+              hint="YouTube watch/embed URL, video id, or MP4 path"
+            />
+            <ImageField
+              label="Video poster (optional)"
+              value={primaryVideo?.poster ?? ""}
+              onChange={(poster) => {
+                if (videoItemIndex >= 0) {
+                  updateMedia(videoItemIndex, { type: "video", poster });
+                  return;
+                }
+                onChange({
+                  ...overview,
+                  media: {
+                    mode: "video",
+                    items: [
+                      {
+                        type: "video",
+                        url: "",
+                        poster,
+                        title: "Overview video",
+                      },
+                      ...overview.media.items,
+                    ],
+                  },
+                });
+              }}
+              hint="Shown before play; YouTube thumbnail is used when empty."
+            />
+          </div>
+        </>
+      ) : null}
 
       <div className="admin-field">
         <div className="admin-field-header">
           <div>
-            <span className="admin-label">Media</span>
+            <span className="admin-label">
+              {welcomeStyle ? "Media (advanced)" : "Media"}
+            </span>
             <p className="admin-hint admin-hint--tight">
-              Right-side image, video, or carousel for the overview section.
+              {welcomeStyle
+                ? "Optional extra media rows. The first video item drives the overview player above."
+                : "Right-side image, video, or carousel for the overview section."}
             </p>
           </div>
           <button type="button" className="admin-btn-sm" onClick={addMedia}>
@@ -232,15 +382,26 @@ export function OverviewModuleEditor({
                               />
                             </div>
                           ) : (
-                            <input
-                              className="admin-input admin-input--compact"
-                              value={item.url}
-                              placeholder="YouTube URL or video ID"
-                              aria-label={`Video URL ${index + 1}`}
-                              onChange={(e) =>
-                                updateMedia(index, { url: e.target.value })
-                              }
-                            />
+                            <div className="admin-stack">
+                              <input
+                                className="admin-input admin-input--compact"
+                                value={item.url}
+                                placeholder="YouTube URL or video ID"
+                                aria-label={`Video URL ${index + 1}`}
+                                onChange={(e) =>
+                                  updateMedia(index, { url: e.target.value })
+                                }
+                              />
+                              <ImageField
+                                label={`Video poster ${index + 1}`}
+                                value={item.poster ?? ""}
+                                hideLabel
+                                compact
+                                onChange={(poster) =>
+                                  updateMedia(index, { poster })
+                                }
+                              />
+                            </div>
                           )}
                         </span>
                         <span className="admin-compact-col admin-compact-col--alt">
@@ -255,7 +416,15 @@ export function OverviewModuleEditor({
                               }
                             />
                           ) : (
-                            <span className="admin-muted-cell">—</span>
+                            <input
+                              className="admin-input admin-input--compact"
+                              value={item.title ?? ""}
+                              placeholder="Video title"
+                              aria-label={`Video title ${index + 1}`}
+                              onChange={(e) =>
+                                updateMedia(index, { title: e.target.value })
+                              }
+                            />
                           )}
                         </span>
                         <span className="admin-compact-col admin-compact-col--actions">

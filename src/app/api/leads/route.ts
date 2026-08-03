@@ -9,6 +9,7 @@ import { isDbEnabled } from "@/lib/db";
 
 /**
  * Public endpoint to store contact and enquiry form submissions.
+ * Persists the lead, then emails admin + visitor when SMTP is configured.
  */
 export async function POST(request: Request) {
   if (!isDbEnabled()) {
