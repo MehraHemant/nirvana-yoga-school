@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { Button, Container, Heading, SectionHeader } from "@/components/ui";
 import { Check } from "@/icons";
@@ -10,6 +11,9 @@ import {
   type UpcomingDatesProps,
   whatsAppHref,
 } from "./upcomingDatesShared";
+
+/** Site-wide enquire CTA used by availability status chips. */
+const ENQUIRE_HREF = "/enquire-now";
 
 function savingsPct(price: string, original: string) {
   const p = Number.parseFloat(price.replace(/[^0-9.]/g, ""));
@@ -265,29 +269,33 @@ export default function UpcomingDates({
                         }`}
                         aria-hidden="true"
                       />
-                      <button
-                        type="button"
-                        onClick={() => setSelectedBatch(batch.dates)}
-                        className={`w-full cursor-pointer rounded-xl border p-2.5 text-left transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 ${
+                      <div
+                        className={`flex w-full items-start gap-2 rounded-xl border p-2.5 transition-all ${
                           selected
                             ? "surface-elevated border-primary shadow-soft"
                             : "surface-panel border-ink/8 hover:border-primary/20"
                         }`}
                       >
-                        <div className="flex flex-wrap items-center justify-between gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedBatch(batch.dates)}
+                          className="min-w-0 flex-1 cursor-pointer text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+                        >
                           <p className="font-sans type-body font-medium text-ink">
                             {batch.dates}
                           </p>
-                          <span
-                            className={`type-eyebrow inline-block rounded-full border px-2 py-0.5 text-[9px] ${batch.statusColor}`}
-                          >
-                            {batch.status}
-                          </span>
-                        </div>
-                        <p className="mt-0.5 font-sans text-xs sm:text-sm text-muted">
-                          {batch.spaces} · {duration}
-                        </p>
-                      </button>
+                          <p className="mt-0.5 font-sans text-xs sm:text-sm text-muted">
+                            {batch.spaces} · {duration}
+                          </p>
+                        </button>
+                        <Link
+                          href={ENQUIRE_HREF}
+                          className={`type-eyebrow shrink-0 inline-block rounded-full border px-2 py-0.5 text-[9px] transition-opacity hover:opacity-85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 ${batch.statusColor}`}
+                          aria-label={`${batch.status} — Enquire now`}
+                        >
+                          {batch.status}
+                        </Link>
+                      </div>
                     </li>
                   );
                 })}

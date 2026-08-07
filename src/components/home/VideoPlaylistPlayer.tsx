@@ -2,7 +2,7 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Play } from "@/icons";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 import type { YouTubeVideo } from "@/lib/youtube";
@@ -92,7 +92,7 @@ function VideoPlaylistItem({
       <div className="flex min-w-0 flex-1 flex-col justify-center gap-1 p-3 md:py-1 md:pr-1 md:pl-0">
         <span
           className={`type-eyebrow text-[10px] sm:text-xs ${
-            isActive ? "text-primary" : "text-muted"
+            isActive ? "text-primary" : "text-ink"
           }`}
         >
           {isActive ? "Now playing" : video.channel}
@@ -117,11 +117,28 @@ type VideoPlaylistPlayerProps = {
 };
 
 /**
- * Playlist-left / player-right YouTube player. The selected video plays in the
- * large frame on the right while the scrollable playlist sits on the left.
- * Auto-plays (muted) once the block scrolls into view; respects reduced motion.
+ * Starts muted autoplay after the user taps play or picks a playlist item.
  *
- * Shared by the home video section and the course overview.
+ * @param setStarted - Marks the main player as interactive
+ * @param setAutoplay - Enables muted autoplay after user intent
+ * @param setPlayerKey - Remounts the iframe
+ * @param prefersReduced - When true, skips autoplay
+ */
+function startPlayback(
+  setStarted: (value: boolean) => void,
+  setAutoplay: (value: boolean) => void,
+  setPlayerKey: (updater: (key: number) => number) => void,
+  prefersReduced: boolean,
+) {
+  setStarted(true);
+  setAutoplay(!prefersReduced);
+  setPlayerKey((key) => key + 1);
+}
+
+/**
+ * Playlist-left / player-right YouTube player. Poster + play control first;
+ * the iframe mounts only after click (or playlist selection). Shared by the
+ * course overview (and similar surfaces).
  *
  * @param props - Videos to show and optional grid wrapper classes
  */
@@ -129,10 +146,9 @@ export default function VideoPlaylistPlayer({
   videos,
   className = "",
 }: VideoPlaylistPlayerProps) {
-  const rootRef = useRef<HTMLDivElement>(null);
-  const hasAutoplayedOnce = useRef(false);
   const [activeId, setActiveId] = useState(videos[0]?.id ?? "");
   const [playerKey, setPlayerKey] = useState(0);
+  const [started, setStarted] = useState(false);
   const [autoplay, setAutoplay] = useState(false);
   const prefersReduced = useReducedMotion() ?? false;
 
@@ -145,42 +161,27 @@ export default function VideoPlaylistPlayer({
     }
     if (!videos.some((v) => v.id === activeId)) {
       setActiveId(videos[0].id);
+      setStarted(false);
       setAutoplay(false);
       setPlayerKey((key) => key + 1);
     }
   }, [videos, activeId]);
 
+  /**
+   * Selects a playlist item and mounts the iframe if needed.
+   *
+   * @param id - YouTube video id
+   */
   const selectVideo = (id: string) => {
-    if (id === activeId) return;
+    if (id === activeId && started) return;
     setActiveId(id);
-    setAutoplay(!prefersReduced);
-    setPlayerKey((key) => key + 1);
+    startPlayback(setStarted, setAutoplay, setPlayerKey, prefersReduced);
   };
-
-  useEffect(() => {
-    const node = rootRef.current;
-    if (!node || prefersReduced) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry?.isIntersecting || hasAutoplayedOnce.current) return;
-
-        hasAutoplayedOnce.current = true;
-        setAutoplay(true);
-        setPlayerKey((key) => key + 1);
-      },
-      { threshold: 0.35 },
-    );
-
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, [prefersReduced]);
 
   if (!active) return null;
 
   return (
     <div
-      ref={rootRef}
       className={`grid w-full min-w-0 grid-cols-1 items-start gap-6 sm:gap-8 lg:grid-cols-12 lg:gap-10 ${className}`}
     >
       {/* Player */}
@@ -198,16 +199,50 @@ export default function VideoPlaylistPlayer({
             aria-hidden="true"
           />
           <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl">
-            <div className="relative aspect-video w-full">
-              <iframe
-                key={playerKey}
-                src={buildEmbedUrl(activeId, autoplay)}
-                title={`${active.title} — ${active.channel}`}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                referrerPolicy="strict-origin-when-cross-origin"
-                allowFullScreen
-                className="absolute inset-0 h-full w-full border-0"
-              />
+            <div className="relative aspect-video w-full bg-ink">
+              {started ? (
+                <iframe
+                  key={playerKey}
+                  src={buildEmbedUrl(activeId, autoplay)}
+                  title={`${active.title} — ${active.channel}`}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  referrerPolicy="strict-origin-when-cross-origin"
+                  allowFullScreen
+                  className="absolute inset-0 h-full w-full border-0"
+                />
+              ) : (
+                <button
+                  type="button"
+                  onClick={() =>
+                    startPlayback(
+                      setStarted,
+                      setAutoplay,
+                      setPlayerKey,
+                      prefersReduced,
+                    )
+                  }
+                  className="group absolute inset-0 h-full w-full text-left"
+                  aria-label={`Play ${active.title}`}
+                >
+                  <Image
+                    src={active.thumbnailUrl}
+                    alt=""
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 66vw"
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    priority
+                  />
+                  <span
+                    className="absolute inset-0 bg-ink/30 transition-colors group-hover:bg-ink/40"
+                    aria-hidden="true"
+                  />
+                  <span className="absolute inset-0 flex items-center justify-center">
+                    <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white text-primary shadow-lg transition-transform group-hover:scale-105 sm:h-16 sm:w-16">
+                      <Play size={22} className="ml-0.5" aria-hidden="true" />
+                    </span>
+                  </span>
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -216,8 +251,8 @@ export default function VideoPlaylistPlayer({
       {/* Playlist — one list, responsive layout */}
       <div className="order-2 min-w-0 lg:order-1 lg:col-span-4 lg:sticky lg:top-24 lg:self-start">
         <div className="mb-3 flex items-end justify-between gap-3 lg:mb-4">
-          <p className="type-eyebrow text-muted">{videos.length} videos</p>
-          <p className="type-eyebrow text-muted md:hidden">Swipe →</p>
+          <p className="type-eyebrow text-ink">{videos.length} videos</p>
+          <p className="type-eyebrow text-ink md:hidden">Swipe →</p>
         </div>
 
         <div className="marquee-mask max-md:-mx-5 max-md:px-5 md:contents">

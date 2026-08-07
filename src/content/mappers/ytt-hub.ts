@@ -3,10 +3,7 @@ import type {
   HomeHeroVideoContent,
   HomeWelcomeContent,
 } from "@/content/types/dedicated-pages";
-import type {
-  YttHubContent,
-  YttHubNavItem,
-} from "@/content/types/shared-sections";
+import type { YttHubContent } from "@/content/types/shared-sections";
 
 const EMPTY_HERO_VIDEO: HomeHeroVideoContent = {
   mobileSrc: "",
@@ -14,19 +11,6 @@ const EMPTY_HERO_VIDEO: HomeHeroVideoContent = {
   desktopSrc: "",
   desktopPoster: "",
 };
-
-/** Sticky jump-nav order matching the public YTT hub section layout. */
-export const DEFAULT_YTT_HUB_NAV: YttHubNavItem[] = [
-  { id: "#about", label: "Overview", shortLabel: "Overview" },
-  { id: "#video", label: "Videos", shortLabel: "Videos" },
-  { id: "#gallery", label: "Gallery", shortLabel: "Gallery" },
-  { id: "#exam", label: "Certification", shortLabel: "Cert" },
-  { id: "#courses", label: "Courses", shortLabel: "Courses" },
-  { id: "#why-nirvana", label: "Why Nirvana", shortLabel: "Why Nirvana" },
-  { id: "#teachers", label: "Teachers", shortLabel: "Teachers" },
-  { id: "#location", label: "Map", shortLabel: "Map" },
-  { id: "#faq", label: "FAQ", shortLabel: "FAQ" },
-];
 
 /**
  * Resolves hub hero video sources without falling back to homepage video files.
@@ -138,12 +122,3 @@ export function mapYttHubToHomeWelcome(hub: YttHubContent): HomeWelcomeContent {
   };
 }
 
-/**
- * Sticky nav items from CMS, falling back to the hub default order.
- *
- * @param nav - Hub nav from MySQL
- */
-export function resolveYttHubNav(nav: YttHubNavItem[]): YttHubNavItem[] {
-  const cleaned = nav.filter((item) => item.id.trim() && item.label.trim());
-  return cleaned.length > 0 ? cleaned : DEFAULT_YTT_HUB_NAV;
-}

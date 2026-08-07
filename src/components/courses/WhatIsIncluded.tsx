@@ -152,10 +152,6 @@ export default function WhatIsIncluded({
       id={htmlId}
       className="py-16 lg:py-0 lg:min-h-[calc(100svh-4rem)] lg:flex lg:items-center bg-white relative overflow-hidden"
     >
-      {/* Background ambient glows */}
-      <div className="absolute right-[-10%] top-[-10%] w-[500px] h-[500px] rounded-full bg-primary/5 blur-[100px] pointer-events-none" />
-      <div className="absolute left-[-10%] bottom-[-10%] w-[500px] h-[500px] rounded-full bg-accent/8 blur-[100px] pointer-events-none" />
-
       {/* Background geometric flourishes */}
       <div
         className="absolute left-[-15%] top-[10%] w-[350px] h-[350px] text-accent/8 pointer-events-none rotate-12"

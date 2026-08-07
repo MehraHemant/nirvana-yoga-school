@@ -1,21 +1,21 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
-import { useState } from "react";
+import Link from "next/link";
 import type { TeacherProfile } from "@/components/home/TeachersSection";
-import { ChevronDown } from "@/icons";
-import { EASE_OUT } from "@/lib/motion";
+import { teacherPageHref } from "@/content/teachers-slug";
 import OnlineSectionShell from "./OnlineSectionShell";
 
 type OnlineTeachersSectionProps = {
   teachers: TeacherProfile[];
 };
 
+/**
+ * Compact online-course teacher card — “Show more” deep-links to `/teacher#slug`.
+ *
+ * @param props - Faculty profile
+ */
 function TeacherCard({ teacher }: { teacher: TeacherProfile }) {
-  const [expanded, setExpanded] = useState(false);
-  const prefersReduced = useReducedMotion() ?? false;
-
   return (
     <article className="overflow-hidden rounded-3xl border border-ink/8 bg-white shadow-card">
       <div className="flex flex-col gap-5 p-5 sm:flex-row sm:p-6">
@@ -37,87 +37,23 @@ function TeacherCard({ teacher }: { teacher: TeacherProfile }) {
             </p>
           </div>
           <p className="type-body text-muted line-clamp-3">{teacher.bio}</p>
-          <button
-            type="button"
-            onClick={() => setExpanded((value) => !value)}
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary"
-            aria-expanded={expanded}
+          <Link
+            href={teacherPageHref(teacher.name)}
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary transition-colors hover:text-primary/80"
           >
-            {expanded ? "Show less" : "Show more"}
-            <motion.span
-              animate={{ rotate: expanded ? 180 : 0 }}
-              transition={
-                prefersReduced
-                  ? { duration: 0 }
-                  : { duration: 0.2, ease: EASE_OUT }
-              }
-            >
-              <ChevronDown size={16} />
-            </motion.span>
-          </button>
+            Show more
+          </Link>
         </div>
       </div>
-
-      <AnimatePresence initial={false}>
-        {expanded && (
-          <motion.div
-            initial={
-              prefersReduced
-                ? { opacity: 1, height: "auto" }
-                : { height: 0, opacity: 0 }
-            }
-            animate={{ height: "auto", opacity: 1 }}
-            exit={
-              prefersReduced
-                ? { opacity: 0, height: 0 }
-                : { height: 0, opacity: 0 }
-            }
-            transition={
-              prefersReduced
-                ? { duration: 0 }
-                : { duration: 0.3, ease: EASE_OUT }
-            }
-            className="overflow-hidden"
-          >
-            <div className="grid gap-6 border-t border-ink/8 px-5 py-5 sm:grid-cols-3 sm:px-6 sm:py-6">
-              {teacher.education.length > 0 && (
-                <div>
-                  <h4 className="type-eyebrow mb-3 text-muted">Education</h4>
-                  <ul className="space-y-2 text-sm text-ink/85">
-                    {teacher.education.map((item) => (
-                      <li key={item}>{item}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {teacher.detailedExperience.length > 0 && (
-                <div>
-                  <h4 className="type-eyebrow mb-3 text-muted">Experience</h4>
-                  <ul className="space-y-2 text-sm text-ink/85">
-                    {teacher.detailedExperience.map((item) => (
-                      <li key={item}>{item}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {teacher.expertise.length > 0 && (
-                <div>
-                  <h4 className="type-eyebrow mb-3 text-muted">Expertise</h4>
-                  <ul className="space-y-2 text-sm text-ink/85">
-                    {teacher.expertise.map((item) => (
-                      <li key={item}>{item}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </article>
   );
 }
 
+/**
+ * Online course teachers band — profiles deep-link to the shared faculty page.
+ *
+ * @param props - Faculty list for this course
+ */
 export default function OnlineTeachersSection({
   teachers,
 }: OnlineTeachersSectionProps) {

@@ -133,7 +133,7 @@ export default function GallerySection({
   return (
     <section
       id={resolveSectionHtmlId("gallery", content._id)}
-      className="relative w-full bg-paper py-12 sm:py-14 lg:py-16"
+      className="relative w-full bg-white py-12 sm:py-14 lg:py-16"
     >
       <Container size="2xl" className="relative">
         <motion.div
@@ -148,13 +148,13 @@ export default function GallerySection({
               title={content.title}
               description={content.description}
               align="left"
-              className="max-w-2xl mb-0!"
+              className="max-w-2xl mb-0! [&_.type-lead]:text-ink"
             />
           </div>
         </motion.div>
 
         <motion.div
-          className="sticky top-18 md:top-20 z-30 bg-sand/90 backdrop-blur-md py-4 mb-10 -mx-5 px-5 md:-mx-8 md:px-8 border-b border-ink/8"
+          className="sticky top-18 md:top-20 z-30 bg-white/95 backdrop-blur-sm py-4 mb-10 -mx-5 px-5 md:-mx-8 md:px-8 border-b border-ink/8"
           initial="hidden"
           whileInView="visible"
           viewport={VIEWPORT_ONCE}
@@ -170,7 +170,7 @@ export default function GallerySection({
                   type="button"
                   onClick={() => setSelectedCategory(category.id)}
                   className={`type-ui relative px-4 py-2 font-medium transition-colors duration-300 focus-visible:outline-none ${
-                    isActive ? "text-primary" : "text-muted hover:text-ink"
+                    isActive ? "text-primary" : "text-ink"
                   }`}
                 >
                   {category.label}

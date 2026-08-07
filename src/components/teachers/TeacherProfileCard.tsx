@@ -3,7 +3,7 @@
 import { motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { TeacherProfile } from "@/components/home/TeachersSection";
 import { Heading } from "@/components/ui";
 import { teacherSlug } from "@/content/teachers-slug";
@@ -67,6 +67,8 @@ type TeacherProfileCardProps = {
   showMoreHref?: string;
   /** Optional article id override (defaults to `teacherSlug(name)`). */
   id?: string;
+  /** When true (e.g. deep link), start expanded on the teachers page. */
+  defaultExpanded?: boolean;
 };
 
 /**
@@ -82,13 +84,19 @@ export default function TeacherProfileCard({
   showMoreMode = "toggle",
   showMoreHref,
   id: idProp,
+  defaultExpanded = false,
 }: TeacherProfileCardProps) {
   const prefersReducedMotionHook = useReducedMotion();
   const prefersReducedMotion =
     prefersReducedMotionProp ?? prefersReducedMotionHook ?? false;
   const id = idProp ?? teacherSlug(teacher.name);
   const detailsId = `${id}-details`;
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(defaultExpanded);
+
+  useEffect(() => {
+    if (defaultExpanded) setExpanded(true);
+  }, [defaultExpanded]);
+
   const imageRight = index % 2 === 0;
   const isLinked = showMoreMode === "link";
   const isExpanded = !isLinked && expanded;

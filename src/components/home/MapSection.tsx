@@ -21,7 +21,7 @@ type MapSectionProps = {
  * @param props - Optional CMS map fields and section class
  */
 export default function MapSection({
-  className = "bg-paper",
+  className = "bg-white",
   content,
   htmlId,
 }: MapSectionProps) {

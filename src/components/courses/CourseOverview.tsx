@@ -119,8 +119,6 @@ export default function CourseOverview({
       id={htmlId}
       className="relative overflow-hidden bg-white py-16 sm:py-14"
     >
-      <div className="pointer-events-none absolute right-[-10%] top-[10%] h-[600px] w-[600px] rounded-full bg-primary/5 blur-[120px]" />
-      <div className="pointer-events-none absolute bottom-[10%] left-[-10%] h-[500px] w-[500px] rounded-full bg-accent/8 blur-[100px]" />
       <HeroFlourish className="pointer-events-none absolute right-[-8%] top-[5%] h-[450px] w-[450px] rotate-45 text-accent/12" />
       <HeroFlourish className="pointer-events-none absolute bottom-[-5%] left-[-12%] h-[380px] w-[380px] text-primary/4" />
 
@@ -149,11 +147,11 @@ export default function CourseOverview({
             variants={fadeUp}
             className="space-y-6"
           >
-            <p className="type-lead text-muted first-letter:float-left first-letter:mr-4 first-letter:mt-1 first-letter:font-serif first-letter:text-6xl first-letter:font-bold first-letter:leading-[0.8] first-letter:text-primary">
+            <p className="type-lead text-ink first-letter:float-left first-letter:mr-4 first-letter:mt-1 first-letter:font-serif first-letter:text-6xl first-letter:font-bold first-letter:leading-[0.8] first-letter:text-primary">
               {overview}
             </p>
             {resolvedSupporting ? (
-              <p className="type-lead font-sans leading-relaxed text-muted">
+              <p className="type-lead font-sans leading-relaxed text-ink">
                 {resolvedSupporting}
               </p>
             ) : null}
@@ -214,7 +212,6 @@ export default function CourseOverview({
                       src={active.url}
                       alt={alt}
                       fill
-                      unoptimized
                       sizes="(max-width: 768px) 100vw, 1200px"
                       className="object-cover"
                     />
@@ -269,7 +266,7 @@ export default function CourseOverview({
               <p className="type-eyebrow font-semibold uppercase tracking-[0.2em] text-primary">
                 Course at a glance
               </p>
-              <p className="font-sans text-xs text-muted">
+              <p className="font-sans text-xs text-ink">
                 Residential program essentials
               </p>
             </div>
@@ -304,7 +301,7 @@ export default function CourseOverview({
                   >
                     {spec.value}
                   </p>
-                  <p className="max-w-[16rem] font-sans text-xs leading-relaxed text-muted">
+                  <p className="max-w-[16rem] font-sans text-xs leading-relaxed text-ink">
                     {spec.hint}
                   </p>
                   <span

@@ -88,24 +88,24 @@ export default function PageHeroRenderer({ modules }: PageHeroRendererProps) {
 
   if (hero.type === "page-minimal") {
     return (
-      <HeroFrame className="relative overflow-hidden bg-sand pt-[var(--site-header-height)]">
+      <HeroFrame className="relative overflow-hidden bg-primary pt-[var(--site-header-height)]">
         <Container size="xl" className="py-12 md:py-16">
           <div className="grid gap-8 lg:grid-cols-2 lg:items-center">
             <div className="space-y-4">
               {hero.eyebrow ? (
-                <p className="type-eyebrow text-primary">{hero.eyebrow}</p>
+                <p className="type-eyebrow text-white/80">{hero.eyebrow}</p>
               ) : null}
-              <Heading as="h1" size="h1">
+              <Heading as="h1" size="h1" invert>
                 {hero.title}
               </Heading>
               {hero.subtitle ? (
-                <p className="type-lead text-muted">{hero.subtitle}</p>
+                <p className="type-lead text-white/85">{hero.subtitle}</p>
               ) : null}
               {hero.description ? (
-                <p className="type-body text-muted">{hero.description}</p>
+                <p className="type-body text-white/75">{hero.description}</p>
               ) : null}
               {hero.ctaLabel && hero.ctaHref ? (
-                <Button href={hero.ctaHref} variant="primary">
+                <Button href={hero.ctaHref} variant="outline-light">
                   {hero.ctaLabel}
                 </Button>
               ) : null}

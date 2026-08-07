@@ -7,7 +7,7 @@ import TeacherProfileCard, {
   HOMEPAGE_TEACHER_PREVIEW,
 } from "@/components/teachers/TeacherProfileCard";
 import { Container, SectionHeader } from "@/components/ui";
-import { TEACHER_PAGE_SLUG, teacherSlug } from "@/content/teachers-slug";
+import { teacherPageHref, teacherSlug } from "@/content/teachers-slug";
 import { resolveSectionHtmlId } from "@/lib/html-id";
 
 export type TeacherProfile = {
@@ -32,16 +32,6 @@ type TeachersSectionProps = {
   /** Optional CMS section `_id` (falls back to `teachers`) */
   sectionId?: string;
 };
-
-/**
- * Builds the teachers-page deep link for a faculty profile.
- *
- * @param name - Teacher display name
- * @returns `/teacher#slug` href
- */
-function teacherPageHref(name: string): string {
-  return `/${TEACHER_PAGE_SLUG}#${teacherSlug(name)}`;
-}
 
 /**
  * Scrolls `item` into view inside `container` only — never the window.

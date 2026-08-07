@@ -11,7 +11,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import type React from "react";
-import { useEffect, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { ArrowRight, Check } from "@/icons";
 
 export type CourseCardProps = {
@@ -58,6 +58,24 @@ const cardVariants = {
 };
 
 /**
+ * True when the primary pointer can hover (fine mouse/trackpad).
+ * Starts false so touch clients never mount 3D parallax springs.
+ */
+function useFinePointerHover() {
+  const [fineHover, setFineHover] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(hover: hover) and (pointer: fine)");
+    const sync = () => setFineHover(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
+  return fineHover;
+}
+
+/**
  * Shortens certification copy for the card eyebrow.
  *
  * @param certification - Full certification string from CMS
@@ -91,16 +109,14 @@ function MetaPills({
 }) {
   const chip = compact
     ? "rounded-full border px-2 py-0.5 text-[11px] leading-tight tracking-wide"
-    : "rounded-full border px-3 py-1 type-ui";
+    : "rounded-full border px-2.5 py-0.5 text-xs font-medium leading-tight tracking-wide";
 
   return (
-    <div className={compact ? "flex flex-wrap gap-1.5" : "flex flex-wrap gap-2"}>
-      <span className={`${chip} border-ink/10 bg-white text-ink/85`}>
+    <div className="flex flex-wrap gap-1.5">
+      <span className={`${chip} border-ink/12 bg-white text-ink`}>
         {duration}
       </span>
-      <span className={`${chip} border-ink/10 bg-white text-ink/85`}>
-        {level}
-      </span>
+      <span className={`${chip} border-ink/12 bg-white text-ink`}>{level}</span>
       <span
         className={`${chip} border-primary/15 bg-primary/8 font-semibold text-primary`}
       >
@@ -110,6 +126,11 @@ function MetaPills({
   );
 }
 
+/**
+ * Editorial focus list with check icons.
+ *
+ * @param props - Highlight strings
+ */
 function FocusList({ highlights }: { highlights: string[] }) {
   if (highlights.length === 0) return null;
 
@@ -120,7 +141,7 @@ function FocusList({ highlights }: { highlights: string[] }) {
           <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-primary/10">
             <Check size={11} strokeWidth={3} className="text-primary" />
           </span>
-          <span className="type-body text-sm leading-snug text-ink/80">
+          <span className="type-body text-sm leading-snug text-ink">
             {item}
           </span>
         </li>
@@ -130,9 +151,8 @@ function FocusList({ highlights }: { highlights: string[] }) {
 }
 
 /**
- * Course card media with chrome inset. Padding is applied via absolute inset
- * (not aspect-ratio + padding on one box) so the photo fills the frame with no gaps.
- * Hub keeps the same 16:10 ratio with a tighter inset so the image block reads smaller in denser grids.
+ * Course card media. Stacked uses full-bleed 16:10 with a stronger veil;
+ * hub keeps a chrome inset so denser grids stay compact.
  *
  * @param props - Image, badges, fee overlay, and layout mode
  */
@@ -159,28 +179,36 @@ function CourseCardImage({
   editorial: boolean;
   hub: boolean;
 }) {
+  const stacked = !editorial && !hub;
+
   const frameClass = editorial
     ? "absolute inset-4 overflow-hidden rounded-2xl md:inset-5"
     : hub
       ? "absolute inset-2.5 overflow-hidden rounded-xl sm:inset-3"
-      : "absolute inset-4 overflow-hidden rounded-2xl";
+      : "absolute inset-0 overflow-hidden";
 
   const badgePad = hub
     ? "left-2 top-2 sm:left-2.5 sm:top-2.5"
-    : "left-3 top-3 sm:left-3.5 sm:top-3.5";
+    : stacked
+      ? "left-3 top-3 sm:left-3.5 sm:top-3.5"
+      : "left-2.5 top-2.5 sm:left-3 sm:top-3";
   const certPad = hub
     ? "right-2 top-2 sm:right-2.5 sm:top-2.5"
-    : "right-3 top-3 sm:right-3.5 sm:top-3.5";
+    : stacked
+      ? "right-3 top-3 sm:right-3.5 sm:top-3.5"
+      : "right-2.5 top-2.5 sm:right-3 sm:top-3";
   const feePad = hub
     ? "bottom-2 left-2 sm:bottom-2.5 sm:left-2.5"
-    : "bottom-3 left-3 sm:bottom-3.5 sm:left-3.5";
+    : "bottom-2.5 left-2.5 sm:bottom-3 sm:left-3";
 
   return (
     <div
       className={
         editorial
           ? "relative w-full shrink-0 md:w-[40%] lg:w-[38%]"
-          : "relative aspect-[16/10] w-full shrink-0"
+          : stacked
+            ? "relative aspect-[16/10] w-full shrink-0 overflow-hidden"
+            : "relative aspect-[16/10] w-full shrink-0"
       }
       style={{ transformStyle: "preserve-3d" }}
     >
@@ -203,20 +231,32 @@ function CourseCardImage({
                   ? "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                   : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             }
-            className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
+            className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-[1.05]"
             priority={revealDelay === 0}
           />
           <div
-            className="absolute inset-0 bg-linear-to-t from-ink/35 via-transparent to-transparent"
+            className={
+              stacked
+                ? "absolute inset-0 bg-linear-to-t from-ink/70 via-ink/25 to-ink/5"
+                : "absolute inset-0 bg-linear-to-t from-ink/50 via-ink/10 to-transparent"
+            }
             aria-hidden="true"
           />
+          {stacked ? (
+            <div
+              className="absolute inset-x-0 bottom-0 h-px bg-linear-to-r from-transparent via-primary/40 to-transparent opacity-80"
+              aria-hidden="true"
+            />
+          ) : null}
 
           {hours ? (
             <span
-              className={`absolute z-20 rounded-full bg-primary font-bold text-white shadow-sm ${badgePad} ${
+              className={`absolute z-20 font-bold text-white shadow-sm ${badgePad} ${
                 hub
-                  ? "px-2 py-0.5 text-[9px] tracking-wide"
-                  : "px-3 py-1 type-eyebrow"
+                  ? "rounded-full bg-primary px-2 py-0.5 text-[9px] tracking-wide"
+                  : stacked
+                    ? "rounded-md bg-primary px-2.5 py-1 type-eyebrow tracking-[0.14em]"
+                    : "rounded-full bg-primary px-3 py-1 type-eyebrow"
               }`}
               style={{
                 transform: prefersReduced ? "none" : "translateZ(15px)",
@@ -228,8 +268,8 @@ function CourseCardImage({
 
           {certBadge ? (
             <div
-              className={`absolute z-20 flex items-center justify-center rounded-full border border-white/20 bg-white/90 shadow-sm backdrop-blur-xs ${certPad} ${
-                hub ? "size-8 p-0.5" : "size-10 p-1"
+              className={`absolute z-20 flex items-center justify-center rounded-full border border-white/30 bg-white/95 shadow-sm backdrop-blur-xs ${certPad} ${
+                hub ? "size-8 p-0.5" : stacked ? "size-11 p-1" : "size-10 p-1"
               }`}
               style={{
                 transform: prefersReduced ? "none" : "translateZ(15px)",
@@ -240,20 +280,17 @@ function CourseCardImage({
                   src={certBadge}
                   alt={certification}
                   fill
-                  sizes={hub ? "28px" : "36px"}
+                  sizes={hub ? "28px" : stacked ? "40px" : "36px"}
                   className="object-cover"
                 />
               </div>
             </div>
           ) : null}
 
-          {!editorial ? (
+          {/* Hub keeps fee on media; stacked shows a body price row instead. */}
+          {hub ? (
             <span
-              className={`absolute z-20 rounded-full border border-primary/20 bg-primary/80 font-semibold tracking-wide text-white shadow-xs backdrop-blur-md ${feePad} ${
-                hub
-                  ? "px-2.5 py-1 text-[9px]"
-                  : "px-3.5 py-1.5 text-[10px] sm:text-[11px]"
-              }`}
+              className={`absolute z-20 rounded-full border border-primary/20 bg-primary/80 font-semibold tracking-wide text-white shadow-xs backdrop-blur-md ${feePad} px-2.5 py-1 text-[9px]`}
               style={{
                 transform: prefersReduced ? "none" : "translateZ(15px)",
               }}
@@ -267,6 +304,11 @@ function CourseCardImage({
   );
 }
 
+/**
+ * Stacked / editorial body — stacked uses a serif price row and lean highlights.
+ *
+ * @param props - Course copy and layout flags
+ */
 function CourseCardBody({
   title,
   duration,
@@ -275,6 +317,7 @@ function CourseCardBody({
   fee,
   description,
   highlights,
+  index,
   editorial,
 }: Pick<
   CourseCardProps,
@@ -285,54 +328,119 @@ function CourseCardBody({
   | "fee"
   | "description"
   | "highlights"
+  | "index"
   | "layout"
 > & { editorial: boolean }) {
-  const items = highlights ?? [];
+  const items = (highlights ?? [])
+    .filter((item) => item.trim())
+    .slice(0, editorial ? 4 : 3);
+  const courseNumber = String((index ?? 0) + 1).padStart(2, "0");
 
   return (
     <div
       className={
         editorial
           ? "flex flex-1 flex-col px-5 pb-5 pt-4 md:px-6 md:py-6"
-          : "flex flex-1 flex-col px-5 pb-2 pt-2"
+          : "relative z-10 mx-3 -mt-5 flex flex-1 flex-col rounded-t-[1.15rem] bg-sand px-4 pb-3 pt-4 shadow-[0_-12px_30px_rgba(31,30,28,0.08)] sm:mx-4 sm:px-5"
       }
     >
-      <div className="type-eyebrow text-primary">
-        {certShort(certification)} · Yoga Alliance
-      </div>
+      {editorial ? (
+        <div className="type-eyebrow text-primary">
+          {certShort(certification)} · Yoga Alliance
+        </div>
+      ) : (
+        <div className="flex items-center gap-3">
+          <span className="type-eyebrow shrink-0 text-primary">
+            {certShort(certification)} · Yoga Alliance
+          </span>
+          <span className="h-px flex-1 bg-primary/30" aria-hidden="true" />
+          <span className="font-serif text-sm font-semibold tabular-nums text-ink/45">
+            {courseNumber}
+          </span>
+        </div>
+      )}
 
-      <h3 className="type-display-sm mt-2 line-clamp-2 font-semibold leading-snug text-ink transition-colors duration-300 group-hover:text-primary">
+      <h3
+        className={
+          editorial
+            ? "type-display-sm mt-1.5 line-clamp-2 font-semibold tracking-tight leading-snug text-ink transition-colors duration-300 group-hover:text-primary"
+            : "mt-2 line-clamp-2 font-serif text-[1.35rem] font-medium leading-[1.16] tracking-tight text-ink transition-colors duration-300 group-hover:text-primary sm:text-[1.45rem]"
+        }
+      >
         {title}
       </h3>
 
       {description ? (
-        <p className="type-body mt-3 line-clamp-3 text-muted leading-relaxed">
+        <p
+          className={
+            editorial
+              ? "mt-2 line-clamp-2 text-sm leading-snug text-ink sm:text-[0.9375rem]"
+              : "mt-1.5 line-clamp-1 text-[12.5px] leading-snug text-ink/70"
+          }
+        >
           {description}
         </p>
       ) : null}
 
-      <div className={description ? "mt-4" : "mt-3"}>
-        <MetaPills duration={duration} level={level} fee={fee} />
-      </div>
+      {editorial ? (
+        <div className={description ? "mt-2.5" : "mt-2"}>
+          <MetaPills duration={duration} level={level} fee={fee} />
+        </div>
+      ) : (
+        <div className="mt-3 grid grid-cols-[0.9fr_1fr_1.15fr] border-y border-ink/10">
+          <div className="min-w-0 py-2.5 pr-2">
+            <p className="text-[9px] font-semibold uppercase tracking-[0.15em] text-muted">
+              Duration
+            </p>
+            <p className="mt-1 truncate text-[12px] font-semibold leading-none text-ink">
+              {duration}
+            </p>
+          </div>
+          <div className="min-w-0 border-l border-ink/10 px-2 py-2.5">
+            <p className="text-[9px] font-semibold uppercase tracking-[0.15em] text-muted">
+              Level
+            </p>
+            <p className="mt-1 truncate text-[12px] font-semibold leading-none text-ink">
+              {level}
+            </p>
+          </div>
+          <div className="min-w-0 border-l border-ink/10 py-2.5 pl-3 text-right">
+            <p className="text-[9px] font-semibold uppercase tracking-[0.15em] text-muted">
+              From
+            </p>
+            <p className="mt-0.5 truncate font-serif text-[1.15rem] font-semibold leading-none tracking-tight text-primary">
+              {fee}
+            </p>
+          </div>
+        </div>
+      )}
 
       {items.length > 0 ? (
-        <div className="mt-5 flex-grow">
-          <p className="type-eyebrow mb-3 text-muted">What you&apos;ll learn</p>
-          {editorial ? (
+        editorial ? (
+          <div className="mt-5 flex-grow">
+            <p className="type-eyebrow mb-3 text-ink">What you&apos;ll learn</p>
             <FocusList highlights={items} />
-          ) : (
-            <div className="flex flex-wrap gap-2">
-              {items.slice(0, 4).map((item) => (
-                <span
-                  key={item}
-                  className="rounded-full border border-ink/8 bg-white px-3 py-1.5 text-xs font-medium text-ink/80"
-                >
-                  {item}
-                </span>
+          </div>
+        ) : (
+          <div className="mt-3">
+            <p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-muted">
+              Key outcomes
+            </p>
+            <ul className="mt-1.5 grid gap-x-3 gap-y-1 sm:grid-cols-2">
+              {items.map((item) => (
+                <li key={item} className="flex min-w-0 items-start gap-2">
+                  <span
+                    className="mt-[0.45rem] h-px w-2.5 shrink-0 bg-primary"
+                    aria-hidden="true"
+                  />
+                  <span className="line-clamp-1 text-[12px] leading-snug text-ink/85">
+                    {item}
+                  </span>
+                </li>
               ))}
-            </div>
-          )}
-        </div>
+            </ul>
+          </div>
+        )
       ) : null}
     </div>
   );
@@ -374,7 +482,7 @@ function HubCourseCardBody({
       </h3>
 
       {description ? (
-        <p className="mt-1.5 line-clamp-2 text-xs leading-snug text-muted sm:text-[13px]">
+        <p className="mt-1.5 line-clamp-2 text-xs leading-snug text-ink sm:text-[13px]">
           {description}
         </p>
       ) : null}
@@ -391,7 +499,7 @@ function HubCourseCardBody({
                 className="mt-1.5 size-1 shrink-0 rounded-full bg-primary"
                 aria-hidden="true"
               />
-              <span className="line-clamp-1 text-xs leading-snug text-ink/70">
+              <span className="line-clamp-1 text-xs leading-snug text-ink">
                 {item}
               </span>
             </li>
@@ -404,9 +512,96 @@ function HubCourseCardBody({
   );
 }
 
+type CourseCardShellProps = {
+  className: string;
+  prefersReduced: boolean;
+  children: ReactNode;
+};
+
+/**
+ * Plain reveal shell — no mouse parallax springs (touch, reduced-motion, hub).
+ *
+ * @param props - Shell className, reduced-motion flag, and card children
+ */
+function CourseCardStaticShell({
+  className,
+  prefersReduced,
+  children,
+}: CourseCardShellProps) {
+  return (
+    <motion.div
+      custom={{ prefersReduced }}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: "-40px" }}
+      variants={cardVariants}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+/**
+ * Desktop hover shell with 3D tilt springs and shine (mounted only when enabled).
+ *
+ * @param props - Shell className, reduced-motion flag, and card children
+ */
+function CourseCardParallaxShell({
+  className,
+  prefersReduced,
+  children,
+}: CourseCardShellProps) {
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const rotateX = useTransform(mouseY, [-0.5, 0.5], [3, -3]);
+  const rotateY = useTransform(mouseX, [-0.5, 0.5], [-3, 3]);
+  const springConfig = { damping: 25, stiffness: 180, mass: 0.5 };
+  const rotateXSpring = useSpring(rotateX, springConfig);
+  const rotateYSpring = useSpring(rotateY, springConfig);
+  const shineX = useTransform(mouseX, [-0.5, 0.5], ["0%", "100%"]);
+  const shineY = useTransform(mouseY, [-0.5, 0.5], ["0%", "100%"]);
+  const shineBg = useMotionTemplate`radial-gradient(circle 200px at ${shineX} ${shineY}, rgba(255, 255, 255, 0.2), transparent 80%)`;
+
+  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    mouseX.set((event.clientX - rect.left) / rect.width - 0.5);
+    mouseY.set((event.clientY - rect.top) / rect.height - 0.5);
+  };
+
+  const handleMouseLeave = () => {
+    mouseX.set(0);
+    mouseY.set(0);
+  };
+
+  return (
+    <motion.div
+      custom={{ prefersReduced }}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: "-40px" }}
+      variants={cardVariants}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className={className}
+      style={{
+        rotateX: rotateXSpring,
+        rotateY: rotateYSpring,
+        transformStyle: "preserve-3d",
+      }}
+    >
+      <motion.div
+        className="pointer-events-none absolute inset-0 z-30 rounded-[1.25rem] opacity-0 transition-opacity duration-300 group-hover:opacity-100 sm:rounded-3xl"
+        style={{ background: shineBg }}
+      />
+      {children}
+    </motion.div>
+  );
+}
+
 /**
  * Course card with stacked (home), editorial, or hub layouts.
- * Hub and stacked share the same 16:10 chrome-inset image; hub uses a white surface.
+ * Hub and stacked share the same 16:10 image ratio; hub uses inset chrome + white surface.
  *
  * @param props - Course fields and optional layout variant
  */
@@ -423,77 +618,31 @@ export default function CourseCard({
   revealDelay = 0,
   className = "",
   highlights = [],
+  index,
   layout = "stacked",
 }: CourseCardProps) {
-  const [mounted, setMounted] = useState(false);
   const reducedMotion = useReducedMotion();
   const prefersReduced = reducedMotion ?? false;
+  const finePointerHover = useFinePointerHover();
   const editorial = layout === "editorial";
   const hub = layout === "hub";
+  const stacked = layout === "stacked";
+  const enableParallax = !prefersReduced && !hub && finePointerHover;
   const hours = extractHours(title);
   const isExternal = href.startsWith("http");
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  const rotateX = useTransform(mouseY, [-0.5, 0.5], [3, -3]);
-  const rotateY = useTransform(mouseX, [-0.5, 0.5], [-3, 3]);
-  const springConfig = { damping: 25, stiffness: 180, mass: 0.5 };
-  const rotateXSpring = useSpring(rotateX, springConfig);
-  const rotateYSpring = useSpring(rotateY, springConfig);
-  const shineX = useTransform(mouseX, [-0.5, 0.5], ["0%", "100%"]);
-  const shineY = useTransform(mouseY, [-0.5, 0.5], ["0%", "100%"]);
-  const shineBg = useMotionTemplate`radial-gradient(circle 200px at ${shineX} ${shineY}, rgba(255, 255, 255, 0.2), transparent 80%)`;
-
-  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (prefersReduced || hub) return;
-    const rect = event.currentTarget.getBoundingClientRect();
-    mouseX.set((event.clientX - rect.left) / rect.width - 0.5);
-    mouseY.set((event.clientY - rect.top) / rect.height - 0.5);
-  };
-
-  const handleMouseLeave = () => {
-    mouseX.set(0);
-    mouseY.set(0);
-  };
-
   const shellClass = hub
     ? `${className} group relative flex h-full flex-col overflow-hidden rounded-2xl border border-ink/8 bg-white shadow-card course-card-transition hover:border-primary hover:shadow-[0_18px_36px_-12px_rgba(163,36,50,0.14)] hover:ring-1 hover:ring-primary`
-    : `${className} group relative flex h-full flex-col overflow-hidden rounded-3xl border border-ink/5 bg-sand shadow-card course-card-transition hover:border-primary hover:shadow-[0_30px_60px_-15px_rgba(163,36,50,0.16)] hover:ring-1 hover:ring-primary`;
+    : `${className} group relative flex h-full flex-col overflow-hidden rounded-[1.25rem] border border-ink/10 bg-sand shadow-card course-card-transition sm:rounded-3xl hover:border-primary/80 hover:shadow-[0_28px_56px_-18px_rgba(163,36,50,0.18)] hover:ring-1 hover:ring-primary/70`;
 
-  const radiusClass = hub ? "rounded-2xl" : "rounded-3xl";
+  const radiusClass = hub ? "rounded-2xl" : "rounded-[1.25rem] sm:rounded-3xl";
+  const Shell = enableParallax
+    ? CourseCardParallaxShell
+    : CourseCardStaticShell;
 
   return (
-    <div className={hub ? "h-full w-full" : "h-full w-full"}>
-      <motion.div
-        custom={{ prefersReduced }}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-40px" }}
-        variants={cardVariants}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-        className={shellClass}
-        style={
-          hub
-            ? undefined
-            : {
-                rotateX: prefersReduced ? 0 : rotateXSpring,
-                rotateY: prefersReduced ? 0 : rotateYSpring,
-                transformStyle: "preserve-3d",
-              }
-        }
-      >
-        {mounted && !prefersReduced && !hub ? (
-          <motion.div
-            className="pointer-events-none absolute inset-0 z-30 rounded-3xl opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-            style={{ background: shineBg }}
-          />
-        ) : null}
-
+    <div className="h-full w-full">
+      <Shell className={shellClass} prefersReduced={prefersReduced}>
         <div
           className={
             editorial
@@ -501,12 +650,12 @@ export default function CourseCard({
               : "flex min-h-0 flex-1 flex-col"
           }
           style={
-            hub
-              ? undefined
-              : {
-                  transform: prefersReduced ? "none" : "translateZ(20px)",
+            enableParallax
+              ? {
+                  transform: "translateZ(20px)",
                   transformStyle: "preserve-3d",
                 }
+              : undefined
           }
         >
           <CourseCardImage
@@ -517,7 +666,7 @@ export default function CourseCard({
             fee={fee}
             hours={hours}
             revealDelay={revealDelay}
-            prefersReduced={prefersReduced}
+            prefersReduced={!enableParallax}
             editorial={editorial}
             hub={hub}
           />
@@ -540,29 +689,48 @@ export default function CourseCard({
               fee={fee}
               description={description}
               highlights={highlights}
+              index={index}
               layout={layout}
               editorial={editorial}
             />
           )}
         </div>
 
-        <div
-          className={`mt-auto flex items-center justify-between border-t border-ink/5 transition-colors duration-300 group-hover:border-t-primary/15 group-hover:bg-primary ${
-            hub ? "px-4 py-3 sm:px-5" : "p-4"
-          }`}
-        >
-          <span
-            className={`pb-0.5 font-serif font-medium tracking-wider text-ink/80 transition-colors duration-300 group-hover:text-white ${
-              hub ? "text-xs sm:text-[13px]" : "text-sm"
+        {stacked ? (
+          <div className="mt-auto flex items-center justify-between gap-3 border-t border-ink/10 bg-sand px-5 py-2.5 transition-colors duration-300 group-hover:border-t-primary group-hover:bg-primary">
+            <span className="flex items-center gap-2.5 text-[10px] font-bold uppercase tracking-[0.17em] text-ink transition-colors duration-300 group-hover:text-white">
+              <span
+                className="h-px w-5 bg-primary transition-colors duration-300 group-hover:bg-white"
+                aria-hidden="true"
+              />
+              Explore program
+            </span>
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-full border border-primary bg-primary text-white transition-all duration-300 group-hover:border-white group-hover:bg-white group-hover:text-primary">
+              <ArrowRight
+                size={14}
+                className="transition-transform duration-300 group-hover:translate-x-0.5"
+              />
+            </span>
+          </div>
+        ) : (
+          <div
+            className={`mt-auto flex items-center justify-between border-t border-ink/8 transition-colors duration-300 group-hover:border-t-primary/20 group-hover:bg-primary ${
+              hub ? "px-4 py-2.5 sm:px-5" : "px-5 py-3"
             }`}
           >
-            View course details
-          </span>
-          <ArrowRight
-            size={hub ? 12 : 14}
-            className="text-primary transition-all duration-300 group-hover:translate-x-0.5 group-hover:text-white"
-          />
-        </div>
+            <span
+              className={`pb-0.5 font-serif font-medium tracking-wider text-ink transition-colors duration-300 group-hover:text-white ${
+                hub ? "text-xs sm:text-[13px]" : "text-sm"
+              }`}
+            >
+              View course details
+            </span>
+            <ArrowRight
+              size={hub ? 12 : 14}
+              className="text-primary transition-all duration-300 group-hover:translate-x-0.5 group-hover:text-white"
+            />
+          </div>
+        )}
 
         <Link
           href={href}
@@ -572,7 +740,7 @@ export default function CourseCard({
           className={`absolute inset-0 z-40 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 ${radiusClass}`}
           aria-label={`View details for ${title}`}
         />
-      </motion.div>
+      </Shell>
     </div>
   );
 }

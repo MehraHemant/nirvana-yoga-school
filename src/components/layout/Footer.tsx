@@ -57,7 +57,7 @@ function NavLinks({
                 ? "noopener noreferrer"
                 : undefined
             }
-            className="footer-nav-link font-sans text-[13px] text-muted"
+            className="footer-nav-link font-sans text-[13px] text-ink"
           >
             {l.label}
           </Link>
@@ -70,16 +70,16 @@ function NavLinks({
 function _ContactLines({ contact }: { contact: FooterData["contact"] }) {
   return (
     <address className="space-y-2 font-sans text-[13px] leading-relaxed not-italic">
-      <p className="text-muted">{contact.address.replace(/\n/g, "<br />")}</p>
+      <p className="text-ink">{contact.address.replace(/\n/g, "<br />")}</p>
       <a
         href={`mailto:${contact.email}`}
-        className="footer-nav-link block text-muted"
+        className="footer-nav-link block text-ink"
       >
         {contact.email}
       </a>
       <a
         href={`https://wa.me/${contact.phone.replace(/[^0-9]/g, "")}`}
-        className="footer-nav-link block text-muted"
+        className="footer-nav-link block text-ink"
       >
         {contact.phone}
       </a>
@@ -134,10 +134,10 @@ export default function Footer({ initialData = null }: FooterProps) {
         <div className="grid gap-12 lg:grid-cols-[1fr_1.4fr] lg:gap-16">
           <div className="border-l-2 border-primary/25 pl-6 lg:pl-8">
             <BrandLogo logo={footerData.brand.logo} />
-            <p className="mt-6 max-w-sm font-sans text-[14px] leading-[1.7] text-muted">
+            <p className="mt-6 max-w-sm font-sans text-[14px] leading-[1.7] text-ink">
               {footerData.brand.tagline}
             </p>
-            <p className="type-eyebrow mt-5 text-muted/70">
+            <p className="type-eyebrow mt-5 text-ink">
               {footerData.brand.credentials}
             </p>
           </div>
@@ -156,14 +156,14 @@ export default function Footer({ initialData = null }: FooterProps) {
           </div>
         </div>
         <div className="mt-14 border-t border-ink/8 pt-7 md:mt-16 md:pt-8">
-          <div className="flex flex-col gap-3 font-sans text-[11px] text-muted/80 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-3 font-sans text-[11px] text-ink sm:flex-row sm:items-center sm:justify-between">
             <p>© {new Date().getFullYear()} Nirvana Yoga School India</p>
             <div className="flex gap-5">
               {footerData.legal.map((l) => (
                 <Link
                   key={l.label}
                   href={l.href}
-                  className="footer-nav-link text-muted/70"
+                  className="footer-nav-link text-ink"
                 >
                   {l.label}
                 </Link>
@@ -187,7 +187,7 @@ function SocialIcons({ social }: { social: FooterData["social"] }) {
             target="_blank"
             rel="noopener noreferrer"
             aria-label={label}
-            className="flex size-9 items-center justify-center rounded-full border border-ink/8 bg-white text-muted shadow-xs transition-all duration-300 hover:border-primary/20 hover:bg-primary/5 hover:text-primary"
+            className="flex size-9 items-center justify-center rounded-full border border-ink/8 bg-white text-ink shadow-xs transition-all duration-300 hover:border-primary/20 hover:bg-primary/5 hover:text-primary"
           >
             <Icon size={16} />
           </a>

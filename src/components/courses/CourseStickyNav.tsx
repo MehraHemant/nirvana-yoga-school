@@ -287,7 +287,7 @@ export default function CourseStickyNav({
         style={{ top: stickyTop }}
         className={`course-sticky-nav sticky z-30 w-full max-w-full transition-[background,box-shadow,border-color] duration-300 ${
           showBarBg
-            ? "border-b border-ink/8 bg-white/95 shadow-soft backdrop-blur-md"
+            ? "border-b border-ink/8 bg-white/97 shadow-soft backdrop-blur-sm"
             : "border-b border-transparent bg-white shadow-none"
         }`}
       >

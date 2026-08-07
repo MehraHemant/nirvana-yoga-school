@@ -33,7 +33,7 @@ export default function YttHubCoursesSection({
   if (!coursesIntro.title.trim() && courses.length === 0) return null;
 
   return (
-    <section id={htmlId} className="scroll-mt-28 bg-sand py-16 md:py-24">
+    <section id={htmlId} className="scroll-mt-28 bg-white py-16 md:py-24">
       <Container size="2xl">
         <motion.div
           initial="hidden"
@@ -47,14 +47,14 @@ export default function YttHubCoursesSection({
             title={coursesIntro.title}
             description={description}
             align="left"
-            className="max-w-none"
+            className="max-w-none [&_.type-lead]:text-ink"
           />
           {supporting.length > 0 ? (
             <div className="mt-5 space-y-4 border-t border-ink/8 pt-5">
               {supporting.map((paragraph) => (
                 <p
                   key={paragraph.slice(0, 48)}
-                  className="type-body leading-relaxed text-muted"
+                  className="type-body leading-relaxed text-ink"
                 >
                   {paragraph}
                 </p>

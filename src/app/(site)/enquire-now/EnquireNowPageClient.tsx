@@ -135,7 +135,7 @@ export default function EnquireNowPageClient({
   const heroHtmlId = optionalSectionHtmlId(content.hero._id);
 
   return (
-    <div className="bg-sand/15">
+    <div className="bg-white">
       <DarkMediaHero id={heroHtmlId} image={content.hero.image} imageAlt="">
         <Container
           size="xl"

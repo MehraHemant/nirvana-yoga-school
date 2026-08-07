@@ -32,27 +32,37 @@ export default function SiteMain({
     const previousScrollBehavior = html.style.scrollBehavior;
     html.style.scrollBehavior = "auto";
 
-    lockScrollTop();
-    const raf1 = requestAnimationFrame(() => {
+    // Preserve deep links (e.g. `/teacher#slug`) — do not force scroll to top.
+    const hasDeepLink = window.location.hash.length > 1;
+    let raf1 = 0;
+
+    if (!hasDeepLink) {
       lockScrollTop();
-      requestAnimationFrame(lockScrollTop);
-    });
+      raf1 = requestAnimationFrame(() => {
+        lockScrollTop();
+        requestAnimationFrame(lockScrollTop);
+      });
+    }
 
     const onPageShow = (event: PageTransitionEvent) => {
-      if (event.persisted) lockScrollTop();
+      if (event.persisted && window.location.hash.length <= 1) {
+        lockScrollTop();
+      }
     };
 
     window.addEventListener("pageshow", onPageShow);
 
     return () => {
-      cancelAnimationFrame(raf1);
+      if (raf1) cancelAnimationFrame(raf1);
       window.removeEventListener("pageshow", onPageShow);
       html.style.scrollBehavior = previousScrollBehavior;
     };
   }, [pathname, isHome]);
 
+  // Avoid overflow-x-clip here — it breaks `position: sticky` under the viewport
+  // scrollport. Pages that need clip apply it on their own article wrappers.
   return (
-    <main className="relative flex min-w-0 flex-1 flex-col overflow-x-clip">
+    <main className="relative flex min-w-0 flex-1 flex-col">
       {children}
     </main>
   );

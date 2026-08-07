@@ -1,22 +1,22 @@
-import { ExamCertification, WhyNirvana } from "@/components/courses";
 import { MapSection } from "@/components/home";
+import { ExamCertification } from "@/components/courses";
 import {
   YttHubCoursesSection,
   YttHubGallerySection,
   YttHubHeroSection,
   YttHubOverviewSection,
   YttHubTeachersSection,
+  YttHubTestimonialsSection,
   YttHubVideoSection,
+  YttHubWhyRishikeshSection,
 } from "@/components/home/ytt-hub";
 import { FAQSection } from "@/components/ui";
 import { resolveYttHubCourses } from "@/content/mappers/resolve-ytt-hub-courses";
-import { resolveYttHubNav } from "@/content/mappers/ytt-hub";
 import { getHomePageContent } from "@/content/repositories/dedicated-pages";
 import {
   getExamCertification,
   getReviews,
   getSiteMap,
-  getWhyNirvana,
   getYttHub,
 } from "@/content/repositories/shared-sections";
 import { getTeachersPage } from "@/content/repositories/teachers";
@@ -26,65 +26,78 @@ import {
   shouldRenderSection,
 } from "@/lib/cms/section-visibility";
 import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
-import { optionalSectionHtmlId, resolveSectionHtmlId } from "@/lib/html-id";
-import YttHubStickyNav from "./YttHubStickyNav";
+import { resolveSectionHtmlId } from "@/lib/html-id";
 import "@/components/home/ytt-hub/ytt-hub-page.css";
 
 /**
- * YTT hub page — homepage-styled hero/overview/gallery plus shared course bands.
+ * YTT hub page — homepage-styled hero/overview/gallery plus hub CMS bands.
+ * Public section order: Hero → Overview → Video → Gallery → Why Rishikesh →
+ * Courses → Certification → Teachers → Reviews → Map → FAQ.
+ * Sticky nav is not rendered on this page.
  * Section HTML ids come from `hub.sectionIds` when set.
- * Videos/gallery reuse homepage CMS (`pages.home` contentData).
+ * Videos/gallery/Why Rishikesh/reviews reuse homepage CMS (`pages.home`).
+ * Certification reuses shared exam content (`global_settings.examCertification`).
  * Course cards resolve from course entities via `hub.courses` refs.
+ * Visibility for shared/optional bands uses existing `hub.flags`.
  */
 export default async function YttHubPage() {
   const [
     teachersPageResult,
     hubResult,
     homeResult,
-    examResult,
-    whyNirvanaResult,
     reviewsResult,
     siteMapResult,
+    examResult,
   ] = await Promise.all([
     getTeachersPage(),
     getYttHub(),
     getHomePageContent().catch(() => null),
-    getExamCertification().catch(() => null),
-    getWhyNirvana().catch(() => null),
     getReviews().catch(() => null),
     getSiteMap().catch(() => null),
+    getExamCertification().catch(() => null),
   ]);
   const hub = hubResult.data;
   const home = homeResult?.data ?? createEmptyHomePageContent();
   const flags = hub.flags ?? {};
   const sectionIds = hub.sectionIds;
-  const stickyNavHtmlId = optionalSectionHtmlId(sectionIds?.stickyNav);
   const teachers = teachersPageResult.data?.teachers ?? [];
-  const examCertification = examResult?.data ?? null;
-  const whyNirvana = whyNirvanaResult?.data ?? null;
   const reviews = reviewsResult?.data ?? null;
   const siteMap = siteMapResult?.data ?? null;
-  const nav = resolveYttHubNav(hub.nav);
+  const examCertification = examResult?.data ?? null;
   const courses = await resolveYttHubCourses(hub.courses);
 
   const showVideos =
     flags.showVideos !== false && shouldRenderHomeSection("video", home);
   const showGallery =
     flags.showGallery !== false && shouldRenderHomeSection("gallery", home);
-  const showExam =
-    flags.showExam !== false &&
+  const showWhyRishikesh =
+    flags.showWhyRishikesh !== false &&
+    shouldRenderHomeSection("whyRishikesh", home);
+  const showEligibility =
+    flags.showEligibility !== false &&
     shouldRenderSection(
       examCertification,
       hasExamCertificationContent(examCertification),
     );
-  const showWhyNirvana =
-    flags.showWhyNirvana !== false &&
-    shouldRenderSection(whyNirvana, Boolean(whyNirvana?.highlights?.length));
   const showTeachers = flags.showTeachers !== false && teachers.length > 0;
+  const showReviews =
+    flags.showReviews !== false &&
+    (shouldRenderHomeSection("testimonials", home) ||
+      Boolean(reviews?.reviews?.length));
   const showMap =
     flags.showMap !== false &&
     shouldRenderSection(siteMap, Boolean(siteMap?.embedUrl?.trim()));
   const heroVideo = hub.heroVideo;
+  const reviewContent = {
+    _id: home.testimonials._id,
+    eyebrow: home.testimonials.eyebrow,
+    title: home.testimonials.title,
+    description: home.testimonials.description,
+  };
+  const reviewRows =
+    home.testimonials.reviews?.length > 0
+      ? { reviews: home.testimonials.reviews }
+      : reviews;
 
   return (
     <div className="ytt-hub-page bg-white">
@@ -108,26 +121,32 @@ export default async function YttHubPage() {
       ) : null}
 
       <YttHubHeroSection hub={hub} />
-      <YttHubStickyNav nav={nav} htmlId={stickyNavHtmlId} />
       <YttHubOverviewSection hub={hub} />
       {showVideos ? <YttHubVideoSection content={home.video} /> : null}
       {showGallery ? <YttHubGallerySection content={home.gallery} /> : null}
-      {showExam && examCertification ? (
-        <div className="ytt-hub-shared ytt-hub-exam">
-          <ExamCertification content={examCertification} />
-        </div>
+      {showWhyRishikesh ? (
+        <YttHubWhyRishikeshSection
+          content={home.whyRishikesh}
+          sectionId={sectionIds?.whyRishikesh}
+        />
       ) : null}
       <YttHubCoursesSection
         coursesIntro={hub.coursesIntro}
         courses={courses}
         htmlId={resolveSectionHtmlId("courses", sectionIds?.courses)}
       />
-      {showWhyNirvana ? (
-        <div className="ytt-hub-shared ytt-hub-why-nirvana">
-          <WhyNirvana content={whyNirvana} reviews={reviews} />
+      {showEligibility && examCertification ? (
+        <div className="ytt-hub-shared ytt-hub-exam">
+          <ExamCertification content={examCertification} />
         </div>
       ) : null}
       {showTeachers ? <YttHubTeachersSection teachers={teachers} /> : null}
+      {showReviews ? (
+        <YttHubTestimonialsSection
+          reviews={reviewRows}
+          content={reviewContent}
+        />
+      ) : null}
       {showMap && siteMap ? (
         <div className="ytt-hub-shared ytt-hub-map">
           <MapSection className="bg-white" content={siteMap} />

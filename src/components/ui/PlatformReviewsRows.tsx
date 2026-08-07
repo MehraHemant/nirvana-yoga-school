@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import type {
   ReviewsContent,
   SharedReview,
@@ -42,11 +42,29 @@ const slideVariants = {
 
 function TestimonialCard({ review }: { review: Testimonial }) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const isLong = review.message.length > 280;
+  const [isTruncated, setIsTruncated] = useState(false);
+  const messageRef = useRef<HTMLParagraphElement>(null);
+  const messageId = useId();
+
+  useEffect(() => {
+    if (isExpanded) return;
+
+    const message = messageRef.current;
+    if (!message) return;
+
+    const updateTruncation = () => {
+      setIsTruncated(message.scrollHeight > message.clientHeight);
+    };
+    updateTruncation();
+
+    const observer = new ResizeObserver(updateTruncation);
+    observer.observe(message);
+    return () => observer.disconnect();
+  }, [isExpanded]);
 
   return (
     <div className="flex h-full min-h-[380px] flex-col items-stretch gap-6 pr-3 md:min-h-[240px] md:flex-row md:gap-8">
-      <div className="relative min-h-[220px] w-full shrink-0 overflow-hidden rounded-2xl md:min-h-full md:w-1/3">
+      <div className="relative h-55 w-full shrink-0 overflow-hidden rounded-2xl md:h-60 md:w-1/3">
         <Image
           src={review.image}
           alt={`${review.name} - Testimonial`}
@@ -79,33 +97,39 @@ function TestimonialCard({ review }: { review: Testimonial }) {
           {review.title}
         </h5>
 
-        <p className="type-body leading-relaxed text-ink/75">
-          {isLong && !isExpanded ? (
-            <>
-              &ldquo;{review.message.slice(0, 260)}...&rdquo;
-              <button
-                type="button"
-                onClick={() => setIsExpanded(true)}
-                className="ml-1.5 cursor-pointer font-semibold text-primary hover:underline focus:outline-hidden"
-              >
-                Read more
-              </button>
-            </>
-          ) : (
-            <>
-              &ldquo;{review.message}&rdquo;
-              {isLong && isExpanded && (
-                <button
-                  type="button"
-                  onClick={() => setIsExpanded(false)}
-                  className="ml-1.5 cursor-pointer font-semibold text-primary hover:underline focus:outline-hidden"
-                >
-                  Read less
-                </button>
-              )}
-            </>
-          )}
-        </p>
+        <div className="relative">
+          <p
+            ref={messageRef}
+            id={messageId}
+            className={`type-body leading-relaxed text-ink/75 ${
+              isExpanded ? "" : "line-clamp-4 h-[4lh]"
+            }`}
+          >
+            &ldquo;{review.message}&rdquo;
+          </p>
+          {isTruncated && !isExpanded ? (
+            <button
+              type="button"
+              aria-controls={messageId}
+              aria-expanded={false}
+              onClick={() => setIsExpanded(true)}
+              className="absolute right-0 bottom-0 z-10 cursor-pointer whitespace-nowrap bg-linear-to-l from-white from-40% to-transparent pl-10 leading-relaxed font-semibold text-primary hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            >
+              Read more
+            </button>
+          ) : null}
+          {isExpanded ? (
+            <button
+              type="button"
+              aria-controls={messageId}
+              aria-expanded={true}
+              onClick={() => setIsExpanded(false)}
+              className="mt-1.5 w-fit cursor-pointer font-semibold text-primary hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            >
+              Show less
+            </button>
+          ) : null}
+        </div>
       </div>
     </div>
   );

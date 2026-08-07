@@ -151,7 +151,6 @@ export function SiteEditorial({ mapped }: Pick<SiteClientProps, "mapped">) {
     <PageEditorialSection
       key={section.title}
       section={section}
-      tone={index % 2 === 0 ? "white" : "paper"}
     />
   ));
 }

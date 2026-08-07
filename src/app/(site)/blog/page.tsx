@@ -30,9 +30,9 @@ export default async function BlogPage() {
 
   return (
     <>
-      <section className="relative overflow-hidden bg-sand text-ink pt-[var(--site-header-height)]">
+      <section className="relative overflow-hidden bg-primary text-white pt-[var(--site-header-height)]">
         <div
-          className="absolute inset-0 bg-linear-to-br from-primary/5 via-sand/50 to-accent/5"
+          className="absolute inset-0 bg-linear-to-br from-primary-dark/40 via-primary to-accent/20"
           aria-hidden="true"
         />
         <Container
@@ -40,9 +40,9 @@ export default async function BlogPage() {
           className="relative z-10 flex min-h-[48svh] items-end py-16 sm:py-20"
         >
           <div className="max-w-4xl">
-            <p className="type-eyebrow mb-4 text-primary">Journal</p>
-            <h1 className="type-h1 text-ink">Yoga Blog</h1>
-            <p className="type-lead mt-6 max-w-2xl font-sans leading-relaxed text-ink/80">
+            <p className="type-eyebrow mb-4 text-white/80">Journal</p>
+            <h1 className="type-h1 text-white">Yoga Blog</h1>
+            <p className="type-lead mt-6 max-w-2xl font-sans leading-relaxed text-white/85">
               Practice notes, philosophy guides, wellness articles, and
               teacher-training resources from Nirvana Yoga School.
             </p>
@@ -50,7 +50,7 @@ export default async function BlogPage() {
         </Container>
       </section>
 
-      <section className="bg-paper py-20 sm:py-28">
+      <section className="bg-white py-20 sm:py-28">
         <Container size="2xl">
           <SectionHeader
             eyebrow="Latest guides"

@@ -54,7 +54,7 @@ export default function Food({ content = null }: FoodProps = {}) {
   return (
     <section
       id="food"
-      className="relative overflow-hidden bg-paper py-8 sm:py-10"
+      className="relative overflow-hidden bg-white py-8 sm:py-10"
     >
       <div
         className="absolute right-[-8%] top-[40%] w-[240px] h-[240px] rounded-full bg-secondary/5 blur-[80px] pointer-events-none"

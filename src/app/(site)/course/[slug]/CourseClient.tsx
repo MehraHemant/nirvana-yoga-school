@@ -1,23 +1,12 @@
 "use client";
 
-import { MapSection } from "@/components";
+import dynamic from "next/dynamic";
 import {
-  AccommodationFood,
   CourseBookingFab,
-  CourseEligibility,
   CourseOverview,
   CourseStickyNav,
-  CourseSyllabus,
-  DailySchedule,
-  ExamCertification,
-  InstagramFeed,
   PageHeroRenderer,
-  TravelGuide,
-  UpcomingDates,
-  WhatIsIncluded,
-  WhyNirvana,
 } from "@/components/courses";
-import { FAQSection } from "@/components/ui";
 import {
   hasExamCertificationContent,
   isSectionLive,
@@ -27,7 +16,66 @@ import { resolveSectionHtmlId } from "@/lib/html-id";
 import type { CoursePageData } from "./types";
 
 /**
+ * Lightweight placeholder so layout doesn’t jump while a section chunk loads.
+ *
+ * @param props - Optional min-height utility class
+ */
+function SectionSkeleton({
+  minHeight = "min-h-[40vh]",
+}: {
+  minHeight?: string;
+}) {
+  return <div className={`w-full ${minHeight}`} aria-hidden="true" />;
+}
+
+const WhatIsIncluded = dynamic(
+  () => import("@/components/courses/WhatIsIncluded"),
+  { loading: () => <SectionSkeleton /> },
+);
+const CourseEligibility = dynamic(
+  () => import("@/components/courses/CourseEligibility"),
+  { loading: () => <SectionSkeleton minHeight="min-h-[30vh]" /> },
+);
+const CourseSyllabus = dynamic(
+  () => import("@/components/courses/CourseSyllabus"),
+  { loading: () => <SectionSkeleton /> },
+);
+const DailySchedule = dynamic(
+  () => import("@/components/courses/DailySchedule"),
+  { loading: () => <SectionSkeleton minHeight="min-h-[30vh]" /> },
+);
+const ExamCertification = dynamic(
+  () => import("@/components/courses/ExamCertification"),
+  { loading: () => <SectionSkeleton minHeight="min-h-[30vh]" /> },
+);
+const AccommodationFood = dynamic(
+  () => import("@/components/courses/AccommodationFood"),
+  { loading: () => <SectionSkeleton /> },
+);
+const UpcomingDates = dynamic(
+  () => import("@/components/courses/UpcomingDates"),
+  { loading: () => <SectionSkeleton /> },
+);
+const WhyNirvana = dynamic(() => import("@/components/courses/WhyNirvana"), {
+  loading: () => <SectionSkeleton />,
+});
+const TravelGuide = dynamic(() => import("@/components/courses/TravelGuide"), {
+  loading: () => <SectionSkeleton minHeight="min-h-[30vh]" />,
+});
+const InstagramFeed = dynamic(
+  () => import("@/components/courses/InstagramFeed"),
+  { loading: () => <SectionSkeleton minHeight="min-h-[30vh]" /> },
+);
+const MapSection = dynamic(() => import("@/components/home/MapSection"), {
+  loading: () => <SectionSkeleton minHeight="min-h-[50vh]" />,
+});
+const FAQSection = dynamic(() => import("@/components/ui/FAQSection"), {
+  loading: () => <SectionSkeleton minHeight="min-h-[30vh]" />,
+});
+
+/**
  * Interactive course page composition.
+ * Hero + sticky nav stay in the critical path; below-fold sections are code-split.
  *
  * @param props - Course document, modules, media, and shared section content
  */

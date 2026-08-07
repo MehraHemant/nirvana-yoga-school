@@ -247,7 +247,7 @@ export default function WhyRishikeshClient({
                     <div className="flex gap-4 items-center">
                       <span
                         className={`font-serif text-xl sm:text-2xl leading-none transition-colors duration-300 select-none ${
-                          isActive ? "text-primary font-medium" : "text-ink/30"
+                          isActive ? "text-primary font-medium" : "text-ink"
                         }`}
                       >
                         {String(i + 1).padStart(2, "0")}
@@ -255,7 +255,7 @@ export default function WhyRishikeshClient({
 
                       <h3
                         className={`type-display-sm transition-colors duration-300 ${
-                          isActive ? "text-ink font-semibold" : "text-ink/75"
+                          isActive ? "text-ink font-semibold" : "text-ink"
                         }`}
                       >
                         {sutra.title}
@@ -292,7 +292,7 @@ export default function WhyRishikeshClient({
                           className="overflow-hidden"
                         >
                           <div className="pt-3 border-t border-ink/5 mt-3">
-                            <p className="type-body text-xs sm:text-sm text-ink/80 leading-relaxed">
+                            <p className="type-body text-xs sm:text-sm text-ink leading-relaxed">
                               {sutra.body}
                             </p>
                           </div>
@@ -306,7 +306,7 @@ export default function WhyRishikeshClient({
           </div>
 
           <div className="border-l border-primary/20 pl-4 py-1 mt-4">
-            <p className="font-poppins italic text-base sm:text-lg md:text-lg font-normal leading-snug text-ink/65">
+            <p className="font-poppins italic text-base sm:text-lg md:text-lg font-normal leading-snug text-ink">
               "{content.closingInvitation}"
             </p>
           </div>
@@ -386,7 +386,7 @@ export default function WhyRishikeshClient({
               <p className="type-ui text-xs sm:text-sm font-medium text-ink leading-snug line-clamp-2">
                 {videoTitle}
               </p>
-              <p className="type-eyebrow text-muted mt-1 text-[9px]">
+              <p className="type-eyebrow text-ink mt-1 text-[9px]">
                 {videoCard.speakerSubtitle}
               </p>
             </div>

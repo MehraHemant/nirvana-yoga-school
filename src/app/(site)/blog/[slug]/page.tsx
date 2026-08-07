@@ -120,7 +120,7 @@ export default async function BlogPostPage({ params }: PageProps) {
 
   return (
     <>
-      <section className="relative overflow-hidden bg-sand text-ink pt-[var(--site-header-height)]">
+      <section className="relative overflow-hidden bg-primary text-white pt-[var(--site-header-height)]">
         <Image
           src={post.image}
           alt=""
@@ -129,25 +129,25 @@ export default async function BlogPostPage({ params }: PageProps) {
           sizes="100vw"
           className="object-cover opacity-20"
         />
-        <div className="absolute inset-0 bg-linear-to-r from-sand via-sand/75 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-r from-primary via-primary/75 to-transparent" />
         <Container
           size="2xl"
           className="relative z-10 flex min-h-[54svh] items-end py-16 sm:py-20"
         >
           <div className="max-w-4xl">
-            <p className="type-eyebrow mb-4 text-primary">{post.category}</p>
-            <h1 className="type-h1 text-balance text-ink">{post.title}</h1>
+            <p className="type-eyebrow mb-4 text-white/80">{post.category}</p>
+            <h1 className="type-h1 text-balance text-white">{post.title}</h1>
             {post.publishedAt && (
-              <p className="type-ui mt-4 text-muted">{post.publishedAt}</p>
+              <p className="type-ui mt-4 text-white/70">{post.publishedAt}</p>
             )}
-            <p className="type-lead mt-6 max-w-2xl font-sans leading-relaxed text-ink/80">
+            <p className="type-lead mt-6 max-w-2xl font-sans leading-relaxed text-white/85">
               {post.excerpt}
             </p>
           </div>
         </Container>
       </section>
 
-      <article className="bg-paper py-20 sm:py-28">
+      <article className="bg-white py-20 sm:py-28">
         <Container size="md">
           <div className="rounded-3xl border border-ink/6 bg-white p-6 shadow-card sm:p-10">
             {bodyHtml ? (

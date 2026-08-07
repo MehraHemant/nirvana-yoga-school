@@ -285,26 +285,36 @@ export type YttHubContent = SharedSectionLiveFields & {
    */
   sectionIds?: {
     hero?: string;
+    /** @deprecated Unused — sticky nav is not rendered on the YTT hub */
     stickyNav?: string;
     overview?: string;
-    /** @deprecated Demoted — prefer shared Why Nirvana */
+    /** Public HTML id override for the homepage Why Rishikesh band on this hub */
     whyRishikesh?: string;
     courses?: string;
-    /** @deprecated Demoted — prefer shared Exam & certification */
+    /**
+     * @deprecated Unused on public hub — certification uses shared `ExamCertification` (`#exam`)
+     */
     eligibility?: string;
     faq?: string;
   };
   /**
-   * Per-section inclusion flags for shared bands.
-   * Omit or `true` shows the section when shared content has data.
+   * Per-section inclusion flags for hub / shared bands.
+   * Omit or `true` shows the section when content has data.
    */
   flags?: {
     showVideos?: boolean;
     showGallery?: boolean;
-    showExam?: boolean;
-    showWhyNirvana?: boolean;
+    /** When true, render homepage Why Rishikesh (`pages.home.whyRishikesh`) */
+    showWhyRishikesh?: boolean;
+    /** When true, render shared `ExamCertification` (same as course pages) */
+    showEligibility?: boolean;
     showTeachers?: boolean;
+    showReviews?: boolean;
     showMap?: boolean;
+    /** @deprecated Unused on hub — kept for stored CMS JSON compatibility */
+    showExam?: boolean;
+    /** @deprecated Unused on hub — kept for stored CMS JSON compatibility */
+    showWhyNirvana?: boolean;
   };
   /** Still / poster fallback when hero video posters are unset */
   heroImage: string;
@@ -352,7 +362,10 @@ export type YttHubContent = SharedSectionLiveFields & {
     /** Secondary hero CTA href */
     secondaryCtaHref?: string;
   };
-  /** @deprecated Demoted from live hub order — kept for CMS legacy data */
+  /**
+   * @deprecated Unused on public hub — Why Rishikesh reuses `pages.home.whyRishikesh`
+   * Kept for stored CMS JSON compatibility.
+   */
   whyRishikesh: {
     eyebrow?: string;
     title: string;
@@ -365,12 +378,16 @@ export type YttHubContent = SharedSectionLiveFields & {
     paragraphs: string[];
   };
   courses: YttHubCourse[];
-  /** @deprecated Demoted — Exam & certification shared section replaces this */
+  /**
+   * @deprecated Unused on public hub — certification uses shared `examCertification`
+   * Kept for stored CMS JSON compatibility.
+   */
   eligibility: {
     eyebrow?: string;
     title: string;
     paragraphs: string[];
   };
+  /** @deprecated Unused — sticky nav is not rendered on the YTT hub */
   nav: YttHubNavItem[];
   faqs: SharedFaq[];
 };

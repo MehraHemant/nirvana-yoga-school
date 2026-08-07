@@ -264,7 +264,7 @@ function ProseBlock({
 }) {
   if (!title && !body && !lead) return null;
   return (
-    <section className="bg-sand py-16 md:py-20">
+    <section className="bg-white py-16 md:py-20">
       <Container size="lg">
         <div
           className={
@@ -371,7 +371,7 @@ function ContactBlock({ data }: { data: Record<string, unknown> }) {
   const address = str(data, "address");
   const hours = str(data, "hours");
   return (
-    <section className="bg-sand py-16 md:py-20">
+    <section className="bg-white py-16 md:py-20">
       <Container size="lg">
         <div className="grid gap-10 lg:grid-cols-[1fr_20rem]">
           <div>
@@ -522,7 +522,7 @@ function CardsBlock({ data }: { data: Record<string, unknown> }) {
   const cards = rows(data, "cards");
   if (cards.length === 0) return null;
   return (
-    <section className="bg-sand py-16 md:py-20">
+    <section className="bg-white py-16 md:py-20">
       <Container size="lg">
         {eyebrow ? (
           <p className="type-eyebrow mb-3 text-primary">{eyebrow}</p>
@@ -623,7 +623,7 @@ function PricingTableBlock({ data }: { data: Record<string, unknown> }) {
   const plans = rows(data, "plans").filter((row) => cell(row, "name"));
   if (plans.length === 0) return null;
   return (
-    <section className="bg-sand py-16 md:py-20">
+    <section className="bg-white py-16 md:py-20">
       <Container size="lg">
         {title ? (
           <Heading as="h2" font="serif" size="h2" className="mb-8">

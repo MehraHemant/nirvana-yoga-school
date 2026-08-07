@@ -128,7 +128,7 @@ export default function VenueGallery({
   }
 
   return (
-    <section id="gallery" className="bg-paper pb-16 pt-2 mt-4 sm:pb-20">
+    <section id="gallery" className="bg-white pb-16 pt-2 mt-4 sm:pb-20">
       <Container size="2xl">
         {showPlaylist ? (
           <div
@@ -215,7 +215,7 @@ export default function VenueGallery({
         {showGalleryMedia && images.length > 0 ? (
           <>
             {sections.length > 1 ? (
-              <div className="sticky top-16 z-30 -mx-5 mb-8 border-b border-ink/10 bg-paper px-5 py-3 md:top-18 md:-mx-8 md:mb-10 md:px-8">
+              <div className="sticky top-16 z-30 -mx-5 mb-8 border-b border-ink/10 bg-white px-5 py-3 md:top-18 md:-mx-8 md:mb-10 md:px-8">
                 <div
                   className="flex flex-wrap gap-2"
                   role="tablist"

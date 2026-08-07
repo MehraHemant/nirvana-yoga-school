@@ -191,7 +191,7 @@ export default function PageGallerySection({
   return (
     <section
       id="gallery"
-      className="relative w-full bg-paper py-12 sm:py-14 lg:py-16"
+      className="relative w-full bg-white py-12 sm:py-14 lg:py-16"
     >
       <Container size="2xl" className="relative">
         <motion.div
@@ -211,13 +211,13 @@ export default function PageGallerySection({
               }
               description="A detailed look at our yoga halls, dining room, private and shared rooms, dorms, balconies, and peaceful campus in Upper Tapovan, Rishikesh."
               align="left"
-              className="mb-0! max-w-2xl"
+              className="mb-0! max-w-2xl [&_.type-lead]:text-ink"
             />
           </div>
         </motion.div>
 
         <motion.div
-          className="sticky top-18 z-30 -mx-5 mb-10 border-b border-ink/8 bg-sand/90 px-5 py-4 backdrop-blur-md md:top-20 md:-mx-8 md:px-8"
+          className="sticky top-18 z-30 -mx-5 mb-10 border-b border-ink/8 bg-white/95 px-5 py-4 backdrop-blur-sm md:top-20 md:-mx-8 md:px-8"
           initial="hidden"
           whileInView="visible"
           viewport={VIEWPORT_ONCE}
@@ -233,7 +233,7 @@ export default function PageGallerySection({
                   type="button"
                   onClick={() => setSelectedCategory(category.id)}
                   className={`type-ui relative px-4 py-2 font-medium transition-colors duration-300 focus-visible:outline-none ${
-                    isActive ? "text-primary" : "text-muted hover:text-ink"
+                    isActive ? "text-primary" : "text-ink"
                   }`}
                 >
                   {category.label}

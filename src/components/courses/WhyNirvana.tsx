@@ -122,10 +122,6 @@ export default function WhyNirvana({
 
       {shouldRenderSection(reviews, Boolean(reviews?.reviews?.length)) ? (
         <div className="relative mt-8 overflow-hidden bg-white pb-16 sm:pb-20">
-          <div
-            className="pointer-events-none absolute -right-20 top-0 h-[320px] w-[320px] rounded-full bg-primary/5 blur-[90px]"
-            aria-hidden="true"
-          />
           <Container size="2xl" className="relative z-10">
             <PlatformReviewsRows content={reviews} />
           </Container>

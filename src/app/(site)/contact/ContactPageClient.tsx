@@ -122,7 +122,7 @@ export default function ContactPageClient({
   const heroHtmlId = optionalSectionHtmlId(content.hero._id);
 
   return (
-    <div className="bg-sand/15">
+    <div className="bg-white">
       {/* 1. Hero */}
       <DarkMediaHero id={heroHtmlId} image={content.hero.image} imageAlt="">
         <Container

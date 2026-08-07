@@ -28,7 +28,7 @@ export default function CoursesSection({
   return (
     <section
       id={resolveSectionHtmlId("courses", content._id)}
-      className="scroll-mt-28 bg-paper py-12 sm:py-14 lg:py-16 mb-14"
+      className="scroll-mt-28 bg-white py-12 sm:py-14 lg:py-16 mb-14"
     >
       <Container size="2xl">
         <motion.div
@@ -43,6 +43,7 @@ export default function CoursesSection({
             align="center"
             title={content.title}
             description={content.description}
+            className="[&_.type-lead]:text-ink"
           />
         </motion.div>
 

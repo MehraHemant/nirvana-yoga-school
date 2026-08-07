@@ -41,7 +41,7 @@ export default function HeroSection({
     <HeroFrame
       id={optionalSectionHtmlId(content._id)}
       transparentHeader
-      className="relative min-h-svh w-full overflow-hidden bg-ink"
+      className="relative min-h-svh w-full overflow-hidden bg-primary"
     >
       <HeroBackgroundVideo video={video} />
 

@@ -1,24 +1,13 @@
 "use client";
 
-import { MapSection } from "@/components";
+import dynamic from "next/dynamic";
 import {
-  AccommodationFood,
   CourseBookingFab,
   CourseOverview,
   CourseStickyNav,
-  ExamCertification,
-  InstagramFeed,
   PageHeroRenderer,
-  TravelGuide,
-  UpcomingDates,
-  WhatIsIncluded,
-  WhyNirvana,
 } from "@/components/courses";
-import {
-  RetreatHighlightsBar,
-  RetreatScheduleSection,
-} from "@/components/retreat";
-import { FAQSection } from "@/components/ui";
+import { RetreatHighlightsBar } from "@/components/retreat";
 import { retreatWhatsAppHref } from "@/content/mappers/retreat-page";
 import {
   hasExamCertificationContent,
@@ -28,6 +17,62 @@ import {
 import { resolveSectionHtmlId } from "@/lib/html-id";
 import type { RetreatPageData } from "./types";
 
+/**
+ * Lightweight placeholder so layout doesn’t jump while a section chunk loads.
+ *
+ * @param props - Optional min-height utility class
+ */
+function SectionSkeleton({
+  minHeight = "min-h-[40vh]",
+}: {
+  minHeight?: string;
+}) {
+  return <div className={`w-full ${minHeight}`} aria-hidden="true" />;
+}
+
+const WhatIsIncluded = dynamic(
+  () => import("@/components/courses/WhatIsIncluded"),
+  { loading: () => <SectionSkeleton /> },
+);
+const RetreatScheduleSection = dynamic(
+  () => import("@/components/retreat/RetreatScheduleSection"),
+  { loading: () => <SectionSkeleton /> },
+);
+const ExamCertification = dynamic(
+  () => import("@/components/courses/ExamCertification"),
+  { loading: () => <SectionSkeleton minHeight="min-h-[30vh]" /> },
+);
+const AccommodationFood = dynamic(
+  () => import("@/components/courses/AccommodationFood"),
+  { loading: () => <SectionSkeleton /> },
+);
+const UpcomingDates = dynamic(
+  () => import("@/components/courses/UpcomingDates"),
+  { loading: () => <SectionSkeleton /> },
+);
+const WhyNirvana = dynamic(() => import("@/components/courses/WhyNirvana"), {
+  loading: () => <SectionSkeleton />,
+});
+const TravelGuide = dynamic(() => import("@/components/courses/TravelGuide"), {
+  loading: () => <SectionSkeleton minHeight="min-h-[30vh]" />,
+});
+const InstagramFeed = dynamic(
+  () => import("@/components/courses/InstagramFeed"),
+  { loading: () => <SectionSkeleton minHeight="min-h-[30vh]" /> },
+);
+const MapSection = dynamic(() => import("@/components/home/MapSection"), {
+  loading: () => <SectionSkeleton minHeight="min-h-[50vh]" />,
+});
+const FAQSection = dynamic(() => import("@/components/ui/FAQSection"), {
+  loading: () => <SectionSkeleton minHeight="min-h-[30vh]" />,
+});
+
+/**
+ * Retreat product page — hero, highlights, sticky nav stay eager;
+ * below-fold sections are code-split.
+ *
+ * @param props - Retreat document, modules, and shared section content
+ */
 export default function RetreatClient({
   retreat,
   mapped,
@@ -124,10 +169,8 @@ export default function RetreatClient({
         )
       ) : null}
 
-      {/* Highlights Bar */}
       <RetreatHighlightsBar highlights={retreat.highlights} />
 
-      {/* Sticky Navigation */}
       {showStickyNav ? (
         <CourseStickyNav
           items={modules?.stickyNav.items ?? mapped.navItems}
@@ -135,14 +178,12 @@ export default function RetreatClient({
         />
       ) : null}
 
-      {/* Floating Booking Button (triggers after scroll) */}
       <CourseBookingFab
         fee={mapped.fee}
         title={retreat.title}
         href={`/retreat-booking?course=${encodeURIComponent(retreat.slug)}`}
       />
 
-      {/* Spacious Full-Width Editorial Sections */}
       <article className="min-h-screen max-w-full bg-white">
         {showOverview ? (
           <CourseOverview
@@ -152,9 +193,7 @@ export default function RetreatClient({
             duration={overviewValue("Duration", retreat.duration)}
             certification={overviewValue("Certification")}
             fee={
-              overviewValue("Program Fee") ||
-              overviewValue("Fee") ||
-              mapped.fee
+              overviewValue("Program Fee") || overviewValue("Fee") || mapped.fee
             }
             featureImages={
               modules?.overview.media.items
@@ -177,7 +216,6 @@ export default function RetreatClient({
           />
         ) : null}
 
-        {/* Section 3: Day-Wise Schedule Timeline */}
         {retreat.schedule?.length ? (
           <RetreatScheduleSection schedule={retreat.schedule} />
         ) : null}
@@ -186,12 +224,10 @@ export default function RetreatClient({
           <ExamCertification content={examCertification} />
         ) : null}
 
-        {/* Section 4: Accommodation & Food — shared with yoga courses */}
         {showAccommodation ? (
           <AccommodationFood content={residentialLife} />
         ) : null}
 
-        {/* Section 5: Packages & Dates — shared UpcomingDates UI, retreat rooms only */}
         {showPricing ? (
           <UpcomingDates
             htmlId={resolveSectionHtmlId("pricing", modules?.pricing._id)}
@@ -223,7 +259,6 @@ export default function RetreatClient({
           <MapSection className="bg-white" content={siteMap} />
         ) : null}
 
-        {/* Section 7: FAQs (if available) */}
         {showFaqs ? (
           <div className="bg-white">
             <FAQSection

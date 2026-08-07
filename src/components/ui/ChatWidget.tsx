@@ -2,13 +2,12 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { flushSync } from "react-dom";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import type {
   ChatConversationRecord,
   ChatMessageRecord,
 } from "@/content/types/chat";
 import { Close, Comment, Send } from "@/icons";
+import type ChatMarkdownComponent from "./ChatMarkdown";
 
 const SESSION_KEY = "nirvana_chat_session";
 const CONVERSATION_KEY = "nirvana_chat_conversation";
@@ -46,81 +45,6 @@ function getOrCreateSessionId(): string {
 }
 
 /**
- * Stabilize markdown while streaming so incomplete `[label](url` syntax
- * never flashes as raw text — show a real link (or just the label) instead.
- *
- * @param content - Partial or complete markdown body
- */
-function prepareStreamingMarkdown(content: string): string {
-  let text = content;
-
-  // Incomplete image: ![alt](url… or ![alt
-  if (/!\[[^\]]*\]\([^)]*$/.test(text)) {
-    text = text.replace(/!\[([^\]]*)\]\([^)]*$/, "$1");
-  } else if (/!\[[^\]]*$/.test(text)) {
-    text = text.replace(/!\[([^\]]*)$/, "$1");
-  }
-
-  // Incomplete link with a usable http(s) URL — close it for the parser so
-  // it renders as <a> while the remaining URL characters still arrive.
-  if (/\[[^\]]+\]\(https?:\/\/[^)\s]*$/.test(text)) {
-    text = text.replace(
-      /\[([^\]]+)\]\((https?:\/\/[^)\s]*)$/,
-      (_full, label: string, url: string) => {
-        if (url.length < 8) return label;
-        return `[${label}](${url})`;
-      },
-    );
-  } else if (/\[[^\]]*\]\([^)]*$/.test(text)) {
-    // [label](… without a full URL yet — show label only
-    text = text.replace(/\[([^\]]*)\]\([^)]*$/, "$1");
-  } else if (/\[[^\]]*$/.test(text)) {
-    // Incomplete [label without ]
-    text = text.replace(/\[([^\]]*)$/, "$1");
-  }
-
-  // Incomplete autolink <https://…>
-  if (/<https?:[^>\s]*$/.test(text)) {
-    text = text.replace(/<(https?:\/\/[^>\s]*)$/, "$1");
-  }
-
-  return text;
-}
-
-/**
- * Renders assistant markdown (links, bold, lists) without raw HTML.
- *
- * @param content - Markdown message body
- * @param streaming - When true, stabilize incomplete link syntax mid-stream
- */
-function ChatMarkdown({
-  content,
-  streaming = false,
-}: {
-  content: string;
-  streaming?: boolean;
-}) {
-  const source = streaming ? prepareStreamingMarkdown(content) : content;
-
-  return (
-    <div className="chat-markdown">
-      <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
-        components={{
-          a: ({ href, children }) => (
-            <a href={href} target="_blank" rel="noopener noreferrer">
-              {children}
-            </a>
-          ),
-        }}
-      >
-        {source}
-      </ReactMarkdown>
-    </div>
-  );
-}
-
-/**
  * Floating public-site AI chat widget (brand primary, not a purple AI look).
  */
 export default function ChatWidget() {
@@ -133,6 +57,9 @@ export default function ChatWidget() {
   const [sending, setSending] = useState(false);
   const [streamingId, setStreamingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [Markdown, setMarkdown] = useState<typeof ChatMarkdownComponent | null>(
+    null,
+  );
   const listRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const streamTextRef = useRef("");
@@ -149,6 +76,18 @@ export default function ChatWidget() {
       // ignore storage failures
     }
   }, []);
+
+  // Load react-markdown only after the panel opens (plain text until ready).
+  useEffect(() => {
+    if (!open || Markdown) return;
+    let cancelled = false;
+    void import("./ChatMarkdown").then((mod) => {
+      if (!cancelled) setMarkdown(() => mod.default);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [open, Markdown]);
 
   useEffect(() => {
     if (!open || !sessionId || !conversationId || messages.length > 0) return;
@@ -479,11 +418,15 @@ export default function ChatWidget() {
                   >
                     {isUser ? (
                       message.content
-                    ) : (
-                      <ChatMarkdown
+                    ) : Markdown ? (
+                      <Markdown
                         content={message.content}
                         streaming={isStreamingAssistant}
                       />
+                    ) : (
+                      <div className="chat-markdown whitespace-pre-wrap">
+                        {message.content}
+                      </div>
                     )}
                   </div>
                 </div>

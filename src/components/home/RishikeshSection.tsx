@@ -10,7 +10,7 @@ const BENEFITS = [
 
 export default function RishikeshSection() {
   return (
-    <section className="relative bg-secondary text-white overflow-hidden">
+    <section className="relative bg-white text-ink overflow-hidden">
       <div className="grid lg:grid-cols-2">
         {/* Image side */}
         <div className="relative aspect-[4/3] lg:aspect-auto lg:min-h-[640px]">
@@ -22,7 +22,7 @@ export default function RishikeshSection() {
             className="object-cover"
           />
           <div
-            className="absolute inset-0 bg-gradient-to-t lg:bg-gradient-to-r from-secondary/40 to-transparent"
+            className="absolute inset-0 bg-gradient-to-t lg:bg-gradient-to-r from-white/40 to-transparent"
             aria-hidden="true"
           />
         </div>
@@ -30,17 +30,17 @@ export default function RishikeshSection() {
         {/* Copy side */}
         <div className="flex items-center px-5 sm:px-6 md:px-12 lg:px-16 py-12 sm:py-16 md:py-24 lg:py-32">
           <Container size="sm" className="!px-0 !mx-0">
-            <Pill invert className="mb-4 sm:mb-6">
+            <Pill className="mb-4 sm:mb-6">
               Why Rishikesh
             </Pill>
-            <Heading as="h2" align="left" font="serif" size="h2" invert>
+            <Heading as="h2" align="left" font="serif" size="h2">
               Where earth, sky, and{" "}
               <span className="font-serif italic font-normal text-accent">
                 spirit
               </span>{" "}
               meet.
             </Heading>
-            <p className="type-lead mt-4 sm:mt-6 text-white/85">
+            <p className="type-lead mt-4 sm:mt-6 text-muted">
               There is a sacred rhythm in Rishikesh that cannot be explained —
               only felt. It lives in the silence between temple bells, in the
               flow of the Ganga, in the stillness of the Himalayas. To learn
@@ -52,7 +52,7 @@ export default function RishikeshSection() {
               {BENEFITS.map((b) => (
                 <li
                   key={b}
-                  className="flex items-start gap-2.5 sm:gap-3 text-white/90"
+                  className="flex items-start gap-2.5 sm:gap-3 text-ink/90"
                 >
                   <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-accent flex-shrink-0" />
                   <span className="type-body">{b}</span>

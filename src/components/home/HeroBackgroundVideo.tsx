@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 import type { HomeHeroVideoContent } from "@/content/types/dedicated-pages";
+import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 
 type HeroBackgroundVideoProps = {
   /** CMS hero video sources; falls back to defaults */
@@ -11,6 +11,7 @@ type HeroBackgroundVideoProps = {
 
 /**
  * Full-bleed hero background using a muted, looping MP4 `<video>` (no controls).
+ * Preloads metadata only, pauses when off-screen, and fades from the poster once playing.
  *
  * @param props - Optional CMS MP4 source paths and posters
  */
@@ -26,9 +27,13 @@ export default function HeroBackgroundVideo({
   const mobilePoster = video.mobilePoster?.trim() || "";
   const desktopPoster = video.desktopPoster?.trim() || mobilePoster;
 
+  // Re-bind when CMS sources change so play/pause observers track the new element.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: mobileSrc/desktopSrc intentionally re-run the effect
   useEffect(() => {
     const el = videoRef.current;
     if (!el) return;
+
+    setPlaying(false);
 
     const markReady = () => setPlaying(true);
 
@@ -38,12 +43,25 @@ export default function HeroBackgroundVideo({
     if (el.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA) {
       markReady();
     }
-    // Explicitly retry playback after hydration for browsers that defer autoplay.
-    void el.play().catch(() => {
-      // Keep the poster visible when autoplay is unavailable.
-    });
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry) return;
+        if (entry.isIntersecting) {
+          void el.play().catch(() => {
+            // Keep the poster visible when autoplay is unavailable.
+          });
+        } else {
+          el.pause();
+        }
+      },
+      { threshold: 0.15 },
+    );
+
+    observer.observe(el);
 
     return () => {
+      observer.disconnect();
       el.removeEventListener("canplay", markReady);
       el.removeEventListener("playing", markReady);
     };
@@ -66,7 +84,7 @@ export default function HeroBackgroundVideo({
             sizes="100vw"
             alt=""
             fetchPriority="high"
-            decoding="sync"
+            decoding="async"
             className="absolute inset-0 h-full w-full object-cover"
           />
         </picture>
@@ -83,7 +101,7 @@ export default function HeroBackgroundVideo({
           muted
           loop
           playsInline
-          preload="auto"
+          preload="metadata"
           poster={desktopPoster || undefined}
           tabIndex={-1}
         >
@@ -94,9 +112,7 @@ export default function HeroBackgroundVideo({
               media="(max-width: 768px)"
             />
           ) : null}
-          {desktopSrc ? (
-            <source src={desktopSrc} type="video/mp4" />
-          ) : null}
+          {desktopSrc ? <source src={desktopSrc} type="video/mp4" /> : null}
         </video>
       ) : null}
     </>

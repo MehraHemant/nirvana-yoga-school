@@ -566,8 +566,8 @@ body {
 }
 
 .header-shell--solid {
-  background: rgb(250 247 242 / 0.88);
-  backdrop-filter: blur(20px) saturate(1.2);
+  background: rgb(250 247 242 / 0.92);
+  backdrop-filter: blur(10px);
   border-bottom: 1px solid rgb(26 20 16 / 0.06);
   box-shadow: 0 8px 32px -12px rgb(26 20 16 / 0.12);
 }

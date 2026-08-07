@@ -12,14 +12,12 @@ import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 /**
  * Renders one CMS site-page editorial section (body, blocks, gallery).
  *
- * @param props - Section document and alternating tone
+ * @param props - Section document
  */
 export default function PageEditorialSection({
   section,
-  tone = "paper",
 }: {
   section: SitePageSection;
-  tone?: "paper" | "white";
 }) {
   const images =
     section.images && section.images.length > 0
@@ -31,7 +29,7 @@ export default function PageEditorialSection({
   return (
     <section
       id={optionalSectionHtmlId(section._id)}
-      className={`${tone === "paper" ? "bg-paper" : "bg-white"} py-20 sm:py-28`}
+      className="bg-white py-20 sm:py-28"
     >
       <Container size="2xl">
         <motion.div

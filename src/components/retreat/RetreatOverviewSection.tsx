@@ -25,7 +25,7 @@ export default function RetreatOverviewSection({
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)] lg:gap-10">
         <div className="max-w-3xl space-y-5">
           {paragraphs.map((paragraph) => (
-            <p key={paragraph.slice(0, 48)} className="type-body text-ink/85">
+            <p key={paragraph.slice(0, 48)} className="type-body text-ink">
               {paragraph}
             </p>
           ))}

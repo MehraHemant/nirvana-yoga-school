@@ -2,7 +2,7 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { Container, SectionHeader } from "@/components/ui";
 import { Play } from "@/icons";
 import { resolveSectionHtmlId } from "@/lib/html-id";
@@ -92,7 +92,7 @@ function VideoPlaylistItem({
       <div className="flex min-w-0 flex-1 flex-col justify-center gap-1 p-3 md:py-1 md:pr-1 md:pl-0">
         <span
           className={`type-eyebrow text-[10px] sm:text-xs ${
-            isActive ? "text-primary" : "text-muted"
+            isActive ? "text-primary" : "text-ink"
           }`}
         >
           {isActive
@@ -123,7 +123,27 @@ type VideoSectionPlayerProps = {
 };
 
 /**
- * Video playlist player — YouTube iframe or native Cloudinary `<video>`.
+ * Starts playback for the active clip (mounts iframe / native video).
+ *
+ * @param setStarted - Marks the main player as interactive
+ * @param setAutoplay - Enables muted autoplay after user intent
+ * @param setPlayerKey - Remounts the media element
+ * @param prefersReduced - When true, skips autoplay
+ */
+function startPlayback(
+  setStarted: (value: boolean) => void,
+  setAutoplay: (value: boolean) => void,
+  setPlayerKey: (updater: (key: number) => number) => void,
+  prefersReduced: boolean,
+) {
+  setStarted(true);
+  setAutoplay(!prefersReduced);
+  setPlayerKey((key) => key + 1);
+}
+
+/**
+ * Video playlist player — poster-first; YouTube iframe or Cloudinary `<video>`
+ * mounts only after the user taps play or picks a playlist item.
  *
  * @param props - Playlist videos and optional header / section id
  */
@@ -138,47 +158,30 @@ export default function VideoSectionPlayer({
       : { ...(video as YouTubeVideo), source: "youtube" as const },
   );
 
-  const sectionRef = useRef<HTMLElement>(null);
-  const hasAutoplayedOnce = useRef(false);
   const [activeId, setActiveId] = useState(videos[0]?.id ?? "");
   const [playerKey, setPlayerKey] = useState(0);
+  const [started, setStarted] = useState(false);
   const [autoplay, setAutoplay] = useState(false);
   const prefersReduced = useReducedMotion() ?? false;
 
   const active = videos.find((v) => v.id === activeId) ?? videos[0];
 
+  /**
+   * Selects a playlist item and mounts the player if needed.
+   *
+   * @param id - Playlist video id
+   */
   const selectVideo = (id: string) => {
-    if (id === activeId) return;
+    if (id === activeId && started) return;
     setActiveId(id);
-    setAutoplay(!prefersReduced);
-    setPlayerKey((key) => key + 1);
+    startPlayback(setStarted, setAutoplay, setPlayerKey, prefersReduced);
   };
-
-  useEffect(() => {
-    const node = sectionRef.current;
-    if (!node || prefersReduced) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry?.isIntersecting || hasAutoplayedOnce.current) return;
-
-        hasAutoplayedOnce.current = true;
-        setAutoplay(true);
-        setPlayerKey((key) => key + 1);
-      },
-      { threshold: 0.35 },
-    );
-
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, [prefersReduced]);
 
   if (!active) return null;
 
   return (
     <section
       id={resolveSectionHtmlId("video", sectionId)}
-      ref={sectionRef}
       className="relative w-full overflow-hidden bg-white py-12 sm:py-14 lg:py-16"
     >
       <Container size="2xl" className="relative min-w-0">
@@ -204,7 +207,7 @@ export default function VideoSectionPlayer({
               header?.description ??
               "Watch real students share why they chose Nirvana Yoga School — tap a video to play."
             }
-            className="mb-6 sm:mb-8 lg:mb-10 lg:max-w-xl"
+            className="mb-6 sm:mb-8 lg:mb-10 lg:max-w-xl [&_.type-lead]:!text-ink"
           />
         </motion.div>
 
@@ -225,31 +228,69 @@ export default function VideoSectionPlayer({
               />
               <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl">
                 <div className="relative aspect-video w-full bg-ink">
-                  {active.source === "cloudinary" && active.playbackUrl ? (
-                    <video
-                      key={playerKey}
-                      src={active.playbackUrl}
-                      poster={
-                        active.thumbnailUrl !== active.playbackUrl
-                          ? active.thumbnailUrl
-                          : undefined
-                      }
-                      controls
-                      playsInline
-                      autoPlay={autoplay}
-                      muted={autoplay}
-                      className="absolute inset-0 h-full w-full object-contain"
-                    />
+                  {started ? (
+                    active.source === "cloudinary" && active.playbackUrl ? (
+                      <video
+                        key={playerKey}
+                        src={active.playbackUrl}
+                        poster={
+                          active.thumbnailUrl !== active.playbackUrl
+                            ? active.thumbnailUrl
+                            : undefined
+                        }
+                        controls
+                        playsInline
+                        autoPlay={autoplay}
+                        muted={autoplay}
+                        className="absolute inset-0 h-full w-full object-contain"
+                      />
+                    ) : (
+                      <iframe
+                        key={playerKey}
+                        src={buildEmbedUrl(activeId, autoplay)}
+                        title={`${active.title} — ${active.channel}`}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerPolicy="strict-origin-when-cross-origin"
+                        allowFullScreen
+                        className="absolute inset-0 h-full w-full border-0"
+                      />
+                    )
                   ) : (
-                    <iframe
-                      key={playerKey}
-                      src={buildEmbedUrl(activeId, autoplay)}
-                      title={`${active.title} — ${active.channel}`}
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                      referrerPolicy="strict-origin-when-cross-origin"
-                      allowFullScreen
-                      className="absolute inset-0 h-full w-full border-0"
-                    />
+                    <button
+                      type="button"
+                      onClick={() =>
+                        startPlayback(
+                          setStarted,
+                          setAutoplay,
+                          setPlayerKey,
+                          prefersReduced,
+                        )
+                      }
+                      className="group absolute inset-0 h-full w-full text-left"
+                      aria-label={`Play ${active.title}`}
+                    >
+                      <Image
+                        src={active.thumbnailUrl}
+                        alt=""
+                        fill
+                        sizes="(max-width: 1024px) 100vw, 66vw"
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                        priority
+                      />
+                      <span
+                        className="absolute inset-0 bg-ink/30 transition-colors group-hover:bg-ink/40"
+                        aria-hidden="true"
+                      />
+                      <span className="absolute inset-0 flex items-center justify-center">
+                        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white text-primary shadow-lg transition-transform group-hover:scale-105 sm:h-16 sm:w-16">
+                          <Play
+                            size={22}
+                            className="ml-0.5"
+                            aria-hidden="true"
+                          />
+                        </span>
+                      </span>
+                    </button>
                   )}
                 </div>
               </div>
@@ -259,8 +300,8 @@ export default function VideoSectionPlayer({
           {/* Playlist — one list, responsive layout */}
           <div className="order-2 min-w-0 lg:order-1 lg:col-span-4">
             <div className="mb-3 flex items-end justify-between gap-3 lg:mb-4">
-              <p className="type-eyebrow text-muted">{videos.length} videos</p>
-              <p className="type-eyebrow text-muted md:hidden">Swipe →</p>
+              <p className="type-eyebrow text-ink">{videos.length} videos</p>
+              <p className="type-eyebrow text-ink md:hidden">Swipe →</p>
             </div>
 
             <div className="marquee-mask max-md:-mx-5 max-md:px-5 md:contents">

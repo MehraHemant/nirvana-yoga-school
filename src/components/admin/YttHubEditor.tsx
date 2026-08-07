@@ -7,7 +7,6 @@ import { AdminSectionJumpNav } from "@/components/admin/AdminSectionJumpNav";
 import { CollapsiblePanel } from "@/components/admin/CollapsiblePanel";
 import { CoursesPicker } from "@/components/admin/CoursesPicker";
 import { ImageField } from "@/components/admin/ImageField";
-import { ImageListField } from "@/components/admin/ImageListField";
 import { PageSeoFields } from "@/components/admin/PageSeoFields";
 import { SectionIdField } from "@/components/admin/SectionIdField";
 import { SectionLiveField } from "@/components/admin/SectionLiveField";
@@ -16,7 +15,6 @@ import { toSectionDomId } from "@/components/admin/sectionDomId";
 import { TextField } from "@/components/admin/TextField";
 import { useSectionScrollSpy } from "@/components/admin/useSectionScrollSpy";
 import { useStableListKeys } from "@/components/admin/useStableListKeys";
-import { DEFAULT_YTT_HUB_NAV } from "@/content/mappers/ytt-hub";
 import { normalizeYttHubCourseRefs } from "@/content/mappers/ytt-hub-courses";
 import type { YttHubContent } from "@/content/types/shared-sections";
 
@@ -28,19 +26,24 @@ type YttHubEditorProps = {
   backLabel?: string;
 };
 
+/** Admin jump order matches public hub layout (no sticky nav). */
 const YTT_HUB_JUMP_DEFS = [
   { slug: "meta", label: "Page metadata", key: "meta" as const },
   { slug: "hero", label: "Hero", key: "hero" as const },
-  { slug: "sticky-nav", label: "Sticky nav", key: "stickyNav" as const },
   { slug: "overview", label: "Overview", key: "overview" as const },
   { slug: "flags", label: "Section flags", key: "flags" as const },
-  { slug: "courses", label: "Courses", key: "courses" as const },
-  { slug: "faq", label: "FAQ", key: "faq" as const },
   {
-    slug: "legacy",
-    label: "Legacy (demoted)",
-    key: "legacy" as const,
+    slug: "why-rishikesh",
+    label: "Why Rishikesh",
+    key: "whyRishikesh" as const,
   },
+  { slug: "courses", label: "Course list", key: "courses" as const },
+  {
+    slug: "eligibility",
+    label: "Certification",
+    key: "eligibility" as const,
+  },
+  { slug: "faq", label: "Faq", key: "faq" as const },
 ] as const;
 
 type SectionIdKey = keyof NonNullable<YttHubContent["sectionIds"]>;
@@ -92,7 +95,6 @@ export function YttHubEditor({
   const [error, setError] = useState("");
   const dirty = JSON.stringify(doc) !== baseline;
   const faqKeys = useStableListKeys(doc.faqs.length);
-  const navKeys = useStableListKeys(doc.nav.length);
   const statKeys = useStableListKeys(doc.intro.stats.length);
   const trustKeys = useStableListKeys(doc.intro.stats.length);
   const heroVideo = doc.heroVideo ?? EMPTY_HERO_VIDEO;
@@ -103,7 +105,7 @@ export function YttHubEditor({
       if (def.key === "meta") {
         return { id: toSectionDomId(def.slug, doc.meta), label: def.label };
       }
-      if (def.key === "flags" || def.key === "legacy") {
+      if (def.key === "flags") {
         return { id: toSectionDomId(def.slug), label: def.label };
       }
       return {
@@ -124,7 +126,7 @@ export function YttHubEditor({
     const def = YTT_HUB_JUMP_DEFS.find((d) => d.slug === slug);
     if (!def) return toSectionDomId(slug);
     if (def.key === "meta") return toSectionDomId(def.slug, doc.meta);
-    if (def.key === "flags" || def.key === "legacy") {
+    if (def.key === "flags") {
       return toSectionDomId(def.slug);
     }
     return toSectionDomId(def.slug, sectionIdRef(doc, def.key));
@@ -391,69 +393,6 @@ export function YttHubEditor({
             </div>
           </CollapsiblePanel>
 
-          <CollapsiblePanel id={panelId("sticky-nav")} title="Sticky nav">
-            <SectionIdField
-              fieldId="ytt-hub-sticky-nav-id"
-              value={doc.sectionIds?.stickyNav}
-              onChange={(_id) => patchSectionId("stickyNav", _id)}
-            />
-            <p className="admin-hint">
-              Recommended order: Overview → Videos → Gallery → Certification →
-              Courses → Why Nirvana → Teachers → Map → FAQ
-            </p>
-            <button
-              type="button"
-              className="admin-btn-sm"
-              onClick={() => setDoc({ ...doc, nav: [...DEFAULT_YTT_HUB_NAV] })}
-            >
-              Reset to default hub order
-            </button>
-            {doc.nav.map((item, index) => (
-              <div key={navKeys.keys[index]} className="admin-grid-2">
-                <TextField
-                  label="Id"
-                  value={item.id}
-                  onChange={(id) => {
-                    const nav = [...doc.nav];
-                    nav[index] = { ...item, id: id as `#${string}` };
-                    setDoc({ ...doc, nav });
-                  }}
-                />
-                <TextField
-                  label="Label"
-                  value={item.label}
-                  onChange={(label) => {
-                    const nav = [...doc.nav];
-                    nav[index] = { ...item, label };
-                    setDoc({ ...doc, nav });
-                  }}
-                />
-                <TextField
-                  label="Short label"
-                  value={item.shortLabel}
-                  onChange={(shortLabel) => {
-                    const nav = [...doc.nav];
-                    nav[index] = { ...item, shortLabel };
-                    setDoc({ ...doc, nav });
-                  }}
-                />
-              </div>
-            ))}
-            <button
-              type="button"
-              className="admin-btn-sm"
-              onClick={() => {
-                navKeys.addKey();
-                setDoc({
-                  ...doc,
-                  nav: [...doc.nav, { id: "#", label: "", shortLabel: "" }],
-                });
-              }}
-            >
-              Add nav item
-            </button>
-          </CollapsiblePanel>
-
           <CollapsiblePanel
             id={panelId("overview")}
             title="Overview"
@@ -596,16 +535,17 @@ export function YttHubEditor({
           <CollapsiblePanel
             id={panelId("flags")}
             title="Section flags & shared links"
-            subtitle="Gate shared bands; edit content in the linked editors"
+            subtitle="Public order: Hero → Overview → Video → Gallery → Why Rishikesh → Courses → Certification → Teachers → Reviews → Map → FAQ. Toggle optional bands below."
           >
             <ul className="admin-flags-list">
               {(
                 [
                   ["showVideos", "Videos"],
-                  ["showGallery", "Gallery"],
-                  ["showExam", "Exam & certification"],
-                  ["showWhyNirvana", "Why Nirvana"],
-                  ["showTeachers", "Teachers"],
+                  ["showGallery", "Photos"],
+                  ["showWhyRishikesh", "Why Rishikesh"],
+                  ["showEligibility", "Certification"],
+                  ["showTeachers", "Our Teachers"],
+                  ["showReviews", "Review"],
                   ["showMap", "Map"],
                 ] as const
               ).map(([key, label]) => (
@@ -620,25 +560,17 @@ export function YttHubEditor({
               ))}
             </ul>
             <p className="admin-hint admin-editor-hint">
-              Videos / gallery copy:{" "}
+              Videos / Photos / Why Rishikesh / Review copy:{" "}
               <a href="/admin/pages/home" className="admin-link">
                 Home sections
               </a>
               <br />
-              Exam & certification:{" "}
+              Certification:{" "}
               <a
                 href="/admin/sections/shared#examCertification"
                 className="admin-link"
               >
-                Shared sections
-              </a>
-              <br />
-              Why Nirvana:{" "}
-              <a
-                href="/admin/sections/shared#whyNirvana"
-                className="admin-link"
-              >
-                Shared sections
+                Shared exam &amp; certification
               </a>
               <br />
               Teachers:{" "}
@@ -653,7 +585,26 @@ export function YttHubEditor({
             </p>
           </CollapsiblePanel>
 
-          <CollapsiblePanel id={panelId("courses")} title="Courses">
+          <CollapsiblePanel
+            id={panelId("why-rishikesh")}
+            title="Why Rishikesh"
+            subtitle="Public band reuses homepage Why Rishikesh (pages.home.whyRishikesh)"
+          >
+            <SectionIdField
+              fieldId="ytt-hub-why-rishikesh-id"
+              value={doc.sectionIds?.whyRishikesh}
+              onChange={(_id) => patchSectionId("whyRishikesh", _id)}
+            />
+            <p className="admin-hint admin-editor-hint">
+              Edit title, copy, video, and sutras on{" "}
+              <a href="/admin/pages/home" className="admin-link">
+                Home sections → Why Rishikesh
+              </a>
+              . Toggle visibility with the Why Rishikesh flag above.
+            </p>
+          </CollapsiblePanel>
+
+          <CollapsiblePanel id={panelId("courses")} title="Course list">
             <SectionIdField
               fieldId="ytt-hub-courses-id"
               value={doc.sectionIds?.courses}
@@ -697,7 +648,25 @@ export function YttHubEditor({
             />
           </CollapsiblePanel>
 
-          <CollapsiblePanel id={panelId("faq")} title="FAQ">
+          <CollapsiblePanel
+            id={panelId("eligibility")}
+            title="Certification"
+            subtitle="Public band reuses shared Exam & certification (same as course pages)"
+          >
+            <p className="admin-hint admin-editor-hint">
+              Edit steps and certificates on{" "}
+              <a
+                href="/admin/sections/shared#examCertification"
+                className="admin-link"
+              >
+                Shared sections → Exam &amp; certification
+              </a>
+              . Toggle visibility with the Certification flag above. Section
+              anchor is <code>#exam</code> (shared component).
+            </p>
+          </CollapsiblePanel>
+
+          <CollapsiblePanel id={panelId("faq")} title="Faq">
             <SectionIdField
               fieldId="ytt-hub-faq-id"
               value={doc.sectionIds?.faq}
@@ -757,96 +726,6 @@ export function YttHubEditor({
             >
               Add FAQ
             </button>
-          </CollapsiblePanel>
-
-          <CollapsiblePanel
-            id={panelId("legacy")}
-            title="Legacy (demoted)"
-            subtitle="Kept in CMS only — not rendered on the live hub order"
-          >
-            <SectionIdField
-              fieldId="ytt-hub-why-rishikesh-id"
-              value={doc.sectionIds?.whyRishikesh}
-              onChange={(_id) => patchSectionId("whyRishikesh", _id)}
-            />
-            <TextField
-              label="Why Rishikesh eyebrow"
-              value={doc.whyRishikesh.eyebrow ?? ""}
-              onChange={(eyebrow) =>
-                setDoc({
-                  ...doc,
-                  whyRishikesh: { ...doc.whyRishikesh, eyebrow },
-                })
-              }
-            />
-            <TextField
-              label="Why Rishikesh title"
-              value={doc.whyRishikesh.title}
-              onChange={(title) =>
-                setDoc({
-                  ...doc,
-                  whyRishikesh: { ...doc.whyRishikesh, title },
-                })
-              }
-            />
-            <StringListField
-              label="Why Rishikesh paragraphs"
-              items={doc.whyRishikesh.paragraphs}
-              onChange={(paragraphs) =>
-                setDoc({
-                  ...doc,
-                  whyRishikesh: { ...doc.whyRishikesh, paragraphs },
-                })
-              }
-            />
-            <ImageListField
-              label="Why Rishikesh images"
-              items={doc.whyRishikesh.images}
-              onChange={(images) =>
-                setDoc({
-                  ...doc,
-                  whyRishikesh: {
-                    ...doc.whyRishikesh,
-                    images: images.map((img) => img.url),
-                  },
-                })
-              }
-            />
-            <SectionIdField
-              fieldId="ytt-hub-eligibility-id"
-              value={doc.sectionIds?.eligibility}
-              onChange={(_id) => patchSectionId("eligibility", _id)}
-            />
-            <TextField
-              label="Eligibility eyebrow"
-              value={doc.eligibility.eyebrow ?? ""}
-              onChange={(eyebrow) =>
-                setDoc({
-                  ...doc,
-                  eligibility: { ...doc.eligibility, eyebrow },
-                })
-              }
-            />
-            <TextField
-              label="Eligibility title"
-              value={doc.eligibility.title}
-              onChange={(title) =>
-                setDoc({
-                  ...doc,
-                  eligibility: { ...doc.eligibility, title },
-                })
-              }
-            />
-            <StringListField
-              label="Eligibility paragraphs"
-              items={doc.eligibility.paragraphs}
-              onChange={(paragraphs) =>
-                setDoc({
-                  ...doc,
-                  eligibility: { ...doc.eligibility, paragraphs },
-                })
-              }
-            />
           </CollapsiblePanel>
         </div>
       </div>

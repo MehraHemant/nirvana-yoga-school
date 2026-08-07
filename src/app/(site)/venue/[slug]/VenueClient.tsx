@@ -1,7 +1,7 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { DarkMediaHero } from "@/components/hero";
-import { MapSection } from "@/components/home";
 import { Container } from "@/components/ui";
 import VenueGallery from "@/components/venue/VenueGallery";
 import {
@@ -16,6 +16,23 @@ import { shouldRenderSection } from "@/lib/cms/section-visibility";
 import type { PlaylistVideo } from "@/lib/playlist-video";
 import { SiteFaq } from "../../_shared/site/shared";
 import type { SiteClientProps } from "../../_shared/site/types";
+
+/**
+ * Lightweight placeholder so layout doesn’t jump while a section chunk loads.
+ *
+ * @param props - Optional min-height utility class
+ */
+function SectionSkeleton({
+  minHeight = "min-h-[40vh]",
+}: {
+  minHeight?: string;
+}) {
+  return <div className={`w-full ${minHeight}`} aria-hidden="true" />;
+}
+
+const MapSection = dynamic(() => import("@/components/home/MapSection"), {
+  loading: () => <SectionSkeleton minHeight="min-h-[50vh]" />,
+});
 
 type VenueClientProps = SiteClientProps & {
   /** Pre-fetched playlist for `page_modules.videos` (YouTube and/or Cloudinary) */
@@ -57,14 +74,13 @@ export default function VenueClient({
     ...createEmptyGalleryModule(),
     ...moduleGallery,
     images,
-    sectionOrder:
-      moduleGallery?.sectionOrder?.length
-        ? moduleGallery.sectionOrder
-        : resolveGallerySections(images).map(({ id, label, description }) => ({
-            id,
-            label,
-            description,
-          })),
+    sectionOrder: moduleGallery?.sectionOrder?.length
+      ? moduleGallery.sectionOrder
+      : resolveGallerySections(images).map(({ id, label, description }) => ({
+          id,
+          label,
+          description,
+        })),
   };
 
   const hero = normalizeVenueHero(
@@ -74,8 +90,7 @@ export default function VenueClient({
 
   const title = hero.title || gallery.title || page.title;
   const subtitle = hero.subtitle || gallery.description || page.description;
-  const eyebrow =
-    hero.eyebrow || gallery.eyebrow || page.eyebrow || "Venue";
+  const eyebrow = hero.eyebrow || gallery.eyebrow || page.eyebrow || "Venue";
   const heroImage = hero.backgroundImage || page.image || images[0]?.url || "";
 
   const showMap =
@@ -117,7 +132,7 @@ export default function VenueClient({
           </Container>
         </DarkMediaHero>
       ) : (
-        <header className="border-b border-ink/8 bg-sand/30 pt-28 pb-10 sm:pt-32 sm:pb-12">
+        <header className="border-b border-ink/8 bg-white pt-28 pb-10 sm:pt-32 sm:pb-12">
           <Container size="2xl">
             <p className="type-eyebrow text-primary">{eyebrow}</p>
             <h1 className="mt-2 max-w-3xl font-serif text-4xl leading-tight text-ink sm:text-5xl">
@@ -132,7 +147,7 @@ export default function VenueClient({
         </header>
       )}
 
-      <article className="min-h-screen max-w-full overflow-x-clip bg-paper">
+      <article className="min-h-screen max-w-full overflow-x-clip bg-white">
         <VenueGallery
           gallery={gallery}
           images={images}
