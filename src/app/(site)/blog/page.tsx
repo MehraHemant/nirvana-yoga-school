@@ -1,12 +1,21 @@
 import type { Metadata } from "next";
-import Image from "next/image";
-import Link from "next/link";
-import { Container, SectionHeader } from "@/components/ui";
+import { BlogIndexEmpty } from "@/components/blog/BlogIndexEmpty";
+import { BlogIndexHero } from "@/components/blog/BlogIndexHero";
+import { BlogPostCard } from "@/components/blog/BlogPostCard";
+import { Container } from "@/components/ui";
 import { getSitePage } from "@/content";
 import { getBlogPosts } from "@/content/repositories/blog-post";
 import { getPageModules } from "@/content/repositories/page-modules";
-import { ArrowRight } from "@/icons";
 import { metadataFromPageSeo } from "../_shared/metadata";
+
+const GRID_DELAYS = [
+  "fade-delay-100",
+  "fade-delay-200",
+  "fade-delay-300",
+  "fade-delay-400",
+] as const;
+
+const GRID_STAGGERS = ["", "sm:mt-8", "sm:mt-4"] as const;
 
 /**
  * Blog index SEO from CMS modules/page meta only.
@@ -22,7 +31,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 /**
- * Blog index — posts load from MySQL via `getBlogPosts()`.
+ * Blog index — Photo Soft Grid hero + equal Dawn Overlap post cards.
  */
 export default async function BlogPage() {
   const result = await getBlogPosts();
@@ -30,73 +39,28 @@ export default async function BlogPage() {
 
   return (
     <>
-      <section className="relative overflow-hidden bg-primary text-white pt-[var(--site-header-height)]">
-        <div
-          className="absolute inset-0 bg-linear-to-br from-primary-dark/40 via-primary to-accent/20"
-          aria-hidden="true"
-        />
-        <Container
-          size="2xl"
-          className="relative z-10 flex min-h-[48svh] items-end py-16 sm:py-20"
-        >
-          <div className="max-w-4xl">
-            <p className="type-eyebrow mb-4 text-white/80">Journal</p>
-            <h1 className="type-h1 text-white">Yoga Blog</h1>
-            <p className="type-lead mt-6 max-w-2xl font-sans leading-relaxed text-white/85">
-              Practice notes, philosophy guides, wellness articles, and
-              teacher-training resources from Nirvana Yoga School.
-            </p>
-          </div>
-        </Container>
-      </section>
+      <BlogIndexHero imageSrc={posts[0]?.image} />
 
-      <section className="bg-white py-20 sm:py-28">
-        <Container size="2xl">
-          <SectionHeader
-            eyebrow="Latest guides"
-            title={
-              <>
-                Learn beyond <span className="text-primary">the mat</span>
-              </>
-            }
-            description="Browse the live-site article library in the new Nirvana theme."
-            align="center"
-          />
-
-          <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {posts.map((post) => (
-              <Link
-                key={post.slug}
-                href={`/blog/${post.slug}`}
-                className="group overflow-hidden rounded-3xl border border-ink/6 bg-white shadow-card transition-all hover:-translate-y-1 hover:border-primary/20 hover:shadow-soft"
-              >
-                <div className="relative aspect-[16/10] overflow-hidden bg-ink/5">
-                  <Image
-                    src={post.image}
-                    alt=""
-                    fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-                    className="object-cover transition-transform duration-700 group-hover:scale-105"
+      <section
+        id="journal"
+        className="relative scroll-mt-[calc(var(--site-header-height)+0.75rem)] bg-surface-muted"
+      >
+        <Container size="2xl" className="py-10 sm:py-12 lg:py-14">
+          {posts.length > 0 ? (
+            <ul className="grid list-none gap-10 p-0 sm:grid-cols-3 sm:gap-x-8 sm:gap-y-12 lg:gap-x-10">
+              {posts.map((post, index) => (
+                <li key={post.slug}>
+                  <BlogPostCard
+                    post={post}
+                    revealDelayClass={GRID_DELAYS[index % GRID_DELAYS.length]}
+                    staggerClass={GRID_STAGGERS[index % GRID_STAGGERS.length]}
                   />
-                </div>
-                <div className="p-6">
-                  <p className="type-eyebrow mb-3 text-primary">
-                    {post.category}
-                  </p>
-                  <h2 className="type-display-sm font-serif text-ink transition-colors group-hover:text-primary">
-                    {post.title}
-                  </h2>
-                  <p className="mt-4 type-body font-sans leading-relaxed text-muted">
-                    {post.excerpt}
-                  </p>
-                  <span className="mt-6 inline-flex items-center gap-2 font-sans text-sm font-semibold text-primary">
-                    Read article
-                    <ArrowRight size={16} />
-                  </span>
-                </div>
-              </Link>
-            ))}
-          </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <BlogIndexEmpty />
+          )}
         </Container>
       </section>
     </>

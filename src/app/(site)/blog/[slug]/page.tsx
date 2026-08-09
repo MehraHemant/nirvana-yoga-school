@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import Image from "next/image";
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { BlogHtmlContent } from "@/components/blog/BlogHtmlContent";
+import { BlogCourseRail } from "@/components/blog/BlogCourseRail";
+import { BlogPostContent } from "@/components/blog/BlogPostContent";
+import { BlogPostHero } from "@/components/blog/BlogPostHero";
 import { Container } from "@/components/ui";
-import type { BlogContentBlock } from "@/content/types";
-import { ArrowRight } from "@/icons";
+import { resolveYttHubCourses } from "@/content/mappers/resolve-ytt-hub-courses";
+import { getYttHub } from "@/content/repositories/shared-sections";
+import type { ResolvedYttHubCourse } from "@/content/types/shared-sections";
 import { resolveBlogBodyHtml } from "@/lib/cms/blog-html";
 import { fetchBlogPost, getAllBlogSlugs } from "@/lib/content";
 import { metadataFromPageSeo } from "../../_shared/metadata";
@@ -43,63 +44,16 @@ export async function generateMetadata({
   });
 }
 
-function blockKey(block: BlogContentBlock, index: number) {
-  const text =
-    block.type === "list"
-      ? block.items.join("-").slice(0, 40)
-      : "text" in block
-        ? block.text.slice(0, 40)
-        : String(index);
-  return `${block.type}-${text}-${index}`;
-}
-
-function BlogContent({ blocks }: { blocks: BlogContentBlock[] }) {
-  return (
-    <div className="prose-blog space-y-5">
-      {blocks.map((block, index) => {
-        if (block.type === "date") return null;
-
-        if (block.type === "heading") {
-          const Tag =
-            block.level === 2 ? "h2" : block.level === 3 ? "h3" : "h4";
-          const sizeClass =
-            block.level === 2
-              ? "type-display-sm mt-10 mb-3 font-serif text-2xl text-ink first:mt-0"
-              : block.level === 3
-                ? "type-display-sm mt-8 mb-2 font-serif text-xl text-ink"
-                : "mt-6 mb-2 font-sans text-base font-semibold text-ink";
-
-          return (
-            <Tag key={blockKey(block, index)} className={sizeClass}>
-              {block.text}
-            </Tag>
-          );
-        }
-
-        if (block.type === "list") {
-          return (
-            <ul
-              key={blockKey(block, index)}
-              className="list-disc space-y-2 pl-5 font-sans text-base leading-relaxed text-muted"
-            >
-              {block.items.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          );
-        }
-
-        return (
-          <p
-            key={blockKey(block, index)}
-            className="type-body font-sans leading-relaxed text-muted"
-          >
-            {block.text}
-          </p>
-        );
-      })}
-    </div>
-  );
+/**
+ * Loads the current YTT hub placements for the article program rail.
+ */
+async function loadBlogCourses(): Promise<ResolvedYttHubCourse[]> {
+  try {
+    const hubResult = await getYttHub();
+    return await resolveYttHubCourses(hubResult.data.courses);
+  } catch {
+    return [];
+  }
 }
 
 /**
@@ -110,7 +64,10 @@ function BlogContent({ blocks }: { blocks: BlogContentBlock[] }) {
  */
 export default async function BlogPostPage({ params }: PageProps) {
   const { slug } = await params;
-  const post = await fetchBlogPost(slug);
+  const [post, courses] = await Promise.all([
+    fetchBlogPost(slug),
+    loadBlogCourses(),
+  ]);
 
   if (!post) {
     notFound();
@@ -120,51 +77,35 @@ export default async function BlogPostPage({ params }: PageProps) {
 
   return (
     <>
-      <section className="relative overflow-hidden bg-primary text-white pt-[var(--site-header-height)]">
-        <Image
-          src={post.image}
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover opacity-20"
+      <BlogPostHero post={post} />
+
+      <section className="relative bg-sand">
+        <div
+          className="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-primary/25 to-transparent"
+          aria-hidden="true"
         />
-        <div className="absolute inset-0 bg-linear-to-r from-primary via-primary/75 to-transparent" />
+
         <Container
           size="2xl"
-          className="relative z-10 flex min-h-[54svh] items-end py-16 sm:py-20"
+          className="grid px-0 md:px-0 lg:grid-cols-[minmax(0,1fr)_minmax(22rem,28rem)] lg:items-start"
         >
-          <div className="max-w-4xl">
-            <p className="type-eyebrow mb-4 text-white/80">{post.category}</p>
-            <h1 className="type-h1 text-balance text-white">{post.title}</h1>
-            {post.publishedAt && (
-              <p className="type-ui mt-4 text-white/70">{post.publishedAt}</p>
-            )}
-            <p className="type-lead mt-6 max-w-2xl font-sans leading-relaxed text-white/85">
-              {post.excerpt}
-            </p>
-          </div>
+          <article
+            aria-label="Article"
+            className="blog-post-article bg-white px-5 py-12 sm:py-16 md:px-8 lg:px-12 lg:py-16 xl:px-20"
+          >
+            <div className="mx-auto max-w-184">
+              <BlogPostContent bodyHtml={bodyHtml} blocks={post.content} />
+            </div>
+          </article>
+
+          <aside
+            aria-labelledby="blog-programs-heading"
+            className="border-t border-ink/10 bg-surface-muted px-5 py-12 sm:px-8 sm:py-16 lg:sticky lg:top-(--site-header-height) lg:h-[calc(100svh-var(--site-header-height))] lg:overflow-y-auto lg:overscroll-contain lg:border-l lg:border-t-0 lg:px-8 lg:py-14 lg:scrollbar-thin-primary xl:px-10"
+          >
+            <BlogCourseRail courses={courses} />
+          </aside>
         </Container>
       </section>
-
-      <article className="bg-white py-20 sm:py-28">
-        <Container size="md">
-          <div className="rounded-3xl border border-ink/6 bg-white p-6 shadow-card sm:p-10">
-            {bodyHtml ? (
-              <BlogHtmlContent html={bodyHtml} />
-            ) : (
-              <BlogContent blocks={post.content} />
-            )}
-            <Link
-              href="/blog"
-              className="mt-10 inline-flex items-center gap-2 font-sans text-sm font-semibold text-primary"
-            >
-              Back to blog
-              <ArrowRight size={16} />
-            </Link>
-          </div>
-        </Container>
-      </article>
     </>
   );
 }

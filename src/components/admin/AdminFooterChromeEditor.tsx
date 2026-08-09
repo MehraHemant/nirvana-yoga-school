@@ -338,7 +338,7 @@ export function AdminFooterChromeEditor() {
             label="Credentials"
             value={settings.brand.credentials}
             onChange={(v) => updateBrand("credentials", v)}
-            hint="e.g., Yoga Alliance RYS · Est. 2012 · Tapovan, Rishikesh"
+            hint="e.g., Yoga Alliance RYS · Tapovan, Rishikesh"
           />
         </div>
       </section>

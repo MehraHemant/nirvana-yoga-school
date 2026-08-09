@@ -219,7 +219,7 @@ export const DEFAULT_CONTENT_TYPES: DefaultContentTypeDef[] = [
         key: "brand_credentials",
         label: "Credentials line",
         type: "text",
-        defaultValue: "Yoga Alliance RYS · Est. 2012 · Tapovan, Rishikesh",
+        defaultValue: "Yoga Alliance RYS · Tapovan, Rishikesh",
       },
       {
         key: "contact_address",
@@ -248,7 +248,7 @@ export const DEFAULT_CONTENT_TYPES: DefaultContentTypeDef[] = [
         key: "social_whatsapp",
         label: "WhatsApp URL",
         type: "text",
-        help: "e.g. https://wa.me/919876543210",
+        help: "e.g. https://wa.me/918218564835",
       },
       {
         key: "column_programs",
@@ -261,6 +261,12 @@ export const DEFAULT_CONTENT_TYPES: DefaultContentTypeDef[] = [
         label: "School column links",
         type: "textarea",
         help: "One per line: Label | /path",
+      },
+      {
+        key: "column_visit",
+        label: "Visit column links",
+        type: "textarea",
+        help: "One per line: Label | /path (booking, student login, etc.)",
       },
       {
         key: "legal_links",

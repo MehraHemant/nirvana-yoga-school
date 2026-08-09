@@ -1,4 +1,5 @@
 import type { GlobalFooter } from "@/content/types/global-settings";
+import { createDefaultGlobalFooter } from "@/lib/cms/structural-defaults";
 
 function str(
   data: Record<string, unknown>,
@@ -16,16 +17,18 @@ function str(
  */
 export function parseLabelHrefLines(
   raw: string,
-): Array<{ label: string; href: string }> {
+): Array<{ label: string; href: string; external?: boolean }> {
   return raw
     .split("\n")
     .map((line) => line.trim())
     .filter(Boolean)
     .map((line) => {
       const [label, ...rest] = line.split("|");
+      const href = rest.join("|").trim() || "#";
       return {
         label: (label ?? "").trim(),
-        href: rest.join("|").trim() || "#",
+        href,
+        ...(href.startsWith("http") ? { external: true as const } : {}),
       };
     })
     .filter((row) => row.label);
@@ -43,6 +46,20 @@ export function formatLabelHrefLines(
 }
 
 /**
+ * Finds a footer column by heading (case-insensitive).
+ *
+ * @param columns - Footer columns
+ * @param heading - Column heading to match
+ */
+function columnByHeading(
+  columns: GlobalFooter["columns"],
+  heading: string,
+): GlobalFooter["columns"][number] | undefined {
+  const key = heading.toLowerCase();
+  return columns.find((c) => c.heading.toLowerCase() === key);
+}
+
+/**
  * Maps flat site_footer fields → GlobalFooter (keeps defaults for missing bits).
  *
  * @param data - Form field values
@@ -52,8 +69,10 @@ export function footerFieldsToGlobalFooter(
   data: Record<string, unknown>,
   previous?: GlobalFooter | null,
 ): GlobalFooter {
+  const defaults = createDefaultGlobalFooter();
   const programs = parseLabelHrefLines(str(data, "column_programs"));
   const school = parseLabelHrefLines(str(data, "column_school"));
+  const visit = parseLabelHrefLines(str(data, "column_visit"));
   const legal = parseLabelHrefLines(str(data, "legal_links"));
 
   const social: GlobalFooter["social"] = [];
@@ -73,56 +92,69 @@ export function footerFieldsToGlobalFooter(
       links:
         programs.length > 0
           ? programs
-          : (prevColumns.find((c) => c.heading === "Programs")?.links ?? []),
+          : (columnByHeading(prevColumns, "Programs")?.links ??
+            defaults.columns[0]?.links ??
+            []),
     },
     {
       heading: "School",
       links:
         school.length > 0
           ? school
-          : (prevColumns.find((c) => c.heading === "School")?.links ?? []),
+          : (columnByHeading(prevColumns, "School")?.links ??
+            defaults.columns[1]?.links ??
+            []),
     },
     {
-      heading: "Contact",
-      links: [
-        {
-          label: str(data, "contact_address", previous?.contact.address ?? ""),
-          href: "#",
-        },
-        {
-          label: str(data, "contact_email", previous?.contact.email ?? ""),
-          href: `mailto:${str(data, "contact_email", previous?.contact.email ?? "")}`,
-        },
-        {
-          label: str(data, "contact_phone", previous?.contact.phone ?? ""),
-          href: str(
-            data,
-            "social_whatsapp",
-            previous?.social.find((s) => s.icon === "whatsapp")?.href ?? "#",
-          ),
-        },
-      ].filter((l) => l.label),
+      heading: "Visit",
+      links:
+        visit.length > 0
+          ? visit
+          : (columnByHeading(prevColumns, "Visit")?.links ??
+            columnByHeading(prevColumns, "Explore")?.links ??
+            defaults.columns[2]?.links ??
+            []),
     },
   ];
 
   return {
     brand: {
-      logo: str(data, "brand_logo", previous?.brand.logo ?? "/logo.png"),
-      tagline: str(data, "brand_tagline", previous?.brand.tagline ?? ""),
+      logo: str(
+        data,
+        "brand_logo",
+        previous?.brand.logo ?? defaults.brand.logo,
+      ),
+      tagline: str(
+        data,
+        "brand_tagline",
+        previous?.brand.tagline ?? defaults.brand.tagline,
+      ),
       credentials: str(
         data,
         "brand_credentials",
-        previous?.brand.credentials ?? "",
+        previous?.brand.credentials ?? defaults.brand.credentials,
       ),
     },
-    social: social.length > 0 ? social : (previous?.social ?? []),
+    social: social.length > 0 ? social : (previous?.social ?? defaults.social),
     columns,
     contact: {
-      address: str(data, "contact_address", previous?.contact.address ?? ""),
-      email: str(data, "contact_email", previous?.contact.email ?? ""),
-      phone: str(data, "contact_phone", previous?.contact.phone ?? ""),
+      address: str(
+        data,
+        "contact_address",
+        previous?.contact.address ?? defaults.contact.address,
+      ),
+      email: str(
+        data,
+        "contact_email",
+        previous?.contact.email ?? defaults.contact.email,
+      ),
+      phone: str(
+        data,
+        "contact_phone",
+        previous?.contact.phone ?? defaults.contact.phone,
+      ),
     },
-    legal: legal.length > 0 ? legal : (previous?.legal ?? []),
+    legal: legal.length > 0 ? legal : (previous?.legal ?? defaults.legal),
   };
 }
 
@@ -134,10 +166,12 @@ export function footerFieldsToGlobalFooter(
 export function globalFooterToFields(
   footer: GlobalFooter,
 ): Record<string, unknown> {
-  const programs =
-    footer.columns.find((c) => c.heading === "Programs")?.links ?? [];
-  const school =
-    footer.columns.find((c) => c.heading === "School")?.links ?? [];
+  const programs = columnByHeading(footer.columns, "Programs")?.links ?? [];
+  const school = columnByHeading(footer.columns, "School")?.links ?? [];
+  const visit =
+    columnByHeading(footer.columns, "Visit")?.links ??
+    columnByHeading(footer.columns, "Explore")?.links ??
+    [];
   const byIcon = (icon: string) =>
     footer.social.find((s) => s.icon === icon)?.href ?? "";
 
@@ -154,6 +188,7 @@ export function globalFooterToFields(
     social_whatsapp: byIcon("whatsapp"),
     column_programs: formatLabelHrefLines(programs),
     column_school: formatLabelHrefLines(school),
+    column_visit: formatLabelHrefLines(visit),
     legal_links: formatLabelHrefLines(footer.legal),
   };
 }

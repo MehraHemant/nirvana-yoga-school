@@ -255,7 +255,7 @@ export async function fetchPageModulesFromDb(
 ): Promise<PageModulesDocument | null> {
   const cached = unstable_cache(
     () => loadPageModulesUncached(slug),
-    [`page-modules-${slug}`],
+    [`page-modules-v3-${slug}`],
     {
       tags: [contentCacheTag(slug)],
       revalidate: 3600,
@@ -323,7 +323,7 @@ export async function fetchBlogPostsFromDb(): Promise<BlogPostDocument[]> {
         bodyHtml: post.bodyHtml,
       }));
     },
-    ["blog-posts-all"],
+    ["blog-posts-all-v3"],
     { tags: ["blog:all"], revalidate: 3600 },
   );
 

@@ -725,12 +725,13 @@ body {
   background: rgb(163 36 50 / 0.04);
 }
 
-/* Footer nav — same left-accent hover as header dropdown items */
+/* Footer nav — compact left-accent hover (mirrors header dropdown) */
 .footer-nav-link {
+  display: inline-block;
   border-left: 2px solid transparent;
-  border-radius: 0.75rem;
-  padding: 0.375rem 0.75rem;
-  margin-left: -0.75rem;
+  border-radius: 0.375rem;
+  padding: 0.18rem 0.45rem;
+  margin-left: -0.45rem;
   transition:
     color 0.2s ease,
     background-color 0.2s ease,
@@ -740,7 +741,7 @@ body {
 .footer-nav-link:hover,
 .footer-nav-link:focus-visible {
   border-left-color: var(--color-primary);
-  background: rgb(163 36 50 / 0.06);
+  background: rgb(163 36 50 / 0.05);
   color: var(--color-primary);
 }
 
@@ -1322,12 +1323,15 @@ details[open] .accordion-icon {
   font-weight: 600;
 }
 
-/* Blog rich-text output */
+/* Blog rich-text output — editorial reading column */
 .prose-blog h2 {
   font-family: var(--font-noe), serif;
-  font-size: clamp(1.25rem, 2vw, 1.5rem);
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  font-weight: 500;
+  line-height: 1.18;
+  letter-spacing: -0.015em;
   color: var(--color-ink);
-  margin: 2.5rem 0 0.75rem;
+  margin: 3.5rem 0 1rem;
 }
 
 .prose-blog h2:first-child {
@@ -1336,57 +1340,102 @@ details[open] .accordion-icon {
 
 .prose-blog h3 {
   font-family: var(--font-noe), serif;
-  font-size: clamp(1.125rem, 1.5vw, 1.25rem);
+  font-size: clamp(1.35rem, 2vw, 1.65rem);
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
   color: var(--color-ink);
-  margin: 2rem 0 0.5rem;
+  margin: 2.75rem 0 0.75rem;
 }
 
 .prose-blog h4 {
   font-family: var(--font-poppins), sans-serif;
-  font-size: 1rem;
+  font-size: 1.05rem;
   font-weight: 600;
+  line-height: 1.4;
   color: var(--color-ink);
-  margin: 1.5rem 0 0.5rem;
+  margin: 2.25rem 0 0.75rem;
 }
 
 .prose-blog p {
   font-family: var(--font-poppins), sans-serif;
-  font-size: 1rem;
-  line-height: 1.75;
-  color: var(--color-muted);
-  margin: 0 0 1.25rem;
+  font-size: 1.0625rem;
+  line-height: 1.85;
+  color: color-mix(in srgb, var(--color-ink) 84%, white);
+  margin: 0 0 1.5rem;
+}
+
+.prose-blog > p:first-child {
+  font-size: clamp(1.1rem, 1.6vw, 1.2rem);
+  line-height: 1.78;
+  color: var(--color-ink);
+}
+
+.prose-blog strong {
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.prose-blog em {
+  font-style: italic;
 }
 
 .prose-blog ul,
 .prose-blog ol {
-  margin: 0 0 1.25rem 1.25rem;
-  padding: 0;
+  margin: 0 0 1.75rem;
+  padding-left: 1.5rem;
   font-family: var(--font-poppins), sans-serif;
-  font-size: 1rem;
-  line-height: 1.75;
-  color: var(--color-muted);
+  font-size: 1.0625rem;
+  line-height: 1.8;
+  color: color-mix(in srgb, var(--color-ink) 84%, white);
+}
+
+.prose-blog ul {
+  list-style: disc;
+}
+
+.prose-blog ol {
+  list-style: decimal;
+}
+
+.prose-blog li::marker {
+  color: var(--color-primary);
 }
 
 .prose-blog li {
-  margin-bottom: 0.5rem;
+  padding-left: 0.35rem;
+  margin-bottom: 0.65rem;
 }
 
 .prose-blog blockquote {
-  margin: 0 0 1.25rem;
-  padding-left: 1rem;
-  border-left: 3px solid rgb(163 36 50 / 35%);
-  color: var(--color-muted);
+  margin: 2.75rem 0;
+  padding: 0.35rem 0 0.35rem 1.5rem;
+  border-left: 2px solid var(--color-primary);
+  font-family: var(--font-noe), serif;
+  font-size: clamp(1.25rem, 2.1vw, 1.5rem);
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+  color: var(--color-ink);
   font-style: italic;
 }
 
 .prose-blog a {
   color: var(--color-primary);
+  font-weight: 500;
   text-decoration: underline;
-  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: color 0.2s ease;
 }
 
 .prose-blog a:hover {
   color: var(--color-primary-dark);
+}
+
+.prose-blog a:focus-visible {
+  border-radius: 0.125rem;
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
 }
 
 /* -------------------------------------------------------------------------- */
