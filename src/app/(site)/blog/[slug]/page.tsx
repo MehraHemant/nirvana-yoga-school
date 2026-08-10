@@ -79,7 +79,7 @@ export default async function BlogPostPage({ params }: PageProps) {
     <>
       <BlogPostHero post={post} />
 
-      <section className="relative bg-sand">
+      <section className="relative bg-white">
         <div
           className="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-primary/25 to-transparent"
           aria-hidden="true"
@@ -100,7 +100,7 @@ export default async function BlogPostPage({ params }: PageProps) {
 
           <aside
             aria-labelledby="blog-programs-heading"
-            className="border-t border-ink/10 bg-surface-muted px-5 py-12 sm:px-8 sm:py-16 lg:sticky lg:top-(--site-header-height) lg:h-[calc(100svh-var(--site-header-height))] lg:overflow-y-auto lg:overscroll-contain lg:border-l lg:border-t-0 lg:px-8 lg:py-14 lg:scrollbar-thin-primary xl:px-10"
+            className="border-t border-ink/10 bg-white px-5 py-12 sm:px-8 sm:py-16 lg:sticky lg:top-(--site-header-height) lg:h-[calc(100svh-var(--site-header-height))] lg:overflow-y-auto lg:overscroll-contain lg:border-l lg:border-t-0 lg:px-8 lg:py-14 lg:scrollbar-thin-primary xl:px-10"
           >
             <BlogCourseRail courses={courses} />
           </aside>
