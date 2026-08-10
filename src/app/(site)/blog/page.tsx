@@ -43,7 +43,7 @@ export default async function BlogPage() {
 
       <section
         id="journal"
-        className="relative scroll-mt-[calc(var(--site-header-height)+0.75rem)] bg-surface-muted"
+        className="relative scroll-mt-[calc(var(--site-header-height)+0.75rem)] bg-white"
       >
         <Container size="2xl" className="py-10 sm:py-12 lg:py-14">
           {posts.length > 0 ? (

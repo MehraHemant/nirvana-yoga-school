@@ -353,28 +353,6 @@ export function createEmptyInstagramFeed(): InstagramFeedContent {
   };
 }
 
-/** Minimal header navigation scaffold for admin when DB row is missing. */
-export function createEmptyPrimaryNav() {
-  return [
-    { type: "link" as const, label: "HOME", href: "/" },
-    { type: "dropdown" as const, label: "YOGA COURSES", items: [] },
-    { type: "dropdown" as const, label: "ONLINE COURSES", items: [] },
-    { type: "dropdown" as const, label: "RETREATS", items: [] },
-    {
-      type: "link" as const,
-      label: "TEACHERS",
-      page: { type: "site" as const, slug: "teacher" },
-    },
-    { type: "dropdown" as const, label: "VENUE", items: [] },
-    { type: "link" as const, label: "BLOG", href: "/blog" },
-    {
-      type: "link" as const,
-      label: "CONTACT",
-      page: { type: "site" as const, slug: "contact" },
-    },
-  ];
-}
-
 export const SIGN_IN_URL =
   "https://www.nirvanayogaschoolindia.com/student-login";
 
