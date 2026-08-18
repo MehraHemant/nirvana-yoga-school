@@ -9,9 +9,9 @@ import {
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Button, Container, Heading, Pill } from "@/components/ui";
-import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 import type { HomeWelcomeContent } from "@/content/types/dedicated-pages";
 import { Check, Play } from "@/icons";
+import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 import { resolveSectionHtmlId } from "@/lib/html-id";
 import { EASE_OUT, reducedTransition, VIEWPORT_ONCE } from "@/lib/motion";
 import { parseYouTubeId } from "@/lib/youtube";

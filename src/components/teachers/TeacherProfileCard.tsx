@@ -120,9 +120,7 @@ export default function TeacherProfileCard({
       estimateListLines(teacher.detailedExperience) >
         COMPACT_LIST_CLAMP_LINES ||
       estimateListLines(
-        teacher.expertise.length > 0
-          ? [teacher.expertise.join(", ")]
-          : [],
+        teacher.expertise.length > 0 ? [teacher.expertise.join(", ")] : [],
       ) > COMPACT_LIST_CLAMP_LINES);
 
   const canExpand =

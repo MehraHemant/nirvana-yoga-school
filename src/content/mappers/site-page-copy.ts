@@ -220,9 +220,7 @@ export function getPagePresentation(page: SitePageDocument): PagePresentation {
     overviewEyebrow: (page.eyebrow ?? "").trim(),
     overviewLead: refineOverview(page, overviewSection?.body),
     overviewSupporting: refineSupportingCopy(page),
-    scheduleDescription: (
-      scheduleSection?.body?.split("\n\n")[0] ?? ""
-    ).trim(),
+    scheduleDescription: (scheduleSection?.body?.split("\n\n")[0] ?? "").trim(),
     pricingDescription: (pricingSection?.body?.split("\n\n")[0] ?? "").trim(),
   };
 }

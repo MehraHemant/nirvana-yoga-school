@@ -1,9 +1,3 @@
-import {
-  createEmptyBookingPageContent,
-  createEmptyContactPageContent,
-  createEmptyEnquirePageContent,
-  createEmptyHomePageContent,
-} from "@/lib/cms/structural-defaults";
 import { requireDb } from "@/content/repositories/db-fallback";
 import type {
   ContentResult,
@@ -25,7 +19,14 @@ import type {
   HomeFaqsContent,
   ReviewsContent,
 } from "@/content/types/shared-sections";
+import {
+  createEmptyBookingPageContent,
+  createEmptyContactPageContent,
+  createEmptyEnquirePageContent,
+  createEmptyHomePageContent,
+} from "@/lib/cms/structural-defaults";
 import { db } from "@/lib/db";
+import { normalizeHomeCourseRefs } from "@/content/mappers/home-courses";
 
 /**
  * Merges partial home content with defaults so public UI never regresses.
@@ -120,9 +121,16 @@ export function normalizeHomeContent(value: unknown): HomePageContent {
     courses: {
       ...base.courses,
       ...value.courses,
-      cards: value.courses?.cards?.length
-        ? value.courses.cards
-        : base.courses.cards,
+      placements:
+        value.courses?.placements?.length ||
+        value.courses?.cards?.length
+          ? normalizeHomeCourseRefs({
+              ...base.courses,
+              ...value.courses,
+              placements: value.courses?.placements,
+              cards: value.courses?.cards,
+            })
+          : base.courses.placements,
     },
     yogaAlliance: {
       ...base.yogaAlliance,

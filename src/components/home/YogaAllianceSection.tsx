@@ -2,7 +2,6 @@
 
 import { motion } from "framer-motion";
 import { Button, Container, Pill } from "@/components/ui";
-import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 import type {
   HomeYogaAllianceCertIconKey,
   HomeYogaAllianceContent,
@@ -14,6 +13,7 @@ import {
   Leaf,
   YogaAllianceSeal,
 } from "@/icons";
+import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 import { optionalSectionHtmlId } from "@/lib/html-id";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 

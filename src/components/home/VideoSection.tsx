@@ -1,5 +1,5 @@
-import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 import type { HomeVideoSectionContent } from "@/content/types/dedicated-pages";
+import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 import { fetchYouTubeVideos } from "@/lib/youtube";
 import VideoSectionPlayer from "./VideoSectionPlayer";
 

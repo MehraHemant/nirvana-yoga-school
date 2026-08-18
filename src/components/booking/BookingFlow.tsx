@@ -8,7 +8,6 @@ import {
   SearchableSelect,
   type SearchableSelectOption,
 } from "@/components/ui";
-import { createEmptyBookingPageContent } from "@/lib/cms/structural-defaults";
 import type {
   BookingAddon,
   BookingAddonsContent,
@@ -32,6 +31,7 @@ import {
   PAYPAL_FEE_RATE,
 } from "@/lib/booking/pricing";
 import { shouldRenderSection } from "@/lib/cms/section-visibility";
+import { createEmptyBookingPageContent } from "@/lib/cms/structural-defaults";
 import { optionalSectionHtmlId } from "@/lib/html-id";
 import {
   DEFAULT_PHONE_COUNTRY_ISO,
@@ -71,7 +71,12 @@ type FormState = {
   selectedAddonIds: string[];
 };
 
-const BOOKING_STEPS = ["Program", "Your details", "Add-ons", "Payment"] as const;
+const BOOKING_STEPS = [
+  "Program",
+  "Your details",
+  "Add-ons",
+  "Payment",
+] as const;
 
 const GENDER_OPTIONS: SearchableSelectOption[] = [
   { value: "Female", label: "Female" },
@@ -225,10 +230,7 @@ export function BookingFlow({
    */
   function toggleManualAddon(item: BookingAddon) {
     setForm((prev) => {
-      const selected = getSelectedOptionIdForGroup(
-        item,
-        prev.selectedAddonIds,
-      );
+      const selected = getSelectedOptionIdForGroup(item, prev.selectedAddonIds);
       return {
         ...prev,
         selectedAddonIds: setAddonGroupSelection(
@@ -246,10 +248,7 @@ export function BookingFlow({
    * @param item - Course add-on
    * @param optionId - Room option id, or null to skip
    */
-  function selectCourseAddonRoom(
-    item: BookingAddon,
-    optionId: string | null,
-  ) {
+  function selectCourseAddonRoom(item: BookingAddon, optionId: string | null) {
     setForm((prev) => ({
       ...prev,
       selectedAddonIds: setAddonGroupSelection(
@@ -937,10 +936,7 @@ export function BookingFlow({
                     </dd>
                   </div>
                   {selectedAddons.map((item) => (
-                    <div
-                      key={item.id}
-                      className="flex justify-between gap-4"
-                    >
+                    <div key={item.id} className="flex justify-between gap-4">
                       <dt className="text-muted">{item.label}</dt>
                       <dd className="text-ink">{formatUsd(item.priceUsd)}</dd>
                     </div>

@@ -53,7 +53,10 @@ export async function getPageLabels(
   refs: Array<{ type: PageType; slug: string }>,
 ): Promise<Map<string, string>> {
   const entries = await Promise.all(
-    refs.map(async (ref) => [ref.slug, await getPageLabel(ref.type, ref.slug)] as const),
+    refs.map(
+      async (ref) =>
+        [ref.slug, await getPageLabel(ref.type, ref.slug)] as const,
+    ),
   );
   return new Map(entries);
 }

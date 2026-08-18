@@ -114,7 +114,11 @@ export default function HeroSection({
                   />
                 </Button>
                 {showSecondary ? (
-                  <Button href={secondaryHref} variant="outline-light" responsive>
+                  <Button
+                    href={secondaryHref}
+                    variant="outline-light"
+                    responsive
+                  >
                     {secondaryLabel}
                   </Button>
                 ) : null}

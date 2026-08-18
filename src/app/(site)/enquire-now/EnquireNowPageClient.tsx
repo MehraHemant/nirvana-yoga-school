@@ -4,21 +4,19 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useState } from "react";
 import { DarkMediaHero } from "@/components/hero";
 import { MapSection } from "@/components/home";
+import type { SearchableSelectOption } from "@/components/ui";
 import {
   Button,
   Container,
   PhoneInput,
   SearchableSelect,
 } from "@/components/ui";
-import type { SearchableSelectOption } from "@/components/ui";
-import { createEmptyEnquirePageContent } from "@/lib/cms/structural-defaults";
 import type { EnquirePageContent } from "@/content/types/dedicated-pages";
 import type { SiteMapContent } from "@/content/types/shared-sections";
 import { Check, Compass, Send, WhatsApp } from "@/icons";
 import { shouldRenderSection } from "@/lib/cms/section-visibility";
-import {
-  ACCOMMODATION_PREFERENCE_OPTIONS,
-} from "@/lib/enquire-programs";
+import { createEmptyEnquirePageContent } from "@/lib/cms/structural-defaults";
+import { ACCOMMODATION_PREFERENCE_OPTIONS } from "@/lib/enquire-programs";
 import { optionalSectionHtmlId, resolveSectionHtmlId } from "@/lib/html-id";
 import { openMailtoFallback, submitLead } from "@/lib/leads/submit-lead";
 import { fadeUp, reducedTransition } from "@/lib/motion";

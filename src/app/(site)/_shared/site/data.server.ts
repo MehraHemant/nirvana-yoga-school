@@ -1,14 +1,15 @@
 import { isVenuePage } from "@/content/mappers/venue-page";
+import { hydrateModulesFromLodgingTables } from "@/content/repositories/lodging-sync";
 import { getPageModules } from "@/content/repositories/page-modules";
 import {
   getExamCertification,
   getInstagramFeed,
-  getResidentialLife,
   getReviews,
   getSiteMap,
   getTravelGuide,
   getVenueFaqs,
   getWhyNirvana,
+  resolveProductResidentialLife,
 } from "@/content/repositories/shared-sections";
 import {
   getTeachers,
@@ -27,7 +28,6 @@ export async function loadSitePageDataAsync(page: SitePageDocument) {
   const [
     modulesResult,
     venueFaqsResult,
-    residentialLife,
     whyNirvana,
     reviews,
     siteMap,
@@ -38,7 +38,6 @@ export async function loadSitePageDataAsync(page: SitePageDocument) {
   ] = await Promise.all([
     getPageModules(page.slug),
     isVenuePage(page.slug) ? getVenueFaqs() : Promise.resolve(null),
-    getResidentialLife().catch(() => null),
     getWhyNirvana().catch(() => null),
     getReviews().catch(() => null),
     getSiteMap().catch(() => null),
@@ -48,23 +47,39 @@ export async function loadSitePageDataAsync(page: SitePageDocument) {
     getTeachers().catch(() => []),
   ]);
 
+  const modules =
+    (await hydrateModulesFromLodgingTables(page.slug, modulesResult.data).catch(
+      () => modulesResult.data,
+    )) ?? modulesResult.data;
+
   const data = loadSitePageData(
     page,
-    modulesResult.data,
+    modules,
     venueFaqsResult?.data.faqs ?? [],
   );
 
   const teachers = resolveSelectedTeachers(
     faculty,
-    modulesResult.data?.teachers?.selectedSlugs,
+    modules?.teachers?.selectedSlugs,
     data.teachers,
   );
+
+  const residentialLife = await resolveProductResidentialLife(
+    "course",
+    modules?.residentialLife,
+    { pageSlug: page.slug },
+  ).catch((error) => {
+    console.error(
+      "[loadSitePageDataAsync] resolveProductResidentialLife failed",
+      error,
+    );
+    return null;
+  });
 
   return {
     ...data,
     teachers,
-    residentialLife:
-      modulesResult.data?.residentialLife ?? residentialLife?.data ?? null,
+    residentialLife,
     whyNirvana: whyNirvana?.data ?? null,
     reviews: reviews?.data ?? null,
     siteMap: siteMap?.data ?? null,

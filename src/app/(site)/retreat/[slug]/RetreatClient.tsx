@@ -8,6 +8,7 @@ import {
   PageHeroRenderer,
 } from "@/components/courses";
 import { RetreatHighlightsBar } from "@/components/retreat";
+import { filterItemsWithPrice } from "@/content/mappers/residential-life-utils";
 import { retreatWhatsAppHref } from "@/content/mappers/retreat-page";
 import {
   hasExamCertificationContent,
@@ -90,6 +91,9 @@ export default function RetreatClient({
     modules?.overview.glance.find((item) => item.label === label)?.value ??
     fallback;
 
+  const publicPricing = filterItemsWithPrice(
+    modules?.pricing.options?.length ? modules.pricing.options : mapped.pricing,
+  );
   const showHero = isSectionLive(modules?.hero);
   const showStickyNav = isSectionLive(modules?.stickyNav);
   const showOverview = isSectionLive(modules?.overview);
@@ -99,7 +103,7 @@ export default function RetreatClient({
   );
   const showPricing = shouldRenderSection(
     modules?.pricing,
-    (modules?.pricing.options ?? mapped.pricing).length > 0,
+    publicPricing.length > 0,
   );
   const faqItems = modules?.faqs.items?.length
     ? modules.faqs.items
@@ -232,7 +236,7 @@ export default function RetreatClient({
           <UpcomingDates
             htmlId={resolveSectionHtmlId("pricing", modules?.pricing._id)}
             duration={modules?.pricing.duration ?? retreat.duration}
-            pricing={modules?.pricing.options ?? mapped.pricing}
+            pricing={publicPricing}
             pricingDescription={
               modules?.pricing.description ?? mapped.pricingDescription
             }

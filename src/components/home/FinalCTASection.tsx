@@ -1,8 +1,8 @@
 import Image from "next/image";
 import { Button, Container, Heading, Pill } from "@/components/ui";
-import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 import type { HomeFinalCtaContent } from "@/content/types/dedicated-pages";
 import { ArrowRight, WhatsApp } from "@/icons";
+import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 import { resolveSectionHtmlId } from "@/lib/html-id";
 
 type FinalCTASectionProps = {

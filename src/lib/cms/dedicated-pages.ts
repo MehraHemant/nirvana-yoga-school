@@ -1,15 +1,10 @@
 import {
-  createEmptyBookingPageContent,
-  createEmptyContactPageContent,
-  createEmptyEnquirePageContent,
-  createEmptyHomePageContent,
-} from "@/lib/cms/structural-defaults";
-import {
   normalizeBookingContent,
   normalizeContactContent,
   normalizeEnquireContent,
   normalizeHomeContent,
 } from "@/content/repositories/dedicated-pages";
+import { upsertPageSeo } from "@/content/repositories/page-seo";
 import type {
   DedicatedPageContent,
   HomePageContent,
@@ -19,6 +14,12 @@ import type {
   ReviewsContent,
 } from "@/content/types/shared-sections";
 import { invalidateContentCache } from "@/lib/cms/cache";
+import {
+  createEmptyBookingPageContent,
+  createEmptyContactPageContent,
+  createEmptyEnquirePageContent,
+  createEmptyHomePageContent,
+} from "@/lib/cms/structural-defaults";
 import { db } from "@/lib/db";
 
 const DEDICATED_SLUGS = ["home", "contact", "enquire-now", "booking"] as const;
@@ -185,5 +186,10 @@ export async function saveDedicatedPageContent(
   });
 
   invalidateContentCache(slug, "site");
+  if ("meta" in content) {
+    await upsertPageSeo(slug, content.meta).catch((error) => {
+      console.error("[dedicated-pages] page SEO sync failed", error);
+    });
+  }
   return page.id;
 }

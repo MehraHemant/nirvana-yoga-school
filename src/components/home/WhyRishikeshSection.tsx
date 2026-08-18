@@ -1,5 +1,5 @@
-import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 import type { HomeWhyRishikeshContent } from "@/content/types/dedicated-pages";
+import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 import { resolveSectionHtmlId } from "@/lib/html-id";
 import {
   fetchYouTubeDuration,

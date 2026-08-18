@@ -9,9 +9,9 @@ import {
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Container, Heading, Pill } from "@/components/ui";
-import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 import type { HomeWhyRishikeshContent } from "@/content/types/dedicated-pages";
 import { Play } from "@/icons";
+import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 import { EASE_OUT, fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 
 const listContainerVariants: Variants = {

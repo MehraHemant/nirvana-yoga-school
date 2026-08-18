@@ -42,8 +42,8 @@ export default function TeachersPageClient({
   facultyId,
 }: TeachersPageClientProps) {
   const prefersReducedMotion = useReducedMotion() ?? false;
-  const [activeSlug, setActiveSlug] = useState(
-    () => teacherSlug(teachers[0]?.name ?? ""),
+  const [activeSlug, setActiveSlug] = useState(() =>
+    teacherSlug(teachers[0]?.name ?? ""),
   );
   const [openedSlug, setOpenedSlug] = useState<string | null>(null);
   const sectionClassName =
@@ -210,20 +210,27 @@ export default function TeachersPageClient({
               </nav>
             </aside>
 
-            {/* Profile stream */}
-            <div className="min-w-0 space-y-6">
+            {/* Profile stream — hairline between teachers, none after the last */}
+            <div className="min-w-0">
               {teachers.map((teacher, i) => {
                 const slug = teacherSlug(teacher.name);
+                const isLast = i === teachers.length - 1;
                 return (
-                  <TeacherProfileCard
+                  <div
                     key={teacher.name}
-                    teacher={teacher}
-                    index={i}
-                    prefersReducedMotion={prefersReducedMotion}
-                    preview={TEACHER_PAGE_PREVIEW}
-                    showMoreMode="toggle"
-                    defaultExpanded={openedSlug === slug}
-                  />
+                    className={
+                      isLast ? undefined : "mb-6 border-b border-ink/10 pb-6"
+                    }
+                  >
+                    <TeacherProfileCard
+                      teacher={teacher}
+                      index={i}
+                      prefersReducedMotion={prefersReducedMotion}
+                      preview={TEACHER_PAGE_PREVIEW}
+                      showMoreMode="toggle"
+                      defaultExpanded={openedSlug === slug}
+                    />
+                  </div>
                 );
               })}
             </div>

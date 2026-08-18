@@ -1,9 +1,9 @@
 "use client";
 
 import { Container, PlatformReviewsRows, SectionHeader } from "@/components/ui";
-import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 import type { HomeReviewsSectionContent } from "@/content/types/dedicated-pages";
 import type { ReviewsContent } from "@/content/types/shared-sections";
+import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 import { resolveSectionHtmlId } from "@/lib/html-id";
 
 type TestimonialsSectionProps = {
@@ -27,9 +27,11 @@ export default function TestimonialsSection({
 }: TestimonialsSectionProps = {}) {
   const eyebrow =
     content?.eyebrow ?? createEmptyHomePageContent().testimonials.eyebrow;
-  const title = content?.title ?? createEmptyHomePageContent().testimonials.title;
+  const title =
+    content?.title ?? createEmptyHomePageContent().testimonials.title;
   const description =
-    content?.description ?? createEmptyHomePageContent().testimonials.description;
+    content?.description ??
+    createEmptyHomePageContent().testimonials.description;
 
   return (
     <section

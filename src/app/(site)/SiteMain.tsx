@@ -62,8 +62,6 @@ export default function SiteMain({
   // Avoid overflow-x-clip here — it breaks `position: sticky` under the viewport
   // scrollport. Pages that need clip apply it on their own article wrappers.
   return (
-    <main className="relative flex min-w-0 flex-1 flex-col">
-      {children}
-    </main>
+    <main className="relative flex min-w-0 flex-1 flex-col">{children}</main>
   );
 }

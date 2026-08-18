@@ -148,7 +148,7 @@ export type HomeWhyRishikeshContent = HomeSectionIdFields & {
   videoCard: HomeWhyRishikeshVideoCard;
 };
 
-/** Homepage course card stored in CMS. */
+/** Homepage course card resolved for public UI. */
 export type HomeCourseCard = {
   title: string;
   duration: string;
@@ -161,9 +161,26 @@ export type HomeCourseCard = {
   highlights: string[];
 };
 
+/**
+ * Ordered residential course placement on the homepage.
+ * Card fields resolve from course documents at read time.
+ */
+export type HomeCourseRef = {
+  /** `pages.slug` for a residential `course` page */
+  courseSlug: string;
+  /** When false, course is hidden on the homepage. Default live. */
+  live?: boolean;
+};
+
 /** Homepage courses grid section. */
 export type HomeCoursesSectionContent = HomeSectionHeaderContent & {
-  cards: HomeCourseCard[];
+  /** Ordered course placements (admin saves refs only). */
+  placements?: HomeCourseRef[];
+  /**
+   * @deprecated Legacy embedded cards. Accepted on read for DB compat;
+   * prefer {@link HomeCourseRef} placements.
+   */
+  cards?: HomeCourseCard[];
 };
 
 export type HomeYogaAllianceCertIconKey = "leaf" | "compass" | "certificate";

@@ -147,11 +147,8 @@ export function SiteOverview({
 }
 
 export function SiteEditorial({ mapped }: Pick<SiteClientProps, "mapped">) {
-  return mapped.editorialSections.map((section, index) => (
-    <PageEditorialSection
-      key={section.title}
-      section={section}
-    />
+  return mapped.editorialSections.map((section, _index) => (
+    <PageEditorialSection key={section.title} section={section} />
   ));
 }
 

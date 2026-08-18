@@ -11,11 +11,11 @@ import {
   PhoneInput,
   SearchableSelect,
 } from "@/components/ui";
-import { createEmptyContactPageContent } from "@/lib/cms/structural-defaults";
 import type { ContactPageContent } from "@/content/types/dedicated-pages";
 import type { SiteMapContent } from "@/content/types/shared-sections";
 import { Check, Compass, Send, WhatsApp } from "@/icons";
 import { shouldRenderSection } from "@/lib/cms/section-visibility";
+import { createEmptyContactPageContent } from "@/lib/cms/structural-defaults";
 import { ACCOMMODATION_PREFERENCE_OPTIONS } from "@/lib/enquire-programs";
 import { optionalSectionHtmlId, resolveSectionHtmlId } from "@/lib/html-id";
 import { openMailtoFallback, submitLead } from "@/lib/leads/submit-lead";

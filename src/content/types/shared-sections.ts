@@ -3,6 +3,8 @@
  * `/api/content/*`.
  */
 
+import type { SectionIdFields } from "@/content/types/page-seo";
+
 /** Optional live flag on shared section documents (default true). */
 export type SharedSectionLiveFields = {
   /** When false, section is hidden wherever it is included. Default true. */
@@ -13,6 +15,10 @@ export type SharedGalleryImage = {
   url: string;
   title: string;
   alt?: string;
+  /** Linked `media_assets.id` when picked from the CMS media library */
+  mediaAssetId?: string;
+  /** Linked `media_images.id` when sourced from the lodging media library */
+  mediaImageId?: string;
   clickAction?: "fullscreen" | "redirect" | "none";
   redirectUrl?: string;
 };
@@ -22,6 +28,7 @@ export type SharedAccommodationGallery = {
   label: string;
   description: string;
   images: SharedGalleryImage[];
+  live: boolean;
 };
 
 export type SharedFacility = {
@@ -31,12 +38,67 @@ export type SharedFacility = {
   note?: string;
 };
 
-export type ResidentialLifeContent = SharedSectionLiveFields & {
-  accommodation: SharedSectionLiveFields & {
-    stay: { title: string; description: string };
-    galleries: SharedAccommodationGallery[];
+/** Shared room catalog scope — course vs retreat rooms tables. */
+export type RoomCatalog = "course" | "retreat";
+
+/** Optional video attached to a room row. */
+export type RoomVideo = {
+  url: string;
+  title?: string;
+  poster?: string;
+};
+
+/** Room row stored in the `rooms` table (shared accommodation catalogs). */
+export type RoomRecord = {
+  id: string;
+  catalog: RoomCatalog;
+  slug: string;
+  name: string;
+  description: string;
+  /** Bullet features shown on public pricing / room cards. */
+  features: string[];
+  images: SharedGalleryImage[];
+  videos: RoomVideo[];
+  sort: number;
+  live: boolean;
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
+};
+
+/** Shared sattvic food section (`courseFood` / `retreatFood` global settings). */
+export type SharedFoodContent = SharedSectionLiveFields & {
+  content: {
+    title: string;
+    description: string;
+    points: string[];
+    dietaryNote: string;
   };
-  food: SharedSectionLiveFields & {
+  gallery: SharedGalleryImage[];
+};
+
+/**
+ * Per-page lodging overrides. Shared rooms/food come from Shared sections;
+ * pages gate Live and may optionally append extras.
+ */
+export type ResidentialLifeContent = SharedSectionLiveFields & {
+  accommodation: SectionIdFields & {
+    /** Catalog used when resolving shared rooms (defaults by page type). */
+    catalog?: RoomCatalog;
+    stay: { title: string; description: string };
+    /**
+     * Legacy per-page room galleries — used only when the shared rooms
+     * catalog is empty.
+     */
+    galleries: SharedAccommodationGallery[];
+    /** Optional page-only rooms appended after the shared catalog. */
+    extraRooms?: SharedAccommodationGallery[];
+    /**
+     * Shared room ids Live on this page (accommodation + linked pricing).
+     * Omit = all catalog rooms Live (legacy). Empty array = none Live.
+     */
+    roomIds?: string[];
+  };
+  food: SectionIdFields & {
     content: {
       title: string;
       description: string;
@@ -44,6 +106,10 @@ export type ResidentialLifeContent = SharedSectionLiveFields & {
       dietaryNote: string;
     };
     gallery: SharedGalleryImage[];
+    /** Page-only food points appended after shared food. */
+    extraPoints?: string[];
+    /** Page-only food images appended after shared food. */
+    extraGallery?: SharedGalleryImage[];
   };
   facilities: SharedFacility[];
 };
@@ -190,6 +256,10 @@ export const GLOBAL_SHARED_SECTION_KEYS = [
   "instagram",
   "travel",
   "examCertification",
+  "residentialLife",
+  "retreatAccommodation",
+  "courseFood",
+  "retreatFood",
 ] as const;
 
 /** @see GLOBAL_SHARED_SECTION_KEYS */

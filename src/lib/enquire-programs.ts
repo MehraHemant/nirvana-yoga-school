@@ -1,12 +1,7 @@
 import type { SearchableSelectOption } from "@/components/ui";
-import {
-  ONLINE_COURSE_SLUGS,
-  RESIDENTIAL_COURSE_SLUGS,
-  RETREAT_SLUGS,
-} from "@/content/pages/slugs";
-import { getPageLabel } from "@/content/repositories/page-labels";
+import { RETREAT_SLUGS } from "@/content/pages/slugs";
 
-const RETREAT_PROGRAM_SLUGS = RETREAT_SLUGS.filter(
+const _RETREAT_PROGRAM_SLUGS = RETREAT_SLUGS.filter(
   (slug) => slug !== "retreat-booking",
 );
 

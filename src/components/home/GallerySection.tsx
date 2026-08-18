@@ -4,11 +4,11 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { Container, MediaLightbox, SectionHeader } from "@/components/ui";
-import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 import type {
   HomeGalleryItem,
   HomeGallerySectionContent,
 } from "@/content/types/dedicated-pages";
+import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 import { resolveSectionHtmlId } from "@/lib/html-id";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 

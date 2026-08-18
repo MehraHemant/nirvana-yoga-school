@@ -1,7 +1,7 @@
-import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 import type { HomeMapSectionContent } from "@/content/types/dedicated-pages";
 import type { SiteMapContent } from "@/content/types/shared-sections";
 import { shouldRenderSection } from "@/lib/cms/section-visibility";
+import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 import { resolveSectionHtmlId } from "@/lib/html-id";
 
 type MapSectionProps = {
