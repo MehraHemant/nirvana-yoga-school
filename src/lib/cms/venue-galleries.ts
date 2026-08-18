@@ -31,11 +31,13 @@ export function createRetreatVenueGallery(): GalleryModule {
     ...folderImages("retreat-venue/hall", 3, "yogahall"),
     ...folderImages("retreat-venue/private", 10, "private"),
     ...folderImages("retreat-venue/2-shared", 12, "2 shared"),
-    ...folderImages("retreat-venue/hall", 3, "premisis").map((image, index) => ({
-      ...image,
-      url: `${SITE}/img/retreat-venue/private/${Math.min(index + 8, 10)}.webp`,
-      category: "premisis",
-    })),
+    ...folderImages("retreat-venue/hall", 3, "premisis").map(
+      (image, index) => ({
+        ...image,
+        url: `${SITE}/img/retreat-venue/private/${Math.min(index + 8, 10)}.webp`,
+        category: "premisis",
+      }),
+    ),
   ];
 
   return {
@@ -49,17 +51,20 @@ export function createRetreatVenueGallery(): GalleryModule {
       {
         id: "yogahall",
         label: "Yoga Hall",
-        description: "Light-filled practice spaces for asana, meditation, and sound.",
+        description:
+          "Light-filled practice spaces for asana, meditation, and sound.",
       },
       {
         id: "private",
         label: "Private Room With Balcony",
-        description: "Quiet private rooms with balcony views for rest and reflection.",
+        description:
+          "Quiet private rooms with balcony views for rest and reflection.",
       },
       {
         id: "2 shared",
         label: "2-Shared Room With Balcony",
-        description: "Twin-sharing rooms with balcony access — comfortable and community-friendly.",
+        description:
+          "Twin-sharing rooms with balcony access — comfortable and community-friendly.",
       },
       {
         id: "premisis",

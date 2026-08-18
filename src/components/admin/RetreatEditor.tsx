@@ -24,16 +24,15 @@ import { TextField } from "@/components/admin/TextField";
 import { useAdminSectionAccordion } from "@/components/admin/useAdminSectionAccordion";
 import { useSectionScrollSpy } from "@/components/admin/useSectionScrollSpy";
 import { useStableListKeys } from "@/components/admin/useStableListKeys";
-import { hasResidentialLifeContent } from "@/content/mappers/residential-life-utils";
-import { createEmptyResidentialLife } from "@/lib/cms/structural-defaults";
-import { retreatAccommodationToResidentialLife } from "@/content/mappers/residential-life";
+import {
+  roomFeesFromLinkedItems,
+  upsertRetreatPackageForRoom,
+} from "@/content/mappers/page-room-fees";
 import { createEmptyPageModules } from "@/content/page-modules-defaults";
 import type { PageModulesDocument, RetreatDocument } from "@/content/types";
-import type {
-  ResidentialLifeContent,
-  RetreatAccommodationContent,
-} from "@/content/types/shared-sections";
+import type { RoomRecord } from "@/content/types/shared-sections";
 import { sharedSectionLinksForLayout } from "@/lib/cms/page-layout-registry";
+import { createEmptyResidentialLife } from "@/lib/cms/structural-defaults";
 import { parseApiJson } from "@/lib/types/api";
 
 type RetreatEditorProps = {
@@ -64,18 +63,14 @@ const RETREAT_JUMP_SECTIONS = [
   { slug: "faq", label: "FAQ" },
 ] as const;
 
-const RETREAT_PANEL_KEYS = RETREAT_JUMP_SECTIONS.map(
-  (section) => section.slug,
-);
+const RETREAT_PANEL_KEYS = RETREAT_JUMP_SECTIONS.map((section) => section.slug);
 
 /**
  * True when overview presentation fields are unset (legacy product-only pages).
  *
  * @param overview - Overview module from page_modules
  */
-function isOverviewEmpty(
-  overview: PageModulesDocument["overview"],
-): boolean {
+function isOverviewEmpty(overview: PageModulesDocument["overview"]): boolean {
   return (
     !overview.eyebrow?.trim() &&
     !overview.title?.trim() &&
@@ -210,11 +205,12 @@ export function RetreatEditor({
 
   const highlightKeys = useStableListKeys(retreat.highlights.length);
   const dayKeys = useStableListKeys(retreat.schedule.length);
-  const packageKeys = useStableListKeys(retreat.packages.length);
-  const dateKeys = useStableListKeys(retreat.dates.length);
+  const dateKeys = useStableListKeys(
+    Math.max(retreat.dates.length, modules.pricing.batches?.length ?? 0),
+  );
+  const [catalogRooms, setCatalogRooms] = useState<RoomRecord[]>([]);
   const { openOnly, panelOpenProps } =
     useAdminSectionAccordion(RETREAT_PANEL_KEYS);
-
   useEffect(() => {
     const nextModules = retreatModules(initialModules, initialRetreat);
     setRetreat(initialRetreat);
@@ -227,52 +223,52 @@ export function RetreatEditor({
   }, [initialRetreat, initialModules]);
 
   useEffect(() => {
-    if (hasResidentialLifeContent(modules.residentialLife)) return;
-
-    // One-time migrate from legacy retreat lodging shape when present.
-    if (modules.retreatAccommodation) {
-      const legacy = modules.retreatAccommodation;
-      setModules((prev) =>
-        hasResidentialLifeContent(prev.residentialLife)
-          ? prev
-          : {
-              ...prev,
-              residentialLife: retreatAccommodationToResidentialLife(legacy),
-            },
-      );
-      return;
-    }
-
     let cancelled = false;
-    // Prefer retreat lodging defaults — not the YTT course residentialLife set.
-    fetch("/api/admin/settings/retreatAccommodation")
-      .then((res) =>
-        parseApiJson<{ settings: RetreatAccommodationContent }>(res),
-      )
+    fetch("/api/admin/rooms?catalog=retreat")
+      .then((res) => parseApiJson<{ rooms: RoomRecord[] }>(res))
       .then((body) => {
-        if (cancelled) return;
-        setModules((prev) =>
-          hasResidentialLifeContent(prev.residentialLife)
-            ? prev
-            : {
-                ...prev,
-                residentialLife: body.settings
-                  ? retreatAccommodationToResidentialLife(body.settings)
-                  : createEmptyResidentialLife(),
-              },
-        );
+        if (!cancelled) setCatalogRooms(body.rooms ?? []);
       })
       .catch(() => {
-        setModules((prev) =>
-          hasResidentialLifeContent(prev.residentialLife)
-            ? prev
-            : { ...prev, residentialLife: createEmptyResidentialLife() },
-        );
+        if (!cancelled) setCatalogRooms([]);
       });
     return () => {
       cancelled = true;
     };
-  }, [modules.residentialLife, modules.retreatAccommodation]);
+  }, []);
+
+  const packageByRoomId = useMemo(() => {
+    const map = new Map(
+      retreat.packages
+        .filter((pkg) => pkg.roomId)
+        .map((pkg) => [pkg.roomId ?? "", pkg]),
+    );
+    return map;
+  }, [retreat.packages]);
+
+  // Admin packages list: all Shared Live rooms (ignores per-page lodging Live).
+  const packageOfferSummary = useMemo(() => {
+    const sharedLive = catalogRooms.filter((room) => room.live);
+    if (sharedLive.length > 0 || catalogRooms.length > 0) {
+      return sharedLive.map((room) => {
+        const pkg = packageByRoomId.get(room.id);
+        return {
+          roomId: room.id,
+          name: pkg?.title || room.name || room.slug,
+          price: pkg?.price || "",
+          originalPrice: pkg?.originalPrice || "",
+        };
+      });
+    }
+    return retreat.packages
+      .filter((pkg) => Boolean(pkg.roomId))
+      .map((pkg) => ({
+        roomId: pkg.roomId ?? pkg.title,
+        name: pkg.title || "Package",
+        price: pkg.price || "",
+        originalPrice: pkg.originalPrice || "",
+      }));
+  }, [catalogRooms, packageByRoomId, retreat.packages]);
 
   const jumpItems = useMemo(
     () =>
@@ -366,8 +362,8 @@ export function RetreatEditor({
           </Link>
           <h1 className="admin-title">{retreat.title}</h1>
           <p className="admin-subtitle">
-            Retreat layout — overview/pricing presentation via page modules;
-            day schedule, packages, lodging (no syllabus).
+            Retreat layout — overview/pricing presentation via page modules; day
+            schedule, packages, lodging (no syllabus).
           </p>
         </div>
         <a
@@ -422,6 +418,7 @@ export function RetreatEditor({
             <HeroModuleEditor
               hero={modules.hero}
               onChange={(hero) => setModules({ ...modules, hero })}
+              layoutId="retreat"
               panelId={panelId("hero")}
               step={2}
               {...panelOpenProps("hero")}
@@ -509,9 +506,7 @@ export function RetreatEditor({
           <div className="admin-section-shell">
             <InclusionsModuleEditor
               inclusions={modules.inclusions}
-              onChange={(inclusions) =>
-                setModules({ ...modules, inclusions })
-              }
+              onChange={(inclusions) => setModules({ ...modules, inclusions })}
               panelId={panelId("inclusions")}
               step={6}
               description="What is included on the public retreat page."
@@ -589,21 +584,30 @@ export function RetreatEditor({
             <CollapsiblePanel
               id={panelId("accommodation")}
               step={9}
-              title="Accommodation & food"
-              subtitle="Per-page lodging — not shared globally"
-              description="Same lodging & food editor as yoga courses. Edit room galleries, food, and facilities for this retreat."
+              title="Lodging & food"
+              subtitle="Per-room Live and prices"
+              description="Lists shared Retreat accommodation rooms. Toggle Live and set prices here — source of truth for room fees. Edit room photos/names under Shared sections."
               {...panelOpenProps("accommodation")}
             >
-              {modules.residentialLife ? (
-                <ResidentialLifeFields
-                  doc={modules.residentialLife}
-                  onChange={(residentialLife) =>
-                    setModules({ ...modules, residentialLife })
-                  }
-                />
-              ) : (
-                <p className="admin-hint">Loading lodging defaults…</p>
-              )}
+              <ResidentialLifeFields
+                catalog="retreat"
+                pageSlug={slug}
+                doc={modules.residentialLife ?? createEmptyResidentialLife()}
+                onChange={(residentialLife) =>
+                  setModules({ ...modules, residentialLife })
+                }
+                roomFees={roomFeesFromLinkedItems(retreat.packages)}
+                onRoomFeeChange={(room, fee) =>
+                  setRetreat({
+                    ...retreat,
+                    packages: upsertRetreatPackageForRoom(
+                      retreat.packages,
+                      room,
+                      fee,
+                    ),
+                  })
+                }
+              />
             </CollapsiblePanel>
           </div>
 
@@ -612,7 +616,7 @@ export function RetreatEditor({
               id={panelId("packages")}
               step={10}
               title="Packages & dates"
-              subtitle="Pricing intro copy lives in page modules; packages/dates stay on the retreat product"
+              subtitle="Dates only — room fees come from Lodging"
               {...panelOpenProps("packages")}
             >
               <TextField
@@ -637,64 +641,143 @@ export function RetreatEditor({
                   })
                 }
               />
-              {retreat.packages.map((pkg, index) => (
-                <div
-                  key={packageKeys.keys[index]}
-                  className="admin-nested-card"
-                >
-                  <TextField
-                    label="Package title"
-                    value={pkg.title}
-                    onChange={(title) => {
-                      const packages = [...retreat.packages];
-                      packages[index] = { ...pkg, title };
-                      setRetreat({ ...retreat, packages });
+              <p className="admin-hint">
+                Lists all rooms marked Live in Shared retreat accommodation.
+                Per-page lodging Live only affects the public accommodation
+                gallery. Edit prices under Lodging &amp; food; manage upcoming
+                dates below.
+              </p>
+              <div className="admin-compact-table-scroll">
+                <div className="admin-compact-table admin-compact-table--pricing-fees">
+                  <div className="admin-compact-table-head admin-compact-table-row">
+                    <span className="admin-compact-col admin-compact-col--num">
+                      #
+                    </span>
+                    <span className="admin-compact-col admin-compact-col--name">
+                      Room
+                    </span>
+                    <span className="admin-compact-col admin-compact-col--price">
+                      Price
+                    </span>
+                    <span className="admin-compact-col admin-compact-col--price">
+                      Original
+                    </span>
+                  </div>
+                  {packageOfferSummary.length === 0 ? (
+                    <div className="admin-empty-card">
+                      <p>
+                        No Shared Live rooms yet. Mark rooms Live under Shared
+                        sections, then set prices under Lodging &amp; food.
+                      </p>
+                    </div>
+                  ) : (
+                    packageOfferSummary.map((row, index) => (
+                      <div key={row.roomId} className="admin-compact-table-row">
+                        <span className="admin-compact-col admin-compact-col--num">
+                          {index + 1}
+                        </span>
+                        <span className="admin-compact-col admin-compact-col--name">
+                          <span className="admin-page-room-name">
+                            {row.name}
+                          </span>
+                        </span>
+                        <span className="admin-compact-col admin-compact-col--price admin-pricing-fee-value">
+                          {row.price || "—"}
+                        </span>
+                        <span className="admin-compact-col admin-compact-col--price admin-pricing-fee-value admin-pricing-fee-value--muted">
+                          {row.originalPrice || "—"}
+                        </span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+              <div className="admin-field" style={{ marginTop: "1rem" }}>
+                <div className="admin-field-header">
+                  <span className="admin-label">Upcoming dates</span>
+                  <button
+                    type="button"
+                    className="admin-btn-sm"
+                    onClick={() => {
+                      dateKeys.addKey();
+                      setRetreat({
+                        ...retreat,
+                        dates: [
+                          ...retreat.dates,
+                          { range: "", availability: "" },
+                        ],
+                      });
+                      const tone = "open" as const;
+                      setModules({
+                        ...modules,
+                        pricing: {
+                          ...modules.pricing,
+                          batches: [
+                            ...(modules.pricing.batches ?? []),
+                            {
+                              dates: "",
+                              spaces: "",
+                              tone,
+                              status: "Open",
+                              statusColor:
+                                "text-emerald-700 bg-emerald-50 border-emerald-200",
+                            },
+                          ],
+                        },
+                      });
                     }}
-                  />
-                  <div className="admin-grid-2">
+                  >
+                    Add date
+                  </button>
+                </div>
+                {(modules.pricing.batches ?? []).map((batch, index) => (
+                  <div
+                    key={dateKeys.keys[index] ?? index}
+                    className="admin-grid-2"
+                  >
                     <TextField
-                      label="Price"
-                      value={pkg.price}
-                      onChange={(price) => {
-                        const packages = [...retreat.packages];
-                        packages[index] = { ...pkg, price };
-                        setRetreat({ ...retreat, packages });
+                      label="Dates"
+                      value={batch.dates}
+                      onChange={(dates) => {
+                        const batches = [...(modules.pricing.batches ?? [])];
+                        batches[index] = { ...batch, dates };
+                        setModules({
+                          ...modules,
+                          pricing: { ...modules.pricing, batches },
+                        });
+                        const retreatDates = [...retreat.dates];
+                        if (retreatDates[index]) {
+                          retreatDates[index] = {
+                            ...retreatDates[index],
+                            range: dates,
+                          };
+                          setRetreat({ ...retreat, dates: retreatDates });
+                        }
                       }}
                     />
                     <TextField
-                      label="Original price"
-                      value={pkg.originalPrice ?? ""}
-                      onChange={(originalPrice) => {
-                        const packages = [...retreat.packages];
-                        packages[index] = { ...pkg, originalPrice };
-                        setRetreat({ ...retreat, packages });
+                      label="Seats / availability"
+                      value={batch.spaces}
+                      onChange={(spaces) => {
+                        const batches = [...(modules.pricing.batches ?? [])];
+                        batches[index] = { ...batch, spaces };
+                        setModules({
+                          ...modules,
+                          pricing: { ...modules.pricing, batches },
+                        });
+                        const retreatDates = [...retreat.dates];
+                        if (retreatDates[index]) {
+                          retreatDates[index] = {
+                            ...retreatDates[index],
+                            availability: spaces,
+                          };
+                          setRetreat({ ...retreat, dates: retreatDates });
+                        }
                       }}
                     />
                   </div>
-                </div>
-              ))}
-              {retreat.dates.map((date, index) => (
-                <div key={dateKeys.keys[index]} className="admin-grid-2">
-                  <TextField
-                    label="Date range"
-                    value={date.range}
-                    onChange={(range) => {
-                      const dates = [...retreat.dates];
-                      dates[index] = { ...date, range };
-                      setRetreat({ ...retreat, dates });
-                    }}
-                  />
-                  <TextField
-                    label="Availability"
-                    value={date.availability}
-                    onChange={(availability) => {
-                      const dates = [...retreat.dates];
-                      dates[index] = { ...date, availability };
-                      setRetreat({ ...retreat, dates });
-                    }}
-                  />
-                </div>
-              ))}
+                ))}
+              </div>
             </CollapsiblePanel>
           </div>
 

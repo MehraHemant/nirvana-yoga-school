@@ -14,6 +14,8 @@ export type RetreatScheduleDay = {
 };
 
 export type RetreatPackage = {
+  /** Shared retreat room id when this package maps to a catalog room. */
+  roomId?: string;
   title: string;
   price: string;
   originalPrice?: string;

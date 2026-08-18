@@ -9,6 +9,7 @@ import type {
 } from "@/content/types/shared-sections";
 import { Check } from "@/icons";
 import { shouldRenderSection } from "@/lib/cms/section-visibility";
+import { resolveSectionHtmlId } from "@/lib/html-id";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 import { ImageGalleryPanel } from "./AccommodationGalleryPanel";
 import {
@@ -25,25 +26,27 @@ type LightboxState = {
 type FoodProps = {
   /** Server-provided residential-life content */
   content?: ResidentialLifeContent | null;
+  /** Optional override for the section HTML id */
+  htmlId?: string;
 };
 
 /**
  * Sattvic food & dining section — photo gallery on the left, copy on the right.
- * Anchor: `#food`.
+ * Default anchor: `#food`.
  *
  * @param props - Server-provided residential-life content
  */
-export default function Food({ content = null }: FoodProps = {}) {
+export default function Food({ content = null, htmlId }: FoodProps = {}) {
   const [lightbox, setLightbox] = useState<LightboxState>(null);
 
   const foodContent = content?.food.content;
   const gallery = content?.food.gallery ?? [];
   const hasData = Boolean(
     foodContent &&
-      (foodContent.title.trim() ||
-        foodContent.description.trim() ||
-        foodContent.points.length > 0 ||
-        gallery.length > 0),
+    (foodContent.title.trim() ||
+      foodContent.description.trim() ||
+      foodContent.points.length > 0 ||
+      gallery.length > 0),
   );
   const isLive =
     shouldRenderSection(content, hasData) &&
@@ -51,9 +54,11 @@ export default function Food({ content = null }: FoodProps = {}) {
 
   if (!content || !foodContent || !isLive) return null;
 
+  const sectionId = htmlId ?? resolveSectionHtmlId("food", content.food._id);
+
   return (
     <section
-      id="food"
+      id={sectionId}
       className="relative overflow-hidden bg-white py-8 sm:py-10"
     >
       <div
@@ -123,23 +128,23 @@ export default function Food({ content = null }: FoodProps = {}) {
             </div>
           </div>
         </div>
-
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={VIEWPORT_ONCE}
-          variants={fadeUp}
-          className="mt-6 lg:mt-8"
-        >
-          <div className="rounded-2xl border border-secondary/15 bg-secondary/5 p-4 sm:p-5">
-            <p className="type-eyebrow mb-1 text-secondary">
-              Something in particular?
-            </p>
-            <p className="type-ui max-w-4xl leading-relaxed text-muted">
-              {foodContent.dietaryNote}
-            </p>
-          </div>
-        </motion.div>
+        {foodContent.dietaryNote ?
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={VIEWPORT_ONCE}
+            variants={fadeUp}
+            className="mt-6 lg:mt-8"
+          >
+            <div className="rounded-2xl border border-secondary/15 bg-secondary/5 p-4 sm:p-5">
+              <p className="type-eyebrow mb-1 text-secondary">
+                Something in particular?
+              </p>
+              <p className="type-ui max-w-4xl leading-relaxed text-muted">
+                {foodContent.dietaryNote}
+              </p>
+            </div>
+          </motion.div> : null}
       </Container>
 
       <MediaLightbox

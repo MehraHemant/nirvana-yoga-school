@@ -9,7 +9,7 @@ type AccommodationFoodProps = {
 
 /**
  * Shared lodging + food block for courses, retreats, venues, hubs, and kirtan.
- * Renders `#accommodation` and `#food` with the same CMS `residentialLife` shape.
+ * Renders accommodation and food with the same CMS `residentialLife` shape.
  *
  * @param props - Server-provided residential-life content
  */

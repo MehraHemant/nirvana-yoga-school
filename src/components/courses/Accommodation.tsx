@@ -11,6 +11,7 @@ import type {
   SharedGalleryImage,
 } from "@/content/types/shared-sections";
 import { shouldRenderSection } from "@/lib/cms/section-visibility";
+import { resolveSectionHtmlId } from "@/lib/html-id";
 import {
   EASE_OUT,
   fadeUp,
@@ -82,6 +83,7 @@ function RoomTypeSelector({
                       alt={room.label}
                       fill
                       sizes="48px"
+                      unoptimized
                       className={`object-cover transition-transform duration-500 ${
                         isActive ? "scale-105" : "group-hover:scale-105"
                       }`}
@@ -171,16 +173,19 @@ function FacilitiesGrid({ facilities }: { facilities: SharedFacility[] }) {
 type AccommodationProps = {
   /** Server-provided residential-life content */
   content?: ResidentialLifeContent | null;
+  /** Optional override for the section HTML id */
+  htmlId?: string;
 };
 
 /**
  * Ashram lodging section — room-type selector with a synced photo gallery and
- * a campus facilities grid. Anchor: `#accommodation`.
+ * a campus facilities grid. Default anchor: `#accommodation`.
  *
  * @param props - Server-provided residential-life content
  */
 export default function Accommodation({
   content = null,
+  htmlId,
 }: AccommodationProps = {}) {
   const prefersReduced = useReducedMotion() ?? false;
   const galleries = content?.accommodation.galleries ?? [];
@@ -202,16 +207,28 @@ export default function Accommodation({
 
   const activeRoom =
     galleries.find((gallery) => gallery.id === roomTab) ?? galleries[0];
+  const sectionId =
+    htmlId ?? resolveSectionHtmlId("accommodation", content.accommodation._id);
 
   return (
     <section
-      id="accommodation"
+      id={sectionId}
       className="relative overflow-hidden bg-white py-8 sm:py-10"
     >
       <div
         className="absolute left-[-8%] top-[40%] w-[240px] h-[240px] rounded-full bg-primary/5 blur-[80px] pointer-events-none"
         aria-hidden="true"
       />
+
+      {/* Hidden preloader for room tab cover photos */}
+      <div className="hidden" aria-hidden="true">
+        {galleries.map((room) =>
+          room.images[0]?.url ? (
+            /* biome-ignore lint/performance/noImgElement: preloader */
+            <img key={`preload-${room.id}`} src={room.images[0].url} alt="" />
+          ) : null,
+        )}
+      </div>
 
       <Container size="2xl" className="relative w-full">
         <div className="grid items-start gap-6 lg:grid-cols-12 lg:gap-8 xl:gap-10">

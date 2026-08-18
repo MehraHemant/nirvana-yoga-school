@@ -152,6 +152,7 @@ export function ImageGalleryPanel({
                 alt={activeAlt}
                 fill
                 priority={activeIndex === 0}
+                unoptimized
                 sizes="(max-width: 1024px) 100vw, 45vw"
                 className="object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-[1.03]"
               />
@@ -240,6 +241,7 @@ export function ImageGalleryPanel({
                       alt={item.alt || item.title}
                       fill
                       sizes="80px"
+                      unoptimized
                       className="object-cover"
                     />
                   </button>

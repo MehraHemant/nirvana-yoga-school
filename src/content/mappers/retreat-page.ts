@@ -22,6 +22,7 @@ function lowestFee(packages: RetreatDocument["packages"]): string {
 
 function mapPricing(packages: RetreatDocument["packages"]): PricingOption[] {
   return packages.map((pkg) => ({
+    roomId: pkg.roomId,
     roomType: pkg.title,
     price: pkg.price,
     originalPrice: pkg.originalPrice,
