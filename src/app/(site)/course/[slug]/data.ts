@@ -1,13 +1,14 @@
 import { extractMediaFromModules } from "@/content/mappers/page-modules";
+import { hydrateModulesFromLodgingTables } from "@/content/repositories/lodging-sync";
 import { getPageModules } from "@/content/repositories/page-modules";
 import {
   getExamCertification,
   getInstagramFeed,
-  getResidentialLife,
   getReviews,
   getSiteMap,
   getTravelGuide,
   getWhyNirvana,
+  resolveProductResidentialLife,
 } from "@/content/repositories/shared-sections";
 import type { CourseMedia, ResidentialCourseDocument } from "@/content/types";
 import { fetchYouTubeVideos } from "@/lib/youtube";
@@ -25,7 +26,6 @@ export async function loadCoursePageData(
 ): Promise<CoursePageData> {
   const [
     modulesResult,
-    residentialLife,
     whyNirvana,
     reviews,
     siteMap,
@@ -34,7 +34,6 @@ export async function loadCoursePageData(
     examCertification,
   ] = await Promise.all([
     getPageModules(slug),
-    getResidentialLife().catch(() => null),
     getWhyNirvana().catch(() => null),
     getReviews().catch(() => null),
     getSiteMap().catch(() => null),
@@ -46,7 +45,10 @@ export async function loadCoursePageData(
     }),
   ]);
 
-  const modules = modulesResult.data;
+  const modules =
+    (await hydrateModulesFromLodgingTables(slug, modulesResult.data).catch(
+      () => modulesResult.data,
+    )) ?? modulesResult.data;
 
   const media: CourseMedia = modules
     ? extractMediaFromModules(modules)
@@ -55,13 +57,24 @@ export async function loadCoursePageData(
   const videos = await fetchYouTubeVideos(
     media.videos.map((id) => `https://www.youtube.com/watch?v=${id}`),
   );
+  const residentialLife = await resolveProductResidentialLife(
+    "course",
+    modules?.residentialLife,
+    { pageSlug: slug },
+  ).catch((error) => {
+    console.error(
+      "[loadCoursePageData] resolveProductResidentialLife failed",
+      error,
+    );
+    return null;
+  });
 
   return {
     course,
     media,
     videos,
     modules,
-    residentialLife: modules?.residentialLife ?? residentialLife?.data ?? null,
+    residentialLife,
     whyNirvana: whyNirvana?.data ?? null,
     reviews: reviews?.data ?? null,
     siteMap: siteMap?.data ?? null,

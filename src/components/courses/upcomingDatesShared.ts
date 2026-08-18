@@ -1,4 +1,6 @@
 export interface PricingOption {
+  /** Shared room id when linked to the catalog */
+  roomId?: string;
   roomType: string;
   price: string;
   originalPrice?: string;
@@ -39,26 +41,6 @@ export type BatchItem = {
   statusColor: string;
   tone: "open" | "fast" | "last";
 };
-
-export function getRoomImage(roomType: string, override?: string) {
-  if (override) return override;
-  const type = roomType.toLowerCase();
-  if (type.includes("without") || type.includes("no accom")) {
-    return "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&auto=format&fit=crop&q=80";
-  }
-  if (type.includes("4") || type.includes("dorm") || type.includes("four")) {
-    return "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=800&auto=format&fit=crop&q=80";
-  }
-  if (
-    type.includes("double") ||
-    type.includes("2") ||
-    type.includes("shared") ||
-    type.includes("two")
-  ) {
-    return "https://images.unsplash.com/photo-1598928506311-c55ded91a20c?w=800&auto=format&fit=crop&q=80";
-  }
-  return "https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=800&auto=format&fit=crop&q=80";
-}
 
 // Actual course dates with real seat availability
 export function getBatchDates(_durationStr: string): BatchItem[] {
@@ -132,11 +114,3 @@ export function bookingReserveHref(
   });
   return `${base}?${params.toString()}`;
 }
-
-export const BOOKING_GUARANTEE = {
-  deposit: "$200 USD",
-  lines: [
-    "A registration deposit secures your reservation. The remaining balance is payable on arrival via cash or card.",
-    "All deposits are transferable to future dates up to 12 months in advance.",
-  ],
-};

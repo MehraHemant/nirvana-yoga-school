@@ -66,9 +66,7 @@ const ONLINE_PANEL_KEYS = ONLINE_COURSE_JUMP_SECTIONS.map(
  *
  * @param overview - Overview module from page_modules
  */
-function isOverviewEmpty(
-  overview: PageModulesDocument["overview"],
-): boolean {
+function isOverviewEmpty(overview: PageModulesDocument["overview"]): boolean {
   return (
     !overview.eyebrow?.trim() &&
     !overview.title?.trim() &&
@@ -110,10 +108,7 @@ function withProductModuleFallbacks(
     };
   }
 
-  if (
-    !next.pricing.description?.trim() &&
-    course.pricingDescription?.trim()
-  ) {
+  if (!next.pricing.description?.trim() && course.pricingDescription?.trim()) {
     next = {
       ...next,
       pricing: {
@@ -332,6 +327,7 @@ export function OnlineCourseEditor({
             <HeroModuleEditor
               hero={modules.hero}
               onChange={(hero) => setModules({ ...modules, hero })}
+              layoutId="onlineCourse"
               panelId={panelId("hero")}
               step={2}
               {...panelOpenProps("hero")}
@@ -434,9 +430,7 @@ export function OnlineCourseEditor({
           <div className="admin-section-shell">
             <InclusionsModuleEditor
               inclusions={modules.inclusions}
-              onChange={(inclusions) =>
-                setModules({ ...modules, inclusions })
-              }
+              onChange={(inclusions) => setModules({ ...modules, inclusions })}
               panelId={panelId("inclusions")}
               step={6}
               description="What is included on the public online course page."

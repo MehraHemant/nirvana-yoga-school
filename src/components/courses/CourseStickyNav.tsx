@@ -134,11 +134,11 @@ export default function CourseStickyNav({
 
   const syncSectionMargins = useCallback(() => {
     const line = getScrollLine();
-    for (const item of navItems) {
-      const el = document.getElementById(item.id.slice(1));
-      if (el) el.style.scrollMarginTop = `${line}px`;
-    }
-  }, [getScrollLine, navItems]);
+    document.documentElement.style.setProperty(
+      "--course-sticky-scroll-line",
+      `${line}px`,
+    );
+  }, [getScrollLine]);
 
   const updateScrollFades = useCallback(() => {
     const container = scrollRef.current;

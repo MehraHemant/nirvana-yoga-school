@@ -7,6 +7,7 @@ import {
   CourseStickyNav,
   PageHeroRenderer,
 } from "@/components/courses";
+import { publicPricingOptionsWithFees } from "@/content/mappers/page-room-fees";
 import {
   hasExamCertificationContent,
   isSectionLive,
@@ -106,6 +107,9 @@ export default function CourseClient({
     glance.find((g) => g.label === "Program Fee")?.value ?? course.fee;
 
   const faqItems = m?.faqs.items ?? course.faqs;
+  const publicPricing = publicPricingOptionsWithFees(
+    m?.pricing.options ?? course.pricing,
+  );
   const showHero = isSectionLive(m?.hero);
   const showStickyNav = isSectionLive(m?.stickyNav);
   const showOverview = isSectionLive(m?.overview);
@@ -122,10 +126,7 @@ export default function CourseClient({
     m?.schedule,
     (m?.schedule.items ?? course.schedule).length > 0,
   );
-  const showPricing = shouldRenderSection(
-    m?.pricing,
-    (m?.pricing.options ?? course.pricing).length > 0,
-  );
+  const showPricing = shouldRenderSection(m?.pricing, publicPricing.length > 0);
   const showFaqs = shouldRenderSection(m?.faqs, faqItems.length > 0);
   const showAccommodation = m?.flags.showAccommodation ?? true;
   const showWhyNirvana =
@@ -287,7 +288,7 @@ export default function CourseClient({
           <UpcomingDates
             htmlId={resolveSectionHtmlId("pricing", m?.pricing._id)}
             duration={m?.pricing.duration ?? course.duration}
-            pricing={m?.pricing.options ?? course.pricing}
+            pricing={publicPricing}
             pricingDescription={
               m?.pricing.description ?? course.pricingDescription
             }

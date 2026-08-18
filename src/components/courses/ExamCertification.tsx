@@ -88,9 +88,7 @@ export default function ExamCertification({ content }: ExamCertificationProps) {
               {showSteps ? (
                 <div
                   className={
-                    showCertificates
-                      ? "lg:col-span-7 space-y-8"
-                      : "space-y-8"
+                    showCertificates ? "lg:col-span-7 space-y-8" : "space-y-8"
                   }
                 >
                   {steps.map((step, index) => (

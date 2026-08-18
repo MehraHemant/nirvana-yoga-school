@@ -15,6 +15,10 @@ import {
   normalizeCmsImage,
 } from "@/content/types/cms-image";
 import { ChevronLeft, ChevronRight, Play } from "@/icons";
+import {
+  cloudinaryHeroUrl,
+  cloudinarySizedUrl,
+} from "@/lib/cdn/cloudinary-thumb-url";
 import { parseYouTubeId, YOUTUBE_METADATA_REGISTRY } from "@/lib/youtube";
 
 // ─── Props ───────────────────────────────────────────────────────────────────
@@ -46,6 +50,11 @@ type HeroPhoto = CmsInteractiveImage & {
   tag?: string;
   pictured?: string;
 };
+
+const HERO_MAIN_WIDTH = 1280;
+const HERO_BENTO_WIDTH = 480;
+const HERO_THUMB_WIDTH = 160;
+const HERO_PRELOAD_WIDTH = 640;
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -194,6 +203,11 @@ export default function CourseHero({
   const [lightboxIdx, setLightboxIdx] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
 
+  const stripTotal = photos.length + videoIds.length;
+  const activeStripIndex = activeVideoId
+    ? photos.length + Math.max(0, videoIds.indexOf(activeVideoId))
+    : photoIdx;
+
   // ── Auto-advance ──────────────────────────────────────────────────────────
   useEffect(() => {
     if (prefersReduced || hovered || activeVideoId || photos.length <= 1)
@@ -205,8 +219,9 @@ export default function CourseHero({
     return () => clearInterval(t);
   }, [prefersReduced, hovered, activeVideoId, photos.length]);
 
-  // ── Preload adjacent images ───────────────────────────────────────────────
+  // ── Preload adjacent images (sized URLs — avoid competing with LCP) ───────
   useEffect(() => {
+    if (photos.length <= 1) return;
     const toLoad = [
       (photoIdx + 1) % photos.length,
       (photoIdx + 2) % photos.length,
@@ -216,7 +231,7 @@ export default function CourseHero({
       const url = photos[i]?.url;
       if (url) {
         const img = new window.Image();
-        img.src = url;
+        img.src = cloudinarySizedUrl(url, HERO_PRELOAD_WIDTH);
       }
     }
   }, [photoIdx, photos]);
@@ -225,7 +240,7 @@ export default function CourseHero({
   useEffect(() => {
     const el = stripRef.current;
     if (!el) return;
-    const thumb = el.children[photoIdx] as HTMLElement | undefined;
+    const thumb = el.children[activeStripIndex] as HTMLElement | undefined;
     if (!thumb) return;
     el.scrollTo({
       left: Math.max(
@@ -234,7 +249,7 @@ export default function CourseHero({
       ),
       behavior: "auto",
     });
-  }, [photoIdx]);
+  }, [activeStripIndex]);
 
   // ── Lightbox keyboard nav ─────────────────────────────────────────────────
   useEffect(() => {
@@ -334,14 +349,14 @@ export default function CourseHero({
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.55, delay: 0.08, ease: [0.25, 0, 0, 1] }}
+          transition={{ duration: 0.35, ease: [0.25, 0, 0, 1] }}
           onMouseEnter={() => setHovered(true)}
           onMouseLeave={() => setHovered(false)}
           className="grid min-h-0 flex-1 grid-cols-1 grid-rows-1 gap-2 overflow-hidden rounded-2xl sm:rounded-3xl md:grid-cols-4 md:grid-rows-2 md:gap-2.5"
         >
           {/* ── Large featured cell ─────────────────────────────────────── */}
           <div className="relative h-full min-h-0 overflow-hidden rounded-2xl bg-sand/70 md:col-span-2 md:row-span-2 md:rounded-3xl">
-            <AnimatePresence mode="wait">
+            <AnimatePresence mode="wait" initial={false}>
               {activeVideoId ? (
                 <motion.iframe
                   key={`v-${activeVideoId}`}
@@ -358,17 +373,19 @@ export default function CourseHero({
               ) : activePhoto ? (
                 <motion.div
                   key={photoIdx}
-                  initial={{ opacity: 0 }}
+                  initial={false}
                   animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
+                  exit={{ opacity: prefersReduced ? undefined : 0 }}
+                  transition={{ duration: prefersReduced ? 0 : 0.2 }}
                   className="absolute inset-0"
                 >
                   <Image
-                    src={activePhoto.url}
+                    src={cloudinaryHeroUrl(activePhoto.url, HERO_MAIN_WIDTH)}
                     alt={activeAlt}
                     fill
-                    priority
+                    priority={photoIdx === 0}
+                    fetchPriority={photoIdx === 0 ? "high" : "auto"}
+                    loading={photoIdx === 0 ? "eager" : "lazy"}
                     sizes="(max-width:768px)100vw,50vw"
                     className="object-cover object-center"
                   />
@@ -505,7 +522,7 @@ export default function CourseHero({
                     </button>
                   </div>
                   <span className="rounded-full bg-white/85 px-2.5 py-0.5 text-[10px] tabular-nums text-muted shadow-soft backdrop-blur-sm sm:px-3 sm:text-[11px]">
-                    {photoIdx + 1} / {photos.length}
+                    {stripTotal > 0 ? activeStripIndex + 1 : 0} / {stripTotal}
                   </span>
                 </div>
 
@@ -603,9 +620,13 @@ export default function CourseHero({
                       }
                     >
                       <Image
-                        src={cellPhoto.url}
+                        src={cloudinarySizedUrl(
+                          cellPhoto.url,
+                          HERO_BENTO_WIDTH,
+                        )}
                         alt={cellAlt}
                         fill
+                        loading="lazy"
                         sizes="18vw"
                         className="object-cover object-center transition-transform duration-500 group-hover:scale-[1.03]"
                       />
@@ -616,9 +637,13 @@ export default function CourseHero({
                 /* Fallback: extra photo when no video available */
                 <div className="relative h-full w-full overflow-hidden rounded-2xl bg-sand/60">
                   <Image
-                    src={photos[(photoIdx + cell.offset) % photos.length].url}
+                    src={cloudinarySizedUrl(
+                      photos[(photoIdx + cell.offset) % photos.length].url,
+                      HERO_BENTO_WIDTH,
+                    )}
                     alt={title}
                     fill
+                    loading="lazy"
                     sizes="18vw"
                     className="object-cover object-center"
                   />
@@ -628,52 +653,12 @@ export default function CourseHero({
           ))}
         </motion.div>
 
-        {/* Mobile / small-tablet video picker (bento cells hidden below md) */}
-        {videoIds.length > 0 && (
-          <div className="mt-2 flex shrink-0 touch-pan-x gap-2 overflow-x-auto px-0.5 no-scrollbar [-webkit-overflow-scrolling:touch] md:hidden">
-            {videoIds.slice(0, 4).map((id, idx) => (
-              <button
-                key={id}
-                type="button"
-                onClick={() => playVideo(id)}
-                className={`relative flex min-h-11 min-w-[9.5rem] shrink-0 items-center gap-2.5 overflow-hidden rounded-xl border px-2 py-2 text-left transition-colors ${
-                  activeVideoId === id
-                    ? "border-primary/30 bg-primary/5"
-                    : "border-ink/8 bg-white/80"
-                }`}
-                aria-label={`Play: ${ytTitle(id, idx)}`}
-              >
-                <span className="relative h-10 w-14 shrink-0 overflow-hidden rounded-lg bg-ink">
-                  <Image
-                    src={ytThumb(id)}
-                    alt=""
-                    fill
-                    sizes="56px"
-                    className="object-cover opacity-80"
-                  />
-                  <span className="absolute inset-0 flex items-center justify-center bg-ink/20">
-                    <Play size={12} className="fill-white text-white" />
-                  </span>
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="type-eyebrow block text-[9px] text-primary">
-                    Video
-                  </span>
-                  <span className="line-clamp-2 text-[11px] font-semibold leading-tight text-ink">
-                    {ytTitle(id, idx)}
-                  </span>
-                </span>
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* ── Bottom filmstrip ───────────────────────────────────────────── */}
-        {photos.length > 1 && (
+        {/* ── Bottom filmstrip (photos + videos) ───────────────────────── */}
+        {stripTotal > 1 && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.15 }}
+            transition={{ duration: 0.35, delay: 0.05 }}
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
             className="shrink-0 overflow-hidden rounded-xl bg-white/50 px-2 pt-2 backdrop-blur-sm sm:rounded-2xl"
@@ -686,8 +671,7 @@ export default function CourseHero({
                 const isActive = i === photoIdx && !activeVideoId;
                 return (
                   <button
-                    // biome-ignore lint/suspicious/noArrayIndexKey: stable filmstrip
-                    key={i}
+                    key={photo.url}
                     type="button"
                     onClick={() => pickPhoto(i)}
                     className={`relative h-14 w-[4.25rem] shrink-0 snap-start cursor-pointer overflow-hidden rounded-lg transition-all duration-200 sm:h-14 sm:w-20 sm:rounded-xl border-2 ${
@@ -699,12 +683,42 @@ export default function CourseHero({
                     aria-current={isActive ? "true" : undefined}
                   >
                     <Image
-                      src={photo.url}
+                      src={cloudinarySizedUrl(photo.url, HERO_THUMB_WIDTH)}
                       alt=""
                       fill
+                      loading="lazy"
                       sizes="80px"
                       className="object-cover"
                     />
+                  </button>
+                );
+              })}
+              {videoIds.map((id, vi) => {
+                const isActive = activeVideoId === id;
+                return (
+                  <button
+                    key={`video-${id}`}
+                    type="button"
+                    onClick={() => playVideo(id)}
+                    className={`relative h-14 w-[4.25rem] shrink-0 snap-start cursor-pointer overflow-hidden rounded-lg transition-all duration-200 sm:h-14 sm:w-20 sm:rounded-xl border-2 ${
+                      isActive
+                        ? "border-primary"
+                        : "border-ink/8 hover:border-primary/40"
+                    }`}
+                    aria-label={`Video ${vi + 1}: ${ytTitle(id, vi)}`}
+                    aria-current={isActive ? "true" : undefined}
+                  >
+                    <Image
+                      src={ytThumb(id)}
+                      alt=""
+                      fill
+                      loading="lazy"
+                      sizes="80px"
+                      className="object-cover"
+                    />
+                    <span className="absolute inset-0 flex items-center justify-center bg-ink/25">
+                      <Play size={12} className="fill-white text-white" />
+                    </span>
                   </button>
                 );
               })}
@@ -716,8 +730,8 @@ export default function CourseHero({
                 className="h-full bg-accent/55"
                 animate={{
                   width:
-                    photos.length > 1
-                      ? `${(photoIdx / (photos.length - 1)) * 100}%`
+                    stripTotal > 1
+                      ? `${(activeStripIndex / (stripTotal - 1)) * 100}%`
                       : "100%",
                 }}
                 transition={{ duration: 1.92, ease: "linear" }}

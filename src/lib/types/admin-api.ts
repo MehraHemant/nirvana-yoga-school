@@ -8,6 +8,10 @@ import type { RetreatDocument } from "@/content/types/retreat-page";
 import type { SitePageDocument } from "@/content/types/site-page";
 import type { AdminSession } from "@/lib/cms/auth-session";
 import type {
+  HeroLayoutConfig,
+  PageLayoutId,
+} from "@/lib/cms/page-layout-registry";
+import type {
   ApiEntityBody,
   ApiListBody,
   ApiMutationResponse,
@@ -21,6 +25,8 @@ import type { AdminBlogRow, AdminPageRow } from "@/lib/types/db";
 export type AdminMediaAsset = {
   id: string;
   url: string;
+  /** Smaller Cloudinary (or original) URL for grid previews */
+  thumbUrl?: string;
   mime: string;
   sizeBytes: number;
   alt: string | null;
@@ -31,7 +37,12 @@ export type AdminMediaAsset = {
   usage: { inUse: boolean; references: string[] };
 };
 
-export type AdminMediaListResponse = ApiListBody<"assets", AdminMediaAsset>;
+export type AdminMediaListResponse = ApiListBody<"assets", AdminMediaAsset> & {
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
+};
 
 /** GET/PUT /api/admin/media/[id] */
 export type AdminMediaItemResponse = ApiEntityBody<"asset", AdminMediaAsset>;
@@ -63,6 +74,11 @@ export type AdminCoursesListResponse = ApiListBody<"courses", AdminPageRow>;
 /** GET /api/admin/blog */
 export type AdminBlogListResponse = ApiListBody<"posts", AdminBlogRow>;
 
+/** POST /api/admin/blog */
+export type AdminBlogCreateResponse = {
+  post: Pick<AdminBlogRow, "id" | "slug">;
+};
+
 /** GET /api/admin/leads */
 export type AdminLeadsListResponse = DbEnabledListBody<
   "leads",
@@ -78,11 +94,13 @@ export type AdminBookingsListResponse = DbEnabledListBody<
   BookingRecord
 >;
 
-/** GET /api/admin/modules/[slug] */
+/** GET /api/admin/modules/[slug] | GET /api/admin/pages/[slug] meta */
 export type AdminPageModulesMeta = {
   id: string;
   type: string;
   published: boolean;
+  layoutId?: PageLayoutId;
+  heroLayout?: HeroLayoutConfig;
 };
 
 export type AdminPageModulesGetResponse = {
@@ -112,6 +130,10 @@ export type AdminMediaUploadResponse = Pick<
   cdnKey: string;
   /** Video duration from Cloudinary when uploading a video */
   durationSeconds: number | null;
+  /** Optional alt text mirrored from upload metadata */
+  alt?: string | null;
+  /** Linked lodging `media_images.id` when dual-written for images */
+  mediaImageId?: string | null;
 };
 
 /** POST /api/admin/auth/login */

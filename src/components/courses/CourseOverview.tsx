@@ -72,9 +72,7 @@ export default function CourseOverview({
 }: CourseOverviewProps) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
-  const resolvedSupporting = supportingCopy.trim()
-    ? supportingCopy
-    : undefined;
+  const resolvedSupporting = supportingCopy.trim() ? supportingCopy : undefined;
   const showVideoPanel = videos.length > 0;
   const carouselImages =
     overviewImages.length > 0
@@ -250,72 +248,72 @@ export default function CourseOverview({
           ) : null}
 
           {overviewSpecs.length > 0 ? (
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={VIEWPORT_ONCE}
-            variants={fadeUp}
-            className="relative mt-2 overflow-hidden rounded-3xl border border-ink/8 bg-surface shadow-card ring-1 ring-ink/5"
-          >
-            <HeroFlourish
-              className="pointer-events-none absolute -right-10 -top-10 h-44 w-44 text-primary/6"
-              aria-hidden="true"
-            />
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={VIEWPORT_ONCE}
+              variants={fadeUp}
+              className="relative mt-2 overflow-hidden rounded-3xl border border-ink/8 bg-surface shadow-card ring-1 ring-ink/5"
+            >
+              <HeroFlourish
+                className="pointer-events-none absolute -right-10 -top-10 h-44 w-44 text-primary/6"
+                aria-hidden="true"
+              />
 
-            <div className="relative flex flex-col gap-1 border-b border-ink/8 bg-surface-muted px-6 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-8">
-              <p className="type-eyebrow font-semibold uppercase tracking-[0.2em] text-primary">
-                Course at a glance
-              </p>
-              <p className="font-sans text-xs text-ink">
-                Residential program essentials
-              </p>
-            </div>
+              <div className="relative flex flex-col gap-1 border-b border-ink/8 bg-surface-muted px-6 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+                <p className="type-eyebrow font-semibold uppercase tracking-[0.2em] text-primary">
+                  Course at a glance
+                </p>
+                <p className="font-sans text-xs text-ink">
+                  Residential program essentials
+                </p>
+              </div>
 
-            <div className="relative grid grid-cols-1 divide-y divide-ink/6 sm:grid-cols-2 sm:divide-x sm:divide-y-0 lg:grid-cols-4">
-              {overviewSpecs.map((spec) => (
-                <div
-                  key={spec.label}
-                  className={`group relative flex flex-col gap-3 px-6 py-8 transition-colors sm:px-7 md:py-9 ${
-                    "highlight" in spec && spec.highlight
-                      ? "bg-linear-to-br from-primary/10 via-primary/5 to-transparent lg:rounded-br-3xl"
-                      : "hover:bg-surface"
-                  }`}
-                >
-                  <div className="flex items-baseline justify-between gap-3">
-                    <span className="type-eyebrow font-semibold uppercase tracking-wider text-primary">
-                      {spec.label}
-                    </span>
-                    <span
-                      className="font-serif text-lg leading-none text-primary/20"
-                      aria-hidden="true"
-                    >
-                      {spec.index}
-                    </span>
-                  </div>
-                  <p
-                    className={`font-serif text-2xl font-medium leading-[1.15] tracking-tight sm:text-[1.65rem] ${
+              <div className="relative grid grid-cols-1 divide-y divide-ink/6 sm:grid-cols-2 sm:divide-x sm:divide-y-0 lg:grid-cols-4">
+                {overviewSpecs.map((spec) => (
+                  <div
+                    key={spec.label}
+                    className={`group relative flex flex-col gap-3 px-6 py-8 transition-colors sm:px-7 md:py-9 ${
                       "highlight" in spec && spec.highlight
-                        ? "text-primary"
-                        : "text-ink"
+                        ? "bg-linear-to-br from-primary/10 via-primary/5 to-transparent lg:rounded-br-3xl"
+                        : "hover:bg-surface"
                     }`}
                   >
-                    {spec.value}
-                  </p>
-                  <p className="max-w-[16rem] font-sans text-xs leading-relaxed text-ink">
-                    {spec.hint}
-                  </p>
-                  <span
-                    className={`absolute bottom-0 left-6 right-6 h-px origin-left scale-x-0 transition-transform duration-300 group-hover:scale-x-100 sm:left-7 sm:right-7 ${
-                      "highlight" in spec && spec.highlight
-                        ? "bg-primary/25"
-                        : "bg-accent/50"
-                    }`}
-                    aria-hidden="true"
-                  />
-                </div>
-              ))}
-            </div>
-          </motion.div>
+                    <div className="flex items-baseline justify-between gap-3">
+                      <span className="type-eyebrow font-semibold uppercase tracking-wider text-primary">
+                        {spec.label}
+                      </span>
+                      <span
+                        className="font-serif text-lg leading-none text-primary/20"
+                        aria-hidden="true"
+                      >
+                        {spec.index}
+                      </span>
+                    </div>
+                    <p
+                      className={`font-serif text-2xl font-medium leading-[1.15] tracking-tight sm:text-[1.65rem] ${
+                        "highlight" in spec && spec.highlight
+                          ? "text-primary"
+                          : "text-ink"
+                      }`}
+                    >
+                      {spec.value}
+                    </p>
+                    <p className="max-w-[16rem] font-sans text-xs leading-relaxed text-ink">
+                      {spec.hint}
+                    </p>
+                    <span
+                      className={`absolute bottom-0 left-6 right-6 h-px origin-left scale-x-0 transition-transform duration-300 group-hover:scale-x-100 sm:left-7 sm:right-7 ${
+                        "highlight" in spec && spec.highlight
+                          ? "bg-primary/25"
+                          : "bg-accent/50"
+                      }`}
+                      aria-hidden="true"
+                    />
+                  </div>
+                ))}
+              </div>
+            </motion.div>
           ) : null}
         </div>
       </Container>

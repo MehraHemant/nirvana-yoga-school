@@ -126,14 +126,7 @@ export default function TravelGuide({
       });
     }, 4500);
     return () => clearInterval(interval);
-  }, [
-    canAutoRotate,
-    isInView,
-    isPaused,
-    prefersReduced,
-    topicCount,
-    topics,
-  ]);
+  }, [canAutoRotate, isInView, isPaused, prefersReduced, topicCount, topics]);
 
   if (topicCount === 0) return null;
 

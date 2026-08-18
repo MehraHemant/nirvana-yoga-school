@@ -13,6 +13,9 @@ export type CourseOption = {
   type: string;
   title: string;
   published: boolean;
+  image?: string;
+  fee?: string;
+  duration?: string;
 };
 
 type CoursesPickerProps = {
