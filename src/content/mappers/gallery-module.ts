@@ -10,10 +10,10 @@ import { MEDIA_TAG_PRESETS } from "@/lib/cdn/media-tags";
 export const GALLERY_CATEGORY_LABELS: Record<string, string> = {
   yogahall: "Yoga Hall",
   dinning: "Dining",
-  private: "Private Room",
-  "2 shared": "2-Shared Room",
-  "3 shared": "3-Shared Room",
-  "4 shared": "4-Shared Dorm",
+  private: "Private Room with Balcony",
+  "2 shared": "2-Shared Room with Balcony",
+  "3 shared": "3-Shared Room with Balcony",
+  "4 shared": "4-Shared Dorm with Balcony",
   premisis: "Premises",
   practice: "Practice",
   accommodation: "Rooms & Stay",
@@ -22,12 +22,24 @@ export const GALLERY_CATEGORY_LABELS: Record<string, string> = {
 
 /** Map media-library tags → gallery category ids. */
 export const MEDIA_TAG_TO_GALLERY_CATEGORY: Record<string, string> = {
+  "private room": "private",
+  "2 shared": "2 shared",
+  "4 shared": "4 shared",
+  food: "dinning",
+  retreat: "premisis",
+  teachers: "campus",
+  general: "campus",
+  // Legacy labels (pre-migration)
   "Yoga hall": "yogahall",
   Dining: "dinning",
   Food: "dinning",
+  "Private Room with Balcony": "private",
   "Private room": "private",
+  "2-Shared Room with Balcony": "2 shared",
   "2 shared room": "2 shared",
+  "3-Shared Room with Balcony": "3 shared",
   "3 shared room": "3 shared",
+  "4-Shared Dorm with Balcony": "4 shared",
   "4 shared room": "4 shared",
   Campus: "premisis",
   Retreat: "premisis",
@@ -98,12 +110,17 @@ export function resolveGallerySections(
   const images = Array.isArray(gallery)
     ? gallery
     : (gallery?.images ?? []).filter((image) => image.type !== "video");
-  const sectionOrder = Array.isArray(gallery) ? undefined : gallery?.sectionOrder;
+  const sectionOrder = Array.isArray(gallery)
+    ? undefined
+    : gallery?.sectionOrder;
 
-  if (images.length === 0) return sectionOrder?.map((section) => ({
-    ...section,
-    images: [],
-  })) ?? [];
+  if (images.length === 0)
+    return (
+      sectionOrder?.map((section) => ({
+        ...section,
+        images: [],
+      })) ?? []
+    );
 
   const byCategory = new Map<string, SitePageGalleryImage[]>();
   for (const image of images) {

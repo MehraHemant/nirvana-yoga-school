@@ -2,6 +2,7 @@ import type {
   EligibilityRequirement,
   ModuleFlags,
   PageModulesDocument,
+  WhyOnlineModule,
 } from "@/content/types/page-modules";
 import type { StickyNavItem } from "@/content/types/shared";
 
@@ -33,9 +34,40 @@ export const DEFAULT_ONLINE_HUB_NAV: StickyNavItem[] = [
   { id: "#about", label: "Overview", shortLabel: "Overview" },
   { id: "#why-online", label: "Why Online", shortLabel: "Why" },
   { id: "#courses", label: "Courses", shortLabel: "Courses" },
-  { id: "#exam", label: "Certification", shortLabel: "Cert" },
   { id: "#faq", label: "FAQ", shortLabel: "FAQ" },
 ];
+
+/** Default Why Online band for the online courses hub. */
+export const DEFAULT_ONLINE_HUB_WHY_ONLINE: WhyOnlineModule = {
+  live: true,
+  _id: "why-online",
+  eyebrow: "Why learn online",
+  title: "Rishikesh teachers, from anywhere",
+  description:
+    "Study with the same curriculum depth as our in-person trainings — flexible pacing, lifetime resources, and live support from Rishikesh faculty.",
+  items: [
+    {
+      title: "Study on your schedule",
+      description:
+        "Self-paced lessons that fit work, family, and travel — without fixed classroom hours.",
+    },
+    {
+      title: "Lifetime course access",
+      description:
+        "Keep videos, manuals, and practice resources available whenever you return to the material.",
+    },
+    {
+      title: "Live teacher support",
+      description:
+        "Weekly Q&A with Rishikesh teachers so questions never wait for the next module.",
+    },
+    {
+      title: "Same curriculum depth",
+      description:
+        "Asana, philosophy, anatomy, and teaching skills aligned with our residential programs.",
+    },
+  ],
+};
 
 /** Default online course sticky nav. */
 export const DEFAULT_ONLINE_NAV: StickyNavItem[] = [

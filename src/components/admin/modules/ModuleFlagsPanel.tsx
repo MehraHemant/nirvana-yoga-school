@@ -47,8 +47,7 @@ export function ModuleFlagsPanel({
   onOpenChange,
   visibleKeys,
 }: ModuleFlagsPanelProps) {
-  const mapOnly =
-    visibleKeys?.length === 1 && visibleKeys[0] === "showMap";
+  const mapOnly = visibleKeys?.length === 1 && visibleKeys[0] === "showMap";
   const items = visibleKeys?.length
     ? SHARED_LIVE_ITEMS.filter((item) => visibleKeys.includes(item.key))
     : SHARED_LIVE_ITEMS;

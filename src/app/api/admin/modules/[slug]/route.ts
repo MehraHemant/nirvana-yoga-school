@@ -1,3 +1,9 @@
+import { revalidatePath } from "next/cache";
+import { dropOrphanPricingOptions } from "@/content/mappers/page-room-fees";
+import {
+  hydrateModulesFromLodgingTables,
+  syncLodgingTablesFromModules,
+} from "@/content/repositories/lodging-sync";
 import type { PageModulesDocument } from "@/content/types";
 import {
   jsonMutationOk,
@@ -8,12 +14,17 @@ import {
 import { getSessionFromRequest } from "@/lib/cms/auth";
 import { resolvePageModulesForEditor } from "@/lib/cms/db-page-modules";
 import { upsertPageModules } from "@/lib/cms/document-to-db";
+import {
+  getHeroLayoutConfig,
+  resolvePageLayoutId,
+} from "@/lib/cms/page-layout-registry";
 import { db } from "@/lib/db";
 import type { ApiRouteParams } from "@/lib/types/api";
 
 /**
  * Load page modules for editing.
  * Missing or empty `page_modules` JSON returns an editable scaffold.
+ * Hydrates offers/dates from relational tables when present.
  */
 export async function GET(
   request: Request,
@@ -41,11 +52,20 @@ export async function GET(
     return jsonNotFound();
   }
 
-  const modules = resolvePageModulesForEditor(page.pageModules, page.title);
+  const base = resolvePageModulesForEditor(page.pageModules, page.title);
+  const modules =
+    (await hydrateModulesFromLodgingTables(slug, base).catch(() => base)) ??
+    base;
 
   return jsonOk({
     modules,
-    meta: { id: page.id, type: page.type, published: page.published },
+    meta: {
+      id: page.id,
+      type: page.type,
+      published: page.published,
+      layoutId: resolvePageLayoutId(page.type, slug),
+      heroLayout: getHeroLayoutConfig(resolvePageLayoutId(page.type, slug)),
+    },
   });
 }
 
@@ -64,6 +84,22 @@ export async function PUT(
   const { slug } = await context.params;
   const body = (await request.json()) as PageModulesDocument;
 
+  // Drop legacy pricing rows without roomId; keep not-Live linked fees so
+  // toggling Live back on restores the price after reload.
+  if (body.residentialLife) {
+    body.pricing = {
+      ...body.pricing,
+      options: dropOrphanPricingOptions(body.pricing?.options ?? []),
+      batches: body.pricing?.batches ?? [],
+    };
+  }
+
   const page = await upsertPageModules(slug, body);
+  await syncLodgingTablesFromModules(page.id, body).catch((error) => {
+    console.error("[modules PUT] lodging sync failed", error);
+  });
+  revalidatePath("/course", "layout");
+  revalidatePath("/online-course", "layout");
+  revalidatePath("/retreat", "layout");
   return jsonMutationOk(page.id);
 }

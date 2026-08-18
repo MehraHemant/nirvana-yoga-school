@@ -1,8 +1,3 @@
-import { createEmptyResidentialLife } from "@/lib/cms/structural-defaults";
-import {
-  createCourseVenueGallery,
-  createRetreatVenueGallery,
-} from "@/lib/cms/venue-galleries";
 import {
   refineHeroSubtitle,
   refineInclusions,
@@ -32,6 +27,11 @@ import type {
   SplitCopyHero,
 } from "@/content/types/page-modules";
 import type { RetreatDocument } from "@/content/types/retreat-page";
+import { createEmptyResidentialLife } from "@/lib/cms/structural-defaults";
+import {
+  createCourseVenueGallery,
+  createRetreatVenueGallery,
+} from "@/lib/cms/venue-galleries";
 
 function findSection(page: SitePageDocument, pattern: RegExp) {
   return page.sections.find((s) => pattern.test(s.title)) ?? page.sections[0];

@@ -1,5 +1,8 @@
 import { cmsImageUrl } from "@/content/types/cms-image";
-import type { HeroModule, SimpleBannerHero } from "@/content/types/page-modules";
+import type {
+  HeroModule,
+  SimpleBannerHero,
+} from "@/content/types/page-modules";
 
 /**
  * Converts any hero variant into a venue-friendly simple-banner.

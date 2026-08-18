@@ -158,6 +158,20 @@ export type InclusionsModule = ModuleLiveFields & {
   items: string[];
 };
 
+/** One benefit card in the online-hub “Why online” band. */
+export type WhyOnlineBenefit = {
+  title: string;
+  description: string;
+};
+
+/** Why-online benefits band for the online courses hub. */
+export type WhyOnlineModule = ModuleLiveFields & {
+  eyebrow?: string;
+  title?: string;
+  description?: string;
+  items: WhyOnlineBenefit[];
+};
+
 export type EligibilityRequirement = {
   num: string;
   title: string;
@@ -310,9 +324,11 @@ export type PageModulesDocument = {
   /** YouTube playlist band — venue pages and other layouts that opt in */
   videos?: VideosModule;
   programs?: ProgramsModule;
+  /** Why-online benefits band (online courses hub) */
+  whyOnline?: WhyOnlineModule;
   /**
-   * Per-page lodging & food (course/retreat/venue/hub/kirtan). Not a global shared section.
-   * When omitted, frontend may fall back to legacy `global_settings.residentialLife`.
+   * Per-page lodging & food (room galleries, stay copy, facilities, meals).
+   * Source of truth for AccommodationFood on course / retreat pages.
    */
   residentialLife?: import("@/content/types/shared-sections").ResidentialLifeContent;
   /**

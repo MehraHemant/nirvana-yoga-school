@@ -18,9 +18,9 @@ import {
   flattenGallerySections,
   galleryCategoryLabel,
   normalizeGalleryVideos,
+  type ResolvedGallerySection,
   resolveGallerySections,
   sectionOrderFromResolved,
-  type ResolvedGallerySection,
 } from "@/content/mappers/gallery-module";
 import type { GalleryModule } from "@/content/types/page-modules";
 import type { SitePageGalleryImage } from "@/content/types/site-page";
@@ -32,14 +32,14 @@ type GalleryModuleEditorProps = ModulePanelProps & {
 };
 
 const SECTION_TAG_HINTS: Record<string, string> = {
-  yogahall: "Yoga hall",
-  dinning: "Dining",
-  private: "Private room",
-  "2 shared": "2 shared room",
-  "3 shared": "3 shared room",
-  "4 shared": "4 shared room",
-  premisis: "Campus",
-  campus: "Campus",
+  yogahall: "general",
+  dinning: "food",
+  private: "private room",
+  "2 shared": "2 shared",
+  "3 shared": "general",
+  "4 shared": "4 shared",
+  premisis: "retreat",
+  campus: "general",
 };
 
 /**
@@ -279,10 +279,7 @@ export function GalleryModuleEditor({
                             id={imageIds[imageIndex]}
                             className="admin-gallery-tile-wrap"
                           >
-                            {({
-                              dragHandleProps: imageHandle,
-                              isDragging,
-                            }) => (
+                            {({ dragHandleProps: imageHandle, isDragging }) => (
                               <div
                                 className={`admin-gallery-tile${isDragging ? " admin-gallery-tile--dragging" : ""}`}
                               >
@@ -292,12 +289,9 @@ export function GalleryModuleEditor({
                                   alt={image.alt ?? section.label}
                                 />
                                 <div className="admin-gallery-tile-bar">
-                                  <DragHandle
-                                    dragHandleProps={imageHandle}
-                                  />
+                                  <DragHandle dragHandleProps={imageHandle} />
                                   <span className="admin-gallery-tile-name">
-                                    {image.title ||
-                                      image.url.split("/").pop()}
+                                    {image.title || image.url.split("/").pop()}
                                   </span>
                                   <button
                                     type="button"
@@ -365,9 +359,7 @@ export function GalleryModuleEditor({
         open={Boolean(pickerSectionId)}
         onClose={() => setPickerSectionId(null)}
         initialTag={
-          pickerSectionId
-            ? SECTION_TAG_HINTS[pickerSectionId]
-            : undefined
+          pickerSectionId ? SECTION_TAG_HINTS[pickerSectionId] : undefined
         }
         title={`Add images — ${pickerSection?.label ?? "section"}`}
         onConfirm={(items) => {

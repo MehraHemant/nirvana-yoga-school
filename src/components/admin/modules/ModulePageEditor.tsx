@@ -1,21 +1,29 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { createEmptyResidentialLife } from "@/lib/cms/structural-defaults";
+import { useCallback, useMemo, useState } from "react";
 import { createEmptyGalleryModule } from "@/content/mappers/gallery-module";
+import {
+  dropOrphanPricingOptions,
+  roomFeesFromLinkedItems,
+  upsertCoursePricingForRoom,
+} from "@/content/mappers/page-room-fees";
 import { normalizeVenueHero } from "@/content/mappers/venue-hero";
 import { createEmptyVideosModule } from "@/content/mappers/videos-module";
-import { createEmptyPageModules } from "@/content/page-modules-defaults";
+import {
+  createEmptyPageModules,
+  DEFAULT_ONLINE_HUB_WHY_ONLINE,
+} from "@/content/page-modules-defaults";
 import { pagePath } from "@/content/pages/path";
 import { getPageRef } from "@/content/pages/registry";
 import type { HeroType, PageModulesDocument } from "@/content/types";
-import type { ResidentialLifeContent } from "@/content/types/shared-sections";
+import { createDefaultOnlineHubModules } from "@/lib/cms/online-hub-defaults";
 import {
+  getHeroLayoutConfig,
   type PageLayoutId,
   publicViewHref,
 } from "@/lib/cms/page-layout-registry";
-import { parseApiJson } from "@/lib/types/api";
+import { createEmptyResidentialLife } from "@/lib/cms/structural-defaults";
 import { AdminSaveBar } from "../AdminSaveBar";
 import { AdminSectionJumpNav } from "../AdminSectionJumpNav";
 import { CollapsiblePanel } from "../CollapsiblePanel";
@@ -35,8 +43,9 @@ import { ScheduleModuleEditor } from "./ScheduleModuleEditor";
 import { StickyNavModuleEditor } from "./StickyNavModuleEditor";
 import { SyllabusModuleEditor } from "./SyllabusModuleEditor";
 import { TeachersModuleEditor } from "./TeachersModuleEditor";
-import { VideosModuleEditor } from "./VideosModuleEditor";
 import type { ModulePanelProps } from "./types";
+import { VideosModuleEditor } from "./VideosModuleEditor";
+import { WhyOnlineModuleEditor } from "./WhyOnlineModuleEditor";
 
 /** Module panel ids that can be filtered per layout. */
 export type ModulePanelId =
@@ -44,6 +53,7 @@ export type ModulePanelId =
   | "module-hero"
   | "module-sticky-nav"
   | "module-overview"
+  | "module-why-online"
   | "module-inclusions"
   | "module-eligibility"
   | "module-syllabus"
@@ -72,8 +82,14 @@ type ModulePageEditorProps = {
   layoutId?: PageLayoutId;
 };
 
-/** Hero layouts offered on venue gallery pages. */
-const VENUE_HERO_TYPES: HeroType[] = ["simple-banner"];
+/**
+ * Default hero type when scaffolding empty modules for a layout family.
+ *
+ * @param layoutId - Resolved page layout id
+ */
+function defaultHeroTypeForLayout(layoutId?: PageLayoutId): HeroType {
+  return layoutId ? getHeroLayoutConfig(layoutId).defaultType : "page-minimal";
+}
 
 const MODULE_SECTIONS: Array<{
   id: ModulePanelId;
@@ -112,72 +128,79 @@ const MODULE_SECTIONS: Array<{
     moduleKey: "overview",
   },
   {
-    id: "module-inclusions",
+    id: "module-why-online",
     step: 4,
+    label: "Why online",
+    hint: "Benefits band",
+    moduleKey: "whyOnline",
+  },
+  {
+    id: "module-inclusions",
+    step: 5,
     label: "Inclusions",
     hint: "What's included",
     moduleKey: "inclusions",
   },
   {
     id: "module-eligibility",
-    step: 5,
+    step: 6,
     label: "Admission",
     hint: "Requirements",
     moduleKey: "eligibility",
   },
   {
     id: "module-syllabus",
-    step: 6,
+    step: 7,
     label: "Syllabus",
     hint: "Curriculum",
     moduleKey: "syllabus",
   },
   {
     id: "module-schedule",
-    step: 7,
+    step: 8,
     label: "Schedule",
     hint: "Daily routine",
     moduleKey: "schedule",
   },
   {
     id: "module-accommodation",
-    step: 8,
+    step: 9,
     label: "Lodging & food",
     hint: "Per-page",
     moduleKey: "residentialLife",
   },
   {
     id: "module-gallery",
-    step: 9,
+    step: 10,
     label: "Gallery",
     hint: "Photos",
     moduleKey: "gallery",
   },
   {
     id: "module-videos",
-    step: 10,
+    step: 11,
     label: "Videos",
     hint: "YouTube playlist",
     moduleKey: "videos",
   },
   {
     id: "module-teachers",
-    step: 11,
+    step: 12,
     label: "Teachers",
     hint: "From faculty",
     moduleKey: "teachers",
   },
-  { id: "module-flags", step: 12, label: "Shared live", hint: "Global bands" },
+  { id: "module-flags", step: 13, label: "Shared live", hint: "Global bands" },
   {
     id: "module-pricing",
-    step: 13,
+    step: 14,
     label: "Pricing",
     hint: "Dates & fees",
     moduleKey: "pricing",
   },
   {
     id: "module-faq",
-    step: 14,
+    step: 15,
     label: "FAQ",
     hint: "Questions",
     moduleKey: "faqs",
@@ -187,10 +210,18 @@ const MODULE_SECTIONS: Array<{
 /** Start with the first visible panel open; jump-to opens one at a time. */
 const DEFAULT_OPEN: Record<string, boolean> = {};
 
-/** Full residential course panel set (videos band is venue-only for now). */
+/**
+ * Residential course panels.
+ * Gallery/teachers/videos stay on venue or hub layouts only.
+ */
 export const RESIDENTIAL_MODULE_PANELS: ModulePanelId[] = MODULE_SECTIONS.map(
   (s) => s.id,
-).filter((id) => id !== "module-videos");
+).filter(
+  (id) =>
+    id !== "module-videos" &&
+    id !== "module-gallery" &&
+    id !== "module-teachers",
+);
 
 /** Hub / marketing layout panels. */
 export const HUB_MODULE_PANELS: ModulePanelId[] = [
@@ -205,13 +236,13 @@ export const HUB_MODULE_PANELS: ModulePanelId[] = [
   "module-faq",
 ];
 
-/** Online courses hub — hero/overview/FAQ; course grid is auto from DB. */
+/** Online courses hub — hero/overview/why-online/FAQ; course grid is auto from DB. */
 export const ONLINE_HUB_MODULE_PANELS: ModulePanelId[] = [
   "module-meta",
   "module-hero",
   "module-sticky-nav",
   "module-overview",
-  "module-flags",
+  "module-why-online",
   "module-faq",
 ];
 
@@ -272,18 +303,59 @@ function normalizeModules(
   value: PageModulesDocument | null | undefined,
   fallbackTitle = "",
   venueLayout = false,
+  onlineHubLayout = false,
+  layoutId?: PageLayoutId,
 ): PageModulesDocument {
   let doc: PageModulesDocument;
   if (value?.hero && typeof value.hero.type === "string") {
     doc = value;
   } else {
     const scaffold = createEmptyPageModules(
-      venueLayout ? "simple-banner" : "page-minimal",
+      venueLayout
+        ? "simple-banner"
+        : defaultHeroTypeForLayout(layoutId),
     );
     if (fallbackTitle.trim()) {
       scaffold.hero = { ...scaffold.hero, title: fallbackTitle.trim() };
     }
     doc = scaffold;
+  }
+
+  if (onlineHubLayout) {
+    doc = {
+      ...doc,
+      whyOnline: doc.whyOnline ?? {
+        ...DEFAULT_ONLINE_HUB_WHY_ONLINE,
+        items: DEFAULT_ONLINE_HUB_WHY_ONLINE.items.map((item) => ({
+          ...item,
+        })),
+      },
+      flags: {
+        ...doc.flags,
+        showExam: false,
+      },
+      stickyNav: {
+        ...doc.stickyNav,
+        items: doc.stickyNav.items.filter((item) => item.id !== "#exam"),
+      },
+    };
+  }
+
+  // Lodging-linked pages: drop legacy pricing rows without roomId, keep batches array.
+  if (doc.residentialLife) {
+    doc = {
+      ...doc,
+      pricing: {
+        ...doc.pricing,
+        options: dropOrphanPricingOptions(doc.pricing.options ?? []),
+        batches: doc.pricing.batches ?? [],
+      },
+    };
+  } else if (!Array.isArray(doc.pricing.batches)) {
+    doc = {
+      ...doc,
+      pricing: { ...doc.pricing, batches: [] },
+    };
   }
 
   if (!venueLayout) return doc;
@@ -320,10 +392,12 @@ export function ModulePageEditor({
   const isVenueLayout = layoutId === "venue";
   const isOnlineHubLayout = layoutId === "onlineHub";
   const [modules, setModules] = useState(() =>
-    normalizeModules(initial, slug, isVenueLayout),
+    normalizeModules(initial, slug, isVenueLayout, isOnlineHubLayout, layoutId),
   );
   const [baseline, setBaseline] = useState(() =>
-    JSON.stringify(normalizeModules(initial, slug, isVenueLayout)),
+    JSON.stringify(
+      normalizeModules(initial, slug, isVenueLayout, isOnlineHubLayout, layoutId),
+    ),
   );
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -336,39 +410,6 @@ export function ModulePageEditor({
     () => JSON.stringify(modules) !== baseline,
     [modules, baseline],
   );
-
-  useEffect(() => {
-    if (modules.residentialLife) return;
-    const accommodationVisible =
-      !visiblePanels || visiblePanels.includes("module-accommodation");
-    if (!accommodationVisible) return;
-    let cancelled = false;
-    // Prefill from legacy global copy when present; otherwise open empty fields.
-    fetch("/api/admin/settings/residentialLife")
-      .then((res) => parseApiJson<{ settings: ResidentialLifeContent }>(res))
-      .then((body) => {
-        if (cancelled) return;
-        setModules((prev) =>
-          prev.residentialLife
-            ? prev
-            : {
-                ...prev,
-                residentialLife: body.settings ?? createEmptyResidentialLife(),
-              },
-        );
-      })
-      .catch(() => {
-        if (cancelled) return;
-        setModules((prev) =>
-          prev.residentialLife
-            ? prev
-            : { ...prev, residentialLife: createEmptyResidentialLife() },
-        );
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [modules.residentialLife, visiblePanels]);
 
   const sections = useMemo(() => {
     const orderedIds = visiblePanels?.length
@@ -609,12 +650,8 @@ export function ModulePageEditor({
               <HeroModuleEditor
                 hero={modules.hero}
                 onChange={(hero) => setModules({ ...modules, hero })}
-                allowedTypes={VENUE_HERO_TYPES}
-                {...panelProps(
-                  "module-hero",
-                  stepOf("module-hero"),
-                  "Page title band — background image, title, and short description at the top of the venue page.",
-                )}
+                layoutId={layoutId}
+                {...panelProps("module-hero", stepOf("module-hero"))}
               />
             </div>
           ) : null}
@@ -645,13 +682,8 @@ export function ModulePageEditor({
               <HeroModuleEditor
                 hero={modules.hero}
                 onChange={(hero) => setModules({ ...modules, hero })}
-                {...panelProps(
-                  "module-hero",
-                  stepOf("module-hero"),
-                  isOnlineHubLayout
-                    ? "Homepage-style full-bleed hero — badge, title lead/accent, CTA, marquee, and optional video (poster falls back to hero image)."
-                    : "Page top banner — pick a layout, then fill in title, images, and CTAs.",
-                )}
+                layoutId={layoutId}
+                {...panelProps("module-hero", stepOf("module-hero"))}
               />
             </div>
           ) : null}
@@ -699,6 +731,22 @@ export function ModulePageEditor({
                   isOnlineHubLayout
                     ? "YTT-style welcome overview — copy, vision/promise, highlights, and a single video (URL + optional poster)."
                     : "Intro section with lead copy, media panel, and glance stats.",
+                )}
+              />
+            </div>
+          ) : null}
+          {show("module-why-online") ? (
+            <div className="admin-section-shell">
+              <WhyOnlineModuleEditor
+                whyOnline={
+                  modules.whyOnline ??
+                  createDefaultOnlineHubModules().whyOnline!
+                }
+                onChange={(whyOnline) => setModules({ ...modules, whyOnline })}
+                {...panelProps(
+                  "module-why-online",
+                  stepOf("module-why-online"),
+                  "Benefits band under overview — eyebrow, title, description, and reorderable benefit rows.",
                 )}
               />
             </div>
@@ -764,9 +812,9 @@ export function ModulePageEditor({
               <CollapsiblePanel
                 id={domIdFor("module-accommodation")}
                 step={stepOf("module-accommodation")}
-                title="Accommodation & food"
-                subtitle="Per-page lodging — not shared globally"
-                description="Edit room galleries and food for this page. Use Shared sections (Live) below to show/hide Accommodation & food on the public page."
+                title="Lodging & food"
+                subtitle="Per-room Live and prices"
+                description="Lists shared Course accommodation rooms. Toggle Live and set prices here — source of truth for room fees. Edit room photos/names under Shared sections."
                 open={openPanels["module-accommodation"] ?? false}
                 onOpenChange={
                   panelProps(
@@ -776,10 +824,31 @@ export function ModulePageEditor({
                 }
               >
                 <ResidentialLifeFields
+                  catalog="course"
+                  pageSlug={slug}
                   doc={modules.residentialLife ?? createEmptyResidentialLife()}
-                  onChange={(residentialLife) =>
-                    setModules({ ...modules, residentialLife })
-                  }
+                  onChange={(residentialLife) => {
+                    // Live allowlist only — keep pricing.options so fees survive
+                    // toggling a room off and back on in the same session.
+                    setModules({
+                      ...modules,
+                      residentialLife,
+                    });
+                  }}
+                  roomFees={roomFeesFromLinkedItems(modules.pricing.options)}
+                  onRoomFeeChange={(room, fee) => {
+                    setModules({
+                      ...modules,
+                      pricing: {
+                        ...modules.pricing,
+                        options: upsertCoursePricingForRoom(
+                          modules.pricing.options,
+                          room,
+                          fee,
+                        ),
+                      },
+                    });
+                  }}
                 />
               </CollapsiblePanel>
             </div>
@@ -827,10 +896,13 @@ export function ModulePageEditor({
               <PricingModuleEditor
                 pricing={modules.pricing}
                 onChange={(pricing) => setModules({ ...modules, pricing })}
+                roomCatalog="course"
+                pageSlug={slug}
+                roomFees={roomFeesFromLinkedItems(modules.pricing.options)}
                 {...panelProps(
                   "module-pricing",
                   stepOf("module-pricing"),
-                  "Room types, fees, and upcoming batch dates.",
+                  "Add batch dates and seats. Lists Shared Live rooms; set fees under Lodging & food. Per-page lodging Live only affects the accommodation gallery.",
                 )}
               />
             </div>
