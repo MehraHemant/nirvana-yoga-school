@@ -232,9 +232,7 @@ async function retrieveFromKnowledgeBase(
 
   const likeParams = terms.map((term) => `%${term}%`);
   const titleClauses = likeParams.map(() => `"title" ILIKE ?`).join(" OR ");
-  const contentClauses = likeParams
-    .map(() => `"content" ILIKE ?`)
-    .join(" OR ");
+  const contentClauses = likeParams.map(() => `"content" ILIKE ?`).join(" OR ");
 
   type KbRow = {
     title: string;
@@ -281,7 +279,9 @@ async function retrieveFromKnowledgeBase(
  *
  * @param document - Parsed course document
  */
-function extractFaqs(document: unknown): Array<{ question: string; answer: string }> {
+function extractFaqs(
+  document: unknown,
+): Array<{ question: string; answer: string }> {
   if (!document || typeof document !== "object") return [];
   const faqs = (document as Record<string, unknown>).faqs;
   if (!Array.isArray(faqs)) return [];
@@ -296,7 +296,9 @@ function extractFaqs(document: unknown): Array<{ question: string; answer: strin
       if (!question || !answer) return null;
       return { question, answer };
     })
-    .filter((item): item is { question: string; answer: string } => item !== null)
+    .filter(
+      (item): item is { question: string; answer: string } => item !== null,
+    )
     .slice(0, 6);
 }
 
@@ -333,9 +335,7 @@ async function retrieveFromCms(
   if (terms[0]) {
     const likeParams = terms.map((term) => `%${term}%`);
     const titleOr = likeParams.map(() => `p."title" ILIKE ?`).join(" OR ");
-    const descOr = likeParams
-      .map(() => `p."description" ILIKE ?`)
-      .join(" OR ");
+    const descOr = likeParams.map(() => `p."description" ILIKE ?`).join(" OR ");
     const slugOr = likeParams.map(() => `p."slug" ILIKE ?`).join(" OR ");
 
     rows = await db.$queryRawUnsafe<PageRow[]>(
@@ -388,7 +388,8 @@ async function retrieveFromCms(
     const pageText = parts.join("\n");
     const pageScore = relevanceScore(pageText, keywords, fullQuery);
     // Keep a few unmatched baseline catalog rows so the model still knows offerings.
-    const keepBaseline = keywords.length === 0 || pageScore > 0 || scored.length < 6;
+    const keepBaseline =
+      keywords.length === 0 || pageScore > 0 || scored.length < 6;
     if (keepBaseline) {
       scored.push({
         chunk: {

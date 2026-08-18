@@ -111,7 +111,7 @@ export const DEFAULT_CONTENT_TYPES: DefaultContentTypeDef[] = [
     key: "site_header",
     name: "Site · Header",
     description:
-      "Global site header on every page — logos and ordered CTAs (Sign in, Enquire now). Rendered from the site layout.",
+      "Global site header on every page — logos and ordered CTAs (Enquire now). Rendered from the site layout.",
     icon: "header",
     sortOrder: 10,
     scope: "global",
@@ -156,7 +156,7 @@ export const DEFAULT_CONTENT_TYPES: DefaultContentTypeDef[] = [
         key: "ctas",
         label: "Header CTAs",
         type: "repeater",
-        help: "Ordered actions (Sign in, Enquire now, custom). Drag in Header & Navigation admin to reorder.",
+        help: "Ordered actions (Enquire now, custom). Drag in Header & Navigation admin to reorder.",
         subFields: [
           { key: "label", label: "Label", type: "text", required: true },
           { key: "href", label: "Link", type: "text", required: true },

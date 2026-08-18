@@ -1,6 +1,6 @@
 import "server-only";
 
-import { isDbEnabled, db } from "@/lib/db";
+import { db, isDbEnabled } from "@/lib/db";
 import type { AdminBlogRow, AdminPageRow } from "@/lib/types/db";
 
 export type { AdminBlogRow, AdminPageRow } from "@/lib/types/db";

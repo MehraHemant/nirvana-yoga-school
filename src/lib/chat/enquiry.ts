@@ -34,7 +34,7 @@ const AWAITING_CONFIRM_RE =
 
 const ASKED_NAME_RE =
   /\b(your (full )?name|may i (have|get) your name|what('s| is) your name|name(,|\s+please)?\b)/i;
-const ASKED_EMAIL_RE = /\b(e-?mail|email address)\b/i;
+const _ASKED_EMAIL_RE = /\b(e-?mail|email address)\b/i;
 const ASKED_MESSAGE_RE =
   /\b(message|what would you like|what are you (interested|enquir|inquir)|tell me (more|what)|how can we help|what can i help|your (enquiry|inquiry|interest))\b/i;
 
@@ -141,7 +141,10 @@ function looksLikePersonName(text: string): boolean {
   const words = t.split(/\s+/);
   if (words.length > 5) return false;
   // Reject sentence-like intent even when stopwords were sparse.
-  if (words.length >= 3 && /^(create|make|start|can|could|please|i)\b/i.test(t)) {
+  if (
+    words.length >= 3 &&
+    /^(create|make|start|can|could|please|i)\b/i.test(t)
+  ) {
     return false;
   }
   return /^[A-Za-z][A-Za-z .'-]{0,78}$/.test(t);
@@ -254,9 +257,7 @@ export function extractEnquiryDraft(
   } else {
     // Prefer "my name is …"; only use "I'm / I am …" when it still looks like a name.
     const spoken =
-      joined.match(
-        /\bmy name is\s+([A-Za-z][A-Za-z .'-]{1,80})/i,
-      ) ??
+      joined.match(/\bmy name is\s+([A-Za-z][A-Za-z .'-]{1,80})/i) ??
       joined.match(
         /\bi(?:'m| am)\s+([A-Za-z][A-Za-z'-]{1,40}(?:\s+[A-Za-z][A-Za-z'-]{1,40}){0,3})\b/i,
       );
@@ -335,7 +336,9 @@ export function extractEnquiryDraft(
       continue;
     }
 
-    const askedName = Boolean(prevAssistant && ASKED_NAME_RE.test(prevAssistant));
+    const askedName = Boolean(
+      prevAssistant && ASKED_NAME_RE.test(prevAssistant),
+    );
     const askedMessage = Boolean(
       prevAssistant && ASKED_MESSAGE_RE.test(prevAssistant),
     );
@@ -354,7 +357,6 @@ export function extractEnquiryDraft(
       !looksLikePersonName(content)
     ) {
       draft.message = content.slice(0, 2000);
-      continue;
     }
   }
 
@@ -449,11 +451,11 @@ export function formatEnquiryStateForPrompt(draft: ChatEnquiryDraft): string {
 export function draftToLeadInput(draft: ChatEnquiryDraft): LeadSubmissionInput {
   return {
     type: "enquiry",
-    name: draft.name!.trim(),
-    email: draft.email!.trim(),
+    name: draft.name?.trim() || "",
+    email: draft.email?.trim() || "",
     phone: draft.phone?.trim() || undefined,
     program: (draft.program ?? "General enquiry").trim(),
-    message: draft.message!.trim(),
+    message: draft.message?.trim() || "",
     source: "chatbot",
   };
 }

@@ -1,9 +1,9 @@
+import { isCdnConfigured, maxPdfUploadBytes } from "@/lib/cdn/cloudinary";
+import { MAX_PDF_UPLOAD_LABEL } from "@/lib/cdn/constants";
 import {
   createChatKnowledgePdf,
   listChatKnowledgePdfs,
 } from "@/lib/chat/pdf-knowledge";
-import { isCdnConfigured, maxPdfUploadBytes } from "@/lib/cdn/cloudinary";
-import { MAX_PDF_UPLOAD_LABEL } from "@/lib/cdn/constants";
 import {
   jsonBadRequest,
   jsonError,
@@ -108,10 +108,9 @@ export async function POST(request: Request) {
 
   const form = await request.formData();
   const title = String(form.get("title") ?? "").trim() || undefined;
-  const files = [
-    ...form.getAll("file"),
-    ...form.getAll("files"),
-  ].filter(isMultipartFile);
+  const files = [...form.getAll("file"), ...form.getAll("files")].filter(
+    isMultipartFile,
+  );
 
   if (files.length === 0) {
     return jsonBadRequest("file field required (multipart field: files)");

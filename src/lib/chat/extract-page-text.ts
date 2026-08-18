@@ -86,7 +86,9 @@ function collectStrings(value: unknown, out: string[], depth = 0): void {
     return;
   }
   if (typeof value === "object") {
-    for (const [key, child] of Object.entries(value as Record<string, unknown>)) {
+    for (const [key, child] of Object.entries(
+      value as Record<string, unknown>,
+    )) {
       if (SKIP_KEYS.has(key)) continue;
       if (key === "href" && typeof child === "string") {
         const href = child.trim();
@@ -137,7 +139,9 @@ export type ExtractedTextBlock = {
  *
  * @param contentData - `pages.content_data` for slug=contact
  */
-function extractContactBlocks(contentData: Record<string, unknown>): ExtractedTextBlock[] {
+function extractContactBlocks(
+  contentData: Record<string, unknown>,
+): ExtractedTextBlock[] {
   const blocks: ExtractedTextBlock[] = [];
   const hero = contentData.hero;
   if (hero && typeof hero === "object") {
@@ -206,8 +210,7 @@ function extractContactBlocks(contentData: Record<string, unknown>): ExtractedTe
 function extractDedicatedBlocks(
   contentData: Record<string, unknown>,
 ): ExtractedTextBlock[] {
-  const kind =
-    typeof contentData.kind === "string" ? contentData.kind : "page";
+  const kind = typeof contentData.kind === "string" ? contentData.kind : "page";
 
   if (kind === "contact") {
     return extractContactBlocks(contentData);
@@ -347,8 +350,7 @@ export function extractPageModulesBlocks(
         const faq = item as Record<string, unknown>;
         const question =
           typeof faq.question === "string" ? faq.question.trim() : "";
-        const answer =
-          typeof faq.answer === "string" ? faq.answer.trim() : "";
+        const answer = typeof faq.answer === "string" ? faq.answer.trim() : "";
         if (!question || !answer) continue;
         blocks.push({
           keySuffix: `modules-faq-${index}`,

@@ -46,7 +46,11 @@ export async function extractPdfText(buffer: Buffer): Promise<string> {
     const pages = Array.isArray(result.pages) ? result.pages : [];
     if (pages.length > 0) {
       const parts = pages
-        .map((page) => String(page.text ?? "").replace(/\s+/g, " ").trim())
+        .map((page) =>
+          String(page.text ?? "")
+            .replace(/\s+/g, " ")
+            .trim(),
+        )
         .filter((text) => text.length > 0);
       if (parts.length > 0) return parts.join("\n\n");
     }
@@ -74,7 +78,10 @@ export function chunkPdfText(
     options?.overlap ?? PDF_CHUNK_OVERLAP,
     Math.max(0, chunkChars - 1),
   );
-  const normalized = text.replace(/\r\n/g, "\n").replace(/[ \t]+/g, " ").trim();
+  const normalized = text
+    .replace(/\r\n/g, "\n")
+    .replace(/[ \t]+/g, " ")
+    .trim();
   if (!normalized) return [];
 
   const chunks: PdfTextChunk[] = [];

@@ -1,9 +1,15 @@
+import { getBookingAddons } from "@/content/repositories/shared-sections";
 import type {
   BookingRecord,
   BookingSelectedAddon,
   BookingStatus,
   CreateBookingInput,
 } from "@/content/types/booking";
+import {
+  enrichBookingAddons,
+  filterBookingAddonsForType,
+  resolveSelectedAddons,
+} from "@/lib/booking/addons";
 import {
   getBookingProgram,
   getCourseBookingCatalog,
@@ -14,12 +20,6 @@ import {
   centsToUsd,
   usdToCents,
 } from "@/lib/booking/pricing";
-import { getBookingAddons } from "@/content/repositories/shared-sections";
-import {
-  enrichBookingAddons,
-  filterBookingAddonsForType,
-  resolveSelectedAddons,
-} from "@/lib/booking/addons";
 import { db } from "@/lib/db";
 import type { ParseResult } from "@/lib/types/api";
 
@@ -353,7 +353,8 @@ export function parseCreateBookingInput(
           : undefined,
       selectedAddonIds: Array.isArray(record.selectedAddonIds)
         ? record.selectedAddonIds.filter(
-            (id): id is string => typeof id === "string" && id.trim().length > 0,
+            (id): id is string =>
+              typeof id === "string" && id.trim().length > 0,
           )
         : [],
     },

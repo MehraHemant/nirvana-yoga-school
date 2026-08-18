@@ -1,4 +1,3 @@
-import { ONLINE_HUB_SLUG } from "@/content/pages/slugs";
 import type { BookingAddonsContent } from "@/content/types/booking";
 import type {
   BookingPageContent,
@@ -6,11 +5,12 @@ import type {
   EnquirePageContent,
   HomePageContent,
 } from "@/content/types/dedicated-pages";
-import type { GlobalFooter } from "@/content/types/global-settings";
 import type {
   ExamCertificationContent,
   InstagramFeedContent,
   ResidentialLifeContent,
+  SharedFoodContent,
+  SharedGalleryImage,
   TravelGuideContent,
   WhyNirvanaContent,
 } from "@/content/types/shared-sections";
@@ -72,7 +72,7 @@ export function createEmptyHomePageContent(): HomePageContent {
     },
     courses: {
       title: "",
-      cards: [],
+      placements: [],
     },
     yogaAlliance: {
       title: "",
@@ -191,6 +191,7 @@ export function createEmptyResidentialLife(): ResidentialLifeContent {
       live: true,
       stay: { title: "", description: "" },
       galleries: [],
+      extraRooms: [],
     },
     food: {
       live: true,
@@ -201,9 +202,43 @@ export function createEmptyResidentialLife(): ResidentialLifeContent {
         dietaryNote: "",
       },
       gallery: [],
+      extraPoints: [],
+      extraGallery: [],
     },
     facilities: [],
   };
+}
+
+/** Empty shared food document (`courseFood` / `retreatFood`). */
+export function createEmptySharedFood(): SharedFoodContent {
+  return {
+    live: true,
+    content: {
+      title: "",
+      description: "",
+      points: [],
+      dietaryNote: "",
+    },
+    gallery: [],
+  };
+}
+
+/**
+ * Builds numbered local gallery images under `/img/…`.
+ *
+ * @param folder - Path under public/img
+ * @param count - Image count
+ * @param title - Alt/title base
+ * @param ext - File extension
+ */
+/** Default shared sattvic food for course pages. */
+export function createDefaultCourseFood(): SharedFoodContent {
+  return createEmptySharedFood();
+}
+
+/** Default shared sattvic food for retreat pages. */
+export function createDefaultRetreatFood(): SharedFoodContent {
+  return createEmptySharedFood();
 }
 
 /** Empty optional booking add-ons document. */
@@ -355,108 +390,3 @@ export function createEmptyInstagramFeed(): InstagramFeedContent {
 
 export const SIGN_IN_URL =
   "https://www.nirvanayogaschoolindia.com/student-login";
-
-/**
- * Default global footer when the CMS row is missing or being scaffolded.
- * Links and contact match real public routes / site contact surfaces.
- */
-export function createDefaultGlobalFooter(): GlobalFooter {
-  return {
-    brand: {
-      logo: "/logo.png",
-      tagline:
-        "A residential sanctuary for seekers — where classical Hatha, philosophy, and meditation converge on the sacred banks of the Ganga.",
-      credentials: "Yoga Alliance RYS · Tapovan, Rishikesh",
-    },
-    social: [
-      {
-        label: "Instagram",
-        href: "https://www.instagram.com/nirvanayogaschool",
-        icon: "instagram",
-      },
-      {
-        label: "YouTube",
-        href: "https://www.youtube.com/@nirvanayogaschool",
-        icon: "youtube",
-      },
-      {
-        label: "Facebook",
-        href: "https://www.facebook.com/nirvanayogaschool",
-        icon: "facebook",
-      },
-      {
-        label: "WhatsApp",
-        href: "https://wa.me/918218564835",
-        icon: "whatsapp",
-      },
-    ],
-    columns: [
-      {
-        heading: "Programs",
-        links: [
-          {
-            label: "Yoga Teacher Training",
-            href: "/yoga-teacher-training-in-rishikesh-india",
-          },
-          {
-            label: "200-Hour YTT",
-            href: "/course/200-hour-yoga-teacher-training-in-rishikesh-india",
-          },
-          {
-            label: "300-Hour YTT",
-            href: "/course/300-hour-yoga-teacher-training-in-rishikesh-india",
-          },
-          {
-            label: "500-Hour YTT",
-            href: "/course/500-hour-yoga-teacher-training-in-rishikesh-india",
-          },
-          {
-            label: "Online Courses",
-            href: `/${ONLINE_HUB_SLUG}`,
-          },
-          {
-            label: "Yoga Retreats",
-            href: "/retreat/3-day-yoga-retreat-in-rishikesh-india",
-          },
-          {
-            label: "Sound Healing",
-            href: "/course/sound-healing-course-in-rishikesh-india",
-          },
-        ],
-      },
-      {
-        heading: "School",
-        links: [
-          { label: "About", href: "/about-us" },
-          { label: "Teachers", href: "/teacher" },
-          { label: "Blog", href: "/blog" },
-          { label: "Course Venue", href: "/venue/course-venue" },
-          { label: "Retreat Venue", href: "/venue/retreat-venue" },
-          { label: "Contact", href: "/contact" },
-          { label: "Enquire Now", href: "/enquire-now" },
-        ],
-      },
-      {
-        heading: "Visit",
-        links: [
-          { label: "Book a Course", href: "/booking" },
-          { label: "Book a Retreat", href: "/retreat-booking" },
-          {
-            label: "Student Login",
-            href: SIGN_IN_URL,
-            external: true,
-          },
-        ],
-      },
-    ],
-    contact: {
-      address: "Upper Tapovan, Rishikesh, Uttarakhand, India",
-      email: "hello@nirvanayogaschoolindia.com",
-      phone: "+91 82185 64835",
-    },
-    legal: [
-      { label: "Privacy", href: "#" },
-      { label: "Terms", href: "#" },
-    ],
-  };
-}

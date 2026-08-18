@@ -16,7 +16,9 @@ import { isDbEnabled } from "@/lib/db";
  */
 export async function POST(request: Request) {
   if (!isDbEnabled()) {
-    return jsonUnavailable("Database not configured. Set NEON_DB_POSTGRES_URL.");
+    return jsonUnavailable(
+      "Database not configured. Set NEON_DB_POSTGRES_URL.",
+    );
   }
 
   const body = (await request.json()) as {

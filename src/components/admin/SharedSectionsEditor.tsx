@@ -7,24 +7,40 @@ import { AdminSectionJumpNav } from "@/components/admin/AdminSectionJumpNav";
 import { CollapsiblePanel } from "@/components/admin/CollapsiblePanel";
 import { ImageField } from "@/components/admin/ImageField";
 import { NestedItemCard } from "@/components/admin/NestedItemCard";
+import { RoomsCatalogEditor } from "@/components/admin/RoomsCatalogEditor";
 import { SectionLiveField } from "@/components/admin/SectionLiveField";
 import { SelectField } from "@/components/admin/SelectField";
+import {
+  type SharedAccommodationMeta,
+  SharedAccommodationMetaFields,
+  SharedFoodFields,
+} from "@/components/admin/SharedLodgingEditors";
 import { TextField } from "@/components/admin/TextField";
 import { useSectionScrollSpy } from "@/components/admin/useSectionScrollSpy";
 import { useStableListKeys } from "@/components/admin/useStableListKeys";
 import {
-  createEmptyWhyNirvana,
-  createExamCertificationAdminScaffold,
-} from "@/lib/cms/structural-defaults";
-import { hasExamCertificationContent } from "@/lib/cms/section-visibility";
+  coerceSharedAccommodationMeta,
+  normalizeSharedFood,
+  residentialLifeToRetreatAccommodation,
+  sharedMetaToResidentialLife,
+} from "@/content/mappers/residential-life";
 import type {
   ExamCertificationContent,
   InstagramFeedContent,
+  ResidentialLifeContent,
+  RetreatAccommodationContent,
+  SharedFoodContent,
   SiteMapContent,
   TravelGuideContent,
   WhyNirvanaContent,
 } from "@/content/types/shared-sections";
 import { GLOBAL_SHARED_SECTION_KEYS } from "@/content/types/shared-sections";
+import { hasExamCertificationContent } from "@/lib/cms/section-visibility";
+import {
+  createEmptySharedFood,
+  createEmptyWhyNirvana,
+  createExamCertificationAdminScaffold,
+} from "@/lib/cms/structural-defaults";
 import { parseApiJson } from "@/lib/types/api";
 
 const SHARED_KEYS = GLOBAL_SHARED_SECTION_KEYS;
@@ -37,6 +53,10 @@ type SharedValue =
   | SiteMapContent
   | InstagramFeedContent
   | TravelGuideContent
+  | ResidentialLifeContent
+  | RetreatAccommodationContent
+  | SharedFoodContent
+  | SharedAccommodationMeta
   | Record<string, unknown>;
 
 const LABELS: Record<SharedKey, string> = {
@@ -45,7 +65,53 @@ const LABELS: Record<SharedKey, string> = {
   siteMap: "Map",
   instagram: "Instagram",
   travel: "Travel",
+  residentialLife: "Course accommodation",
+  retreatAccommodation: "Retreat accommodation",
+  courseFood: "Course food",
+  retreatFood: "Retreat food",
 };
+
+const HINTS: Record<SharedKey, string> = {
+  whyNirvana: "Site-wide band",
+  examCertification: "Site-wide band",
+  siteMap: "Embed & copy",
+  instagram: "Feed settings",
+  travel: "Guide & facts",
+  residentialLife: "Stay, facilities & rooms",
+  retreatAccommodation: "Stay, facilities & rooms",
+  courseFood: "Menu copy & gallery",
+  retreatFood: "Menu copy & gallery",
+};
+
+const DESCRIPTIONS: Record<SharedKey, string> = {
+  whyNirvana: "Shared highlights band used across product and hub pages.",
+  examCertification: "Shared exam process and certificate copy.",
+  siteMap: "Map embed shown on travel and venue pages.",
+  instagram: "Instagram feed block used site-wide.",
+  travel: "Travel guide copy, facts, and topic cards.",
+  residentialLife:
+    "Course stay intro, campus facilities, and the shared course room catalog.",
+  retreatAccommodation:
+    "Retreat stay intro, campus facilities, and the shared retreat room catalog.",
+  courseFood: "Shared sattvic food copy and gallery for course pages.",
+  retreatFood: "Shared sattvic food copy and gallery for retreat pages.",
+};
+
+const NAV_GROUPS: Array<{ label: string; keys: SharedKey[] }> = [
+  {
+    label: "Lodging & food",
+    keys: [
+      "residentialLife",
+      "retreatAccommodation",
+      "courseFood",
+      "retreatFood",
+    ],
+  },
+  {
+    label: "Site bands",
+    keys: ["whyNirvana", "examCertification", "siteMap", "instagram", "travel"],
+  },
+];
 
 const SHARED_PANEL_ITEMS: Record<
   SharedKey,
@@ -64,6 +130,18 @@ const SHARED_PANEL_ITEMS: Record<
     { id: "shared-travel-facts", label: "Quick facts" },
     { id: "shared-travel-topics", label: "Topics" },
   ],
+  residentialLife: [
+    { id: "lodging-stay", label: "Stay overview" },
+    { id: "lodging-facilities", label: "Facilities" },
+    { id: "lodging-rooms", label: "Rooms" },
+  ],
+  retreatAccommodation: [
+    { id: "lodging-stay", label: "Stay overview" },
+    { id: "lodging-facilities", label: "Facilities" },
+    { id: "lodging-rooms", label: "Rooms" },
+  ],
+  courseFood: [{ id: "shared-course-food", label: "Course food" }],
+  retreatFood: [{ id: "shared-retreat-food", label: "Retreat food" }],
 };
 
 /**
@@ -75,6 +153,16 @@ function emptySharedDoc(key: SharedKey): SharedValue {
   if (key === "whyNirvana") return createEmptyWhyNirvana();
   if (key === "examCertification") {
     return createExamCertificationAdminScaffold();
+  }
+  if (key === "residentialLife" || key === "retreatAccommodation") {
+    return {
+      live: true,
+      stay: { title: "", description: "" },
+      facilities: [],
+    } satisfies SharedAccommodationMeta;
+  }
+  if (key === "courseFood" || key === "retreatFood") {
+    return createEmptySharedFood();
   }
   if (key === "siteMap") {
     return {
@@ -104,7 +192,23 @@ function emptySharedDoc(key: SharedKey): SharedValue {
 }
 
 /**
- * Admin hub for global shared section documents. Lodging/food are edited per page.
+ * Coerces a loaded settings value into the editor shape for the active key.
+ *
+ * @param key - Active shared key
+ * @param raw - Settings value from API
+ */
+function coerceLoadedValue(key: SharedKey, raw: SharedValue): SharedValue {
+  if (key === "residentialLife" || key === "retreatAccommodation") {
+    return coerceSharedAccommodationMeta(raw);
+  }
+  if (key === "courseFood" || key === "retreatFood") {
+    return normalizeSharedFood(raw as SharedFoodContent);
+  }
+  return raw;
+}
+
+/**
+ * Admin hub for global shared section documents including lodging catalogs.
  */
 export function SharedSectionsEditor() {
   const [active, setActive] = useState<SharedKey>("whyNirvana");
@@ -132,14 +236,16 @@ export function SharedSectionsEditor() {
       .then((res) => parseApiJson<{ settings: SharedValue }>(res))
       .then((body) => {
         if (cancelled) return;
-        const next = body.settings ?? emptySharedDoc(active);
+        const next = coerceLoadedValue(
+          active,
+          body.settings ?? emptySharedDoc(active),
+        );
         setValue(next);
         setBaseline(JSON.stringify(next));
       })
       .catch((err: Error) => {
         if (cancelled) return;
-        // Missing row (404) — open an editable default so the panel still works.
-        const fallback = emptySharedDoc(active);
+        const fallback = coerceLoadedValue(active, emptySharedDoc(active));
         setValue(fallback);
         setBaseline(JSON.stringify(fallback));
         setError(
@@ -162,10 +268,23 @@ export function SharedSectionsEditor() {
     setSaved(false);
     setError("");
     try {
+      let payload: SharedValue = value;
+      if (active === "retreatAccommodation") {
+        const meta = coerceSharedAccommodationMeta(value);
+        payload = residentialLifeToRetreatAccommodation(
+          sharedMetaToResidentialLife(meta),
+        );
+      } else if (active === "residentialLife") {
+        payload = sharedMetaToResidentialLife(
+          coerceSharedAccommodationMeta(value),
+        );
+      } else if (active === "courseFood" || active === "retreatFood") {
+        payload = normalizeSharedFood(value as SharedFoodContent);
+      }
       const res = await fetch(`/api/admin/settings/${active}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ value }),
+        body: JSON.stringify({ value: payload }),
       });
       await parseApiJson(res);
       setBaseline(JSON.stringify(value));
@@ -178,9 +297,13 @@ export function SharedSectionsEditor() {
   }
 
   const dirty = Boolean(value) && JSON.stringify(value) !== baseline;
-  const panelItems = SHARED_PANEL_ITEMS[active];
+  const panelItems = SHARED_PANEL_ITEMS[active] ?? [];
   const activePanelId = useSectionScrollSpy(panelItems.map((item) => item.id));
-  const showJumpNav = panelItems.length >= 3;
+  const showJumpNav = panelItems.length >= 2;
+  const isLodging =
+    active === "residentialLife" || active === "retreatAccommodation";
+  const isFood = active === "courseFood" || active === "retreatFood";
+
   const fields = value ? (
     active === "whyNirvana" ? (
       <WhyNirvanaFields doc={value as WhyNirvanaContent} onChange={setValue} />
@@ -196,43 +319,85 @@ export function SharedSectionsEditor() {
         doc={value as InstagramFeedContent}
         onChange={setValue}
       />
-    ) : (
+    ) : active === "travel" ? (
       <TravelFields doc={value as TravelGuideContent} onChange={setValue} />
-    )
+    ) : isLodging ? (
+      <div className="admin-shared-stack">
+        <SharedAccommodationMetaFields
+          doc={value as SharedAccommodationMeta}
+          catalogLabel={
+            active === "retreatAccommodation" ? "Retreat" : "Course"
+          }
+          onChange={setValue}
+        />
+        <RoomsCatalogEditor
+          catalog={active === "retreatAccommodation" ? "retreat" : "course"}
+        />
+      </div>
+    ) : isFood ? (
+      <SharedFoodFields
+        doc={value as SharedFoodContent}
+        catalogLabel={active === "retreatFood" ? "Retreat" : "Course"}
+        onChange={setValue}
+      />
+    ) : null
   ) : null;
 
   return (
-    <div className="admin-editor">
-      <div className="admin-editor-header">
+    <div className="admin-editor admin-shared-hub">
+      <div className="admin-editor-header admin-shared-hub__header">
         <div>
           <Link href="/admin" className="admin-back-link">
             ← Dashboard
           </Link>
           <h1 className="admin-title">Shared sections</h1>
           <p className="admin-subtitle">
-            Global content only — Why Nirvana, Map, Instagram, Travel, and Exam
-            &amp; Certification. Edit once; each page toggles Live. Lodging and
-            food are edited on each page.
+            Edit once — course/retreat accommodation &amp; food, plus site-wide
+            bands. Each product page only toggles Live for lodging and food.
           </p>
         </div>
       </div>
 
-      <div className="admin-shared-key-tabs" role="tablist">
-        {SHARED_KEYS.map((key) => (
-          <button
-            key={key}
-            type="button"
-            role="tab"
-            aria-selected={active === key}
-            className={`admin-btn-sm${active === key ? "" : " admin-btn-sm--ghost"}`}
-            onClick={() => {
-              setActive(key);
-              window.location.hash = key;
-            }}
-          >
-            {LABELS[key]}
-          </button>
+      <div className="admin-shared-nav">
+        {NAV_GROUPS.map((group) => (
+          <div key={group.label} className="admin-shared-nav__group">
+            <p className="admin-shared-nav__label">{group.label}</p>
+            <div
+              className="admin-shared-nav__tabs"
+              role="tablist"
+              aria-label={group.label}
+            >
+              {group.keys.map((key) => (
+                <button
+                  key={key}
+                  type="button"
+                  role="tab"
+                  aria-selected={active === key}
+                  className={`admin-shared-tab${active === key ? " is-active" : ""}`}
+                  onClick={() => {
+                    setActive(key);
+                    window.location.hash = key;
+                  }}
+                >
+                  <span className="admin-shared-tab__label">{LABELS[key]}</span>
+                  <span className="admin-shared-tab__hint">{HINTS[key]}</span>
+                </button>
+              ))}
+            </div>
+          </div>
         ))}
+      </div>
+
+      <div className="admin-shared-active-banner">
+        <div>
+          <p className="admin-cms-kicker">Editing</p>
+          <h2 className="admin-shared-active-banner__title">
+            {LABELS[active]}
+          </h2>
+          <p className="admin-shared-active-banner__desc">
+            {DESCRIPTIONS[active]}
+          </p>
+        </div>
       </div>
 
       {error ? <p className="admin-error">{error}</p> : null}
@@ -248,12 +413,16 @@ export function SharedSectionsEditor() {
           <div className="admin-editor-sections">{fields}</div>
         </div>
       ) : (
-        fields
+        <div className="admin-editor-sections">{fields}</div>
       )}
 
       <AdminSaveBar
         title={LABELS[active]}
-        subtitle={`global_settings.${active}`}
+        subtitle={
+          isLodging
+            ? `Stay & facilities · global_settings.${active}`
+            : `global_settings.${active}`
+        }
         saving={saving}
         saved={saved}
         dirty={dirty}
@@ -407,17 +576,15 @@ function ExamCertificationFields({
           </p>
           <ul style={{ margin: "0.5rem 0 0", paddingLeft: "1.25rem" }}>
             <li>
-              Shared Live: {doc.live !== false ? "on" : "off (hidden everywhere)"}
+              Shared Live:{" "}
+              {doc.live !== false ? "on" : "off (hidden everywhere)"}
             </li>
             <li>
-              Intro copy: {hasCopy ? "filled" : "empty (optional if steps/certs exist)"}
+              Intro copy:{" "}
+              {hasCopy ? "filled" : "empty (optional if steps/certs exist)"}
             </li>
-            <li>
-              Evaluation steps with content: {filledSteps}
-            </li>
-            <li>
-              Certificates with content: {filledCerts}
-            </li>
+            <li>Evaluation steps with content: {filledSteps}</li>
+            <li>Certificates with content: {filledCerts}</li>
             <li>
               Will appear on pages with Exam &amp; certification enabled:{" "}
               {willShowPublicly
@@ -454,7 +621,9 @@ function ExamCertificationFields({
           </button>
         </div>
         {steps.length === 0 ? (
-          <p className="admin-hint">No steps yet. Add at least one for the process list.</p>
+          <p className="admin-hint">
+            No steps yet. Add at least one for the process list.
+          </p>
         ) : null}
         {steps.map((step, index) => (
           <NestedItemCard

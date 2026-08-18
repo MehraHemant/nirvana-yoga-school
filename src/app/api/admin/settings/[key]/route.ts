@@ -1,17 +1,21 @@
 import { revalidatePath } from "next/cache";
-import {
-  createEmptyBookingAddons,
-  createDefaultExamCertification,
-  createExamCertificationAdminScaffold,
-  createEmptyWhyNirvana,
-  normalizeExamCertification,
-} from "@/lib/cms/structural-defaults";
-import { hasExamCertificationContent } from "@/lib/cms/section-visibility";
+import { upsertPageSeo, YTT_HUB_SLUG } from "@/content/repositories/page-seo";
+import type { PageSeoMeta } from "@/content/types/page-seo";
+import type { ExamCertificationContent } from "@/content/types/shared-sections";
 import { jsonError, jsonForbidden, jsonOk } from "@/lib/cms/api-response";
 import { getServerSession } from "@/lib/cms/auth";
 import { invalidateGlobalSettingsCache } from "@/lib/cms/cache";
+import { hasExamCertificationContent } from "@/lib/cms/section-visibility";
+import {
+  createDefaultCourseFood,
+  createDefaultExamCertification,
+  createDefaultRetreatFood,
+  createEmptyBookingAddons,
+  createEmptyWhyNirvana,
+  createExamCertificationAdminScaffold,
+  normalizeExamCertification,
+} from "@/lib/cms/structural-defaults";
 import { db } from "@/lib/db";
-import type { ExamCertificationContent } from "@/content/types/shared-sections";
 import type { ApiRouteParams } from "@/lib/types/api";
 
 const ALLOWED_KEYS = [
@@ -28,6 +32,8 @@ const ALLOWED_KEYS = [
   "homeFaqs",
   "venueFaqs",
   "retreatAccommodation",
+  "courseFood",
+  "retreatFood",
   "yttHub",
   "bookingAddons",
 ] as const;
@@ -106,6 +112,25 @@ export async function GET(
     return jsonOk({ settings: value });
   }
 
+  if (key === "courseFood") {
+    const value = await ensureSharedSettings(key, createDefaultCourseFood());
+    return jsonOk({ settings: value });
+  }
+
+  if (key === "retreatFood") {
+    const value = await ensureSharedSettings(key, createDefaultRetreatFood());
+    return jsonOk({ settings: value });
+  }
+
+  if (key === "residentialLife" || key === "retreatAccommodation") {
+    const value = await ensureSharedSettings(key, {
+      live: true,
+      stay: { title: "", description: "" },
+      facilities: [],
+    });
+    return jsonOk({ settings: value });
+  }
+
   const record = await db.globalSettings.findUnique({ where: { key } });
   if (!record)
     return jsonError("Settings not found", 404, { code: "NOT_FOUND" });
@@ -142,11 +167,30 @@ export async function PUT(
     create: { key, value },
   });
 
+  if (key === "yttHub" && value && typeof value === "object") {
+    const meta = (value as { meta?: unknown }).meta;
+    if (meta && typeof meta === "object") {
+      await upsertPageSeo(YTT_HUB_SLUG, meta as PageSeoMeta).catch((error) => {
+        console.error("[settings PUT] YTT hub SEO sync failed", error);
+      });
+    }
+  }
+
   invalidateGlobalSettingsCache(key);
   revalidatePath("/");
   revalidatePath(`/api/content/${key}`);
   if (key === "examCertification") {
     revalidatePath("/api/content/exam-certification");
+    revalidatePath("/course", "layout");
+    revalidatePath("/online-course", "layout");
+    revalidatePath("/retreat", "layout");
+  }
+  if (
+    key === "courseFood" ||
+    key === "retreatFood" ||
+    key === "residentialLife" ||
+    key === "retreatAccommodation"
+  ) {
     revalidatePath("/course", "layout");
     revalidatePath("/online-course", "layout");
     revalidatePath("/retreat", "layout");

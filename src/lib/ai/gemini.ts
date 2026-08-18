@@ -35,8 +35,7 @@ const DEFAULT_GEMINI_CHAT_FALLBACKS = [
  * @returns Deduplicated model ids to try in order
  */
 export function resolveGeminiChatModels(): string[] {
-  const primary =
-    process.env.GEMINI_MODEL?.trim() || DEFAULT_GEMINI_CHAT_MODEL;
+  const primary = process.env.GEMINI_MODEL?.trim() || DEFAULT_GEMINI_CHAT_MODEL;
   const rawFallbacks = process.env.GEMINI_MODEL_FALLBACKS?.trim();
   const fallbacks = rawFallbacks
     ? rawFallbacks
@@ -254,7 +253,9 @@ export class GeminiProvider implements AiProvider {
       );
 
       if (!response.ok) {
-        const data = (await response.json().catch(() => ({}))) as GeminiResponse;
+        const data = (await response
+          .json()
+          .catch(() => ({}))) as GeminiResponse;
         const detail =
           data.error?.message ?? `request failed (${response.status})`;
         const error = new Error(`Gemini ${detail}`);
@@ -279,6 +280,8 @@ export class GeminiProvider implements AiProvider {
       return;
     }
 
-    throw lastError ?? new Error("Gemini chat failed with no models configured");
+    throw (
+      lastError ?? new Error("Gemini chat failed with no models configured")
+    );
   }
 }

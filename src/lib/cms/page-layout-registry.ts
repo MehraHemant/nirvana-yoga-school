@@ -4,6 +4,7 @@
  */
 
 import { KIRTAN_SLUG } from "@/content/mappers/kirtan-page";
+import type { HeroType } from "@/content/types/page-modules";
 import {
   ONLINE_COURSE_SLUGS,
   ONLINE_HUB_SLUG,
@@ -156,6 +157,8 @@ export const PAGE_LAYOUTS: Record<PageLayoutId, PageLayoutDefinition> = {
         label: "Accommodation & food",
         source: "pageModules",
       },
+      SHARED_LINK("residentialLife", "Course accommodation (shared)"),
+      SHARED_LINK("courseFood", "Course food (shared)"),
       { id: "pricing", label: "Pricing", source: "pageModules" },
       { id: "faq", label: "FAQ", source: "pageModules" },
     ],
@@ -192,6 +195,8 @@ export const PAGE_LAYOUTS: Record<PageLayoutId, PageLayoutDefinition> = {
         label: "Accommodation & food",
         source: "pageModules",
       },
+      SHARED_LINK("retreatAccommodation", "Retreat accommodation (shared)"),
+      SHARED_LINK("retreatFood", "Retreat food (shared)"),
       { id: "packages", label: "Packages & dates", source: "courseDocument" },
       { id: "testimonials", label: "Testimonials", source: "courseDocument" },
       SHARED_LINK("whyNirvana", "Why Nirvana (shared)"),
@@ -290,15 +295,14 @@ export const PAGE_LAYOUTS: Record<PageLayoutId, PageLayoutDefinition> = {
       { id: "overview", label: "Overview", source: "pageModules" },
       {
         id: "why-online",
-        label: "Why online (static benefits)",
-        source: "hardcoded",
+        label: "Why online",
+        source: "pageModules",
       },
       {
         id: "courses",
         label: "Courses (all published online)",
         source: "hardcoded",
       },
-      SHARED_LINK("examCertification", "Exam & certification (shared)"),
       { id: "faq", label: "FAQ", source: "pageModules" },
     ],
   },
@@ -391,6 +395,83 @@ export const PAGE_LAYOUTS: Record<PageLayoutId, PageLayoutDefinition> = {
     sections: [],
   },
 };
+
+/** Admin hero editor config per layout family. */
+export type HeroLayoutConfig = {
+  /** Default hero type when scaffolding empty modules */
+  defaultType: HeroType;
+  /** Layout cards offered in the hero editor */
+  allowedTypes: HeroType[];
+  /** Optional panel description override */
+  description?: string;
+};
+
+/** Hero editor defaults keyed by layout family. */
+export const HERO_LAYOUT_BY_PAGE: Partial<
+  Record<PageLayoutId, HeroLayoutConfig>
+> = {
+  residentialCourse: {
+    defaultType: "bento-media",
+    allowedTypes: ["bento-media"],
+    description:
+      "Course hero — title, gallery slides, certification badge, and optional YouTube filmstrip.",
+  },
+  onlineCourse: {
+    defaultType: "split-copy",
+    allowedTypes: ["split-copy"],
+    description:
+      "Online course hero — copy on the left, preview image or video on the right.",
+  },
+  retreat: {
+    defaultType: "bento-media",
+    allowedTypes: ["bento-media", "page-minimal"],
+    description:
+      "Retreat hero — bento gallery (recommended) or page-minimal banner.",
+  },
+  venue: {
+    defaultType: "simple-banner",
+    allowedTypes: ["simple-banner"],
+    description:
+      "Page title band — background image, title, and short description at the top of the venue page.",
+  },
+  onlineHub: {
+    defaultType: "page-minimal",
+    allowedTypes: ["page-minimal"],
+    description:
+      "Homepage-style full-bleed hero — badge, title lead/accent, CTA, marquee, and optional video (poster falls back to hero image).",
+  },
+  hub: {
+    defaultType: "page-minimal",
+    allowedTypes: ["page-minimal", "simple-banner"],
+  },
+  kirtan: {
+    defaultType: "page-minimal",
+    allowedTypes: ["page-minimal", "bento-media"],
+  },
+  editorial: {
+    defaultType: "page-minimal",
+    allowedTypes: ["page-minimal", "simple-banner"],
+  },
+};
+
+/**
+ * Resolves hero editor config for a layout family.
+ *
+ * @param layoutId - Resolved page layout id
+ */
+export function getHeroLayoutConfig(layoutId: PageLayoutId): HeroLayoutConfig {
+  return (
+    HERO_LAYOUT_BY_PAGE[layoutId] ?? {
+      defaultType: "page-minimal",
+      allowedTypes: [
+        "bento-media",
+        "split-copy",
+        "simple-banner",
+        "page-minimal",
+      ],
+    }
+  );
+}
 
 /**
  * Resolves the layout family for a CMS page.

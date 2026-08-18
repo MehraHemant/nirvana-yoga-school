@@ -1,5 +1,6 @@
-import { revalidateTag } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { getPageRef } from "@/content/pages/registry";
+import { upsertPageSeo } from "@/content/repositories/page-seo";
 import { teacherSlug } from "@/content/teachers-slug";
 import type {
   BlogPostDocument,
@@ -9,13 +10,13 @@ import type {
   SitePageDocument,
   SitePageSection,
 } from "@/content/types";
-import { revalidatePath } from "next/cache";
 import { invalidateContentCache } from "@/lib/cms/cache";
 import {
   buildModulesFromCourse,
   buildModulesFromOnlineCourse,
   syncPageFieldsFromModules,
 } from "@/lib/cms/page-modules-builder";
+import { allocateUniqueSlug, slugifyText } from "@/lib/cms/unique-slug";
 import { type DbClient, db } from "@/lib/db";
 
 /**
@@ -176,6 +177,9 @@ export async function upsertSitePageDocument(doc: SitePageDocument) {
   });
 
   invalidateContentCache(doc.slug, page.type);
+  await upsertPageSeo(doc.slug, doc.meta).catch((error) => {
+    console.error("[document-to-db] page SEO sync failed", error);
+  });
   return page;
 }
 
@@ -241,6 +245,11 @@ export async function upsertPageModules(
   if (page.type === "venue") {
     revalidatePath(`/venue/${slug}`);
   }
+
+  await upsertPageSeo(slug, modules.meta).catch((error) => {
+    console.error("[document-to-db] page SEO sync failed", error);
+  });
+
   return page;
 }
 
@@ -432,12 +441,74 @@ export async function upsertProductDocument(
 }
 
 /**
+ * Creates a new blog post with optional full document fields.
+ *
+ * @param input - Title, optional slug override, and editor fields
+ */
+export async function createBlogPostDraft(input: {
+  title: string;
+  slug?: string;
+  category?: string;
+  excerpt?: string;
+  image?: string;
+  bodyHtml?: string | null;
+  content?: BlogPostDocument["content"];
+  published?: boolean;
+  publishedAt?: string | null;
+}) {
+  const title = input.title.trim() || "Untitled post";
+  const baseSlug =
+    slugifyText(input.slug?.trim() ?? "") ||
+    slugifyText(title) ||
+    `post-${Date.now()}`;
+
+  const slug = await allocateUniqueSlug(baseSlug, async (candidate) => {
+    const existing = await db.blogPost.findUnique({
+      where: { slug: candidate },
+      select: { id: true },
+    });
+    return Boolean(existing);
+  });
+
+  const published = input.published ?? false;
+  const publishedAt = input.publishedAt
+    ? new Date(input.publishedAt)
+    : published
+      ? new Date()
+      : null;
+
+  const post = await db.blogPost.create({
+    data: {
+      slug,
+      title,
+      category: input.category?.trim() ?? "",
+      excerpt: input.excerpt?.trim() ?? "",
+      image: input.image?.trim() ?? "",
+      publishedAt,
+      content: input.content ?? [],
+      bodyHtml: input.bodyHtml?.trim() ? input.bodyHtml : null,
+      published,
+    },
+  });
+
+  revalidatePath("/admin/blog");
+  revalidatePath(`/admin/blog/${post.slug}`);
+  revalidatePath("/blog");
+  return post;
+}
+
+/**
  * Upsert a blog post document.
  *
  * @param doc - Full blog post document
  */
 export async function upsertBlogPost(doc: BlogPostDocument) {
-  const publishedAt = doc.publishedAt ? new Date(doc.publishedAt) : null;
+  const published = doc.published ?? false;
+  const publishedAt = doc.publishedAt
+    ? new Date(doc.publishedAt)
+    : published
+      ? new Date()
+      : null;
 
   const post = await db.blogPost.upsert({
     where: { slug: doc.slug },
@@ -450,6 +521,7 @@ export async function upsertBlogPost(doc: BlogPostDocument) {
       publishedAt,
       content: doc.content,
       bodyHtml: doc.bodyHtml ?? null,
+      published,
     },
     update: {
       title: doc.title,
@@ -459,12 +531,34 @@ export async function upsertBlogPost(doc: BlogPostDocument) {
       publishedAt,
       content: doc.content,
       bodyHtml: doc.bodyHtml ?? null,
+      published,
     },
   });
 
   invalidateContentCache(doc.slug);
   revalidateTag("blog:all", "max");
   return post;
+}
+
+/**
+ * Hard-delete a blog post and invalidate related caches.
+ *
+ * @param slug - Blog post slug
+ * @returns Whether a post was deleted
+ */
+export async function deleteBlogPost(slug: string): Promise<boolean> {
+  const post = await db.blogPost.findUnique({ where: { slug } });
+  if (!post) return false;
+
+  await db.blogPost.delete({ where: { slug } });
+
+  invalidateContentCache(slug);
+  revalidateTag("blog:all", "max");
+  revalidatePath("/admin/blog");
+  revalidatePath(`/admin/blog/${slug}`);
+  revalidatePath("/blog");
+  revalidatePath(`/blog/${slug}`);
+  return true;
 }
 
 /**

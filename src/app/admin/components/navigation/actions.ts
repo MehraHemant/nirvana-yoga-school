@@ -1,15 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import type { NavItem, NavLink } from "@/content/types/navigation";
 import type { GlobalHeader } from "@/content/types/global-settings";
+import type { NavItem, NavLink } from "@/content/types/navigation";
 import { getServerSession, requireAdmin } from "@/lib/cms/auth";
 import { invalidateGlobalSettingsCache } from "@/lib/cms/cache";
-import {
-  DEFAULT_HEADER_CTAS,
-  normalizeHeaderCtas,
-  prepareHeaderForSave,
-} from "@/lib/cms/header-fields";
+import { prepareHeaderForSave } from "@/lib/cms/header-fields";
 import { db } from "@/lib/db";
 
 /** Row shape for `navigation_items` create payloads. */
@@ -22,75 +18,6 @@ type NavigationItemCreateInput = {
   pageType?: string;
   pageSlug?: string;
 };
-
-/**
- * Loads the live header navigation from global settings.
- *
- * @returns Header nav items (empty when unset)
- */
-export async function loadHeaderNavigation(): Promise<NavItem[]> {
-  const record = await db.globalSettings.findUnique({
-    where: { key: "header" },
-  });
-  if (!record?.value || typeof record.value !== "object") return [];
-  const header = record.value as unknown as GlobalHeader;
-  return Array.isArray(header.navigation) ? header.navigation : [];
-}
-
-/**
- * Saves the live site header navigation and syncs matching menu groups.
- *
- * @param navigation - Full primary-nav tree
- */
-export async function saveHeaderNavigationAction(
-  navigation: NavItem[],
-): Promise<{ ok?: true; error?: string }> {
-  requireAdmin(await getServerSession());
-
-  if (!Array.isArray(navigation)) {
-    return { error: "Invalid navigation payload." };
-  }
-
-  const record = await db.globalSettings.findUnique({
-    where: { key: "header" },
-  });
-  const previous =
-    record?.value && typeof record.value === "object"
-      ? (record.value as unknown as GlobalHeader)
-      : null;
-
-  const nextHeader = prepareHeaderForSave({
-    navigation,
-    logo: previous?.logo ?? {
-      light: "/logo.png",
-      dark: "/logo_white.png",
-      lightAlt: "Nirvana Yoga School",
-      darkAlt: "Nirvana Yoga School",
-      href: "/",
-    },
-    ctas: previous
-      ? normalizeHeaderCtas(previous)
-      : DEFAULT_HEADER_CTAS.map((c) => ({ ...c })),
-    signInUrl: previous?.signInUrl,
-    cta: previous?.cta,
-  });
-
-  await db.globalSettings.upsert({
-    where: { key: "header" },
-    update: { value: nextHeader },
-    create: {
-      key: "header",
-      value: nextHeader,
-    },
-  });
-
-  await syncNavigationGroupsFromHeader(navigation);
-
-  revalidatePath("/admin/components/navigation");
-  revalidatePath("/admin/navigation");
-  revalidatePath("/api/content/header");
-  return { ok: true };
-}
 
 /**
  * Saves the full header document (branding + navigation) and syncs menu groups.
@@ -130,24 +57,11 @@ export async function saveFullHeaderAction(
 }
 
 /**
- * Loads the full global header settings document.
- *
- * @returns Header settings or null when unset
- */
-export async function loadFullHeader(): Promise<GlobalHeader | null> {
-  const record = await db.globalSettings.findUnique({
-    where: { key: "header" },
-  });
-  if (!record?.value || typeof record.value !== "object") return null;
-  return record.value as unknown as GlobalHeader;
-}
-
-/**
  * Mirrors dropdown children into `navigation_groups` for the legacy group UI.
  *
  * @param navigation - Header nav tree
  */
-export async function syncNavigationGroupsFromHeader(
+async function syncNavigationGroupsFromHeader(
   navigation: NavItem[],
 ): Promise<void> {
   for (const item of navigation) {

@@ -100,6 +100,8 @@ export type {
   VideosModule,
   VideosModuleItem,
   VideosModuleItemType,
+  WhyOnlineBenefit,
+  WhyOnlineModule,
 } from "@/content/types/page-modules";
 export type {
   PageRef,

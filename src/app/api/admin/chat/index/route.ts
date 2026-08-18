@@ -1,4 +1,4 @@
-import { syncChatIndex, type ChatIndexSyncMode } from "@/lib/chat/index-cms";
+import { type ChatIndexSyncMode, syncChatIndex } from "@/lib/chat/index-cms";
 import { isQdrantConfigured } from "@/lib/chat/qdrant";
 import {
   jsonInternal,

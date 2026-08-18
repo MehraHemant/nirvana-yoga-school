@@ -8,14 +8,13 @@ import { ListRowActions } from "@/components/admin/ListRowActions";
 import { SectionLiveField } from "@/components/admin/SectionLiveField";
 import {
   DragHandle,
+  type DragHandleProps,
   reorderItems,
   SortableList,
   SortableRow,
-  type DragHandleProps,
 } from "@/components/admin/SortableList";
 import { TextField } from "@/components/admin/TextField";
 import { useStableListKeys } from "@/components/admin/useStableListKeys";
-import { createEmptyBookingAddons } from "@/lib/cms/structural-defaults";
 import type {
   BookingAddon,
   BookingAddonKind,
@@ -23,8 +22,9 @@ import type {
   BookingType,
 } from "@/content/types/booking";
 import type { ResidentialCourseDocument } from "@/content/types/course";
-import { parseUsdAmount } from "@/lib/booking/pricing";
 import { getAddonKind } from "@/lib/booking/addons";
+import { parseUsdAmount } from "@/lib/booking/pricing";
+import { createEmptyBookingAddons } from "@/lib/cms/structural-defaults";
 import { parseApiJson } from "@/lib/types/api";
 
 const APPLIES_OPTIONS: { value: BookingType; label: string }[] = [
@@ -93,9 +93,9 @@ export function BookingAddonsEditor() {
   const [error, setError] = useState("");
   const [courses, setCourses] = useState<CourseOption[]>([]);
   const [programs, setPrograms] = useState<ProgramOption[]>([]);
-  const [roomPreviews, setRoomPreviews] = useState<Record<string, RoomPreview[]>>(
-    {},
-  );
+  const [roomPreviews, setRoomPreviews] = useState<
+    Record<string, RoomPreview[]>
+  >({});
   const items = doc?.items ?? [];
   const keys = useStableListKeys(items.length);
 
@@ -120,7 +120,11 @@ export function BookingAddonsEditor() {
         next.items = (next.items ?? []).map((item) =>
           item.type === "course"
             ? item
-            : { ...item, type: "manual" as const, priceUsd: item.priceUsd ?? 0 },
+            : {
+                ...item,
+                type: "manual" as const,
+                priceUsd: item.priceUsd ?? 0,
+              },
         );
         setDoc(next);
         setBaseline(JSON.stringify(next));
@@ -153,8 +157,9 @@ export function BookingAddonsEditor() {
   // Preview rooms for each course add-on row.
   useEffect(() => {
     const courseSlugs = items
-      .filter((item): item is Extract<BookingAddon, { type: "course" }> =>
-        item.type === "course",
+      .filter(
+        (item): item is Extract<BookingAddon, { type: "course" }> =>
+          item.type === "course",
       )
       .map((item) => item.courseSlug.trim())
       .filter(Boolean);
@@ -432,7 +437,9 @@ export function BookingAddonsEditor() {
                           onRemove={() => removeItem(index)}
                           onChange={(patch) => updateItem(index, patch)}
                           onCourseSlugChange={(courseSlug) => {
-                            updateItem(index, { courseSlug } as Partial<BookingAddon>);
+                            updateItem(index, {
+                              courseSlug,
+                            } as Partial<BookingAddon>);
                             if (courseSlug && !roomPreviews[courseSlug]) {
                               void loadCourseRooms(courseSlug).then((rooms) => {
                                 setRoomPreviews((prev) => ({
@@ -502,8 +509,7 @@ function AddonRow({
     kind === "course"
       ? item.label.trim() ||
         courses.find(
-          (course) =>
-            item.type === "course" && course.slug === item.courseSlug,
+          (course) => item.type === "course" && course.slug === item.courseSlug,
         )?.title ||
         "Course add-on"
       : item.label || "Untitled";
@@ -598,9 +604,14 @@ function AddonRow({
             ) : roomPreview === undefined ? (
               <p className="admin-hint">Loading rooms…</p>
             ) : roomPreview.length === 0 ? (
-              <p className="admin-hint">No pricing rooms found on this course.</p>
+              <p className="admin-hint">
+                No pricing rooms found on this course.
+              </p>
             ) : (
-              <ul className="admin-hint" style={{ margin: 0, paddingLeft: "1.1rem" }}>
+              <ul
+                className="admin-hint"
+                style={{ margin: 0, paddingLeft: "1.1rem" }}
+              >
                 {roomPreview.map((room) => (
                   <li key={room.roomType}>
                     {room.roomType} — {Math.round(room.priceUsd)} USD
@@ -675,7 +686,8 @@ function AddonRow({
                       next.length === scopePrograms.length &&
                       scopePrograms.every((entry) => next.includes(entry.slug));
                     onChange({
-                      programSlugs: allSelected || next.length === 0 ? [] : next,
+                      programSlugs:
+                        allSelected || next.length === 0 ? [] : next,
                     });
                   }}
                 >

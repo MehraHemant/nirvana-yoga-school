@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
-import type { RetrievedChunk } from "@/content/types/chat";
 import { TEACHER_PAGE_SLUG, teacherSlug } from "@/content/teachers-slug";
+import type { RetrievedChunk } from "@/content/types/chat";
 import { embedText } from "@/lib/ai/embeddings";
 import { publicViewHref } from "@/lib/cms/page-layout-registry";
 /** Node DB entry (no `server-only`) so `tsx` CLI indexing works. */
@@ -12,17 +12,14 @@ import {
   extractTeacherProfileBlock,
   INDEXABLE_GLOBAL_SETTING_KEYS,
 } from "./extract-page-text";
-import {
-  buildPdfIndexChunkDrafts,
-  markPdfsIndexed,
-} from "./pdf-knowledge";
+import { buildPdfIndexChunkDrafts, markPdfsIndexed } from "./pdf-knowledge";
 import {
   chunkPointId,
   deleteQdrantPoints,
   ensureQdrantCollection,
   listQdrantPointSummaries,
-  upsertQdrantChunks,
   type QdrantChunkPayload,
+  upsertQdrantChunks,
 } from "./qdrant";
 import { getChatSiteOrigin, toPublicUrl } from "./site-url";
 
@@ -147,7 +144,9 @@ function extractFaqs(
       if (!question || !answer) return null;
       return { question, answer };
     })
-    .filter((item): item is { question: string; answer: string } => item !== null);
+    .filter(
+      (item): item is { question: string; answer: string } => item !== null,
+    );
 }
 
 /**
@@ -238,8 +237,9 @@ export async function buildCmsIndexChunks(
         payload: makePayload(key, {
           title: `${row.title} — ${block.label}`,
           content,
-          sourceType:
-            block.keySuffix.startsWith("modules-faq") ? "faq" : row.type || "page",
+          sourceType: block.keySuffix.startsWith("modules-faq")
+            ? "faq"
+            : row.type || "page",
           sourcePath: pageUrl,
           sourceId: row.id,
         }),

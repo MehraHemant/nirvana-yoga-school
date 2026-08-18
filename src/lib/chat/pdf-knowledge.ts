@@ -141,7 +141,8 @@ export async function createChatKnowledgePdf(
 
   const buffer = Buffer.from(await file.arrayBuffer());
   const contentHash = hashPdfBytes(buffer);
-  const displayTitle = (title ?? filename.replace(/\.pdf$/i, "")).trim() || filename;
+  const displayTitle =
+    (title ?? filename.replace(/\.pdf$/i, "")).trim() || filename;
 
   // Skip duplicate file bodies — reuse existing row.
   const existing = await db.$queryRawUnsafe<PdfRow[]>(
@@ -217,7 +218,9 @@ export async function createChatKnowledgePdf(
  * Build indexable PDF chunk drafts for syncChatIndex (stable keys).
  * Keys: `pdf:{documentId}:chunk:{n}`
  */
-export async function buildPdfIndexChunkDrafts(): Promise<PdfIndexChunkDraft[]> {
+export async function buildPdfIndexChunkDrafts(): Promise<
+  PdfIndexChunkDraft[]
+> {
   type TextRow = {
     id: string;
     title: string;

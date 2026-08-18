@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-import { isDbEnabled, db } from "@/lib/db";
+import { db, isDbEnabled } from "@/lib/db";
 import type { AdminSession } from "./auth-session";
 
 export type { AdminSession } from "./auth-session";

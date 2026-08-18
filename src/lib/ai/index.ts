@@ -1,4 +1,4 @@
-export { embedText, embeddingDimensions } from "./embeddings";
+export { embeddingDimensions, embedText } from "./embeddings";
 export { getAiProvider, isAiProviderConfigured } from "./provider";
 export type {
   AiChatMessage,

@@ -124,7 +124,9 @@ export async function upsertQdrantChunks(
  *
  * @returns Point summaries for sync comparison
  */
-export async function listQdrantPointSummaries(): Promise<QdrantPointSummary[]> {
+export async function listQdrantPointSummaries(): Promise<
+  QdrantPointSummary[]
+> {
   if (!isQdrantConfigured()) return [];
 
   const qdrant = getQdrantClient();
@@ -133,7 +135,7 @@ export async function listQdrantPointSummaries(): Promise<QdrantPointSummary[]> 
   if (!exists.exists) return [];
 
   const summaries: QdrantPointSummary[] = [];
-  let offset: string | number | undefined | null = undefined;
+  let offset: string | number | undefined | null;
 
   for (;;) {
     const page = await qdrant.scroll(name, {

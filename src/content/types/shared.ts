@@ -17,6 +17,8 @@ export type CourseSyllabusSection = {
 };
 
 export type CoursePricingOption = {
+  /** Shared rooms table id when linked to the course/retreat catalog. */
+  roomId?: string;
   roomType: string;
   price: string;
   originalPrice?: string;

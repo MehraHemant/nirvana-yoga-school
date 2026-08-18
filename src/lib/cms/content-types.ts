@@ -1,4 +1,3 @@
-import type { CmsPageKind } from "@/lib/cms/default-content-types";
 import type { ContentTypeInput } from "@/content/types/content-schema";
 import type {
   CmsContentBlock,
@@ -16,6 +15,7 @@ import {
   parseContentFields,
 } from "@/lib/cms/content-schema-utils";
 import { syncDefaultContentTypes as syncDefaultContentTypesWith } from "@/lib/cms/content-types-sync";
+import type { CmsPageKind } from "@/lib/cms/default-content-types";
 import { db } from "@/lib/db";
 
 export {

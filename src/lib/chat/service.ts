@@ -48,9 +48,7 @@ const STREAM_PIECE_DELAY_MS = 12;
  * @param text - Assistant reply text
  */
 function stripBareCitationMarkers(text: string): string {
-  return text
-    .replace(/ ?\[\d+\](?!\()/g, "")
-    .replace(/ +([.,;:!?])/g, "$1");
+  return text.replace(/ ?\[\d+\](?!\()/g, "").replace(/ +([.,;:!?])/g, "$1");
 }
 
 /**
@@ -350,7 +348,10 @@ export async function* streamChatMessage(
         const cleaned = stripBareCitationMarkersForStream(
           citationSafePrefix(fullText),
         );
-        if (!cleaned.startsWith(emittedClean) || cleaned.length === emittedClean.length) {
+        if (
+          !cleaned.startsWith(emittedClean) ||
+          cleaned.length === emittedClean.length
+        ) {
           continue;
         }
         const out = cleaned.slice(emittedClean.length);
@@ -369,7 +370,10 @@ export async function* streamChatMessage(
   }
 
   const cleanedFull = stripBareCitationMarkersForStream(fullText);
-  if (cleanedFull.startsWith(emittedClean) && cleanedFull.length > emittedClean.length) {
+  if (
+    cleanedFull.startsWith(emittedClean) &&
+    cleanedFull.length > emittedClean.length
+  ) {
     yield {
       type: "delta",
       text: cleanedFull.slice(emittedClean.length),

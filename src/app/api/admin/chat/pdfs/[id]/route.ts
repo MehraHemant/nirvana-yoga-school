@@ -1,8 +1,8 @@
+import { syncChatIndex } from "@/lib/chat/index-cms";
 import {
   deleteChatKnowledgePdf,
   getChatKnowledgePdf,
 } from "@/lib/chat/pdf-knowledge";
-import { syncChatIndex } from "@/lib/chat/index-cms";
 import { emptyQdrantCollection, isQdrantConfigured } from "@/lib/chat/qdrant";
 import {
   jsonInternal,

@@ -1,3 +1,9 @@
+import { getPageRoomOffers } from "@/content/repositories/lodging";
+import {
+  hydrateModulesFromLodgingTables,
+  offersToRetreatPackages,
+  syncLodgingTablesFromModules,
+} from "@/content/repositories/lodging-sync";
 import type {
   OnlineCourseDocument,
   PageModulesDocument,
@@ -46,9 +52,29 @@ export async function GET(
     return jsonNotFound();
   }
 
+  const modules =
+    (await hydrateModulesFromLodgingTables(
+      slug,
+      mapPageModulesFromRow(page),
+    ).catch(() => mapPageModulesFromRow(page))) ?? mapPageModulesFromRow(page);
+
+  let document = page.courseDoc.document;
+  if (page.type === "retreat") {
+    const offers = await getPageRoomOffers(page.id, false).catch(() => ({
+      data: [],
+    }));
+    const packages = offersToRetreatPackages(offers.data ?? [], false);
+    if (packages.length > 0) {
+      document = {
+        ...(document as RetreatDocument),
+        packages,
+      };
+    }
+  }
+
   return jsonOk({
-    document: page.courseDoc.document,
-    modules: mapPageModulesFromRow(page),
+    document,
+    modules,
     meta: { id: page.id, type: page.type, published: page.published },
   });
 }
@@ -70,8 +96,11 @@ export async function PUT(
     if (!body.course || body.course.slug !== slug) {
       return jsonBadRequest("Online course slug mismatch");
     }
-    await upsertProductDocument(slug, "online", body.course);
+    const page = await upsertProductDocument(slug, "online", body.course);
     await upsertPageModules(slug, body.modules);
+    await syncLodgingTablesFromModules(page.id, body.modules).catch((error) => {
+      console.error("[products PUT] lodging sync failed", error);
+    });
     return jsonMutationOk();
   }
 
@@ -79,12 +108,19 @@ export async function PUT(
     if (!body.retreat || body.retreat.slug !== slug) {
       return jsonBadRequest("Retreat slug mismatch");
     }
-    await upsertProductDocument(slug, "retreat", body.retreat, {
+    const page = await upsertProductDocument(slug, "retreat", body.retreat, {
       title: body.retreat.title,
       image: body.retreat.heroImage,
       description: body.retreat.description,
     });
     await upsertPageModules(slug, body.modules);
+    await syncLodgingTablesFromModules(
+      page.id,
+      body.modules,
+      body.retreat,
+    ).catch((error) => {
+      console.error("[products PUT] lodging sync failed", error);
+    });
     return jsonMutationOk();
   }
 

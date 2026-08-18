@@ -1,10 +1,10 @@
 import { isAiProviderConfigured } from "@/lib/ai";
 import {
+  type ChatStreamEvent,
   deleteConversationForSession,
   getConversationForSession,
   parseChatPostInput,
   streamChatMessage,
-  type ChatStreamEvent,
 } from "@/lib/chat/service";
 import {
   jsonBadRequest,

@@ -4,14 +4,14 @@ import type { NavItem } from "@/content/types/navigation";
 export type HeaderCtaVariant = "primary" | "secondary" | "link";
 
 /**
- * One ordered call-to-action in the site header (e.g. Sign in, Enquire now).
+ * One ordered call-to-action in the site header (e.g. Enquire now).
  */
 export interface HeaderCta {
   /** Display label */
   label: string;
   /** Destination URL (internal path or absolute) */
   href: string;
-  /** Button style, or `link` for text-link CTAs like Sign in */
+  /** Button style, or `link` for text-link CTAs */
   variant: HeaderCtaVariant;
   /** Optional sort weight (0, 10, 20…); array order is authoritative when present */
   sort?: number;
@@ -33,7 +33,7 @@ export interface GlobalHeader {
     /** Internal path or absolute URL used by both header logo variants. */
     href: string;
   };
-  /** Ordered header CTAs (Sign in, Enquire now, custom…) */
+  /** Ordered header CTAs (Enquire now, custom…) */
   ctas: HeaderCta[];
   /**
    * @deprecated Prefer `ctas`. Kept when migrating older header documents.

@@ -1,8 +1,7 @@
 import type { BlogPostDocument } from "@/content/types/blog-post";
-import type { DedicatedPageContent } from "@/content/types/dedicated-pages";
 import type { LeadStatus } from "@/content/types/lead";
-import type { PageModulesDocument } from "@/content/types/page-modules";
 import type {
+  AdminBlogCreateResponse,
   AdminBlogPostGetResponse,
   AdminBookingsListResponse,
   AdminLeadsListResponse,
@@ -12,7 +11,6 @@ import type {
   AdminMediaListResponse,
   AdminMediaUploadResponse,
   AdminPageEditorDocument,
-  AdminPageModulesGetResponse,
 } from "@/lib/types/admin-api";
 import type { ApiMutationResponse } from "@/lib/types/api";
 import { parseApiJson } from "@/lib/types/api";
@@ -31,6 +29,8 @@ export type AdminGlobalSettingsKey =
   | "homeFaqs"
   | "venueFaqs"
   | "retreatAccommodation"
+  | "courseFood"
+  | "retreatFood"
   | "yttHub";
 
 /**
@@ -105,36 +105,18 @@ export async function logoutAdmin(): Promise<ApiMutationResponse> {
 }
 
 /**
- * Load page modules for the module editor.
+ * Create a blog post with full editor document fields.
  *
- * @param slug - Page slug
+ * @param post - Blog document (title required)
  */
-export async function fetchAdminPageModules(
-  slug: string,
-): Promise<AdminPageModulesGetResponse> {
-  return adminFetch<AdminPageModulesGetResponse>(
-    `/api/admin/modules/${encodeURIComponent(slug)}`,
-  );
-}
-
-/**
- * Save page modules from the module editor.
- *
- * @param slug - Page slug
- * @param modules - Updated modules document
- */
-export async function saveAdminPageModules(
-  slug: string,
-  modules: PageModulesDocument,
-): Promise<ApiMutationResponse> {
-  return adminFetch<ApiMutationResponse>(
-    `/api/admin/modules/${encodeURIComponent(slug)}`,
-    {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(modules),
-    },
-  );
+export async function createAdminBlogPost(
+  post: BlogPostDocument,
+): Promise<AdminBlogCreateResponse> {
+  return adminFetch<AdminBlogCreateResponse>("/api/admin/blog", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(post),
+  });
 }
 
 /**
@@ -167,6 +149,20 @@ export async function saveAdminBlogPost(
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(post),
     },
+  );
+}
+
+/**
+ * Permanently delete a blog post.
+ *
+ * @param slug - Blog post slug
+ */
+export async function deleteAdminBlogPost(
+  slug: string,
+): Promise<ApiMutationResponse> {
+  return adminFetch<ApiMutationResponse>(
+    `/api/admin/blog/${encodeURIComponent(slug)}`,
+    { method: "DELETE" },
   );
 }
 
@@ -259,13 +255,91 @@ export async function deleteAdminBooking(
 /**
  * List media assets for the admin library.
  *
- * @param tag - Optional tag filter
+ * @param tagOrOptions - Tag string (legacy) or pagination options
  */
 export async function fetchAdminMedia(
-  tag?: string,
+  tagOrOptions?:
+    | string
+    | {
+        tag?: string;
+        page?: number;
+        limit?: number;
+        includeUsage?: boolean;
+        kind?: "image" | "video";
+      },
 ): Promise<AdminMediaListResponse> {
-  const params = tag ? `?tag=${encodeURIComponent(tag)}` : "";
-  return adminFetch<AdminMediaListResponse>(`/api/admin/media${params}`);
+  const options =
+    typeof tagOrOptions === "string"
+      ? { tag: tagOrOptions }
+      : (tagOrOptions ?? {});
+  const params = new URLSearchParams();
+  if (options.tag) params.set("tag", options.tag);
+  if (options.page != null) params.set("page", String(options.page));
+  if (options.limit != null) params.set("limit", String(options.limit));
+  if (options.includeUsage) params.set("includeUsage", "1");
+  if (options.kind) params.set("kind", options.kind);
+  const query = params.toString();
+  return adminFetch<AdminMediaListResponse>(
+    `/api/admin/media${query ? `?${query}` : ""}`,
+  );
+}
+
+/**
+ * Load one media asset with fresh usage info (edit panel / delete guard).
+ *
+ * @param id - Media asset id
+ */
+export async function fetchAdminMediaAsset(
+  id: string,
+): Promise<AdminMediaItemResponse> {
+  return adminFetch<AdminMediaItemResponse>(`/api/admin/media/${id}`);
+}
+
+/** Lodging `media_images` row for room/food pickers. */
+export type AdminLodgingMediaImage = {
+  id: string;
+  url: string;
+  thumbUrl?: string;
+  tag: string;
+  title: string;
+  alt: string;
+  sort: number;
+};
+
+export type AdminLodgingMediaListResponse = {
+  images: AdminLodgingMediaImage[];
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
+  synced?: number;
+};
+
+/**
+ * List lodging media_images for room/food gallery pickers.
+ *
+ * @param tagOrOptions - Tag string (legacy) or pagination options
+ */
+export async function fetchLodgingMediaImages(
+  tagOrOptions?:
+    | string
+    | {
+        tag?: string;
+        page?: number;
+        limit?: number;
+      },
+): Promise<AdminLodgingMediaListResponse> {
+  const options =
+    typeof tagOrOptions === "string"
+      ? { tag: tagOrOptions }
+      : (tagOrOptions ?? {});
+  const params = new URLSearchParams({ kind: "images" });
+  if (options.tag) params.set("tag", options.tag);
+  if (options.page != null) params.set("page", String(options.page));
+  if (options.limit != null) params.set("limit", String(options.limit));
+  return adminFetch<AdminLodgingMediaListResponse>(
+    `/api/admin/lodging?${params.toString()}`,
+  );
 }
 
 /**
@@ -314,35 +388,6 @@ export async function uploadAdminMedia(
   return adminFetch<AdminMediaUploadResponse>("/api/admin/media/upload", {
     method: "POST",
     body: form,
-  });
-}
-
-/**
- * Load dedicated page content_data (home / contact / enquire-now).
- *
- * @param slug - Dedicated page slug
- */
-export async function fetchAdminDedicatedPage(slug: string): Promise<{
-  content: DedicatedPageContent;
-  meta: { slug: string; type: string };
-}> {
-  return adminFetch(`/api/admin/dedicated/${encodeURIComponent(slug)}`);
-}
-
-/**
- * Save dedicated page content_data from Home / Contact / Enquire editors.
- *
- * @param slug - Dedicated page slug
- * @param content - Typed CMS document
- */
-export async function saveAdminDedicatedPage(
-  slug: string,
-  content: DedicatedPageContent,
-): Promise<ApiMutationResponse> {
-  return adminFetch(`/api/admin/dedicated/${encodeURIComponent(slug)}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(content),
   });
 }
 

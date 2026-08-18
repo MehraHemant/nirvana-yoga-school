@@ -43,11 +43,11 @@ export async function sendMail(params: SendMailParams): Promise<boolean> {
     return false;
   }
 
-  const host = process.env.SMTP_HOST!.trim();
+  const host = process.env.SMTP_HOST?.trim();
   const port = Number.parseInt(process.env.SMTP_PORT ?? "587", 10);
-  const user = process.env.SMTP_USER!.trim();
-  const pass = process.env.SMTP_PASS!.trim();
-  const fromEmail = process.env.MAIL_FROM_EMAIL!.trim();
+  const user = process.env.SMTP_USER?.trim();
+  const pass = process.env.SMTP_PASS?.trim();
+  const fromEmail = process.env.MAIL_FROM_EMAIL?.trim();
   const fromName = process.env.MAIL_FROM_NAME?.trim() || "Nirvana Yoga School";
 
   const transporter = nodemailer.createTransport({

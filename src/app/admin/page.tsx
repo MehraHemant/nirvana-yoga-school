@@ -205,8 +205,8 @@ export default async function AdminDashboardPage() {
         <div className="admin-card">
           <h2>Leads & enquiries</h2>
           <p className="admin-hint">
-            Connect Neon Postgres via NEON_DB_POSTGRES_URL to track contact and enquiry
-            form submissions on the dashboard.
+            Connect Neon Postgres via NEON_DB_POSTGRES_URL to track contact and
+            enquiry form submissions on the dashboard.
           </p>
         </div>
       )}

@@ -2,10 +2,10 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  type AdminChatKnowledgePdf,
   deleteAdminChatPdf,
   fetchAdminChatPdfs,
   uploadAdminChatPdfs,
-  type AdminChatKnowledgePdf,
 } from "@/lib/api/admin-client";
 import { MAX_PDF_UPLOAD_LABEL } from "@/lib/cdn/constants";
 
