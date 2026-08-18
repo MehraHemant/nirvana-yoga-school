@@ -5,6 +5,7 @@
 export {
   createId,
   type DbClient,
+  db,
   execute,
   getPool,
   isContentItemsSchemaReady,
@@ -13,7 +14,6 @@ export {
   isDbEnabled,
   type ModelDelegate,
   parseJson,
-  db,
   queryOne,
   queryRows,
   type SqlConn,

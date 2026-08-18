@@ -29,7 +29,19 @@ export type ModelName =
   | "chatConversation"
   | "chatMessage"
   | "knowledgeBaseChunk"
-  | "chatKnowledgePdf";
+  | "chatKnowledgePdf"
+  | "room"
+  | "mediaImage"
+  | "mediaVideo"
+  | "roomImage"
+  | "roomVideo"
+  | "foodMenu"
+  | "foodPoint"
+  | "foodImage"
+  | "pageRoomOffer"
+  | "pageSectionFlag"
+  | "pageDateBatch"
+  | "pageSeo";
 
 export type ModelMeta = {
   /** Postgres table name */
@@ -591,6 +603,243 @@ export const MODELS: Record<ModelName, ModelMeta> = {
         sizeBytes: 0,
         status: "pending",
         chunkCount: 0,
+      },
+      updatedAt: "updatedAt",
+    },
+  ),
+
+  room: meta(
+    "rooms",
+    {
+      id: "id",
+      catalog: "catalog",
+      slug: "slug",
+      name: "name",
+      description: "description",
+      features: "features",
+      images: "images",
+      videos: "videos",
+      sort: "sort",
+      live: "live",
+      createdAt: "created_at",
+      updatedAt: "updated_at",
+    },
+    {
+      jsonFields: ["features", "images", "videos"],
+      booleanFields: ["live"],
+      defaultCreate: {
+        name: "",
+        description: "",
+        features: [],
+        images: [],
+        videos: [],
+        sort: 0,
+        live: true,
+      },
+      updatedAt: "updatedAt",
+    },
+  ),
+
+  mediaImage: meta(
+    "media_images",
+    {
+      id: "id",
+      url: "url",
+      tag: "tag",
+      title: "title",
+      alt: "alt",
+      sort: "sort",
+      createdAt: "created_at",
+      updatedAt: "updated_at",
+    },
+    {
+      defaultCreate: { tag: "", title: "", alt: "", sort: 0 },
+      updatedAt: "updatedAt",
+    },
+  ),
+
+  mediaVideo: meta(
+    "media_videos",
+    {
+      id: "id",
+      url: "url",
+      tag: "tag",
+      title: "title",
+      alt: "alt",
+      poster: "poster",
+      sort: "sort",
+      createdAt: "created_at",
+      updatedAt: "updated_at",
+    },
+    {
+      defaultCreate: { tag: "", title: "", alt: "", sort: 0 },
+      updatedAt: "updatedAt",
+    },
+  ),
+
+  roomImage: meta(
+    "room_images",
+    {
+      id: "id",
+      roomId: "room_id",
+      mediaImageId: "media_image_id",
+      sort: "sort",
+    },
+    {
+      defaultCreate: { sort: 0 },
+    },
+  ),
+
+  roomVideo: meta(
+    "room_videos",
+    {
+      id: "id",
+      roomId: "room_id",
+      mediaVideoId: "media_video_id",
+      sort: "sort",
+    },
+    {
+      defaultCreate: { sort: 0 },
+    },
+  ),
+
+  foodMenu: meta(
+    "food_menus",
+    {
+      id: "id",
+      catalog: "catalog",
+      title: "title",
+      description: "description",
+      dietaryNote: "dietary_note",
+      live: "live",
+      createdAt: "created_at",
+      updatedAt: "updated_at",
+    },
+    {
+      booleanFields: ["live"],
+      defaultCreate: {
+        title: "",
+        description: "",
+        dietaryNote: "",
+        live: true,
+      },
+      updatedAt: "updatedAt",
+    },
+  ),
+
+  foodPoint: meta(
+    "food_points",
+    {
+      id: "id",
+      foodMenuId: "food_menu_id",
+      text: "text",
+      sort: "sort",
+    },
+    {
+      defaultCreate: { text: "", sort: 0 },
+    },
+  ),
+
+  foodImage: meta(
+    "food_images",
+    {
+      id: "id",
+      foodMenuId: "food_menu_id",
+      mediaImageId: "media_image_id",
+      sort: "sort",
+    },
+    {
+      defaultCreate: { sort: 0 },
+    },
+  ),
+
+  pageRoomOffer: meta(
+    "page_room_offers",
+    {
+      id: "id",
+      pageId: "page_id",
+      roomId: "room_id",
+      live: "live",
+      price: "price",
+      originalPrice: "original_price",
+      sort: "sort",
+      createdAt: "created_at",
+      updatedAt: "updated_at",
+    },
+    {
+      booleanFields: ["live"],
+      defaultCreate: {
+        live: true,
+        price: "",
+        originalPrice: "",
+        sort: 0,
+      },
+      updatedAt: "updatedAt",
+    },
+  ),
+
+  pageSectionFlag: meta(
+    "page_section_flags",
+    {
+      id: "id",
+      pageId: "page_id",
+      sectionKey: "section_key",
+      live: "live",
+      updatedAt: "updated_at",
+    },
+    {
+      booleanFields: ["live"],
+      defaultCreate: { live: true },
+      updatedAt: "updatedAt",
+    },
+  ),
+
+  pageDateBatch: meta(
+    "page_date_batches",
+    {
+      id: "id",
+      pageId: "page_id",
+      dates: "dates",
+      spaces: "spaces",
+      status: "status",
+      tone: "tone",
+      sort: "sort",
+      createdAt: "created_at",
+      updatedAt: "updated_at",
+    },
+    {
+      defaultCreate: {
+        dates: "",
+        spaces: "",
+        status: "",
+        tone: "open",
+        sort: 0,
+      },
+      updatedAt: "updatedAt",
+    },
+  ),
+
+  pageSeo: meta(
+    "page_seo",
+    {
+      pageId: "page_id",
+      title: "title",
+      description: "description",
+      ogImage: "og_image",
+      keywords: "keywords",
+      noIndex: "no_index",
+      createdAt: "created_at",
+      updatedAt: "updated_at",
+    },
+    {
+      primaryKey: "pageId",
+      booleanFields: ["noIndex"],
+      defaultCreate: {
+        title: "",
+        description: "",
+        ogImage: "",
+        keywords: "",
+        noIndex: false,
       },
       updatedAt: "updatedAt",
     },

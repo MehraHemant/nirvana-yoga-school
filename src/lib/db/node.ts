@@ -4,7 +4,7 @@
  * This deliberately omits the Next.js `server-only` marker because `tsx`
  * executes outside Next's server-module loader.
  */
-export { type DbClient, type ModelDelegate, db } from "./client";
+export { type DbClient, db, type ModelDelegate } from "./client";
 export { createId } from "./ids";
 export { parseJson, stringifyJson } from "./json";
 export {

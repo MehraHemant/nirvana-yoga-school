@@ -1094,11 +1094,31 @@ function createDbClient(): DbClient {
 const globalForDb = globalThis as unknown as { neonDb?: DbClient };
 
 /**
+ * Rebinds any model delegates missing on a cached HMR client.
+ * New tables added to {@link MODELS} would otherwise leave `db.foodMenu` etc. undefined.
+ *
+ * @param client - Existing singleton client
+ */
+function ensureModelDelegates(client: DbClient): void {
+  for (const name of Object.keys(MODELS) as ModelName[]) {
+    if (!client[name]) {
+      client[name] = createDelegate(name);
+    }
+  }
+}
+
+/**
  * Shared Neon Neon-compatible client (singleton in dev to survive HMR).
  * Drop-in replacement for `@neondatabase/serverless` model delegates used by the CMS.
  */
-export const db: DbClient = globalForDb.neonDb ?? createDbClient();
-
-if (process.env.NODE_ENV !== "production") {
-  globalForDb.neonDb = db;
-}
+export const db: DbClient = (() => {
+  if (globalForDb.neonDb) {
+    ensureModelDelegates(globalForDb.neonDb);
+    return globalForDb.neonDb;
+  }
+  const client = createDbClient();
+  if (process.env.NODE_ENV !== "production") {
+    globalForDb.neonDb = client;
+  }
+  return client;
+})();
