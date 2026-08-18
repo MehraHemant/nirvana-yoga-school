@@ -12,6 +12,7 @@ import {
   WhyNirvana,
 } from "@/components/courses";
 import { TeachersSection } from "@/components/home";
+import { filterItemsWithPrice } from "@/content/mappers/residential-life-utils";
 import {
   hasExamCertificationContent,
   shouldRenderSection,
@@ -45,13 +46,16 @@ export default function HubClient({
   const inclusionItems = modules?.inclusions.items ?? mapped.inclusions;
   const programs = modules?.programs?.cards ?? mapped.programs;
   const gallery = modules?.gallery?.images ?? mapped.gallery;
+  const publicPricing = filterItemsWithPrice(
+    modules?.pricing.options?.length ? modules.pricing.options : mapped.pricing,
+  );
   const showInclusions = shouldRenderSection(
     modules?.inclusions,
     inclusionItems.length > 0,
   );
   const showPricing = shouldRenderSection(
     modules?.pricing,
-    mapped.pricing.length > 0,
+    publicPricing.length > 0,
   );
   const showWhyNirvana =
     (modules?.flags.showWhyNirvana ?? mapped.showWhyNirvana) &&
@@ -87,11 +91,7 @@ export default function HubClient({
           <UpcomingDates
             htmlId={resolveSectionHtmlId("pricing", modules?.pricing._id)}
             duration={modules?.pricing.duration ?? mapped.duration}
-            pricing={
-              modules?.pricing.options?.length
-                ? modules.pricing.options
-                : mapped.pricing
-            }
+            pricing={publicPricing}
             pricingDescription={
               modules?.pricing.description ?? mapped.pricingDescription
             }
@@ -115,9 +115,7 @@ export default function HubClient({
           <ExamCertification content={examCertification} />
         ) : null}
         {(modules?.flags.showAccommodation ?? mapped.showAccommodation) ? (
-          <>
-            <AccommodationFood content={residentialLife} />
-          </>
+          <AccommodationFood content={residentialLife} />
         ) : null}
         {showWhyNirvana ? (
           <WhyNirvana content={whyNirvana} reviews={reviews} />

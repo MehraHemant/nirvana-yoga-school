@@ -26,6 +26,7 @@ import {
   kirtanHeroImage,
   parseKirtanContent,
 } from "@/content/mappers/kirtan-page";
+import { filterItemsWithPrice } from "@/content/mappers/residential-life-utils";
 import {
   hasExamCertificationContent,
   isSectionLive,
@@ -52,6 +53,9 @@ export default function KirtanClient({
   const copy = mapped.presentation;
   const kirtan = parseKirtanContent(page);
   const fee = mapped.pricing[0]?.price ?? "$299 USD";
+  const publicPricing = filterItemsWithPrice(
+    modules?.pricing.options ?? mapped.pricing,
+  );
   const showHero = isSectionLive(modules?.hero);
   const showStickyNav = isSectionLive(modules?.stickyNav);
   const showOverview = isSectionLive(modules?.overview);
@@ -66,7 +70,7 @@ export default function KirtanClient({
   );
   const showPricing = shouldRenderSection(
     modules?.pricing,
-    (modules?.pricing.options ?? mapped.pricing).length > 0,
+    publicPricing.length > 0,
   );
   const showFaqs = shouldRenderSection(
     modules?.faqs,
@@ -208,16 +212,14 @@ export default function KirtanClient({
         )}
 
         {(modules?.flags.showAccommodation ?? mapped.showAccommodation) ? (
-          <>
-            <AccommodationFood content={residentialLife} />
-          </>
+          <AccommodationFood content={residentialLife} />
         ) : null}
 
         {showPricing ? (
           <UpcomingDates
             htmlId={resolveSectionHtmlId("pricing", modules?.pricing._id)}
             duration={modules?.pricing.duration ?? mapped.duration}
-            pricing={modules?.pricing.options ?? mapped.pricing}
+            pricing={publicPricing}
             pricingDescription={
               modules?.pricing.description ?? mapped.pricingDescription
             }

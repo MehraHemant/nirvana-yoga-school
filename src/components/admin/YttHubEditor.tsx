@@ -15,6 +15,7 @@ import { toSectionDomId } from "@/components/admin/sectionDomId";
 import { TextField } from "@/components/admin/TextField";
 import { useSectionScrollSpy } from "@/components/admin/useSectionScrollSpy";
 import { useStableListKeys } from "@/components/admin/useStableListKeys";
+import { VideoField } from "@/components/admin/VideoField";
 import { normalizeYttHubCourseRefs } from "@/content/mappers/ytt-hub-courses";
 import type { YttHubContent } from "@/content/types/shared-sections";
 
@@ -282,12 +283,12 @@ export function YttHubEditor({
             <div className="admin-nested-card">
               <strong>Background video (hub-only)</strong>
               <p className="admin-hint">
-                Full-bleed muted MP4 loop (autoplay, no controls). Separate from
-                homepage hero video.
+                Full-bleed muted MP4 loop (autoplay, no controls). Upload or
+                pick from the media library. Separate from homepage hero video.
               </p>
               <div className="admin-grid-2">
-                <TextField
-                  label="Mobile MP4 src"
+                <VideoField
+                  label="Mobile video"
                   value={heroVideo.mobileSrc}
                   onChange={(mobileSrc) =>
                     setDoc({
@@ -296,7 +297,7 @@ export function YttHubEditor({
                     })
                   }
                 />
-                <TextField
+                <ImageField
                   label="Mobile poster"
                   value={heroVideo.mobilePoster}
                   onChange={(mobilePoster) =>
@@ -308,8 +309,8 @@ export function YttHubEditor({
                 />
               </div>
               <div className="admin-grid-2">
-                <TextField
-                  label="Desktop MP4 src"
+                <VideoField
+                  label="Desktop video"
                   value={heroVideo.desktopSrc}
                   onChange={(desktopSrc) =>
                     setDoc({
@@ -318,7 +319,7 @@ export function YttHubEditor({
                     })
                   }
                 />
-                <TextField
+                <ImageField
                   label="Desktop poster"
                   value={heroVideo.desktopPoster}
                   onChange={(desktopPoster) =>

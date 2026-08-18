@@ -2,8 +2,8 @@
 
 import { motion } from "framer-motion";
 import { Container, CourseCard, SectionHeader } from "@/components/ui";
-import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 import type { HomeCoursesSectionContent } from "@/content/types/dedicated-pages";
+import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 import { resolveSectionHtmlId } from "@/lib/html-id";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 
@@ -20,10 +20,8 @@ type CoursesSectionProps = {
 export default function CoursesSection({
   content = createEmptyHomePageContent().courses,
 }: CoursesSectionProps = {}) {
-  const cards =
-    content.cards?.length > 0
-      ? content.cards
-      : createEmptyHomePageContent().courses.cards;
+  const cards = content.cards?.length ? content.cards : [];
+  if (cards.length === 0) return null;
 
   return (
     <section

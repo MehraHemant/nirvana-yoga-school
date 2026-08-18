@@ -17,8 +17,8 @@ export default async function AdminHeaderComponentPage() {
           <p className="admin-cms-kicker">Site chrome</p>
           <h1 className="admin-cms-title">Header & Navigation</h1>
           <p className="admin-subtitle admin-subtitle--flush">
-            Logos, ordered CTAs (Sign in, Enquire now), and the primary menu on
-            every page. Save once to update branding and navigation together.
+            Logos, ordered CTAs (Enquire now), and the primary menu on every
+            page. Save once to update branding and navigation together.
           </p>
         </div>
       </header>

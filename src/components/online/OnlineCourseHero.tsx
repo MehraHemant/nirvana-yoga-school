@@ -1,11 +1,11 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import { HeroFrame } from "@/components/hero";
 import { Button, Container, Heading, Pill } from "@/components/ui";
 import { ArrowRight, Play } from "@/icons";
-import { fadeUp } from "@/lib/motion";
+import { fadeUp, reducedTransition } from "@/lib/motion";
 import { parseYouTubeId, youTubeWatchUrl } from "@/lib/youtube";
 
 type OnlineCourseHeroProps = {
@@ -25,8 +25,9 @@ type OnlineCourseHeroProps = {
 };
 
 /**
- * Compact online-course hero: dark brand band with copy left and a framed
- * preview image/video on the right. Keeps transparent-header behavior.
+ * Online-course hero: dark ink band with copy left and a framed
+ * preview image/video on the right. Keeps transparent-header contrast
+ * for the white logo and primary header CTAs.
  *
  * @param props - Component properties conforming to OnlineCourseHeroProps
  */
@@ -45,6 +46,7 @@ export default function OnlineCourseHero({
   ctaSecondary,
   ctaSecondaryHref,
 }: OnlineCourseHeroProps) {
+  const prefersReduced = useReducedMotion() ?? false;
   const previewVideo = previewVideoId ? parseYouTubeId(previewVideoId) : null;
   const previewThumb = previewVideo
     ? `https://img.youtube.com/vi/${previewVideo}/maxresdefault.jpg`
@@ -59,78 +61,81 @@ export default function OnlineCourseHero({
   return (
     <HeroFrame
       transparentHeader
-      className="online-hero relative isolate overflow-hidden bg-linear-to-br from-ink to-primary-dark pt-(--site-header-height) text-white"
+      className="online-hero relative isolate overflow-hidden bg-ink pt-(--site-header-height) text-white"
     >
       <div
-        className="pointer-events-none absolute inset-0 opacity-55"
+        className="online-hero-wash pointer-events-none absolute inset-0"
         aria-hidden="true"
-        style={{
-          background:
-            "radial-gradient(circle at 88% 8%, rgb(255 255 255 / 0.08), transparent 40%), radial-gradient(circle at 8% 92%, rgb(163 36 50 / 0.28), transparent 46%)",
-        }}
+      />
+      <div
+        className="online-hero-glow pointer-events-none absolute inset-0"
+        aria-hidden="true"
       />
 
       <Container
         size="2xl"
-        className="relative z-10 grid items-center gap-6 py-8 sm:gap-8 sm:py-10 md:py-12 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] lg:gap-10 lg:py-12"
+        className="relative z-10 grid items-center gap-8 py-10 sm:gap-10 sm:py-12 md:py-14 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:gap-12 lg:py-16"
       >
         <motion.div
           initial="hidden"
           animate="visible"
           variants={fadeUp}
-          className="space-y-4"
+          className="space-y-5 sm:space-y-6"
         >
-          <div className="space-y-2.5">
+          <div className="space-y-3 sm:space-y-3.5">
             {eyebrow ? <Pill invert>{eyebrow}</Pill> : null}
             <Heading
               as="h1"
               size="none"
               font="serif"
               invert
-              className="max-w-xl text-balance text-2xl font-medium leading-[1.1] tracking-tight sm:text-3xl md:text-[2.125rem] lg:text-[2.375rem]"
+              className="max-w-xl text-balance text-[1.75rem] font-medium leading-[1.08] tracking-tight sm:text-4xl md:text-[2.5rem] lg:text-[2.75rem]"
             >
               {title}
             </Heading>
             {subtitle ? (
-              <p className="max-w-lg type-body text-pretty text-white/80">
+              <p className="max-w-lg type-body text-pretty text-white/78 sm:text-base md:text-lg">
                 {subtitle}
               </p>
             ) : null}
           </div>
 
           {metaItems.length > 0 ? (
-            <dl className="hero-glass grid max-w-xl grid-cols-2 gap-px overflow-hidden rounded-xl sm:grid-cols-4">
+            <motion.dl
+              initial="hidden"
+              animate="visible"
+              custom={0.08}
+              variants={fadeUp}
+              className="flex max-w-xl flex-wrap gap-x-5 gap-y-3 border-y border-white/12 py-3.5 sm:gap-x-7 sm:py-4"
+            >
               {metaItems.map((item) => (
-                <div
-                  key={item.label}
-                  className="bg-ink/25 px-2.5 py-2 sm:px-3 sm:py-2.5"
-                >
-                  <dt className="type-eyebrow text-white/65">{item.label}</dt>
-                  <dd className="mt-0.5 text-xs font-semibold leading-snug text-white">
+                <div key={item.label} className="min-w-22">
+                  <dt className="type-eyebrow text-white/55">{item.label}</dt>
+                  <dd className="mt-1 text-sm font-semibold leading-snug text-white">
                     {item.value}
                   </dd>
                 </div>
               ))}
-            </dl>
+            </motion.dl>
           ) : null}
 
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
             {ctaPrimary && ctaPrimaryHref ? (
               <Button
                 href={ctaPrimaryHref}
                 variant="primary"
-                size="sm"
-                className="group shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/35"
+                size="md"
+                className="group shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40"
               >
                 {ctaPrimary}
                 <ArrowRight
-                  size={14}
+                  size={15}
                   className="transition-transform group-hover:translate-x-1"
                 />
               </Button>
             ) : null}
             {ctaSecondary && ctaSecondaryHref ? (
-              <Button href={ctaSecondaryHref} variant="outline-light" size="sm">
+              <Button href={ctaSecondaryHref} variant="outline-light" size="md">
                 {ctaSecondary}
               </Button>
             ) : null}
@@ -139,45 +144,48 @@ export default function OnlineCourseHero({
 
         {previewThumb ? (
           <motion.div
-            initial="hidden"
-            animate="visible"
-            custom={0.1}
-            variants={fadeUp}
-            className="relative mx-auto w-full max-w-sm sm:max-w-md lg:max-w-none"
+            initial={
+              prefersReduced ? false : { opacity: 0, y: 18, scale: 0.98 }
+            }
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={reducedTransition(prefersReduced, {
+              duration: 0.55,
+              delay: 0.12,
+              ease: [0.22, 1, 0.36, 1],
+            })}
+            className="relative mx-auto w-full max-w-md lg:max-w-none"
           >
             <div
-              className="absolute -inset-1.5 rounded-2xl bg-linear-to-tr from-accent/20 via-primary/12 to-transparent opacity-45 blur-lg"
+              className="pointer-events-none absolute -inset-6 rounded-full bg-primary/20 blur-3xl"
               aria-hidden="true"
             />
-            <div className="group relative overflow-hidden rounded-2xl border border-white/15 bg-white/5 shadow-xl transition-all duration-300 hover:-translate-y-0.5 hover:border-white/25 hover:shadow-2xl">
-              <div className="relative aspect-[3/2] overflow-hidden">
+            <div className="group relative overflow-hidden rounded-[1.35rem] ring-1 ring-white/18 shadow-[0_24px_60px_-20px_rgb(0_0_0/0.55)]">
+              <div className="relative aspect-16/10 overflow-hidden">
                 <Image
                   src={previewThumb}
                   alt=""
                   fill
                   priority
-                  sizes="(max-width: 1024px) 100vw, 380px"
-                  className="object-cover object-center transition-transform duration-[1.4s] ease-out group-hover:scale-[1.04]"
+                  sizes="(max-width: 1024px) 100vw, 420px"
+                  className="object-cover object-center transition-transform duration-[1.5s] ease-out group-hover:scale-[1.04]"
                 />
-                <div className="absolute inset-0 bg-linear-to-t from-ink/50 via-transparent to-ink/10" />
+                <div
+                  className="absolute inset-0 bg-linear-to-t from-ink/55 via-transparent to-ink/10"
+                  aria-hidden="true"
+                />
 
                 {previewVideo ? (
-                  <>
-                    <span className="absolute top-2 left-2 rounded-full bg-ink/55 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-white backdrop-blur-sm">
-                      Preview
+                  <a
+                    href={youTubeWatchUrl(previewVideo)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="absolute inset-0 flex items-center justify-center bg-ink/15 transition-colors hover:bg-ink/30"
+                    aria-label="Watch course preview on YouTube"
+                  >
+                    <span className="flex size-12 items-center justify-center rounded-full bg-white text-ink shadow-soft transition-transform duration-300 group-hover:scale-110 sm:size-14">
+                      <Play size={18} className="ml-0.5" />
                     </span>
-                    <a
-                      href={youTubeWatchUrl(previewVideo)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="absolute inset-0 flex items-center justify-center bg-ink/10 transition-colors hover:bg-ink/25"
-                      aria-label="Watch course preview on YouTube"
-                    >
-                      <span className="flex size-10 items-center justify-center rounded-full bg-white shadow-soft transition-transform group-hover:scale-110 sm:size-11">
-                        <Play size={15} className="ml-0.5 text-ink/85" />
-                      </span>
-                    </a>
-                  </>
+                  </a>
                 ) : null}
               </div>
             </div>

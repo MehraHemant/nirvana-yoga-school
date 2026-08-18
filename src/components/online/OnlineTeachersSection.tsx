@@ -61,10 +61,20 @@ export default function OnlineTeachersSection({
 
   return (
     <OnlineSectionShell id="teachers" title="Teachers">
-      <div className="space-y-5">
-        {teachers.map((teacher) => (
-          <TeacherCard key={teacher.name} teacher={teacher} />
-        ))}
+      <div>
+        {teachers.map((teacher, i) => {
+          const isLast = i === teachers.length - 1;
+          return (
+            <div
+              key={teacher.name}
+              className={
+                isLast ? undefined : "mb-5 border-b border-ink/10 pb-5"
+              }
+            >
+              <TeacherCard teacher={teacher} />
+            </div>
+          );
+        })}
       </div>
     </OnlineSectionShell>
   );

@@ -11,7 +11,7 @@ import { TextField } from "./TextField";
 import { useStableListKeys } from "./useStableListKeys";
 
 const VARIANT_OPTIONS = [
-  { value: "link", label: "Text link (e.g. Sign in)" },
+  { value: "link", label: "Text link" },
   { value: "primary", label: "Primary button" },
   { value: "secondary", label: "Secondary button" },
 ];
@@ -24,7 +24,7 @@ type AdminHeaderCtasEditorProps = {
 };
 
 /**
- * Drag-reorderable editor for header CTAs (Sign in, Enquire now, custom).
+ * Drag-reorderable editor for header CTAs (Enquire now, custom buttons).
  *
  * @param props - Current CTA list and change handler
  */
@@ -62,8 +62,7 @@ export function AdminHeaderCtasEditor({
         <div>
           <span className="admin-label">Header CTAs</span>
           <p className="admin-hint admin-hint--tight">
-            Drag to reorder. Sign in and Enquire now are both CTAs — place them
-            in any order.
+            Drag to reorder header actions (Enquire now or custom buttons).
           </p>
         </div>
         <button type="button" className="admin-btn-sm" onClick={addCta}>
@@ -73,7 +72,7 @@ export function AdminHeaderCtasEditor({
 
       {ctas.length === 0 ? (
         <p className="admin-hint">
-          No CTAs yet. Add Sign in, Enquire now, or a custom button.
+          No CTAs yet. Add Enquire now or a custom button.
         </p>
       ) : (
         <SortableList

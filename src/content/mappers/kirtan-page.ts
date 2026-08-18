@@ -1,5 +1,6 @@
 import type { PricingOption } from "@/components/courses/upcomingDatesShared";
 import type { FAQEntry } from "@/components/ui/FAQSection";
+import { COURSE_PACKAGE_LABELS } from "@/content/lodging/room-catalog";
 import type { MappedSitePage } from "@/content/mappers/site-page";
 import { buildNavItems, mapSitePage } from "@/content/mappers/site-page";
 import {
@@ -42,13 +43,7 @@ const HIGHLIGHT_PREFIXES = [
   "Supportive Environment",
 ] as const;
 
-const KIRTAN_ROOM_LABELS = [
-  "Private Room with Balcony",
-  "2-Shared Room with Balcony",
-  "4-Shared Dorm with Balcony",
-  "Private Double Balcony Room (2 people)",
-  "Without Accommodation",
-] as const;
+const KIRTAN_ROOM_LABELS = COURSE_PACKAGE_LABELS;
 
 const FALLBACK_HERO_IMAGE =
   "https://www.nirvanayogaschoolindia.com/admin/uploads/yoga/yoga-11-06-2026-1781120152-yoga-03-07-2023-1688377619-3.png";

@@ -14,21 +14,28 @@ function withCtaSort(items: HeaderCta[]): HeaderCta[] {
   return items.map((item, index) => ({ ...item, sort: index * 10 }));
 }
 
-/** Default Sign in + Enquire now CTAs (Sign in first). */
+/** Default header CTA (Enquire now only — Sign in removed from site chrome). */
 export const DEFAULT_HEADER_CTAS: HeaderCta[] = [
-  {
-    label: "Sign in",
-    href: SIGN_IN_URL,
-    variant: "link",
-    sort: 0,
-  },
   {
     label: "Enquire Now",
     href: "/enquire-now",
     variant: "primary",
-    sort: 10,
+    sort: 0,
   },
 ];
+
+/**
+ * True when a CTA is the legacy Sign in link (label or enroll URL).
+ *
+ * @param cta - Normalized header CTA row
+ */
+function isSignInCta(cta: HeaderCta): boolean {
+  const label = cta.label.trim().toLowerCase();
+  if (label === "sign in" || label === "signin" || label === "log in") {
+    return true;
+  }
+  return cta.href.trim() === SIGN_IN_URL;
+}
 
 const DEFAULT_HEADER_LOGO = {
   light: "/logo.png",
@@ -108,7 +115,7 @@ function normalizeCtaRow(raw: unknown, index: number): HeaderCta | null {
 
 /**
  * Builds an ordered CTA list from a header document, migrating legacy
- * `signInUrl` + single `cta` when `ctas` is missing or empty.
+ * single `cta` when `ctas` is missing or empty. Legacy Sign in rows are dropped.
  *
  * @param header - Partial or legacy global header value
  */
@@ -123,16 +130,12 @@ export function normalizeHeaderCtas(
   if (Array.isArray(rawCtas) && rawCtas.length > 0) {
     const normalized = rawCtas
       .map((row, index) => normalizeCtaRow(row, index))
-      .filter((row): row is HeaderCta => row != null);
+      .filter((row): row is HeaderCta => row != null)
+      .filter((row) => !isSignInCta(row));
     // Array order is authoritative (admin DnD). `sort` is stamped on save.
     if (normalized.length > 0) return normalized;
   }
 
-  const configuredSignInUrl = (header as GlobalHeader).signInUrl;
-  const signInUrl =
-    typeof configuredSignInUrl === "string" && configuredSignInUrl.trim()
-      ? configuredSignInUrl.trim()
-      : SIGN_IN_URL;
   const legacyCta = (header as GlobalHeader).cta;
   const enquireLabel =
     typeof legacyCta?.label === "string" && legacyCta.label.trim()
@@ -147,16 +150,10 @@ export function normalizeHeaderCtas(
 
   return [
     {
-      label: "Sign in",
-      href: signInUrl,
-      variant: "link",
-      sort: 0,
-    },
-    {
       label: enquireLabel,
       href: enquireHref,
       variant: enquireVariant,
-      sort: 10,
+      sort: 0,
     },
   ];
 }

@@ -159,8 +159,8 @@ export function AdminHeaderChromeEditor() {
           <div>
             <h2 className="admin-cms-panel-title">Branding & CTAs</h2>
             <p className="admin-cms-panel-desc">
-              Logos and ordered header actions (Sign in, Enquire now, or custom
-              buttons). Drag CTAs to change their order.
+              Logos and ordered header actions (Enquire now or custom buttons).
+              Drag CTAs to change their order.
             </p>
           </div>
         </div>

@@ -1,5 +1,5 @@
-import { MapSection } from "@/components/home";
 import { ExamCertification } from "@/components/courses";
+import { MapSection } from "@/components/home";
 import {
   YttHubCoursesSection,
   YttHubGallerySection,

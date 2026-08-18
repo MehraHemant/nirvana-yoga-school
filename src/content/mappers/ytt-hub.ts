@@ -121,4 +121,3 @@ export function mapYttHubToHomeWelcome(hub: YttHubContent): HomeWelcomeContent {
     },
   };
 }
-

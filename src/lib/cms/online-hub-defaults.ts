@@ -1,4 +1,7 @@
-import { DEFAULT_ONLINE_HUB_NAV } from "@/content/page-modules-defaults";
+import {
+  DEFAULT_ONLINE_HUB_NAV,
+  DEFAULT_ONLINE_HUB_WHY_ONLINE,
+} from "@/content/page-modules-defaults";
 import type { PageModulesDocument } from "@/content/types";
 import type { HomeHeroVideoContent } from "@/content/types/dedicated-pages";
 import { liveImage } from "@/lib/live-site";
@@ -147,12 +150,16 @@ export function createDefaultOnlineHubModules(): PageModulesDocument {
     syllabus: { description: "", chapters: [] },
     schedule: { description: "", items: [] },
     pricing: { description: "", options: [] },
+    whyOnline: {
+      ...DEFAULT_ONLINE_HUB_WHY_ONLINE,
+      items: DEFAULT_ONLINE_HUB_WHY_ONLINE.items.map((item) => ({ ...item })),
+    },
     faqs: {
       live: true,
       items: DEFAULT_FAQS,
     },
     flags: {
-      showExam: true,
+      showExam: false,
       showAccommodation: false,
       showWhyNirvana: false,
       showTravel: false,

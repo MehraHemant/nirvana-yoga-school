@@ -117,9 +117,7 @@ export async function ensureOnlineHubPage(): Promise<{
         stickyNav: {
           ...next.stickyNav,
           items: next.stickyNav.items.map((item) =>
-            item.id === "#overview"
-              ? { ...item, id: "#about" as const }
-              : item,
+            item.id === "#overview" ? { ...item, id: "#about" as const } : item,
           ),
         },
       };
@@ -132,6 +130,39 @@ export async function ensureOnlineHubPage(): Promise<{
           },
         };
       }
+      changed = true;
+    }
+
+    if (next.stickyNav.items.some((item) => item.id === "#exam")) {
+      next = {
+        ...next,
+        stickyNav: {
+          ...next.stickyNav,
+          items: next.stickyNav.items.filter((item) => item.id !== "#exam"),
+        },
+      };
+      changed = true;
+    }
+
+    const whyTitles =
+      next.whyOnline?.items.map((item) => item.title.trim().toLowerCase()) ??
+      [];
+    const isLegacyCertWhyOnline =
+      whyTitles.includes("yoga alliance certified") &&
+      whyTitles.includes("teach worldwide");
+    if (!next.whyOnline?.items?.length || isLegacyCertWhyOnline) {
+      next = {
+        ...next,
+        whyOnline: createDefaultOnlineHubModules().whyOnline,
+      };
+      changed = true;
+    }
+
+    if (next.flags.showExam) {
+      next = {
+        ...next,
+        flags: { ...next.flags, showExam: false },
+      };
       changed = true;
     }
 

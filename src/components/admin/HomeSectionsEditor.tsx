@@ -5,6 +5,7 @@ import { useCallback, useState } from "react";
 import { AdminSaveBar } from "@/components/admin/AdminSaveBar";
 import { AdminSectionJumpNav } from "@/components/admin/AdminSectionJumpNav";
 import { CollapsiblePanel } from "@/components/admin/CollapsiblePanel";
+import { HomeCoursesPicker } from "@/components/admin/HomeCoursesPicker";
 import { ImageField } from "@/components/admin/ImageField";
 import { PageSeoFields } from "@/components/admin/PageSeoFields";
 import { SectionIdField } from "@/components/admin/SectionIdField";
@@ -21,8 +22,8 @@ import { StringListField } from "@/components/admin/StringListField";
 import { TextField } from "@/components/admin/TextField";
 import { useAdminSectionJump } from "@/components/admin/useAdminSectionJump";
 import { useStableListKeys } from "@/components/admin/useStableListKeys";
+import { VideoField } from "@/components/admin/VideoField";
 import type {
-  HomeCourseCard,
   HomeGalleryItem,
   HomePageContent,
   HomeWelcomeImage,
@@ -30,6 +31,10 @@ import type {
   HomeWhyRishikeshTrustLogo,
   HomeYogaAllianceCertification,
 } from "@/content/types/dedicated-pages";
+import {
+  homeCoursesSectionForSave,
+  normalizeHomeCourseRefs,
+} from "@/content/mappers/home-courses";
 import type { SharedFaq, SharedReview } from "@/content/types/shared-sections";
 import { REVIEW_SOURCE_OPTIONS } from "@/content/types/shared-sections";
 
@@ -84,6 +89,21 @@ type HomeSectionsEditorProps = {
 };
 
 /**
+ * Normalizes homepage course placements for editing.
+ *
+ * @param doc - Raw homepage document from CMS
+ */
+function withNormalizedCourses(doc: HomePageContent): HomePageContent {
+  return {
+    ...doc,
+    courses: {
+      ...doc.courses,
+      placements: normalizeHomeCourseRefs(doc.courses),
+    },
+  };
+}
+
+/**
  * Admin editor for all homepage sections stored in `pages.content_data`
  * (page metadata, hero through FAQs, testimonials, and final CTA).
  *
@@ -95,8 +115,10 @@ export function HomeSectionsEditor({
   backHref = "/admin/sections/home",
   backLabel = "Home",
 }: HomeSectionsEditorProps) {
-  const [doc, setDoc] = useState(initial);
-  const [baseline, setBaseline] = useState(() => JSON.stringify(initial));
+  const [doc, setDoc] = useState(() => withNormalizedCourses(initial));
+  const [baseline, setBaseline] = useState(() =>
+    JSON.stringify(withNormalizedCourses(initial)),
+  );
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
@@ -108,7 +130,7 @@ export function HomeSectionsEditor({
   const reviewKeys = useStableListKeys(doc.testimonials.reviews.length);
   const faqKeys = useStableListKeys(doc.faqs.faqs.length);
   const galleryKeys = useStableListKeys(doc.gallery.items.length);
-  const courseKeys = useStableListKeys(doc.courses.cards.length);
+  const homeCoursePlacements = normalizeHomeCourseRefs(doc.courses);
   const certKeys = useStableListKeys(doc.yogaAlliance.certifications.length);
   const sutraKeys = useStableListKeys(doc.whyRishikesh.sutras.length);
   const logoKeys = useStableListKeys(doc.whyRishikesh.trustLogos.length);
@@ -146,8 +168,13 @@ export function HomeSectionsEditor({
     setSaved(false);
     setError("");
     try {
-      await onSave(doc);
-      setBaseline(JSON.stringify(doc));
+      const payload: HomePageContent = {
+        ...doc,
+        courses: homeCoursesSectionForSave(doc.courses),
+      };
+      await onSave(payload);
+      setDoc(payload);
+      setBaseline(JSON.stringify(payload));
       setSaved(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Save failed");
@@ -332,12 +359,12 @@ export function HomeSectionsEditor({
             <div className="admin-nested-card">
               <strong>Background video</strong>
               <p className="admin-hint">
-                Full-bleed muted MP4 loop (autoplay, no controls). Leave srcs
-                empty for poster only.
+                Full-bleed muted MP4 loop (autoplay, no controls). Upload or
+                pick from the media library. Leave srcs empty for poster only.
               </p>
               <div className="admin-grid-2">
-                <TextField
-                  label="Mobile MP4 src"
+                <VideoField
+                  label="Mobile video"
                   value={doc.hero.video.mobileSrc}
                   onChange={(mobileSrc) =>
                     setDoc({
@@ -349,7 +376,7 @@ export function HomeSectionsEditor({
                     })
                   }
                 />
-                <TextField
+                <ImageField
                   label="Mobile poster"
                   value={doc.hero.video.mobilePoster}
                   onChange={(mobilePoster) =>
@@ -364,8 +391,8 @@ export function HomeSectionsEditor({
                 />
               </div>
               <div className="admin-grid-2">
-                <TextField
-                  label="Desktop MP4 src"
+                <VideoField
+                  label="Desktop video"
                   value={doc.hero.video.desktopSrc}
                   onChange={(desktopSrc) =>
                     setDoc({
@@ -377,7 +404,7 @@ export function HomeSectionsEditor({
                     })
                   }
                 />
-                <TextField
+                <ImageField
                   label="Desktop poster"
                   value={doc.hero.video.desktopPoster}
                   onChange={(desktopPoster) =>
@@ -1177,7 +1204,8 @@ export function HomeSectionsEditor({
           <CollapsiblePanel
             id={panelId("courses")}
             title="Courses"
-            subtitle={`${doc.courses.cards.length} course cards`}
+            subtitle={`${homeCoursePlacements.filter((ref) => ref.live !== false).length} on homepage`}
+            description="Choose which residential courses appear on the homepage. Card content (title, fee, image, duration) comes from each course page."
             actions={
               <SectionLiveField
                 id="courses-section-live"
@@ -1195,169 +1223,48 @@ export function HomeSectionsEditor({
                 setDoc({ ...doc, courses: { ...doc.courses, _id } })
               }
             />
-            <div className="admin-grid-2">
-              <TextField
-                label="Eyebrow"
-                value={doc.courses.eyebrow ?? ""}
-                onChange={(eyebrow) =>
-                  setDoc({ ...doc, courses: { ...doc.courses, eyebrow } })
-                }
-              />
-              <TextField
-                label="Title"
-                value={doc.courses.title}
-                onChange={(title) =>
-                  setDoc({ ...doc, courses: { ...doc.courses, title } })
-                }
-              />
-            </div>
-            <TextField
-              label="Description"
-              value={doc.courses.description ?? ""}
-              onChange={(description) =>
-                setDoc({ ...doc, courses: { ...doc.courses, description } })
-              }
-              multiline
-              rows={2}
-            />
-            {doc.courses.cards.map((card, index) => (
-              <div key={courseKeys.keys[index]} className="admin-nested-card">
-                <div className="admin-nested-card-head">
-                  <strong>Course {index + 1}</strong>
-                  <button
-                    type="button"
-                    className="admin-btn-sm admin-btn-sm--danger"
-                    onClick={() => {
-                      courseKeys.removeKey(index);
-                      setDoc({
-                        ...doc,
-                        courses: {
-                          ...doc.courses,
-                          cards: doc.courses.cards.filter(
-                            (_, i) => i !== index,
-                          ),
-                        },
-                      });
-                    }}
-                  >
-                    Remove
-                  </button>
-                </div>
-                <TextField
-                  label="Title"
-                  value={card.title}
-                  onChange={(title) => {
-                    const cards = [...doc.courses.cards];
-                    cards[index] = { ...card, title };
-                    setDoc({ ...doc, courses: { ...doc.courses, cards } });
-                  }}
-                />
-                <div className="admin-grid-4">
-                  <TextField
-                    label="Duration"
-                    value={card.duration}
-                    onChange={(duration) => {
-                      const cards = [...doc.courses.cards];
-                      cards[index] = { ...card, duration };
-                      setDoc({ ...doc, courses: { ...doc.courses, cards } });
-                    }}
-                  />
-                  <TextField
-                    label="Level"
-                    value={card.level}
-                    onChange={(level) => {
-                      const cards = [...doc.courses.cards];
-                      cards[index] = { ...card, level };
-                      setDoc({ ...doc, courses: { ...doc.courses, cards } });
-                    }}
-                  />
-                  <TextField
-                    label="Fee"
-                    value={card.fee}
-                    onChange={(fee) => {
-                      const cards = [...doc.courses.cards];
-                      cards[index] = { ...card, fee };
-                      setDoc({ ...doc, courses: { ...doc.courses, cards } });
-                    }}
-                  />
-                  <TextField
-                    label="Certification"
-                    value={card.certification}
-                    onChange={(certification) => {
-                      const cards = [...doc.courses.cards];
-                      cards[index] = { ...card, certification };
-                      setDoc({ ...doc, courses: { ...doc.courses, cards } });
-                    }}
-                  />
-                </div>
+            <details className="admin-home-courses-section-copy">
+              <summary>Section header copy</summary>
+              <div className="admin-home-courses-section-copy__body">
                 <div className="admin-grid-2">
-                  <ImageField
-                    label="Image"
-                    value={card.image}
-                    compact
-                    onChange={(image) => {
-                      const cards = [...doc.courses.cards];
-                      cards[index] = { ...card, image };
-                      setDoc({ ...doc, courses: { ...doc.courses, cards } });
-                    }}
+                  <TextField
+                    label="Eyebrow"
+                    value={doc.courses.eyebrow ?? ""}
+                    onChange={(eyebrow) =>
+                      setDoc({ ...doc, courses: { ...doc.courses, eyebrow } })
+                    }
                   />
                   <TextField
-                    label="Cert badge URL"
-                    value={card.certBadge}
-                    onChange={(certBadge) => {
-                      const cards = [...doc.courses.cards];
-                      cards[index] = { ...card, certBadge };
-                      setDoc({ ...doc, courses: { ...doc.courses, cards } });
-                    }}
+                    label="Title"
+                    value={doc.courses.title}
+                    onChange={(title) =>
+                      setDoc({ ...doc, courses: { ...doc.courses, title } })
+                    }
                   />
                 </div>
                 <TextField
-                  label="Href"
-                  value={card.href}
-                  onChange={(href) => {
-                    const cards = [...doc.courses.cards];
-                    cards[index] = { ...card, href };
-                    setDoc({ ...doc, courses: { ...doc.courses, cards } });
-                  }}
-                />
-                <StringListField
-                  label="Highlights"
-                  items={card.highlights}
-                  onChange={(highlights) => {
-                    const cards = [...doc.courses.cards];
-                    cards[index] = { ...card, highlights };
-                    setDoc({ ...doc, courses: { ...doc.courses, cards } });
-                  }}
+                  label="Description"
+                  value={doc.courses.description ?? ""}
+                  onChange={(description) =>
+                    setDoc({
+                      ...doc,
+                      courses: { ...doc.courses, description },
+                    })
+                  }
+                  multiline
+                  rows={2}
                 />
               </div>
-            ))}
-            <button
-              type="button"
-              className="admin-btn-sm"
-              onClick={() => {
-                courseKeys.addKey();
-                const blank: HomeCourseCard = {
-                  title: "",
-                  duration: "",
-                  level: "",
-                  certification: "",
-                  fee: "",
-                  image: "",
-                  certBadge: "",
-                  href: "",
-                  highlights: [],
-                };
+            </details>
+            <HomeCoursesPicker
+              value={homeCoursePlacements}
+              onChange={(placements) =>
                 setDoc({
                   ...doc,
-                  courses: {
-                    ...doc.courses,
-                    cards: [...doc.courses.cards, blank],
-                  },
-                });
-              }}
-            >
-              Add course card
-            </button>
+                  courses: { ...doc.courses, placements },
+                })
+              }
+            />
           </CollapsiblePanel>
 
           <CollapsiblePanel
