@@ -1,3 +1,4 @@
+import { upsertMediaImage } from "@/content/repositories/lodging";
 import {
   isCdnConfigured,
   maxUploadBytes,
@@ -6,7 +7,11 @@ import {
   uploadToCloudinary,
   validateMediaUpload,
 } from "@/lib/cdn/cloudinary";
-import { normalizeMediaTags, parseMediaTagsFromDb } from "@/lib/cdn/media-tags";
+import {
+  canonicalizeMediaTags,
+  normalizeMediaTags,
+  parseMediaTagsFromDb,
+} from "@/lib/cdn/media-tags";
 import {
   jsonBadRequest,
   jsonError,
@@ -27,7 +32,7 @@ function checkRateLimit(ip: string): boolean {
     uploadCounts.set(ip, { count: 1, resetAt: now + 15 * 60 * 1000 });
     return true;
   }
-  if (entry.count >= 30) return false;
+  if (entry.count >= 60) return false;
   entry.count += 1;
   return true;
 }
@@ -51,7 +56,8 @@ function parseTagsFromForm(raw: FormDataEntryValue | null): string[] {
 
 /**
  * Upload an image (max 1MB) or video (max 100MB) to Cloudinary with optional
- * caption, description, and tags.
+ * caption/title, description/alt, and tags. Images are also upserted into
+ * lodging `media_images` for room/food galleries.
  */
 export async function POST(request: Request) {
   const session = await getSessionFromRequest(request);
@@ -71,9 +77,10 @@ export async function POST(request: Request) {
   const form = await request.formData();
   const file = form.get("file");
   const caption = String(form.get("caption") ?? "").trim() || null;
+  const title = String(form.get("title") ?? "").trim() || caption || null;
   const description = String(form.get("description") ?? "").trim() || null;
-  const alt = String(form.get("alt") ?? caption ?? "").trim() || null;
-  const tags = parseTagsFromForm(form.get("tags"));
+  const alt = String(form.get("alt") ?? "").trim() || title || caption || null;
+  const tags = canonicalizeMediaTags(parseTagsFromForm(form.get("tags")));
 
   if (!(file instanceof File)) {
     return jsonBadRequest("file field required");
@@ -105,11 +112,28 @@ export async function POST(request: Request) {
       mime: uploaded.mime,
       sizeBytes: uploaded.sizeBytes,
       alt,
-      caption,
+      caption: title ?? caption,
       description,
       tags,
     },
   });
+
+  let mediaImageId: string | null = null;
+  if ((resourceType ?? "image") === "image") {
+    try {
+      const lodgingImage = await upsertMediaImage({
+        url: asset.url,
+        tag: tags[0] ?? "",
+        title: title ?? caption ?? file.name,
+        alt: alt ?? title ?? caption ?? file.name,
+        sort: 0,
+      });
+      mediaImageId = lodgingImage.id;
+    } catch {
+      // Lodging dual-write is best-effort; CMS asset still succeeds.
+      mediaImageId = null;
+    }
+  }
 
   return jsonOk(
     {
@@ -120,8 +144,10 @@ export async function POST(request: Request) {
       mime: asset.mime,
       caption: asset.caption,
       description: asset.description,
+      alt: asset.alt,
       tags: parseMediaTagsFromDb(asset.tags),
       durationSeconds: uploaded.durationSeconds ?? null,
+      mediaImageId,
     },
     { status: HTTP.CREATED },
   );

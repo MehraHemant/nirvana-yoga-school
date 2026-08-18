@@ -5,7 +5,7 @@ import {
   jsonUnavailable,
 } from "@/lib/cms/api-response";
 import { deliveryPreflight } from "@/lib/cms/delivery-auth";
-import { isDbConnectionError, db } from "@/lib/db";
+import { db, isDbConnectionError } from "@/lib/db";
 import type { ApiRouteParams } from "@/lib/types/api";
 
 /**

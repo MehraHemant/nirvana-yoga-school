@@ -9,6 +9,10 @@ export type CmsInteractiveImage = {
   url: string;
   /** Accessible alt text shown to assistive tech */
   alt?: string;
+  /** Linked `media_assets.id` when picked from the CMS media library */
+  mediaAssetId?: string;
+  /** Linked `media_images.id` when picked from the lodging library */
+  mediaImageId?: string;
   /**
    * Click behaviour:
    * - `fullscreen` — open lightbox (default)
@@ -35,6 +39,8 @@ export function normalizeCmsImage(
   return {
     url: input.url ?? "",
     alt: input.alt ?? "",
+    mediaAssetId: input.mediaAssetId,
+    mediaImageId: input.mediaImageId,
     clickAction: input.clickAction ?? "fullscreen",
     redirectUrl: input.redirectUrl ?? "",
   };

@@ -249,8 +249,7 @@ export default function MediaLightbox({
                       <div className="relative w-full h-full bg-black/50">
                         <Image
                           src={
-                            item.thumbnailUrl ||
-                            getYouTubeThumbnail(item.url)
+                            item.thumbnailUrl || getYouTubeThumbnail(item.url)
                           }
                           alt=""
                           fill

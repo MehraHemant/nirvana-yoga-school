@@ -6,16 +6,33 @@ import {
   galleryCategoryFromTag,
   galleryMediaTagOptions,
 } from "@/content/mappers/gallery-module";
-import { fetchAdminMedia } from "@/lib/api/admin-client";
-import type { AdminMediaAsset } from "@/lib/types/admin-api";
+import {
+  fetchAdminMedia,
+  fetchLodgingMediaImages,
+} from "@/lib/api/admin-client";
+import { cloudinaryThumbUrl } from "@/lib/cdn/cloudinary-thumb-url";
 
 export type MediaMultiPickResult = {
   url: string;
+  /** CMS media_assets id when source is assets */
   mediaAssetId: string;
+  /** Lodging media_images id when available */
+  mediaImageId?: string;
   alt?: string;
   title?: string;
   /** Suggested gallery category from the active tag filter */
   category: string;
+};
+
+type PickerAsset = {
+  id: string;
+  url: string;
+  thumbUrl: string;
+  label: string;
+  alt?: string;
+  title?: string;
+  tags: string[];
+  mediaImageId?: string;
 };
 
 type MediaMultiPickerProps = {
@@ -26,7 +43,13 @@ type MediaMultiPickerProps = {
   /** Initial tag filter */
   initialTag?: string;
   title?: string;
+  /**
+   * `lodging` reads `media_images` (room/food). `assets` reads CMS media library.
+   */
+  source?: "assets" | "lodging";
 };
+
+const PAGE_SIZE = 48;
 
 /**
  * Modal multi-select media library picker with tag filtering and search.
@@ -39,9 +62,14 @@ export function MediaMultiPicker({
   onConfirm,
   initialTag = "",
   title = "Add images from media",
+  source = "assets",
 }: MediaMultiPickerProps) {
-  const [assets, setAssets] = useState<AdminMediaAsset[]>([]);
+  const [assets, setAssets] = useState<PickerAsset[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [error, setError] = useState("");
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [tag, setTag] = useState(initialTag);
   const [search, setSearch] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -57,49 +85,110 @@ export function MediaMultiPicker({
     setSelectedIds([]);
     setEmptyTagHint("");
     setDidTagFallback(false);
+    setPage(1);
+    setTotalPages(1);
+    setAssets([]);
+    setError("");
   }, [open, initialTag]);
 
   useEffect(() => {
     if (!open) return;
     let cancelled = false;
-    setLoading(true);
-    fetchAdminMedia(tag || undefined)
-      .then((body) => {
+    const isFirstPage = page === 1;
+    if (isFirstPage) setLoading(true);
+    else setLoadingMore(true);
+    setError("");
+
+    const load =
+      source === "lodging"
+        ? fetchLodgingMediaImages({
+            tag: tag || undefined,
+            page,
+            limit: PAGE_SIZE,
+          }).then((body) => ({
+            images: (body.images ?? []).map(
+              (image): PickerAsset => ({
+                id: image.id,
+                url: image.url,
+                thumbUrl: image.thumbUrl || cloudinaryThumbUrl(image.url, 240),
+                label:
+                  image.title ||
+                  image.alt ||
+                  image.url.split("/").pop() ||
+                  "Untitled",
+                alt: image.alt || image.title,
+                title: image.title,
+                tags: image.tag ? [image.tag] : [],
+                mediaImageId: image.id,
+              }),
+            ),
+            totalPages: body.totalPages ?? 1,
+          }))
+        : fetchAdminMedia({
+            tag: tag || undefined,
+            page,
+            limit: PAGE_SIZE,
+            kind: "image",
+          }).then((body) => ({
+            images: body.assets.map(
+                (asset): PickerAsset => ({
+                  id: asset.id,
+                  url: asset.url,
+                  thumbUrl:
+                    asset.thumbUrl || cloudinaryThumbUrl(asset.url, 240),
+                  label:
+                    asset.caption ||
+                    asset.alt ||
+                    asset.url.split("/").pop() ||
+                    "Untitled",
+                  alt: asset.alt ?? asset.caption ?? undefined,
+                  title: asset.caption ?? undefined,
+                  tags: asset.tags,
+                }),
+              ),
+            totalPages: body.totalPages,
+          }));
+
+    load
+      .then(({ images, totalPages: nextTotalPages }) => {
         if (cancelled) return;
-        const images = body.assets.filter((asset) =>
-          asset.mime.startsWith("image/"),
-        );
-        setAssets(images);
-        // Section tag hints often have no library matches — fall back once to all media.
-        if (
-          tag &&
-          images.length === 0 &&
-          !didTagFallback &&
-          tag === initialTag
-        ) {
+        setTotalPages(nextTotalPages);
+        setAssets((prev) => (page === 1 ? images : [...prev, ...images]));
+        if (tag && images.length === 0 && page === 1 && !didTagFallback) {
           setDidTagFallback(true);
           setEmptyTagHint(tag);
+          setPage(1);
+          setAssets([]);
           setTag("");
         }
       })
-      .catch(() => {
-        if (!cancelled) setAssets([]);
+      .catch((err) => {
+        if (cancelled) return;
+        if (page === 1) setAssets([]);
+        setError(
+          err instanceof Error ? err.message : "Failed to load media library",
+        );
       })
       .finally(() => {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+          setLoadingMore(false);
+        }
       });
+
     return () => {
       cancelled = true;
     };
-  }, [open, tag, didTagFallback, initialTag]);
+  }, [open, tag, didTagFallback, source, page]);
 
   const visibleAssets = useMemo(() => {
     const query = search.trim().toLowerCase();
     if (!query) return assets;
     return assets.filter((asset) => {
       const haystack = [
-        asset.caption,
+        asset.label,
         asset.alt,
+        asset.title,
         asset.url,
         ...asset.tags,
       ]
@@ -145,8 +234,10 @@ export function MediaMultiPicker({
         {
           url: asset.url,
           mediaAssetId: asset.id,
-          alt: asset.alt ?? asset.caption ?? undefined,
-          title: asset.caption ?? undefined,
+          mediaImageId:
+            asset.mediaImageId ?? (source === "lodging" ? asset.id : undefined),
+          alt: asset.alt,
+          title: asset.title,
           category,
         } satisfies MediaMultiPickResult,
       ];
@@ -154,6 +245,8 @@ export function MediaMultiPicker({
     onConfirm(items);
     onClose();
   }
+
+  const canLoadMore = page < totalPages;
 
   return (
     <div className="admin-modal-layer">
@@ -173,7 +266,8 @@ export function MediaMultiPicker({
           <div>
             <h2 className="admin-modal-title">{title}</h2>
             <p className="admin-hint admin-hint--tight">
-              Click photos to multi-select, then add them to this section.
+              Click photos to multi-select, then add them
+              {source === "lodging" ? " to this room" : " to this section"}.
             </p>
           </div>
           <button
@@ -220,6 +314,8 @@ export function MediaMultiPicker({
             className={`admin-chip ${tag === "" ? "admin-chip--active" : ""}`}
             onClick={() => {
               setEmptyTagHint("");
+              setPage(1);
+              setAssets([]);
               setTag("");
             }}
           >
@@ -232,7 +328,9 @@ export function MediaMultiPicker({
               className={`admin-chip ${tag === option ? "admin-chip--active" : ""}`}
               onClick={() => {
                 setEmptyTagHint("");
-                setDidTagFallback(true);
+                setDidTagFallback(false);
+                setPage(1);
+                setAssets([]);
                 setTag(option);
               }}
             >
@@ -243,23 +341,26 @@ export function MediaMultiPicker({
 
         {emptyTagHint ? (
           <p className="admin-tip-banner admin-tip-banner--inline">
-            No library images tagged “{emptyTagHint}”. Showing all media —
-            pick photos below, or tag uploads on the{" "}
+            No library images tagged “{emptyTagHint}”. Showing all media — pick
+            photos below, or upload on the{" "}
             <Link href="/admin/media">Media</Link> page.
           </p>
         ) : null}
 
-        {loading ? <p className="admin-hint">Loading media…</p> : null}
+        {error ? <p className="admin-error">{error}</p> : null}
+
+        {loading ? (
+          <div className="admin-media-picker-grid" aria-hidden="true">
+            {Array.from({ length: 12 }, (_, index) => (
+              <div key={index} className="admin-media-skeleton" />
+            ))}
+          </div>
+        ) : null}
 
         {!loading && visibleAssets.length > 0 ? (
           <div className="admin-media-picker-grid">
             {visibleAssets.map((asset) => {
               const selected = selectedIds.includes(asset.id);
-              const label =
-                asset.caption ||
-                asset.alt ||
-                asset.url.split("/").pop() ||
-                "Untitled";
               return (
                 <button
                   key={asset.id}
@@ -269,13 +370,18 @@ export function MediaMultiPicker({
                   aria-pressed={selected}
                 >
                   {/* biome-ignore lint/performance/noImgElement: admin preview */}
-                  <img src={asset.url} alt={label} />
+                  <img
+                    src={asset.thumbUrl}
+                    alt={asset.label}
+                    loading="lazy"
+                    decoding="async"
+                  />
                   {selected ? (
                     <span className="admin-media-pick-check" aria-hidden="true">
                       ✓
                     </span>
                   ) : null}
-                  <span className="admin-media-pick-label">{label}</span>
+                  <span className="admin-media-pick-label">{asset.label}</span>
                   {asset.tags.length > 0 ? (
                     <span className="admin-media-pick-tags">
                       {asset.tags.slice(0, 2).join(" · ")}
@@ -287,14 +393,29 @@ export function MediaMultiPicker({
           </div>
         ) : null}
 
+        {canLoadMore ? (
+          <div className="admin-media-picker-more">
+            <button
+              type="button"
+              className="admin-btn-sm"
+              disabled={loadingMore}
+              onClick={() => setPage((prev) => prev + 1)}
+            >
+              {loadingMore ? "Loading…" : "Load more"}
+            </button>
+          </div>
+        ) : null}
+
         {!loading && visibleAssets.length === 0 ? (
           <div className="admin-empty-card">
             <p>
-              {tag
-                ? `No media matches “${tag}”.`
-                : search.trim()
-                  ? "No media matches your search."
-                  : "No media in the library yet."}
+              {error
+                ? "Could not load the library."
+                : tag
+                  ? `No media matches “${tag}”.`
+                  : search.trim()
+                    ? "No media matches your search."
+                    : "No media in the library yet."}
             </p>
             <div className="admin-empty-card-actions">
               {tag ? (
@@ -303,6 +424,8 @@ export function MediaMultiPicker({
                   className="admin-btn-sm"
                   onClick={() => {
                     setEmptyTagHint("");
+                    setPage(1);
+                    setAssets([]);
                     setTag("");
                   }}
                 >
@@ -318,7 +441,10 @@ export function MediaMultiPicker({
                   Clear search
                 </button>
               ) : null}
-              <Link href="/admin/media" className="admin-btn-sm admin-btn-sm--ghost">
+              <Link
+                href="/admin/media"
+                className="admin-btn-sm admin-btn-sm--ghost"
+              >
                 Open Media library
               </Link>
             </div>
@@ -328,9 +454,7 @@ export function MediaMultiPicker({
         <div className="admin-modal-footer">
           <p className="admin-hint" style={{ margin: 0 }}>
             {selectedIds.length} selected
-            {visibleAssets.length > 0
-              ? ` · ${visibleAssets.length} shown`
-              : ""}
+            {visibleAssets.length > 0 ? ` · ${visibleAssets.length} shown` : ""}
             {tag ? ` · ${tag}` : ""}
           </p>
           <div className="admin-actions">

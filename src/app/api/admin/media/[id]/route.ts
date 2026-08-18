@@ -1,8 +1,13 @@
+import { purgeOrphanMediaImages } from "@/content/repositories/lodging";
 import {
   deleteFromCloudinary,
   resourceTypeFromMime,
 } from "@/lib/cdn/cloudinary";
-import { normalizeMediaTags, parseMediaTagsFromDb } from "@/lib/cdn/media-tags";
+import {
+  canonicalizeMediaTags,
+  normalizeMediaTags,
+  parseMediaTagsFromDb,
+} from "@/lib/cdn/media-tags";
 import {
   jsonConflict,
   jsonMutationOk,
@@ -40,7 +45,11 @@ export async function GET(
     return jsonNotFound();
   }
 
-  const usage = await getMediaAssetUsage({ id: asset.id, url: asset.url });
+  const usage = await getMediaAssetUsage({
+    id: asset.id,
+    url: asset.url,
+    cdnKey: asset.cdnKey,
+  });
 
   return jsonOk({
     asset: {
@@ -78,12 +87,16 @@ export async function PUT(
         : {}),
       ...(body.alt !== undefined ? { alt: body.alt?.trim() || null } : {}),
       ...(body.tags !== undefined
-        ? { tags: normalizeMediaTags(body.tags) }
+        ? { tags: canonicalizeMediaTags(normalizeMediaTags(body.tags)) }
         : {}),
     },
   });
 
-  const usage = await getMediaAssetUsage({ id: asset.id, url: asset.url });
+  const usage = await getMediaAssetUsage({
+    id: asset.id,
+    url: asset.url,
+    cdnKey: asset.cdnKey,
+  });
 
   return jsonOk({
     asset: {
@@ -113,7 +126,11 @@ export async function DELETE(
     return jsonNotFound();
   }
 
-  const usage = await getMediaAssetUsage({ id: asset.id, url: asset.url });
+  const usage = await getMediaAssetUsage({
+    id: asset.id,
+    url: asset.url,
+    cdnKey: asset.cdnKey,
+  });
   if (usage.inUse) {
     return jsonConflict(
       "Image is in use and cannot be deleted",
@@ -126,6 +143,9 @@ export async function DELETE(
     resourceTypeFromMime(asset.mime) ?? "image",
   );
   await db.mediaAsset.delete({ where: { id } });
+  await purgeOrphanMediaImages().catch(() => {
+    // Best-effort cleanup of lodging copies left without a CMS asset.
+  });
 
   return jsonMutationOk();
 }

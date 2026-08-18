@@ -8,9 +8,12 @@ type MediaMetadataFieldsProps = {
   caption: string;
   description: string;
   tags: string[];
+  /** Optional alt text (shown when editing existing assets) */
+  alt?: string;
   onCaptionChange: (value: string) => void;
   onDescriptionChange: (value: string) => void;
   onTagsChange: (tags: string[]) => void;
+  onAltChange?: (value: string) => void;
 };
 
 /**
@@ -22,9 +25,11 @@ export function MediaMetadataFields({
   caption,
   description,
   tags,
+  alt = "",
   onCaptionChange,
   onDescriptionChange,
   onTagsChange,
+  onAltChange,
 }: MediaMetadataFieldsProps) {
   const [customTag, setCustomTag] = useState("");
 
@@ -49,8 +54,16 @@ export function MediaMetadataFields({
         label="Caption"
         value={caption}
         onChange={onCaptionChange}
-        placeholder="Short label shown in admin and alt text"
+        placeholder="Short label shown in admin lists"
       />
+      {onAltChange ? (
+        <TextField
+          label="Alt text"
+          value={alt}
+          onChange={onAltChange}
+          placeholder="Describe the image for accessibility"
+        />
+      ) : null}
       <TextField
         label="Description"
         value={description}
@@ -62,7 +75,7 @@ export function MediaMetadataFields({
       <div className="admin-field">
         <span className="admin-label">Tags</span>
         <p className="admin-hint admin-hint--tight">
-          Pick room type, food, campus, etc. — helps filter the library.
+          Pick a category — helps filter the library.
         </p>
         <div className="admin-quick-add-chips">
           {MEDIA_TAG_PRESETS.map((tag) => (
