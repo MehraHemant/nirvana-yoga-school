@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { getEnquirePageContent } from "@/content/repositories/dedicated-pages";
 import { getSiteMap } from "@/content/repositories/shared-sections";
 import { buildEnquireProgramOptions } from "@/lib/enquire-programs.server";
-import { metadataFromPageSeo } from "../_shared/metadata";
+import { metadataForSlug } from "../_shared/metadata";
 import EnquireNowPageClient from "./EnquireNowPageClient";
 
 /**
@@ -10,7 +10,7 @@ import EnquireNowPageClient from "./EnquireNowPageClient";
  */
 export async function generateMetadata(): Promise<Metadata> {
   const result = await getEnquirePageContent().catch(() => null);
-  return metadataFromPageSeo(result?.data?.meta);
+  return metadataForSlug("enquire-now", result?.data?.meta);
 }
 
 type EnquireNowPageProps = {

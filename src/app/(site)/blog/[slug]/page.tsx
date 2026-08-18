@@ -4,12 +4,14 @@ import { BlogCourseRail } from "@/components/blog/BlogCourseRail";
 import { BlogPostContent } from "@/components/blog/BlogPostContent";
 import { BlogPostHero } from "@/components/blog/BlogPostHero";
 import { Container } from "@/components/ui";
-import { resolveYttHubCourses } from "@/content/mappers/resolve-ytt-hub-courses";
+import {
+  type BlogRailCourse,
+  resolveBlogRailCourses,
+} from "@/content/mappers/resolve-blog-rail-courses";
 import { getYttHub } from "@/content/repositories/shared-sections";
-import type { ResolvedYttHubCourse } from "@/content/types/shared-sections";
 import { resolveBlogBodyHtml } from "@/lib/cms/blog-html";
 import { fetchBlogPost, getAllBlogSlugs } from "@/lib/content";
-import { metadataFromPageSeo } from "../../_shared/metadata";
+import { metadataForSlug } from "../../_shared/metadata";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -37,7 +39,7 @@ export async function generateMetadata({
   const post = await fetchBlogPost(slug);
   if (!post) return {};
 
-  return metadataFromPageSeo({
+  return metadataForSlug(slug, {
     title: post.title,
     description: post.excerpt,
     ogImage: post.image,
@@ -45,14 +47,14 @@ export async function generateMetadata({
 }
 
 /**
- * Loads the current YTT hub placements for the article program rail.
+ * Loads YTT hub placements enriched with lodging tiers for the Programs & pricing rail.
  */
-async function loadBlogCourses(): Promise<ResolvedYttHubCourse[]> {
+async function loadBlogCourses(): Promise<BlogRailCourse[]> {
   try {
     const hubResult = await getYttHub();
-    return await resolveYttHubCourses(hubResult.data.courses);
+    return await resolveBlogRailCourses(hubResult.data.courses);
   } catch {
-    return [];
+    return await resolveBlogRailCourses();
   }
 }
 
@@ -100,7 +102,7 @@ export default async function BlogPostPage({ params }: PageProps) {
 
           <aside
             aria-labelledby="blog-programs-heading"
-            className="border-t border-ink/10 bg-white px-5 py-12 sm:px-8 sm:py-16 lg:sticky lg:top-(--site-header-height) lg:h-[calc(100svh-var(--site-header-height))] lg:overflow-y-auto lg:overscroll-contain lg:border-l lg:border-t-0 lg:px-8 lg:py-14 lg:scrollbar-thin-primary xl:px-10"
+            className="border-t border-ink/10 bg-white px-5 py-10 sm:px-8 sm:py-12 lg:sticky lg:top-(--site-header-height) lg:flex lg:h-[calc(100svh-var(--site-header-height))] lg:flex-col lg:overflow-hidden lg:border-l lg:border-t-0 lg:px-6 lg:py-6 xl:px-8"
           >
             <BlogCourseRail courses={courses} />
           </aside>

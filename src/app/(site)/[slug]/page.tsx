@@ -5,7 +5,7 @@ import { isDedicatedRouteSlug, ONLINE_HUB_SLUG } from "@/content/pages";
 import { getPageModules } from "@/content/repositories/page-modules";
 import { getYttHub } from "@/content/repositories/shared-sections";
 import type { PageSeoMeta } from "@/content/types/page-seo";
-import { metadataFromPageSeo } from "../_shared/metadata";
+import { metadataForSlug } from "../_shared/metadata";
 import { renderSitePage } from "./_site/render";
 
 const YTT_HUB_SLUG = "yoga-teacher-training-in-rishikesh-india";
@@ -54,7 +54,7 @@ export async function generateMetadata({
     }
   }
 
-  return metadataFromPageSeo(meta);
+  return metadataForSlug(slug, meta);
 }
 
 export default async function Page({ params }: PageProps) {

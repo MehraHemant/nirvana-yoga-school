@@ -1,4 +1,10 @@
+import { revalidatePath } from "next/cache";
 import { ONLINE_HUB_SLUG } from "@/content/pages/slugs";
+import {
+  hydrateModulesFromLodgingTables,
+  syncLodgingTablesFromModules,
+} from "@/content/repositories/lodging-sync";
+import { getPageSeo } from "@/content/repositories/page-seo";
 import type {
   DedicatedPageContent,
   OnlineCourseDocument,
@@ -32,6 +38,10 @@ import {
   upsertSitePageDocument,
 } from "@/lib/cms/document-to-db";
 import { ensureTeacherPage } from "@/lib/cms/ensure-teacher-page";
+import {
+  getHeroLayoutConfig,
+  resolvePageLayoutId,
+} from "@/lib/cms/page-layout-registry";
 import { db } from "@/lib/db";
 import type { ApiRouteParams } from "@/lib/types/api";
 
@@ -116,16 +126,44 @@ export async function GET(
     }),
   );
 
+  const pageSeo = await getPageSeo(slug).catch(() => null);
+  let modules =
+    (await hydrateModulesFromLodgingTables(
+      slug,
+      resolvePageModulesForEditor(page.pageModules, page.title, galleryRows),
+    ).catch(() =>
+      resolvePageModulesForEditor(page.pageModules, page.title, galleryRows),
+    )) ??
+    resolvePageModulesForEditor(page.pageModules, page.title, galleryRows);
+
+  if (pageSeo) {
+    if (modules) {
+      modules = { ...modules, meta: pageSeo };
+    }
+  }
+
+  const resolvedPage = mapPageToSitePageDocument(page);
+  if (pageSeo) {
+    resolvedPage.meta = pageSeo;
+  }
+
+  const resolvedContent =
+    content && pageSeo && typeof content === "object" && "meta" in content
+      ? { ...content, meta: pageSeo }
+      : content;
+
   return jsonOk({
-    page: mapPageToSitePageDocument(page),
-    modules: resolvePageModulesForEditor(
-      page.pageModules,
-      page.title,
-      galleryRows,
-    ),
-    content,
+    page: resolvedPage,
+    modules,
+    content: resolvedContent,
     product,
-    meta: { id: page.id, type: page.type, published: page.published },
+    meta: {
+      id: page.id,
+      type: page.type,
+      published: page.published,
+      layoutId: resolvePageLayoutId(page.type, slug),
+      heroLayout: getHeroLayoutConfig(resolvePageLayoutId(page.type, slug)),
+    },
   });
 }
 
@@ -192,6 +230,20 @@ export async function PUT(
 
   if (body.modules) {
     await upsertPageModules(slug, body.modules);
+    const retreatForSync =
+      body.product?.kind === "retreat"
+        ? (body.product.document as RetreatDocument)
+        : undefined;
+    await syncLodgingTablesFromModules(
+      page.id,
+      body.modules,
+      retreatForSync,
+    ).catch((error) => {
+      console.error("[pages PUT] lodging sync failed", error);
+    });
+    revalidatePath("/course", "layout");
+    revalidatePath("/online-course", "layout");
+    revalidatePath("/retreat", "layout");
   }
 
   return jsonMutationOk(page.id);

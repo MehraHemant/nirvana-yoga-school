@@ -6,7 +6,7 @@ import { Container } from "@/components/ui";
 import { getSitePage } from "@/content";
 import { getBlogPosts } from "@/content/repositories/blog-post";
 import { getPageModules } from "@/content/repositories/page-modules";
-import { metadataFromPageSeo } from "../_shared/metadata";
+import { metadataForSlug } from "../_shared/metadata";
 
 const GRID_DELAYS = [
   "fade-delay-100",
@@ -25,7 +25,8 @@ export async function generateMetadata(): Promise<Metadata> {
     getPageModules("blog").catch(() => null),
     getSitePage("blog").catch(() => null),
   ]);
-  return metadataFromPageSeo(
+  return metadataForSlug(
+    "blog",
     modulesResult?.data?.meta ?? pageResult?.data?.meta,
   );
 }

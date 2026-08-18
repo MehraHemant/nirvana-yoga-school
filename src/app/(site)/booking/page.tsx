@@ -4,14 +4,14 @@ import { getBookingPageContent } from "@/content/repositories/dedicated-pages";
 import { getBookingAddons } from "@/content/repositories/shared-sections";
 import { getCourseBookingCatalog } from "@/lib/booking/catalog";
 import { getPayPalClientId } from "@/lib/payments/paypal";
-import { metadataFromPageSeo } from "../_shared/metadata";
+import { metadataForSlug } from "../_shared/metadata";
 
 /**
  * Booking page SEO from CMS meta only.
  */
 export async function generateMetadata(): Promise<Metadata> {
   const result = await getBookingPageContent().catch(() => null);
-  return metadataFromPageSeo(result?.data?.meta);
+  return metadataForSlug("booking", result?.data?.meta);
 }
 
 type BookingPageProps = {

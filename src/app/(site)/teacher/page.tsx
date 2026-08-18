@@ -5,7 +5,7 @@ import TeachersPageClient from "@/components/teachers/TeachersPageClient";
 import { getSiteMap } from "@/content/repositories/shared-sections";
 import { getTeachersPage } from "@/content/repositories/teachers";
 import { shouldRenderSection } from "@/lib/cms/section-visibility";
-import { metadataFromPageSeo } from "../_shared/metadata";
+import { metadataForSlug } from "../_shared/metadata";
 
 export const revalidate = 3600;
 
@@ -14,7 +14,7 @@ export const revalidate = 3600;
  */
 export async function generateMetadata(): Promise<Metadata> {
   const result = await getTeachersPage();
-  return metadataFromPageSeo(result.data?.page.meta);
+  return metadataForSlug("teacher", result.data?.page.meta);
 }
 
 /**

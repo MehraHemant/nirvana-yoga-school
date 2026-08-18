@@ -2,9 +2,9 @@ import { loadPageBySlug } from "@/content/pages/load";
 import { requireDb } from "@/content/repositories/db-fallback";
 import type { RepositoryOptions } from "@/content/repositories/fetch";
 import type { PageDocument } from "@/content/types";
+import type { PageType } from "@/content/types/page-ref";
 import { fetchPageSlugsByTypeFromDb } from "@/lib/cms/cache";
 import { db } from "@/lib/db";
-import type { PageType } from "@/content/types/page-ref";
 
 /**
  * Resolve any page by slug — uses the pages registry for type, then loads data.

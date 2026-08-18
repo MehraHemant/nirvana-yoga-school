@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import { Suspense } from "react";
 import { HeroSection, JsonLd, WelcomeSection } from "@/components";
+import { resolveHomeCourses } from "@/content/mappers/resolve-home-courses";
 import { getHomePageContent } from "@/content/repositories/dedicated-pages";
 import { getSiteMap } from "@/content/repositories/shared-sections";
 import { getTeachersPage } from "@/content/repositories/teachers";
@@ -9,7 +10,7 @@ import { shouldRenderHomeSection } from "@/lib/cms/home-section-visibility";
 import { shouldRenderSection } from "@/lib/cms/section-visibility";
 import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 import { resolveSectionHtmlId } from "@/lib/html-id";
-import { metadataFromPageSeo } from "./_shared/metadata";
+import { metadataForSlug } from "./_shared/metadata";
 
 /** Align Full Route Cache with content `unstable_cache` TTL */
 export const revalidate = 3600;
@@ -19,7 +20,7 @@ export const revalidate = 3600;
  */
 export async function generateMetadata(): Promise<Metadata> {
   const homeResult = await getHomePageContent().catch(() => null);
-  return metadataFromPageSeo(homeResult?.data?.meta);
+  return metadataForSlug("home", homeResult?.data?.meta);
 }
 
 const VideoSection = dynamic(() => import("@/components/home/VideoSection"));
@@ -133,6 +134,7 @@ export default async function Home() {
   const home = homeResult?.data ?? createEmptyHomePageContent();
   const teachers = teachersResult.data?.teachers ?? [];
   const siteMap = siteMapResult?.data ?? null;
+  const homeCourseCards = await resolveHomeCourses(home.courses);
   const heroVideo = home.hero.video;
   const jsonLd = buildHomeJsonLd(home);
   const showMap =
@@ -177,7 +179,9 @@ export default async function Home() {
         </Suspense>
       ) : null}
       {shouldRenderHomeSection("courses", home) ? (
-        <CoursesSection content={home.courses} />
+        <CoursesSection
+          content={{ ...home.courses, cards: homeCourseCards }}
+        />
       ) : null}
       {shouldRenderHomeSection("yogaAlliance", home) ? (
         <YogaAllianceSection content={home.yogaAlliance} />

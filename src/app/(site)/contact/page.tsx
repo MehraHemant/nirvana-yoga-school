@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getContactPageContent } from "@/content/repositories/dedicated-pages";
 import { getSiteMap } from "@/content/repositories/shared-sections";
-import { metadataFromPageSeo } from "../_shared/metadata";
+import { metadataForSlug } from "../_shared/metadata";
 import ContactPageClient from "./ContactPageClient";
 
 /**
@@ -9,7 +9,7 @@ import ContactPageClient from "./ContactPageClient";
  */
 export async function generateMetadata(): Promise<Metadata> {
   const result = await getContactPageContent().catch(() => null);
-  return metadataFromPageSeo(result?.data?.meta);
+  return metadataForSlug("contact", result?.data?.meta);
 }
 
 /**

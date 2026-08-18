@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { resolvePageSeo } from "@/content/repositories/page-seo";
 import type { PageSeoMeta } from "@/content/types/page-seo";
 
 /**
@@ -38,33 +39,15 @@ export function metadataFromPageSeo(meta?: PageSeoMeta | null): Metadata {
 }
 
 /**
- * @deprecated Prefer {@link metadataFromPageSeo}. Kept for any remaining callers.
+ * Resolves page SEO from Postgres (with homepage defaults) and builds metadata.
  *
- * @param fallback - Ignored product/page fallbacks (CMS-only policy)
- * @param meta - Optional CMS page SEO
+ * @param slug - Page slug
+ * @param legacyMeta - Optional JSON meta for backward compatibility
  */
-export function mergePageMetadata(
-  _fallback: { title?: string; description?: string; image?: string },
-  meta?: PageSeoMeta | null,
-): Metadata {
-  return metadataFromPageSeo(meta);
-}
-
-/**
- * Classic product metadata helper — maps fields into CMS SEO shape.
- *
- * @param title - Page title
- * @param description - Meta description
- * @param image - OG image URL
- */
-export function courseMetadata(
-  title: string,
-  description: string,
-  image: string,
-): Metadata {
-  return metadataFromPageSeo({
-    title,
-    description,
-    ogImage: image,
-  });
+export async function metadataForSlug(
+  slug: string,
+  legacyMeta?: PageSeoMeta | null,
+): Promise<Metadata> {
+  const resolved = await resolvePageSeo(slug, legacyMeta);
+  return metadataFromPageSeo(resolved);
 }

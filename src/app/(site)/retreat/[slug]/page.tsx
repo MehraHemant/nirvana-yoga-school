@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getRetreat, getRetreatSlugs, getSitePage } from "@/content";
 import { getPageModules } from "@/content/repositories/page-modules";
-import { metadataFromPageSeo } from "../../_shared/metadata";
+import { metadataForSlug } from "../../_shared/metadata";
 import { loadSitePageDataAsync } from "../../_shared/site/data.server";
 import { loadRetreatPageData } from "./data";
 import LegacyRetreatClient from "./LegacyRetreatClient";
@@ -35,7 +35,8 @@ export async function generateMetadata({
     getPageModules(slug).catch(() => null),
     getSitePage(slug).catch(() => null),
   ]);
-  return metadataFromPageSeo(
+  return metadataForSlug(
+    slug,
     modulesResult?.data?.meta ?? sitePageResult?.data?.meta,
   );
 }

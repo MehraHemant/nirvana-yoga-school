@@ -8,7 +8,7 @@ import {
   getRetreatBookingCatalog,
 } from "@/lib/booking/catalog";
 import { getPayPalClientId } from "@/lib/payments/paypal";
-import { metadataFromPageSeo } from "../_shared/metadata";
+import { metadataForSlug } from "../_shared/metadata";
 
 /**
  * Retreat booking SEO from CMS modules/page meta only.
@@ -18,7 +18,8 @@ export async function generateMetadata(): Promise<Metadata> {
     getPageModules("retreat-booking").catch(() => null),
     getSitePage("retreat-booking").catch(() => null),
   ]);
-  return metadataFromPageSeo(
+  return metadataForSlug(
+    "retreat-booking",
     modulesResult?.data?.meta ?? pageResult?.data?.meta,
   );
 }

@@ -9,7 +9,7 @@ import { getPageModules } from "@/content/repositories/page-modules";
 import { fetchPageSlugsByTypeFromDb } from "@/lib/cms/cache";
 import { shouldRenderSection } from "@/lib/cms/section-visibility";
 import { resolvePlaylistVideos } from "@/lib/playlist-video";
-import { metadataFromPageSeo } from "../../_shared/metadata";
+import { metadataForSlug } from "../../_shared/metadata";
 import { loadSitePageDataAsync } from "../../_shared/site/data.server";
 import VenueClient from "./VenueClient";
 
@@ -38,7 +38,8 @@ export async function generateMetadata({
     getPageModules(slug).catch(() => null),
     getSitePage(slug).catch(() => null),
   ]);
-  return metadataFromPageSeo(
+  return metadataForSlug(
+    slug,
     modulesResult?.data?.meta ?? pageResult?.data?.meta,
   );
 }
