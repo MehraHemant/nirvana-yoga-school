@@ -13,6 +13,8 @@ export type BlogPostDocument = {
   excerpt: string;
   image: string;
   publishedAt?: string | null;
+  /** When true, post is visible on the public blog */
+  published?: boolean;
   /** Legacy structured blocks — used when `bodyHtml` is empty */
   content: BlogContentBlock[];
   /** Rich-text HTML from the CMS editor (preferred when set) */

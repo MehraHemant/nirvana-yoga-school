@@ -2,6 +2,8 @@ import Link from "next/link";
 import { duplicateBlogPostAction } from "@/app/admin/blog/actions";
 import { AdminActionForm } from "@/components/admin/AdminActionForm";
 import { AdminFilterSubmit } from "@/components/admin/AdminFilterSelect";
+import { BlogPublishedToggle } from "@/components/admin/BlogPublishedToggle";
+import { DeleteBlogPostButton } from "@/components/admin/DeleteBlogPostButton";
 import { Copy } from "@/icons";
 import { listAdminBlogPosts } from "@/lib/cms/admin-lists";
 
@@ -32,10 +34,17 @@ export default async function AdminBlogPage({
 
   return (
     <div>
-      <h1 className="admin-title">Blog</h1>
-      <p className="admin-subtitle">
-        Articles and news posts. View the live post or open the editor.
-      </p>
+      <div className="admin-page-head">
+        <div>
+          <h1 className="admin-title">Blog</h1>
+          <p className="admin-subtitle">
+            Articles and news posts. View the live post or open the editor.
+          </p>
+        </div>
+        <Link href="/admin/blog/new" className="admin-btn-sm">
+          New blog post
+        </Link>
+      </div>
 
       <form method="get" className="admin-toolbar">
         <input
@@ -70,11 +79,11 @@ export default async function AdminBlogPage({
                 </td>
                 <td>{post.category || "—"}</td>
                 <td>
-                  <span
-                    className={`admin-pill${post.published ? " admin-pill--published" : ""}`}
-                  >
-                    {post.published ? "Published" : "Draft"}
-                  </span>
+                  <BlogPublishedToggle
+                    key={`${post.id}-${post.published}`}
+                    postId={post.id}
+                    published={post.published}
+                  />
                 </td>
                 <td className="admin-row-actions">
                   <div className="admin-list-row-actions">
@@ -99,6 +108,7 @@ export default async function AdminBlogPage({
                     >
                       <Copy size={16} />
                     </AdminActionForm>
+                    <DeleteBlogPostButton slug={post.slug} title={post.title} />
                   </div>
                 </td>
               </tr>

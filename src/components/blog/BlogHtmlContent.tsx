@@ -25,8 +25,9 @@ export function BlogHtmlContent({ html, className }: BlogHtmlContentProps) {
       "a",
       "blockquote",
       "br",
+      "img",
     ],
-    ALLOWED_ATTR: ["href", "target", "rel"],
+    ALLOWED_ATTR: ["href", "target", "rel", "src", "alt", "loading", "class"],
   });
 
   if (!sanitized.trim()) return null;

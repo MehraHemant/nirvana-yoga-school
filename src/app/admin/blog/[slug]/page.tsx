@@ -14,11 +14,15 @@ export default function AdminBlogEditorPage() {
   const slug = decodeURIComponent(params.slug);
 
   const [doc, setDoc] = useState<BlogPostDocument | null>(null);
+  const [published, setPublished] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
     fetchAdminBlogPost(slug)
-      .then((body) => setDoc(body.post))
+      .then((body) => {
+        setDoc(body.post);
+        setPublished(body.meta.published);
+      })
       .catch((err: Error) => setError(err.message));
   }, [slug]);
 
@@ -35,5 +39,11 @@ export default function AdminBlogEditorPage() {
     return <p className="admin-hint">Loading post…</p>;
   }
 
-  return <BlogPostEditor initial={doc} onSave={onSave} />;
+  return (
+    <BlogPostEditor
+      initial={doc}
+      initialPublished={published}
+      onSave={onSave}
+    />
+  );
 }

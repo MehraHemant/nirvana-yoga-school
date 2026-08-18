@@ -7,7 +7,7 @@ import {
   jsonUnauthorized,
 } from "@/lib/cms/api-response";
 import { getSessionFromRequest } from "@/lib/cms/auth";
-import { upsertBlogPost } from "@/lib/cms/document-to-db";
+import { deleteBlogPost, upsertBlogPost } from "@/lib/cms/document-to-db";
 import { db } from "@/lib/db";
 import type { ApiRouteParams } from "@/lib/types/api";
 
@@ -67,4 +67,25 @@ export async function PUT(
 
   const post = await upsertBlogPost(body);
   return jsonMutationOk(post.id);
+}
+
+/**
+ * Hard-delete a blog post from the database.
+ */
+export async function DELETE(
+  request: Request,
+  context: ApiRouteParams<{ slug: string }>,
+) {
+  const session = await getSessionFromRequest(request);
+  if (!session) {
+    return jsonUnauthorized();
+  }
+
+  const { slug } = await context.params;
+  const deleted = await deleteBlogPost(slug);
+  if (!deleted) {
+    return jsonNotFound();
+  }
+
+  return jsonMutationOk();
 }
