@@ -1,4 +1,4 @@
-import { revalidatePath } from "next/cache";
+import { revalidateFaqContext } from "@/lib/cms/cache";
 import {
   getAssignedFaqs,
   syncFaqAssignments,
@@ -64,10 +64,7 @@ export async function PUT(request: Request) {
       extrasByFaqId,
     });
 
-    revalidatePath("/");
-    revalidatePath(`/course/${contextKey}`);
-    revalidatePath(`/retreat/${contextKey}`);
-    revalidatePath(`/online-course/${contextKey}`);
+    await revalidateFaqContext(contextType, contextKey);
 
     return jsonOk({ faqs, contextType, contextKey });
   } catch (error) {

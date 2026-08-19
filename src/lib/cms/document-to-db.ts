@@ -1,4 +1,4 @@
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath } from "next/cache";
 import { getPageRef } from "@/content/pages/registry";
 import { upsertPageSeo } from "@/content/repositories/page-seo";
 import { teacherSlug } from "@/content/teachers-slug";
@@ -13,6 +13,7 @@ import type {
 import {
   invalidateAndRevalidatePage,
   invalidateContentCache,
+  revalidateBlogPaths,
 } from "@/lib/cms/cache";
 import {
   buildModulesFromCourse,
@@ -536,7 +537,7 @@ export async function upsertBlogPost(doc: BlogPostDocument) {
   });
 
   invalidateContentCache(doc.slug);
-  revalidateTag("blog:all", "max");
+  revalidateBlogPaths(doc.slug);
   return post;
 }
 
@@ -553,11 +554,9 @@ export async function deleteBlogPost(slug: string): Promise<boolean> {
   await db.blogPost.delete({ where: { slug } });
 
   invalidateContentCache(slug);
-  revalidateTag("blog:all", "max");
+  revalidateBlogPaths(slug);
   revalidatePath("/admin/blog");
   revalidatePath(`/admin/blog/${slug}`);
-  revalidatePath("/blog");
-  revalidatePath(`/blog/${slug}`);
   return true;
 }
 

@@ -1,4 +1,5 @@
 import { revalidatePath } from "next/cache";
+import { revalidateProductHubLayouts } from "@/lib/cms/cache";
 import { deleteRoom, updateRoom } from "@/content/repositories/rooms";
 import { jsonError, jsonForbidden, jsonOk } from "@/lib/cms/api-response";
 import { getServerSession } from "@/lib/cms/auth";
@@ -42,7 +43,7 @@ export async function PUT(
       sort: typeof body.sort === "number" ? body.sort : undefined,
       live: typeof body.live === "boolean" ? body.live : undefined,
     });
-    revalidatePath("/");
+    revalidateProductHubLayouts();
     revalidatePath("/admin/sections/shared");
     return jsonOk({ room });
   } catch (error) {
@@ -68,7 +69,7 @@ export async function DELETE(
 
   try {
     await deleteRoom(id);
-    revalidatePath("/");
+    revalidateProductHubLayouts();
     revalidatePath("/admin/sections/shared");
     return jsonOk({ success: true });
   } catch (error) {

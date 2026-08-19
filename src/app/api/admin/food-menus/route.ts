@@ -1,4 +1,3 @@
-import { revalidatePath } from "next/cache";
 import { getFoodMenu, upsertFoodMenu } from "@/content/repositories/lodging";
 import type { RoomCatalog } from "@/content/types/shared-sections";
 import {
@@ -8,7 +7,7 @@ import {
   jsonOk,
 } from "@/lib/cms/api-response";
 import { getServerSession } from "@/lib/cms/auth";
-import { invalidateGlobalSettingsCache } from "@/lib/cms/cache";
+import { invalidateGlobalSettingsCache, revalidateSharedSettingsConsumers } from "@/lib/cms/cache";
 
 /**
  * Loads the food menu for a catalog.
@@ -64,10 +63,7 @@ export async function PUT(request: Request) {
     // Invalidate the global settings fallback cache for the same catalog
     const settingsKey = catalog === "retreat" ? "retreatFood" : "courseFood";
     invalidateGlobalSettingsCache(settingsKey);
-    revalidatePath("/");
-    revalidatePath("/course", "layout");
-    revalidatePath("/online-course", "layout");
-    revalidatePath("/retreat", "layout");
+    revalidateSharedSettingsConsumers(settingsKey);
 
     return jsonOk({ menu });
   } catch (error) {

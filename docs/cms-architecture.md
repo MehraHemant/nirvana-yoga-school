@@ -262,8 +262,24 @@ Server Component (page.tsx)
 | Layer | Mechanism |
 |-------|-----------|
 | Repository | `unstable_cache(fn, [slug], { tags: [`page:${slug}`], revalidate: 3600 })` |
+| Public routes | ISR (`export const revalidate = 3600`) on course/online/retreat/home pages |
 | Public API | `Cache-Control: public, s-maxage=3600, stale-while-revalidate=86400` |
-| Admin write | `revalidateTag(`page:${slug}`)` after save |
+| Admin write | `revalidateTag` + `revalidatePath` via `@/lib/cms/cache` helpers |
+
+**Content changes do not require a rebuild.** Admin saves call on-demand revalidation
+(`revalidatePath` / `revalidateTag`) so the next request regenerates HTML from Postgres.
+Only **code** changes (components, API routes, config) need `next build` + redeploy.
+
+Central helpers in `src/lib/cms/cache.ts`:
+
+- `invalidateAndRevalidatePage(slug, type)` — page modules, courses, dedicated pages
+- `revalidateSharedSettingsConsumers(key)` — whyNirvana, travel, exam cert, food, etc.
+- `revalidateFaqContext(contextType, contextKey)` — FAQ assignments
+- `revalidatePagesUsingFaq(faqId)` — catalog FAQ edits propagate to assigned pages
+- `revalidateBlogPaths(slug?)` — blog index + post
+
+Deploy with a **Node.js server** (`next start`) or Vercel — **not** `output: 'export'`
+(static export disables on-demand revalidation).
 
 ### Indexes
 
@@ -293,7 +309,7 @@ Admin UI
 On save:
     → Neon database transaction
     → content_revisions snapshot (optional audit)
-    → revalidateTag(`page:${slug}`)
+    → invalidateAndRevalidatePage / revalidateSharedSettingsConsumers / revalidateFaqContext
 ```
 
 ### Roles

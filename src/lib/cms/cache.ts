@@ -1,4 +1,5 @@
 import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
+import { inferPageType } from "@/content/pages/registry";
 import { teacherSlug } from "@/content/teachers-slug";
 import type {
   BlogPostDocument,
@@ -46,6 +47,48 @@ export function invalidateContentCache(
   }
 }
 
+/** YTT hub site page slug (shared FAQs + hub content). */
+const YTT_HUB_SLUG = "yoga-teacher-training-in-rishikesh-india";
+
+/** Site slugs routed outside `/[slug]`. */
+const DEDICATED_SITE_PATHS: Record<string, string> = {
+  home: "/",
+  contact: "/contact",
+  booking: "/booking",
+  "enquire-now": "/enquire-now",
+  teacher: "/teacher",
+};
+
+/**
+ * Resolves the public URL path for a CMS page.
+ *
+ * @param slug - Page slug
+ * @param pageType - CMS page type
+ */
+export function publicPathForPage(slug: string, pageType?: string): string {
+  switch (pageType) {
+    case "course":
+      return `/course/${slug}`;
+    case "online":
+      return `/online-course/${slug}`;
+    case "retreat":
+      return `/retreat/${slug}`;
+    case "venue":
+      return `/venue/${slug}`;
+    default:
+      return DEDICATED_SITE_PATHS[slug] ?? `/${slug}`;
+  }
+}
+
+/**
+ * Bust product hub layout caches (listing pages, shared nav chrome).
+ */
+export function revalidateProductHubLayouts(): void {
+  revalidatePath("/course", "layout");
+  revalidatePath("/online-course", "layout");
+  revalidatePath("/retreat", "layout");
+}
+
 /**
  * Bust the Full Route Cache for a CMS page's public URL.
  * Data tag invalidation alone does not refresh statically generated HTML.
@@ -57,24 +100,177 @@ export function revalidatePublicPagePaths(
   slug: string,
   pageType?: string,
 ): void {
+  revalidatePath(publicPathForPage(slug, pageType));
   switch (pageType) {
     case "course":
-      revalidatePath(`/course/${slug}`);
-      revalidatePath("/course", "layout");
-      break;
     case "online":
-      revalidatePath(`/online-course/${slug}`);
-      revalidatePath("/online-course", "layout");
-      break;
     case "retreat":
-      revalidatePath(`/retreat/${slug}`);
-      revalidatePath("/retreat", "layout");
+      revalidateProductHubLayouts();
       break;
-    case "venue":
-      revalidatePath(`/venue/${slug}`);
-      break;
+  }
+}
+
+/**
+ * Revalidate pages that embed sitewide shared sections (header, Why Nirvana, etc.).
+ */
+export function revalidateSiteWideShell(): void {
+  revalidatePath("/");
+  for (const path of Object.values(DEDICATED_SITE_PATHS)) {
+    if (path !== "/") revalidatePath(path);
+  }
+  revalidateProductHubLayouts();
+}
+
+/**
+ * Revalidate public blog index and optional post after admin writes.
+ *
+ * @param slug - Optional blog post slug
+ */
+export function revalidateBlogPaths(slug?: string): void {
+  revalidateTag("blog:all", "max");
+  revalidatePath("/blog");
+  if (slug) revalidatePath(`/blog/${slug}`);
+}
+
+/**
+ * Revalidate public routes that consume a shared global_settings key.
+ *
+ * @param key - `global_settings.key` value
+ */
+export function revalidateSharedSettingsConsumers(key: string): void {
+  switch (key) {
+    case "header":
+    case "footer":
+    case "siteConfig":
+    case "whyNirvana":
+    case "reviews":
+    case "travel":
+      revalidateSiteWideShell();
+      return;
+    case "examCertification":
+      revalidateProductHubLayouts();
+      revalidatePath(`/${YTT_HUB_SLUG}`);
+      return;
+    case "homeFaqs":
+    case "instagram":
+    case "siteMap":
+      revalidatePath("/");
+      return;
+    case "yttHub":
+      revalidatePath(`/${YTT_HUB_SLUG}`);
+      return;
+    case "venueFaqs":
+      void revalidateAllVenuePages();
+      return;
+    case "courseFood":
+    case "retreatFood":
+    case "residentialLife":
+    case "retreatAccommodation":
+      revalidateProductHubLayouts();
+      return;
+    case "bookingAddons":
+      revalidatePath("/booking");
+      revalidatePath("/retreat-booking");
+      return;
     default:
-      revalidatePath(`/${slug}`);
+      revalidatePath("/");
+  }
+}
+
+/**
+ * Revalidate all published venue detail pages.
+ */
+async function revalidateAllVenuePages(): Promise<void> {
+  const pages = await db.page.findMany({
+    where: { type: "venue", published: true },
+    select: { slug: true },
+  });
+  for (const page of pages) {
+    revalidatePath(`/venue/${page.slug}`);
+  }
+}
+
+/**
+ * Revalidate a CMS page's public route after admin writes (lookup type from DB).
+ *
+ * @param slug - Page slug
+ */
+export async function revalidatePageBySlug(slug: string): Promise<void> {
+  const page = await db.page.findUnique({
+    where: { slug },
+    select: { type: true },
+  });
+  invalidateAndRevalidatePage(slug, page?.type ?? inferPageType(slug));
+}
+
+type FaqContextType = "page" | "global";
+
+/**
+ * Revalidate public routes after FAQ assignment changes.
+ *
+ * @param contextType - page | global
+ * @param contextKey - Page slug or global settings key
+ */
+export async function revalidateFaqContext(
+  contextType: FaqContextType,
+  contextKey: string,
+): Promise<void> {
+  revalidateTag(
+    `global-settings:faq-assignments:${contextType}:${contextKey}`,
+    "max",
+  );
+
+  if (contextType === "global") {
+    switch (contextKey) {
+      case "homeFaqs":
+        revalidatePath("/");
+        return;
+      case "venueFaqs":
+        await revalidateAllVenuePages();
+        return;
+      case "yttHub":
+        revalidatePath(`/${YTT_HUB_SLUG}`);
+        return;
+      default:
+        revalidatePath("/");
+        return;
+    }
+  }
+
+  const page = await db.page.findUnique({
+    where: { slug: contextKey },
+    select: { type: true },
+  });
+  invalidateAndRevalidatePage(
+    contextKey,
+    page?.type ?? inferPageType(contextKey),
+  );
+}
+
+/**
+ * Revalidate every public route that references a catalog FAQ.
+ *
+ * @param faqId - FAQ id from shared catalog
+ */
+export async function revalidatePagesUsingFaq(faqId: string): Promise<void> {
+  const assignments = await db.pageFaqAssignment.findMany({
+    where: { faqId },
+    select: { contextType: true, contextKey: true },
+  });
+
+  const seen = new Set<string>();
+  for (const assignment of assignments) {
+    const key = `${assignment.contextType}:${assignment.contextKey}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    await revalidateFaqContext(
+      assignment.contextType as FaqContextType,
+      assignment.contextKey,
+    );
+  }
+
+  if (assignments.length === 0) {
+    revalidateSiteWideShell();
   }
 }
 

@@ -1,4 +1,5 @@
 import { revalidatePath } from "next/cache";
+import { revalidatePagesUsingFaq } from "@/lib/cms/cache";
 import {
   deleteFaq,
   getFaqById,
@@ -53,7 +54,7 @@ export async function PUT(request: Request, context: RouteContext) {
         body.adminTag !== undefined ? String(body.adminTag) : undefined,
     });
 
-    revalidatePath("/");
+    await revalidatePagesUsingFaq(faq.id);
     revalidatePath("/admin/sections/shared");
     return jsonOk({ faq });
   } catch (error) {
@@ -80,7 +81,7 @@ export async function DELETE(_request: Request, context: RouteContext) {
   const { id } = await context.params;
   try {
     await deleteFaq(id);
-    revalidatePath("/");
+    await revalidatePagesUsingFaq(id);
     revalidatePath("/admin/sections/shared");
     return jsonOk({ ok: true });
   } catch (error) {

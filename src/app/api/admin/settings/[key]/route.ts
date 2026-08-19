@@ -4,7 +4,7 @@ import type { PageSeoMeta } from "@/content/types/page-seo";
 import type { ExamCertificationContent } from "@/content/types/shared-sections";
 import { jsonError, jsonForbidden, jsonOk } from "@/lib/cms/api-response";
 import { getServerSession } from "@/lib/cms/auth";
-import { invalidateGlobalSettingsCache } from "@/lib/cms/cache";
+import { invalidateGlobalSettingsCache, revalidateSharedSettingsConsumers } from "@/lib/cms/cache";
 import { hasExamCertificationContent } from "@/lib/cms/section-visibility";
 import {
   createDefaultCourseFood,
@@ -178,23 +178,10 @@ export async function PUT(
   }
 
   invalidateGlobalSettingsCache(key);
-  revalidatePath("/");
+  revalidateSharedSettingsConsumers(key);
   revalidatePath(`/api/content/${key}`);
   if (key === "examCertification") {
     revalidatePath("/api/content/exam-certification");
-    revalidatePath("/course", "layout");
-    revalidatePath("/online-course", "layout");
-    revalidatePath("/retreat", "layout");
-  }
-  if (
-    key === "courseFood" ||
-    key === "retreatFood" ||
-    key === "residentialLife" ||
-    key === "retreatAccommodation"
-  ) {
-    revalidatePath("/course", "layout");
-    revalidatePath("/online-course", "layout");
-    revalidatePath("/retreat", "layout");
   }
 
   return jsonOk({ success: true });

@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import type { GlobalHeader } from "@/content/types/global-settings";
 import type { NavItem, NavLink } from "@/content/types/navigation";
 import { getServerSession, requireAdmin } from "@/lib/cms/auth";
-import { invalidateGlobalSettingsCache } from "@/lib/cms/cache";
+import { invalidateGlobalSettingsCache, revalidateSiteWideShell } from "@/lib/cms/cache";
 import { prepareHeaderForSave } from "@/lib/cms/header-fields";
 import { db } from "@/lib/db";
 
@@ -47,7 +47,7 @@ export async function saveFullHeaderAction(
   await syncNavigationGroupsFromHeader(nextHeader.navigation);
 
   invalidateGlobalSettingsCache("header");
-  revalidatePath("/");
+  revalidateSiteWideShell();
   revalidatePath("/admin/components/header");
   revalidatePath("/admin/components/navigation");
   revalidatePath("/admin/settings/header");

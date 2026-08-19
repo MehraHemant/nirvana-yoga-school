@@ -1,9 +1,9 @@
 "use server";
 
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getServerSession, requireAdmin } from "@/lib/cms/auth";
-import { invalidateContentCache } from "@/lib/cms/cache";
+import { invalidateContentCache, revalidateBlogPaths } from "@/lib/cms/cache";
 import {
   createBlogPostDraft,
   deleteBlogPost,
@@ -107,9 +107,7 @@ export async function toggleBlogPublishedAction(formData: FormData) {
   });
 
   invalidateContentCache(post.slug);
-  revalidateTag("blog:all", "max");
+  revalidateBlogPaths(post.slug);
   revalidatePath("/admin/blog");
   revalidatePath(`/admin/blog/${post.slug}`);
-  revalidatePath("/blog");
-  revalidatePath(`/blog/${post.slug}`);
 }

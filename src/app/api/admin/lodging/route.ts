@@ -1,4 +1,4 @@
-import { revalidatePath } from "next/cache";
+import { revalidatePageBySlug, revalidateProductHubLayouts } from "@/lib/cms/cache";
 import {
   getMediaImages,
   getMediaVideos,
@@ -193,10 +193,8 @@ export async function PUT(request: Request) {
       getPageSectionFlags(pageId),
     ]);
 
-    // Revalidate product pages so lodging changes appear immediately
-    revalidatePath("/course", "layout");
-    revalidatePath("/online-course", "layout");
-    revalidatePath("/retreat", "layout");
+    await revalidatePageBySlug(pageSlug);
+    revalidateProductHubLayouts();
 
     return jsonOk({
       pageId,

@@ -1,4 +1,5 @@
 import { revalidatePath } from "next/cache";
+import { revalidatePagesUsingFaq } from "@/lib/cms/cache";
 import {
   createFaq,
   getFaqCatalog,
@@ -59,7 +60,7 @@ export async function POST(request: Request) {
       adminTag: String(body.adminTag ?? ""),
     });
 
-    revalidatePath("/");
+    await revalidatePagesUsingFaq(faq.id);
     revalidatePath("/admin/sections/shared");
     return jsonOk({ faq });
   } catch (error) {

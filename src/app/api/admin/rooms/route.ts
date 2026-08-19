@@ -1,4 +1,5 @@
 import { revalidatePath } from "next/cache";
+import { revalidateProductHubLayouts } from "@/lib/cms/cache";
 import { createRoom, getRooms } from "@/content/repositories/rooms";
 import type { RoomCatalog } from "@/content/types/shared-sections";
 import { jsonError, jsonForbidden, jsonOk } from "@/lib/cms/api-response";
@@ -63,7 +64,7 @@ export async function POST(request: Request) {
       live: body.live !== false,
     });
 
-    revalidatePath("/");
+    revalidateProductHubLayouts();
     revalidatePath("/admin/sections/shared");
     return jsonOk({ room });
   } catch (error) {
