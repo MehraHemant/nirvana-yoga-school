@@ -37,6 +37,15 @@ export const FAQ_CATEGORY_FILTER_OPTIONS = [
 
 const FAQ_CATEGORY_SET = new Set<string>(FAQ_CATEGORY_IDS);
 
+/** Human label → category id (for legacy rows stored with display labels). */
+const FAQ_CATEGORY_LABEL_TO_ID: Record<string, FaqCategoryId> =
+  Object.fromEntries(
+    FAQ_CATEGORIES.map((category) => [
+      category.label.toLowerCase(),
+      category.id,
+    ]),
+  ) as Record<string, FaqCategoryId>;
+
 /** Maps retired category ids to the closest current category. */
 const LEGACY_FAQ_CATEGORY_MAP: Record<string, FaqCategoryId> = {
   "before-arrival": "travel-health",
@@ -57,6 +66,9 @@ export function normalizeFaqCategory(value: unknown): FaqCategoryId {
   if (FAQ_CATEGORY_SET.has(value)) {
     return value as FaqCategoryId;
   }
+
+  const byLabel = FAQ_CATEGORY_LABEL_TO_ID[value.toLowerCase()];
+  if (byLabel) return byLabel;
 
   return LEGACY_FAQ_CATEGORY_MAP[value] ?? DEFAULT_FAQ_CATEGORY;
 }

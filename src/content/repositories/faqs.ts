@@ -322,6 +322,70 @@ export async function syncFaqAssignments(
   return getAssignedFaqs(contextType, contextKey, true);
 }
 
+/** Whether a FAQ row stored an explicit category in JSON. */
+function faqHasStoredCategory(category: unknown): boolean {
+  return typeof category === "string" && category.trim() !== "";
+}
+
+/**
+ * Maps inline FAQ rows, normalizing category ids.
+ *
+ * @param faqs - FAQ items from page modules or product JSON
+ */
+function mapInlinePageFaqs(faqs: FAQ[]): FAQ[] {
+  return faqs.map((faq) => ({
+    question: faq.question,
+    answer: faq.answer,
+    category: normalizeFaqCategory(faq.category),
+  }));
+}
+
+/**
+ * Fills missing categories on inline FAQs from catalog assignments (by question).
+ *
+ * @param contextType - page | global
+ * @param contextKey - Slug or global settings key
+ * @param inline - Normalized inline FAQ rows
+ * @param rawFallback - Original fallback rows (before normalization)
+ */
+async function enrichInlineFaqsFromAssignments<
+  T extends { question: string; answer: string; category?: FaqCategoryId },
+>(
+  contextType: FaqContextType,
+  contextKey: string,
+  inline: T[],
+  rawFallback: Array<{ question: string; category?: unknown }>,
+): Promise<T[]> {
+  const needsEnrichment = rawFallback.some(
+    (faq) => !faqHasStoredCategory(faq.category),
+  );
+  if (!needsEnrichment) return inline;
+
+  try {
+    const assigned = await getAssignedFaqs(contextType, contextKey);
+    if (assigned.length === 0) return inline;
+
+    const categoryByQuestion = new Map(
+      assigned.map((faq) => [
+        normalizeFaqQuestion(faq.question),
+        faq.category,
+      ]),
+    );
+
+    return inline.map((faq, index) => {
+      if (faqHasStoredCategory(rawFallback[index]?.category)) {
+        return faq;
+      }
+      const fromDb = categoryByQuestion.get(
+        normalizeFaqQuestion(faq.question),
+      );
+      return fromDb ? { ...faq, category: fromDb } : faq;
+    });
+  } catch {
+    return inline;
+  }
+}
+
 /**
  * Resolves page FAQs from DB, falling back to legacy JSON items.
  *
@@ -334,20 +398,25 @@ export async function resolvePageFaqs(
   fallback: FAQ[] = [],
   options?: RepositoryOptions,
 ): Promise<ContentResult<FAQ[]>> {
-  const inline = fallback.map((faq) => ({
-    question: faq.question,
-    answer: faq.answer,
-    category: normalizeFaqCategory(faq.category),
-  }));
-  if (inline.length > 0) return fromJson(inline);
+  const inline = mapInlinePageFaqs(fallback);
 
-  return requireDb(async () => {
-    const assigned = await getAssignedFaqs("page", slug);
-    if (assigned.length > 0) {
-      return resolvedFaqsToModuleItems(assigned);
-    }
-    return inline;
-  }, options);
+  if (inline.length === 0) {
+    return requireDb(async () => {
+      const assigned = await getAssignedFaqs("page", slug);
+      if (assigned.length > 0) {
+        return resolvedFaqsToModuleItems(assigned);
+      }
+      return inline;
+    }, options);
+  }
+
+  const enriched = await enrichInlineFaqsFromAssignments(
+    "page",
+    slug,
+    inline,
+    fallback,
+  );
+  return fromJson(enriched);
 }
 
 /**
@@ -370,15 +439,24 @@ export async function resolveGlobalFaqs(
     image: faq.image,
     tag: faq.tag,
   }));
-  if (inline.length > 0) return fromJson(inline);
 
-  return requireDb(async () => {
-    const assigned = await getAssignedFaqs("global", contextKey);
-    if (assigned.length > 0) {
-      return resolvedFaqsToSharedFaqs(assigned);
-    }
-    return inline;
-  }, options);
+  if (inline.length === 0) {
+    return requireDb(async () => {
+      const assigned = await getAssignedFaqs("global", contextKey);
+      if (assigned.length > 0) {
+        return resolvedFaqsToSharedFaqs(assigned);
+      }
+      return inline;
+    }, options);
+  }
+
+  const enriched = await enrichInlineFaqsFromAssignments(
+    "global",
+    contextKey,
+    inline,
+    fallback,
+  );
+  return fromJson(enriched);
 }
 
 /**

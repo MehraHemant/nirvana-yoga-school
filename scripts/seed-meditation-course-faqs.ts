@@ -23,143 +23,122 @@ const MEDITATION_COURSE_FAQS: MeditationFaqSeed[] = [
     category: "general",
     question: "Do I need prior yoga experience to join?",
     answer:
-      "No prior teaching experience is needed. This training welcomes beginner to intermediate practitioners who are genuinely ready to learn and grow through daily practice.",
+      "No. This training welcomes beginners as well as intermediate practitioners. What matters more than experience is your willingness to learn and practice sincerely each day.",
   },
   {
     category: "general",
+    question: "Do I need any background in Ayurveda before starting?",
+    answer:
+      "Not at all. This 200 Hour Ayurveda Yoga Teacher Training is designed to introduce you to Ayurveda from the ground up, alongside your Hatha Yoga training.",
+  },
+  {
+    category: "general",
+    question: "How physically demanding is the training?",
+    answer:
+      "Expect two structured practice sessions a day along with lectures, so a reasonable level of physical readiness helps. That said, the pace is built for a range of practitioners, not just advanced ones.",
+  },
+  {
+    category: "general",
+    question: "Can I join if English isn't my first language?",
+    answer:
+      "Yes, as long as you're comfortable enough to follow classes and take part in discussions. Many of our students study in their second or third language.",
+  },
+  {
+    category: "certification",
+    question: "What certification do I receive after completing the course?",
+    answer:
+      "You'll receive an RYT 200 Yoga Teacher Training in Rishikesh certificate, recognized internationally through Yoga Alliance.",
+  },
+  {
+    category: "certification",
+    question: "Will I be certified as an Ayurvedic doctor or practitioner?",
+    answer:
+      "No, this program teaches Ayurvedic principles as they apply to yoga and wellness. It does not certify you as a clinical Ayurvedic practitioner.",
+  },
+  {
+    category: "certification",
+    question: "How is my progress assessed during the course?",
+    answer:
+      "Through a mix of a practical exam, written examinations, classroom participation, and a final teaching assessment, so no single test decides your outcome.",
+  },
+  {
+    category: "certification",
+    question: "What happens if I miss a few classes?",
+    answer:
+      "Regular attendance matters for certification, so we ask students to keep absences to a minimum and speak with us if something comes up.",
+  },
+  {
+    category: "certification",
+    question: "Can I use this certification to teach internationally?",
+    answer:
+      "Yes, Yoga Alliance certification is recognised in most countries, so you can register as a teacher wherever you plan to teach.",
+  },
+  {
+    category: "certification",
     question:
-      "Is this course only about meditation, or does it include physical yoga too?",
+      "Is the certification only for Hatha Yoga, or does it include Ayurveda too?",
     answer:
-      "Both. Alongside meditation, mantra chanting, and Yoga Nidra, you'll build a solid foundation in classical Hatha Yoga asana, so you graduate as a well-rounded teacher.",
-  },
-  {
-    category: "general",
-    question:
-      "Is it difficult to sit for long meditation sessions if I'm not used to it?",
-    answer:
-      "It can feel challenging at first, especially if sitting still is new to you. We build up gradually through the course, and our teachers guide you through discomfort with patience rather than pressure.",
-  },
-  {
-    category: "general",
-    question: "What should I wear during training?",
-    answer:
-      "Comfortable, breathable clothing that allows easy movement works best for asana practice. For meditation and philosophy sessions, loose and modest clothing is appreciated, especially since some sessions take place in shared halls.",
-  },
-  {
-    category: "general",
-    question:
-      "Will I learn how to design and lead a meditation script on my own?",
-    answer:
-      "Yes. A core part of this training is learning how to structure, write, and confidently guide your own Yoga Nidra and meditation sessions for future students.",
-  },
-  {
-    category: "general",
-    question: "How many students are typically in a batch?",
-    answer:
-      "We intentionally keep our batches small, so every student receives individual attention and correction, which matters even more in a meditation-focused training.",
-  },
-  {
-    category: "certification",
-    question: "What certification will I receive after completing the course?",
-    answer:
-      "You'll graduate with an official RYT-200 certificate from Yoga Alliance, with a specific focus on Meditation and Yoga Nidra, allowing you to teach and register internationally.",
-  },
-  {
-    category: "certification",
-    question: "Is the certificate recognized outside India?",
-    answer:
-      "Yes, Yoga Alliance certification is recognized globally, so you can register and teach in studios and wellness centres anywhere in the world.",
-  },
-  {
-    category: "certification",
-    question: "How is my progress actually assessed during the course?",
-    answer:
-      "Assessment happens gradually through practical exams, written examinations, classroom participation, and a final teaching seat evaluation, so no single test decides your outcome.",
-  },
-  {
-    category: "certification",
-    question: "What if I struggle with the written exam portion?",
-    answer:
-      "Our teachers are there to support you throughout, and written assessments are designed to check understanding, not to catch you out. Extra guidance is always available if you need it.",
-  },
-  {
-    category: "certification",
-    question: "Do I need to pass every single evaluation to get certified?",
-    answer:
-      "Certification depends on genuine engagement across the full program, including attendance, sincere practice, and consistent participation, rather than any one exam alone.",
-  },
-  {
-    category: "certification",
-    question: "Can I retake an assessment if I don't do well the first time?",
-    answer:
-      "Yes, our teachers work with you individually if any part of your evaluation needs more attention before certification is finalized.",
+      "Your certificate reflects the full 200 Hour Ayurveda Yoga Teacher Training curriculum, covering both Hatha Yoga and Ayurvedic studies.",
   },
   {
     category: "lodging-meals",
-    question: "What are the room options available during the training?",
+    question: "What kind of rooms are available?",
     answer:
-      "You can choose between Triple Sharing, Double Sharing, Private Standard, or Private Deluxe rooms with a balcony, depending on your comfort and budget.",
+      "You can choose from private rooms, 2-shared rooms, or 4-shared rooms depending on your budget and preference for company or privacy.",
   },
   {
     category: "lodging-meals",
-    question: "Are meals included in the course fee?",
+    question: "Is the food vegetarian?",
     answer:
-      "Yes, three freshly cooked organic vegetarian meals are included daily, except on Sundays when the kitchen takes a rest day.",
+      "Yes, all meals served are vegetarian and prepared according to sattvic, Ayurvedic principles.",
   },
   {
     category: "lodging-meals",
-    question: "Is the food suitable for common dietary restrictions?",
+    question: "Can you accommodate dietary restrictions?",
     answer:
-      "Our kitchen prepares sattvic, whole-food vegetarian meals daily. If you have specific allergies or dietary needs, do let us know in advance so we can accommodate you where possible.",
+      "Yes, whether you're vegan, gluten-free, or managing allergies, just let us know in advance and we'll arrange meals that work for you.",
   },
   {
     category: "lodging-meals",
-    question: "Do the rooms have private bathrooms?",
+    question: "Is Wi-Fi available on campus?",
     answer:
-      "Most of our rooms come with attached bathrooms and hot water, and private balconies are available depending on which room category you choose.",
+      "Yes, high-speed Wi-Fi is included and accessible across the ashram.",
   },
   {
     category: "lodging-meals",
-    question: "Is Wi-Fi available throughout the stay?",
+    question: "Is air conditioning or heating available in rooms?",
     answer:
-      "Yes, high-speed Wi-Fi is available across the campus, so you can stay connected with family while you're here.",
-  },
-  {
-    category: "lodging-meals",
-    question: "Is laundry service available on campus?",
-    answer:
-      "Yes, laundry service is available, with weekly access included depending on your room package.",
+      "Heaters and air conditioning are available as optional add-ons for an extra charge, depending on the season you're training in.",
   },
   {
     category: "travel-health",
     question: "Do I need a visa to attend this course?",
     answer:
-      "Yes, international students typically need a tourist or e-Visa to attend yoga courses in India. Apply at least a few weeks before your travel dates to avoid last-minute stress.",
+      "Yes, most international students apply for a tourist or e-Visa, valid for 30 to 180 days depending on nationality.",
   },
   {
     category: "travel-health",
     question: "How do I get from the airport to the school?",
     answer:
-      "We offer pickup from Dehradun Airport or Haridwar railway station on request, arranged at cost price. Just share your arrival details with us in advance.",
+      "We arrange pickups from Dehradun Airport or Haridwar station at cost price. Just share your travel details with us on WhatsApp once booked.",
   },
   {
     category: "travel-health",
-    question: "Is Rishikesh safe for solo travelers?",
+    question: "Should I get travel insurance?",
     answer:
-      "Rishikesh is generally considered a safe and welcoming town for solo travelers, including women traveling alone, and our campus environment adds an extra layer of community and support.",
+      "We recommend it, as with any international trip, particularly one that includes a physically active residential program.",
   },
   {
     category: "travel-health",
-    question:
-      "What vaccinations or health precautions should I take before arriving?",
+    question: "What vaccinations or health precautions should I consider?",
     answer:
-      "We recommend checking with a travel health professional in your home country for any recommended vaccinations before traveling to India, as requirements can vary based on your origin country.",
+      "We suggest checking with a travel doctor a few weeks before your trip for any recommended vaccinations based on your home country's guidelines.",
   },
   {
     category: "travel-health",
-    question: "Will I have access to medical care if needed during the course?",
+    question: "Is Rishikesh safe for solo travellers?",
     answer:
-      "Yes, local clinics and pharmacies are easily accessible from our campus, and our team can help you get to a doctor quickly if the need arises.",
+      "Yes, Rishikesh is a well-known destination for yoga students and travellers from around the world, and Upper Tapovan in particular has a quiet, welcoming atmosphere.",
   },
 ];
 
@@ -264,12 +243,21 @@ async function main(): Promise<void> {
       faqs_live: boolean | null;
       first_question: string | null;
       last_question: string | null;
+      category_counts: Record<string, number> | null;
     }>(
       `SELECT
          jsonb_array_length("page_modules"->'faqs'->'items')::text AS faq_count,
          ("page_modules"->'faqs'->>'live')::boolean AS faqs_live,
          "page_modules"->'faqs'->'items'->0->>'question' AS first_question,
-         "page_modules"->'faqs'->'items'->-1->>'question' AS last_question
+         "page_modules"->'faqs'->'items'->-1->>'question' AS last_question,
+         (
+           SELECT jsonb_object_agg(category, cnt)
+           FROM (
+             SELECT item->>'category' AS category, COUNT(*)::int AS cnt
+             FROM jsonb_array_elements("page_modules"->'faqs'->'items') AS item
+             GROUP BY item->>'category'
+           ) AS grouped
+         ) AS category_counts
        FROM "pages"
        WHERE "slug" = $1`,
       [COURSE_SLUG],
@@ -282,6 +270,7 @@ async function main(): Promise<void> {
     console.log(
       `Updated page_modules.faqs: count=${result.faq_count}, live=${result.faqs_live}.`,
     );
+    console.log(`Category counts: ${JSON.stringify(result.category_counts ?? {})}`);
     console.log(`First FAQ: ${result.first_question ?? "(none)"}`);
     console.log(`Last FAQ: ${result.last_question ?? "(none)"}`);
     console.log(

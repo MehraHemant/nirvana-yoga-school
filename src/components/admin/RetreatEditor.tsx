@@ -31,6 +31,7 @@ import {
 import { roomDisplayTitle } from "@/content/lodging/room-catalog";
 import { createEmptyPageModules } from "@/content/page-modules-defaults";
 import type { PageModulesDocument, RetreatDocument } from "@/content/types";
+import { normalizeFaqCategory } from "@/content/types/faq-categories";
 import type { RoomRecord } from "@/content/types/shared-sections";
 import { sharedSectionLinksForLayout } from "@/lib/cms/page-layout-registry";
 import { createEmptyResidentialLife } from "@/lib/cms/structural-defaults";
@@ -338,6 +339,7 @@ export function RetreatEditor({
         faqs: faqItems.map((faq) => ({
           question: faq.question,
           answer: faq.answer,
+          category: normalizeFaqCategory(faq.category),
         })),
       };
       await onSave({ retreat: retreatToSave, modules: modulesToSave });
