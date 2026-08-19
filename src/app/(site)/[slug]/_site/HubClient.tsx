@@ -85,6 +85,7 @@ export default function HubClient({
             eyebrow={modules?.inclusions.eyebrow}
             title={modules?.inclusions.title}
             description={modules?.inclusions.description}
+            arrivalSupport={modules?.inclusions.arrivalSupport}
           />
         ) : null}
         {showPricing ? (

@@ -42,6 +42,15 @@ export type {
   HomePageMeta,
   HomeSectionIdFields,
 } from "@/content/types/dedicated-pages";
+export {
+  DEFAULT_FAQ_CATEGORY,
+  FAQ_CATEGORIES,
+  FAQ_CATEGORY_FILTER_OPTIONS,
+  FAQ_CATEGORY_IDS,
+  FAQ_CATEGORY_LABELS,
+  normalizeFaqCategory,
+} from "@/content/types/faq-categories";
+export type { FaqCategoryId } from "@/content/types/faq-categories";
 export type {
   LeadStats,
   LeadStatus,
@@ -87,6 +96,7 @@ export type {
   ModuleLiveFields,
   OverviewMediaItem,
   OverviewModule,
+  OverviewSaying,
   PageMinimalHero,
   PageModulesDocument,
   PricingBatch,
@@ -126,6 +136,16 @@ export type {
   Teacher,
   Testimonial,
 } from "@/content/types/shared";
+export type {
+  FaqAssignmentExtras,
+  FaqAssignmentRecord,
+  FaqContextType,
+  FaqRecord,
+  GlobalFaqContextKey,
+  ResolvedFaq,
+  SyncFaqAssignmentsInput,
+  UpsertFaqInput,
+} from "@/content/types/faqs";
 export type {
   SitePageCard,
   SitePageDocument,

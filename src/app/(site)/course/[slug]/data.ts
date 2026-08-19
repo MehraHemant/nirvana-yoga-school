@@ -1,5 +1,9 @@
 import { extractMediaFromModules } from "@/content/mappers/page-modules";
-import { hydrateModulesFromLodgingTables } from "@/content/repositories/lodging-sync";
+import { hydrateModulesFromPageTables } from "@/content/repositories/page-modules-sync";
+import {
+  hydratePageModulesFaqs,
+  resolvePageFaqs,
+} from "@/content/repositories/faqs";
 import { getPageModules } from "@/content/repositories/page-modules";
 import {
   getExamCertification,
@@ -46,9 +50,20 @@ export async function loadCoursePageData(
   ]);
 
   const modules =
-    (await hydrateModulesFromLodgingTables(slug, modulesResult.data).catch(
+    (await hydrateModulesFromPageTables(slug, modulesResult.data).catch(
       () => modulesResult.data,
     )) ?? modulesResult.data;
+
+  const hydratedModules = modules
+    ? ((await hydratePageModulesFaqs(slug, modules).catch(() => modules)) ??
+      modules)
+    : modules;
+
+  const faqResult = await resolvePageFaqs(slug, course.faqs).catch(() => ({
+    data: course.faqs,
+    source: "db" as const,
+  }));
+  const hydratedCourse = { ...course, faqs: faqResult.data };
 
   const media: CourseMedia = modules
     ? extractMediaFromModules(modules)
@@ -70,10 +85,10 @@ export async function loadCoursePageData(
   });
 
   return {
-    course,
+    course: hydratedCourse,
     media,
     videos,
-    modules,
+    modules: hydratedModules,
     residentialLife,
     whyNirvana: whyNirvana?.data ?? null,
     reviews: reviews?.data ?? null,

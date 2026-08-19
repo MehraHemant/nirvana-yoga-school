@@ -11,6 +11,7 @@ import type {
   RoomCatalog,
   SharedGalleryImage,
 } from "@/content/types/shared-sections";
+import { roomDisplayTitle } from "@/content/lodging/room-catalog";
 import { normalizeMediaTagKey } from "@/lib/cdn/media-tags";
 import { lodgingAssetToMediaImageMatchSql } from "@/lib/cms/media-usage";
 import { createId, db } from "@/lib/db";
@@ -572,7 +573,14 @@ function mapOffer(row: Record<string, unknown>): PageRoomOfferRecord {
     price: String(row.price ?? ""),
     originalPrice: String(row.originalPrice ?? row.original_price ?? ""),
     sort: Number(row.sort ?? 0),
-    roomName: row.room_name ? String(row.room_name) : undefined,
+    roomName:
+      row.room_name || row.room_title || row.room_slug
+        ? roomDisplayTitle({
+            title: row.room_title ? String(row.room_title) : undefined,
+            name: row.room_name ? String(row.room_name) : undefined,
+            slug: row.room_slug ? String(row.room_slug) : undefined,
+          })
+        : undefined,
     roomSlug: row.room_slug ? String(row.room_slug) : undefined,
     roomDescription: row.room_description
       ? String(row.room_description)
@@ -596,7 +604,8 @@ export async function getPageRoomOffers(
   return requireDb(async () => {
     const rows = await db.$queryRawUnsafe<Array<Record<string, unknown>>>(
       `SELECT o."id", o."page_id", o."room_id", o."live", o."price", o."original_price",
-              o."sort", r."name" AS room_name, r."slug" AS room_slug,
+              o."sort", r."name" AS room_name, r."title" AS room_title,
+              r."slug" AS room_slug,
               r."description" AS room_description, r."features" AS room_features
        FROM "page_room_offers" o
        INNER JOIN "rooms" r ON r."id" = o."room_id"
@@ -639,7 +648,8 @@ export async function getLivePricedRoomOffersByPageSlugs(
     >(
       `SELECT p."slug" AS page_slug,
               o."id", o."page_id", o."room_id", o."live", o."price", o."original_price",
-              o."sort", r."name" AS room_name, r."slug" AS room_slug,
+              o."sort", r."name" AS room_name, r."title" AS room_title,
+              r."slug" AS room_slug,
               r."description" AS room_description, r."features" AS room_features
        FROM "pages" p
        INNER JOIN "page_room_offers" o ON o."page_id" = p."id"

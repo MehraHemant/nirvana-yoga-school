@@ -20,6 +20,8 @@ interface WhatIsIncludedProps {
   eyebrow?: string;
   title?: string;
   description?: string;
+  /** Optional arrival support callout — hidden when body is empty */
+  arrivalSupport?: { title?: string; body?: string };
   /** Public section HTML id (defaults to `inclusions`) */
   htmlId?: string;
 }
@@ -145,8 +147,14 @@ export default function WhatIsIncluded({
   eyebrow = "Fine Print",
   title = "What is Included in Your Fee",
   description = "We operate on complete transparency. Your program fee covers all essential living, training, and excursion expenses during your stay so you can focus entirely on your training.",
+  arrivalSupport,
   htmlId = "inclusions",
 }: WhatIsIncludedProps) {
+  const arrivalBody = arrivalSupport?.body?.trim() ?? "";
+  const showArrivalSupport = Boolean(arrivalBody);
+  const arrivalTitle =
+    arrivalSupport?.title?.trim() || "Arrival Support";
+
   return (
     <section
       id={htmlId}
@@ -189,17 +197,16 @@ export default function WhatIsIncluded({
               {description}
             </p>
 
-            {/* Minimalist Tip Box */}
-            <div className="surface-panel space-y-2 rounded-3xl p-6 transition-all duration-300 hover:shadow-soft">
-              <span className="type-eyebrow text-primary font-semibold block mb-1">
-                Arrival Support
-              </span>
-              <p className="text-xs text-muted leading-relaxed font-sans font-light">
-                We organize airport transfers (Dehradun DED or Haridwar station)
-                upon request at cost-price. Contact us on WhatsApp for arrival
-                support!
-              </p>
-            </div>
+            {showArrivalSupport ? (
+              <div className="surface-panel space-y-2 rounded-3xl p-6 transition-all duration-300 hover:shadow-soft">
+                <span className="type-eyebrow text-primary font-semibold block mb-1">
+                  {arrivalTitle}
+                </span>
+                <p className="text-xs text-muted leading-relaxed font-sans font-light">
+                  {arrivalBody}
+                </p>
+              </div>
+            ) : null}
           </div>
 
           {/* Right Column: Inclusions card — full width, 2-col grid */}

@@ -4,9 +4,26 @@ import {
 } from "@/lib/cdn/media-tags";
 
 /**
+ * Public-facing room label — prefers title, falls back to name then slug.
+ *
+ * @param room - Room fields with optional title
+ */
+export function roomDisplayTitle(room: {
+  title?: string;
+  name?: string;
+  slug?: string;
+}): string {
+  const title = room.title?.trim();
+  if (title) return title;
+  const name = room.name?.trim();
+  if (name) return name;
+  return room.slug?.trim() || "Room";
+}
+
+/**
  * Canonical course / retreat room catalog.
  * Convention: `media_images.tag` uses short media tags (`private room`, `2 shared`, …).
- * Room `name` stays the long display label for pricing and public copy.
+ * Room `name` is the internal identifier; public copy uses `title` when set.
  */
 
 export type RoomCatalogSeed = {

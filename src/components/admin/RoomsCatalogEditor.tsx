@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react";
 import { CollapsiblePanel } from "@/components/admin/CollapsiblePanel";
 import { ImageListField } from "@/components/admin/ImageListField";
 import { NestedItemCard } from "@/components/admin/NestedItemCard";
@@ -9,7 +15,7 @@ import { StringListField } from "@/components/admin/StringListField";
 import { TextField } from "@/components/admin/TextField";
 import { useStableListKeys } from "@/components/admin/useStableListKeys";
 import { VideoField } from "@/components/admin/VideoField";
-import { roomMediaTag } from "@/content/lodging/room-catalog";
+import { roomDisplayTitle, roomMediaTag } from "@/content/lodging/room-catalog";
 import type { CmsInteractiveImage } from "@/content/types/cms-image";
 import type {
   RoomCatalog,
@@ -68,9 +74,51 @@ function slugify(value: string): string {
     .slice(0, 64);
 }
 
+/**
+ * Serializes rooms for dirty comparison (ignores DB timestamps).
+ *
+ * @param rooms - Room list
+ */
+function serializeRoomsForCompare(rooms: RoomRecord[]): string {
+  return JSON.stringify(
+    rooms.map(({ createdAt, updatedAt, ...room }) => room),
+  );
+}
+
+/**
+ * Builds the API payload for create/update room requests.
+ *
+ * @param catalog - Course or retreat catalog
+ * @param room - Room draft
+ */
+function buildRoomPayload(catalog: RoomCatalog, room: RoomRecord) {
+  return {
+    catalog,
+    slug: room.slug.trim() || slugify(room.name) || `room-${Date.now()}`,
+    name: room.name.trim() || "Untitled room",
+    title: room.title?.trim() ?? "",
+    eyebrow: room.eyebrow?.trim() ?? "",
+    description: room.description ?? "",
+    features: room.features ?? [],
+    images: room.images ?? [],
+    videos: room.videos ?? [],
+    sort: room.sort ?? 0,
+    live: room.live !== false,
+  };
+}
+
+export type RoomsCatalogEditorHandle = {
+  /** Persists every room with unsaved edits. */
+  saveAll: () => Promise<void>;
+  /** Whether any room differs from the last saved snapshot. */
+  hasUnsavedChanges: () => boolean;
+};
+
 type RoomsCatalogEditorProps = {
   /** Course or retreat catalog */
   catalog: RoomCatalog;
+  /** Called when pending room edits change. */
+  onDirtyChange?: (dirty: boolean) => void;
 };
 
 /**
@@ -78,13 +126,45 @@ type RoomsCatalogEditorProps = {
  *
  * @param props - Catalog scope
  */
-export function RoomsCatalogEditor({ catalog }: RoomsCatalogEditorProps) {
+export const RoomsCatalogEditor = forwardRef<
+  RoomsCatalogEditorHandle,
+  RoomsCatalogEditorProps
+>(function RoomsCatalogEditor({ catalog, onDirtyChange }, ref) {
   const [rooms, setRooms] = useState<RoomRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [savingId, setSavingId] = useState<string | null>(null);
+  const [savedBaseline, setSavedBaseline] = useState("");
+  const roomsRef = useRef(rooms);
+  const savedBaselineRef = useRef(savedBaseline);
+  roomsRef.current = rooms;
+  savedBaselineRef.current = savedBaseline;
   const keys = useStableListKeys(rooms.length);
   const catalogLabel = catalog === "retreat" ? "Retreat" : "Course";
+
+  const isDirty =
+    !loading &&
+    savedBaseline !== "" &&
+    serializeRoomsForCompare(rooms) !== savedBaseline;
+
+  useEffect(() => {
+    onDirtyChange?.(isDirty);
+  }, [isDirty, onDirtyChange]);
+
+  /**
+   * Updates local room list and the saved snapshot after a successful write.
+   *
+   * @param updater - Next room list
+   */
+  function commitRooms(updater: (prev: RoomRecord[]) => RoomRecord[]) {
+    setRooms((prev) => {
+      const next = updater(prev);
+      const baseline = serializeRoomsForCompare(next);
+      setSavedBaseline(baseline);
+      savedBaselineRef.current = baseline;
+      return next;
+    });
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -94,7 +174,11 @@ export function RoomsCatalogEditor({ catalog }: RoomsCatalogEditorProps) {
       .then((res) => parseApiJson<{ rooms: RoomRecord[] }>(res))
       .then((body) => {
         if (cancelled) return;
-        setRooms(body.rooms ?? []);
+        const loaded = body.rooms ?? [];
+        const baseline = serializeRoomsForCompare(loaded);
+        setRooms(loaded);
+        setSavedBaseline(baseline);
+        savedBaselineRef.current = baseline;
       })
       .catch((err: Error) => {
         if (!cancelled) setError(err.message || "Failed to load rooms");
@@ -108,55 +192,100 @@ export function RoomsCatalogEditor({ catalog }: RoomsCatalogEditorProps) {
   }, [catalog]);
 
   /**
-   * Persists one room create/update and refreshes local state.
+   * Writes one room to the API.
    *
    * @param room - Room draft
    * @param isNew - Whether to POST a new room
    */
-  async function saveRoom(room: RoomRecord, isNew: boolean) {
+  async function persistRoom(
+    room: RoomRecord,
+    isNew: boolean,
+  ): Promise<RoomRecord> {
+    const payload = buildRoomPayload(catalog, room);
+    if (isNew) {
+      const body = await parseApiJson<{ room: RoomRecord }>(
+        await fetch("/api/admin/rooms", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }),
+      );
+      return body.room;
+    }
+    const body = await parseApiJson<{ room: RoomRecord }>(
+      await fetch(`/api/admin/rooms/${room.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      }),
+    );
+    return body.room;
+  }
+
+  /**
+   * Persists one room create/update and refreshes local state.
+   *
+   * @param room - Room draft
+   * @param isNew - Whether to POST a new room
+   * @param rethrow - When true, propagate errors (used by saveAll)
+   */
+  async function saveRoom(
+    room: RoomRecord,
+    isNew: boolean,
+    rethrow = false,
+  ) {
     setSavingId(room.id);
     setError("");
     try {
-      const payload = {
-        catalog,
-        slug: room.slug.trim() || slugify(room.name) || `room-${Date.now()}`,
-        name: room.name.trim() || "Untitled room",
-        description: room.description ?? "",
-        features: room.features ?? [],
-        images: room.images ?? [],
-        videos: room.videos ?? [],
-        sort: room.sort ?? 0,
-        live: room.live !== false,
-      };
-      if (isNew) {
-        const body = await parseApiJson<{ room: RoomRecord }>(
-          await fetch("/api/admin/rooms", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          }),
-        );
-        setRooms((prev) =>
-          prev.map((item) => (item.id === room.id ? body.room : item)),
-        );
-      } else {
-        const body = await parseApiJson<{ room: RoomRecord }>(
-          await fetch(`/api/admin/rooms/${room.id}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          }),
-        );
-        setRooms((prev) =>
-          prev.map((item) => (item.id === room.id ? body.room : item)),
-        );
-      }
+      const saved = await persistRoom(room, isNew);
+      commitRooms((prev) =>
+        prev.map((item) => (item.id === room.id ? saved : item)),
+      );
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Save failed");
+      const message = err instanceof Error ? err.message : "Save failed";
+      setError(message);
+      if (rethrow) throw err;
     } finally {
       setSavingId(null);
     }
   }
+
+  /**
+   * Persists every room that differs from the saved snapshot.
+   */
+  async function saveAllRooms() {
+    if (
+      savedBaselineRef.current === "" ||
+      serializeRoomsForCompare(roomsRef.current) === savedBaselineRef.current
+    ) {
+      return;
+    }
+
+    const savedRooms = JSON.parse(savedBaselineRef.current) as RoomRecord[];
+    const savedById = new Map(savedRooms.map((room) => [room.id, room]));
+    const pending = roomsRef.current.filter((room) => {
+      if (room.id.startsWith("new-")) return true;
+      const saved = savedById.get(room.id);
+      if (!saved) return true;
+      return (
+        serializeRoomsForCompare([room]) !== serializeRoomsForCompare([saved])
+      );
+    });
+
+    setError("");
+    for (const room of pending) {
+      const current =
+        roomsRef.current.find((item) => item.id === room.id) ?? room;
+      await saveRoom(current, current.id.startsWith("new-"), true);
+    }
+  }
+
+  useImperativeHandle(ref, () => ({
+    hasUnsavedChanges: () =>
+      savedBaselineRef.current !== "" &&
+      serializeRoomsForCompare(roomsRef.current) !== savedBaselineRef.current,
+    saveAll: saveAllRooms,
+  }));
 
   /**
    * Deletes a room from the shared catalog.
@@ -167,7 +296,7 @@ export function RoomsCatalogEditor({ catalog }: RoomsCatalogEditorProps) {
   async function removeRoom(id: string, index: number) {
     if (id.startsWith("new-")) {
       keys.removeKey(index);
-      setRooms((prev) => prev.filter((room) => room.id !== id));
+      commitRooms((prev) => prev.filter((room) => room.id !== id));
       return;
     }
     setSavingId(id);
@@ -177,7 +306,7 @@ export function RoomsCatalogEditor({ catalog }: RoomsCatalogEditorProps) {
         await fetch(`/api/admin/rooms/${id}`, { method: "DELETE" }),
       );
       keys.removeKey(index);
-      setRooms((prev) => prev.filter((room) => room.id !== id));
+      commitRooms((prev) => prev.filter((room) => room.id !== id));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Delete failed");
     } finally {
@@ -195,6 +324,8 @@ export function RoomsCatalogEditor({ catalog }: RoomsCatalogEditorProps) {
       catalog,
       slug: "",
       name: "New room type",
+      title: "",
+      eyebrow: "",
       description: "",
       features: [],
       images: [],
@@ -229,7 +360,8 @@ export function RoomsCatalogEditor({ catalog }: RoomsCatalogEditorProps) {
 
         <div className="admin-rooms-catalog__toolbar">
           <p className="admin-rooms-catalog__hint">
-            Shared catalog for product pages · save each room on its card
+            Shared catalog for product pages · save on each card or the page Save
+            bar
           </p>
           <button type="button" className="admin-btn-sm" onClick={addRoom}>
             Add room
@@ -258,7 +390,7 @@ export function RoomsCatalogEditor({ catalog }: RoomsCatalogEditorProps) {
             return (
               <NestedItemCard
                 key={keys.keys[index] ?? room.id}
-                title={room.name || room.slug || "Room"}
+                title={roomDisplayTitle(room)}
                 subtitle={`${imageCount} image${imageCount === 1 ? "" : "s"}`}
                 index={index}
                 collapsible
@@ -274,6 +406,18 @@ export function RoomsCatalogEditor({ catalog }: RoomsCatalogEditorProps) {
               >
                 <div className="admin-rooms-catalog__fields">
                   <TextField
+                    label="Title"
+                    value={room.title ?? ""}
+                    onChange={(title) => patchRoom(room.id, { title })}
+                    hint="Public label on course accommodation and lodging"
+                  />
+                  <TextField
+                    label="Eyebrow"
+                    value={room.eyebrow ?? ""}
+                    onChange={(eyebrow) => patchRoom(room.id, { eyebrow })}
+                    hint='Small label above the room selector when active (e.g. "Choose your room")'
+                  />
+                  <TextField
                     label="Name"
                     value={room.name}
                     onChange={(name) =>
@@ -282,6 +426,7 @@ export function RoomsCatalogEditor({ catalog }: RoomsCatalogEditorProps) {
                         slug: room.slug || slugify(name),
                       })
                     }
+                    hint="Internal identifier and media library tag"
                   />
                   <TextField
                     label="Description"
@@ -403,7 +548,7 @@ export function RoomsCatalogEditor({ catalog }: RoomsCatalogEditorProps) {
 
                 <div className="admin-rooms-catalog__footer">
                   <p className="admin-rooms-catalog__footer-note">
-                    Stay copy uses the page Save bar
+                    Room fields save here or with the page Save bar below
                   </p>
                   <button
                     type="button"
@@ -425,4 +570,4 @@ export function RoomsCatalogEditor({ catalog }: RoomsCatalogEditorProps) {
       </div>
     </CollapsiblePanel>
   );
-}
+});

@@ -125,6 +125,7 @@ export async function GET(
   if (key === "residentialLife" || key === "retreatAccommodation") {
     const value = await ensureSharedSettings(key, {
       live: true,
+      title: "",
       stay: { title: "", description: "" },
       facilities: [],
     });

@@ -1,8 +1,12 @@
+import type { FaqCategoryId } from "@/content/types/faq-categories";
+
 /** Shared content primitives used across page types. */
 
 export type FAQ = {
   question: string;
   answer: string;
+  /** One of the four fixed FAQ categories (defaults to General when omitted). */
+  category?: FaqCategoryId;
 };
 
 export type CourseScheduleItem = {

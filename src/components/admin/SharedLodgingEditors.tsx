@@ -13,6 +13,7 @@ import { StringListField } from "@/components/admin/StringListField";
 import { TextField } from "@/components/admin/TextField";
 import { useStableListKeys } from "@/components/admin/useStableListKeys";
 import { coerceSharedAccommodationMeta } from "@/content/mappers/residential-life";
+import type { SharedAccommodationMeta } from "@/content/mappers/residential-life";
 import type { CmsInteractiveImage } from "@/content/types/cms-image";
 import type {
   SharedFacility,
@@ -229,11 +230,7 @@ function CampusFacilitiesEditor({
   );
 }
 
-export type SharedAccommodationMeta = {
-  live?: boolean;
-  stay: { title: string; description: string };
-  facilities: SharedFacility[];
-};
+export type { SharedAccommodationMeta } from "@/content/mappers/residential-life";
 
 type SharedAccommodationMetaFieldsProps = {
   /** Stay intro + facilities for a catalog */
@@ -272,6 +269,18 @@ export function SharedAccommodationMetaFields({
         }
       >
         <div className="admin-lodging-editor__fields">
+          <TextField
+            label="Eyebrow"
+            hint='Small label above the section heading (e.g. "Residential Life").'
+            value={safe.eyebrow ?? ""}
+            onChange={(eyebrow) => onChange({ ...safe, eyebrow })}
+          />
+          <TextField
+            label="Section title"
+            hint="Main heading on the public lodging section (e.g. Ashram Accommodation)."
+            value={safe.title ?? ""}
+            onChange={(title) => onChange({ ...safe, title })}
+          />
           <TextField
             label="Stay title"
             value={safe.stay.title}

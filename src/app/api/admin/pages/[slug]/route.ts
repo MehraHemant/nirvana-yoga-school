@@ -1,9 +1,9 @@
 import { revalidatePath } from "next/cache";
 import { ONLINE_HUB_SLUG } from "@/content/pages/slugs";
 import {
-  hydrateModulesFromLodgingTables,
-  syncLodgingTablesFromModules,
-} from "@/content/repositories/lodging-sync";
+  hydrateModulesFromPageTables,
+  syncPageTablesFromModules,
+} from "@/content/repositories/page-modules-sync";
 import { getPageSeo } from "@/content/repositories/page-seo";
 import type {
   DedicatedPageContent,
@@ -128,7 +128,7 @@ export async function GET(
 
   const pageSeo = await getPageSeo(slug).catch(() => null);
   let modules =
-    (await hydrateModulesFromLodgingTables(
+    (await hydrateModulesFromPageTables(
       slug,
       resolvePageModulesForEditor(page.pageModules, page.title, galleryRows),
     ).catch(() =>
@@ -234,12 +234,12 @@ export async function PUT(
       body.product?.kind === "retreat"
         ? (body.product.document as RetreatDocument)
         : undefined;
-    await syncLodgingTablesFromModules(
+    await syncPageTablesFromModules(
       page.id,
       body.modules,
       retreatForSync,
     ).catch((error) => {
-      console.error("[pages PUT] lodging sync failed", error);
+      console.error("[pages PUT] page tables sync failed", error);
     });
     revalidatePath("/course", "layout");
     revalidatePath("/online-course", "layout");

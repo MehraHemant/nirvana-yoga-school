@@ -71,6 +71,43 @@ export function InclusionsModuleEditor({
         addLabel="Add inclusion"
         hint='Use "Paste many" to add a whole list at once.'
       />
+      <div className="admin-field-group">
+        <p className="admin-field-group-label">Arrival support (optional)</p>
+        <p className="admin-hint admin-field-group-hint">
+          Shown as a tip box under the section description. Leave body empty to
+          hide on the public page.
+        </p>
+        <TextField
+          label="Title"
+          value={inclusions.arrivalSupport?.title ?? ""}
+          onChange={(title) =>
+            onChange({
+              ...inclusions,
+              arrivalSupport: {
+                title,
+                body: inclusions.arrivalSupport?.body ?? "",
+              },
+            })
+          }
+          placeholder="Arrival Support"
+        />
+        <TextField
+          label="Body"
+          value={inclusions.arrivalSupport?.body ?? ""}
+          onChange={(body) =>
+            onChange({
+              ...inclusions,
+              arrivalSupport: {
+                title: inclusions.arrivalSupport?.title ?? "",
+                body,
+              },
+            })
+          }
+          multiline
+          rows={4}
+          placeholder="We organize airport transfers…"
+        />
+      </div>
     </CollapsiblePanel>
   );
 }

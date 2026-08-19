@@ -1,12 +1,17 @@
 "use client";
 
+import { roomDisplayTitle } from "@/content/lodging/room-catalog";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { CollapsiblePanel } from "@/components/admin/CollapsiblePanel";
 import { SectionIdField } from "@/components/admin/SectionIdField";
 import { SectionLiveField } from "@/components/admin/SectionLiveField";
+import { TextField } from "@/components/admin/TextField";
 import type { PageRoomFee } from "@/content/mappers/page-room-fees";
-import { normalizeResidentialLife } from "@/content/mappers/residential-life";
+import {
+  normalizeResidentialLife,
+  normalizeSharedFood,
+} from "@/content/mappers/residential-life";
 import {
   isPageRoomLive,
   setPageRoomLive,
@@ -55,6 +60,7 @@ export function ResidentialLifeFields({
   const safeDoc = normalizeResidentialLife(doc);
   const [rooms, setRooms] = useState<RoomRecord[]>([]);
   const [roomsError, setRoomsError] = useState("");
+  const [sharedFoodTitle, setSharedFoodTitle] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -69,6 +75,26 @@ export function ResidentialLifeFields({
           setRooms([]);
           setRoomsError("Could not load shared rooms.");
         }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [catalog]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const foodKey = catalog === "retreat" ? "retreatFood" : "courseFood";
+    fetch(`/api/admin/settings/${foodKey}`)
+      .then((res) => parseApiJson<{ settings: unknown }>(res))
+      .then((foodBody) => {
+        if (cancelled) return;
+        const food = normalizeSharedFood(
+          foodBody.settings as Parameters<typeof normalizeSharedFood>[0],
+        );
+        setSharedFoodTitle(food.content.title.trim());
+      })
+      .catch(() => {
+        if (!cancelled) setSharedFoodTitle("");
       });
     return () => {
       cancelled = true;
@@ -221,6 +247,7 @@ export function ResidentialLifeFields({
                   room.id,
                   safeDoc.accommodation.roomIds,
                 );
+                const displayTitle = roomDisplayTitle(room);
                 const fee = roomFees[room.id] ?? {
                   price: "",
                   originalPrice: "",
@@ -235,7 +262,7 @@ export function ResidentialLifeFields({
                     </span>
                     <span className="admin-compact-col admin-compact-col--name">
                       <span className="admin-page-room-name">
-                        {room.name || room.slug}
+                        {displayTitle}
                       </span>
                       {!room.live ? (
                         <span className="admin-hint admin-hint--tight">
@@ -258,7 +285,7 @@ export function ResidentialLifeFields({
                         value={fee.price}
                         placeholder="e.g. $1299"
                         disabled={!onRoomFeeChange}
-                        aria-label={`Price for ${room.name || room.slug}`}
+                        aria-label={`Price for ${displayTitle}`}
                         onChange={(event) =>
                           patchRoomFee(room, { price: event.target.value })
                         }
@@ -270,7 +297,7 @@ export function ResidentialLifeFields({
                         value={fee.originalPrice ?? ""}
                         placeholder="Optional"
                         disabled={!onRoomFeeChange}
-                        aria-label={`Original price for ${room.name || room.slug}`}
+                        aria-label={`Original price for ${displayTitle}`}
                         onChange={(event) =>
                           patchRoomFee(room, {
                             originalPrice: event.target.value,
@@ -309,6 +336,24 @@ export function ResidentialLifeFields({
             onChange({
               ...safeDoc,
               food: { ...safeDoc.food, _id },
+            })
+          }
+        />
+        <TextField
+          label="Section title"
+          hint={
+            sharedFoodTitle
+              ? `Leave blank to use shared default: “${sharedFoodTitle}”.`
+              : "Leave blank to use the shared default intro heading on the public page."
+          }
+          value={safeDoc.food.content.title}
+          onChange={(title) =>
+            onChange({
+              ...safeDoc,
+              food: {
+                ...safeDoc.food,
+                content: { ...safeDoc.food.content, title },
+              },
             })
           }
         />

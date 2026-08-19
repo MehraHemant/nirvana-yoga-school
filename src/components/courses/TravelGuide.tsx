@@ -8,7 +8,7 @@ import {
 } from "framer-motion";
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Container, Heading, Pill, SectionHeader } from "@/components/ui";
+import { Container, Heading, SectionHeader } from "@/components/ui";
 import type { TravelGuideContent } from "@/content/types/shared-sections";
 import { ChevronDown } from "@/icons";
 import { EASE_OUT } from "@/lib/motion";
@@ -44,8 +44,7 @@ function HeroBanner({ topic }: { topic: TravelTopic }) {
       </AnimatePresence>
       <div className="pointer-events-none absolute inset-0 bg-linear-to-r from-ink/90 via-ink/50 to-ink/10" />
       <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-8 lg:max-w-lg">
-        <Pill invert>{topic.tag}</Pill>
-        <Heading as="h3" size="h4" invert className="mt-3">
+        <Heading as="h3" size="h4" invert>
           {topic.title}
         </Heading>
       </div>
@@ -55,8 +54,6 @@ function HeroBanner({ topic }: { topic: TravelTopic }) {
 
 /**
  * Travel guide section — prefers CMS shared content.
- * Accordion column uses a fixed height so auto-rotating topics cannot
- * resize the page and fight scroll anchoring.
  *
  * @param props.content - Shared travel document from MySQL
  */
@@ -165,19 +162,12 @@ export default function TravelGuide({
           </p>
         </div>
 
-        {/*
-          Fixed row height on lg: rotating accordion panels expand inside the
-          column instead of growing the document and nudging scroll position.
-        */}
-        <div className="mt-12 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_380px] lg:items-stretch lg:h-[520px]">
-          <div className="h-[260px] sm:h-[340px] lg:h-full">
+        <div className="mt-12 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_380px] lg:items-stretch">
+          <div className="h-[260px] sm:h-[340px] lg:min-h-[340px] lg:h-full">
             <HeroBanner topic={active} />
           </div>
 
-          <aside
-            className="flex min-h-0 flex-col gap-2 lg:h-full lg:overflow-y-auto lg:overscroll-y-contain lg:pr-1 scrollbar-thin-primary"
-            aria-label="Travel topics"
-          >
+          <aside className="flex flex-col gap-2" aria-label="Travel topics">
             {topics.map((topic) => {
               const isActive = activeId === topic.id;
               const { Icon } = topic;
@@ -209,17 +199,10 @@ export default function TravelGuide({
                       />
                     </span>
 
-                    <span className="min-w-0 flex-1">
-                      <span
-                        className={`type-eyebrow block ${isActive ? "text-accent" : "text-primary"}`}
-                      >
-                        {topic.tag}
-                      </span>
-                      <span
-                        className={`block font-sans text-sm font-semibold ${isActive ? "text-white" : "text-ink"}`}
-                      >
-                        {topic.title}
-                      </span>
+                    <span
+                      className={`min-w-0 flex-1 font-sans text-sm font-semibold ${isActive ? "text-white" : "text-ink"}`}
+                    >
+                      {topic.title}
                     </span>
 
                     <ChevronDown

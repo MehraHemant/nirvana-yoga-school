@@ -4,6 +4,7 @@ import type { OverviewMediaItem, OverviewModule } from "@/content/types";
 import { CollapsiblePanel } from "../CollapsiblePanel";
 import { ImageField } from "../ImageField";
 import { ListRowActions } from "../ListRowActions";
+import { RichTextEditor } from "../RichTextEditor";
 import { SectionIdField } from "../SectionIdField";
 import {
   reorderItems,
@@ -25,12 +26,14 @@ type OverviewModuleEditorProps = ModulePanelProps & {
    * CTA) and emphasizes overview video URL + poster.
    */
   welcomeStyle?: boolean;
+  /** When true, hides the optional supporting copy field (residential courses). */
+  hideSupportingCopy?: boolean;
 };
 
 const EMPTY_MEDIA: OverviewMediaItem = { type: "image", url: "", alt: "" };
 
 /**
- * Overview module editor — lead/supporting copy, media table, and glance grid.
+ * Overview module editor — lead copy, media table, and glance grid.
  *
  * @param props - Overview config and change handler
  */
@@ -43,6 +46,7 @@ export function OverviewModuleEditor({
   open,
   onOpenChange,
   welcomeStyle = false,
+  hideSupportingCopy = false,
 }: OverviewModuleEditorProps) {
   const mediaKeys = useStableListKeys(overview.media.items.length);
   const glanceKeys = useStableListKeys(overview.glance.length);
@@ -128,25 +132,74 @@ export function OverviewModuleEditor({
         />
       </div>
       <TextField
+        label="Description"
+        value={overview.description ?? ""}
+        onChange={(description) => onChange({ ...overview, description })}
+        multiline
+        rows={2}
+        hint="Short intro under the section title on the public page."
+      />
+      <TextField
+        label="Heading"
+        value={overview.heading ?? ""}
+        onChange={(heading) => onChange({ ...overview, heading })}
+        hint="Optional subheading above the lead body."
+      />
+      <RichTextEditor
         label="Lead description"
         value={overview.lead}
         onChange={(lead) => onChange({ ...overview, lead })}
-        multiline
-        rows={10}
-        hint="Full overview body — no length limit."
+        minimal
+        placeholder="Full overview body…"
+        hint="Full overview body — no length limit. Bold, italic, and underline supported."
       />
-      <TextField
-        label="Supporting copy"
-        value={overview.supportingCopy ?? ""}
-        onChange={(supportingCopy) => onChange({ ...overview, supportingCopy })}
-        multiline
-        rows={8}
-        hint={
-          welcomeStyle
-            ? "Fallback for Promise body when Promise body is empty."
-            : "Optional second paragraph — no length limit."
-        }
-      />
+      <div className="admin-field-group">
+        <p className="admin-field-group-label">Saying / quote</p>
+        <TextField
+          label="Saying"
+          value={overview.saying?.text ?? ""}
+          onChange={(text) =>
+            onChange({
+              ...overview,
+              saying: {
+                text,
+                author: overview.saying?.author ?? "",
+              },
+            })
+          }
+          multiline
+          rows={3}
+          hint="Optional quote shown in the overview body."
+        />
+        <TextField
+          label="Author"
+          value={overview.saying?.author ?? ""}
+          onChange={(author) =>
+            onChange({
+              ...overview,
+              saying: {
+                text: overview.saying?.text ?? "",
+                author,
+              },
+            })
+          }
+          hint="Attribution line, e.g. Swami Sivananda"
+        />
+      </div>
+      {!hideSupportingCopy ? (
+        <TextField
+          label="Supporting copy"
+          value={overview.supportingCopy ?? ""}
+          onChange={(supportingCopy) => onChange({ ...overview, supportingCopy })}
+          multiline
+          rows={8}
+          hint={
+            welcomeStyle
+              ? "Fallback for Promise body when Promise body is empty."
+              : "Optional second paragraph — no length limit."
+          }
+        />
+      ) : null}
 
       {welcomeStyle ? (
         <>

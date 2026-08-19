@@ -3,17 +3,21 @@
 import { motion } from "framer-motion";
 import type { StaticImageData } from "next/image";
 import type { ReactNode } from "react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import type { FaqCategoryId } from "@/content/types/faq-categories";
+import { groupFaqsByCategory } from "@/lib/cms/faq-utils";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 import Container from "./Container";
 import FAQItem from "./FAQItem";
 import SectionHeader from "./SectionHeader";
+import TabSwitcher from "./TabSwitcher";
 
 export type FAQEntry = {
   question: string;
   answer: string;
   image?: string | StaticImageData;
   tag?: string;
+  category?: FaqCategoryId | string;
 };
 
 export type FAQSectionProps = {
@@ -25,6 +29,15 @@ export type FAQSectionProps = {
   sectionClassName?: string;
 };
 
+type FaqViewMode = "all" | FaqCategoryId;
+
+function faqItemKey(faq: FAQEntry, categoryId: string, index: number) {
+  return `${categoryId}-${index}-${faq.question}`;
+}
+
+/**
+ * Two-column FAQ band with optional category tabs and grouped browsing.
+ */
 export default function FAQSection({
   id = "faq",
   faqs,
@@ -33,24 +46,63 @@ export default function FAQSection({
   align = "center",
   sectionClassName = "",
 }: FAQSectionProps) {
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const groups = useMemo(() => groupFaqsByCategory(faqs), [faqs]);
+  const [activeView, setActiveView] = useState<FaqViewMode>("all");
+  const [activeKey, setActiveKey] = useState<string | null>(null);
 
-  const leftColumnFaqs = faqs.filter((_, index) => index % 2 === 0);
-  const rightColumnFaqs = faqs.filter((_, index) => index % 2 !== 0);
+  const categoryTabs = useMemo(
+    () =>
+      groups.map((group) => ({
+        id: group.id,
+        label: group.label,
+      })),
+    [groups],
+  );
 
-  const renderItem = (faq: FAQEntry, index: number) => (
-    <FAQItem
-      key={faq.question}
-      question={faq.question}
-      answer={faq.answer}
-      image={faq.image}
-      tag={faq.tag}
-      index={index}
-      isActive={activeIndex === index}
-      onToggle={() =>
-        setActiveIndex((current) => (current === index ? null : index))
-      }
-    />
+  const showCategoryTabs = categoryTabs.length > 1;
+  const tabs = showCategoryTabs
+    ? [{ id: "all", label: "All" }, ...categoryTabs]
+    : categoryTabs;
+
+  const visibleItems = useMemo(() => {
+    if (activeView === "all") {
+      return groups.flatMap((group) =>
+        group.items.map((faq, index) => ({
+          faq,
+          key: faqItemKey(faq, group.id, index),
+        })),
+      );
+    }
+
+    const group = groups.find((candidate) => candidate.id === activeView);
+    return (group?.items ?? []).map((faq, index) => ({
+      faq,
+      key: faqItemKey(faq, activeView, index),
+    }));
+  }, [groups, activeView]);
+
+  const leftColumn = visibleItems.filter((_, index) => index % 2 === 0);
+  const rightColumn = visibleItems.filter((_, index) => index % 2 !== 0);
+
+  const renderColumn = (
+    columnFaqs: Array<{ faq: FAQEntry; key: string }>,
+  ) => (
+    <div className="space-y-4 sm:space-y-5">
+      {columnFaqs.map(({ faq, key }) => (
+        <FAQItem
+          key={key}
+          question={faq.question}
+          answer={faq.answer}
+          image={faq.image}
+          tag={faq.tag}
+          index={0}
+          isActive={activeKey === key}
+          onToggle={() =>
+            setActiveKey((current) => (current === key ? null : key))
+          }
+        />
+      ))}
+    </div>
   );
 
   return (
@@ -77,14 +129,24 @@ export default function FAQSection({
         </motion.div>
 
         {faqs.length > 0 ? (
-          <div className="grid grid-cols-1 items-start gap-5 sm:gap-6 lg:grid-cols-2">
-            <div className="space-y-4 sm:space-y-5">
-              {leftColumnFaqs.map((faq, index) => renderItem(faq, index * 2))}
-            </div>
-            <div className="space-y-4 sm:space-y-5">
-              {rightColumnFaqs.map((faq, index) =>
-                renderItem(faq, index * 2 + 1),
-              )}
+          <div className="space-y-8 sm:space-y-10">
+            {showCategoryTabs ? (
+              <TabSwitcher
+                tabs={tabs}
+                activeId={activeView}
+                onChange={(nextId) => {
+                  setActiveView(nextId as FaqViewMode);
+                  setActiveKey(null);
+                }}
+                layoutId={`${id}-faq-categories`}
+                size="sm"
+                className="mb-2"
+              />
+            ) : null}
+
+            <div className="grid grid-cols-1 items-start gap-5 sm:gap-6 lg:grid-cols-2">
+              {renderColumn(leftColumn)}
+              {renderColumn(rightColumn)}
             </div>
           </div>
         ) : null}

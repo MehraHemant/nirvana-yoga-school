@@ -19,6 +19,7 @@ import {
   Sunrise,
   Users,
 } from "@/icons";
+import { stripHtml } from "@/lib/cms/blog-html";
 import { shouldRenderSection } from "@/lib/cms/section-visibility";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 
@@ -58,6 +59,10 @@ export default function WhyNirvana({
   const hasData = Boolean(content?.highlights?.length);
   if (!content || !shouldRenderSection(content, hasData)) return null;
 
+  const resolvedHeading =
+    content.heading?.trim() ||
+    "What Makes Nirvana a Truly Unique Experience?";
+
   return (
     <section id="why-nirvana" className="bg-white">
       <Container size="2xl" className="py-16 sm:py-20">
@@ -85,7 +90,7 @@ export default function WhyNirvana({
           variants={fadeUp}
         >
           <h3 className="type-h3 mb-8 text-center font-serif tracking-wide text-ink">
-            What Makes Nirvana a Truly Unique Experience?
+            {resolvedHeading}
           </h3>
 
           <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-x-8 md:gap-y-5">
@@ -105,7 +110,7 @@ export default function WhyNirvana({
                         {item.title}
                       </h4>
                       <p className="font-sans text-sm leading-relaxed text-muted">
-                        {item.body}
+                        {stripHtml(item.body)}
                       </p>
                     </div>
                   </article>

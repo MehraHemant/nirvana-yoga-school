@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { AdminSearchField } from "@/components/admin/AdminSearchField";
 import { fetchAdminMedia } from "@/lib/api/admin-client";
 import { cloudinaryThumbUrl } from "@/lib/cdn/cloudinary-thumb-url";
 import type { AdminMediaAsset } from "@/lib/types/admin-api";
@@ -19,6 +20,25 @@ type MediaPickerProps = {
 const PAGE_SIZE = 48;
 
 /**
+ * Builds searchable text from a media asset row.
+ *
+ * @param asset - Media library asset
+ */
+function mediaAssetHaystack(asset: AdminMediaAsset): string {
+  const filename = asset.url.split("/").pop() ?? "";
+  return [
+    asset.caption,
+    asset.alt,
+    asset.description,
+    filename,
+    ...asset.tags,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+}
+
+/**
  * Modal grid to pick an image or video URL from the media library.
  *
  * @param props - Open state, close handler, selection callback, optional filters
@@ -35,6 +55,7 @@ export function MediaPicker({
   const [loadingMore, setLoadingMore] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [search, setSearch] = useState("");
   const title = kind === "video" ? "Choose video" : "Choose image";
   const emptyHint =
     kind === "video"
@@ -46,6 +67,7 @@ export function MediaPicker({
     setPage(1);
     setAssets([]);
     setTotalPages(1);
+    setSearch("");
   }, [open]);
 
   useEffect(() => {
@@ -81,6 +103,12 @@ export function MediaPicker({
     };
   }, [open, tagFilter, kind, page]);
 
+  const visibleAssets = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    if (!query) return assets;
+    return assets.filter((asset) => mediaAssetHaystack(asset).includes(query));
+  }, [assets, search]);
+
   if (!open) return null;
 
   return (
@@ -92,7 +120,7 @@ export function MediaPicker({
         aria-label="Close media library"
       />
       <div
-        className="admin-modal"
+        className="admin-modal admin-modal--library"
         role="dialog"
         aria-modal="true"
         aria-label="Media library"
@@ -108,41 +136,56 @@ export function MediaPicker({
             ×
           </button>
         </div>
-        {loading ? <p className="admin-hint">Loading…</p> : null}
-        <div className="admin-media-picker-grid">
-          {assets.map((asset) => (
-            <button
-              key={asset.id}
-              type="button"
-              className="admin-media-pick"
-              onClick={() => {
-                onSelect(asset.url);
-                onClose();
-              }}
-            >
-              {kind === "video" ? (
-                // biome-ignore lint/a11y/useMediaCaption: admin mute preview
-                <video src={asset.url} muted playsInline preload="metadata" />
-              ) : (
-                // biome-ignore lint/performance/noImgElement: admin preview
-                <img
-                  src={asset.thumbUrl || cloudinaryThumbUrl(asset.url, 240)}
-                  alt={asset.caption ?? asset.alt ?? "Media asset"}
-                  loading="lazy"
-                  decoding="async"
-                />
-              )}
-              <span className="admin-media-pick-label">
-                {asset.caption || "Untitled"}
-              </span>
-              {asset.tags.length > 0 ? (
-                <span className="admin-media-pick-tags">
-                  {asset.tags.slice(0, 2).join(" · ")}
-                </span>
-              ) : null}
-            </button>
-          ))}
+
+        <div className="admin-media-picker-toolbar">
+          <AdminSearchField
+            value={search}
+            onChange={setSearch}
+            placeholder="Search caption, file name, or tag…"
+            ariaLabel="Search media"
+            className="admin-media-picker-search"
+          />
         </div>
+
+        {loading ? <p className="admin-hint">Loading…</p> : null}
+
+        {visibleAssets.length > 0 ? (
+          <div className="admin-media-picker-grid">
+            {visibleAssets.map((asset) => (
+              <button
+                key={asset.id}
+                type="button"
+                className="admin-media-pick"
+                onClick={() => {
+                  onSelect(asset.url);
+                  onClose();
+                }}
+              >
+                {kind === "video" ? (
+                  // biome-ignore lint/a11y/useMediaCaption: admin mute preview
+                  <video src={asset.url} muted playsInline preload="metadata" />
+                ) : (
+                  // biome-ignore lint/performance/noImgElement: admin preview
+                  <img
+                    src={asset.thumbUrl || cloudinaryThumbUrl(asset.url, 240)}
+                    alt={asset.caption ?? asset.alt ?? "Media asset"}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                )}
+                <span className="admin-media-pick-label">
+                  {asset.caption || "Untitled"}
+                </span>
+                {asset.tags.length > 0 ? (
+                  <span className="admin-media-pick-tags">
+                    {asset.tags.slice(0, 2).join(" · ")}
+                  </span>
+                ) : null}
+              </button>
+            ))}
+          </div>
+        ) : null}
+
         {page < totalPages ? (
           <div className="admin-media-picker-more">
             <button
@@ -155,8 +198,24 @@ export function MediaPicker({
             </button>
           </div>
         ) : null}
-        {assets.length === 0 && !loading ? (
-          <p className="admin-hint">{emptyHint}</p>
+
+        {!loading && visibleAssets.length === 0 ? (
+          <div className="admin-empty-card">
+            <p>
+              {search.trim()
+                ? "No media matches your search."
+                : emptyHint}
+            </p>
+            {search.trim() ? (
+              <button
+                type="button"
+                className="admin-btn-sm admin-btn-sm--ghost"
+                onClick={() => setSearch("")}
+              >
+                Clear search
+              </button>
+            ) : null}
+          </div>
         ) : null}
       </div>
     </div>

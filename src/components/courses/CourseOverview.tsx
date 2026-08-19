@@ -3,9 +3,10 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import type { ReactNode } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import VideoPlaylistPlayer from "@/components/home/VideoPlaylistPlayer";
 import { Container, MediaLightbox, SectionHeader } from "@/components/ui";
+import { SanitizedHtml } from "@/components/ui/SanitizedHtml";
 import {
   cmsImageAlt,
   cmsImageCursorClass,
@@ -14,77 +15,51 @@ import {
   normalizeCmsImage,
 } from "@/content/types/cms-image";
 import { HeroFlourish } from "@/icons";
+import { resolveInlineRichTextHtml } from "@/lib/cms/blog-html";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 import type { YouTubeVideo } from "@/lib/youtube";
+import type { GlanceItem } from "@/content/types/page-modules";
 
-type CourseOverviewProps = {
-  /** Lead overview paragraph */
-  overview: string;
-  /** Focus / experience level */
-  level: string;
-  /** Program duration */
-  duration: string;
-  /** Certification line */
-  certification?: string;
-  /** Fee display string */
-  fee?: string;
-  /** Optional YouTube playlist (rendered below the copy, homepage-style) */
-  videos?: YouTubeVideo[];
-  /** Optional image carousel when no videos are provided */
-  featureImages?: string[];
-  /** Rich overview carousel images (preferred over featureImages) */
-  overviewImages?: Array<{
-    url: string;
-    alt?: string;
-    clickAction?: import("@/content/types/cms-image").ImageClickAction;
-    redirectUrl?: string;
-  }>;
-  /** Section eyebrow */
-  eyebrow?: string;
-  /** Section title */
-  title?: ReactNode;
-  /** Supporting paragraph under the lead */
-  supportingCopy?: string;
-  /** Public section HTML id (defaults to `overview`) */
-  htmlId?: string;
+type OverviewSpec = {
+  index: string;
+  label: string;
+  value: string;
+  hint?: string;
+  highlight?: boolean;
 };
 
 /**
- * Course / retreat / site overview: editorial copy first, then media on its
- * own row. Videos use the same playlist-left / player-right layout as the
- * homepage video section.
+ * Maps CMS glance rows into overview card specs.
  *
- * @param props - Overview copy, glance specs, and optional media
+ * @param glance - Overview glance items from page modules
  */
-export default function CourseOverview({
-  overview,
-  level,
-  duration,
-  certification = "",
-  fee = "",
-  videos = [],
-  featureImages = [],
-  overviewImages = [],
-  eyebrow = "",
-  title = "",
-  supportingCopy = "",
-  htmlId = "overview",
-}: CourseOverviewProps) {
-  const [activeImageIndex, setActiveImageIndex] = useState(0);
-  const [lightboxOpen, setLightboxOpen] = useState(false);
-  const resolvedSupporting = supportingCopy.trim() ? supportingCopy : undefined;
-  const showVideoPanel = videos.length > 0;
-  const carouselImages =
-    overviewImages.length > 0
-      ? overviewImages.map(normalizeCmsImage)
-      : featureImages.map((url) => normalizeCmsImage(url));
-  const showImagePanel = !showVideoPanel && carouselImages.length > 0;
+function glanceToSpecs(glance: GlanceItem[]): OverviewSpec[] {
+  return glance
+    .filter((item) => Boolean(item.value?.trim()))
+    .map((item, index) => ({
+      index: String(index + 1).padStart(2, "0"),
+      label: item.label,
+      value: item.value,
+      hint: item.hint?.trim() ? item.hint : undefined,
+      highlight: /fee|price|tuition|cost/i.test(item.label),
+    }));
+}
 
-  useEffect(() => {
-    if (carouselImages.length > 0) setActiveImageIndex(0);
-  }, [carouselImages.length]);
-
-  const overviewSpecs = [
+/**
+ * Legacy fallback when no glance rows exist in page modules.
+ *
+ * @param level - Focus level
+ * @param duration - Program duration
+ * @param certification - Certification line
+ * @param fee - Fee display
+ */
+function legacyOverviewSpecs(
+  level: string,
+  duration: string,
+  certification: string,
+  fee: string,
+): OverviewSpec[] {
+  return [
     {
       index: "01",
       label: "Focus Level",
@@ -111,6 +86,112 @@ export default function CourseOverview({
       highlight: true,
     },
   ].filter((spec) => Boolean(spec.value?.trim()));
+}
+
+/**
+ * Merges overview description + lead into one HTML body for public display.
+ *
+ * @param description - Plain or HTML intro copy
+ * @param lead - Rich-text lead body
+ */
+function mergeOverviewLead(description: string, lead: string): string {
+  const descHtml = resolveInlineRichTextHtml(description);
+  const leadHtml = resolveInlineRichTextHtml(lead);
+  if (descHtml && leadHtml) return `${descHtml}${leadHtml}`;
+  return descHtml || leadHtml;
+}
+
+type CourseOverviewProps = {
+  /** Lead overview paragraph (legacy prop name — may include merged description) */
+  overview: string;
+  /** Short intro prepended to the lead body on the public page */
+  description?: string;
+  /** Focus / experience level */
+  level: string;
+  /** Program duration */
+  duration: string;
+  /** Certification line */
+  certification?: string;
+  /** Fee display string */
+  fee?: string;
+  /** Optional YouTube playlist (rendered below the copy, homepage-style) */
+  videos?: YouTubeVideo[];
+  /** Optional image carousel when no videos are provided */
+  featureImages?: string[];
+  /** Rich overview carousel images (preferred over featureImages) */
+  overviewImages?: Array<{
+    url: string;
+    alt?: string;
+    clickAction?: import("@/content/types/cms-image").ImageClickAction;
+    redirectUrl?: string;
+  }>;
+  /** Section eyebrow */
+  eyebrow?: string;
+  /** Section title */
+  title?: ReactNode;
+  /** Optional subheading above the lead body */
+  heading?: string;
+  /** Quote with author attribution */
+  saying?: { text: string; author: string };
+  /** Supporting paragraph under the lead */
+  supportingCopy?: string;
+  /** CMS glance stats (label, value, hint) — preferred over legacy level/duration props */
+  glance?: GlanceItem[];
+  /** Public section HTML id (defaults to `overview`) */
+  htmlId?: string;
+};
+
+/**
+ * Course / retreat / site overview: editorial copy first, then media on its
+ * own row. Videos use the same playlist-left / player-right layout as the
+ * homepage video section.
+ *
+ * @param props - Overview copy, glance specs, and optional media
+ */
+export default function CourseOverview({
+  overview,
+  description = "",
+  level,
+  duration,
+  certification = "",
+  fee = "",
+  videos = [],
+  featureImages = [],
+  overviewImages = [],
+  eyebrow = "",
+  title = "",
+  heading = "",
+  saying,
+  supportingCopy = "",
+  glance = [],
+  htmlId = "overview",
+}: CourseOverviewProps) {
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const resolvedOverview = useMemo(
+    () => mergeOverviewLead(description, overview),
+    [description, overview],
+  );
+  const resolvedSupporting = supportingCopy.trim() ? supportingCopy : undefined;
+  const resolvedHeading = heading.trim() ? heading : undefined;
+  const resolvedSaying = saying?.text?.trim()
+    ? { text: saying.text.trim(), author: saying.author?.trim() ?? "" }
+    : undefined;
+  const showVideoPanel = videos.length > 0;
+  const carouselImages =
+    overviewImages.length > 0
+      ? overviewImages.map(normalizeCmsImage)
+      : featureImages.map((url) => normalizeCmsImage(url));
+  const showImagePanel = !showVideoPanel && carouselImages.length > 0;
+
+  useEffect(() => {
+    if (carouselImages.length > 0) setActiveImageIndex(0);
+  }, [carouselImages.length]);
+
+  const overviewSpecs =
+    glance.length > 0
+      ? glanceToSpecs(glance)
+      : legacyOverviewSpecs(level, duration, certification, fee);
 
   return (
     <section
@@ -120,42 +201,51 @@ export default function CourseOverview({
       <HeroFlourish className="pointer-events-none absolute right-[-8%] top-[5%] h-[450px] w-[450px] rotate-45 text-accent/12" />
       <HeroFlourish className="pointer-events-none absolute bottom-[-5%] left-[-12%] h-[380px] w-[380px] text-primary/4" />
 
-      <Container size="2xl">
+      <Container size="2xl" className="w-full">
         <div className="space-y-10 lg:space-y-12">
           <motion.div
             initial="hidden"
             whileInView="visible"
             viewport={VIEWPORT_ONCE}
             variants={fadeUp}
-            className="max-w-3xl"
+            className="w-full space-y-6"
           >
             <SectionHeader
               eyebrow={eyebrow}
               title={title}
               align="left"
-              className="mb-0!"
+              className="mb-0! max-w-none"
             />
-          </motion.div>
-
-          {/* Text first — full-width editorial column (no quote card) */}
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={VIEWPORT_ONCE}
-            variants={fadeUp}
-            className="space-y-6"
-          >
-            <p className="type-lead text-ink first-letter:float-left first-letter:mr-4 first-letter:mt-1 first-letter:font-serif first-letter:text-6xl first-letter:font-bold first-letter:leading-[0.8] first-letter:text-primary">
-              {overview}
-            </p>
+            {resolvedHeading ? (
+              <h3 className="max-w-3xl font-serif text-2xl font-medium leading-snug tracking-tight text-ink sm:text-3xl lg:text-[2rem] lg:leading-[1.25]">
+                {resolvedHeading}
+              </h3>
+            ) : null}
+            {resolvedOverview ? (
+              <SanitizedHtml
+                html={resolvedOverview}
+                className="cms-overview-lead type-lead text-ink"
+              />
+            ) : null}
             {resolvedSupporting ? (
               <p className="type-lead font-sans leading-relaxed text-ink">
                 {resolvedSupporting}
               </p>
             ) : null}
+            {resolvedSaying ? (
+              <figure className="max-w-3xl border-l-2 border-primary/25 pl-5 sm:pl-6">
+                <blockquote className="font-serif text-xl italic leading-relaxed text-ink sm:text-2xl">
+                  {resolvedSaying.text}
+                </blockquote>
+                {resolvedSaying.author ? (
+                  <figcaption className="mt-3 font-sans text-sm text-muted">
+                    — {resolvedSaying.author}
+                  </figcaption>
+                ) : null}
+              </figure>
+            ) : null}
           </motion.div>
 
-          {/* Media on its own row — homepage video layout */}
           {showVideoPanel ? (
             <motion.div
               initial="hidden"
@@ -299,9 +389,11 @@ export default function CourseOverview({
                     >
                       {spec.value}
                     </p>
-                    <p className="max-w-[16rem] font-sans text-xs leading-relaxed text-ink">
-                      {spec.hint}
-                    </p>
+                    {spec.hint ? (
+                      <p className="max-w-[16rem] font-sans text-xs leading-relaxed text-ink">
+                        {spec.hint}
+                      </p>
+                    ) : null}
                     <span
                       className={`absolute bottom-0 left-6 right-6 h-px origin-left scale-x-0 transition-transform duration-300 group-hover:scale-x-100 sm:left-7 sm:right-7 ${
                         "highlight" in spec && spec.highlight

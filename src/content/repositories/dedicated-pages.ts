@@ -25,6 +25,7 @@ import {
   createEmptyEnquirePageContent,
   createEmptyHomePageContent,
 } from "@/lib/cms/structural-defaults";
+import { resolveGlobalFaqs } from "@/content/repositories/faqs";
 import { db } from "@/lib/db";
 import { normalizeHomeCourseRefs } from "@/content/mappers/home-courses";
 
@@ -265,25 +266,14 @@ export function normalizeBookingContent(value: unknown): BookingPageContent {
 async function hydrateHomeFromLegacySettings(
   content: HomePageContent,
 ): Promise<HomePageContent> {
-  const needsFaqs = !content.faqs?.faqs?.length;
   const needsReviews = !content.testimonials?.reviews?.length;
-  if (!needsFaqs && !needsReviews) return content;
 
   const next = structuredClone(content);
-
-  if (needsFaqs) {
-    const row = await db.globalSettings.findUnique({
-      where: { key: "homeFaqs" },
-      select: { value: true },
-    });
-    const faqs = (row?.value as HomeFaqsContent | null)?.faqs;
-    if (faqs?.length) {
-      next.faqs = {
-        ...next.faqs,
-        faqs,
-      };
-    }
-  }
+  const faqResult = await resolveGlobalFaqs("homeFaqs", next.faqs?.faqs ?? []);
+  next.faqs = {
+    ...next.faqs,
+    faqs: faqResult.data,
+  };
 
   if (needsReviews) {
     const row = await db.globalSettings.findUnique({

@@ -1,4 +1,8 @@
 import { extractMediaFromModules } from "@/content/mappers/page-modules";
+import {
+  hydratePageModulesFaqs,
+  resolvePageFaqs,
+} from "@/content/repositories/faqs";
 import { getPageModules } from "@/content/repositories/page-modules";
 import { getExamCertification } from "@/content/repositories/shared-sections";
 import type { OnlineCourseDocument } from "@/content/types";
@@ -14,6 +18,15 @@ export async function loadOnlineCoursePageData(
     getExamCertification().catch(() => null),
   ]);
   const modules = modulesResult.data;
+  const hydratedModules = modules
+    ? ((await hydratePageModulesFaqs(slug, modules).catch(() => modules)) ??
+      modules)
+    : modules;
+  const faqResult = await resolvePageFaqs(slug, course.faqs).catch(() => ({
+    data: course.faqs,
+    source: "db" as const,
+  }));
+  const hydratedCourse = { ...course, faqs: faqResult.data };
   const media = modules
     ? extractMediaFromModules(modules)
     : { images: [], videos: [] };
@@ -23,10 +36,10 @@ export async function loadOnlineCoursePageData(
   );
 
   return {
-    course,
+    course: hydratedCourse,
     media,
     videos,
-    modules,
+    modules: hydratedModules,
     examCertification: examCertificationResult?.data ?? null,
   };
 }

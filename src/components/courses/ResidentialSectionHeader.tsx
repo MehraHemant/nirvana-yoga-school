@@ -6,16 +6,19 @@ import { SectionHeader } from "@/components/ui";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 
 type ResidentialSectionHeaderProps = {
+  /** Small uppercase label above the section title */
+  eyebrow?: string;
   /** Serif H2 title (may include accent spans) */
   title: ReactNode;
 };
 
 /**
- * Shared “Residential Life” section header used by Accommodation and Food.
+ * Shared residential section header used by Accommodation and Food.
  *
- * @param props - Section title node
+ * @param props - Optional eyebrow and section title node
  */
 export function ResidentialSectionHeader({
+  eyebrow = "Residential Life",
   title,
 }: ResidentialSectionHeaderProps) {
   return (
@@ -27,7 +30,7 @@ export function ResidentialSectionHeader({
       className="space-y-4 border-b border-ink/5 pb-5"
     >
       <SectionHeader
-        eyebrow="Residential Life"
+        eyebrow={eyebrow.trim() || "Residential Life"}
         title={title}
         align="left"
         className="mb-0"

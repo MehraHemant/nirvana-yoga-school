@@ -20,6 +20,8 @@ type NestedItemCardProps = {
   collapsible?: boolean;
   /** Initial open state when `collapsible` (default false) */
   defaultOpen?: boolean;
+  /** When true, shows `index` as-is instead of `index + 1` */
+  zeroBased?: boolean;
   children: React.ReactNode;
 };
 
@@ -37,10 +39,12 @@ export function NestedItemCard({
   subtitle,
   collapsible = false,
   defaultOpen = false,
+  zeroBased = false,
   children,
 }: NestedItemCardProps) {
   const [open, setOpen] = useState(defaultOpen);
   const expanded = !collapsible || open;
+  const displayNum = zeroBased ? index : index + 1;
 
   return (
     <article
@@ -61,7 +65,7 @@ export function NestedItemCard({
               {dragHandleProps ? (
                 <DragHandle dragHandleProps={dragHandleProps} />
               ) : null}
-              <span className="admin-nested-card-num">{index + 1}</span>
+              <span className="admin-nested-card-num">{displayNum}</span>
               <span className="admin-nested-card-heading">
                 <span className="admin-nested-card-label">{title}</span>
                 {subtitle ? (
@@ -75,7 +79,7 @@ export function NestedItemCard({
             {dragHandleProps ? (
               <DragHandle dragHandleProps={dragHandleProps} />
             ) : null}
-            <span className="admin-nested-card-num">{index + 1}</span>
+            <span className="admin-nested-card-num">{displayNum}</span>
             <span className="admin-nested-card-heading">
               <span className="admin-nested-card-label">{title}</span>
               {subtitle ? (

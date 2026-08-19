@@ -18,8 +18,25 @@ type Requirement = {
   title: string;
   desc: string;
   num: string;
+  sort?: number;
   icon?: ElementType;
 };
+
+/**
+ * Orders requirements by `sort`, falling back to list order.
+ *
+ * @param requirements - Eligibility cards from CMS or defaults
+ */
+function sortRequirements(requirements: Requirement[]): Requirement[] {
+  return requirements
+    .map((req, index) => ({ req, index }))
+    .sort((a, b) => {
+      const sortA = a.req.sort ?? a.index * 10;
+      const sortB = b.req.sort ?? b.index * 10;
+      return sortA - sortB;
+    })
+    .map(({ req }) => req);
+}
 
 type CourseEligibilityProps = {
   /** Override default YTT prerequisite cards */
@@ -37,25 +54,25 @@ const DEFAULT_REQUIREMENTS: Requirement[] = [
   {
     title: "Practitioner Level",
     desc: "Perfect for beginner to intermediate practitioners wishing to deepen their practice, learn alignment, and obtain credentials to teach. No prior teaching experience required.",
-    num: "01",
+    num: "0",
     icon: BookOpen,
   },
   {
     title: "Sincere Will to Grow",
     desc: "Applicants should nurture a genuine study of and dedication to living by yoga, supporting balance, mindfulness, and inner peace.",
-    num: "02",
+    num: "1",
     icon: Compass,
   },
   {
     title: "Language Proficiency",
     desc: "Courses are conducted fully in English. A basic understanding is required to participate in lectures, philosophy debates, and teaching practicums.",
-    num: "03",
+    num: "2",
     icon: Check,
   },
   {
     title: "Age Guideline",
     desc: "To ensure the maturity, responsibility, and physical preparedness required for intensive ashram living, applicants must be at least 16 years of age.",
-    num: "04",
+    num: "3",
     icon: Shield,
   },
 ];
@@ -120,10 +137,12 @@ export default function CourseEligibility({
   showAllianceBadge = true,
   htmlId = "eligibility",
 }: CourseEligibilityProps) {
-  const resolvedRequirements = requirements.map((req, index) => ({
-    ...req,
-    icon: req.icon ?? FALLBACK_ICONS[index % FALLBACK_ICONS.length],
-  }));
+  const resolvedRequirements = sortRequirements(requirements).map(
+    (req, index) => ({
+      ...req,
+      icon: req.icon ?? FALLBACK_ICONS[index % FALLBACK_ICONS.length],
+    }),
+  );
 
   return (
     <section id={htmlId} className="py-20 sm:py-28 bg-white overflow-hidden">

@@ -1,6 +1,15 @@
 import type { BlogContentBlock } from "@/content/types";
 
 /**
+ * Detect whether a string contains HTML markup.
+ *
+ * @param text - Raw CMS field value
+ */
+export function containsHtmlMarkup(text: string): boolean {
+  return /<[a-z][\s\S]*>/i.test(text.trim());
+}
+
+/**
  * Escape plain text for safe HTML insertion when migrating legacy blocks.
  *
  * @param text - Raw block text
@@ -54,6 +63,48 @@ export function resolveBlogBodyHtml(
 ): string {
   if (bodyHtml?.trim()) return bodyHtml;
   return blogBlocksToHtml(blocks);
+}
+
+/**
+ * Convert plain text (with optional line breaks) into paragraph HTML.
+ *
+ * @param text - Plain text CMS value
+ * @returns HTML with `p` and `br` tags only
+ */
+export function plainTextToParagraphHtml(text: string): string {
+  const trimmed = text.trim();
+  if (!trimmed) return "";
+
+  return trimmed
+    .split(/\n{2,}/)
+    .map((paragraph) => {
+      const inner = escapeHtml(paragraph).replace(/\n/g, "<br>");
+      return `<p>${inner}</p>`;
+    })
+    .join("");
+}
+
+/**
+ * Resolve inline rich text for rendering — keep HTML or upgrade legacy plain text.
+ *
+ * @param text - Stored CMS value (plain text or HTML)
+ */
+export function resolveInlineRichTextHtml(text: string): string {
+  const trimmed = text.trim();
+  if (!trimmed) return "";
+  if (containsHtmlMarkup(trimmed)) return trimmed;
+  return plainTextToParagraphHtml(trimmed);
+}
+
+/**
+ * Normalize a CMS value for the TipTap editor (plain text → paragraph HTML).
+ *
+ * @param text - Stored CMS value (plain text or HTML)
+ */
+export function resolveEditorHtml(text: string): string {
+  if (!text.trim()) return "<p></p>";
+  if (containsHtmlMarkup(text)) return text;
+  return plainTextToParagraphHtml(text) || "<p></p>";
 }
 
 /**

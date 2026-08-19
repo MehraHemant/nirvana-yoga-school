@@ -22,5 +22,6 @@ export type {
   SearchableSelectProps,
 } from "./SearchableSelect";
 export { default as SearchableSelect } from "./SearchableSelect";
+export { SanitizedHtml } from "./SanitizedHtml";
 export { default as SectionHeader } from "./SectionHeader";
 export { default as TabSwitcher } from "./TabSwitcher";

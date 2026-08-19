@@ -28,6 +28,7 @@ import {
   roomFeesFromLinkedItems,
   upsertRetreatPackageForRoom,
 } from "@/content/mappers/page-room-fees";
+import { roomDisplayTitle } from "@/content/lodging/room-catalog";
 import { createEmptyPageModules } from "@/content/page-modules-defaults";
 import type { PageModulesDocument, RetreatDocument } from "@/content/types";
 import type { RoomRecord } from "@/content/types/shared-sections";
@@ -254,7 +255,7 @@ export function RetreatEditor({
         const pkg = packageByRoomId.get(room.id);
         return {
           roomId: room.id,
-          name: pkg?.title || room.name || room.slug,
+          name: pkg?.title || roomDisplayTitle(room),
           price: pkg?.price || "",
           originalPrice: pkg?.originalPrice || "",
         };
@@ -785,6 +786,8 @@ export function RetreatEditor({
             <FaqModuleEditor
               faqs={modules.faqs ?? { items: [] }}
               onChange={(faqs) => setModules({ ...modules, faqs })}
+              pageSlug={slug}
+              adminTag="retreat"
               panelId={panelId("faq")}
               step={11}
               description="Questions and answers shown in the retreat FAQ accordion. Drag to reorder."

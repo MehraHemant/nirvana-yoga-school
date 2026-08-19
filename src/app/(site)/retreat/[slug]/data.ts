@@ -4,10 +4,9 @@ import {
   getPageIdBySlug,
   getPageRoomOffers,
 } from "@/content/repositories/lodging";
-import {
-  hydrateModulesFromLodgingTables,
-  offersToRetreatPackages,
-} from "@/content/repositories/lodging-sync";
+import { hydrateModulesFromPageTables } from "@/content/repositories/page-modules-sync";
+import { offersToRetreatPackages } from "@/content/repositories/lodging-sync";
+import { hydratePageModulesFaqs } from "@/content/repositories/faqs";
 import { getPageModules } from "@/content/repositories/page-modules";
 import {
   getExamCertification,
@@ -48,10 +47,16 @@ export async function loadRetreatPageData(
   ]);
 
   const modules =
-    (await hydrateModulesFromLodgingTables(
+    (await hydrateModulesFromPageTables(
       retreat.slug,
       modulesResult.data,
     ).catch(() => modulesResult.data)) ?? modulesResult.data;
+
+  const hydratedModules = modules
+    ? ((await hydratePageModulesFaqs(retreat.slug, modules).catch(
+        () => modules,
+      )) ?? modules)
+    : modules;
 
   const pageLodging =
     modules?.residentialLife ??
@@ -86,7 +91,7 @@ export async function loadRetreatPageData(
   return {
     retreat: retreatDoc,
     mapped: mapRetreatPage(retreatDoc, residentialLife),
-    modules,
+    modules: hydratedModules,
     residentialLife,
     whyNirvana: whyNirvana?.data ?? null,
     reviews: reviews?.data ?? null,

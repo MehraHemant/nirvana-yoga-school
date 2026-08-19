@@ -1,3 +1,4 @@
+import { roomDisplayTitle } from "@/content/lodging/room-catalog";
 import { hasResidentialLifeContent } from "@/content/mappers/residential-life-utils";
 import type {
   ResidentialLifeContent,
@@ -22,16 +23,21 @@ import {
 function roomToGallery(room: RoomRecord) {
   return {
     id: room.id,
-    label: room.name,
+    label: roomDisplayTitle(room),
     description: room.description,
     images: room.images,
     live: room.live !== false,
+    eyebrow: room.eyebrow?.trim() || undefined,
   };
 }
 
 /** Stay intro + facilities stored beside the rooms catalog. */
 export type SharedAccommodationMeta = {
   live?: boolean;
+  /** Section eyebrow above the lodging H2 on product pages. */
+  eyebrow?: string;
+  /** Section H2 above the lodging gallery on product pages. */
+  title?: string;
   stay: { title: string; description: string };
   facilities: SharedFacility[];
 };
@@ -68,6 +74,8 @@ export function normalizeResidentialLife(
     accommodation: {
       _id: raw.accommodation?._id,
       live: raw.accommodation?.live !== false,
+      title: raw.accommodation?.title ?? "",
+      eyebrow: raw.accommodation?.eyebrow ?? "",
       catalog: raw.accommodation?.catalog,
       stay: {
         title: raw.accommodation?.stay?.title ?? "",
@@ -104,6 +112,8 @@ export function normalizeSharedAccommodationMeta(
 ): SharedAccommodationMeta {
   return {
     live: raw?.live !== false,
+    eyebrow: raw?.eyebrow ?? "",
+    title: raw?.title ?? "",
     stay: {
       title: raw?.stay?.title ?? "",
       description: raw?.stay?.description ?? "",
@@ -127,6 +137,8 @@ export function coerceSharedAccommodationMeta(
     const doc = normalizeResidentialLife(raw);
     return normalizeSharedAccommodationMeta({
       live: doc.live,
+      eyebrow: doc.accommodation.eyebrow,
+      title: doc.accommodation.title,
       stay: doc.accommodation.stay,
       facilities: doc.facilities,
     });
@@ -257,6 +269,8 @@ export function sharedMetaToResidentialLife(
     live: meta.live !== false,
     accommodation: {
       live: true,
+      title: meta.title?.trim() ?? "",
+      eyebrow: meta.eyebrow?.trim() ?? "",
       stay: meta.stay,
       galleries: [],
     },
@@ -409,6 +423,11 @@ export function mergeSharedResidentialLife(input: {
     accommodation: {
       _id: page.accommodation._id,
       live: page.accommodation.live !== false,
+      title:
+        page.accommodation.title?.trim() ||
+        meta.title?.trim() ||
+        "",
+      eyebrow: meta.eyebrow?.trim() || "",
       catalog: input.catalog,
       stay: {
         title: meta.stay.title.trim(),
@@ -423,6 +442,10 @@ export function mergeSharedResidentialLife(input: {
       live: page.food.live !== false && food.live !== false,
       content: {
         ...baseContent,
+        title:
+          legacyFood.content.title?.trim() ||
+          baseContent.title?.trim() ||
+          "",
         points: [...baseContent.points, ...(legacyFood.extraPoints ?? [])],
       },
       gallery: [...baseGallery, ...(legacyFood.extraGallery ?? [])],

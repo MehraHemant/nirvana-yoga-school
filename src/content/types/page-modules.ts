@@ -127,10 +127,22 @@ export type GlanceItem = {
   hint?: string;
 };
 
+/** Quote / saying block in the overview section. */
+export type OverviewSaying = {
+  text: string;
+  author: string;
+};
+
 export type OverviewModule = ModuleLiveFields & {
   eyebrow: string;
   title: string;
+  /** Short intro under the section title */
+  description?: string;
+  /** Optional subheading above the lead body */
+  heading?: string;
   lead: string;
+  /** Quote with attribution shown in the overview body */
+  saying?: OverviewSaying;
   supportingCopy?: string;
   glance: GlanceItem[];
   media: {
@@ -156,6 +168,11 @@ export type InclusionsModule = ModuleLiveFields & {
   title?: string;
   description?: string;
   items: string[];
+  /** Optional left-column tip box (hidden when body is empty) */
+  arrivalSupport?: {
+    title?: string;
+    body?: string;
+  };
 };
 
 /** One benefit card in the online-hub “Why online” band. */
@@ -176,6 +193,8 @@ export type EligibilityRequirement = {
   num: string;
   title: string;
   desc: string;
+  /** Display order (0, 10, 20…); array order is authoritative when omitted */
+  sort?: number;
 };
 
 export type EligibilityModule = ModuleLiveFields & {

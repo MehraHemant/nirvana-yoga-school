@@ -30,6 +30,7 @@ import type {
   WhyNirvanaContent,
   YttHubContent,
 } from "@/content/types/shared-sections";
+import { resolveGlobalFaqs } from "@/content/repositories/faqs";
 import { fetchGlobalSettingsFromDb } from "@/lib/cms/cache";
 import { hasExamCertificationContent } from "@/lib/cms/section-visibility";
 import {
@@ -300,6 +301,7 @@ export async function resolveProductResidentialLife(
           accommodation: {
             _id: pageOverrides?.accommodation?._id,
             live: accommodationLive,
+            title: pageOverrides?.accommodation?.title,
             catalog,
             stay: pageOverrides?.accommodation?.stay ?? {
               title: "",
@@ -330,6 +332,7 @@ export async function resolveProductResidentialLife(
 
   const emptyMeta = {
     live: true,
+    title: "",
     stay: { title: "", description: "" },
     facilities: [] as SharedAccommodationMeta["facilities"],
   };
@@ -379,10 +382,13 @@ export async function getReviews(
 export async function getHomeFaqs(
   options?: RepositoryOptions,
 ): Promise<ContentResult<HomeFaqsContent>> {
-  return requireDb(
-    () => requireGlobalSetting<HomeFaqsContent>("homeFaqs"),
-    options,
-  );
+  return requireDb(async () => {
+    const stored = await requireGlobalSetting<HomeFaqsContent>("homeFaqs");
+    const faqs = (
+      await resolveGlobalFaqs("homeFaqs", stored.faqs ?? [], options)
+    ).data;
+    return { ...stored, faqs };
+  }, options);
 }
 
 /**
@@ -436,10 +442,13 @@ export async function getExamCertification(
 export async function getVenueFaqs(
   options?: RepositoryOptions,
 ): Promise<ContentResult<VenueFaqsContent>> {
-  return requireDb(
-    () => requireGlobalSetting<VenueFaqsContent>("venueFaqs"),
-    options,
-  );
+  return requireDb(async () => {
+    const stored = await requireGlobalSetting<VenueFaqsContent>("venueFaqs");
+    const faqs = (
+      await resolveGlobalFaqs("venueFaqs", stored.faqs ?? [], options)
+    ).data;
+    return { ...stored, faqs };
+  }, options);
 }
 
 /**
@@ -565,10 +574,13 @@ export async function getTravelGuide(
 export async function getYttHub(
   options?: RepositoryOptions,
 ): Promise<ContentResult<YttHubContent>> {
-  return requireDb(
-    () => requireGlobalSetting<YttHubContent>("yttHub"),
-    options,
-  );
+  return requireDb(async () => {
+    const stored = await requireGlobalSetting<YttHubContent>("yttHub");
+    const faqs = (
+      await resolveGlobalFaqs("yttHub", stored.faqs ?? [], options)
+    ).data;
+    return { ...stored, faqs };
+  }, options);
 }
 
 /**

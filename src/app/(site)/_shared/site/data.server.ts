@@ -1,5 +1,6 @@
 import { isVenuePage } from "@/content/mappers/venue-page";
-import { hydrateModulesFromLodgingTables } from "@/content/repositories/lodging-sync";
+import { hydrateModulesFromPageTables } from "@/content/repositories/page-modules-sync";
+import { hydratePageModulesFaqs } from "@/content/repositories/faqs";
 import { getPageModules } from "@/content/repositories/page-modules";
 import {
   getExamCertification,
@@ -48,13 +49,18 @@ export async function loadSitePageDataAsync(page: SitePageDocument) {
   ]);
 
   const modules =
-    (await hydrateModulesFromLodgingTables(page.slug, modulesResult.data).catch(
+    (await hydrateModulesFromPageTables(page.slug, modulesResult.data).catch(
       () => modulesResult.data,
     )) ?? modulesResult.data;
 
+  const hydratedModules = modules
+    ? ((await hydratePageModulesFaqs(page.slug, modules).catch(() => modules)) ??
+      modules)
+    : modules;
+
   const data = loadSitePageData(
     page,
-    modules,
+    hydratedModules,
     venueFaqsResult?.data.faqs ?? [],
   );
 

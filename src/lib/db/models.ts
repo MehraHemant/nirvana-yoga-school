@@ -41,7 +41,9 @@ export type ModelName =
   | "pageRoomOffer"
   | "pageSectionFlag"
   | "pageDateBatch"
-  | "pageSeo";
+  | "pageSeo"
+  | "faq"
+  | "pageFaqAssignment";
 
 export type ModelMeta = {
   /** Postgres table name */
@@ -615,6 +617,8 @@ export const MODELS: Record<ModelName, ModelMeta> = {
       catalog: "catalog",
       slug: "slug",
       name: "name",
+      title: "title",
+      eyebrow: "eyebrow",
       description: "description",
       features: "features",
       images: "images",
@@ -629,6 +633,8 @@ export const MODELS: Record<ModelName, ModelMeta> = {
       booleanFields: ["live"],
       defaultCreate: {
         name: "",
+        title: "",
+        eyebrow: "",
         description: "",
         features: [],
         images: [],
@@ -842,6 +848,48 @@ export const MODELS: Record<ModelName, ModelMeta> = {
         noIndex: false,
       },
       updatedAt: "updatedAt",
+    },
+  ),
+
+  faq: meta(
+    "faqs",
+    {
+      id: "id",
+      question: "question",
+      answer: "answer",
+      category: "category",
+      adminTag: "admin_tag",
+      createdAt: "created_at",
+      updatedAt: "updated_at",
+    },
+    {
+      defaultCreate: {
+        question: "",
+        answer: "",
+        category: "general",
+        adminTag: "",
+      },
+      updatedAt: "updatedAt",
+    },
+  ),
+
+  pageFaqAssignment: meta(
+    "page_faq_assignments",
+    {
+      id: "id",
+      contextType: "context_type",
+      contextKey: "context_key",
+      faqId: "faq_id",
+      sortOrder: "sort_order",
+      extras: "extras",
+      createdAt: "created_at",
+    },
+    {
+      jsonFields: ["extras"],
+      defaultCreate: {
+        sortOrder: 0,
+        extras: {},
+      },
     },
   ),
 };

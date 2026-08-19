@@ -189,6 +189,7 @@ export function createEmptyResidentialLife(): ResidentialLifeContent {
     live: true,
     accommodation: {
       live: true,
+      title: "",
       stay: { title: "", description: "" },
       galleries: [],
       extraRooms: [],
@@ -371,6 +372,7 @@ export function createEmptyTravelGuide(): TravelGuideContent {
 export function createEmptyWhyNirvana(): WhyNirvanaContent {
   return {
     live: true,
+    heading: "",
     highlights: [],
     closing: "",
     banner: "",

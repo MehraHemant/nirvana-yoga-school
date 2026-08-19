@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { HeroFrame } from "@/components/hero";
@@ -54,7 +54,6 @@ type HeroPhoto = CmsInteractiveImage & {
 const HERO_MAIN_WIDTH = 1280;
 const HERO_BENTO_WIDTH = 480;
 const HERO_THUMB_WIDTH = 160;
-const HERO_PRELOAD_WIDTH = 640;
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -198,6 +197,11 @@ export default function CourseHero({
 
   // ── State ─────────────────────────────────────────────────────────────────
   const [photoIdx, setPhotoIdx] = useState(0);
+  /** Visible main photo — stays on previous slide until the target image has loaded */
+  const [shownPhotoIdx, setShownPhotoIdx] = useState(0);
+  const [loadedPhotoUrls, setLoadedPhotoUrls] = useState<Set<string>>(
+    () => new Set(),
+  );
   const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
   const [hovered, setHovered] = useState(false);
   const [lightboxIdx, setLightboxIdx] = useState(0);
@@ -219,7 +223,7 @@ export default function CourseHero({
     return () => clearInterval(t);
   }, [prefersReduced, hovered, activeVideoId, photos.length]);
 
-  // ── Preload adjacent images (sized URLs — avoid competing with LCP) ───────
+  // ── Preload adjacent hero URLs (same transform as main stage) ─────────────
   useEffect(() => {
     if (photos.length <= 1) return;
     const toLoad = [
@@ -231,10 +235,30 @@ export default function CourseHero({
       const url = photos[i]?.url;
       if (url) {
         const img = new window.Image();
-        img.src = cloudinarySizedUrl(url, HERO_PRELOAD_WIDTH);
+        img.src = cloudinaryHeroUrl(url, HERO_MAIN_WIDTH);
       }
     }
   }, [photoIdx, photos]);
+
+  // ── Advance visible slide once target image is ready ──────────────────────
+  useEffect(() => {
+    const targetUrl = photos[photoIdx]?.url;
+    if (targetUrl && loadedPhotoUrls.has(targetUrl)) {
+      setShownPhotoIdx(photoIdx);
+    }
+  }, [photoIdx, photos, loadedPhotoUrls]);
+
+  const markPhotoLoaded = (url: string, index: number) => {
+    setLoadedPhotoUrls((prev) => {
+      if (prev.has(url)) return prev;
+      const next = new Set(prev);
+      next.add(url);
+      return next;
+    });
+    if (index === photoIdx) {
+      setShownPhotoIdx(index);
+    }
+  };
 
   // ── Filmstrip centering ───────────────────────────────────────────────────
   useEffect(() => {
@@ -356,42 +380,49 @@ export default function CourseHero({
         >
           {/* ── Large featured cell ─────────────────────────────────────── */}
           <div className="relative h-full min-h-0 overflow-hidden rounded-2xl bg-sand/70 md:col-span-2 md:row-span-2 md:rounded-3xl">
-            <AnimatePresence mode="wait" initial={false}>
-              {activeVideoId ? (
-                <motion.iframe
-                  key={`v-${activeVideoId}`}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  src={`https://www.youtube.com/embed/${activeVideoId}?autoplay=1&rel=0&modestbranding=1`}
-                  title={ytTitle(activeVideoId, 0)}
-                  allow="autoplay; fullscreen; encrypted-media"
-                  allowFullScreen
-                  className="absolute inset-0 h-full w-full border-0 bg-ink"
-                />
-              ) : activePhoto ? (
-                <motion.div
-                  key={photoIdx}
-                  initial={false}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: prefersReduced ? undefined : 0 }}
-                  transition={{ duration: prefersReduced ? 0 : 0.2 }}
-                  className="absolute inset-0"
-                >
+            {activeVideoId ? (
+              <motion.iframe
+                key={`v-${activeVideoId}`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: prefersReduced ? 0 : 0.2 }}
+                src={`https://www.youtube.com/embed/${activeVideoId}?autoplay=1&rel=0&modestbranding=1`}
+                title={ytTitle(activeVideoId, 0)}
+                allow="autoplay; fullscreen; encrypted-media"
+                allowFullScreen
+                className="absolute inset-0 h-full w-full border-0 bg-ink"
+              />
+            ) : (
+              photos.map((photo, i) => {
+                const isTarget = i === photoIdx;
+                const isShown = i === shownPhotoIdx;
+                const targetLoaded = loadedPhotoUrls.has(photo.url);
+                const visible =
+                  (isTarget && targetLoaded) ||
+                  (isShown && (!targetLoaded || isTarget));
+                const opacityClass = visible ? "opacity-100" : "opacity-0";
+                const transitionClass = prefersReduced
+                  ? "transition-none"
+                  : "transition-opacity duration-300 ease-out";
+
+                return (
                   <Image
-                    src={cloudinaryHeroUrl(activePhoto.url, HERO_MAIN_WIDTH)}
-                    alt={activeAlt}
+                    key={photo.url}
+                    src={cloudinaryHeroUrl(photo.url, HERO_MAIN_WIDTH)}
+                    alt={isTarget ? activeAlt : ""}
                     fill
-                    priority={photoIdx === 0}
-                    fetchPriority={photoIdx === 0 ? "high" : "auto"}
-                    loading={photoIdx === 0 ? "eager" : "lazy"}
+                    priority={i === 0}
+                    fetchPriority={i === 0 ? "high" : "auto"}
+                    loading={i === 0 ? "eager" : "lazy"}
                     sizes="(max-width:768px)100vw,50vw"
-                    className="object-cover object-center"
+                    aria-hidden={!isTarget}
+                    onLoad={() => markPhotoLoaded(photo.url, i)}
+                    className={`absolute inset-0 object-cover object-center ${transitionClass} ${opacityClass}`}
+                    style={{ zIndex: visible ? (isTarget ? 2 : 1) : 0 }}
                   />
-                </motion.div>
-              ) : null}
-            </AnimatePresence>
+                );
+              })
+            )}
 
             {/* Course meta — frosted overlay on main photo */}
             {hasMeta && !activeVideoId && (

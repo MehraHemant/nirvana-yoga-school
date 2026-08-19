@@ -40,14 +40,20 @@ function RoomTypeSelector({
   galleries,
   activeId,
   onChange,
+  eyebrow = "Choose your room",
 }: {
   galleries: SharedAccommodationGallery[];
   activeId: string;
   onChange: (id: string) => void;
+  /** Label above the room list; active room eyebrow overrides when set. */
+  eyebrow?: string;
 }) {
+  const activeRoom = galleries.find((room) => room.id === activeId);
+  const label = activeRoom?.eyebrow?.trim() || eyebrow;
+
   return (
     <div className="space-y-2">
-      <p className="type-eyebrow text-secondary">Choose your room</p>
+      <p className="type-eyebrow text-secondary">{label}</p>
       <div className="flex flex-col gap-2">
         {galleries.map((room) => {
           const isActive = room.id === activeId;
@@ -234,10 +240,15 @@ export default function Accommodation({
         <div className="grid items-start gap-6 lg:grid-cols-12 lg:gap-8 xl:gap-10">
           <div className="flex min-w-0 flex-col gap-5 lg:col-span-5">
             <ResidentialSectionHeader
+              eyebrow={content.accommodation.eyebrow?.trim() || "Residential Life"}
               title={
-                <>
-                  Ashram <span className="text-primary">Accommodation</span>
-                </>
+                content.accommodation.title?.trim() ? (
+                  content.accommodation.title
+                ) : (
+                  <>
+                    Ashram <span className="text-primary">Accommodation</span>
+                  </>
+                )
               }
             />
 

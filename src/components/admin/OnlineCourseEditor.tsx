@@ -17,6 +17,7 @@ import {
   toSectionDomId,
 } from "@/components/admin/sectionDomId";
 import { TeachersPicker } from "@/components/admin/TeachersPicker";
+import { PageFaqAssignmentsEditor } from "@/components/admin/PageFaqAssignmentsEditor";
 import { TextField } from "@/components/admin/TextField";
 import { useAdminSectionAccordion } from "@/components/admin/useAdminSectionAccordion";
 import { useSectionScrollSpy } from "@/components/admin/useSectionScrollSpy";
@@ -186,7 +187,6 @@ export function OnlineCourseEditor({
   const pricingKeys = useStableListKeys(course.pricing.length);
   const syllabusKeys = useStableListKeys(course.syllabus.length);
   const testimonialKeys = useStableListKeys(course.testimonials.length);
-  const faqKeys = useStableListKeys(course.faqs.length);
   const selectedTeacherSlugs = course.teachers.map((t) => teacherSlug(t.name));
   const { openOnly, panelOpenProps } =
     useAdminSectionAccordion(ONLINE_PANEL_KEYS);
@@ -627,29 +627,12 @@ export function OnlineCourseEditor({
               title="FAQ"
               {...panelOpenProps("faq")}
             >
-              {course.faqs.map((faq, index) => (
-                <div key={faqKeys.keys[index]} className="admin-nested-card">
-                  <TextField
-                    label="Question"
-                    value={faq.question}
-                    onChange={(question) => {
-                      const faqs = [...course.faqs];
-                      faqs[index] = { ...faq, question };
-                      setCourse({ ...course, faqs });
-                    }}
-                  />
-                  <TextField
-                    label="Answer"
-                    value={faq.answer}
-                    onChange={(answer) => {
-                      const faqs = [...course.faqs];
-                      faqs[index] = { ...faq, answer };
-                      setCourse({ ...course, faqs });
-                    }}
-                    multiline
-                  />
-                </div>
-              ))}
+              <PageFaqAssignmentsEditor
+                contextType="page"
+                contextKey={slug}
+                adminTag="online-course"
+                idPrefix="online-course-faq"
+              />
             </CollapsiblePanel>
           </div>
         </div>

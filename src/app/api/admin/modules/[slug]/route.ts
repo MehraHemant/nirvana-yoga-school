@@ -1,9 +1,9 @@
 import { revalidatePath } from "next/cache";
 import { dropOrphanPricingOptions } from "@/content/mappers/page-room-fees";
 import {
-  hydrateModulesFromLodgingTables,
-  syncLodgingTablesFromModules,
-} from "@/content/repositories/lodging-sync";
+  hydrateModulesFromPageTables,
+  syncPageTablesFromModules,
+} from "@/content/repositories/page-modules-sync";
 import type { PageModulesDocument } from "@/content/types";
 import {
   jsonMutationOk,
@@ -54,8 +54,7 @@ export async function GET(
 
   const base = resolvePageModulesForEditor(page.pageModules, page.title);
   const modules =
-    (await hydrateModulesFromLodgingTables(slug, base).catch(() => base)) ??
-    base;
+    (await hydrateModulesFromPageTables(slug, base).catch(() => base)) ?? base;
 
   return jsonOk({
     modules,
@@ -95,8 +94,8 @@ export async function PUT(
   }
 
   const page = await upsertPageModules(slug, body);
-  await syncLodgingTablesFromModules(page.id, body).catch((error) => {
-    console.error("[modules PUT] lodging sync failed", error);
+  await syncPageTablesFromModules(page.id, body).catch((error) => {
+    console.error("[modules PUT] page tables sync failed", error);
   });
   revalidatePath("/course", "layout");
   revalidatePath("/online-course", "layout");

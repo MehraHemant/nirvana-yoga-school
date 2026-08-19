@@ -1,3 +1,4 @@
+import { roomDisplayTitle } from "@/content/lodging/room-catalog";
 import type { RetreatPackage } from "@/content/types/retreat-page";
 import type { CoursePricingOption } from "@/content/types/shared";
 import type { RoomRecord } from "@/content/types/shared-sections";
@@ -64,7 +65,7 @@ function roomCatalogFields(room: RoomRecord): {
   image?: string;
 } {
   return {
-    roomType: room.name,
+    roomType: roomDisplayTitle(room),
     description: room.description ?? "",
     features: room.features ?? [],
     image: room.images[0]?.url,

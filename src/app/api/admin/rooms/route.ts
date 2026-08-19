@@ -49,6 +49,8 @@ export async function POST(request: Request) {
       catalog,
       slug,
       name,
+      title: String(body.title ?? ""),
+      eyebrow: String(body.eyebrow ?? ""),
       description: String(body.description ?? ""),
       features: Array.isArray(body.features)
         ? body.features

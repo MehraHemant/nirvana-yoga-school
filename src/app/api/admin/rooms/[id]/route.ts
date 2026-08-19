@@ -28,6 +28,8 @@ export async function PUT(
             : undefined,
       slug: body.slug !== undefined ? String(body.slug) : undefined,
       name: body.name !== undefined ? String(body.name) : undefined,
+      title: body.title !== undefined ? String(body.title) : undefined,
+      eyebrow: body.eyebrow !== undefined ? String(body.eyebrow) : undefined,
       description:
         body.description !== undefined ? String(body.description) : undefined,
       features: Array.isArray(body.features)

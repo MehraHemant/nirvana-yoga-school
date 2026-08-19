@@ -1,4 +1,4 @@
-import { roomMediaTag } from "@/content/lodging/room-catalog";
+import { roomDisplayTitle, roomMediaTag } from "@/content/lodging/room-catalog";
 import type {
   RoomCatalog,
   RoomRecord,
@@ -139,6 +139,8 @@ function mapRoomRow(
     catalog: row.catalog === "retreat" ? "retreat" : "course",
     slug: String(row.slug ?? ""),
     name: String(row.name ?? ""),
+    title: String(row.title ?? ""),
+    eyebrow: String(row.eyebrow ?? ""),
     description: String(row.description ?? ""),
     features,
     images:
@@ -217,6 +219,8 @@ export type UpsertRoomInput = {
   catalog: RoomCatalog;
   slug: string;
   name: string;
+  title?: string;
+  eyebrow?: string;
   description?: string;
   features?: string[];
   images?: SharedGalleryImage[];
@@ -241,6 +245,8 @@ export async function createRoom(input: UpsertRoomInput): Promise<RoomRecord> {
       catalog: input.catalog,
       slug: input.slug.trim(),
       name: input.name.trim(),
+      title: input.title?.trim() ?? "",
+      eyebrow: input.eyebrow?.trim() ?? "",
       description: input.description?.trim() ?? "",
       features,
       images,
@@ -279,6 +285,8 @@ export async function updateRoom(
   if (input.catalog !== undefined) data.catalog = input.catalog;
   if (input.slug !== undefined) data.slug = input.slug.trim();
   if (input.name !== undefined) data.name = input.name.trim();
+  if (input.title !== undefined) data.title = input.title.trim();
+  if (input.eyebrow !== undefined) data.eyebrow = input.eyebrow.trim();
   if (input.description !== undefined) {
     data.description = input.description.trim();
   }
@@ -339,8 +347,9 @@ export async function deleteRoom(id: string): Promise<void> {
 export function roomToGallery(room: RoomRecord) {
   return {
     id: room.id,
-    label: room.name,
+    label: roomDisplayTitle(room),
     description: room.description,
     images: room.images,
+    eyebrow: room.eyebrow?.trim() || undefined,
   };
 }

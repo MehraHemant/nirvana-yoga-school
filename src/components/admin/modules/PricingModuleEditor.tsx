@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import type { PageRoomFee } from "@/content/mappers/page-room-fees";
 import type { PricingBatch, PricingModule } from "@/content/types/page-modules";
+import { roomDisplayTitle } from "@/content/lodging/room-catalog";
 import type { RoomCatalog, RoomRecord } from "@/content/types/shared-sections";
 import { parseApiJson } from "@/lib/types/api";
 import { CollapsiblePanel } from "../CollapsiblePanel";
@@ -122,7 +123,7 @@ export function PricingModuleEditor({
           const fee = roomFees[room.id];
           return {
             roomId: room.id,
-            name: option?.roomType || room.name || room.slug,
+            name: option?.roomType || roomDisplayTitle(room),
             price: fee?.price || option?.price || "",
             originalPrice: fee?.originalPrice || option?.originalPrice || "",
           };

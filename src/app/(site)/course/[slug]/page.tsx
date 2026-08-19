@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getResidentialCourse, getResidentialCourseSlugs } from "@/content";
 import { getPageModules } from "@/content/repositories/page-modules";
-import { metadataForSlug } from "../../_shared/metadata";
+import { metadataFromPageSeo } from "../../_shared/metadata";
 import CourseClient from "./CourseClient";
 import { loadCoursePageData } from "./data";
 
@@ -31,7 +31,7 @@ export async function generateMetadata({
 }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const modulesResult = await getPageModules(slug).catch(() => null);
-  return metadataForSlug(slug, modulesResult?.data?.meta);
+  return metadataFromPageSeo(modulesResult?.data?.meta);
 }
 
 export default async function Page({ params }: PageProps) {

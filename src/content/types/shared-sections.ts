@@ -29,6 +29,8 @@ export type SharedAccommodationGallery = {
   description: string;
   images: SharedGalleryImage[];
   live: boolean;
+  /** Small label above the room selector or gallery (e.g. "Choose your room"). */
+  eyebrow?: string;
 };
 
 export type SharedFacility = {
@@ -53,7 +55,12 @@ export type RoomRecord = {
   id: string;
   catalog: RoomCatalog;
   slug: string;
+  /** Internal / admin identifier; public labels use {@link title} when set. */
   name: string;
+  /** Public-facing room label on accommodation and lodging UI. */
+  title?: string;
+  /** Small label above the room selector when this room is active. */
+  eyebrow?: string;
   description: string;
   /** Bullet features shown on public pricing / room cards. */
   features: string[];
@@ -82,6 +89,10 @@ export type SharedFoodContent = SharedSectionLiveFields & {
  */
 export type ResidentialLifeContent = SharedSectionLiveFields & {
   accommodation: SectionIdFields & {
+    /** Section H2 from shared accommodation settings (e.g. Ashram Accommodation). */
+    title?: string;
+    /** Section eyebrow from shared accommodation settings (e.g. Residential Life). */
+    eyebrow?: string;
     /** Catalog used when resolving shared rooms (defaults by page type). */
     catalog?: RoomCatalog;
     stay: { title: string; description: string };
@@ -143,6 +154,8 @@ export type SharedFaq = {
   answer: string;
   image?: string;
   tag?: string;
+  /** One of the four fixed FAQ categories (defaults to General when omitted). */
+  category?: import("@/content/types/faq-categories").FaqCategoryId;
   /** Display order (0, 10, 20…); array order is authoritative when omitted */
   sort?: number;
 };
@@ -152,6 +165,8 @@ export type HomeFaqsContent = SharedSectionLiveFields & {
 };
 
 export type WhyNirvanaContent = SharedSectionLiveFields & {
+  /** Optional subheading above the highlights grid */
+  heading?: string;
   highlights: Array<{ title: string; body: string }>;
   closing: string;
   banner?: string;
@@ -166,7 +181,8 @@ export type ExamCertificationContent = SharedSectionLiveFields & {
     title: string;
     tag: string;
     description: string;
-    image: string;
+    /** @deprecated Unused on public site; kept for stored CMS JSON compatibility */
+    image?: string;
   }>;
   certificates: Array<{
     title: string;
@@ -210,7 +226,8 @@ export type TravelGuideContent = SharedSectionLiveFields & {
   topics: Array<{
     id: string;
     title: string;
-    tag: string;
+    /** @deprecated Unused in UI; kept for stored CMS JSON compatibility */
+    tag?: string;
     content: string;
     image: string;
     imageAlt: string;

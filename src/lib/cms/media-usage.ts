@@ -42,8 +42,6 @@ type LodgingFoodUsageRow = {
   count: bigint | number;
 };
 
-const EMPTY_USAGE: MediaUsageResult = { inUse: false, references: [] };
-
 /**
  * Builds unique match tokens for a media asset (id, url, Cloudinary public id).
  *
@@ -331,8 +329,8 @@ function addReference(
   const current = map.get(assetId) ?? { inUse: false, references: [] };
   if (!current.references.includes(label)) {
     current.references.push(label);
-    current.inUse = true;
   }
+  current.inUse = true;
   map.set(assetId, current);
 }
 
@@ -342,7 +340,9 @@ function addReference(
  * @param assets - Assets to track
  */
 function emptyUsageMap(assets: MediaAssetRef[]): Map<string, MediaUsageResult> {
-  return new Map(assets.map((asset) => [asset.id, { ...EMPTY_USAGE }]));
+  return new Map(
+    assets.map((asset) => [asset.id, { inUse: false, references: [] }]),
+  );
 }
 
 /**
@@ -427,7 +427,7 @@ async function loadJsonScanSources(): Promise<JsonScanSource[]> {
       select: { catalog: true, name: true, images: true, videos: true },
     }),
     db.courseDocument.findMany({ select: { document: true } }),
-    db.blogPost.findMany({ select: { content: true, bodyHtml: true } }),
+    db.blogPost.findMany({ select: { slug: true, content: true, bodyHtml: true } }),
     db.pageSection.findMany({ select: { images: true, blocks: true } }),
   ]);
 
@@ -446,13 +446,13 @@ async function loadJsonScanSources(): Promise<JsonScanSource[]> {
     }
     if (page.pageModules != null) {
       sources.push({
-        label: "page module JSON",
+        label: `${slug} → page modules`,
         text: JSON.stringify(page.pageModules),
       });
     }
     if (page.contentData != null) {
       sources.push({
-        label: "page content JSON",
+        label: `${slug} → page content`,
         text: JSON.stringify(page.contentData),
       });
     }
@@ -506,14 +506,15 @@ async function loadJsonScanSources(): Promise<JsonScanSource[]> {
   }
 
   for (const post of blogPosts) {
+    const slug = String(post.slug ?? "blog post").trim() || "blog post";
     if (post.content != null) {
       sources.push({
-        label: "blog content JSON",
+        label: `${slug} → blog content`,
         text: JSON.stringify(post.content),
       });
     }
     if (post.bodyHtml) {
-      sources.push({ label: "blog body HTML", text: post.bodyHtml });
+      sources.push({ label: `${slug} → blog body`, text: post.bodyHtml });
     }
   }
 
@@ -708,5 +709,5 @@ export async function getMediaAssetUsage(
   asset: MediaAssetRef,
 ): Promise<MediaUsageResult> {
   const usageMap = await getMediaAssetsUsage([asset]);
-  return usageMap.get(asset.id) ?? { ...EMPTY_USAGE };
+  return usageMap.get(asset.id) ?? { inUse: false, references: [] };
 }

@@ -1,13 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AdminSaveBar } from "@/components/admin/AdminSaveBar";
 import { AdminSectionJumpNav } from "@/components/admin/AdminSectionJumpNav";
 import { CollapsiblePanel } from "@/components/admin/CollapsiblePanel";
 import { ImageField } from "@/components/admin/ImageField";
 import { NestedItemCard } from "@/components/admin/NestedItemCard";
-import { RoomsCatalogEditor } from "@/components/admin/RoomsCatalogEditor";
+import {
+  RoomsCatalogEditor,
+  type RoomsCatalogEditorHandle,
+} from "@/components/admin/RoomsCatalogEditor";
+import {
+  FaqCatalogEditor,
+  type FaqCatalogEditorHandle,
+} from "@/components/admin/FaqCatalogEditor";
 import { SectionLiveField } from "@/components/admin/SectionLiveField";
 import { SelectField } from "@/components/admin/SelectField";
 import {
@@ -21,7 +28,6 @@ import { useStableListKeys } from "@/components/admin/useStableListKeys";
 import {
   coerceSharedAccommodationMeta,
   normalizeSharedFood,
-  residentialLifeToRetreatAccommodation,
   sharedMetaToResidentialLife,
 } from "@/content/mappers/residential-life";
 import type {
@@ -46,6 +52,9 @@ import { parseApiJson } from "@/lib/types/api";
 const SHARED_KEYS = GLOBAL_SHARED_SECTION_KEYS;
 
 type SharedKey = (typeof SHARED_KEYS)[number];
+
+/** Shared sections hub tab — global settings key or FAQ catalog. */
+type ActiveSection = SharedKey | "faqCatalog";
 
 type SharedValue =
   | WhyNirvanaContent
@@ -157,6 +166,7 @@ function emptySharedDoc(key: SharedKey): SharedValue {
   if (key === "residentialLife" || key === "retreatAccommodation") {
     return {
       live: true,
+      title: "",
       stay: { title: "", description: "" },
       facilities: [],
     } satisfies SharedAccommodationMeta;
@@ -211,27 +221,43 @@ function coerceLoadedValue(key: SharedKey, raw: SharedValue): SharedValue {
  * Admin hub for global shared section documents including lodging catalogs.
  */
 export function SharedSectionsEditor() {
-  const [active, setActive] = useState<SharedKey>("whyNirvana");
+  const [active, setActive] = useState<ActiveSection>("whyNirvana");
   const [value, setValue] = useState<SharedValue | null>(null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [baseline, setBaseline] = useState("");
+  const [roomsDirty, setRoomsDirty] = useState(false);
+  const [faqCatalogDirty, setFaqCatalogDirty] = useState(false);
+  const roomsCatalogRef = useRef<RoomsCatalogEditorHandle>(null);
+  const faqCatalogRef = useRef<FaqCatalogEditorHandle>(null);
 
   useEffect(() => {
-    const hash = window.location.hash.replace("#", "") as SharedKey;
+    const hash = window.location.hash.replace("#", "");
+    if (hash === "faqCatalog") {
+      setActive("faqCatalog");
+      return;
+    }
     if ((SHARED_KEYS as readonly string[]).includes(hash)) {
-      setActive(hash);
+      setActive(hash as SharedKey);
     }
   }, []);
 
   useEffect(() => {
+    if (active === "faqCatalog") {
+      setLoading(false);
+      setValue(null);
+      setError("");
+      setSaved(false);
+      return;
+    }
     let cancelled = false;
     setLoading(true);
     setValue(null);
     setError("");
     setSaved(false);
+    setRoomsDirty(false);
     fetch(`/api/admin/settings/${active}`)
       .then((res) => parseApiJson<{ settings: SharedValue }>(res))
       .then((body) => {
@@ -263,30 +289,52 @@ export function SharedSectionsEditor() {
   }, [active]);
 
   async function handleSave() {
+    if (active === "faqCatalog") {
+      setSaving(true);
+      setSaved(false);
+      setError("");
+      try {
+        await faqCatalogRef.current?.saveAll();
+        setSaved(true);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to save FAQs");
+      } finally {
+        setSaving(false);
+      }
+      return;
+    }
     if (!value) return;
     setSaving(true);
     setSaved(false);
     setError("");
+    const isLodgingSection =
+      active === "residentialLife" || active === "retreatAccommodation";
     try {
       let payload: SharedValue = value;
-      if (active === "retreatAccommodation") {
-        const meta = coerceSharedAccommodationMeta(value);
-        payload = residentialLifeToRetreatAccommodation(
-          sharedMetaToResidentialLife(meta),
-        );
-      } else if (active === "residentialLife") {
+      if (active === "residentialLife" || active === "retreatAccommodation") {
         payload = sharedMetaToResidentialLife(
           coerceSharedAccommodationMeta(value),
         );
-      } else if (active === "courseFood" || active === "retreatFood") {
+      }
+      if (active === "courseFood" || active === "retreatFood") {
         payload = normalizeSharedFood(value as SharedFoodContent);
       }
-      const res = await fetch(`/api/admin/settings/${active}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ value: payload }),
-      });
-      await parseApiJson(res);
+      const saves: Promise<unknown>[] = [
+        parseApiJson(
+          await fetch(`/api/admin/settings/${active}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ value: payload }),
+          }),
+        ),
+      ];
+      if (
+        isLodgingSection &&
+        roomsCatalogRef.current?.hasUnsavedChanges()
+      ) {
+        saves.push(roomsCatalogRef.current.saveAll());
+      }
+      await Promise.all(saves);
       setBaseline(JSON.stringify(value));
       setSaved(true);
     } catch (err) {
@@ -296,15 +344,24 @@ export function SharedSectionsEditor() {
     }
   }
 
-  const dirty = Boolean(value) && JSON.stringify(value) !== baseline;
-  const panelItems = SHARED_PANEL_ITEMS[active] ?? [];
+  const metaDirty = Boolean(value) && JSON.stringify(value) !== baseline;
+  const dirty =
+    active === "faqCatalog" ? faqCatalogDirty : metaDirty || roomsDirty;
+  const panelItems =
+    active === "faqCatalog" ? [] : (SHARED_PANEL_ITEMS[active] ?? []);
   const activePanelId = useSectionScrollSpy(panelItems.map((item) => item.id));
   const showJumpNav = panelItems.length >= 2;
   const isLodging =
     active === "residentialLife" || active === "retreatAccommodation";
   const isFood = active === "courseFood" || active === "retreatFood";
 
-  const fields = value ? (
+  const fields =
+    active === "faqCatalog" ? (
+      <FaqCatalogEditor
+        ref={faqCatalogRef}
+        onDirtyChange={setFaqCatalogDirty}
+      />
+    ) : value ? (
     active === "whyNirvana" ? (
       <WhyNirvanaFields doc={value as WhyNirvanaContent} onChange={setValue} />
     ) : active === "examCertification" ? (
@@ -331,7 +388,9 @@ export function SharedSectionsEditor() {
           onChange={setValue}
         />
         <RoomsCatalogEditor
+          ref={roomsCatalogRef}
           catalog={active === "retreatAccommodation" ? "retreat" : "course"}
+          onDirtyChange={setRoomsDirty}
         />
       </div>
     ) : isFood ? (
@@ -386,24 +445,52 @@ export function SharedSectionsEditor() {
             </div>
           </div>
         ))}
+        <div className="admin-shared-nav__group">
+          <p className="admin-shared-nav__label">Content library</p>
+          <div
+            className="admin-shared-nav__tabs"
+            role="tablist"
+            aria-label="Content library"
+          >
+            <button
+              type="button"
+              role="tab"
+              aria-selected={active === "faqCatalog"}
+              className={`admin-shared-tab${active === "faqCatalog" ? " is-active" : ""}`}
+              onClick={() => {
+                setActive("faqCatalog");
+                window.location.hash = "faqCatalog";
+              }}
+            >
+              <span className="admin-shared-tab__label">FAQ catalog</span>
+              <span className="admin-shared-tab__hint">Shared Q&amp;A</span>
+            </button>
+          </div>
+        </div>
       </div>
 
       <div className="admin-shared-active-banner">
         <div>
           <p className="admin-cms-kicker">Editing</p>
           <h2 className="admin-shared-active-banner__title">
-            {LABELS[active]}
+            {active === "faqCatalog" ? "FAQ catalog" : LABELS[active]}
           </h2>
           <p className="admin-shared-active-banner__desc">
-            {DESCRIPTIONS[active]}
+            {active === "faqCatalog"
+              ? "Central FAQ library reused across pages with per-page ordering."
+              : DESCRIPTIONS[active]}
           </p>
         </div>
       </div>
 
       {error ? <p className="admin-error">{error}</p> : null}
 
-      {loading || !value ? (
-        <p className="admin-hint">Loading {LABELS[active]}…</p>
+      {active === "faqCatalog" ? (
+        <div className="admin-editor-sections">{fields}</div>
+      ) : loading || !value ? (
+        <p className="admin-hint">
+          Loading {LABELS[active as SharedKey]}…
+        </p>
       ) : showJumpNav ? (
         <div className="admin-editor-layout">
           <AdminSectionJumpNav
@@ -417,11 +504,13 @@ export function SharedSectionsEditor() {
       )}
 
       <AdminSaveBar
-        title={LABELS[active]}
+        title={active === "faqCatalog" ? "FAQ catalog" : LABELS[active as SharedKey]}
         subtitle={
-          isLodging
-            ? `Stay & facilities · global_settings.${active}`
-            : `global_settings.${active}`
+          active === "faqCatalog"
+            ? "faqs + page_faq_assignments"
+            : isLodging
+              ? `Stay & facilities · global_settings.${active}`
+              : `global_settings.${active}`
         }
         saving={saving}
         saved={saved}
@@ -446,7 +535,7 @@ function WhyNirvanaFields({
   onChange: (next: WhyNirvanaContent) => void;
 }) {
   const highlights = doc.highlights ?? [];
-  const keys = useStableListKeys(highlights.length);
+  const { keys, addKey, removeKey } = useStableListKeys(highlights.length);
   return (
     <CollapsiblePanel
       id="shared-why-nirvana"
@@ -461,8 +550,25 @@ function WhyNirvanaFields({
         />
       }
     >
+      <TextField
+        label="Heading"
+        value={doc.heading ?? ""}
+        onChange={(heading) => onChange({ ...doc, heading })}
+        hint="Subheading above the highlights grid on the public page."
+      />
       {highlights.map((item, index) => (
-        <div key={keys.keys[index]} className="admin-nested-card">
+        <NestedItemCard
+          key={keys[index]}
+          title={item.title || `Highlight ${index + 1}`}
+          index={index}
+          onRemove={() => {
+            removeKey(index);
+            onChange({
+              ...doc,
+              highlights: highlights.filter((_, i) => i !== index),
+            });
+          }}
+        >
           <TextField
             label="Title"
             value={item.title}
@@ -483,7 +589,7 @@ function WhyNirvanaFields({
             multiline
             rows={6}
           />
-        </div>
+        </NestedItemCard>
       ))}
       <TextField
         label="Closing"
@@ -495,12 +601,13 @@ function WhyNirvanaFields({
       <button
         type="button"
         className="admin-btn-sm"
-        onClick={() =>
+        onClick={() => {
+          addKey();
           onChange({
             ...doc,
             highlights: [...highlights, { title: "", body: "" }],
-          })
-        }
+          });
+        }}
       >
         Add highlight
       </button>
@@ -542,6 +649,7 @@ function ExamCertificationFields({
         id="shared-exam-intro"
         title="Intro"
         defaultOpen
+        subtitle={doc.live !== false ? "Live" : "Hidden"}
         description="Shared across course, online course, retreat, and hub pages. Each page toggles Exam & certification under Modules → Visibility."
         actions={
           <SectionLiveField
@@ -570,36 +678,53 @@ function ExamCertificationFields({
           multiline
           rows={4}
         />
-        <div className="admin-hint admin-hint--padded" role="status">
-          <p style={{ margin: 0, fontWeight: 600 }}>
-            Public visibility checklist
-          </p>
-          <ul style={{ margin: "0.5rem 0 0", paddingLeft: "1.25rem" }}>
-            <li>
-              Shared Live:{" "}
-              {doc.live !== false ? "on" : "off (hidden everywhere)"}
-            </li>
-            <li>
-              Intro copy:{" "}
-              {hasCopy ? "filled" : "empty (optional if steps/certs exist)"}
-            </li>
-            <li>Evaluation steps with content: {filledSteps}</li>
-            <li>Certificates with content: {filledCerts}</li>
-            <li>
-              Will appear on pages with Exam &amp; certification enabled:{" "}
+        <div
+          className="admin-hint admin-hint--padded"
+          role="status"
+          aria-label="Public visibility summary"
+        >
+          <div className="admin-list-row-actions admin-list-row-actions--compact">
+            <span
+              className={`admin-status-chip${
+                doc.live !== false
+                  ? " admin-status-chip--ok"
+                  : " admin-status-chip--warn"
+              }`}
+            >
+              {doc.live !== false ? "Live site-wide" : "Hidden site-wide"}
+            </span>
+            <span
+              className={`admin-status-chip${
+                willShowPublicly
+                  ? " admin-status-chip--ok"
+                  : " admin-status-chip--warn"
+              }`}
+            >
               {willShowPublicly
-                ? "yes — after save"
-                : "no — turn Live on and add title/description, steps, or certificates"}
-            </li>
-          </ul>
+                ? "Visible on enabled pages"
+                : "Not visible publicly"}
+            </span>
+          </div>
+          <p className="admin-hint">
+            {filledSteps} evaluation step{filledSteps === 1 ? "" : "s"} ·{" "}
+            {filledCerts} certificate{filledCerts === 1 ? "" : "s"}
+            {!hasCopy && filledSteps === 0 && filledCerts === 0
+              ? " · Add intro copy, steps, or certificates to publish"
+              : null}
+          </p>
         </div>
       </CollapsiblePanel>
 
       <CollapsiblePanel
         id="shared-exam-steps"
         title="Evaluation steps"
-        defaultOpen
-        description="Numbered process shown beside certificates on the public section."
+        defaultOpen={steps.length > 0}
+        subtitle={
+          steps.length > 0
+            ? `${filledSteps} of ${steps.length} filled`
+            : "No steps yet"
+        }
+        description="Numbered list on the public section — title, tag, and description only."
       >
         <div className="admin-nested-list-head">
           <span className="admin-label">Steps</span>
@@ -610,10 +735,7 @@ function ExamCertificationFields({
               stepKeys.addKey();
               onChange({
                 ...doc,
-                steps: [
-                  ...steps,
-                  { title: "", tag: "", description: "", image: "" },
-                ],
+                steps: [...steps, { title: "", tag: "", description: "" }],
               });
             }}
           >
@@ -622,14 +744,18 @@ function ExamCertificationFields({
         </div>
         {steps.length === 0 ? (
           <p className="admin-hint">
-            No steps yet. Add at least one for the process list.
+            No steps yet. Add the exam process in order — each step appears as a
+            numbered item on the public page.
           </p>
         ) : null}
         {steps.map((step, index) => (
           <NestedItemCard
             key={stepKeys.keys[index]}
             title={step.title || `Step ${index + 1}`}
+            subtitle={step.tag?.trim() || undefined}
             index={index}
+            collapsible
+            defaultOpen={steps.length <= 2 || index === 0}
             onRemove={() => {
               stepKeys.removeKey(index);
               onChange({
@@ -650,6 +776,7 @@ function ExamCertificationFields({
               />
               <TextField
                 label="Tag"
+                hint="Short label shown above the title, e.g. Practical exam"
                 value={step.tag}
                 onChange={(tag) => {
                   const next = [...steps];
@@ -669,15 +796,6 @@ function ExamCertificationFields({
               multiline
               rows={3}
             />
-            <ImageField
-              label="Image (optional)"
-              value={step.image}
-              onChange={(image) => {
-                const next = [...steps];
-                next[index] = { ...step, image };
-                onChange({ ...doc, steps: next });
-              }}
-            />
           </NestedItemCard>
         ))}
       </CollapsiblePanel>
@@ -685,8 +803,13 @@ function ExamCertificationFields({
       <CollapsiblePanel
         id="shared-exam-certificates"
         title="Certificates"
-        defaultOpen
-        description="Certificate images open in a lightbox on the public section."
+        defaultOpen={certificates.length > 0}
+        subtitle={
+          certificates.length > 0
+            ? `${filledCerts} of ${certificates.length} filled`
+            : "No certificates yet"
+        }
+        description="Upload certificate artwork — images stack on the public section and open in a lightbox."
       >
         <div className="admin-nested-list-head">
           <span className="admin-label">Certificates</span>
@@ -709,14 +832,18 @@ function ExamCertificationFields({
         </div>
         {certificates.length === 0 ? (
           <p className="admin-hint">
-            No certificates yet. Add images via the media picker.
+            No certificates yet. Add a certificate image plus optional title and
+            subtitle for the lightbox.
           </p>
         ) : null}
         {certificates.map((certificate, index) => (
           <NestedItemCard
             key={certificateKeys.keys[index]}
             title={certificate.title || `Certificate ${index + 1}`}
+            subtitle={certificate.subtitle?.trim() || undefined}
             index={index}
+            collapsible
+            defaultOpen={certificates.length <= 2 || index === 0}
             onRemove={() => {
               certificateKeys.removeKey(index);
               onChange({
@@ -725,24 +852,6 @@ function ExamCertificationFields({
               });
             }}
           >
-            <TextField
-              label="Title"
-              value={certificate.title}
-              onChange={(title) => {
-                const next = [...certificates];
-                next[index] = { ...certificate, title };
-                onChange({ ...doc, certificates: next });
-              }}
-            />
-            <TextField
-              label="Subtitle"
-              value={certificate.subtitle}
-              onChange={(subtitle) => {
-                const next = [...certificates];
-                next[index] = { ...certificate, subtitle };
-                onChange({ ...doc, certificates: next });
-              }}
-            />
             <ImageField
               label="Certificate image"
               value={certificate.image}
@@ -752,6 +861,26 @@ function ExamCertificationFields({
                 onChange({ ...doc, certificates: next });
               }}
             />
+            <div className="admin-grid-2">
+              <TextField
+                label="Title"
+                value={certificate.title}
+                onChange={(title) => {
+                  const next = [...certificates];
+                  next[index] = { ...certificate, title };
+                  onChange({ ...doc, certificates: next });
+                }}
+              />
+              <TextField
+                label="Subtitle"
+                value={certificate.subtitle}
+                onChange={(subtitle) => {
+                  const next = [...certificates];
+                  next[index] = { ...certificate, subtitle };
+                  onChange({ ...doc, certificates: next });
+                }}
+              />
+            </div>
           </NestedItemCard>
         ))}
       </CollapsiblePanel>
@@ -937,6 +1066,35 @@ function InstagramFields({
  *
  * @param props - Document and change handler
  */
+const TRAVEL_ICON_OPTIONS: Array<{
+  value: TravelGuideContent["topics"][number]["iconKey"];
+  label: string;
+}> = [
+  { value: "shield", label: "Shield" },
+  { value: "plane", label: "Plane" },
+  { value: "leaf", label: "Leaf" },
+  { value: "compass", label: "Compass" },
+  { value: "wallet", label: "Wallet" },
+  { value: "wifi", label: "Wi‑Fi" },
+];
+
+/** Creates an empty travel topic with a stable id for the accordion. */
+function createEmptyTravelTopic(): TravelGuideContent["topics"][number] {
+  return {
+    id: crypto.randomUUID(),
+    title: "",
+    content: "",
+    image: "",
+    imageAlt: "",
+    iconKey: "compass",
+  };
+}
+
+/**
+ * Shared travel guide fields with collapsible topic cards.
+ *
+ * @param props - Document and change handler
+ */
 function TravelFields({
   doc,
   onChange,
@@ -944,10 +1102,27 @@ function TravelFields({
   doc: TravelGuideContent;
   onChange: (next: TravelGuideContent) => void;
 }) {
-  const topicKeys = useStableListKeys(doc.topics?.length ?? 0);
-  const factKeys = useStableListKeys(doc.quickFacts?.length ?? 0);
+  const {
+    keys: topicKeys,
+    addKey: addTopicKey,
+    removeKey: removeTopicKey,
+  } = useStableListKeys(doc.topics?.length ?? 0);
+  const {
+    keys: factKeys,
+    addKey: addFactKey,
+    removeKey: removeFactKey,
+  } = useStableListKeys(doc.quickFacts?.length ?? 0);
   const topics = doc.topics ?? [];
   const quickFacts = doc.quickFacts ?? [];
+  const filledTopics = topics.filter(
+    (topic) =>
+      topic.title?.trim() ||
+      topic.content?.trim() ||
+      topic.image?.trim(),
+  ).length;
+  const filledFacts = quickFacts.filter(
+    (fact) => fact.label?.trim() || fact.value?.trim(),
+  ).length;
 
   return (
     <>
@@ -955,7 +1130,7 @@ function TravelFields({
         id="shared-travel-guide"
         title="Travel guide"
         defaultOpen
-        description="Shared travel topics for course and hub pages. Pages only toggle Live."
+        description="Intro copy shown beside the section heading. Pages only toggle Live."
         actions={
           <SectionLiveField
             id="travel-live"
@@ -969,99 +1144,197 @@ function TravelFields({
           value={doc.intro}
           onChange={(intro) => onChange({ ...doc, intro })}
           multiline
+          rows={3}
+          hint="Short paragraph under the section title on course and hub pages."
         />
       </CollapsiblePanel>
+
       <CollapsiblePanel
         id="shared-travel-facts"
         title="Quick facts"
-        defaultOpen
+        defaultOpen={quickFacts.length > 0}
+        subtitle={
+          quickFacts.length > 0
+            ? `${filledFacts} of ${quickFacts.length} filled`
+            : "Optional"
+        }
+        description="Label/value pairs for at-a-glance travel details. Leave empty if unused."
       >
+        <div className="admin-nested-list-head">
+          <span className="admin-label">Facts</span>
+          <button
+            type="button"
+            className="admin-btn-sm"
+            onClick={() => {
+              addFactKey();
+              onChange({
+                ...doc,
+                quickFacts: [...quickFacts, { label: "", value: "" }],
+              });
+            }}
+          >
+            Add fact
+          </button>
+        </div>
+        {quickFacts.length === 0 ? (
+          <p className="admin-hint">
+            No quick facts yet. Add label/value pairs such as airport or visa
+            notes if you want them on the page.
+          </p>
+        ) : null}
         {quickFacts.map((fact, index) => (
-          <div key={factKeys.keys[index]} className="admin-grid-2">
-            <TextField
-              label="Label"
-              value={fact.label}
-              onChange={(label) => {
-                const next = [...quickFacts];
-                next[index] = { ...fact, label };
-                onChange({ ...doc, quickFacts: next });
-              }}
-            />
-            <TextField
-              label="Value"
-              value={fact.value}
-              onChange={(value) => {
-                const next = [...quickFacts];
-                next[index] = { ...fact, value };
-                onChange({ ...doc, quickFacts: next });
-              }}
-            />
-          </div>
+          <NestedItemCard
+            key={factKeys[index]}
+            title={fact.label || `Fact ${index + 1}`}
+            subtitle={fact.value?.trim() || undefined}
+            index={index}
+            collapsible
+            defaultOpen={quickFacts.length <= 2}
+            onRemove={() => {
+              removeFactKey(index);
+              onChange({
+                ...doc,
+                quickFacts: quickFacts.filter((_, i) => i !== index),
+              });
+            }}
+          >
+            <div className="admin-grid-2">
+              <TextField
+                label="Label"
+                value={fact.label}
+                onChange={(label) => {
+                  const next = [...quickFacts];
+                  next[index] = { ...fact, label };
+                  onChange({ ...doc, quickFacts: next });
+                }}
+              />
+              <TextField
+                label="Value"
+                value={fact.value}
+                onChange={(value) => {
+                  const next = [...quickFacts];
+                  next[index] = { ...fact, value };
+                  onChange({ ...doc, quickFacts: next });
+                }}
+              />
+            </div>
+          </NestedItemCard>
         ))}
       </CollapsiblePanel>
-      <CollapsiblePanel id="shared-travel-topics" title="Topics" defaultOpen>
-        {topics.map((topic, index) => (
-          <div key={topicKeys.keys[index]} className="admin-nested-card">
-            <TextField
-              label="Title"
-              value={topic.title}
-              onChange={(title) => {
-                const next = [...topics];
-                next[index] = { ...topic, title };
-                onChange({ ...doc, topics: next });
+
+      <CollapsiblePanel
+        id="shared-travel-topics"
+        title="Topics"
+        defaultOpen
+        subtitle={
+          topics.length > 0
+            ? `${filledTopics} of ${topics.length} filled`
+            : "No topics yet"
+        }
+        description="Accordion items on the public page — title, body, hero image, and icon."
+      >
+        <div className="admin-nested-list-head">
+          <span className="admin-label">Topics</span>
+          <button
+            type="button"
+            className="admin-btn-sm"
+            onClick={() => {
+              addTopicKey();
+              onChange({
+                ...doc,
+                topics: [...topics, createEmptyTravelTopic()],
+              });
+            }}
+          >
+            Add topic
+          </button>
+        </div>
+        {topics.length === 0 ? (
+          <p className="admin-hint">
+            No topics yet. Each topic becomes an accordion row with a hero image
+            when selected.
+          </p>
+        ) : null}
+        {topics.map((topic, index) => {
+          const iconLabel =
+            TRAVEL_ICON_OPTIONS.find((option) => option.value === topic.iconKey)
+              ?.label ?? "Compass";
+
+          return (
+            <NestedItemCard
+              key={topicKeys[index]}
+              title={topic.title || `Topic ${index + 1}`}
+              subtitle={iconLabel}
+              index={index}
+              collapsible
+              defaultOpen={topics.length <= 2 || index === 0}
+              onRemove={() => {
+                removeTopicKey(index);
+                onChange({
+                  ...doc,
+                  topics: topics.filter((_, i) => i !== index),
+                });
               }}
-            />
-            <TextField
-              label="Tag"
-              value={topic.tag}
-              onChange={(tag) => {
-                const next = [...topics];
-                next[index] = { ...topic, tag };
-                onChange({ ...doc, topics: next });
-              }}
-            />
-            <TextField
-              label="Content"
-              value={topic.content}
-              onChange={(content) => {
-                const next = [...topics];
-                next[index] = { ...topic, content };
-                onChange({ ...doc, topics: next });
-              }}
-              multiline
-            />
-            <ImageField
-              label="Image"
-              value={topic.image}
-              onChange={(image) => {
-                const next = [...topics];
-                next[index] = { ...topic, image };
-                onChange({ ...doc, topics: next });
-              }}
-            />
-            <SelectField
-              label="Icon"
-              value={topic.iconKey}
-              options={[
-                { value: "shield", label: "Shield" },
-                { value: "plane", label: "Plane" },
-                { value: "leaf", label: "Leaf" },
-                { value: "compass", label: "Compass" },
-                { value: "wallet", label: "Wallet" },
-                { value: "wifi", label: "Wi‑Fi" },
-              ]}
-              onChange={(iconKey) => {
-                const next = [...topics];
-                next[index] = {
-                  ...topic,
-                  iconKey:
-                    iconKey as TravelGuideContent["topics"][number]["iconKey"],
-                };
-                onChange({ ...doc, topics: next });
-              }}
-            />
-          </div>
-        ))}
+            >
+              <div className="admin-grid-2">
+                <TextField
+                  label="Title"
+                  value={topic.title}
+                  onChange={(title) => {
+                    const next = [...topics];
+                    next[index] = { ...topic, title };
+                    onChange({ ...doc, topics: next });
+                  }}
+                />
+                <SelectField
+                  label="Icon"
+                  value={topic.iconKey}
+                  options={TRAVEL_ICON_OPTIONS}
+                  onChange={(iconKey) => {
+                    const next = [...topics];
+                    next[index] = {
+                      ...topic,
+                      iconKey:
+                        iconKey as TravelGuideContent["topics"][number]["iconKey"],
+                    };
+                    onChange({ ...doc, topics: next });
+                  }}
+                />
+              </div>
+              <TextField
+                label="Content"
+                value={topic.content}
+                onChange={(content) => {
+                  const next = [...topics];
+                  next[index] = { ...topic, content };
+                  onChange({ ...doc, topics: next });
+                }}
+                multiline
+                rows={4}
+                hint="Body copy shown when the topic accordion is expanded."
+              />
+              <ImageField
+                label="Hero image"
+                value={topic.image}
+                onChange={(image) => {
+                  const next = [...topics];
+                  next[index] = { ...topic, image };
+                  onChange({ ...doc, topics: next });
+                }}
+              />
+              <TextField
+                label="Image alt text"
+                value={topic.imageAlt}
+                onChange={(imageAlt) => {
+                  const next = [...topics];
+                  next[index] = { ...topic, imageAlt };
+                  onChange({ ...doc, topics: next });
+                }}
+                hint="Describe the hero image for screen readers."
+              />
+            </NestedItemCard>
+          );
+        })}
       </CollapsiblePanel>
     </>
   );

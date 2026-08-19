@@ -725,6 +725,7 @@ export function ModulePageEditor({
                 overview={modules.overview}
                 onChange={(overview) => setModules({ ...modules, overview })}
                 welcomeStyle={isOnlineHubLayout}
+                hideSupportingCopy={layoutId === "residentialCourse"}
                 {...panelProps(
                   "module-overview",
                   stepOf("module-overview"),
@@ -912,6 +913,14 @@ export function ModulePageEditor({
               <FaqModuleEditor
                 faqs={modules.faqs}
                 onChange={(faqs) => setModules({ ...modules, faqs })}
+                pageSlug={slug}
+                adminTag={
+                  layoutId === "retreat"
+                    ? "retreat"
+                    : layoutId === "venue"
+                      ? "venue"
+                      : "course"
+                }
                 {...panelProps(
                   "module-faq",
                   stepOf("module-faq"),

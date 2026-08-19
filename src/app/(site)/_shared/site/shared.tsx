@@ -96,27 +96,19 @@ export function SiteOverview({
   if (modules) {
     if (!isSectionLive(modules.overview)) return null;
     const overview = modules.overview;
-    const level =
-      overview.glance.find((item) => item.label === "Level")?.value ?? "";
-    const duration =
-      overview.glance.find((item) => item.label === "Duration")?.value ??
-      mapped.duration;
-    const certification =
-      overview.glance.find((item) => item.label === "Certification")?.value ??
-      "";
-    const fee =
-      overview.glance.find((item) => item.label === "Program Fee")?.value ??
-      overview.glance.find((item) => item.label === "Fee")?.value ??
-      "";
 
     return (
       <CourseOverview
         htmlId={resolveSectionHtmlId("overview", overview._id)}
         overview={overview.lead}
-        level={level}
-        duration={duration}
-        certification={certification}
-        fee={fee}
+        description={overview.description}
+        level=""
+        duration={mapped.duration}
+        certification=""
+        fee=""
+        glance={overview.glance}
+        heading={overview.heading}
+        saying={overview.saying}
         featureImages={overview.media.items
           .filter((item) => item.type === "image")
           .map((item) => item.url)}

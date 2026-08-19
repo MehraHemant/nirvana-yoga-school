@@ -1,8 +1,10 @@
 import { getPageRoomOffers } from "@/content/repositories/lodging";
 import {
-  hydrateModulesFromLodgingTables,
+  hydrateModulesFromPageTables,
+  syncPageTablesFromModules,
+} from "@/content/repositories/page-modules-sync";
+import {
   offersToRetreatPackages,
-  syncLodgingTablesFromModules,
 } from "@/content/repositories/lodging-sync";
 import type {
   OnlineCourseDocument,
@@ -53,7 +55,7 @@ export async function GET(
   }
 
   const modules =
-    (await hydrateModulesFromLodgingTables(
+    (await hydrateModulesFromPageTables(
       slug,
       mapPageModulesFromRow(page),
     ).catch(() => mapPageModulesFromRow(page))) ?? mapPageModulesFromRow(page);
@@ -98,8 +100,8 @@ export async function PUT(
     }
     const page = await upsertProductDocument(slug, "online", body.course);
     await upsertPageModules(slug, body.modules);
-    await syncLodgingTablesFromModules(page.id, body.modules).catch((error) => {
-      console.error("[products PUT] lodging sync failed", error);
+    await syncPageTablesFromModules(page.id, body.modules).catch((error) => {
+      console.error("[products PUT] page tables sync failed", error);
     });
     return jsonMutationOk();
   }
@@ -114,12 +116,12 @@ export async function PUT(
       description: body.retreat.description,
     });
     await upsertPageModules(slug, body.modules);
-    await syncLodgingTablesFromModules(
+    await syncPageTablesFromModules(
       page.id,
       body.modules,
       body.retreat,
     ).catch((error) => {
-      console.error("[products PUT] lodging sync failed", error);
+      console.error("[products PUT] page tables sync failed", error);
     });
     return jsonMutationOk();
   }

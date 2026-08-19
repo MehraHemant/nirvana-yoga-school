@@ -96,17 +96,8 @@ export default function CourseClient({
   const m = modules;
   const heroFee = m?.hero.type === "bento-media" ? m.hero.fee : course.fee;
   const overview = m?.overview;
-  const glance = overview?.glance ?? [];
-  const level = glance.find((g) => g.label === "Level")?.value ?? course.level;
-  const duration =
-    glance.find((g) => g.label === "Duration")?.value ?? course.duration;
-  const certification =
-    glance.find((g) => g.label === "Certification")?.value ??
-    course.certification;
-  const fee =
-    glance.find((g) => g.label === "Program Fee")?.value ?? course.fee;
 
-  const faqItems = m?.faqs.items ?? course.faqs;
+  const faqItems = m?.faqs.items?.length ? m.faqs.items : course.faqs;
   const publicPricing = publicPricingOptionsWithFees(
     m?.pricing.options ?? course.pricing,
   );
@@ -208,14 +199,17 @@ export default function CourseClient({
           <CourseOverview
             htmlId={resolveSectionHtmlId("overview", m?.overview._id)}
             overview={overview?.lead ?? course.overview}
-            level={level}
-            duration={duration}
-            certification={certification}
-            fee={fee}
+            description={overview?.description}
+            level={course.level}
+            duration={course.duration}
+            certification={course.certification}
+            fee={course.fee}
+            glance={overview?.glance ?? []}
+            heading={overview?.heading}
+            saying={overview?.saying}
             videos={videos}
             eyebrow={overview?.eyebrow}
             title={overview?.title}
-            supportingCopy={overview?.supportingCopy}
             featureImages={
               overview?.media.mode === "carousel"
                 ? overview.media.items
@@ -246,6 +240,7 @@ export default function CourseClient({
             eyebrow={m?.inclusions.eyebrow}
             title={m?.inclusions.title}
             description={m?.inclusions.description}
+            arrivalSupport={m?.inclusions.arrivalSupport}
           />
         ) : null}
 

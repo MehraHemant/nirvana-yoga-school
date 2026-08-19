@@ -110,6 +110,7 @@ export default function AdminMediaPage() {
         asset.caption,
         asset.alt,
         asset.description,
+        asset.url.split("/").pop(),
         ...asset.tags,
       ]
         .filter(Boolean)

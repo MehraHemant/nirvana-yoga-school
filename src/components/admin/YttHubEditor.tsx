@@ -12,6 +12,7 @@ import { SectionIdField } from "@/components/admin/SectionIdField";
 import { SectionLiveField } from "@/components/admin/SectionLiveField";
 import { StringListField } from "@/components/admin/StringListField";
 import { toSectionDomId } from "@/components/admin/sectionDomId";
+import { PageFaqAssignmentsEditor } from "@/components/admin/PageFaqAssignmentsEditor";
 import { TextField } from "@/components/admin/TextField";
 import { useSectionScrollSpy } from "@/components/admin/useSectionScrollSpy";
 import { useStableListKeys } from "@/components/admin/useStableListKeys";
@@ -95,7 +96,6 @@ export function YttHubEditor({
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
   const dirty = JSON.stringify(doc) !== baseline;
-  const faqKeys = useStableListKeys(doc.faqs.length);
   const statKeys = useStableListKeys(doc.intro.stats.length);
   const trustKeys = useStableListKeys(doc.intro.stats.length);
   const heroVideo = doc.heroVideo ?? EMPTY_HERO_VIDEO;
@@ -673,60 +673,12 @@ export function YttHubEditor({
               value={doc.sectionIds?.faq}
               onChange={(_id) => patchSectionId("faq", _id)}
             />
-            {doc.faqs.map((faq, index) => (
-              <div key={faqKeys.keys[index]} className="admin-nested-card">
-                <div className="admin-nested-card-header">
-                  <span className="admin-nested-card-title">
-                    FAQ {index + 1}
-                  </span>
-                  <button
-                    type="button"
-                    className="admin-btn-sm"
-                    onClick={() => {
-                      faqKeys.removeKey(index);
-                      setDoc({
-                        ...doc,
-                        faqs: doc.faqs.filter((_, i) => i !== index),
-                      });
-                    }}
-                  >
-                    Remove
-                  </button>
-                </div>
-                <TextField
-                  label="Question"
-                  value={faq.question}
-                  onChange={(question) => {
-                    const faqs = [...doc.faqs];
-                    faqs[index] = { ...faq, question };
-                    setDoc({ ...doc, faqs });
-                  }}
-                />
-                <TextField
-                  label="Answer"
-                  value={faq.answer}
-                  onChange={(answer) => {
-                    const faqs = [...doc.faqs];
-                    faqs[index] = { ...faq, answer };
-                    setDoc({ ...doc, faqs });
-                  }}
-                  multiline
-                />
-              </div>
-            ))}
-            <button
-              type="button"
-              className="admin-btn-sm"
-              onClick={() => {
-                faqKeys.addKey();
-                setDoc({
-                  ...doc,
-                  faqs: [...doc.faqs, { question: "", answer: "" }],
-                });
-              }}
-            >
-              Add FAQ
-            </button>
+            <PageFaqAssignmentsEditor
+              contextType="global"
+              contextKey="yttHub"
+              adminTag="ytt-hub"
+              idPrefix="ytt-hub-faq"
+            />
           </CollapsiblePanel>
         </div>
       </div>

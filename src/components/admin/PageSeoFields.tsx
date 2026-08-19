@@ -46,13 +46,15 @@ export function PageSeoFields({ value, onChange }: PageSeoFieldsProps) {
           onChange={(ogImage) => patch({ ogImage })}
           hint="Recommended 1200×630"
         />
-        <TextField
-          label="Keywords"
-          value={meta.keywords ?? ""}
-          onChange={(keywords) => patch({ keywords })}
-          hint="Optional, comma-separated"
-        />
       </div>
+      <TextField
+        label="Keywords"
+        value={meta.keywords ?? ""}
+        onChange={(keywords) => patch({ keywords })}
+        multiline
+        rows={4}
+        hint="Optional, comma-separated"
+      />
       <label className="admin-checkbox-row">
         <input
           type="checkbox"

@@ -81,22 +81,26 @@ export const DEFAULT_ONLINE_NAV: StickyNavItem[] = [
 /** Default YTT admission standard cards. */
 export const DEFAULT_ELIGIBILITY_REQUIREMENTS: EligibilityRequirement[] = [
   {
-    num: "01",
+    num: "0",
+    sort: 0,
     title: "Practitioner Level",
     desc: "Perfect for beginner to intermediate practitioners wishing to deepen their practice, learn alignment, and obtain credentials to teach. No prior teaching experience required.",
   },
   {
-    num: "02",
+    num: "1",
+    sort: 10,
     title: "Sincere Will to Grow",
     desc: "Applicants should nurture a genuine study of and dedication to living by yoga, supporting balance, mindfulness, and inner peace.",
   },
   {
-    num: "03",
+    num: "2",
+    sort: 20,
     title: "Language Proficiency",
     desc: "Courses are conducted fully in English. A basic understanding is required to participate in lectures, philosophy debates, and teaching practicums.",
   },
   {
-    num: "04",
+    num: "3",
+    sort: 30,
     title: "Age Guideline",
     desc: "To ensure the maturity, responsibility, and physical preparedness required for intensive ashram living, applicants must be at least 16 years of age.",
   },

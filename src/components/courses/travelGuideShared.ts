@@ -16,7 +16,6 @@ const ICON_MAP: Record<TravelTopicIconKey, typeof Shield> = {
 export type TravelTopic = {
   id: string;
   title: string;
-  tag: string;
   content: string;
   image: string;
   imageAlt: string;
@@ -32,7 +31,6 @@ export function mapTravelTopics(content: TravelGuideContent): TravelTopic[] {
   return content.topics.map((topic) => ({
     id: topic.id,
     title: topic.title,
-    tag: topic.tag,
     content: topic.content,
     image: topic.image,
     imageAlt: topic.imageAlt,

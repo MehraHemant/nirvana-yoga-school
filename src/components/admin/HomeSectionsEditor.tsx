@@ -10,6 +10,7 @@ import { ImageField } from "@/components/admin/ImageField";
 import { PageSeoFields } from "@/components/admin/PageSeoFields";
 import { SectionIdField } from "@/components/admin/SectionIdField";
 import { SectionLiveField } from "@/components/admin/SectionLiveField";
+import { PageFaqAssignmentsEditor } from "@/components/admin/PageFaqAssignmentsEditor";
 import { SelectField } from "@/components/admin/SelectField";
 import {
   DragHandle,
@@ -35,7 +36,10 @@ import {
   homeCoursesSectionForSave,
   normalizeHomeCourseRefs,
 } from "@/content/mappers/home-courses";
-import type { SharedFaq, SharedReview } from "@/content/types/shared-sections";
+import type {
+  HomeFaqsContent,
+  SharedReview,
+} from "@/content/types/shared-sections";
 import { REVIEW_SOURCE_OPTIONS } from "@/content/types/shared-sections";
 
 const DEFAULT_GALLERY_CATEGORY_OPTIONS = [
@@ -128,7 +132,6 @@ export function HomeSectionsEditor({
   const statKeys = useStableListKeys(doc.welcome.rotatingStats.length);
   const welcomeImageKeys = useStableListKeys(doc.welcome.images.length);
   const reviewKeys = useStableListKeys(doc.testimonials.reviews.length);
-  const faqKeys = useStableListKeys(doc.faqs.faqs.length);
   const galleryKeys = useStableListKeys(doc.gallery.items.length);
   const homeCoursePlacements = normalizeHomeCourseRefs(doc.courses);
   const certKeys = useStableListKeys(doc.yogaAlliance.certifications.length);
@@ -1890,109 +1893,27 @@ export function HomeSectionsEditor({
                 }
               />
             </div>
-            <SortableList
-              ids={faqKeys.keys}
-              onReorder={(fromIndex, toIndex) => {
-                faqKeys.reorderKeys(fromIndex, toIndex);
-                const faqs = withSortField(
-                  reorderItems(doc.faqs.faqs, fromIndex, toIndex),
-                ) as SharedFaq[];
-                setDoc({ ...doc, faqs: { ...doc.faqs, faqs } });
-              }}
-            >
-              {doc.faqs.faqs.map((faq, index) => (
-                <SortableRow key={faqKeys.keys[index]} id={faqKeys.keys[index]}>
-                  {({ dragHandleProps }) => (
-                    <div className="admin-nested-card">
-                      <div className="admin-nested-card-head">
-                        <span className="admin-nested-card-title">
-                          <DragHandle dragHandleProps={dragHandleProps} />
-                          <strong>FAQ {index + 1}</strong>
-                        </span>
-                        <button
-                          type="button"
-                          className="admin-btn-sm admin-btn-sm--danger"
-                          onClick={() => {
-                            faqKeys.removeKey(index);
-                            setDoc({
-                              ...doc,
-                              faqs: {
-                                ...doc.faqs,
-                                faqs: doc.faqs.faqs.filter(
-                                  (_, i) => i !== index,
-                                ),
-                              },
-                            });
-                          }}
-                        >
-                          Remove
-                        </button>
-                      </div>
-                      <div className="admin-grid-2">
-                        <TextField
-                          label="Question"
-                          value={faq.question}
-                          onChange={(question) => {
-                            const faqs = [...doc.faqs.faqs];
-                            faqs[index] = { ...faq, question };
-                            setDoc({ ...doc, faqs: { ...doc.faqs, faqs } });
-                          }}
-                        />
-                        <TextField
-                          label="Tag"
-                          value={faq.tag ?? ""}
-                          onChange={(tag) => {
-                            const faqs = [...doc.faqs.faqs];
-                            faqs[index] = { ...faq, tag };
-                            setDoc({ ...doc, faqs: { ...doc.faqs, faqs } });
-                          }}
-                        />
-                      </div>
-                      <TextField
-                        label="Answer"
-                        value={faq.answer}
-                        onChange={(answer) => {
-                          const faqs = [...doc.faqs.faqs];
-                          faqs[index] = { ...faq, answer };
-                          setDoc({ ...doc, faqs: { ...doc.faqs, faqs } });
-                        }}
-                        multiline
-                        rows={2}
-                      />
-                      <ImageField
-                        label="Image"
-                        value={faq.image ?? ""}
-                        compact
-                        onChange={(image) => {
-                          const faqs = [...doc.faqs.faqs];
-                          faqs[index] = { ...faq, image };
-                          setDoc({ ...doc, faqs: { ...doc.faqs, faqs } });
-                        }}
-                      />
-                    </div>
-                  )}
-                </SortableRow>
-              ))}
-            </SortableList>
-            <button
-              type="button"
-              className="admin-btn-sm"
-              onClick={() => {
-                faqKeys.addKey();
-                const blank: SharedFaq = {
-                  question: "",
-                  answer: "",
-                  image: "",
-                  tag: "",
-                };
-                setDoc({
-                  ...doc,
-                  faqs: { ...doc.faqs, faqs: [...doc.faqs.faqs, blank] },
-                });
-              }}
-            >
-              Add FAQ
-            </button>
+            <PageFaqAssignmentsEditor
+              contextType="global"
+              contextKey="homeFaqs"
+              adminTag="home"
+              idPrefix="home-faq"
+              renderAssignmentExtras={(faq, _index, update) => (
+                <>
+                  <TextField
+                    label="Tag"
+                    value={faq.extras?.tag ?? ""}
+                    onChange={(tag) => update({ tag })}
+                  />
+                  <ImageField
+                    label="Image"
+                    value={faq.extras?.image ?? ""}
+                    compact
+                    onChange={(image) => update({ image })}
+                  />
+                </>
+              )}
+            />
           </CollapsiblePanel>
 
           <CollapsiblePanel

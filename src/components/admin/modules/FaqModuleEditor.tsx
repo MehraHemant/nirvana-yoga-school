@@ -1,57 +1,49 @@
 "use client";
 
 import type { FaqsModule } from "@/content/types";
+import { PageFaqAssignmentsEditor } from "@/components/admin/PageFaqAssignmentsEditor";
 import { CollapsiblePanel } from "../CollapsiblePanel";
-import { ListRowActions } from "../ListRowActions";
 import { SectionIdField } from "../SectionIdField";
-import {
-  reorderItems,
-  SortableList,
-  SortableRow,
-  withSortField,
-} from "../SortableList";
-import { useStableListKeys } from "../useStableListKeys";
 import { ModuleLiveField } from "./ModuleLiveField";
 import type { ModulePanelProps } from "./types";
 
 type FaqModuleEditorProps = ModulePanelProps & {
   faqs: FaqsModule;
   onChange: (faqs: FaqsModule) => void;
+  /** Page slug used for FAQ assignment context. */
+  pageSlug: string;
+  /** Default admin tag for newly created FAQs. */
+  adminTag?: string;
 };
 
 /**
- * FAQ module editor with drag-and-drop question reorder.
+ * FAQ module editor — assigns/reorders FAQs from the shared catalog.
  *
- * @param props - FAQ config and change handler
+ * @param props - FAQ config, page slug, and change handler
  */
 export function FaqModuleEditor({
   faqs,
   onChange,
+  pageSlug,
+  adminTag = "course",
   panelId = "module-faq",
   step = 10,
   description,
   open,
   onOpenChange,
 }: FaqModuleEditorProps) {
-  const { keys, addKey, removeKey, reorderKeys } = useStableListKeys(
-    faqs.items.length,
-  );
-
-  function handleReorder(fromIndex: number, toIndex: number) {
-    reorderKeys(fromIndex, toIndex);
-    const items = withSortField(
-      reorderItems(faqs.items, fromIndex, toIndex),
-    ) as typeof faqs.items;
-    onChange({ ...faqs, items });
-  }
-
   return (
     <CollapsiblePanel
       id={panelId}
       step={step}
       title="FAQ"
-      subtitle={`${faqs.items.length} questions`}
-      description={description}
+      subtitle="Catalog assignments"
+      description={
+        description ??
+        (adminTag === "course"
+          ? "Assign course FAQs from the shared catalog. Use “Add all course FAQs” to populate quickly, then drag to reorder or expand cards to edit."
+          : "Assign FAQs from the shared catalog. Edit question copy in the catalog or inline here.")
+      }
       open={open}
       onOpenChange={onOpenChange}
       actions={
@@ -67,112 +59,12 @@ export function FaqModuleEditor({
         value={faqs._id}
         onChange={(_id) => onChange({ ...faqs, _id })}
       />
-      {faqs.items.length === 0 ? (
-        <div className="admin-empty-card">
-          <p>No FAQs yet.</p>
-          <button
-            type="button"
-            className="admin-btn-sm"
-            onClick={() => {
-              addKey();
-              onChange({
-                ...faqs,
-                items: [{ question: "", answer: "" }],
-              });
-            }}
-          >
-            Add first FAQ
-          </button>
-        </div>
-      ) : (
-        <div className="admin-compact-table-scroll">
-          <div className="admin-compact-table admin-compact-table--form admin-compact-table--faq">
-            <div className="admin-compact-table-head admin-compact-table-row">
-              <span className="admin-compact-col admin-compact-col--num">
-                #
-              </span>
-              <span className="admin-compact-col admin-compact-col--question">
-                Question
-              </span>
-              <span className="admin-compact-col admin-compact-col--answer">
-                Answer
-              </span>
-              <span className="admin-compact-col admin-compact-col--actions">
-                <span className="sr-only">Actions</span>
-              </span>
-            </div>
-            <SortableList ids={keys} onReorder={handleReorder}>
-              {faqs.items.map((faq, index) => (
-                <SortableRow key={keys[index]} id={keys[index]}>
-                  {({ dragHandleProps }) => (
-                    <div className="admin-compact-table-row admin-compact-table-row--tall">
-                      <span className="admin-compact-col admin-compact-col--num">
-                        {index + 1}
-                      </span>
-                      <span className="admin-compact-col admin-compact-col--question">
-                        <input
-                          className="admin-input admin-input--compact"
-                          value={faq.question}
-                          placeholder="What is included?"
-                          onChange={(event) => {
-                            const items = [...faqs.items];
-                            items[index] = {
-                              ...faq,
-                              question: event.target.value,
-                            };
-                            onChange({ ...faqs, items });
-                          }}
-                        />
-                      </span>
-                      <span className="admin-compact-col admin-compact-col--answer">
-                        <textarea
-                          className="admin-textarea admin-textarea--row"
-                          value={faq.answer}
-                          placeholder="Answer text…"
-                          rows={2}
-                          onChange={(event) => {
-                            const items = [...faqs.items];
-                            items[index] = {
-                              ...faq,
-                              answer: event.target.value,
-                            };
-                            onChange({ ...faqs, items });
-                          }}
-                        />
-                      </span>
-                      <span className="admin-compact-col admin-compact-col--actions">
-                        <ListRowActions
-                          dragHandleProps={dragHandleProps}
-                          onRemove={() => {
-                            removeKey(index);
-                            onChange({
-                              ...faqs,
-                              items: faqs.items.filter((_, i) => i !== index),
-                            });
-                          }}
-                        />
-                      </span>
-                    </div>
-                  )}
-                </SortableRow>
-              ))}
-            </SortableList>
-          </div>
-        </div>
-      )}
-      <button
-        type="button"
-        className="admin-btn-sm"
-        onClick={() => {
-          addKey();
-          onChange({
-            ...faqs,
-            items: [...faqs.items, { question: "", answer: "" }],
-          });
-        }}
-      >
-        Add FAQ
-      </button>
+      <PageFaqAssignmentsEditor
+        contextType="page"
+        contextKey={pageSlug}
+        adminTag={adminTag}
+        idPrefix={panelId}
+      />
     </CollapsiblePanel>
   );
 }

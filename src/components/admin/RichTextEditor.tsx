@@ -3,10 +3,11 @@
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
+import Underline from "@tiptap/extension-underline";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { useEffect, useMemo, useState } from "react";
-import { stripHtml } from "@/lib/cms/blog-html";
+import { resolveEditorHtml, stripHtml } from "@/lib/cms/blog-html";
 import { MediaPicker } from "./MediaPicker";
 
 type RichTextEditorProps = {
@@ -16,10 +17,14 @@ type RichTextEditorProps = {
   placeholder?: string;
   /** Compact toolbar for shorter fields like excerpts */
   compact?: boolean;
+  /** Bold, italic, and underline only — for short inline-formatted fields */
+  minimal?: boolean;
   /** Allow inserting images from the media library */
   enableImages?: boolean;
   /** Show word and character counts below the editor */
   showStats?: boolean;
+  /** Optional helper copy below the editor */
+  hint?: string;
 };
 
 type ToolbarButtonProps = {
@@ -64,8 +69,10 @@ export function RichTextEditor({
   onChange,
   placeholder = "Write your content…",
   compact = false,
-  enableImages = !compact,
-  showStats = !compact,
+  minimal = false,
+  enableImages = !compact && !minimal,
+  showStats = !compact && !minimal,
+  hint,
 }: RichTextEditorProps) {
   const [mediaOpen, setMediaOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -77,15 +84,22 @@ export function RichTextEditor({
   const extensions = useMemo(
     () => [
       StarterKit.configure({
-        heading: compact ? false : { levels: [2, 3, 4] },
-        blockquote: compact ? false : undefined,
-        bulletList: compact ? false : undefined,
-        orderedList: compact ? false : undefined,
+        heading: compact || minimal ? false : { levels: [2, 3, 4] },
+        blockquote: compact || minimal ? false : undefined,
+        bulletList: compact || minimal ? false : undefined,
+        orderedList: compact || minimal ? false : undefined,
+        code: compact || minimal ? false : undefined,
+        codeBlock: compact || minimal ? false : undefined,
+        strike: minimal ? false : undefined,
         link: false,
       }),
+      ...(minimal ? [Underline] : []),
       Link.configure({
         openOnClick: false,
-        HTMLAttributes: { rel: "noopener noreferrer", target: "_blank" },
+        HTMLAttributes: {
+          rel: "noopener noreferrer",
+          target: "_blank",
+        },
       }),
       Placeholder.configure({ placeholder }),
       ...(enableImages
@@ -99,12 +113,12 @@ export function RichTextEditor({
           ]
         : []),
     ],
-    [compact, enableImages, placeholder],
+    [compact, enableImages, minimal, placeholder],
   );
 
   const editor = useEditor({
     extensions,
-    content: value,
+    content: resolveEditorHtml(value),
     immediatelyRender: false,
     shouldRerenderOnTransaction: true,
     onUpdate: ({ editor: activeEditor }) => {
@@ -120,8 +134,9 @@ export function RichTextEditor({
   useEffect(() => {
     if (!editor) return;
     const current = editor.getHTML();
-    if (value !== current) {
-      editor.commands.setContent(value || "<p></p>", { emitUpdate: false });
+    const incoming = resolveEditorHtml(value);
+    if (incoming !== current) {
+      editor.commands.setContent(incoming, { emitUpdate: false });
     }
   }, [editor, value]);
 
@@ -177,127 +192,160 @@ export function RichTextEditor({
           role="toolbar"
           aria-label={`${label} formatting`}
         >
-          <div className="admin-rich-text-toolbar-group">
-            <ToolbarButton
-              active={editor.isActive("bold")}
-              label="Bold"
-              onClick={() => editor.chain().focus().toggleBold().run()}
-            >
-              <strong>B</strong>
-            </ToolbarButton>
-            <ToolbarButton
-              active={editor.isActive("italic")}
-              label="Italic"
-              onClick={() => editor.chain().focus().toggleItalic().run()}
-            >
-              <em>I</em>
-            </ToolbarButton>
-            <ToolbarButton
-              active={editor.isActive("link")}
-              label="Link"
-              onClick={setLink}
-            >
-              Link
-            </ToolbarButton>
-          </div>
-
-          {!compact ? (
+          {minimal ? (
+            <div className="admin-rich-text-toolbar-group">
+              <ToolbarButton
+                active={editor.isActive("bold")}
+                label="Bold"
+                onClick={() => editor.chain().focus().toggleBold().run()}
+              >
+                <strong>B</strong>
+              </ToolbarButton>
+              <ToolbarButton
+                active={editor.isActive("italic")}
+                label="Italic"
+                onClick={() => editor.chain().focus().toggleItalic().run()}
+              >
+                <em>I</em>
+              </ToolbarButton>
+              <ToolbarButton
+                active={editor.isActive("underline")}
+                label="Underline"
+                onClick={() => editor.chain().focus().toggleUnderline().run()}
+              >
+                <span className="underline">U</span>
+              </ToolbarButton>
+            </div>
+          ) : (
             <>
-              <span
-                className="admin-rich-text-toolbar-sep"
-                aria-hidden="true"
-              />
               <div className="admin-rich-text-toolbar-group">
                 <ToolbarButton
-                  active={editor.isActive("heading", { level: 2 })}
-                  label="Heading 2"
-                  onClick={() =>
-                    editor.chain().focus().toggleHeading({ level: 2 }).run()
-                  }
+                  active={editor.isActive("bold")}
+                  label="Bold"
+                  onClick={() => editor.chain().focus().toggleBold().run()}
                 >
-                  H2
+                  <strong>B</strong>
                 </ToolbarButton>
                 <ToolbarButton
-                  active={editor.isActive("heading", { level: 3 })}
-                  label="Heading 3"
-                  onClick={() =>
-                    editor.chain().focus().toggleHeading({ level: 3 }).run()
-                  }
+                  active={editor.isActive("italic")}
+                  label="Italic"
+                  onClick={() => editor.chain().focus().toggleItalic().run()}
                 >
-                  H3
+                  <em>I</em>
+                </ToolbarButton>
+                <ToolbarButton
+                  active={editor.isActive("link")}
+                  label="Link"
+                  onClick={setLink}
+                >
+                  Link
                 </ToolbarButton>
               </div>
+
+              {!compact ? (
+                <>
+                  <span
+                    className="admin-rich-text-toolbar-sep"
+                    aria-hidden="true"
+                  />
+                  <div className="admin-rich-text-toolbar-group">
+                    <ToolbarButton
+                      active={editor.isActive("heading", { level: 2 })}
+                      label="Heading 2"
+                      onClick={() =>
+                        editor.chain().focus().toggleHeading({ level: 2 }).run()
+                      }
+                    >
+                      H2
+                    </ToolbarButton>
+                    <ToolbarButton
+                      active={editor.isActive("heading", { level: 3 })}
+                      label="Heading 3"
+                      onClick={() =>
+                        editor.chain().focus().toggleHeading({ level: 3 }).run()
+                      }
+                    >
+                      H3
+                    </ToolbarButton>
+                  </div>
+                  <span
+                    className="admin-rich-text-toolbar-sep"
+                    aria-hidden="true"
+                  />
+                  <div className="admin-rich-text-toolbar-group">
+                    <ToolbarButton
+                      active={editor.isActive("bulletList")}
+                      label="Bullet list"
+                      onClick={() =>
+                        editor.chain().focus().toggleBulletList().run()
+                      }
+                    >
+                      • List
+                    </ToolbarButton>
+                    <ToolbarButton
+                      active={editor.isActive("orderedList")}
+                      label="Numbered list"
+                      onClick={() =>
+                        editor.chain().focus().toggleOrderedList().run()
+                      }
+                    >
+                      1. List
+                    </ToolbarButton>
+                    <ToolbarButton
+                      active={editor.isActive("blockquote")}
+                      label="Blockquote"
+                      onClick={() =>
+                        editor.chain().focus().toggleBlockquote().run()
+                      }
+                    >
+                      “ Quote
+                    </ToolbarButton>
+                  </div>
+                </>
+              ) : null}
+
+              {enableImages ? (
+                <>
+                  <span
+                    className="admin-rich-text-toolbar-sep"
+                    aria-hidden="true"
+                  />
+                  <div className="admin-rich-text-toolbar-group">
+                    <ToolbarButton
+                      label="Insert image"
+                      onClick={() => setMediaOpen(true)}
+                    >
+                      Image
+                    </ToolbarButton>
+                  </div>
+                </>
+              ) : null}
+
               <span
                 className="admin-rich-text-toolbar-sep"
                 aria-hidden="true"
               />
               <div className="admin-rich-text-toolbar-group">
                 <ToolbarButton
-                  active={editor.isActive("bulletList")}
-                  label="Bullet list"
-                  onClick={() =>
-                    editor.chain().focus().toggleBulletList().run()
-                  }
+                  label="Undo"
+                  onClick={() => editor.chain().focus().undo().run()}
                 >
-                  • List
+                  Undo
                 </ToolbarButton>
                 <ToolbarButton
-                  active={editor.isActive("orderedList")}
-                  label="Numbered list"
-                  onClick={() =>
-                    editor.chain().focus().toggleOrderedList().run()
-                  }
+                  label="Redo"
+                  onClick={() => editor.chain().focus().redo().run()}
                 >
-                  1. List
-                </ToolbarButton>
-                <ToolbarButton
-                  active={editor.isActive("blockquote")}
-                  label="Blockquote"
-                  onClick={() =>
-                    editor.chain().focus().toggleBlockquote().run()
-                  }
-                >
-                  “ Quote
+                  Redo
                 </ToolbarButton>
               </div>
             </>
-          ) : null}
-
-          {enableImages ? (
-            <>
-              <span
-                className="admin-rich-text-toolbar-sep"
-                aria-hidden="true"
-              />
-              <div className="admin-rich-text-toolbar-group">
-                <ToolbarButton
-                  label="Insert image"
-                  onClick={() => setMediaOpen(true)}
-                >
-                  Image
-                </ToolbarButton>
-              </div>
-            </>
-          ) : null}
-
-          <span className="admin-rich-text-toolbar-sep" aria-hidden="true" />
-          <div className="admin-rich-text-toolbar-group">
-            <ToolbarButton
-              label="Undo"
-              onClick={() => editor.chain().focus().undo().run()}
-            >
-              Undo
-            </ToolbarButton>
-            <ToolbarButton
-              label="Redo"
-              onClick={() => editor.chain().focus().redo().run()}
-            >
-              Redo
-            </ToolbarButton>
-          </div>
+          )}
         </div>
         <EditorContent editor={editor} className="admin-rich-text-body" />
       </div>
+
+      {hint ? <p className="admin-hint admin-hint--tight">{hint}</p> : null}
 
       <MediaPicker
         open={mediaOpen}

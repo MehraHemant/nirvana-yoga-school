@@ -86,11 +86,6 @@ export default function RetreatClient({
   travel,
   examCertification,
 }: RetreatPageData) {
-  /** Glance value from CMS modules, else empty (no improvised filler). */
-  const overviewValue = (label: string, fallback = "") =>
-    modules?.overview.glance.find((item) => item.label === label)?.value ??
-    fallback;
-
   const publicPricing = filterItemsWithPrice(
     modules?.pricing.options?.length ? modules.pricing.options : mapped.pricing,
   );
@@ -193,12 +188,14 @@ export default function RetreatClient({
           <CourseOverview
             htmlId={resolveSectionHtmlId("overview", modules?.overview._id)}
             overview={modules?.overview.lead ?? retreat.overview}
-            level={overviewValue("Level")}
-            duration={overviewValue("Duration", retreat.duration)}
-            certification={overviewValue("Certification")}
-            fee={
-              overviewValue("Program Fee") || overviewValue("Fee") || mapped.fee
-            }
+            description={modules?.overview.description}
+            level=""
+            duration={retreat.duration}
+            certification=""
+            fee={mapped.fee}
+            glance={modules?.overview.glance ?? []}
+            heading={modules?.overview.heading}
+            saying={modules?.overview.saying}
             featureImages={
               modules?.overview.media.items
                 .filter((item) => item.type === "image")
@@ -217,6 +214,7 @@ export default function RetreatClient({
             eyebrow={modules?.inclusions.eyebrow}
             title={modules?.inclusions.title}
             description={modules?.inclusions.description}
+            arrivalSupport={modules?.inclusions.arrivalSupport}
           />
         ) : null}
 

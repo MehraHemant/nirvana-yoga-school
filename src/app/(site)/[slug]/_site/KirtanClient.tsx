@@ -125,27 +125,14 @@ export default function KirtanClient({
           <CourseOverview
             htmlId={resolveSectionHtmlId("overview", modules?.overview._id)}
             overview={modules?.overview.lead ?? mapped.overview ?? ""}
-            level={
-              modules?.overview.glance.find((item) => item.label === "Level")
-                ?.value ?? ""
-            }
-            duration={
-              modules?.overview.glance.find((item) => item.label === "Duration")
-                ?.value ?? mapped.duration
-            }
-            fee={
-              modules?.overview.glance.find(
-                (item) => item.label === "Program Fee",
-              )?.value ??
-              modules?.overview.glance.find((item) => item.label === "Fee")
-                ?.value ??
-              fee
-            }
-            certification={
-              modules?.overview.glance.find(
-                (item) => item.label === "Certification",
-              )?.value ?? ""
-            }
+            description={modules?.overview.description}
+            level=""
+            duration={mapped.duration}
+            certification=""
+            fee={fee}
+            glance={modules?.overview.glance ?? []}
+            heading={modules?.overview.heading}
+            saying={modules?.overview.saying}
             featureImages={
               modules?.overview.media.items
                 .filter((item) => item.type === "image")
@@ -167,6 +154,7 @@ export default function KirtanClient({
             eyebrow={modules?.inclusions.eyebrow}
             title={modules?.inclusions.title}
             description={modules?.inclusions.description}
+            arrivalSupport={modules?.inclusions.arrivalSupport}
           />
         ) : null}
 
