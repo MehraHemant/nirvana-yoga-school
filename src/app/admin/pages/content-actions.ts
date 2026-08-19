@@ -1,23 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { invalidateContentCache } from "@/lib/cms/cache";
+import { invalidateAndRevalidatePage } from "@/lib/cms/cache";
 import { db } from "@/lib/db";
-
-/**
- * Revalidates admin and public paths for a page after publish changes.
- *
- * @param pageSlug - Page slug
- * @param pageType - Optional page type for product routes
- */
-function revalidatePage(pageSlug: string, pageType?: string) {
-  revalidatePath(`/admin/pages/${pageSlug}`);
-  revalidatePath("/admin/pages");
-  if (pageType === "course") revalidatePath(`/course/${pageSlug}`);
-  else if (pageType === "online") revalidatePath(`/online-course/${pageSlug}`);
-  else if (pageType === "retreat") revalidatePath(`/retreat/${pageSlug}`);
-  else revalidatePath(`/${pageSlug}`);
-}
 
 /**
  * Publishes or unpublishes a page from the admin list table.
@@ -34,6 +19,7 @@ export async function setPagePublishedAction(formData: FormData) {
     data: { published },
   });
 
-  invalidateContentCache(page.slug);
-  revalidatePage(page.slug, page.type);
+  invalidateAndRevalidatePage(page.slug, page.type);
+  revalidatePath(`/admin/pages/${page.slug}`);
+  revalidatePath("/admin/pages");
 }

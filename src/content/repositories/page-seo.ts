@@ -1,6 +1,6 @@
 import { revalidateTag, unstable_cache } from "next/cache";
 import type { PageSeoMeta } from "@/content/types/page-seo";
-import { contentCacheTag, invalidateContentCache } from "@/lib/cms/cache";
+import { contentCacheTag, invalidateContentCache, revalidatePublicPagePaths } from "@/lib/cms/cache";
 import {
   extractLegacyPageSeo,
   mergePageSeo,
@@ -159,6 +159,7 @@ export async function upsertPageSeo(
   await writePageSeoToDb(slug, meta);
 
   invalidateContentCache(slug, page.type);
+  revalidatePublicPagePaths(slug, page.type);
   revalidatePageSeoTags(slug);
 }
 

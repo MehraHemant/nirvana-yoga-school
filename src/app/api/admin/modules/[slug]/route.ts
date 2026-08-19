@@ -1,4 +1,3 @@
-import { revalidatePath } from "next/cache";
 import { dropOrphanPricingOptions } from "@/content/mappers/page-room-fees";
 import {
   hydrateModulesFromPageTables,
@@ -97,8 +96,5 @@ export async function PUT(
   await syncPageTablesFromModules(page.id, body).catch((error) => {
     console.error("[modules PUT] page tables sync failed", error);
   });
-  revalidatePath("/course", "layout");
-  revalidatePath("/online-course", "layout");
-  revalidatePath("/retreat", "layout");
   return jsonMutationOk(page.id);
 }

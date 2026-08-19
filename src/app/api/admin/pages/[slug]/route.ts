@@ -1,4 +1,3 @@
-import { revalidatePath } from "next/cache";
 import { ONLINE_HUB_SLUG } from "@/content/pages/slugs";
 import {
   hydrateModulesFromPageTables,
@@ -241,9 +240,6 @@ export async function PUT(
     ).catch((error) => {
       console.error("[pages PUT] page tables sync failed", error);
     });
-    revalidatePath("/course", "layout");
-    revalidatePath("/online-course", "layout");
-    revalidatePath("/retreat", "layout");
   }
 
   return jsonMutationOk(page.id);

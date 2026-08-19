@@ -10,7 +10,10 @@ import type {
   SitePageDocument,
   SitePageSection,
 } from "@/content/types";
-import { invalidateContentCache } from "@/lib/cms/cache";
+import {
+  invalidateAndRevalidatePage,
+  invalidateContentCache,
+} from "@/lib/cms/cache";
 import {
   buildModulesFromCourse,
   buildModulesFromOnlineCourse,
@@ -176,7 +179,7 @@ export async function upsertSitePageDocument(doc: SitePageDocument) {
     }
   });
 
-  invalidateContentCache(doc.slug, page.type);
+  invalidateAndRevalidatePage(doc.slug, page.type);
   await upsertPageSeo(doc.slug, doc.meta).catch((error) => {
     console.error("[document-to-db] page SEO sync failed", error);
   });
@@ -241,10 +244,7 @@ export async function upsertPageModules(
     }
   }
 
-  invalidateContentCache(slug, page.type);
-  if (page.type === "venue") {
-    revalidatePath(`/venue/${slug}`);
-  }
+  invalidateAndRevalidatePage(slug, page.type);
 
   await upsertPageSeo(slug, modules.meta).catch((error) => {
     console.error("[document-to-db] page SEO sync failed", error);
@@ -374,7 +374,7 @@ export async function upsertCourseDocument(
     },
   });
 
-  invalidateContentCache(doc.slug);
+  invalidateAndRevalidatePage(doc.slug, pageType);
   return page;
 }
 
@@ -436,7 +436,7 @@ export async function upsertProductDocument(
     update: { document },
   });
 
-  invalidateContentCache(slug, pageType);
+  invalidateAndRevalidatePage(slug, pageType);
   return page;
 }
 
@@ -567,9 +567,18 @@ export async function deleteBlogPost(slug: string): Promise<boolean> {
  * @param slug - Page slug
  */
 export async function unpublishPage(slug: string): Promise<void> {
+  const page = await db.page.findUnique({
+    where: { slug },
+    select: { type: true },
+  });
+  if (!page) return;
+
   await db.page.update({
     where: { slug },
     data: { published: false },
   });
-  invalidateContentCache(slug);
+
+  invalidateAndRevalidatePage(slug, page.type);
+  revalidatePath(`/admin/pages/${slug}`);
+  revalidatePath("/admin/pages");
 }

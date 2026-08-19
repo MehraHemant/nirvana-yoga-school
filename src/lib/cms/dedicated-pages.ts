@@ -13,7 +13,7 @@ import type {
   HomeFaqsContent,
   ReviewsContent,
 } from "@/content/types/shared-sections";
-import { invalidateContentCache } from "@/lib/cms/cache";
+import { invalidateAndRevalidatePage } from "@/lib/cms/cache";
 import {
   createEmptyBookingPageContent,
   createEmptyContactPageContent,
@@ -185,7 +185,7 @@ export async function saveDedicatedPageContent(
     select: { id: true },
   });
 
-  invalidateContentCache(slug, "site");
+  invalidateAndRevalidatePage(slug, "site");
   if ("meta" in content) {
     await upsertPageSeo(slug, content.meta).catch((error) => {
       console.error("[dedicated-pages] page SEO sync failed", error);

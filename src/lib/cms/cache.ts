@@ -1,4 +1,4 @@
-import { revalidateTag, unstable_cache } from "next/cache";
+import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
 import { teacherSlug } from "@/content/teachers-slug";
 import type {
   BlogPostDocument,
@@ -44,6 +44,52 @@ export function invalidateContentCache(
   if (pageType) {
     revalidateTag(`pages:type:${pageType}`, "max");
   }
+}
+
+/**
+ * Bust the Full Route Cache for a CMS page's public URL.
+ * Data tag invalidation alone does not refresh statically generated HTML.
+ *
+ * @param slug - Page slug
+ * @param pageType - CMS page type
+ */
+export function revalidatePublicPagePaths(
+  slug: string,
+  pageType?: string,
+): void {
+  switch (pageType) {
+    case "course":
+      revalidatePath(`/course/${slug}`);
+      revalidatePath("/course", "layout");
+      break;
+    case "online":
+      revalidatePath(`/online-course/${slug}`);
+      revalidatePath("/online-course", "layout");
+      break;
+    case "retreat":
+      revalidatePath(`/retreat/${slug}`);
+      revalidatePath("/retreat", "layout");
+      break;
+    case "venue":
+      revalidatePath(`/venue/${slug}`);
+      break;
+    default:
+      revalidatePath(`/${slug}`);
+  }
+}
+
+/**
+ * Invalidate CMS data caches and the matching public route after admin writes.
+ *
+ * @param slug - Page slug
+ * @param pageType - CMS page type
+ */
+export function invalidateAndRevalidatePage(
+  slug: string,
+  pageType?: string,
+): void {
+  invalidateContentCache(slug, pageType);
+  revalidatePublicPagePaths(slug, pageType);
 }
 
 /**
@@ -206,18 +252,26 @@ export async function fetchTeacherPickerProfiles(
  *
  * @param slug - Course page slug
  */
+async function loadCourseDocumentUncached<T>(slug: string): Promise<T | null> {
+  const page = await db.page.findUnique({
+    where: { slug },
+    include: { courseDoc: true },
+  });
+  if (!page || !page.published || !page.courseDoc?.document) return null;
+  return page.courseDoc.document as T;
+}
+
+/**
+ * Fetch a course document JSON blob from Postgres with Next.js data cache.
+ * Cache misses are re-checked live so publish/unpublish changes apply promptly.
+ *
+ * @param slug - Course page slug
+ */
 export async function fetchCourseDocumentFromDb<T>(
   slug: string,
 ): Promise<T | null> {
   const cached = unstable_cache(
-    async () => {
-      const page = await db.page.findUnique({
-        where: { slug },
-        include: { courseDoc: true },
-      });
-      if (!page || !page.published || !page.courseDoc?.document) return null;
-      return page.courseDoc.document as T;
-    },
+    () => loadCourseDocumentUncached<T>(slug),
     [`course-doc-${slug}`],
     {
       tags: [contentCacheTag(slug)],
@@ -225,7 +279,9 @@ export async function fetchCourseDocumentFromDb<T>(
     },
   );
 
-  return cached();
+  const result = await cached();
+  if (result) return result;
+  return loadCourseDocumentUncached<T>(slug);
 }
 
 /**
