@@ -786,8 +786,6 @@ export function RetreatEditor({
             <FaqModuleEditor
               faqs={modules.faqs ?? { items: [] }}
               onChange={(faqs) => setModules({ ...modules, faqs })}
-              pageSlug={slug}
-              adminTag="retreat"
               panelId={panelId("faq")}
               step={11}
               description="Questions and answers shown in the retreat FAQ accordion. Drag to reorder."

@@ -11,10 +11,6 @@ import {
   RoomsCatalogEditor,
   type RoomsCatalogEditorHandle,
 } from "@/components/admin/RoomsCatalogEditor";
-import {
-  FaqCatalogEditor,
-  type FaqCatalogEditorHandle,
-} from "@/components/admin/FaqCatalogEditor";
 import { SectionLiveField } from "@/components/admin/SectionLiveField";
 import { SelectField } from "@/components/admin/SelectField";
 import {
@@ -53,8 +49,8 @@ const SHARED_KEYS = GLOBAL_SHARED_SECTION_KEYS;
 
 type SharedKey = (typeof SHARED_KEYS)[number];
 
-/** Shared sections hub tab — global settings key or FAQ catalog. */
-type ActiveSection = SharedKey | "faqCatalog";
+/** Shared sections hub tab — global settings key. */
+type ActiveSection = SharedKey;
 
 type SharedValue =
   | WhyNirvanaContent
@@ -229,29 +225,16 @@ export function SharedSectionsEditor() {
   const [loading, setLoading] = useState(true);
   const [baseline, setBaseline] = useState("");
   const [roomsDirty, setRoomsDirty] = useState(false);
-  const [faqCatalogDirty, setFaqCatalogDirty] = useState(false);
   const roomsCatalogRef = useRef<RoomsCatalogEditorHandle>(null);
-  const faqCatalogRef = useRef<FaqCatalogEditorHandle>(null);
 
   useEffect(() => {
     const hash = window.location.hash.replace("#", "");
-    if (hash === "faqCatalog") {
-      setActive("faqCatalog");
-      return;
-    }
     if ((SHARED_KEYS as readonly string[]).includes(hash)) {
       setActive(hash as SharedKey);
     }
   }, []);
 
   useEffect(() => {
-    if (active === "faqCatalog") {
-      setLoading(false);
-      setValue(null);
-      setError("");
-      setSaved(false);
-      return;
-    }
     let cancelled = false;
     setLoading(true);
     setValue(null);
@@ -289,20 +272,6 @@ export function SharedSectionsEditor() {
   }, [active]);
 
   async function handleSave() {
-    if (active === "faqCatalog") {
-      setSaving(true);
-      setSaved(false);
-      setError("");
-      try {
-        await faqCatalogRef.current?.saveAll();
-        setSaved(true);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to save FAQs");
-      } finally {
-        setSaving(false);
-      }
-      return;
-    }
     if (!value) return;
     setSaving(true);
     setSaved(false);
@@ -345,23 +314,15 @@ export function SharedSectionsEditor() {
   }
 
   const metaDirty = Boolean(value) && JSON.stringify(value) !== baseline;
-  const dirty =
-    active === "faqCatalog" ? faqCatalogDirty : metaDirty || roomsDirty;
-  const panelItems =
-    active === "faqCatalog" ? [] : (SHARED_PANEL_ITEMS[active] ?? []);
+  const dirty = metaDirty || roomsDirty;
+  const panelItems = SHARED_PANEL_ITEMS[active] ?? [];
   const activePanelId = useSectionScrollSpy(panelItems.map((item) => item.id));
   const showJumpNav = panelItems.length >= 2;
   const isLodging =
     active === "residentialLife" || active === "retreatAccommodation";
   const isFood = active === "courseFood" || active === "retreatFood";
 
-  const fields =
-    active === "faqCatalog" ? (
-      <FaqCatalogEditor
-        ref={faqCatalogRef}
-        onDirtyChange={setFaqCatalogDirty}
-      />
-    ) : value ? (
+  const fields = value ? (
     active === "whyNirvana" ? (
       <WhyNirvanaFields doc={value as WhyNirvanaContent} onChange={setValue} />
     ) : active === "examCertification" ? (
@@ -445,51 +406,23 @@ export function SharedSectionsEditor() {
             </div>
           </div>
         ))}
-        <div className="admin-shared-nav__group">
-          <p className="admin-shared-nav__label">Content library</p>
-          <div
-            className="admin-shared-nav__tabs"
-            role="tablist"
-            aria-label="Content library"
-          >
-            <button
-              type="button"
-              role="tab"
-              aria-selected={active === "faqCatalog"}
-              className={`admin-shared-tab${active === "faqCatalog" ? " is-active" : ""}`}
-              onClick={() => {
-                setActive("faqCatalog");
-                window.location.hash = "faqCatalog";
-              }}
-            >
-              <span className="admin-shared-tab__label">FAQ catalog</span>
-              <span className="admin-shared-tab__hint">Shared Q&amp;A</span>
-            </button>
-          </div>
-        </div>
       </div>
 
       <div className="admin-shared-active-banner">
         <div>
           <p className="admin-cms-kicker">Editing</p>
-          <h2 className="admin-shared-active-banner__title">
-            {active === "faqCatalog" ? "FAQ catalog" : LABELS[active]}
-          </h2>
+          <h2 className="admin-shared-active-banner__title">{LABELS[active]}</h2>
           <p className="admin-shared-active-banner__desc">
-            {active === "faqCatalog"
-              ? "Central FAQ library reused across pages with per-page ordering."
-              : DESCRIPTIONS[active]}
+            {DESCRIPTIONS[active]}
           </p>
         </div>
       </div>
 
       {error ? <p className="admin-error">{error}</p> : null}
 
-      {active === "faqCatalog" ? (
-        <div className="admin-editor-sections">{fields}</div>
-      ) : loading || !value ? (
+      {loading || !value ? (
         <p className="admin-hint">
-          Loading {LABELS[active as SharedKey]}…
+          Loading {LABELS[active]}…
         </p>
       ) : showJumpNav ? (
         <div className="admin-editor-layout">
@@ -504,13 +437,11 @@ export function SharedSectionsEditor() {
       )}
 
       <AdminSaveBar
-        title={active === "faqCatalog" ? "FAQ catalog" : LABELS[active as SharedKey]}
+        title={LABELS[active]}
         subtitle={
-          active === "faqCatalog"
-            ? "faqs + page_faq_assignments"
-            : isLodging
-              ? `Stay & facilities · global_settings.${active}`
-              : `global_settings.${active}`
+          isLodging
+            ? `Stay & facilities · global_settings.${active}`
+            : `global_settings.${active}`
         }
         saving={saving}
         saved={saved}

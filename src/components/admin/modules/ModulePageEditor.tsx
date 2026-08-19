@@ -913,14 +913,6 @@ export function ModulePageEditor({
               <FaqModuleEditor
                 faqs={modules.faqs}
                 onChange={(faqs) => setModules({ ...modules, faqs })}
-                pageSlug={slug}
-                adminTag={
-                  layoutId === "retreat"
-                    ? "retreat"
-                    : layoutId === "venue"
-                      ? "venue"
-                      : "course"
-                }
                 {...panelProps(
                   "module-faq",
                   stepOf("module-faq"),

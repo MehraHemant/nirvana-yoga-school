@@ -10,7 +10,7 @@ import { ImageField } from "@/components/admin/ImageField";
 import { PageSeoFields } from "@/components/admin/PageSeoFields";
 import { SectionIdField } from "@/components/admin/SectionIdField";
 import { SectionLiveField } from "@/components/admin/SectionLiveField";
-import { PageFaqAssignmentsEditor } from "@/components/admin/PageFaqAssignmentsEditor";
+import { FaqItemsEditor } from "@/components/admin/FaqItemsEditor";
 import { SelectField } from "@/components/admin/SelectField";
 import {
   DragHandle,
@@ -1893,21 +1893,20 @@ export function HomeSectionsEditor({
                 }
               />
             </div>
-            <PageFaqAssignmentsEditor
-              contextType="global"
-              contextKey="homeFaqs"
-              adminTag="home"
+            <FaqItemsEditor
+              items={doc.faqs.faqs}
+              onChange={(faqs) => setDoc({ ...doc, faqs: { ...doc.faqs, faqs } })}
               idPrefix="home-faq"
-              renderAssignmentExtras={(faq, _index, update) => (
+              renderExtraFields={(faq, _index, update) => (
                 <>
                   <TextField
                     label="Tag"
-                    value={faq.extras?.tag ?? ""}
+                    value={faq.tag ?? ""}
                     onChange={(tag) => update({ tag })}
                   />
                   <ImageField
                     label="Image"
-                    value={faq.extras?.image ?? ""}
+                    value={faq.image ?? ""}
                     compact
                     onChange={(image) => update({ image })}
                   />

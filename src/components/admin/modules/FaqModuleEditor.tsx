@@ -1,7 +1,7 @@
 "use client";
 
 import type { FaqsModule } from "@/content/types";
-import { PageFaqAssignmentsEditor } from "@/components/admin/PageFaqAssignmentsEditor";
+import { FaqItemsEditor } from "@/components/admin/FaqItemsEditor";
 import { CollapsiblePanel } from "../CollapsiblePanel";
 import { SectionIdField } from "../SectionIdField";
 import { ModuleLiveField } from "./ModuleLiveField";
@@ -10,39 +10,37 @@ import type { ModulePanelProps } from "./types";
 type FaqModuleEditorProps = ModulePanelProps & {
   faqs: FaqsModule;
   onChange: (faqs: FaqsModule) => void;
-  /** Page slug used for FAQ assignment context. */
-  pageSlug: string;
-  /** Default admin tag for newly created FAQs. */
-  adminTag?: string;
 };
 
 /**
- * FAQ module editor — assigns/reorders FAQs from the shared catalog.
+ * FAQ module editor — inline questions for this page only.
  *
- * @param props - FAQ config, page slug, and change handler
+ * @param props - FAQ config and change handler
  */
 export function FaqModuleEditor({
   faqs,
   onChange,
-  pageSlug,
-  adminTag = "course",
   panelId = "module-faq",
   step = 10,
   description,
   open,
   onOpenChange,
 }: FaqModuleEditorProps) {
+  const itemCount = faqs.items?.length ?? 0;
+
   return (
     <CollapsiblePanel
       id={panelId}
       step={step}
       title="FAQ"
-      subtitle="Catalog assignments"
+      subtitle={
+        itemCount > 0
+          ? `${itemCount} question${itemCount === 1 ? "" : "s"}`
+          : "No questions yet"
+      }
       description={
         description ??
-        (adminTag === "course"
-          ? "Assign course FAQs from the shared catalog. Use “Add all course FAQs” to populate quickly, then drag to reorder or expand cards to edit."
-          : "Assign FAQs from the shared catalog. Edit question copy in the catalog or inline here.")
+        "Add questions and answers for this page. Choose one of four categories, drag to reorder, and expand cards to edit."
       }
       open={open}
       onOpenChange={onOpenChange}
@@ -59,10 +57,9 @@ export function FaqModuleEditor({
         value={faqs._id}
         onChange={(_id) => onChange({ ...faqs, _id })}
       />
-      <PageFaqAssignmentsEditor
-        contextType="page"
-        contextKey={pageSlug}
-        adminTag={adminTag}
+      <FaqItemsEditor
+        items={faqs.items ?? []}
+        onChange={(items) => onChange({ ...faqs, items })}
         idPrefix={panelId}
       />
     </CollapsiblePanel>

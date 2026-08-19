@@ -12,7 +12,7 @@ import { SectionIdField } from "@/components/admin/SectionIdField";
 import { SectionLiveField } from "@/components/admin/SectionLiveField";
 import { StringListField } from "@/components/admin/StringListField";
 import { toSectionDomId } from "@/components/admin/sectionDomId";
-import { PageFaqAssignmentsEditor } from "@/components/admin/PageFaqAssignmentsEditor";
+import { FaqItemsEditor } from "@/components/admin/FaqItemsEditor";
 import { TextField } from "@/components/admin/TextField";
 import { useSectionScrollSpy } from "@/components/admin/useSectionScrollSpy";
 import { useStableListKeys } from "@/components/admin/useStableListKeys";
@@ -673,10 +673,9 @@ export function YttHubEditor({
               value={doc.sectionIds?.faq}
               onChange={(_id) => patchSectionId("faq", _id)}
             />
-            <PageFaqAssignmentsEditor
-              contextType="global"
-              contextKey="yttHub"
-              adminTag="ytt-hub"
+            <FaqItemsEditor
+              items={doc.faqs}
+              onChange={(faqs) => setDoc({ ...doc, faqs })}
               idPrefix="ytt-hub-faq"
             />
           </CollapsiblePanel>

@@ -21,7 +21,7 @@ import { createId, db } from "@/lib/db";
 import { queryOne } from "@/lib/db/sql";
 import type { PageModulesDocument } from "@/content/types";
 import { requireDb } from "./db-fallback";
-import type { ContentResult, RepositoryOptions } from "./fetch";
+import { fromJson, type ContentResult, type RepositoryOptions } from "./fetch";
 
 const FAQ_CACHE_PREFIX = "faq-assignments";
 
@@ -334,16 +334,19 @@ export async function resolvePageFaqs(
   fallback: FAQ[] = [],
   options?: RepositoryOptions,
 ): Promise<ContentResult<FAQ[]>> {
+  const inline = fallback.map((faq) => ({
+    question: faq.question,
+    answer: faq.answer,
+    category: normalizeFaqCategory(faq.category),
+  }));
+  if (inline.length > 0) return fromJson(inline);
+
   return requireDb(async () => {
     const assigned = await getAssignedFaqs("page", slug);
     if (assigned.length > 0) {
       return resolvedFaqsToModuleItems(assigned);
     }
-    return fallback.map((faq) => ({
-      question: faq.question,
-      answer: faq.answer,
-      category: normalizeFaqCategory(faq.category),
-    }));
+    return inline;
   }, options);
 }
 
@@ -359,19 +362,22 @@ export async function resolveGlobalFaqs(
   fallback: SharedFaq[] = [],
   options?: RepositoryOptions,
 ): Promise<ContentResult<SharedFaq[]>> {
+  const inline = fallback.map((faq) => ({
+    question: faq.question,
+    answer: faq.answer,
+    category: normalizeFaqCategory(faq.category ?? DEFAULT_FAQ_CATEGORY),
+    sort: faq.sort,
+    image: faq.image,
+    tag: faq.tag,
+  }));
+  if (inline.length > 0) return fromJson(inline);
+
   return requireDb(async () => {
     const assigned = await getAssignedFaqs("global", contextKey);
     if (assigned.length > 0) {
       return resolvedFaqsToSharedFaqs(assigned);
     }
-    return fallback.map((faq) => ({
-      question: faq.question,
-      answer: faq.answer,
-      category: normalizeFaqCategory(faq.category ?? DEFAULT_FAQ_CATEGORY),
-      sort: faq.sort,
-      image: faq.image,
-      tag: faq.tag,
-    }));
+    return inline;
   }, options);
 }
 
@@ -400,7 +406,8 @@ export async function hydratePageModulesFaqs(
   modules: PageModulesDocument | null,
 ): Promise<PageModulesDocument | null> {
   if (!modules) return modules;
-  const result = await resolvePageFaqs(slug, modules.faqs?.items ?? []);
+  const inline = modules.faqs?.items ?? [];
+  const result = await resolvePageFaqs(slug, inline);
   return {
     ...modules,
     faqs: {

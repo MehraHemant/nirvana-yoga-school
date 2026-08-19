@@ -17,7 +17,7 @@ import {
   toSectionDomId,
 } from "@/components/admin/sectionDomId";
 import { TeachersPicker } from "@/components/admin/TeachersPicker";
-import { PageFaqAssignmentsEditor } from "@/components/admin/PageFaqAssignmentsEditor";
+import { FaqItemsEditor } from "@/components/admin/FaqItemsEditor";
 import { TextField } from "@/components/admin/TextField";
 import { useAdminSectionAccordion } from "@/components/admin/useAdminSectionAccordion";
 import { useSectionScrollSpy } from "@/components/admin/useSectionScrollSpy";
@@ -627,10 +627,11 @@ export function OnlineCourseEditor({
               title="FAQ"
               {...panelOpenProps("faq")}
             >
-              <PageFaqAssignmentsEditor
-                contextType="page"
-                contextKey={slug}
-                adminTag="online-course"
+              <FaqItemsEditor
+                items={modules.faqs.items ?? []}
+                onChange={(items) =>
+                  setModules({ ...modules, faqs: { ...modules.faqs, items } })
+                }
                 idPrefix="online-course-faq"
               />
             </CollapsiblePanel>
