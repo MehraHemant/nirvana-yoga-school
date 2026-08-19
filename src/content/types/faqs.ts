@@ -74,6 +74,23 @@ export type FaqRecord = {
   updatedAt?: string | Date;
 };
 
+/** One place a catalog FAQ is assigned in the CMS. */
+export type FaqUsageReference = {
+  label: string;
+  href?: string;
+};
+
+/** Admin usage summary for a catalog FAQ. */
+export type FaqUsageResult = {
+  inUse: boolean;
+  references: FaqUsageReference[];
+};
+
+/** FAQ catalog row returned by admin APIs with assignment usage. */
+export type FaqRecordWithUsage = FaqRecord & {
+  usage: FaqUsageResult;
+};
+
 /** Where an FAQ assignment applies — page slug or global settings key. */
 export type FaqContextType = "page" | "global";
 

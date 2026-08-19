@@ -6458,6 +6458,37 @@
   margin: 0;
 }
 
+.admin-faq-usage {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.45rem 0.65rem;
+}
+
+.admin-faq-usage--detail {
+  margin-bottom: 0.35rem;
+}
+
+.admin-faq-usage__list {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 0.78rem;
+  color: #6b5e57;
+  line-height: 1.45;
+}
+
+.admin-faq-usage__hint {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: #8a756c;
+  line-height: 1.35;
+}
+
+.admin-faq-picker__item .admin-faq-usage__hint {
+  margin-top: 0.1rem;
+}
+
 .admin-faq-picker__item {
   display: grid;
   gap: 0.15rem;

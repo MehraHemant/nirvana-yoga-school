@@ -6,6 +6,7 @@ import {
   type FaqCategoryId,
 } from "@/content/types/faq-categories";
 import type { FaqAdminTagFilter } from "@/content/types/faqs";
+import type { FaqUsageResult } from "@/content/types/faqs";
 
 export type FaqWithCategory = {
   question: string;
@@ -170,4 +171,27 @@ export function matchesFaqSearch(faq: FaqSearchable, query: string): boolean {
   if (!normalized) return true;
   const haystack = `${faq.question} ${faq.answer}`.toLowerCase();
   return haystack.includes(normalized);
+}
+
+/**
+ * Compact usage summary for FAQ catalog cards and picker rows.
+ *
+ * @param usage - Assignment usage from admin API
+ */
+export function formatFaqUsageSummary(usage: FaqUsageResult): string {
+  if (!usage.inUse) return "Not assigned";
+  if (usage.references.length === 1) {
+    return `Used on: ${usage.references[0].label}`;
+  }
+  return `In use on ${usage.references.length} pages`;
+}
+
+/**
+ * Full comma-separated usage detail for expanded FAQ cards.
+ *
+ * @param usage - Assignment usage from admin API
+ */
+export function formatFaqUsageDetail(usage: FaqUsageResult): string {
+  if (!usage.inUse) return "Not assigned";
+  return usage.references.map((reference) => reference.label).join(", ");
 }

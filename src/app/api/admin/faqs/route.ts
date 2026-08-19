@@ -7,6 +7,7 @@ import {
 import { normalizeFaqCategory } from "@/content/types/faq-categories";
 import { jsonError, jsonForbidden, jsonOk } from "@/lib/cms/api-response";
 import { getServerSession } from "@/lib/cms/auth";
+import { getFaqsUsage } from "@/lib/cms/faq-usage";
 
 /**
  * Lists FAQs in the shared catalog (admin).
@@ -27,7 +28,13 @@ export async function GET(request: Request) {
           : "all",
       adminTag,
     });
-    return jsonOk({ faqs });
+    const usageMap = await getFaqsUsage(faqs.map((faq) => faq.id));
+    return jsonOk({
+      faqs: faqs.map((faq) => ({
+        ...faq,
+        usage: usageMap.get(faq.id) ?? { inUse: false, references: [] },
+      })),
+    });
   } catch (error) {
     return jsonError(
       error instanceof Error ? error.message : "Failed to load FAQs",

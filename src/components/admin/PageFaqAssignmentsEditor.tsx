@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AdminSearchField } from "@/components/admin/AdminSearchField";
+import { FaqUsageIndicator } from "@/components/admin/FaqUsageIndicator";
 import { FaqAdminTagFilterChips } from "@/components/admin/FaqAdminTagFilterChips";
 import { FaqCategorySelect } from "@/components/admin/FaqCategorySelect";
 import { NestedItemCard } from "@/components/admin/NestedItemCard";
@@ -22,7 +23,7 @@ import {
 import type {
   FaqAssignmentExtras,
   FaqContextType,
-  FaqRecord,
+  FaqRecordWithUsage,
   FaqAdminTagFilter,
   ResolvedFaq,
 } from "@/content/types/faqs";
@@ -37,9 +38,10 @@ import {
   groupFaqsByCategory,
   matchesFaqAdminTagFilter,
   matchesFaqSearch,
+  normalizeFaqQuestion,
   resolveFaqCategory,
 } from "@/lib/cms/faq-utils";
-import { parseApiJson } from "@/lib/types/api";
+import { ApiClientError, parseApiJson } from "@/lib/types/api";
 
 type AssignedRow = ResolvedFaq & {
   /** True when the catalog row should be updated on save. */
@@ -67,7 +69,7 @@ type PageFaqAssignmentsEditorProps = {
  *
  * @param faqs - FAQ catalog rows
  */
-function sortFaqsByCategory(faqs: FaqRecord[]): FaqRecord[] {
+function sortFaqsByCategory(faqs: FaqRecordWithUsage[]): FaqRecordWithUsage[] {
   return [...faqs].sort((a, b) => {
     const categoryDelta =
       FAQ_CATEGORY_IDS.indexOf(resolveFaqCategory(a)) -
@@ -91,7 +93,7 @@ export function PageFaqAssignmentsEditor({
   renderAssignmentExtras,
 }: PageFaqAssignmentsEditorProps) {
   const [assigned, setAssigned] = useState<AssignedRow[]>([]);
-  const [catalog, setCatalog] = useState<FaqRecord[]>([]);
+  const [catalog, setCatalog] = useState<FaqRecordWithUsage[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -130,7 +132,9 @@ export function PageFaqAssignmentsEditor({
       const assignmentsBody = await parseApiJson<{ faqs: ResolvedFaq[] }>(
         assignmentsRes,
       );
-      const catalogBody = await parseApiJson<{ faqs: FaqRecord[] }>(catalogRes);
+      const catalogBody = await parseApiJson<{ faqs: FaqRecordWithUsage[] }>(
+        catalogRes,
+      );
       setAssigned(assignmentsBody.faqs ?? []);
       setCatalog(catalogBody.faqs ?? []);
     } catch (err) {
@@ -221,7 +225,7 @@ export function PageFaqAssignmentsEditor({
   }, [catalog, adminTag, assignedIds]);
 
   const availableByCategory = useMemo(() => {
-    const byCategory: Partial<Record<FaqCategoryId, FaqRecord[]>> = {};
+    const byCategory: Partial<Record<FaqCategoryId, FaqRecordWithUsage[]>> = {};
     for (const faq of bulkCatalogFaqs) {
       const categoryId = resolveFaqCategory(faq);
       if (!byCategory[categoryId]) byCategory[categoryId] = [];
@@ -307,7 +311,10 @@ export function PageFaqAssignmentsEditor({
     });
   }
 
-  function catalogRowToAssigned(faq: FaqRecord, sortOrder: number): AssignedRow {
+  function catalogRowToAssigned(
+    faq: FaqRecordWithUsage,
+    sortOrder: number,
+  ): AssignedRow {
     return {
       id: faq.id,
       question: faq.question,
@@ -387,36 +394,96 @@ export function PageFaqAssignmentsEditor({
     await persistAssignments([]);
   }
 
+  /**
+   * Creates a catalog FAQ (or reuses an existing match) and assigns it to this page.
+   */
   async function handleCreateAndAssign() {
-    const body = await parseApiJson<{ faq: FaqRecord }>(
-      await fetch("/api/admin/faqs", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          question: draft.question,
-          answer: draft.answer,
-          category: draft.category,
-          adminTag: draft.adminTag || adminTag,
-        }),
-      }),
-    );
-    const faq = body.faq;
-    setCatalog((prev) => [...prev, faq]);
-    addKey();
-    const next: AssignedRow[] = [
-      ...assigned,
-      catalogRowToAssigned(faq, assigned.length * 10),
-    ];
-    setAssigned(next);
-    setCreateOpen(false);
-    setDraft({
-      question: "",
-      answer: "",
-      category:
-        categoryFilter === "all" ? DEFAULT_FAQ_CATEGORY : categoryFilter,
-      adminTag,
-    });
-    await persistAssignments(next);
+    const question = draft.question.trim();
+    const answer = draft.answer.trim();
+    if (!question && !answer) {
+      setError("Question or answer is required.");
+      return;
+    }
+
+    setSaving(true);
+    setError("");
+    try {
+      const normalizedQuestion = normalizeFaqQuestion(question);
+      let faq = catalog.find(
+        (row) => normalizeFaqQuestion(row.question) === normalizedQuestion,
+      );
+
+      if (!faq) {
+        try {
+          const body = await parseApiJson<{ faq: FaqRecordWithUsage }>(
+            await fetch("/api/admin/faqs", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                question: draft.question,
+                answer: draft.answer,
+                category: draft.category,
+                adminTag: draft.adminTag || adminTag,
+              }),
+            }),
+          );
+          faq = {
+            ...body.faq,
+            usage:
+              body.faq.usage ?? { inUse: false, references: [] },
+          };
+          setCatalog((prev) => [...prev, faq!]);
+        } catch (err) {
+          if (err instanceof ApiClientError && err.code === "CONFLICT") {
+            const catalogBody = await parseApiJson<{ faqs: FaqRecordWithUsage[] }>(
+              await fetch("/api/admin/faqs"),
+            );
+            const refreshed = catalogBody.faqs ?? [];
+            setCatalog(refreshed);
+            faq = refreshed.find(
+              (row) =>
+                normalizeFaqQuestion(row.question) === normalizedQuestion,
+            );
+            if (!faq) throw err;
+          } else {
+            throw err;
+          }
+        }
+      }
+
+      if (assignedIds.has(faq.id)) {
+        setError("This FAQ is already assigned to this page.");
+        return;
+      }
+
+      addKey();
+      const next: AssignedRow[] = [
+        ...assigned,
+        catalogRowToAssigned(faq, assigned.length * 10),
+      ];
+      setAssigned(next);
+      await persistAssignments(next);
+
+      const catalogBody = await parseApiJson<{ faqs: FaqRecordWithUsage[] }>(
+        await fetch("/api/admin/faqs"),
+      );
+      setCatalog(catalogBody.faqs ?? []);
+
+      setCreateOpen(false);
+      setDraft({
+        question: "",
+        answer: "",
+        category:
+          categoryFilter === "all" ? DEFAULT_FAQ_CATEGORY : categoryFilter,
+        adminTag,
+      });
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to create and assign FAQ",
+      );
+    } finally {
+      setSaving(false);
+    }
   }
 
   if (loading) {
@@ -893,6 +960,9 @@ export function PageFaqAssignmentsEditor({
                         >
                           <strong>{faqQuestionPreview(faq.question)}</strong>
                           <span>{faqAnswerPreview(faq.answer, "", 96)}</span>
+                          {faq.usage?.inUse ? (
+                            <FaqUsageIndicator usage={faq.usage} variant="hint" />
+                          ) : null}
                           {faq.adminTag && faq.adminTag !== adminTag ? (
                             <span className="admin-faq-admin-tag">
                               {faqAdminTagLabel(faq.adminTag)}

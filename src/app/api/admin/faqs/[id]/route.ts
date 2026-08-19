@@ -8,6 +8,7 @@ import {
 import { normalizeFaqCategory } from "@/content/types/faq-categories";
 import { jsonError, jsonForbidden, jsonOk } from "@/lib/cms/api-response";
 import { getServerSession } from "@/lib/cms/auth";
+import { getFaqUsage } from "@/lib/cms/faq-usage";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -24,7 +25,8 @@ export async function GET(_request: Request, context: RouteContext) {
     if (!faq) {
       return jsonError("FAQ not found", 404, { code: "NOT_FOUND" });
     }
-    return jsonOk({ faq });
+    const usage = await getFaqUsage(id);
+    return jsonOk({ faq: { ...faq, usage } });
   } catch (error) {
     return jsonError(
       error instanceof Error ? error.message : "Failed to load FAQ",

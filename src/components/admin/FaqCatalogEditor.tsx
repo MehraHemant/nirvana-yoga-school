@@ -9,6 +9,7 @@ import {
 } from "react";
 import { AdminSearchField } from "@/components/admin/AdminSearchField";
 import { CollapsiblePanel } from "@/components/admin/CollapsiblePanel";
+import { FaqUsageIndicator } from "@/components/admin/FaqUsageIndicator";
 import { FaqAdminTagFilterChips } from "@/components/admin/FaqAdminTagFilterChips";
 import { FaqCategorySelect } from "@/components/admin/FaqCategorySelect";
 import { NestedItemCard } from "@/components/admin/NestedItemCard";
@@ -19,7 +20,7 @@ import {
   FAQ_CATEGORY_LABELS,
   type FaqCategoryId,
 } from "@/content/types/faq-categories";
-import type { FaqRecord } from "@/content/types/faqs";
+import type { FaqRecord, FaqRecordWithUsage } from "@/content/types/faqs";
 import {
   faqAdminTagLabel,
   type FaqAdminTagFilter,
@@ -39,9 +40,9 @@ import { parseApiJson } from "@/lib/types/api";
  *
  * @param faqs - FAQ list
  */
-function serializeFaqsForCompare(faqs: FaqRecord[]): string {
+function serializeFaqsForCompare(faqs: FaqRecordWithUsage[]): string {
   return JSON.stringify(
-    faqs.map(({ createdAt, updatedAt, ...faq }) => faq),
+    faqs.map(({ createdAt, updatedAt, usage: _usage, ...faq }) => faq),
   );
 }
 
@@ -64,7 +65,7 @@ export const FaqCatalogEditor = forwardRef<
   FaqCatalogEditorHandle,
   FaqCatalogEditorProps
 >(function FaqCatalogEditor({ onDirtyChange }, ref) {
-  const [faqs, setFaqs] = useState<FaqRecord[]>([]);
+  const [faqs, setFaqs] = useState<FaqRecordWithUsage[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [savingId, setSavingId] = useState<string | null>(null);
@@ -94,7 +95,9 @@ export const FaqCatalogEditor = forwardRef<
    *
    * @param updater - Next FAQ list
    */
-  function commitFaqs(updater: (prev: FaqRecord[]) => FaqRecord[]) {
+  function commitFaqs(
+    updater: (prev: FaqRecordWithUsage[]) => FaqRecordWithUsage[],
+  ) {
     setFaqs((prev) => {
       const next = updater(prev);
       const baseline = serializeFaqsForCompare(next);
@@ -109,7 +112,7 @@ export const FaqCatalogEditor = forwardRef<
     setLoading(true);
     setError("");
     fetch("/api/admin/faqs")
-      .then((res) => parseApiJson<{ faqs: FaqRecord[] }>(res))
+      .then((res) => parseApiJson<{ faqs: FaqRecordWithUsage[] }>(res))
       .then((body) => {
         if (cancelled) return;
         const loaded = body.faqs ?? [];
@@ -135,7 +138,10 @@ export const FaqCatalogEditor = forwardRef<
    * @param faq - FAQ draft
    * @param isNew - Whether to POST a new FAQ
    */
-  async function persistFaq(faq: FaqRecord, isNew: boolean): Promise<FaqRecord> {
+  async function persistFaq(
+    faq: FaqRecordWithUsage,
+    isNew: boolean,
+  ): Promise<FaqRecordWithUsage> {
     const payload = {
       question: faq.question,
       answer: faq.answer,
@@ -150,8 +156,13 @@ export const FaqCatalogEditor = forwardRef<
         body: JSON.stringify(payload),
       },
     );
-    const body = await parseApiJson<{ faq: FaqRecord }>(response);
-    return body.faq;
+    const body = await parseApiJson<{ faq: FaqRecordWithUsage }>(response);
+    return {
+      ...body.faq,
+      usage:
+        body.faq.usage ??
+        faq.usage ?? { inUse: false, references: [] },
+    };
   }
 
   /**
@@ -221,12 +232,13 @@ export const FaqCatalogEditor = forwardRef<
       adminTagFilter !== "all" && adminTagFilter !== "untagged"
         ? adminTagFilter
         : "";
-    const draft: FaqRecord = {
+    const draft: FaqRecordWithUsage = {
       id: `new-${Date.now()}`,
       question: "",
       answer: "",
       category,
       adminTag,
+      usage: { inUse: false, references: [] },
     };
     addKey();
     setFaqs((prev) => [...prev, draft]);
@@ -350,6 +362,7 @@ export const FaqCatalogEditor = forwardRef<
                 onRemove={() => handleRemove(index)}
                 headerActions={
                   <>
+                    <FaqUsageIndicator usage={faq.usage} />
                     {faq.adminTag ? (
                       <span className="admin-faq-admin-tag">
                         {faqAdminTagLabel(faq.adminTag)}
@@ -361,6 +374,7 @@ export const FaqCatalogEditor = forwardRef<
                   </>
                 }
               >
+                <FaqUsageIndicator usage={faq.usage} variant="detail" />
                 <div className="admin-grid-2">
                   <TextField
                     label="Question"
