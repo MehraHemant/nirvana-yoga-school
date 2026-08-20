@@ -1,5 +1,6 @@
 import { getBookingAddons } from "@/content/repositories/shared-sections";
 import type {
+  BookingAdditionalGuest,
   BookingRecord,
   BookingSelectedAddon,
   BookingStatus,
@@ -15,6 +16,7 @@ import {
   getCourseBookingCatalog,
   getRetreatBookingCatalog,
 } from "@/lib/booking/catalog";
+import { getRoomOccupancy } from "@/lib/booking/occupancy";
 import {
   calculateBookingPricing,
   centsToUsd,
@@ -53,6 +55,7 @@ function toBookingRecord(row: {
   remainingCents: number;
   promoCode: string | null;
   addons?: unknown;
+  additionalGuests?: unknown;
   paypalOrderId: string | null;
   paypalCaptureId: string | null;
   deletedAt: Date | null;
@@ -61,6 +64,9 @@ function toBookingRecord(row: {
 }): BookingRecord {
   const addons = Array.isArray(row.addons)
     ? (row.addons as BookingSelectedAddon[])
+    : [];
+  const additionalGuests = Array.isArray(row.additionalGuests)
+    ? (row.additionalGuests as BookingAdditionalGuest[])
     : [];
   return {
     id: row.id,
@@ -82,6 +88,7 @@ function toBookingRecord(row: {
     promoCode: row.promoCode ?? undefined,
     selectedAddonIds: addons.map((item) => item.id),
     addons,
+    additionalGuests,
     basePriceUsd: centsToUsd(row.basePriceCents),
     fullAmountUsd: centsToUsd(row.fullAmountCents),
     payNowUsd: centsToUsd(row.payNowCents),
@@ -99,6 +106,51 @@ function toBookingRecord(row: {
 const ACTIVE_BOOKING_FILTER = { deletedAt: null } as const;
 
 /**
+ * Normalizes additional guest rows from the public booking form.
+ *
+ * @param value - Raw JSON value
+ */
+function parseAdditionalGuests(value: unknown): BookingAdditionalGuest[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((entry) => {
+      if (!entry || typeof entry !== "object") return null;
+      const record = entry as Record<string, unknown>;
+      const name =
+        typeof record.name === "string" ? record.name.trim() : "";
+      const gender =
+        typeof record.gender === "string" ? record.gender.trim() : "";
+      if (!name || !gender) return null;
+      return { name, gender };
+    })
+    .filter((entry): entry is BookingAdditionalGuest => Boolean(entry));
+}
+
+/**
+ * Validates guest count against the selected room occupancy.
+ *
+ * @param roomType - Selected room label
+ * @param additionalGuests - Extra guest rows
+ */
+function validateAdditionalGuests(
+  roomType: string,
+  additionalGuests: BookingAdditionalGuest[],
+): string | null {
+  const requiredExtraGuests = Math.max(0, getRoomOccupancy(roomType) - 1);
+  if (requiredExtraGuests === 0) {
+    return additionalGuests.length > 0
+      ? "This room does not require additional guest details"
+      : null;
+  }
+  if (additionalGuests.length !== requiredExtraGuests) {
+    return `Please add details for ${requiredExtraGuests} additional guest${
+      requiredExtraGuests === 1 ? "" : "s"
+    }`;
+  }
+  return null;
+}
+
+/**
  * Create a pending booking before PayPal checkout.
  *
  * @param input - Validated booking form payload
@@ -112,6 +164,12 @@ export async function createBooking(input: CreateBookingInput) {
   const room = program.rooms.find((item) => item.roomType === input.roomType);
   if (!room) {
     throw new Error("Room option not found");
+  }
+
+  const additionalGuests = input.additionalGuests ?? [];
+  const guestError = validateAdditionalGuests(input.roomType, additionalGuests);
+  if (guestError) {
+    throw new Error(guestError);
   }
 
   const addonsResult = await getBookingAddons();
@@ -165,6 +223,7 @@ export async function createBooking(input: CreateBookingInput) {
       remainingCents: usdToCents(pricing.remainingUsd),
       promoCode: input.promoCode?.trim() || null,
       addons: selectedAddons,
+      additionalGuests,
     },
   });
 
@@ -317,6 +376,13 @@ export function parseCreateBookingInput(
     }
   }
 
+  const roomType = (record.roomType as string).trim();
+  const additionalGuests = parseAdditionalGuests(record.additionalGuests);
+  const guestError = validateAdditionalGuests(roomType, additionalGuests);
+  if (guestError) {
+    return { ok: false, error: guestError };
+  }
+
   return {
     ok: true,
     data: {
@@ -327,7 +393,7 @@ export function parseCreateBookingInput(
         typeof record.programTitle === "string"
           ? record.programTitle.trim()
           : "",
-      roomType: (record.roomType as string).trim(),
+      roomType,
       batchDate: (record.batchDate as string).trim(),
       duration:
         typeof record.duration === "string"
@@ -357,6 +423,7 @@ export function parseCreateBookingInput(
               typeof id === "string" && id.trim().length > 0,
           )
         : [],
+      additionalGuests,
     },
   };
 }

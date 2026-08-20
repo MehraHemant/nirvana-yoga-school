@@ -21,7 +21,7 @@ import { createId, db } from "@/lib/db";
 import { queryOne } from "@/lib/db/sql";
 import type { PageModulesDocument } from "@/content/types";
 import { requireDb } from "./db-fallback";
-import { fromJson, type ContentResult, type RepositoryOptions } from "./fetch";
+import { type ContentResult, type RepositoryOptions } from "./fetch";
 
 const FAQ_CACHE_PREFIX = "faq-assignments";
 
@@ -398,25 +398,25 @@ export async function resolvePageFaqs(
   fallback: FAQ[] = [],
   options?: RepositoryOptions,
 ): Promise<ContentResult<FAQ[]>> {
-  const inline = mapInlinePageFaqs(fallback);
+  return requireDb(async () => {
+    const assigned = await getAssignedFaqs("page", slug);
+    if (assigned.length > 0) {
+      return resolvedFaqsToModuleItems(assigned);
+    }
 
-  if (inline.length === 0) {
-    return requireDb(async () => {
-      const assigned = await getAssignedFaqs("page", slug);
-      if (assigned.length > 0) {
-        return resolvedFaqsToModuleItems(assigned);
-      }
+    const inline = mapInlinePageFaqs(fallback);
+    if (inline.length === 0) {
       return inline;
-    }, options);
-  }
+    }
 
-  const enriched = await enrichInlineFaqsFromAssignments(
-    "page",
-    slug,
-    inline,
-    fallback,
-  );
-  return fromJson(enriched);
+    const enriched = await enrichInlineFaqsFromAssignments(
+      "page",
+      slug,
+      inline,
+      fallback,
+    );
+    return enriched;
+  }, options);
 }
 
 /**
@@ -431,32 +431,33 @@ export async function resolveGlobalFaqs(
   fallback: SharedFaq[] = [],
   options?: RepositoryOptions,
 ): Promise<ContentResult<SharedFaq[]>> {
-  const inline = fallback.map((faq) => ({
-    question: faq.question,
-    answer: faq.answer,
-    category: normalizeFaqCategory(faq.category ?? DEFAULT_FAQ_CATEGORY),
-    sort: faq.sort,
-    image: faq.image,
-    tag: faq.tag,
-  }));
+  return requireDb(async () => {
+    const assigned = await getAssignedFaqs("global", contextKey);
+    if (assigned.length > 0) {
+      return resolvedFaqsToSharedFaqs(assigned);
+    }
 
-  if (inline.length === 0) {
-    return requireDb(async () => {
-      const assigned = await getAssignedFaqs("global", contextKey);
-      if (assigned.length > 0) {
-        return resolvedFaqsToSharedFaqs(assigned);
-      }
+    const inline = fallback.map((faq) => ({
+      question: faq.question,
+      answer: faq.answer,
+      category: normalizeFaqCategory(faq.category ?? DEFAULT_FAQ_CATEGORY),
+      sort: faq.sort,
+      image: faq.image,
+      tag: faq.tag,
+    }));
+
+    if (inline.length === 0) {
       return inline;
-    }, options);
-  }
+    }
 
-  const enriched = await enrichInlineFaqsFromAssignments(
-    "global",
-    contextKey,
-    inline,
-    fallback,
-  );
-  return fromJson(enriched);
+    const enriched = await enrichInlineFaqsFromAssignments(
+      "global",
+      contextKey,
+      inline,
+      fallback,
+    );
+    return enriched;
+  }, options);
 }
 
 /**

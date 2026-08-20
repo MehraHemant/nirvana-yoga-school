@@ -288,6 +288,7 @@ export const MODELS: Record<ModelName, ModelMeta> = {
       promoCode: "promo_code",
       discountCents: "discount_cents",
       addons: "addons",
+      additionalGuests: "additional_guests",
       paypalOrderId: "paypal_order_id",
       paypalCaptureId: "paypal_capture_id",
       deletedAt: "deleted_at",
@@ -296,11 +297,12 @@ export const MODELS: Record<ModelName, ModelMeta> = {
       confirmedAt: "confirmed_at",
     },
     {
-      jsonFields: ["addons"],
+      jsonFields: ["addons", "additionalGuests"],
       defaultCreate: {
         status: "pending_payment",
         discountCents: 0,
         addons: [],
+        additionalGuests: [],
       },
       updatedAt: "updatedAt",
     },
