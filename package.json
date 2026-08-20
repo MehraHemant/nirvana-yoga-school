@@ -18,8 +18,11 @@
     "db:migrate:page-seo": "tsx --env-file=.env scripts/apply-page-seo-migration.ts",
     "db:migrate:media-tags": "tsx --env-file=.env scripts/apply-media-tags-migration.ts",
     "db:migrate:faqs": "tsx --env-file=.env scripts/apply-faqs-migration.ts",
+    "db:migrate:booking-guests": "tsx --env-file=.env scripts/apply-booking-guests-migration.ts",
     "db:seed:course-faqs": "tsx --env-file=.env scripts/seed-course-faqs.ts",
     "db:seed:meditation-faqs": "tsx --env-file=.env scripts/seed-meditation-course-faqs.ts",
+    "db:seed:300-hour-faqs": "tsx --env-file=.env scripts/seed-300-hour-course-faqs.ts",
+    "db:seed:500-hour-faqs": "tsx --env-file=.env scripts/seed-500-hour-course-faqs.ts",
     "db:dedupe:faqs": "tsx --env-file=.env scripts/dedupe-faqs.ts",
     "db:index:chat": "tsx --env-file=.env scripts/index-chat-qdrant.ts",
     "db:import:online-courses": "tsx --env-file=.env scripts/import-online-courses-from-live.ts"

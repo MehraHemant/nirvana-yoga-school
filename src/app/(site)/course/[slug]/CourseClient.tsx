@@ -97,7 +97,10 @@ export default function CourseClient({
   const heroFee = m?.hero.type === "bento-media" ? m.hero.fee : course.fee;
   const overview = m?.overview;
 
-  const faqItems = m?.faqs.items?.length ? m.faqs.items : course.faqs;
+  const faqItems =
+    (m?.faqs?.items?.length ?? 0) > 0
+      ? (m?.faqs.items ?? [])
+      : course.faqs;
   const publicPricing = publicPricingOptionsWithFees(
     m?.pricing.options ?? course.pricing,
   );

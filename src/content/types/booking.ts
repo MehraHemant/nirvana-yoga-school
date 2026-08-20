@@ -100,6 +100,12 @@ export type BookingSelectedAddon = {
   roomType?: string;
 };
 
+/** Additional guest on a multi-person room booking (primary guest uses top-level fields). */
+export type BookingAdditionalGuest = {
+  name: string;
+  gender: string;
+};
+
 export type BookingPricingBreakdown = {
   basePriceUsd: number;
   fullAmountUsd: number;
@@ -131,6 +137,8 @@ export type CreateBookingInput = {
    * At most one room option per course add-on group.
    */
   selectedAddonIds?: string[];
+  /** Extra guests when the room sleeps more than one (e.g. double room). */
+  additionalGuests?: BookingAdditionalGuest[];
 };
 
 export type BookingRecord = CreateBookingInput & {
@@ -144,6 +152,8 @@ export type BookingRecord = CreateBookingInput & {
   remainingUsd: number;
   /** Resolved add-ons stored with the booking */
   addons: BookingSelectedAddon[];
+  /** Extra guests beyond the primary booker */
+  additionalGuests: BookingAdditionalGuest[];
   paypalOrderId: string | null;
   paypalCaptureId: string | null;
   deletedAt: string | null;

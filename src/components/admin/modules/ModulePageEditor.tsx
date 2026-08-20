@@ -17,6 +17,7 @@ import {
 import { pagePath } from "@/content/pages/path";
 import { getPageRef } from "@/content/pages/registry";
 import type { HeroType, PageModulesDocument } from "@/content/types";
+import type { ResolvedFaq } from "@/content/types/faqs";
 import { createDefaultOnlineHubModules } from "@/lib/cms/online-hub-defaults";
 import {
   getHeroLayoutConfig,
@@ -32,9 +33,11 @@ import { PageSeoFields } from "../PageSeoFields";
 import { scrollToSection, toSectionDomId } from "../sectionDomId";
 import { useSectionScrollSpy } from "../useSectionScrollSpy";
 import { EligibilityModuleEditor } from "./EligibilityModuleEditor";
+import { PageFaqAssignmentsEditor } from "../PageFaqAssignmentsEditor";
 import { FaqModuleEditor } from "./FaqModuleEditor";
 import { GalleryModuleEditor } from "./GalleryModuleEditor";
 import { HeroModuleEditor } from "./HeroModuleEditor";
+import { ModuleLiveField } from "./ModuleLiveField";
 import { InclusionsModuleEditor } from "./InclusionsModuleEditor";
 import { ModuleFlagsPanel } from "./ModuleFlagsPanel";
 import { OverviewModuleEditor } from "./OverviewModuleEditor";
@@ -530,6 +533,26 @@ export function ModulePageEditor({
     setOpenPanels({});
   }
 
+  /**
+   * Mirrors assigned catalog FAQs into page modules for the public fallback path.
+   *
+   * @param faqs - Assigned FAQ rows from the catalog
+   */
+  function syncModulesFaqsFromAssignments(faqs: ResolvedFaq[]) {
+    setModules((prev) => ({
+      ...prev,
+      faqs: {
+        ...prev.faqs,
+        live: prev.faqs?.live !== false,
+        items: faqs.map((faq) => ({
+          question: faq.question,
+          answer: faq.answer,
+          category: faq.category,
+        })),
+      },
+    }));
+  }
+
   async function handleSave() {
     setSaving(true);
     setSaved(false);
@@ -910,15 +933,60 @@ export function ModulePageEditor({
           ) : null}
           {show("module-faq") ? (
             <div className="admin-section-shell">
-              <FaqModuleEditor
-                faqs={modules.faqs}
-                onChange={(faqs) => setModules({ ...modules, faqs })}
-                {...panelProps(
-                  "module-faq",
-                  stepOf("module-faq"),
-                  "Questions and answers shown in the FAQ accordion.",
-                )}
-              />
+              {layoutId === "residentialCourse" ? (
+                <CollapsiblePanel
+                  {...panelProps(
+                    "module-faq",
+                    stepOf("module-faq"),
+                    "Assign FAQs from the shared catalog or edit them inline. Changes sync to this page and the public FAQ section.",
+                  )}
+                  title="FAQ"
+                  subtitle={`${modules.faqs?.items?.length ?? 0} question${
+                    (modules.faqs?.items?.length ?? 0) === 1 ? "" : "s"
+                  } on page`}
+                  actions={
+                    <ModuleLiveField
+                      id="module-faq-live"
+                      value={modules.faqs?.live !== false}
+                      onChange={(live) =>
+                        setModules({
+                          ...modules,
+                          faqs: { ...modules.faqs, live },
+                        })
+                      }
+                    />
+                  }
+                >
+                  <PageFaqAssignmentsEditor
+                    contextType="page"
+                    contextKey={slug}
+                    adminTag="course"
+                    idPrefix="module-faq"
+                    onSaved={() => {
+                      void fetch(
+                        `/api/admin/faq-assignments?contextType=page&contextKey=${encodeURIComponent(slug)}`,
+                      )
+                        .then((res) => res.json())
+                        .then((body: { faqs?: ResolvedFaq[] }) => {
+                          if (body.faqs) {
+                            syncModulesFaqsFromAssignments(body.faqs);
+                          }
+                        })
+                        .catch(() => undefined);
+                    }}
+                  />
+                </CollapsiblePanel>
+              ) : (
+                <FaqModuleEditor
+                  faqs={modules.faqs}
+                  onChange={(faqs) => setModules({ ...modules, faqs })}
+                  {...panelProps(
+                    "module-faq",
+                    stepOf("module-faq"),
+                    "Questions and answers shown in the FAQ accordion.",
+                  )}
+                />
+              )}
             </div>
           ) : null}
         </div>

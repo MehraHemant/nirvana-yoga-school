@@ -204,6 +204,15 @@ export default function AdminBookingsPage() {
                         {booking.gender ? (
                           <p className="admin-table-slug">{booking.gender}</p>
                         ) : null}
+                        {(booking.additionalGuests ?? []).map((guest, index) => (
+                          <p
+                            key={`${guest.name}-${index}`}
+                            className="admin-table-slug"
+                          >
+                            + {guest.name}
+                            {guest.gender ? ` · ${guest.gender}` : ""}
+                          </p>
+                        ))}
                       </td>
                       <td>
                         <p className="admin-table-title admin-bookings-program">

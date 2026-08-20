@@ -100,7 +100,7 @@ export function revalidatePublicPagePaths(
   slug: string,
   pageType?: string,
 ): void {
-  revalidatePath(publicPathForPage(slug, pageType));
+  revalidatePath(publicPathForPage(slug, pageType), "page");
   switch (pageType) {
     case "course":
     case "online":

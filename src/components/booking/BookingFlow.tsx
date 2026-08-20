@@ -30,6 +30,7 @@ import {
   formatUsd,
   PAYPAL_FEE_RATE,
 } from "@/lib/booking/pricing";
+import { getRoomOccupancy, requiresMultipleGuests } from "@/lib/booking/occupancy";
 import { shouldRenderSection } from "@/lib/cms/section-visibility";
 import { createEmptyBookingPageContent } from "@/lib/cms/structural-defaults";
 import { optionalSectionHtmlId } from "@/lib/html-id";
@@ -64,6 +65,8 @@ type FormState = {
   batchDate: string;
   name: string;
   gender: string;
+  secondGuestName: string;
+  secondGuestGender: string;
   email: string;
   paymentMode: PaymentMode;
   referenceCode: string;
@@ -136,6 +139,8 @@ export function BookingFlow({
     batchDate: initialBatchDate,
     name: "",
     gender: "",
+    secondGuestName: "",
+    secondGuestGender: "",
     email: "",
     paymentMode: "deposit_20",
     referenceCode: "",
@@ -177,6 +182,9 @@ export function BookingFlow({
       null,
     [selectedProgram, form.roomType],
   );
+
+  const roomOccupancy = getRoomOccupancy(form.roomType);
+  const needsSecondGuest = requiresMultipleGuests(form.roomType);
 
   const roomPriceUsd = selectedRoom?.priceUsd ?? 0;
   const addonsTotalUsd = selectedAddons.reduce(
@@ -299,6 +307,14 @@ export function BookingFlow({
         referenceCode: form.referenceCode,
         hearAbout: form.hearAbout,
         selectedAddonIds: form.selectedAddonIds,
+        additionalGuests: needsSecondGuest
+          ? [
+              {
+                name: form.secondGuestName.trim(),
+                gender: form.secondGuestGender,
+              },
+            ]
+          : [],
       }),
     });
 
@@ -445,6 +461,8 @@ export function BookingFlow({
                           programSlug: value,
                           roomType: "",
                           batchDate: "",
+                          secondGuestName: "",
+                          secondGuestGender: "",
                           selectedAddonIds: [],
                         })
                       }
@@ -490,7 +508,12 @@ export function BookingFlow({
                       value={form.roomType}
                       disabled={!selectedProgram}
                       onChange={(value) =>
-                        setForm({ ...form, roomType: value })
+                        setForm({
+                          ...form,
+                          roomType: value,
+                          secondGuestName: "",
+                          secondGuestGender: "",
+                        })
                       }
                       options={roomOptions}
                       placeholder={
@@ -499,6 +522,12 @@ export function BookingFlow({
                           : `Select a ${programLabel.toLowerCase()} first`
                       }
                     />
+                    {needsSecondGuest ? (
+                      <p className="rounded-2xl border border-primary/15 bg-primary/5 px-3 py-2 font-sans text-xs leading-relaxed text-ink">
+                        This room is for {roomOccupancy} people. You&apos;ll be
+                        asked for both guests&apos; details on the next step.
+                      </p>
+                    ) : null}
                   </div>
 
                   <button
@@ -518,20 +547,29 @@ export function BookingFlow({
                 <div className="space-y-5">
                   <div>
                     <h2 className="font-serif text-2xl text-ink">
-                      Personal information
+                      {needsSecondGuest ? "Guest details" : "Personal information"}
                     </h2>
                     <p className="mt-1 font-sans text-sm text-muted">
-                      Tell us how to reach you.
+                      {needsSecondGuest
+                        ? `This room is for ${roomOccupancy} people. Add details for both guests — guest 1 is the primary contact.`
+                        : "Tell us how to reach you."}
                     </p>
                   </div>
 
                   <div className="grid gap-4 sm:grid-cols-2">
+                    {needsSecondGuest ? (
+                      <div className="sm:col-span-2">
+                        <p className="type-eyebrow text-[10px] font-bold uppercase tracking-wider text-primary">
+                          Guest 1 — Primary contact
+                        </p>
+                      </div>
+                    ) : null}
                     <div className="space-y-2 sm:col-span-2">
                       <label
                         htmlFor="booking-name"
                         className="text-sm font-semibold text-ink"
                       >
-                        Name *
+                        {needsSecondGuest ? "Guest 1 name *" : "Name *"}
                       </label>
                       <input
                         id="booking-name"
@@ -547,7 +585,7 @@ export function BookingFlow({
                         htmlFor="booking-gender"
                         className="text-sm font-semibold text-ink"
                       >
-                        Gender *
+                        {needsSecondGuest ? "Guest 1 gender *" : "Gender *"}
                       </label>
                       <SearchableSelect
                         id="booking-gender"
@@ -600,7 +638,55 @@ export function BookingFlow({
                         error={phoneError}
                       />
                     </div>
-                    <div className="space-y-2 sm:col-span-2">
+
+                    {needsSecondGuest ? (
+                      <>
+                        <div className="sm:col-span-2 border-t border-ink/8 pt-4">
+                          <p className="type-eyebrow text-[10px] font-bold uppercase tracking-wider text-primary">
+                            Guest 2
+                          </p>
+                        </div>
+                        <div className="space-y-2 sm:col-span-2">
+                          <label
+                            htmlFor="booking-second-guest-name"
+                            className="text-sm font-semibold text-ink"
+                          >
+                            Guest 2 name *
+                          </label>
+                          <input
+                            id="booking-second-guest-name"
+                            className="booking-input"
+                            value={form.secondGuestName}
+                            onChange={(event) =>
+                              setForm({
+                                ...form,
+                                secondGuestName: event.target.value,
+                              })
+                            }
+                          />
+                        </div>
+                        <div className="space-y-2 sm:col-span-2">
+                          <label
+                            htmlFor="booking-second-guest-gender"
+                            className="text-sm font-semibold text-ink"
+                          >
+                            Guest 2 gender *
+                          </label>
+                          <SearchableSelect
+                            id="booking-second-guest-gender"
+                            required
+                            value={form.secondGuestGender}
+                            onChange={(value) =>
+                              setForm({ ...form, secondGuestGender: value })
+                            }
+                            options={GENDER_OPTIONS}
+                            placeholder="Select gender…"
+                          />
+                        </div>
+                      </>
+                    ) : null}
+
+                    <div className="space-y-2 sm:col-span-2 border-t border-ink/8 pt-4">
                       <label
                         htmlFor="booking-payment-mode"
                         className="text-sm font-semibold text-ink"
@@ -674,7 +760,9 @@ export function BookingFlow({
                         !form.name ||
                         !form.gender ||
                         !form.email ||
-                        !phoneNational.trim()
+                        !phoneNational.trim() ||
+                        (needsSecondGuest &&
+                          (!form.secondGuestName.trim() || !form.secondGuestGender))
                       }
                       onClick={() => {
                         setError("");
