@@ -26,7 +26,7 @@ export default function OnlineInclusionsSection({
             <span className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/10">
               <Check size={14} className="text-primary" />
             </span>
-            <span className="type-body text-ink/90">{item}</span>
+            <span className="type-body text-ink">{item}</span>
           </li>
         ))}
       </ul>

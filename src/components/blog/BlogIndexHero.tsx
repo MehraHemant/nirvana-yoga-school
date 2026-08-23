@@ -42,13 +42,13 @@ export function BlogIndexHero({ imageSrc }: BlogIndexHeroProps) {
       <div className="relative z-10 flex min-h-[min(48svh,26rem)] items-end px-5 pb-10 pt-[calc(var(--site-header-height)+1.25rem)] sm:min-h-[min(52svh,30rem)] sm:px-8 sm:pb-12 lg:pb-14">
         <Container size="2xl" className="w-full">
           <div className="max-w-lg text-white">
-            <p className="animate-fade-up font-serif text-lg font-medium sm:text-xl">
+            <p className="animate-fade-up text-lg font-semibold sm:text-xl">
               Nirvana Yoga School
             </p>
-            <h1 className="animate-fade-up fade-delay-100 mt-2 font-serif text-[clamp(2rem,4.5vw,3.25rem)] font-medium leading-[0.98] tracking-[-0.03em]">
+            <h1 className="animate-fade-up fade-delay-100 mt-2 text-[clamp(2rem,4.5vw,3.25rem)] font-bold leading-[0.98] tracking-[-0.03em]">
               The Journal
             </h1>
-            <p className="animate-fade-up fade-delay-200 mt-3 font-sans text-sm leading-relaxed text-white/75 sm:text-base">
+            <p className="animate-fade-up fade-delay-200 mt-3 text-sm leading-relaxed text-white/75 sm:text-base">
               Essays from the Himalayan school — practice, philosophy, teaching.
             </p>
             <div className="animate-fade-up fade-delay-300 mt-6">

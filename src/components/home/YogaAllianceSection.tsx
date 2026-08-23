@@ -91,20 +91,17 @@ export default function YogaAllianceSection({
             className="space-y-5"
           >
             <div className="flex flex-wrap items-center gap-3">
-              <Pill
-                invert
-                className="yoga-alliance-tag bg-white/15! text-white! border-white/35!"
-              >
+              <Pill invert className="yoga-alliance-tag">
                 {content.badgeLabel}
               </Pill>
               {content.eyebrow ? (
-                <span className="type-eyebrow yoga-alliance-muted tracking-widest text-[10px] sm:text-xs text-white!">
+                <span className="type-eyebrow yoga-alliance-muted tracking-widest text-[10px] sm:text-xs">
                   {content.eyebrow}
                 </span>
               ) : null}
             </div>
 
-            <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-medium leading-[1.1] text-white">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-[1.1] text-white">
               {content.title}
             </h2>
             {content.description ? (
@@ -118,7 +115,7 @@ export default function YogaAllianceSection({
                 <YogaAllianceSeal className="text-primary w-10 h-10" />
               </div>
               <div>
-                <p className="type-eyebrow yoga-alliance-muted tracking-widest text-[9px] mb-0.5 text-white/85!">
+                <p className="type-eyebrow yoga-alliance-muted tracking-widest text-[9px] mb-0.5">
                   {content.sealEyebrow}
                 </p>
                 <p className="type-ui text-white font-semibold text-xs sm:text-sm">
@@ -136,7 +133,7 @@ export default function YogaAllianceSection({
             variants={fadeUp}
             className="space-y-4 lg:pt-4"
           >
-            <p className="type-lead yoga-alliance-copy font-light leading-relaxed text-sm sm:text-base md:text-lg">
+            <p className="type-lead yoga-alliance-copy font-semibold leading-relaxed text-sm sm:text-base md:text-lg">
               {content.lead}
             </p>
             <p className="type-body yoga-alliance-muted leading-relaxed text-xs sm:text-sm">
@@ -166,7 +163,7 @@ export default function YogaAllianceSection({
                 />
 
                 <div
-                  className="absolute -right-2 top-0 select-none text-[8.5rem] sm:text-[9.5rem] font-serif font-bold text-white/10 pointer-events-none leading-none z-0"
+                  className="absolute -right-2 top-0 select-none text-[8.5rem] sm:text-[9.5rem] font-bold text-white/10 pointer-events-none leading-none z-0"
                   aria-hidden="true"
                 >
                   {cert.hours}
@@ -178,12 +175,12 @@ export default function YogaAllianceSection({
 
                 <div className="relative z-10">
                   <div className="flex items-baseline justify-between mb-4 lg:mb-6">
-                    <span className="type-eyebrow yoga-alliance-tag rounded-full px-3 py-1 text-[10px] uppercase font-bold tracking-wider text-white!">
+                    <span className="type-eyebrow yoga-alliance-tag rounded-full px-3 py-1 text-[10px] uppercase font-bold tracking-wider">
                       {cert.level}
                     </span>
                   </div>
 
-                  <h3 className="font-serif text-xl sm:text-2xl text-white font-medium mb-3 mt-4">
+                  <h3 className="text-xl sm:text-2xl text-white font-bold mb-3 mt-4">
                     {cert.title}
                   </h3>
 

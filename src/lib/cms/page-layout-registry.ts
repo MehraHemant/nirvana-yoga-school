@@ -4,7 +4,6 @@
  */
 
 import { KIRTAN_SLUG } from "@/content/mappers/kirtan-page";
-import type { HeroType } from "@/content/types/page-modules";
 import {
   ONLINE_COURSE_SLUGS,
   ONLINE_HUB_SLUG,
@@ -12,6 +11,7 @@ import {
   RETREAT_SLUGS,
   VENUE_SLUGS,
 } from "@/content/pages/slugs";
+import type { HeroType } from "@/content/types/page-modules";
 
 /** Layout family identifiers used by the admin page router. */
 export type PageLayoutId =
@@ -72,9 +72,7 @@ const BOOKING_SLUGS = new Set(["booking", "retreat-booking"]);
 
 const RESIDENTIAL_SET = new Set<string>(RESIDENTIAL_COURSE_SLUGS);
 const ONLINE_SET = new Set<string>(ONLINE_COURSE_SLUGS);
-const RETREAT_SET = new Set<string>(
-  RETREAT_SLUGS.filter((s) => s !== "retreat-booking"),
-);
+const RETREAT_SET = new Set<string>(RETREAT_SLUGS);
 const VENUE_SET = new Set<string>(VENUE_SLUGS);
 
 const SHARED_LINK = (key: string, label: string): PageLayoutSection => ({

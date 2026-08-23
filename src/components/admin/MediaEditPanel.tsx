@@ -77,7 +77,11 @@ export function MediaEditPanel({
               {asset.caption || "Untitled image"}
             </p>
           </div>
-          <AdminIconButton label="Close editor" onClick={onClose} icon={<Close size={18} />} />
+          <AdminIconButton
+            label="Close editor"
+            onClick={onClose}
+            icon={<Close size={18} />}
+          />
         </div>
 
         <div className="admin-media-library__drawer-body">
@@ -98,9 +102,7 @@ export function MediaEditPanel({
 
           <div className="admin-media-library__drawer-usage">
             <span
-              className={`admin-status-chip${
-                inUse ? " admin-status-chip--warn" : " admin-status-chip--ok"
-              }`}
+              className={`admin-status-chip${inUse ? " admin-status-chip--warn" : " admin-status-chip--ok"}`}
             >
               {inUse ? "In use" : "Unused"}
             </span>

@@ -101,20 +101,20 @@ function PrerequisiteCard({
       viewport={VIEWPORT_ONCE}
       variants={fadeUp}
       transition={{ duration: 0.4, delay }}
-      className="space-y-3"
+      className="space-y-3 shadow p-5"
     >
       <div className="flex items-center gap-3">
         <div className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
           <IconComponent size={14} />
         </div>
-        <span className="font-serif font-semibold tracking-wide text-sm text-muted">
+        <span className="font-semibold tracking-wide text-sm text-ink">
           Prerequisite {num}
         </span>
       </div>
-      <h4 className="font-serif type-lead text-lg md:text-xl lg:text-2xl font-semibold tracking-wider text-ink">
+      <h4 className="text-lg md:text-xl lg:text-2xl font-semibold text-ink">
         {title}
       </h4>
-      <p className="type-body leading-snug text-muted font-sans">{desc}</p>
+      <p className="text-base font-medium text-ink">{desc}</p>
     </motion.div>
   );
 }
@@ -151,7 +151,7 @@ export default function CourseEligibility({
           {/* Column 1 (Left 4-cols): Header & Intro */}
           <div className="lg:col-span-4 space-y-6">
             <SectionHeader eyebrow={eyebrow} title={title} align="left" />
-            <p className="type-body text-muted leading-relaxed font-sans text-sm sm:text-base">
+            <p className="text-ink text-base/normal font-medium">
               {description}
             </p>
             {showAllianceBadge && (
@@ -159,7 +159,7 @@ export default function CourseEligibility({
                 <div className="text-primary/70 select-none">
                   <YogaAllianceSeal size={38} />
                 </div>
-                <div className="text-xs text-muted leading-normal">
+                <div className="text-xs text-ink leading-normal">
                   <span className="font-semibold text-ink block">
                     RYS 200/300/500
                   </span>
@@ -170,7 +170,7 @@ export default function CourseEligibility({
           </div>
 
           {/* Column 2 (Middle 4-cols): Req 1 & 2 */}
-          <div className="lg:col-span-4 space-y-10 lg:border-l lg:border-ink/10 lg:pl-10">
+          <div className="lg:col-span-4 space-y-10">
             {resolvedRequirements.slice(0, 2).map((req, index) => (
               <PrerequisiteCard
                 key={req.title}
@@ -184,7 +184,7 @@ export default function CourseEligibility({
           </div>
 
           {/* Column 3 (Right 4-cols): Req 3 & 4 */}
-          <div className="lg:col-span-4 space-y-10 lg:border-l lg:border-ink/10 lg:pl-10">
+          <div className="lg:col-span-4 space-y-10">
             {resolvedRequirements.slice(2, 4).map((req, index) => (
               <PrerequisiteCard
                 key={req.title}

@@ -79,7 +79,7 @@ export default function ExamCertification({ content }: ExamCertificationProps) {
                       </button>
                     ))}
                   </div>
-                  <p className="type-ui mt-6 text-center italic text-muted">
+                  <p className="type-ui mt-6 text-center italic text-ink">
                     Click certificates to zoom in.
                   </p>
                 </div>
@@ -96,22 +96,22 @@ export default function ExamCertification({ content }: ExamCertificationProps) {
                       key={`${step.title}-${index}`}
                       className="flex gap-6 items-start relative pb-6 border-b border-ink/5 last:border-0 last:pb-0"
                     >
-                      <span className="font-serif text-5xl md:text-6xl font-bold text-primary/10 select-none leading-none pt-1">
+                      <span className="text-5xl md:text-6xl font-bold text-primary/10 select-none leading-none pt-1">
                         {String(index + 1).padStart(2, "0")}
                       </span>
                       <div className="space-y-1">
                         {step.tag?.trim() ? (
-                          <span className="type-eyebrow text-primary/70 font-semibold tracking-wider block uppercase mb-1">
+                          <span className="type-eyebrow text-primary/90 font-semibold tracking-wider block uppercase mb-1">
                             {step.tag}
                           </span>
                         ) : null}
                         {step.title?.trim() ? (
-                          <h4 className="font-serif text-base sm:text-lg md:text-xl lg:text-2xl font-semibold tracking-wider text-ink">
+                          <h4 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-ink">
                             {step.title}
                           </h4>
                         ) : null}
                         {step.description?.trim() ? (
-                          <p className="type-body pt-1 leading-relaxed text-muted">
+                          <p className="text-base lg:text-lg pt-1">
                             {step.description}
                           </p>
                         ) : null}

@@ -10,17 +10,41 @@ type PayPalOrderResponse = {
 };
 
 /**
+ * Resolve PayPal mode from PAYPAL_MODE or PAYPAL_SANDBOX.
+ */
+function resolvePayPalMode(): string {
+  if (process.env.PAYPAL_MODE) {
+    return process.env.PAYPAL_MODE;
+  }
+  const sandbox = process.env.PAYPAL_SANDBOX;
+  if (sandbox === "true") return "sandbox";
+  if (sandbox === "false") return "live";
+  return "sandbox";
+}
+
+/**
  * Resolve PayPal API base URL from environment mode.
  */
 function getPayPalApiBase(): string {
-  const mode = process.env.PAYPAL_MODE ?? "sandbox";
+  const mode = resolvePayPalMode();
   return mode === "live"
     ? "https://api-m.paypal.com"
     : "https://api-m.sandbox.paypal.com";
 }
 
 /**
- * Read PayPal credentials from environment.
+ * Public PayPal client id — NEXT_PUBLIC_* with fallback to server id.
+ */
+function getPayPalPublicClientId(): string | null {
+  return (
+    process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID ??
+    process.env.PAYPAL_CLIENT_ID ??
+    null
+  );
+}
+
+/**
+ * Read PayPal server credentials from environment.
  */
 function getPayPalCredentials() {
   const clientId = process.env.PAYPAL_CLIENT_ID;
@@ -140,7 +164,7 @@ export async function capturePayPalOrder(orderId: string) {
  * Public PayPal client id for the browser SDK.
  */
 export function getPayPalClientId(): string | null {
-  return process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID ?? null;
+  return getPayPalPublicClientId();
 }
 
 /**
@@ -150,6 +174,6 @@ export function isPayPalConfigured(): boolean {
   return Boolean(
     process.env.PAYPAL_CLIENT_ID &&
       process.env.PAYPAL_CLIENT_SECRET &&
-      process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID,
+      getPayPalPublicClientId(),
   );
 }

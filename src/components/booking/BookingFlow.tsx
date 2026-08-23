@@ -30,7 +30,10 @@ import {
   formatUsd,
   PAYPAL_FEE_RATE,
 } from "@/lib/booking/pricing";
-import { getRoomOccupancy, requiresMultipleGuests } from "@/lib/booking/occupancy";
+import {
+  getRoomOccupancy,
+  requiresMultipleGuests,
+} from "@/lib/booking/occupancy";
 import { shouldRenderSection } from "@/lib/cms/section-visibility";
 import { createEmptyBookingPageContent } from "@/lib/cms/structural-defaults";
 import { optionalSectionHtmlId } from "@/lib/html-id";
@@ -336,13 +339,13 @@ export function BookingFlow({
       <section className="bg-white py-20">
         <Container size="md">
           <div className="rounded-3xl border border-emerald-200 bg-white p-10 text-center shadow-card">
-            <h1 className="font-serif text-3xl text-ink">Booking confirmed!</h1>
-            <p className="mt-4 font-sans text-muted">
+            <h1 className="text-3xl text-ink">Booking confirmed!</h1>
+            <p className="mt-4 text-ink">
               Thank you, {form.name}. Your payment was received and our team
               will contact you shortly at {form.email}.
             </p>
             {pricing && form.paymentMode === "deposit_20" ? (
-              <p className="mt-3 font-sans text-sm text-muted">
+              <p className="mt-3 text-sm text-ink">
                 Remaining balance of {formatUsd(pricing.remainingUsd)} is due on
                 arrival at the school.
               </p>
@@ -369,10 +372,10 @@ export function BookingFlow({
               <span className="type-eyebrow font-semibold tracking-widest text-white/80 uppercase">
                 {content.hero.eyebrow}
               </span>
-              <h1 className="font-serif text-4xl font-medium leading-[1.08] tracking-tight text-white sm:text-5xl md:text-6xl">
+              <h1 className="text-4xl font-bold leading-[1.08] tracking-tight text-white sm:text-5xl md:text-6xl">
                 {content.hero.title}
               </h1>
-              <p className="type-lead max-w-xl pt-1 font-sans text-base leading-relaxed text-white/85 sm:text-lg">
+              <p className="type-lead max-w-xl pt-1 text-base leading-relaxed text-white/85 sm:text-lg">
                 {content.hero.lead}
               </p>
             </div>
@@ -393,15 +396,15 @@ export function BookingFlow({
               {content.steps.map((item) => (
                 <li
                   key={`${item.step}-${item.title}`}
-                  className="rounded-2xl border border-ink/8 bg-white p-5 shadow-card"
+                  className="surface-bordered p-5 shadow-card"
                 >
                   <span className="type-eyebrow text-[10px] font-bold text-secondary">
                     {item.step}
                   </span>
-                  <h2 className="mt-1 font-serif text-lg font-medium text-ink">
+                  <h2 className="mt-1 text-lg font-bold text-ink">
                     {item.title}
                   </h2>
-                  <p className="mt-1.5 font-sans text-sm leading-relaxed text-muted">
+                  <p className="mt-1.5 text-sm leading-relaxed text-ink">
                     {item.body}
                   </p>
                 </li>
@@ -416,13 +419,7 @@ export function BookingFlow({
               return (
                 <span
                   key={label}
-                  className={`rounded-full px-4 py-1.5 text-sm font-semibold ${
-                    active
-                      ? "bg-primary text-white"
-                      : done
-                        ? "bg-primary/10 text-primary"
-                        : "bg-white text-muted border border-ink/10"
-                  }`}
+                  className={`rounded-full px-4 py-1.5 text-sm font-semibold ${active ? "bg-primary text-white" : done ? "bg-primary/10 text-primary" : "bg-white text-ink border border-ink/10"}`}
                 >
                   {stepNumber}. {label}
                 </span>
@@ -435,10 +432,8 @@ export function BookingFlow({
               {step === 1 ? (
                 <div className="space-y-5">
                   <div>
-                    <h2 className="font-serif text-2xl text-ink">
-                      Program details
-                    </h2>
-                    <p className="mt-1 font-sans text-sm text-muted">
+                    <h2 className="text-2xl text-ink">Program details</h2>
+                    <p className="mt-1 text-sm text-ink">
                       Select your preferred {programLabel.toLowerCase()},
                       accommodation, and dates.
                     </p>
@@ -523,7 +518,7 @@ export function BookingFlow({
                       }
                     />
                     {needsSecondGuest ? (
-                      <p className="rounded-2xl border border-primary/15 bg-primary/5 px-3 py-2 font-sans text-xs leading-relaxed text-ink">
+                      <p className="rounded-2xl border border-primary/15 bg-primary/5 px-3 py-2 text-xs leading-relaxed text-ink">
                         This room is for {roomOccupancy} people. You&apos;ll be
                         asked for both guests&apos; details on the next step.
                       </p>
@@ -546,10 +541,12 @@ export function BookingFlow({
               {step === 2 ? (
                 <div className="space-y-5">
                   <div>
-                    <h2 className="font-serif text-2xl text-ink">
-                      {needsSecondGuest ? "Guest details" : "Personal information"}
+                    <h2 className="text-2xl text-ink">
+                      {needsSecondGuest
+                        ? "Guest details"
+                        : "Personal information"}
                     </h2>
-                    <p className="mt-1 font-sans text-sm text-muted">
+                    <p className="mt-1 text-sm text-ink">
                       {needsSecondGuest
                         ? `This room is for ${roomOccupancy} people. Add details for both guests — guest 1 is the primary contact.`
                         : "Tell us how to reach you."}
@@ -762,7 +759,8 @@ export function BookingFlow({
                         !form.email ||
                         !phoneNational.trim() ||
                         (needsSecondGuest &&
-                          (!form.secondGuestName.trim() || !form.secondGuestGender))
+                          (!form.secondGuestName.trim() ||
+                            !form.secondGuestGender))
                       }
                       onClick={() => {
                         setError("");
@@ -778,8 +776,8 @@ export function BookingFlow({
               {step === 3 ? (
                 <div className="space-y-5">
                   <div>
-                    <h2 className="font-serif text-2xl text-ink">Add-ons</h2>
-                    <p className="mt-1 font-sans text-sm text-muted">
+                    <h2 className="text-2xl text-ink">Add-ons</h2>
+                    <p className="mt-1 text-sm text-ink">
                       {addons?.intro?.trim() ||
                         "Optional extras for your stay. Skip if you do not need any."}
                     </p>
@@ -798,26 +796,22 @@ export function BookingFlow({
                           return (
                             <li
                               key={item.id}
-                              className={`rounded-2xl border p-4 transition-colors ${
-                                selectedOptionId
-                                  ? "border-primary/40 bg-primary/5"
-                                  : "border-ink/10 bg-sand/30"
-                              }`}
+                              className={`rounded-2xl border p-4 transition-colors ${selectedOptionId ? "border-primary/40 bg-primary/5" : "border-ink/10 bg-sand/30"}`}
                             >
                               <div className="flex flex-wrap items-baseline justify-between gap-2">
-                                <span className="font-sans text-sm font-semibold text-ink">
+                                <span className="text-sm font-semibold text-ink">
                                   {item.label}
                                 </span>
                                 {typeof item.priceUsd === "number" &&
                                 item.priceUsd > 0 &&
                                 !selectedOptionId ? (
-                                  <span className="font-sans text-xs text-muted">
+                                  <span className="text-xs text-ink">
                                     from {formatUsd(item.priceUsd)}
                                   </span>
                                 ) : null}
                               </div>
                               {item.description ? (
-                                <p className="mt-1 font-sans text-sm text-muted">
+                                <p className="mt-1 text-sm text-ink">
                                   {item.description}
                                 </p>
                               ) : null}
@@ -835,12 +829,12 @@ export function BookingFlow({
                                       selectCourseAddonRoom(item, null)
                                     }
                                   />
-                                  <span className="font-sans text-sm text-muted">
+                                  <span className="text-sm text-ink">
                                     None — skip
                                   </span>
                                 </label>
                                 {options.length === 0 ? (
-                                  <p className="px-2 font-sans text-xs text-muted">
+                                  <p className="px-2 text-xs text-ink">
                                     No rooms available for this course right
                                     now.
                                   </p>
@@ -865,11 +859,11 @@ export function BookingFlow({
                                             )
                                           }
                                         />
-                                        <span className="font-sans text-sm text-ink">
+                                        <span className="text-sm text-ink">
                                           {option.label}
                                         </span>
                                       </span>
-                                      <span className="font-serif text-sm text-primary">
+                                      <span className="text-sm text-primary">
                                         {formatUsd(option.priceUsd)}
                                       </span>
                                     </label>
@@ -889,11 +883,7 @@ export function BookingFlow({
                         return (
                           <li key={item.id}>
                             <label
-                              className={`flex cursor-pointer gap-4 rounded-2xl border p-4 transition-colors ${
-                                checked
-                                  ? "border-primary/40 bg-primary/5"
-                                  : "border-ink/10 bg-sand/30 hover:border-ink/20"
-                              }`}
+                              className={`flex cursor-pointer gap-4 rounded-2xl border p-4 transition-colors ${checked ? "border-primary/40 bg-primary/5" : "border-ink/10 bg-sand/30 hover:border-ink/20"}`}
                             >
                               <input
                                 type="checkbox"
@@ -903,15 +893,15 @@ export function BookingFlow({
                               />
                               <span className="min-w-0 flex-1">
                                 <span className="flex flex-wrap items-baseline justify-between gap-2">
-                                  <span className="font-sans text-sm font-semibold text-ink">
+                                  <span className="text-sm font-semibold text-ink">
                                     {item.label}
                                   </span>
-                                  <span className="font-serif text-base text-primary">
+                                  <span className="text-base text-primary">
                                     {formatUsd(item.priceUsd ?? 0)}
                                   </span>
                                 </span>
                                 {item.description ? (
-                                  <span className="mt-1 block font-sans text-sm text-muted">
+                                  <span className="mt-1 block text-sm text-ink">
                                     {item.description}
                                   </span>
                                 ) : null}
@@ -922,7 +912,7 @@ export function BookingFlow({
                       })}
                     </ul>
                   ) : (
-                    <p className="rounded-2xl border border-ink/8 bg-sand/20 px-4 py-3 font-sans text-sm text-muted">
+                    <p className="rounded-2xl border border-ink/8 bg-sand/20 px-4 py-3 text-sm text-ink">
                       No optional add-ons are available for this booking right
                       now.
                     </p>
@@ -951,10 +941,8 @@ export function BookingFlow({
               {step === 4 && bookingId ? (
                 <div className="space-y-5">
                   <div>
-                    <h2 className="font-serif text-2xl text-ink">
-                      Payment method
-                    </h2>
-                    <p className="mt-1 font-sans text-sm text-muted">
+                    <h2 className="text-2xl text-ink">Payment method</h2>
+                    <p className="mt-1 text-sm text-ink">
                       Safe payment using PayPal, credit card, or debit card. A{" "}
                       {Math.round(PAYPAL_FEE_RATE * 100)}% processing fee
                       applies.
@@ -994,29 +982,29 @@ export function BookingFlow({
             </div>
 
             <aside className="h-fit min-w-0 rounded-3xl border border-ink/8 bg-white p-6 shadow-card lg:sticky lg:top-[calc(var(--site-header-height,4.75rem)+1rem)]">
-              <h3 className="font-serif text-xl text-ink">Fee breakdown</h3>
+              <h3 className="text-xl text-ink">Fee breakdown</h3>
               {pricing && selectedProgram ? (
-                <dl className="mt-4 space-y-3 font-sans text-sm">
+                <dl className="mt-4 space-y-3 text-sm">
                   <div className="flex justify-between gap-4">
-                    <dt className="text-muted">Program</dt>
+                    <dt className="text-ink">Program</dt>
                     <dd className="text-right text-ink">
                       {selectedProgram.title}
                     </dd>
                   </div>
                   <div className="flex justify-between gap-4">
-                    <dt className="text-muted">Room</dt>
+                    <dt className="text-ink">Room</dt>
                     <dd className="text-right text-ink">
                       {form.roomType || "—"}
                     </dd>
                   </div>
                   <div className="flex justify-between gap-4">
-                    <dt className="text-muted">Date</dt>
+                    <dt className="text-ink">Date</dt>
                     <dd className="text-right text-ink">
                       {form.batchDate || "—"}
                     </dd>
                   </div>
                   <div className="flex justify-between gap-4 border-t border-ink/8 pt-3">
-                    <dt className="text-muted">
+                    <dt className="text-ink">
                       {type === "course" ? "Course price" : "Package price"}
                     </dt>
                     <dd className="font-semibold text-ink">
@@ -1025,20 +1013,20 @@ export function BookingFlow({
                   </div>
                   {selectedAddons.map((item) => (
                     <div key={item.id} className="flex justify-between gap-4">
-                      <dt className="text-muted">{item.label}</dt>
+                      <dt className="text-ink">{item.label}</dt>
                       <dd className="text-ink">{formatUsd(item.priceUsd)}</dd>
                     </div>
                   ))}
                   {selectedAddons.length > 0 ? (
                     <div className="flex justify-between gap-4">
-                      <dt className="text-muted">Subtotal</dt>
+                      <dt className="text-ink">Subtotal</dt>
                       <dd className="font-semibold text-ink">
                         {formatUsd(pricing.fullAmountUsd)}
                       </dd>
                     </div>
                   ) : null}
                   <div className="flex justify-between gap-4">
-                    <dt className="text-muted">
+                    <dt className="text-ink">
                       {form.paymentMode === "deposit_20"
                         ? "20% deposit"
                         : "Pay now"}
@@ -1046,26 +1034,26 @@ export function BookingFlow({
                     <dd className="text-ink">{formatUsd(pricing.payNowUsd)}</dd>
                   </div>
                   <div className="flex justify-between gap-4">
-                    <dt className="text-muted">PayPal fee (6%)</dt>
+                    <dt className="text-ink">PayPal fee (6%)</dt>
                     <dd className="text-ink">
                       {formatUsd(pricing.paypalFeeUsd)}
                     </dd>
                   </div>
                   <div className="flex justify-between gap-4 border-t border-ink/8 pt-3">
                     <dt className="font-semibold text-ink">Total to pay now</dt>
-                    <dd className="font-serif text-xl font-medium text-primary">
+                    <dd className="text-xl font-semibold text-primary">
                       {formatUsd(pricing.totalPayNowUsd)}
                     </dd>
                   </div>
                   {pricing.remainingUsd > 0 ? (
-                    <p className="text-xs text-muted">
+                    <p className="text-xs text-ink">
                       Remaining {formatUsd(pricing.remainingUsd)} due on
                       arrival.
                     </p>
                   ) : null}
                 </dl>
               ) : (
-                <p className="mt-4 font-sans text-sm text-muted">
+                <p className="mt-4 text-sm text-ink">
                   Select a program and room to see pricing.
                 </p>
               )}

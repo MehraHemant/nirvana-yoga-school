@@ -18,7 +18,7 @@ type ResidentialSectionHeaderProps = {
  * @param props - Optional eyebrow and section title node
  */
 export function ResidentialSectionHeader({
-  eyebrow = "Residential Life",
+  eyebrow,
   title,
 }: ResidentialSectionHeaderProps) {
   return (
@@ -30,7 +30,7 @@ export function ResidentialSectionHeader({
       className="space-y-4 border-b border-ink/5 pb-5"
     >
       <SectionHeader
-        eyebrow={eyebrow.trim() || "Residential Life"}
+        eyebrow={eyebrow?.trim() ?? "Residential Life"}
         title={title}
         align="left"
         className="mb-0"
@@ -60,11 +60,11 @@ export function ResidentialSectionIntro({
 }: ResidentialSectionIntroProps) {
   return (
     <div className="border-l-2 border-secondary/35 pl-4 sm:pl-5">
-      <p className="type-eyebrow mb-1.5 text-secondary">{eyebrow}</p>
-      <h3 className="mb-2 font-serif text-lg leading-tight text-ink md:text-2xl">
+      <p className="type-eyebrow mb-1.5 text-primary">{eyebrow}</p>
+      <h3 className="mb-2 text-lg md:text-2xl font-semibold">
         {title}
       </h3>
-      <p className="type-body leading-relaxed text-muted">{description}</p>
+      <p className="text-base lg:text-lg font-normal text-ink leading-snug">{description}</p>
     </div>
   );
 }

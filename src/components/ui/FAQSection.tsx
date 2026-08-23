@@ -84,9 +84,7 @@ export default function FAQSection({
   const leftColumn = visibleItems.filter((_, index) => index % 2 === 0);
   const rightColumn = visibleItems.filter((_, index) => index % 2 !== 0);
 
-  const renderColumn = (
-    columnFaqs: Array<{ faq: FAQEntry; key: string }>,
-  ) => (
+  const renderColumn = (columnFaqs: Array<{ faq: FAQEntry; key: string }>) => (
     <div className="space-y-4 sm:space-y-5">
       {columnFaqs.map(({ faq, key }) => (
         <FAQItem
@@ -108,7 +106,7 @@ export default function FAQSection({
   return (
     <section
       id={id}
-      className={`overflow-hidden py-12 sm:py-14 lg:py-16 ${sectionClassName || "bg-light-gray"}`}
+      className={`overflow-hidden section-padding-y ${sectionClassName || "bg-light-gray"}`}
     >
       <Container size="2xl">
         <motion.div
@@ -116,9 +114,7 @@ export default function FAQSection({
           whileInView="visible"
           viewport={VIEWPORT_ONCE}
           variants={fadeUp}
-          className={`mb-8 sm:mb-10 md:mb-16 ${
-            align === "center" ? "mx-auto max-w-2xl text-center" : "max-w-2xl"
-          }`}
+          className={`mb-8 sm:mb-10 md:mb-16 ${align === "center" ? "mx-auto max-w-2xl text-center" : "max-w-2xl"}`}
         >
           <SectionHeader
             eyebrow={eyebrow}

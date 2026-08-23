@@ -77,16 +77,12 @@ export default function PhoneInput({
           }
           aria-describedby={error ? errorId : undefined}
           aria-invalid={error ? true : undefined}
-          className="min-w-0 flex-1 border-0 bg-transparent px-4 py-3 font-sans text-sm text-ink placeholder-muted/65 focus:outline-none"
+          className="min-w-0 flex-1 border-0 bg-transparent px-4 py-3 text-sm text-ink placeholder-muted/65 focus:outline-none"
         />
       </div>
 
       {error && (
-        <p
-          id={errorId}
-          role="alert"
-          className="mt-1.5 font-sans text-xs text-red-600"
-        >
+        <p id={errorId} role="alert" className="mt-1.5 text-xs text-red-600">
           {error}
         </p>
       )}

@@ -35,11 +35,7 @@ export default function OnlineCurriculumSection({
           return (
             <div
               key={item.title}
-              className={`overflow-hidden rounded-2xl border transition-colors ${
-                isOpen
-                  ? "border-primary/20 bg-white shadow-card"
-                  : "border-primary/10 bg-white/80 hover:border-primary/20"
-              }`}
+              className={`overflow-hidden rounded-2xl border transition-colors ${isOpen ? "border-primary/20 bg-white shadow-card" : "border-primary/10 bg-white/80 hover:border-primary/20"}`}
             >
               <button
                 type="button"
@@ -48,15 +44,11 @@ export default function OnlineCurriculumSection({
                 onClick={() => setOpenIndex(isOpen ? -1 : index)}
                 className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left sm:px-6 sm:py-5"
               >
-                <span className="font-serif text-lg text-ink sm:text-xl">
+                <span className="text-lg text-ink sm:text-xl">
                   {item.title}
                 </span>
                 <span
-                  className={`flex size-8 shrink-0 items-center justify-center rounded-full transition-colors ${
-                    isOpen
-                      ? "bg-primary text-white"
-                      : "bg-primary/10 text-primary"
-                  }`}
+                  className={`flex size-8 shrink-0 items-center justify-center rounded-full transition-colors ${isOpen ? "bg-primary text-white" : "bg-primary/10 text-primary"}`}
                 >
                   <motion.span
                     animate={{ rotate: isOpen ? 45 : 0 }}
@@ -93,16 +85,14 @@ export default function OnlineCurriculumSection({
                   >
                     <div className="space-y-4 border-t border-primary/10 px-5 pb-5 pt-4 sm:px-6 sm:pb-6">
                       {item.description && (
-                        <p className="type-body text-muted">
-                          {item.description}
-                        </p>
+                        <p className="type-body text-ink">{item.description}</p>
                       )}
                       {item.subtopics.length > 0 && (
                         <ul className="grid gap-2 sm:grid-cols-2">
                           {item.subtopics.map((topic) => (
                             <li
                               key={topic}
-                              className="flex items-start gap-2 text-sm text-ink/85"
+                              className="flex items-start gap-2 text-sm text-ink"
                             >
                               <span
                                 className="mt-2 size-1.5 shrink-0 rounded-full bg-primary"

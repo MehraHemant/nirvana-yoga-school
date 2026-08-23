@@ -362,8 +362,8 @@ export default function CourseHero({
         >
           <Heading
             as="h1"
-            size="h2"
-            className="line-clamp-3 px-1 text-center font-medium text-lg! leading-snug sm:text-xl! md:line-clamp-2 md:text-3xl! lg:text-4xl!"
+            size="none"
+            className="line-clamp-3 px-1 text-center text-lg font-bold leading-snug sm:text-xl md:line-clamp-2 md:text-3xl lg:text-4xl"
           >
             {title}
           </Heading>
@@ -427,11 +427,7 @@ export default function CourseHero({
             {/* Course meta — frosted overlay on main photo */}
             {hasMeta && !activeVideoId && (
               <div
-                className={`pointer-events-none absolute right-2 left-2 z-20 flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-2xl bg-ink/45 px-3 py-2 backdrop-blur-md ring-1 ring-white/10 sm:right-auto sm:left-3 sm:flex-nowrap sm:gap-3 sm:px-4 ${
-                  activePictured
-                    ? "bottom-[5.75rem] sm:bottom-auto sm:top-3"
-                    : "bottom-14 sm:bottom-auto sm:top-3"
-                }`}
+                className={`pointer-events-none absolute right-2 left-2 z-20 flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-2xl bg-ink/45 px-3 py-2 backdrop-blur-md ring-1 ring-white/10 sm:right-auto sm:left-3 sm:flex-nowrap sm:gap-3 sm:px-4 ${activePictured ? "bottom-[5.75rem] sm:bottom-auto sm:top-3" : "bottom-14 sm:bottom-auto sm:top-3"}`}
               >
                 {duration && (
                   <div className="min-w-0">
@@ -488,7 +484,7 @@ export default function CourseHero({
                   <span className="type-eyebrow block text-[8px] text-white/65 sm:text-[9px]">
                     Pictured
                   </span>
-                  <span className="mt-0.5 block font-medium">
+                  <span className="mt-0.5 block font-semibold">
                     {activePictured}
                   </span>
                 </p>
@@ -503,7 +499,7 @@ export default function CourseHero({
                   setActiveVideoId(null);
                   setHovered(false);
                 }}
-                className="absolute top-3 left-3 z-20 flex cursor-pointer items-center gap-1.5 rounded-full bg-ink/60 px-3 py-1.5 text-[11px] font-medium text-white backdrop-blur-sm transition-colors hover:bg-ink/80"
+                className="absolute top-3 left-3 z-20 flex cursor-pointer items-center gap-1.5 rounded-full bg-ink/60 px-3 py-1.5 text-[11px] font-semibold text-white backdrop-blur-sm transition-colors hover:bg-ink/80"
               >
                 ← Photos
               </button>
@@ -552,7 +548,7 @@ export default function CourseHero({
                       <ChevronRight size={16} />
                     </button>
                   </div>
-                  <span className="rounded-full bg-white/85 px-2.5 py-0.5 text-[10px] tabular-nums text-muted shadow-soft backdrop-blur-sm sm:px-3 sm:text-[11px]">
+                  <span className="rounded-full bg-white/85 px-2.5 py-0.5 text-[10px] tabular-nums text-ink shadow-soft backdrop-blur-sm sm:px-3 sm:text-[11px]">
                     {stripTotal > 0 ? activeStripIndex + 1 : 0} / {stripTotal}
                   </span>
                 </div>
@@ -584,11 +580,7 @@ export default function CourseHero({
                 <button
                   type="button"
                   onClick={() => playVideo(videoIds[cell.vidIdx])}
-                  className={`group h-full w-full overflow-hidden rounded-2xl bg-ink ${
-                    activeVideoId === videoIds[cell.vidIdx]
-                      ? "ring-2 ring-primary"
-                      : ""
-                  }`}
+                  className={`group h-full w-full overflow-hidden rounded-2xl bg-ink ${activeVideoId === videoIds[cell.vidIdx] ? "ring-2 ring-primary" : ""}`}
                   aria-label={`Play: ${ytTitle(videoIds[cell.vidIdx], cell.vidIdx)}`}
                 >
                   <div className="relative h-full w-full">
@@ -601,11 +593,7 @@ export default function CourseHero({
                     />
                     <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-ink/25 transition-colors group-hover:bg-ink/15">
                       <span
-                        className={`flex h-9 w-9 items-center justify-center rounded-full shadow-soft backdrop-blur-sm transition-all group-hover:scale-105 ${
-                          activeVideoId === videoIds[cell.vidIdx]
-                            ? "bg-primary"
-                            : "bg-white/90"
-                        }`}
+                        className={`flex h-9 w-9 items-center justify-center rounded-full shadow-soft backdrop-blur-sm transition-all group-hover:scale-105 ${activeVideoId === videoIds[cell.vidIdx] ? "bg-primary" : "bg-white/90"}`}
                       >
                         <Play
                           size={13}
@@ -616,7 +604,7 @@ export default function CourseHero({
                           }
                         />
                       </span>
-                      <p className="mx-2 line-clamp-2 text-center text-[9px] font-medium leading-tight text-white md:text-[10px]">
+                      <p className="mx-2 line-clamp-2 text-center text-[9px] font-semibold leading-tight text-white md:text-[10px]">
                         {ytTitle(videoIds[cell.vidIdx], cell.vidIdx)}
                       </p>
                     </div>
@@ -705,11 +693,7 @@ export default function CourseHero({
                     key={photo.url}
                     type="button"
                     onClick={() => pickPhoto(i)}
-                    className={`relative h-14 w-[4.25rem] shrink-0 snap-start cursor-pointer overflow-hidden rounded-lg transition-all duration-200 sm:h-14 sm:w-20 sm:rounded-xl border-2 ${
-                      isActive
-                        ? "border-primary"
-                        : "border-ink/8 hover:border-primary/40"
-                    }`}
+                    className={`relative h-14 w-[4.25rem] shrink-0 snap-start cursor-pointer overflow-hidden rounded-lg transition-all duration-200 sm:h-14 sm:w-20 sm:rounded-xl border-2 ${isActive ? "border-primary" : "border-ink/8 hover:border-primary/40"}`}
                     aria-label={`Photo ${i + 1}`}
                     aria-current={isActive ? "true" : undefined}
                   >
@@ -731,11 +715,7 @@ export default function CourseHero({
                     key={`video-${id}`}
                     type="button"
                     onClick={() => playVideo(id)}
-                    className={`relative h-14 w-[4.25rem] shrink-0 snap-start cursor-pointer overflow-hidden rounded-lg transition-all duration-200 sm:h-14 sm:w-20 sm:rounded-xl border-2 ${
-                      isActive
-                        ? "border-primary"
-                        : "border-ink/8 hover:border-primary/40"
-                    }`}
+                    className={`relative h-14 w-[4.25rem] shrink-0 snap-start cursor-pointer overflow-hidden rounded-lg transition-all duration-200 sm:h-14 sm:w-20 sm:rounded-xl border-2 ${isActive ? "border-primary" : "border-ink/8 hover:border-primary/40"}`}
                     aria-label={`Video ${vi + 1}: ${ytTitle(id, vi)}`}
                     aria-current={isActive ? "true" : undefined}
                   >

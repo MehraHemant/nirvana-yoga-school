@@ -101,7 +101,7 @@ export default function OnlineHubBenefits({
           >
             <div className="online-why-intro max-w-md lg:max-w-lg">
               <p
-                className="online-why-count mb-6 font-serif text-[0.7rem] tracking-[0.22em] text-primary uppercase sm:mb-7"
+                className="online-why-count mb-6 text-[0.7rem] tracking-[0.22em] text-primary uppercase sm:mb-7"
                 aria-hidden="true"
               >
                 {countLabel} reasons
@@ -157,7 +157,7 @@ export default function OnlineHubBenefits({
                       variants={indexVariants}
                       aria-hidden="true"
                     >
-                      <span className="font-serif text-[1.65rem] leading-none tracking-tight text-primary/85 tabular-nums sm:text-[1.85rem]">
+                      <span className="text-[1.65rem] leading-none tracking-tight text-primary/85 tabular-nums sm:text-[1.85rem]">
                         {number}
                       </span>
                       <span className="online-why-icon flex size-8 items-center justify-center text-primary sm:size-9">
@@ -166,11 +166,11 @@ export default function OnlineHubBenefits({
                     </motion.span>
 
                     <div className="min-w-0 pt-1">
-                      <h3 className="font-serif text-[1.3rem] leading-[1.2] tracking-[-0.01em] text-ink sm:text-[1.5rem]">
+                      <h3 className="text-[1.3rem] leading-[1.2] tracking-[-0.01em] text-ink sm:text-[1.5rem]">
                         {itemTitle}
                       </h3>
                       {itemDescription ? (
-                        <p className="mt-2.5 max-w-md type-body leading-relaxed text-muted sm:mt-3">
+                        <p className="mt-2.5 max-w-md type-body leading-relaxed text-ink sm:mt-3">
                           {itemDescription}
                         </p>
                       ) : null}

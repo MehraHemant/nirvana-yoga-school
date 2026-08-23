@@ -35,7 +35,7 @@ const SCHEDULE_ICON_META: Record<
     caption: "Traditional philosophy & lecture",
   },
   yoga: { color: "text-accent", caption: "Hatha / Vinyasa deep practice" },
-  default: { color: "text-muted", caption: "Experiential study group" },
+  default: { color: "text-ink", caption: "Experiential study group" },
 };
 
 function ScheduleIcon({ type }: { type: ScheduleIconType }) {
@@ -165,7 +165,7 @@ export default function DailySchedule({
             }
             align="center"
           />
-          <p className="type-lead text-muted mt-6 max-w-xl mx-auto font-sans text-base sm:text-lg">
+          <p className="text-ink mt-6 max-w-xl mx-auto text-base sm:text-lg">
             {description}
           </p>
         </motion.div>
@@ -185,9 +185,7 @@ export default function DailySchedule({
       <div
         ref={tabsRef}
         style={isPinned ? { top: tabsTop } : undefined}
-        className={`z-30 bg-transparent ${
-          isPinned ? "fixed inset-x-0" : "relative"
-        }`}
+        className={`z-30 bg-transparent ${isPinned ? "fixed inset-x-0" : "relative"}`}
       >
         <Container size="2xl" className="py-3">
           <TabSwitcher
@@ -195,7 +193,8 @@ export default function DailySchedule({
             activeId={activeTab}
             onChange={handleTabChange}
             layoutId="activeScheduleTab"
-            className="mb-0! pb-0!"
+            className="mb-0 pb-0"
+            flush
           />
         </Container>
       </div>
@@ -204,11 +203,11 @@ export default function DailySchedule({
         {/* Dynamic Schedule Feed */}
         <div
           ref={feedRef}
-          className="relative max-w-3xl mx-auto min-h-[400px]"
+          className="relative max-w-3xl mx-auto min-h-100"
           style={{ scrollMarginTop: tabsTop + tabsHeight + 16 }}
         >
           {/* Vertical central timeline guide */}
-          <div className="absolute left-[30px] sm:left-1/2 top-4 bottom-4 w-0.5 bg-ink/10 -translate-x-1/2 hidden sm:block" />
+          <div className="absolute left-7.5 sm:left-1/2 top-4 bottom-4 w-0.5 bg-ink/10 -translate-x-1/2 hidden sm:block" />
 
           <motion.div layout className="space-y-6 sm:space-y-8">
             <AnimatePresence mode="popLayout">
@@ -228,37 +227,31 @@ export default function DailySchedule({
                   >
                     {/* Left side: Time element */}
                     <div
-                      className={`pl-12 sm:pl-0 w-full sm:w-[44%] ${
-                        isEven
-                          ? "text-left sm:text-right sm:order-first"
-                          : "text-left sm:text-left sm:order-last"
-                      }`}
+                      className={`pl-12 sm:pl-0 w-full sm:w-[44%] ${isEven ? "text-left sm:text-right sm:order-first" : "text-left sm:text-left sm:order-last"}`}
                     >
-                      <span className="inline-block type-ui font-semibold text-primary px-3 py-1 bg-primary/5 rounded-full border border-primary/10 sm:border-0 sm:bg-transparent sm:p-0 sm:text-base tracking-wide font-sans">
+                      <span className="inline-block font-semibold text-primary px-3 py-1 bg-primary/5 rounded-full border border-primary/10 sm:border-0 sm:bg-transparent sm:p-0 sm:text-base tracking-wide">
                         {item.time}
                       </span>
                     </div>
 
                     {/* Center Timeline Ring */}
-                    <div className="absolute left-[8px] sm:left-1/2 top-1.5 w-6 h-6 rounded-full border border-primary/30 bg-white shadow-soft -translate-x-1/2 z-10 flex items-center justify-center">
+                    <div className="absolute left-2 sm:left-1/2 top-1.5 w-6 h-6 rounded-full border border-primary/30 bg-white shadow-soft -translate-x-1/2 z-10 flex items-center justify-center">
                       <div className="w-2.5 h-2.5 rounded-full bg-primary" />
                     </div>
 
                     {/* Right side: Activity Card */}
                     <div
-                      className={`pl-12 sm:pl-0 w-full sm:w-[44%] mt-2 sm:mt-0 ${
-                        isEven ? "sm:order-last" : "sm:order-first"
-                      }`}
+                      className={`pl-12 sm:pl-0 w-full sm:w-[44%] mt-2 sm:mt-0 ${isEven ? "sm:order-last" : "sm:order-first"}`}
                     >
                       <div className="surface-card flex gap-4 rounded-3xl p-5 transition-all duration-300 hover:border-primary/20 hover:shadow-soft sm:p-6">
                         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-ink/8 bg-surface-muted">
                           <ScheduleIcon type={iconType} />
                         </div>
                         <div className="space-y-1">
-                          <h4 className="type-display-sm text-ink leading-tight font-medium">
+                          <h4 className="text-ink leading-tight font-semibold">
                             {item.activity}
                           </h4>
-                          <span className="text-xs text-muted block font-sans font-medium">
+                          <span className="text-sm text-ink block font-medium">
                             {SCHEDULE_ICON_META[iconType].caption}
                           </span>
                         </div>
@@ -272,7 +265,7 @@ export default function DailySchedule({
         </div>
 
         {/* Footer Warning block */}
-        <div className="surface-panel mx-auto mt-16 max-w-md rounded-2xl p-4 text-center text-xs font-medium text-muted shadow-xs">
+        <div className="surface-panel mx-auto mt-16 max-w-md rounded-2xl p-4 text-center text-xs lg:text-sm font-semibold text-ink shadow-xs">
           ⚠️ <strong>Note:</strong> The schedule is subject to minor adjustments
           based on seasonal weather conditions, excursion timings (Sundays), or
           special ceremonies.

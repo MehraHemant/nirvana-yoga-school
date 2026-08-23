@@ -87,9 +87,8 @@ export default function OnlineCourseHero({
             <Heading
               as="h1"
               size="none"
-              font="serif"
               invert
-              className="max-w-xl text-balance text-[1.75rem] font-medium leading-[1.08] tracking-tight sm:text-4xl md:text-[2.5rem] lg:text-[2.75rem]"
+              className="max-w-xl text-balance text-[1.75rem] font-bold leading-[1.08] tracking-tight sm:text-4xl md:text-[2.5rem] lg:text-[2.75rem]"
             >
               {title}
             </Heading>

@@ -42,7 +42,7 @@ export default function OnlinePricingCard({
       className={`online-pricing-card overflow-hidden rounded-3xl border border-primary/10 bg-white shadow-card ${className}`}
     >
       <div className="bg-primary px-5 py-3 text-center">
-        <p className="font-serif text-lg text-white">20% OFF</p>
+        <p className="text-lg text-white">20% OFF</p>
         <p className="type-eyebrow mt-1 text-white/80">Limited time offer</p>
       </div>
 
@@ -54,10 +54,10 @@ export default function OnlinePricingCard({
               NIRVANA
             </span>
           </p>
-          <p className="mt-1 text-xs text-muted">{pricingDescription}</p>
+          <p className="mt-1 text-xs text-ink">{pricingDescription}</p>
         </div>
 
-        <ul className="space-y-2 text-sm text-ink/85">
+        <ul className="space-y-2 text-sm text-ink">
           <li className="flex items-center gap-2">
             <Check size={14} className="text-primary" />
             {certification}
@@ -76,19 +76,19 @@ export default function OnlinePricingCard({
           </li>
         </ul>
 
-        <div className="flex items-center justify-center gap-2 text-sm font-medium text-ink">
+        <div className="flex items-center justify-center gap-2 text-sm font-semibold text-ink">
           <BadgeStar size={16} className="text-amber-500" />
           <span>4.9</span>
-          <span className="text-muted">(223)</span>
+          <span className="text-ink">(223)</span>
         </div>
 
         <div className="flex items-end justify-center gap-3">
           {originalAmount != null && amount != null && (
-            <p className="text-base text-muted line-through">
+            <p className="text-base text-ink line-through">
               {formatUsd(originalAmount)}
             </p>
           )}
-          <p className="font-serif text-4xl text-primary">{pricing.price}</p>
+          <p className="text-4xl text-primary">{pricing.price}</p>
         </div>
 
         <div className="grid gap-3">
@@ -114,7 +114,7 @@ export default function OnlinePricingCard({
           </Button>
         </div>
 
-        <p className="text-center text-xs text-muted">
+        <p className="text-center text-xs text-ink">
           Start your free trial today
         </p>
       </div>

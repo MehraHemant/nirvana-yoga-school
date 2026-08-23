@@ -43,9 +43,8 @@ export default function KirtanCertificationSection({
               </>
             }
             align="center"
-            className="mb-0!"
           />
-          <p className="type-lead mx-auto mt-6 max-w-2xl font-sans leading-relaxed text-muted">
+          <p className="type-lead mx-auto mt-6 max-w-2xl leading-relaxed text-ink">
             {description}
           </p>
 

@@ -148,10 +148,10 @@ export default function EnquireNowPageClient({
             <span className="type-eyebrow font-semibold tracking-widest text-white/80 uppercase">
               {content.hero.eyebrow}
             </span>
-            <h1 className="font-serif text-4xl font-medium leading-[1.08] tracking-tight text-white sm:text-5xl md:text-6xl">
+            <h1 className="text-4xl font-bold leading-[1.08] tracking-tight text-white sm:text-5xl md:text-6xl">
               {content.hero.title}
             </h1>
-            <p className="type-lead max-w-xl pt-1 font-sans text-base leading-relaxed text-white/85 sm:text-lg">
+            <p className="type-lead max-w-xl pt-1 text-base leading-relaxed text-white/85 sm:text-lg">
               {content.hero.lead}
             </p>
 
@@ -163,7 +163,7 @@ export default function EnquireNowPageClient({
               ].map((chip) => (
                 <span
                   key={chip}
-                  className="rounded-full border border-white/20 bg-ink/20 px-3 py-1 font-sans text-xs font-medium text-white/90 backdrop-blur-sm"
+                  className="rounded-full border border-white/20 bg-ink/20 px-3 py-1 text-xs font-semibold text-white/90 backdrop-blur-sm"
                 >
                   {chip}
                 </span>
@@ -201,10 +201,10 @@ export default function EnquireNowPageClient({
                   <span className="type-eyebrow block font-semibold uppercase text-primary">
                     {content.form.eyebrow}
                   </span>
-                  <h2 className="font-serif text-2xl font-medium text-ink sm:text-3xl">
+                  <h2 className="text-2xl font-bold text-ink sm:text-3xl">
                     {content.form.title}
                   </h2>
-                  <p className="font-sans text-sm leading-relaxed text-muted">
+                  <p className="text-sm leading-relaxed text-ink">
                     {content.form.lead}
                   </p>
                 </div>
@@ -218,10 +218,10 @@ export default function EnquireNowPageClient({
                       <span className="type-eyebrow text-[10px] font-bold text-secondary">
                         {item.step}
                       </span>
-                      <h3 className="mt-1 font-serif text-base font-medium text-ink">
+                      <h3 className="mt-1 text-base font-bold text-ink">
                         {item.title}
                       </h3>
-                      <p className="mt-1.5 font-sans text-sm leading-relaxed text-muted">
+                      <p className="mt-1.5 text-sm leading-relaxed text-ink">
                         {item.body}
                       </p>
                     </li>
@@ -238,13 +238,13 @@ export default function EnquireNowPageClient({
                     <Compass size={20} className="text-secondary" />
                   </span>
                   <div className="min-w-0 space-y-1">
-                    <h3 className="type-ui font-semibold text-ink">
+                    <h3 className="type-ui font-bold text-ink">
                       Ashram in Tapovan
                     </h3>
-                    <p className="font-sans text-sm text-muted">
+                    <p className="text-sm text-ink">
                       Upper Tapovan, Rishikesh · Uttarakhand, India
                     </p>
-                    <span className="inline-block pt-1 font-sans text-[11px] font-semibold text-secondary">
+                    <span className="inline-block pt-1 text-[11px] font-semibold text-secondary">
                       View on Google Maps →
                     </span>
                   </div>
@@ -270,10 +270,10 @@ export default function EnquireNowPageClient({
                         <Check size={28} className="stroke-3" />
                       </div>
                       <div className="space-y-2">
-                        <h3 className="font-serif text-2xl font-medium text-ink">
+                        <h3 className="text-2xl font-bold text-ink">
                           Enquiry received!
                         </h3>
-                        <p className="mx-auto max-w-sm font-sans text-sm leading-relaxed text-muted">
+                        <p className="mx-auto max-w-sm text-sm leading-relaxed text-ink">
                           Thank you for your enquiry. Our ashram team will
                           review your details and reply by email or WhatsApp
                           within 24 hours.
@@ -313,7 +313,7 @@ export default function EnquireNowPageClient({
                         <span className="type-eyebrow mb-1 block font-semibold uppercase text-primary">
                           Programme Enquiry
                         </span>
-                        <h3 className="font-serif text-xl font-medium text-ink sm:text-2xl">
+                        <h3 className="text-xl font-bold text-ink sm:text-2xl">
                           Tell us about your plans
                         </h3>
                       </div>
@@ -322,7 +322,7 @@ export default function EnquireNowPageClient({
                         <div className="space-y-2">
                           <label
                             htmlFor="enquire-name"
-                            className="font-sans text-xs font-semibold text-ink"
+                            className="text-xs font-semibold text-ink"
                           >
                             Full Name *
                           </label>
@@ -342,7 +342,7 @@ export default function EnquireNowPageClient({
                         <div className="space-y-2">
                           <label
                             htmlFor="enquire-email"
-                            className="font-sans text-xs font-semibold text-ink"
+                            className="text-xs font-semibold text-ink"
                           >
                             Email Address *
                           </label>
@@ -367,7 +367,7 @@ export default function EnquireNowPageClient({
                         <div className="space-y-2">
                           <label
                             htmlFor="enquire-phone"
-                            className="font-sans text-xs font-semibold text-ink"
+                            className="text-xs font-semibold text-ink"
                           >
                             WhatsApp / Phone *
                           </label>
@@ -391,7 +391,7 @@ export default function EnquireNowPageClient({
                         <div className="space-y-2">
                           <label
                             htmlFor="enquire-program"
-                            className="font-sans text-xs font-semibold text-ink"
+                            className="text-xs font-semibold text-ink"
                           >
                             Program of Interest *
                           </label>
@@ -413,7 +413,7 @@ export default function EnquireNowPageClient({
                         <div className="space-y-2">
                           <label
                             htmlFor="enquire-start-date"
-                            className="font-sans text-xs font-semibold text-ink"
+                            className="text-xs font-semibold text-ink"
                           >
                             Preferred Start Date
                           </label>
@@ -435,7 +435,7 @@ export default function EnquireNowPageClient({
                         <div className="space-y-2">
                           <label
                             htmlFor="enquire-accommodation"
-                            className="font-sans text-xs font-semibold text-ink"
+                            className="text-xs font-semibold text-ink"
                           >
                             Accommodation Preference
                           </label>
@@ -457,7 +457,7 @@ export default function EnquireNowPageClient({
                       <div className="space-y-2">
                         <label
                           htmlFor="enquire-message"
-                          className="font-sans text-xs font-semibold text-ink"
+                          className="text-xs font-semibold text-ink"
                         >
                           Your Message *
                         </label>
@@ -481,7 +481,7 @@ export default function EnquireNowPageClient({
                         {formState === "error" && (
                           <p
                             role="alert"
-                            className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 font-sans text-sm text-red-700"
+                            className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
                           >
                             Something went wrong opening your email app. Please
                             email us directly at{" "}
@@ -513,7 +513,7 @@ export default function EnquireNowPageClient({
                           )}
                         </button>
 
-                        <p className="text-center font-sans text-xs leading-relaxed text-muted">
+                        <p className="text-center text-xs leading-relaxed text-ink">
                           Prefer WhatsApp?{" "}
                           <a
                             href="https://wa.me/918218564835"

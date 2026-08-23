@@ -110,11 +110,7 @@ export function ImageGalleryPanel({
     >
       <div className="relative">
         <div
-          className={`absolute -inset-1.5 rounded-2xl bg-linear-to-br ${
-            accent === "secondary"
-              ? "from-secondary/10 via-transparent to-accent/10"
-              : "from-primary/10 via-transparent to-accent/10"
-          } blur-md pointer-events-none`}
+          className={`absolute -inset-1.5 rounded-2xl bg-linear-to-br ${accent === "secondary" ? "from-secondary/10 via-transparent to-accent/10" : "from-primary/10 via-transparent to-accent/10"} blur-md pointer-events-none`}
           aria-hidden="true"
         />
 
@@ -207,7 +203,7 @@ export function ImageGalleryPanel({
                 () => onOpenLightbox(activeIndex),
               )
             }
-            className="absolute -bottom-2.5 right-3 sm:right-4 px-3 py-1.5 rounded-full bg-white border border-ink/8 text-[10px] font-semibold text-ink shadow-soft hover:shadow-md hover:border-primary/20 transition-all cursor-pointer font-sans"
+            className="absolute -bottom-2.5 right-3 sm:right-4 px-3 py-1.5 rounded-full bg-white border border-ink/8 text-[10px] font-semibold text-ink shadow-soft hover:shadow-md hover:border-primary/20 transition-all cursor-pointer"
           >
             {activeAction === "redirect" ? "Open link" : "Open full gallery"}
           </button>

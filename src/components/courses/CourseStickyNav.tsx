@@ -285,23 +285,15 @@ export default function CourseStickyNav({
       <div
         ref={barRef}
         style={{ top: stickyTop }}
-        className={`course-sticky-nav sticky z-30 w-full max-w-full transition-[background,box-shadow,border-color] duration-300 ${
-          showBarBg
-            ? "border-b border-ink/8 bg-white/97 shadow-soft backdrop-blur-sm"
-            : "border-b border-transparent bg-white shadow-none"
-        }`}
+        className={`course-sticky-nav sticky z-30 w-full max-w-full transition-[background,box-shadow,border-color] duration-300 ${showBarBg ? "border-b border-ink/8 bg-white/97 shadow-soft backdrop-blur-sm" : "border-b border-transparent bg-white shadow-none"}`}
       >
-        <Container size="2xl" className="relative !px-0 sm:!px-5 md:!px-8">
+        <Container size="2xl" flush className="relative sm:px-5 md:px-8">
           <div
-            className={`pointer-events-none absolute inset-y-0 left-0 z-10 w-8 bg-linear-to-r from-white/95 to-transparent transition-opacity duration-200 xl:hidden ${
-              canScrollLeft ? "opacity-100" : "opacity-0"
-            }`}
+            className={`pointer-events-none absolute inset-y-0 left-0 z-10 w-8 bg-linear-to-r from-white/95 to-transparent transition-opacity duration-200 xl:hidden ${canScrollLeft ? "opacity-100" : "opacity-0"}`}
             aria-hidden="true"
           />
           <div
-            className={`pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-linear-to-l from-white/95 to-transparent transition-opacity duration-200 xl:hidden ${
-              canScrollRight ? "opacity-100" : "opacity-0"
-            }`}
+            className={`pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-linear-to-l from-white/95 to-transparent transition-opacity duration-200 xl:hidden ${canScrollRight ? "opacity-100" : "opacity-0"}`}
             aria-hidden="true"
           />
 
@@ -320,11 +312,7 @@ export default function CourseStickyNav({
                   title={item.label}
                   onClick={(e) => handleClick(e, item.id)}
                   aria-current={isActive ? "location" : undefined}
-                  className={`relative flex shrink-0 snap-center items-center justify-center rounded-full px-3 py-2.5 text-center font-sans text-[11px] font-semibold leading-tight tracking-wide whitespace-nowrap transition-colors focus:outline-none focus-visible:ring-2 ${focusRingClass} min-h-11 sm:px-3.5 sm:text-xs md:px-4 md:text-sm xl:min-h-0 xl:min-w-0 xl:flex-1 xl:basis-0 xl:shrink xl:snap-align-none xl:px-1 xl:py-2.5 xl:whitespace-normal xl:text-sm ${
-                    isActive
-                      ? activeTextClass
-                      : "text-muted hover:bg-ink/4 hover:text-ink"
-                  }`}
+                  className={`relative flex shrink-0 snap-center items-center justify-center rounded-full px-3 py-2.5 text-center text-[11px] font-semibold leading-tight tracking-wide whitespace-nowrap transition-colors focus:outline-none focus-visible:ring-2 ${focusRingClass} min-h-11 sm:px-3.5 sm:text-xs md:px-4 md:text-sm xl:min-h-0 xl:min-w-0 xl:flex-1 xl:basis-0 xl:shrink xl:snap-align-none xl:px-1 xl:py-2.5 xl:whitespace-normal xl:text-sm ${isActive ? activeTextClass : "text-ink hover:bg-ink/4 hover:text-ink"}`}
                 >
                   {isActive && (
                     <motion.span

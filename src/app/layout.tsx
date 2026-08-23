@@ -1,25 +1,12 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
-import localFont from "next/font/local";
 import { getSiteConfig } from "@/content/repositories/global-settings";
 import "./globals.css";
 
 const poppins = Poppins({
   subsets: ["latin"],
-  weight: ["400", "600", "700"],
+  weight: ["400", "500", "600", "700"],
   variable: "--font-poppins",
-  display: "swap",
-});
-
-const noeDisplay = localFont({
-  src: [
-    {
-      path: "../../public/fonts/NoeDisplay-Regular.woff2",
-      weight: "400",
-      style: "normal",
-    },
-  ],
-  variable: "--font-noe",
   display: "swap",
 });
 
@@ -110,7 +97,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${poppins.variable} ${noeDisplay.variable} h-full antialiased scroll-smooth`}
+      className={`${poppins.variable} h-full antialiased scroll-smooth`}
       data-scroll-behavior="smooth"
     >
       <body className="flex min-h-full flex-col bg-white text-ink">

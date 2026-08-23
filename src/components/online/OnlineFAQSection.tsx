@@ -100,13 +100,9 @@ export default function OnlineFAQSection({
                   onClick={() => setOpenKey(isOpen ? null : key)}
                   className="flex w-full items-start justify-between gap-4 px-5 py-4 text-left sm:px-6"
                 >
-                  <span className="font-medium text-ink">{faq.question}</span>
+                  <span className="font-semibold text-ink">{faq.question}</span>
                   <span
-                    className={`mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full ${
-                      isOpen
-                        ? "bg-primary text-white"
-                        : "bg-primary/10 text-primary"
-                    }`}
+                    className={`mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full ${isOpen ? "bg-primary text-white" : "bg-primary/10 text-primary"}`}
                   >
                     <motion.span
                       animate={{ rotate: isOpen ? 45 : 0 }}
@@ -141,7 +137,7 @@ export default function OnlineFAQSection({
                       }
                       className="overflow-hidden"
                     >
-                      <p className="border-t border-primary/10 px-5 pb-5 pt-4 type-body text-muted sm:px-6">
+                      <p className="border-t border-primary/10 px-5 pb-5 pt-4 type-body text-ink sm:px-6">
                         {faq.answer}
                       </p>
                     </motion.div>

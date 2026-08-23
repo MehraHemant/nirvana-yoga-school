@@ -140,11 +140,11 @@ export default function VenueGallery({
             }
           >
             <header className="mb-5 border-b border-ink/10 pb-3">
-              <h2 className="font-serif text-2xl text-ink sm:text-3xl">
+              <h2 className="text-2xl text-ink sm:text-3xl">
                 {videosHeader?.title?.trim() || "Videos"}
               </h2>
               {videosHeader?.description?.trim() ? (
-                <p className="mt-1 max-w-2xl text-sm text-muted">
+                <p className="mt-1 max-w-2xl text-sm text-ink">
                   {videosHeader.description}
                 </p>
               ) : null}
@@ -230,15 +230,11 @@ export default function VenueGallery({
                         role="tab"
                         aria-selected={active}
                         onClick={() => setActiveSection(filter.id)}
-                        className={`rounded-sm px-3 py-1.5 font-sans text-sm tracking-wide transition-colors sm:px-4 sm:py-2 ${
-                          active
-                            ? "bg-primary text-white"
-                            : "bg-ink/5 text-ink hover:bg-ink/10"
-                        }`}
+                        className={`rounded-sm px-3 py-1.5 text-sm tracking-wide transition-colors sm:px-4 sm:py-2 ${active ? "bg-primary text-white" : "bg-ink/5 text-ink hover:bg-ink/10"}`}
                       >
                         {filter.label}
                         <span
-                          className={`ml-1.5 text-xs ${active ? "text-white/80" : "text-muted"}`}
+                          className={`ml-1.5 text-xs ${active ? "text-white/80" : "text-ink"}`}
                         >
                           {filter.count}
                         </span>
@@ -267,12 +263,12 @@ export default function VenueGallery({
                       return (
                         <div key={section.id} id={`gallery-${section.id}`}>
                           <header className="mb-5 border-b border-ink/10 pb-3">
-                            <h2 className="font-serif text-2xl text-ink sm:text-3xl">
+                            <h2 className="text-2xl text-ink sm:text-3xl">
                               {section.label ||
                                 galleryCategoryLabel(section.id)}
                             </h2>
                             {section.description ? (
-                              <p className="mt-1 max-w-2xl text-sm text-muted">
+                              <p className="mt-1 max-w-2xl text-sm text-ink">
                                 {section.description}
                               </p>
                             ) : null}
@@ -342,9 +338,7 @@ export default function VenueGallery({
             className="mt-16 border-t border-ink/10 pt-12"
           >
             <header className="mb-5 border-b border-ink/10 pb-3">
-              <h2 className="font-serif text-2xl text-ink sm:text-3xl">
-                Videos
-              </h2>
+              <h2 className="text-2xl text-ink sm:text-3xl">Videos</h2>
             </header>
             <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-3">
               {legacyVideos.map((video) => {

@@ -182,11 +182,7 @@ export default function SearchableSelect({
   return (
     <div ref={rootRef} className={`relative ${className}`}>
       <div
-        className={`flex items-center rounded-2xl border bg-white transition-colors ${
-          open
-            ? "border-primary ring-1 ring-primary"
-            : "border-primary/15 hover:border-primary/30"
-        }`}
+        className={`flex items-center rounded-2xl border bg-white transition-colors ${open ? "border-primary ring-1 ring-primary" : "border-primary/15 hover:border-primary/30"}`}
       >
         {/* Hidden mirror input keeps native required validation on the value */}
         {required && (
@@ -220,7 +216,7 @@ export default function SearchableSelect({
             if (allowCustom) onChange(e.target.value);
           }}
           onKeyDown={handleKeyDown}
-          className="min-w-0 flex-1 rounded-2xl bg-transparent px-4 py-3 font-sans text-sm text-ink placeholder-muted/65 focus:outline-none disabled:cursor-not-allowed"
+          className="min-w-0 flex-1 rounded-2xl bg-transparent px-4 py-3 text-sm text-ink placeholder-muted/65 focus:outline-none disabled:cursor-not-allowed"
         />
         <button
           type="button"
@@ -228,7 +224,7 @@ export default function SearchableSelect({
           disabled={disabled}
           aria-label={open ? "Close options" : "Open options"}
           onClick={() => (open ? close() : setOpen(true))}
-          className="flex shrink-0 items-center px-3 text-muted"
+          className="flex shrink-0 items-center px-3 text-ink"
         >
           <ChevronDown
             size={16}
@@ -262,20 +258,14 @@ export default function SearchableSelect({
                       type="button"
                       onMouseEnter={() => setHighlightIndex(index)}
                       onClick={() => commitValue(option.value)}
-                      className={`flex w-full cursor-pointer items-center gap-2.5 px-3.5 py-2.5 text-left font-sans transition-colors ${
-                        isSelected
-                          ? "bg-primary/8 text-ink"
-                          : isHighlighted
-                            ? "bg-surface text-ink"
-                            : "text-ink/90 hover:bg-surface/80"
-                      }`}
+                      className={`flex w-full cursor-pointer items-center gap-2.5 px-3.5 py-2.5 text-left transition-colors ${isSelected ? "bg-primary/8 text-ink" : isHighlighted ? "bg-surface text-ink" : "text-ink hover:bg-surface/80"}`}
                     >
                       <span className="min-w-0 flex-1">
                         <span className="block truncate text-sm">
                           {option.label ?? option.value}
                         </span>
                         {option.hint && (
-                          <span className="block truncate text-xs text-muted">
+                          <span className="block truncate text-xs text-ink">
                             {option.hint}
                           </span>
                         )}
@@ -294,11 +284,7 @@ export default function SearchableSelect({
                     type="button"
                     onMouseEnter={() => setHighlightIndex(filtered.length)}
                     onClick={() => commitValue(query.trim())}
-                    className={`flex w-full cursor-pointer items-center gap-2 px-3.5 py-2.5 text-left font-sans transition-colors ${
-                      highlightIndex === filtered.length
-                        ? "bg-surface text-ink"
-                        : "text-ink/90 hover:bg-surface/80"
-                    }`}
+                    className={`flex w-full cursor-pointer items-center gap-2 px-3.5 py-2.5 text-left transition-colors ${highlightIndex === filtered.length ? "bg-surface text-ink" : "text-ink hover:bg-surface/80"}`}
                   >
                     <span className="text-xs font-semibold text-primary">
                       Use
@@ -311,7 +297,7 @@ export default function SearchableSelect({
               )}
 
               {filtered.length === 0 && !showCreate && (
-                <li className="px-3.5 py-4 text-center font-sans text-xs text-muted">
+                <li className="px-3.5 py-4 text-center text-xs text-ink">
                   No matches found
                 </li>
               )}

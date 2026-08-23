@@ -50,16 +50,14 @@ export default function OnlineTestimonialCard({
   return (
     <motion.blockquote
       variants={testimonialCardVariants}
-      className="rounded-3xl border border-ink/8 bg-white p-6 shadow-xs"
+      className="flex h-full flex-col rounded-3xl border border-ink/8 bg-white p-6 shadow-xs"
     >
       <BadgeStar size={18} className="text-amber-500" />
-      <div className="relative mt-4">
+      <div className="relative mt-4 flex-1">
         <p
           ref={quoteRef}
           id={quoteId}
-          className={`font-serif text-lg leading-relaxed text-ink/90 ${
-            isExpanded ? "" : "line-clamp-4 h-[4lh]"
-          }`}
+          className={`text-lg leading-relaxed text-ink ${isExpanded ? "" : "line-clamp-4 h-[4lh]"}`}
         >
           “{testimonial.quote}”
         </p>
@@ -86,7 +84,7 @@ export default function OnlineTestimonialCard({
           </button>
         ) : null}
       </div>
-      <footer className="mt-5 type-ui font-semibold text-muted">
+      <footer className="mt-5 shrink-0 type-ui font-semibold text-ink">
         — {testimonial.name}
       </footer>
     </motion.blockquote>

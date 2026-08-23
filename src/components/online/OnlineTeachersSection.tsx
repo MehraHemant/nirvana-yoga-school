@@ -31,12 +31,12 @@ function TeacherCard({ teacher }: { teacher: TeacherProfile }) {
 
         <div className="min-w-0 flex-1 space-y-3">
           <div>
-            <h3 className="font-serif text-xl text-ink">{teacher.name}</h3>
-            <p className="mt-1 text-sm font-medium text-muted">
+            <h3 className="text-xl text-ink">{teacher.name}</h3>
+            <p className="mt-1 text-sm font-semibold text-ink">
               {teacher.experienceSummary}
             </p>
           </div>
-          <p className="type-body text-muted line-clamp-3">{teacher.bio}</p>
+          <p className="type-body text-ink line-clamp-3">{teacher.bio}</p>
           <Link
             href={teacherPageHref(teacher.name)}
             className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary transition-colors hover:text-primary/80"

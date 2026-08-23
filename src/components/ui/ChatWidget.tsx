@@ -344,9 +344,7 @@ export default function ChatWidget() {
           <header className="flex items-center justify-between gap-3 bg-primary px-4 py-3.5 text-white">
             <div className="min-w-0">
               <p className="type-eyebrow text-white/75">Nirvana Yoga School</p>
-              <h2 className="font-serif text-lg leading-tight tracking-tight">
-                Ask us
-              </h2>
+              <h2 className="text-lg leading-tight tracking-tight">Ask us</h2>
             </div>
             <div className="flex shrink-0 items-center gap-1">
               {messages.length > 0 || conversationId ? (
@@ -354,7 +352,7 @@ export default function ChatWidget() {
                   type="button"
                   onClick={() => void handleClear()}
                   disabled={sending}
-                  className="rounded-full px-2.5 py-1.5 text-xs font-medium text-white/90 transition hover:bg-white/10 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+                  className="rounded-full px-2.5 py-1.5 text-xs font-semibold text-white/90 transition hover:bg-white/10 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
                   aria-label="Clear chat"
                 >
                   Clear
@@ -377,7 +375,7 @@ export default function ChatWidget() {
             className="flex-1 space-y-3 overflow-y-auto overscroll-contain bg-surface px-3 py-3 scrollbar-thin-primary"
           >
             {messages.length === 0 ? (
-              <p className="rounded-xl bg-white px-3 py-2.5 text-sm text-muted shadow-sm">
+              <p className="rounded-xl bg-white px-3 py-2.5 text-sm text-ink shadow-sm">
                 Ask about our YTT programs, retreats, or booking — we typically
                 reply in a few seconds.
               </p>
@@ -410,11 +408,7 @@ export default function ChatWidget() {
                   className={`flex ${isUser ? "justify-end" : "justify-start"}`}
                 >
                   <div
-                    className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm leading-relaxed ${
-                      isUser
-                        ? "bg-primary text-white rounded-br-md whitespace-pre-wrap"
-                        : "bg-white text-ink border border-ink/8 rounded-bl-md shadow-sm"
-                    }`}
+                    className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm leading-relaxed ${isUser ? "bg-primary text-white rounded-br-md whitespace-pre-wrap" : "bg-white text-ink border border-ink/8 rounded-bl-md shadow-sm"}`}
                   >
                     {isUser ? (
                       message.content
@@ -460,7 +454,7 @@ export default function ChatWidget() {
                 }}
                 placeholder="Ask a question…"
                 disabled={sending || !sessionId}
-                className="max-h-28 min-h-10 flex-1 resize-none rounded-xl border border-ink/12 bg-surface px-3 py-2 text-sm text-ink placeholder:text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                className="max-h-28 min-h-10 flex-1 resize-none rounded-xl border border-ink/12 bg-surface px-3 py-2 text-sm text-ink placeholder:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
               />
               <button
                 type="submit"

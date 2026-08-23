@@ -31,10 +31,7 @@ export type MediaUploadPanelHandle = {
 export const MediaUploadPanel = forwardRef<
   MediaUploadPanelHandle,
   MediaUploadPanelProps
->(function MediaUploadPanel(
-  { onUploaded, onBulkUploaded, onError },
-  ref,
-) {
+>(function MediaUploadPanel({ onUploaded, onBulkUploaded, onError }, ref) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [drafts, setDrafts] = useState<BulkUploadDraft[]>([]);
   const [uploadOpen, setUploadOpen] = useState(false);
@@ -109,15 +106,14 @@ export const MediaUploadPanel = forwardRef<
         <div>
           <h2 className="admin-media-library__upload-title">Upload images</h2>
           <p className="admin-hint admin-hint--tight">
-            Single or bulk upload · JPEG, PNG, WebP · max {MAX_UPLOAD_LABEL} each
+            Single or bulk upload · JPEG, PNG, WebP · max {MAX_UPLOAD_LABEL}{" "}
+            each
           </p>
         </div>
       </div>
 
       <div
-        className={`admin-media-library__dropzone${
-          dragActive ? " admin-media-library__dropzone--active" : ""
-        }`}
+        className={`admin-media-library__dropzone${dragActive ? " admin-media-library__dropzone--active" : ""}`}
         onDragEnter={(event) => {
           event.preventDefault();
           setDragActive(true);

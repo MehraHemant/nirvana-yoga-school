@@ -56,7 +56,7 @@ export default function PageEditorialSection({
                 {section.body?.split("\n\n").map((paragraph) => (
                   <p
                     key={paragraph.slice(0, 48)}
-                    className="type-lead font-sans leading-relaxed text-muted"
+                    className="type-lead leading-relaxed text-ink"
                   >
                     {paragraph}
                   </p>
@@ -67,7 +67,7 @@ export default function PageEditorialSection({
                     {section.items.map((item) => (
                       <li
                         key={item}
-                        className="flex items-start gap-2.5 rounded-2xl border border-ink/6 bg-white p-4 font-sans text-sm text-muted shadow-card"
+                        className="flex items-start gap-2.5 rounded-2xl border border-ink/6 bg-white p-4 text-sm text-ink shadow-card"
                       >
                         <Check
                           size={16}
@@ -84,11 +84,11 @@ export default function PageEditorialSection({
                     key={sub.title}
                     className="rounded-3xl border border-ink/6 bg-white p-6 shadow-card"
                   >
-                    <h3 className="type-display-sm mb-3 font-serif text-ink">
+                    <h3 className="type-display-sm mb-3 text-ink">
                       {sub.title}
                     </h3>
                     {sub.body && (
-                      <p className="type-body font-sans leading-relaxed text-muted">
+                      <p className="type-body leading-relaxed text-ink">
                         {sub.body}
                       </p>
                     )}
@@ -97,7 +97,7 @@ export default function PageEditorialSection({
                         {sub.items.map((item) => (
                           <li
                             key={item}
-                            className="flex items-start gap-2 font-sans text-sm text-muted"
+                            className="flex items-start gap-2 text-sm text-ink"
                           >
                             <Check
                               size={14}

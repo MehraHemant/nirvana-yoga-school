@@ -297,10 +297,7 @@ export function SharedSectionsEditor() {
           }),
         ),
       ];
-      if (
-        isLodgingSection &&
-        roomsCatalogRef.current?.hasUnsavedChanges()
-      ) {
+      if (isLodgingSection && roomsCatalogRef.current?.hasUnsavedChanges()) {
         saves.push(roomsCatalogRef.current.saveAll());
       }
       await Promise.all(saves);
@@ -411,7 +408,9 @@ export function SharedSectionsEditor() {
       <div className="admin-shared-active-banner">
         <div>
           <p className="admin-cms-kicker">Editing</p>
-          <h2 className="admin-shared-active-banner__title">{LABELS[active]}</h2>
+          <h2 className="admin-shared-active-banner__title">
+            {LABELS[active]}
+          </h2>
           <p className="admin-shared-active-banner__desc">
             {DESCRIPTIONS[active]}
           </p>
@@ -421,9 +420,7 @@ export function SharedSectionsEditor() {
       {error ? <p className="admin-error">{error}</p> : null}
 
       {loading || !value ? (
-        <p className="admin-hint">
-          Loading {LABELS[active]}…
-        </p>
+        <p className="admin-hint">Loading {LABELS[active]}…</p>
       ) : showJumpNav ? (
         <div className="admin-editor-layout">
           <AdminSectionJumpNav
@@ -616,20 +613,12 @@ function ExamCertificationFields({
         >
           <div className="admin-list-row-actions admin-list-row-actions--compact">
             <span
-              className={`admin-status-chip${
-                doc.live !== false
-                  ? " admin-status-chip--ok"
-                  : " admin-status-chip--warn"
-              }`}
+              className={`admin-status-chip${doc.live !== false ? " admin-status-chip--ok" : " admin-status-chip--warn"}`}
             >
               {doc.live !== false ? "Live site-wide" : "Hidden site-wide"}
             </span>
             <span
-              className={`admin-status-chip${
-                willShowPublicly
-                  ? " admin-status-chip--ok"
-                  : " admin-status-chip--warn"
-              }`}
+              className={`admin-status-chip${willShowPublicly ? " admin-status-chip--ok" : " admin-status-chip--warn"}`}
             >
               {willShowPublicly
                 ? "Visible on enabled pages"
@@ -1047,9 +1036,7 @@ function TravelFields({
   const quickFacts = doc.quickFacts ?? [];
   const filledTopics = topics.filter(
     (topic) =>
-      topic.title?.trim() ||
-      topic.content?.trim() ||
-      topic.image?.trim(),
+      topic.title?.trim() || topic.content?.trim() || topic.image?.trim(),
   ).length;
   const filledFacts = quickFacts.filter(
     (fact) => fact.label?.trim() || fact.value?.trim(),

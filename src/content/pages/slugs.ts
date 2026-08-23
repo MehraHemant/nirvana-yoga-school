@@ -25,7 +25,6 @@ export const RETREAT_SLUGS = [
   "3-day-yoga-retreat-in-rishikesh-india",
   "5-day-yoga-retreat-in-rishikesh-india",
   "7-day-yoga-retreat-in-rishikesh-india",
-  "retreat-booking",
 ] as const;
 
 export const VENUE_SLUGS = ["course-venue", "retreat-venue"] as const;

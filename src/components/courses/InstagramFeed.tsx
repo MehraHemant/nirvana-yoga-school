@@ -114,7 +114,7 @@ function InstagramProfileBar({
         </div>
 
         {/* Main content */}
-        <div className="min-w-0 flex-1 text-center font-sans text-white lg:text-left">
+        <div className="min-w-0 flex-1 text-center text-white lg:text-left">
           <ul className="mb-4 inline-flex flex-wrap justify-center divide-x divide-white/30 sm:gap-0 lg:justify-start">
             {stats.map((stat) => (
               <li key={stat.label} className="px-4 first:pl-0 sm:px-6">
@@ -142,7 +142,7 @@ function InstagramProfileBar({
                   key={line}
                   className={
                     i === 0
-                      ? "text-[15px] font-medium leading-snug text-white"
+                      ? "text-[15px] font-semibold leading-snug text-white"
                       : "text-sm leading-relaxed text-white/85"
                   }
                 >
@@ -197,11 +197,7 @@ function CarouselDots({ count, active }: { count: number; active: number }) {
       {DOT_KEYS.slice(0, count).map((key, i) => (
         <span
           key={key}
-          className={`rounded-full transition-all ${
-            i === active
-              ? "h-1.5 w-1.5 bg-[#0095f6]"
-              : "h-1.5 w-1.5 bg-white/70"
-          }`}
+          className={`rounded-full transition-all ${i === active ? "h-1.5 w-1.5 bg-[#0095f6]" : "h-1.5 w-1.5 bg-white/70"}`}
         />
       ))}
     </div>
@@ -432,10 +428,10 @@ function InstagramPostCard({
             </div>
           </div>
           <div className="min-w-0">
-            <p className="truncate font-sans text-[13px] font-semibold leading-tight text-ink">
+            <p className="truncate text-[13px] font-semibold leading-tight text-ink">
               {username}
             </p>
-            <p className="truncate font-sans text-[11px] leading-tight text-muted">
+            <p className="truncate text-[11px] leading-tight text-ink">
               Rishikesh, India
             </p>
           </div>
@@ -473,14 +469,14 @@ function InstagramPostCard({
 
       {/* Engagement + caption */}
       <div className="space-y-1.5 px-3 pb-3 sm:px-4 sm:pb-4">
-        <p className="font-sans text-[13px] font-semibold text-ink">
+        <p className="text-[13px] font-semibold text-ink">
           {formatCount(item.likesCount)} likes
         </p>
 
         {item.caption && (
-          <p className="font-sans text-[13px] leading-snug text-ink">
+          <p className="text-[13px] leading-snug text-ink">
             <span className="mr-1.5 font-semibold">{username}</span>
-            <span className="text-ink/90">{truncateCaption(item.caption)}</span>
+            <span className="text-ink">{truncateCaption(item.caption)}</span>
           </p>
         )}
 
@@ -489,13 +485,13 @@ function InstagramPostCard({
             href={item.permalink}
             target="_blank"
             rel="noopener noreferrer"
-            className="block font-sans text-[13px] text-muted/80 hover:text-muted"
+            className="block text-[13px] text-muted/80 hover:text-ink"
           >
             View all {formatCount(item.commentsCount)} comments
           </a>
         )}
 
-        <p className="pt-0.5 font-sans text-[10px] uppercase tracking-wide text-muted/70">
+        <p className="pt-0.5 text-[10px] uppercase tracking-wide text-muted/70">
           {timeAgo(item.timestamp)}
         </p>
       </div>
@@ -574,7 +570,7 @@ export default function InstagramFeed({
             </div>
           </>
         ) : (
-          <p className="text-center font-sans text-sm text-muted">
+          <p className="text-center text-sm text-ink">
             Visit us on{" "}
             <a
               href={profileUrl}

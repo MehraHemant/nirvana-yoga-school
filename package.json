@@ -23,6 +23,7 @@
     "db:seed:meditation-faqs": "tsx --env-file=.env scripts/seed-meditation-course-faqs.ts",
     "db:seed:300-hour-faqs": "tsx --env-file=.env scripts/seed-300-hour-course-faqs.ts",
     "db:seed:500-hour-faqs": "tsx --env-file=.env scripts/seed-500-hour-course-faqs.ts",
+    "db:seed:course-batches": "tsx --env-file=.env scripts/seed-residential-course-batches.ts",
     "db:dedupe:faqs": "tsx --env-file=.env scripts/dedupe-faqs.ts",
     "db:index:chat": "tsx --env-file=.env scripts/index-chat-qdrant.ts",
     "db:import:online-courses": "tsx --env-file=.env scripts/import-online-courses-from-live.ts"

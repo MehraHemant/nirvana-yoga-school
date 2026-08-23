@@ -23,9 +23,7 @@ function ParagraphText({
         .map((paragraph) => (
           <p
             key={paragraph.slice(0, 48)}
-            className={`font-sans leading-relaxed text-muted ${
-              lead ? "type-lead" : "type-body"
-            }`}
+            className={`leading-relaxed text-ink ${lead ? "type-lead" : "type-body"}`}
           >
             {paragraph}
           </p>
@@ -41,7 +39,7 @@ function BulletList({ items }: { items: string[] }) {
       {items.map((item) => (
         <li
           key={item}
-          className="flex items-start gap-2.5 font-sans text-sm leading-relaxed text-muted"
+          className="flex items-start gap-2.5 text-sm leading-relaxed text-ink"
         >
           <Check size={16} className="mt-0.5 shrink-0 text-primary" />
           <span>{item}</span>
@@ -71,14 +69,10 @@ function FaqAccordion({
             onClick={() => setOpenIndex(openIndex === index ? -1 : index)}
             className="flex w-full items-center justify-between gap-4 p-5 text-left"
           >
-            <span className="type-display-sm font-serif text-ink">
-              {pair.question}
-            </span>
+            <span className="type-display-sm text-ink">{pair.question}</span>
             <Plus
               size={18}
-              className={`shrink-0 text-primary transition-transform ${
-                openIndex === index ? "rotate-45" : ""
-              }`}
+              className={`shrink-0 text-primary transition-transform ${openIndex === index ? "rotate-45" : ""}`}
             />
           </button>
           <AnimatePresence initial={false}>
@@ -92,7 +86,7 @@ function FaqAccordion({
                 })}
                 className="overflow-hidden"
               >
-                <p className="border-t border-ink/6 px-5 pb-5 pt-4 font-sans text-sm leading-relaxed text-muted">
+                <p className="border-t border-ink/6 px-5 pb-5 pt-4 text-sm leading-relaxed text-ink">
                   {pair.answer}
                 </p>
               </motion.div>
@@ -171,7 +165,7 @@ function VideoEmbed({
         />
       </div>
       {block.caption ? (
-        <figcaption className="px-4 py-3 text-center text-muted text-sm">
+        <figcaption className="px-4 py-3 text-center text-ink text-sm">
           {block.caption}
         </figcaption>
       ) : null}
@@ -198,9 +192,7 @@ function SubsectionCard({
           />
         </div>
       ) : null}
-      <h3 className="type-display-sm mb-3 font-serif text-ink">
-        {block.title}
-      </h3>
+      <h3 className="type-display-sm mb-3 text-ink">{block.title}</h3>
       {block.paragraph ? <ParagraphText text={block.paragraph} /> : null}
       {block.bullets && block.bullets.length > 0 ? (
         <BulletList items={block.bullets} />
@@ -264,7 +256,7 @@ function BlockRenderer({ block }: { block: SectionContentBlock }) {
             />
           </div>
           {block.caption ? (
-            <figcaption className="px-4 py-3 text-center text-muted text-sm">
+            <figcaption className="px-4 py-3 text-center text-ink text-sm">
               {block.caption}
             </figcaption>
           ) : null}

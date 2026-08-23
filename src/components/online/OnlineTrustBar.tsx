@@ -27,8 +27,8 @@ export default function OnlineTrustBar() {
               <Icon size={20} />
             </span>
             <div>
-              <p className="font-serif text-xl text-ink">{title}</p>
-              <p className="mt-1 type-body text-muted">{description}</p>
+              <p className="text-xl text-ink">{title}</p>
+              <p className="mt-1 type-body text-ink">{description}</p>
             </div>
           </div>
         ))}

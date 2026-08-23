@@ -188,9 +188,7 @@ export default function TeacherProfileCard({
       <Heading as="h2" size="h3">
         {teacher.name}
       </Heading>
-      <p className="type-eyebrow mt-2 text-muted">
-        {teacher.experienceSummary}
-      </p>
+      <p className="type-eyebrow mt-2 text-ink">{teacher.experienceSummary}</p>
       <p
         className={`type-body leading-relaxed text-ink ${compactMedia ? "mt-3" : "mt-5"} ${bioClampClass}`}
       >
@@ -260,7 +258,7 @@ export default function TeacherProfileCard({
     >
       {items.map((item) =>
         clampListBlock ? (
-          <li key={item} className="type-body leading-snug text-ink/85">
+          <li key={item} className="type-body leading-snug text-ink">
             {item}
           </li>
         ) : (
@@ -269,7 +267,7 @@ export default function TeacherProfileCard({
               className={`mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full ${bulletClass}`}
               aria-hidden="true"
             />
-            <span className="type-body leading-snug text-ink/85">{item}</span>
+            <span className="type-body leading-snug text-ink">{item}</span>
           </li>
         ),
       )}
@@ -309,7 +307,7 @@ export default function TeacherProfileCard({
           Expertise
         </p>
         {clampListBlock ? (
-          <p className="type-body line-clamp-4 leading-snug text-ink/85">
+          <p className="type-body line-clamp-4 leading-snug text-ink">
             {expertiseItems.join(", ")}
           </p>
         ) : (
@@ -317,7 +315,7 @@ export default function TeacherProfileCard({
             {expertiseItems.map((item) => (
               <span
                 key={item}
-                className="type-ui inline-flex items-center rounded-full border border-accent/35 bg-white px-3 py-1 text-ink/90 transition-all duration-150 hover:border-primary/35 hover:bg-white hover:shadow-2xs"
+                className="type-ui inline-flex items-center rounded-full border border-accent/35 bg-white px-3 py-1 text-ink transition-all duration-150 hover:border-primary/35 hover:bg-white hover:shadow-2xs"
               >
                 {item}
               </span>

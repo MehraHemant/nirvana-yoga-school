@@ -82,7 +82,7 @@ export default function TeachersSection({
   const resolvedTitle = title ?? (
     <>
       Lineage Teachers,{" "}
-      <span className="font-normal text-primary">Guided by Compassion</span>
+      <span className="font-bold text-primary">Guided by Compassion</span>
     </>
   );
 
@@ -108,7 +108,7 @@ export default function TeachersSection({
   return (
     <section
       id={resolveSectionHtmlId("teachers", sectionId)}
-      className="relative overflow-x-hidden bg-white py-12 sm:py-14 lg:py-16 w-full [overflow-anchor:none]"
+      className="relative overflow-x-hidden bg-white section-padding-y w-full [overflow-anchor:none]"
     >
       <Container size="2xl" className="w-full relative z-10">
         <div className="w-full text-center mb-12 sm:mb-16 lg:mb-10">
@@ -123,8 +123,8 @@ export default function TeachersSection({
 
         {/* Desktop: directory + single selected profile card (click-only; no auto-rotate) */}
         <div className="hidden lg:grid h-[min(560px,calc(100svh-var(--site-header-height,4.75rem)-3rem))] grid-cols-[minmax(240px,0.9fr)_minmax(0,2.2fr)] items-stretch gap-8">
-          <aside className="flex h-full min-h-0 w-full shrink-0 flex-col overflow-hidden rounded-2xl border border-ink/8 bg-white">
-            <p className="type-eyebrow shrink-0 border-b border-ink/6 px-4 pb-2.5 pt-3.5 text-left text-muted">
+          <aside className="surface-bordered flex h-full min-h-0 w-full shrink-0 flex-col overflow-hidden">
+            <p className="type-eyebrow shrink-0 border-b border-ink/6 px-4 pb-2.5 pt-3.5 text-left text-ink">
               Faculty Directory
             </p>
             <nav
@@ -142,11 +142,7 @@ export default function TeachersSection({
                     }
                     type="button"
                     aria-current={isSelected ? "true" : undefined}
-                    className={`relative flex w-full cursor-pointer items-center gap-3 rounded-r-xl py-2.5 pr-3 pl-3 text-left transition-colors duration-200 ${
-                      isSelected
-                        ? "bg-primary/8 text-ink"
-                        : "text-ink hover:bg-ink/3"
-                    }`}
+                    className={`relative flex w-full cursor-pointer items-center gap-3 rounded-r-xl py-2.5 pr-3 pl-3 text-left transition-colors duration-200 ${isSelected ? "bg-primary/8 text-ink" : "text-ink hover:bg-ink/3"}`}
                   >
                     {isSelected ? (
                       <span
@@ -155,11 +151,7 @@ export default function TeachersSection({
                       />
                     ) : null}
                     <div
-                      className={`relative z-10 h-10 w-10 shrink-0 overflow-hidden rounded-full border shadow-2xs ${
-                        isSelected
-                          ? "border-primary/30 ring-2 ring-primary/12"
-                          : "border-ink/10"
-                      }`}
+                      className={`relative z-10 h-10 w-10 shrink-0 overflow-hidden rounded-full border shadow-2xs ${isSelected ? "border-primary/30 ring-2 ring-primary/12" : "border-ink/10"}`}
                     >
                       <Image
                         src={teacher.image}
@@ -171,15 +163,11 @@ export default function TeachersSection({
                     </div>
                     <div className="relative z-10 min-w-0">
                       <h4
-                        className={`type-ui truncate ${
-                          isSelected
-                            ? "font-semibold text-primary"
-                            : "font-medium text-ink"
-                        }`}
+                        className={`type-ui truncate ${isSelected ? "font-semibold text-primary" : "font-semibold text-ink"}`}
                       >
                         {teacher.name}
                       </h4>
-                      <p className="type-eyebrow mt-0.5 truncate text-muted">
+                      <p className="type-eyebrow mt-0.5 truncate text-ink">
                         {teacher.experienceSummary}
                       </p>
                     </div>
@@ -229,11 +217,7 @@ export default function TeachersSection({
                     const row = event.currentTarget.parentElement;
                     if (row) scrollChildIntoContainer(row, event.currentTarget);
                   }}
-                  className={`type-ui shrink-0 rounded-full border px-3.5 py-2 font-semibold transition-colors ${
-                    isSelected
-                      ? "border-primary bg-primary text-white"
-                      : "surface-panel border-ink/8 text-ink"
-                  }`}
+                  className={`type-ui shrink-0 rounded-full border px-3.5 py-2 font-semibold transition-colors ${isSelected ? "border-primary bg-primary text-white" : "surface-panel border-ink/8 text-ink"}`}
                 >
                   {teacher.name.replace(/^Dr\.\s/, "").split(" ")[0]}
                 </button>

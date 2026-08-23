@@ -113,7 +113,7 @@ export default function VenueClient({
             className="relative z-10 flex min-h-[52svh] flex-col justify-end pb-12 pt-28 lg:min-h-[58svh] lg:pb-16"
           >
             <p className="type-eyebrow mb-3 text-white/70">{eyebrow}</p>
-            <h1 className="max-w-3xl font-serif text-4xl leading-tight text-white sm:text-5xl lg:text-6xl">
+            <h1 className="max-w-3xl text-4xl leading-tight text-white sm:text-5xl lg:text-6xl">
               {title}
             </h1>
             {subtitle ? (
@@ -122,7 +122,7 @@ export default function VenueClient({
               </p>
             ) : null}
             {images.length > 0 ? (
-              <p className="mt-4 font-sans text-sm text-white/65">
+              <p className="mt-4 text-sm text-white/65">
                 {images.length} photos
                 {gallery.sectionOrder && gallery.sectionOrder.length > 0
                   ? ` · ${gallery.sectionOrder.length} collections`
@@ -135,11 +135,11 @@ export default function VenueClient({
         <header className="border-b border-ink/8 bg-white pt-28 pb-10 sm:pt-32 sm:pb-12">
           <Container size="2xl">
             <p className="type-eyebrow text-primary">{eyebrow}</p>
-            <h1 className="mt-2 max-w-3xl font-serif text-4xl leading-tight text-ink sm:text-5xl">
+            <h1 className="mt-2 max-w-3xl text-4xl leading-tight text-ink sm:text-5xl">
               {title}
             </h1>
             {subtitle ? (
-              <p className="mt-3 max-w-2xl text-base leading-relaxed text-muted sm:text-lg">
+              <p className="mt-3 max-w-2xl text-base leading-relaxed text-ink sm:text-lg">
                 {subtitle}
               </p>
             ) : null}

@@ -133,7 +133,7 @@ export default function GallerySection({
   return (
     <section
       id={resolveSectionHtmlId("gallery", content._id)}
-      className="relative w-full bg-white py-12 sm:py-14 lg:py-16"
+      className="section-white"
     >
       <Container size="2xl" className="relative">
         <motion.div
@@ -142,13 +142,14 @@ export default function GallerySection({
           viewport={VIEWPORT_ONCE}
           variants={fadeUp}
         >
-          <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between mb-10 md:mb-14">
+          <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between mb-6 md:mb-8">
             <SectionHeader
               eyebrow={content.eyebrow}
               title={content.title}
               description={content.description}
               align="left"
-              className="max-w-2xl mb-0! [&_.type-lead]:text-ink"
+              descriptionClassName="text-ink"
+              className="max-w-2xl"
             />
           </div>
         </motion.div>
@@ -169,9 +170,7 @@ export default function GallerySection({
                   key={category.id}
                   type="button"
                   onClick={() => setSelectedCategory(category.id)}
-                  className={`type-ui relative px-4 py-2 font-medium transition-colors duration-300 focus-visible:outline-none ${
-                    isActive ? "text-primary" : "text-ink"
-                  }`}
+                  className={`type-ui text-lg relative px-4 py-2 font-semibold transition-colors duration-300 focus-visible:outline-none ${isActive ? "text-primary" : "text-ink"}`}
                 >
                   {category.label}
                   {isActive && (
@@ -246,7 +245,7 @@ export default function GallerySection({
                             ? "Campus Life"
                             : "Excursion"}
                       </span>
-                      <h4 className="font-serif text-sm sm:text-base font-medium text-ink leading-tight tracking-wide mt-1 transition-colors duration-300">
+                      <h4 className="text-sm sm:text-base font-bold text-ink leading-tight tracking-wide mt-1 transition-colors duration-300 truncate">
                         {item.title}
                       </h4>
                     </div>

@@ -116,13 +116,13 @@ function PricingTierRow({ tier }: { tier: BlogRailPricingTier }) {
         >
           <Bed size={14} />
         </span>
-        <span className="truncate text-sm font-medium leading-5 text-ink">
+        <span className="truncate text-sm font-semibold leading-5 text-ink">
           {tier.roomType}
         </span>
       </span>
       <span className="flex shrink-0 flex-col items-end gap-0.5">
         {was ? (
-          <span className="text-[11px] tabular-nums text-muted line-through">
+          <span className="text-[11px] tabular-nums text-ink line-through">
             {was}
           </span>
         ) : null}
@@ -155,7 +155,7 @@ function ProgramCard({ course }: { course: BlogRailCourse }) {
 
   return (
     <article>
-      <h3 className="text-[1.05rem] font-semibold leading-snug tracking-[-0.01em] text-ink">
+      <h3 className="text-[1.05rem] font-bold leading-snug tracking-[-0.01em] text-ink">
         {course.title}
       </h3>
 
@@ -218,7 +218,7 @@ export function BlogCourseRail({ courses }: BlogCourseRailProps) {
             Programs & pricing
           </h2>
 
-          <p className="mt-2 text-sm leading-6 text-muted">
+          <p className="mt-2 text-sm leading-6 text-ink">
             Stay, meals, and yoga included—pick an accommodation tier.
           </p>
 
@@ -248,9 +248,7 @@ export function BlogCourseRail({ courses }: BlogCourseRailProps) {
           </div>
         ) : (
           <div className="mt-6 rounded-2xl border border-ink/10 bg-surface/60 px-4 py-5">
-            <p className="text-sm leading-6 text-muted">
-              New dates coming soon.
-            </p>
+            <p className="text-sm leading-6 text-ink">New dates coming soon.</p>
             <Link
               href="/yoga-teacher-training-in-rishikesh-india"
               className="mt-3 inline-flex text-sm font-semibold text-primary transition-colors hover:text-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"

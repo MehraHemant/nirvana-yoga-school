@@ -67,9 +67,7 @@ export function BlogRoomImagesCarousel({
           src={url}
           alt=""
           fill
-          className={`object-cover transition-opacity duration-700 ease-out ${
-            index === activeIndex ? "opacity-100" : "opacity-0"
-          } ${reducedMotion ? "transition-none" : ""}`}
+          className={`object-cover transition-opacity duration-700 ease-out ${index === activeIndex ? "opacity-100" : "opacity-0"} ${reducedMotion ? "transition-none" : ""}`}
           sizes="(max-width: 1024px) 100vw, 352px"
           priority={index === 0}
           aria-hidden={index !== activeIndex}

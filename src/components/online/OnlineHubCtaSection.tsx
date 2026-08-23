@@ -38,12 +38,10 @@ export default function OnlineHubCtaSection({
           variants={fadeUp}
         >
           <p className="type-eyebrow text-accent">Ready to begin?</p>
-          <Heading as="h2" align="center" font="serif" size="h2" invert>
+          <Heading as="h2" align="center" size="h2" invert>
             Start your online yoga
             <br />
-            <span className="font-serif font-medium text-accent">
-              teacher training
-            </span>
+            <span className="font-bold text-accent">teacher training</span>
           </Heading>
           <p className="type-lead mx-auto mt-4 max-w-xl text-white/80">
             Enquire for guidance on the right course, Indian student pricing, or

@@ -56,7 +56,7 @@ function HeaderCtaControl({
     return (
       <Link
         {...props}
-        className={`nav-link text-sm font-semibold tracking-wide px-2 py-1.5 transition-colors hover:text-primary font-sans ${solid ? "text-ink/80" : "text-white/85"} ${className}`.trim()}
+        className={`nav-link text-base font-semibold tracking-wide px-2 py-1.5 transition-colors hover:text-primary  ${solid ? "text-ink" : "text-white/85"} ${className}`.trim()}
       >
         {cta.label}
       </Link>
@@ -121,7 +121,7 @@ function NavText({
   solid: boolean;
   className?: string;
 }) {
-  return solid ? `text-ink/90 ${className}` : `text-white/90 ${className}`;
+  return solid ? `text-ink ${className}` : `text-white/90 ${className}`;
 }
 
 function DesktopDropdown({
@@ -136,7 +136,7 @@ function DesktopDropdown({
   const textClass = NavText({
     solid,
     className:
-      "nav-link nav-dropdown-trigger text-sm font-medium tracking-wide flex items-center gap-1.5 py-1.5 font-sans",
+      "nav-link nav-dropdown-trigger text-base font-semibold tracking-wide flex items-center gap-1.5 py-1.5 ",
   });
 
   const regularItems = item.items.filter(
@@ -190,10 +190,8 @@ function DesktopDropdown({
         <div className="nav-dropdown-menu min-w-[360px] max-w-[420px] max-h-[72vh] overflow-hidden rounded-3xl">
           <span className="nav-dropdown-caret" aria-hidden="true" />
           <div className="px-6 pt-6 pb-4 border-b border-ink/5">
-            <p className="font-serif text-xl text-ink leading-tight">
-              {item.label}
-            </p>
-            <p className="text-xs text-muted mt-1.5 font-sans tracking-wide">
+            <p className="text-2xl text-ink leading-tight">{item.label}</p>
+            <p className="text-sm text-ink mt-1.5 tracking-wide">
               Programs in Rishikesh, India
             </p>
           </div>
@@ -206,7 +204,7 @@ function DesktopDropdown({
                   "external" in sub ? sub.external : undefined,
                 )}
                 onClick={closeDropdown}
-                className="nav-dropdown-item group/item flex items-start gap-3 rounded-xl px-4 py-3 text-sm text-ink/80 hover:text-primary leading-snug font-sans"
+                className="nav-dropdown-item group/item flex items-start gap-3 rounded-xl px-4 py-3 text-base text-ink hover:text-primary leading-snug"
               >
                 <span
                   className="mt-2 w-1 h-1 rounded-full bg-accent shrink-0 group-hover/item:bg-primary transition-colors"
@@ -224,7 +222,7 @@ function DesktopDropdown({
                   "external" in seeAllItem ? seeAllItem.external : undefined,
                 )}
                 onClick={closeDropdown}
-                className="nav-dropdown-cta flex items-center justify-between rounded-2xl bg-primary/5 hover:bg-primary/10 px-4 py-3 text-sm font-semibold text-primary transition-colors font-sans"
+                className="nav-dropdown-cta flex items-center justify-between rounded-2xl bg-primary/5 hover:bg-primary/10 px-4 py-3 text-base font-semibold text-primary transition-colors"
               >
                 {seeAllItem.label} <ArrowRight size={16} />
               </Link>
@@ -257,7 +255,7 @@ function MobileNavItem({
         {...linkProps(href, item.external)}
         onClick={onNavigate}
         style={style}
-        className="mobile-nav-item py-3.5 px-3 text-base font-medium text-ink/90 hover:text-primary border-b border-ink/5 font-sans tracking-wide"
+        className="mobile-nav-item py-3.5 px-3 text-lg font-semibold text-ink hover:text-primary border-b border-ink/5 tracking-wide"
       >
         {item.label}
       </Link>
@@ -271,7 +269,7 @@ function MobileNavItem({
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         aria-controls={panelId}
-        className="w-full py-3.5 px-3 flex items-center justify-between text-base font-medium text-ink/90 hover:text-primary font-sans tracking-wide"
+        className="w-full py-3.5 px-3 flex items-center justify-between text-lg font-semibold text-ink hover:text-primary tracking-wide"
       >
         {item.label}{" "}
         <ChevronDown
@@ -288,7 +286,7 @@ function MobileNavItem({
               <Link
                 {...linkProps(navItemHref(item) ?? "#", item.external)}
                 onClick={onNavigate}
-                className="py-2 px-2 text-sm font-semibold text-primary tracking-wide"
+                className="py-2 px-2 text-base font-semibold text-primary tracking-wide"
               >
                 View all {item.label.toLowerCase()}
               </Link>
@@ -304,7 +302,7 @@ function MobileNavItem({
                   setOpen(false);
                   onNavigate();
                 }}
-                className="py-2 px-2 text-sm text-ink/75 hover:text-primary leading-snug font-sans"
+                className="py-2 px-2 text-base text-ink hover:text-primary leading-snug"
               >
                 {sub.label}
               </Link>
@@ -401,7 +399,7 @@ export default function Header({ initialData = null }: HeaderProps) {
     : "top-[4.75rem] md:top-[5.5rem]";
   const linkClass = NavText({
     solid,
-    className: "nav-link text-sm font-medium tracking-wide py-1.5 font-sans",
+    className: "nav-link text-base font-semibold tracking-wide py-1.5 ",
   });
 
   useLayoutEffect(() => {
@@ -549,7 +547,7 @@ export default function Header({ initialData = null }: HeaderProps) {
                     cta={cta}
                     solid
                     onNavigate={() => setMobileOpen(false)}
-                    className="mobile-nav-item block! py-3.5 px-3 text-base font-semibold text-ink/90 hover:text-primary border-b border-ink/5 tracking-wide"
+                    className="mobile-nav-item mobile-nav-item--block py-3.5 px-3 text-lg font-semibold text-ink hover:text-primary border-b border-ink/5 tracking-wide"
                   />
                 ) : (
                   <div

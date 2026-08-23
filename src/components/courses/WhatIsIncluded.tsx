@@ -152,8 +152,7 @@ export default function WhatIsIncluded({
 }: WhatIsIncludedProps) {
   const arrivalBody = arrivalSupport?.body?.trim() ?? "";
   const showArrivalSupport = Boolean(arrivalBody);
-  const arrivalTitle =
-    arrivalSupport?.title?.trim() || "Arrival Support";
+  const arrivalTitle = arrivalSupport?.title?.trim() || "Arrival Support";
 
   return (
     <section
@@ -191,20 +190,18 @@ export default function WhatIsIncluded({
                 )
               }
               align="left"
-              className="mb-0!"
+              className="mb-3"
             />
-            <p className="type-body text-muted leading-relaxed font-sans text-base">
+            <p className="text-ink text-base/normal font-medium">
               {description}
             </p>
 
             {showArrivalSupport ? (
               <div className="surface-panel space-y-2 rounded-3xl p-6 transition-all duration-300 hover:shadow-soft">
-                <span className="type-eyebrow text-primary font-semibold block mb-1">
+                <span className="uppercase tracking-wider text-primary font-semibold block mb-1">
                   {arrivalTitle}
                 </span>
-                <p className="text-xs text-muted leading-relaxed font-sans font-light">
-                  {arrivalBody}
-                </p>
+                <p className="text-sm text-ink font-medium">{arrivalBody}</p>
               </div>
             ) : null}
           </div>
@@ -229,7 +226,7 @@ export default function WhatIsIncluded({
               </div>
             </div>
 
-            <h3 className="font-serif text-xl md:text-2xl lg:text-3xl font-medium text-ink mb-6">
+            <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-ink mb-6">
               Everything included in your fee
             </h3>
 
@@ -245,22 +242,22 @@ export default function WhatIsIncluded({
                   >
                     {getInclusionIcon(item)}
                   </span>
-                  <span className="type-body text-ink/80 font-sans leading-relaxed group-hover:text-ink transition-colors duration-200">
+                  <span className="text-ink text-base/snug font-medium group-hover:text-ink transition-colors duration-200">
                     {item}
                   </span>
                 </li>
               ))}
             </ul>
 
-            <div className="mt-8 pt-5 border-t border-ink/5 text-[11px] text-muted font-sans flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div className="mt-8 pt-5 border-t border-ink/5 text-sm font-medium text-ink flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <span className="flex items-center gap-1.5">
                 <span
                   className="w-1.5 h-1.5 rounded-full bg-primary"
                   aria-hidden="true"
                 />
-                ✓ No hidden registration fees or local taxes.
+                No hidden registration fees or local taxes.
               </span>
-              <span className="sm:text-right font-medium text-ink/75">
+              <span className="sm:text-right font-semibold text-ink">
                 All tuition-listed features are 100% covered.
               </span>
             </div>

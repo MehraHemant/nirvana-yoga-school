@@ -57,7 +57,7 @@ function whatsappHrefFromPhone(phone: string): string | null {
  */
 function ColHeading({ children }: { children: string }) {
   return (
-    <p className="type-eyebrow mb-2.5 text-[10px] font-semibold tracking-[0.18em] text-primary">
+    <p className="type-eyebrow mb-2.5 text-xs font-semibold tracking-[0.18em] text-primary">
       {children}
     </p>
   );
@@ -83,7 +83,7 @@ function NavLinks({
               href={l.href}
               target={external ? "_blank" : undefined}
               rel={external ? "noopener noreferrer" : undefined}
-              className="footer-nav-link font-sans text-[12.5px] leading-snug text-ink/80"
+              className="footer-nav-link text-sm font-semibold leading-snug text-ink"
             >
               {l.label}
             </Link>
@@ -110,14 +110,14 @@ function ContactLines({
     whatsappHref ?? whatsappHrefFromPhone(contact.phone) ?? undefined;
 
   return (
-    <address className="space-y-1.5 font-sans text-[12.5px] leading-snug not-italic text-ink/75">
+    <address className="space-y-1.5 text-sm leading-snug not-italic text-ink">
       {contact.address ? (
         <p className="max-w-[16rem] whitespace-pre-line">{contact.address}</p>
       ) : null}
       {contact.email ? (
         <a
           href={`mailto:${contact.email}`}
-          className="footer-nav-link block text-ink/80"
+          className="footer-nav-link block text-ink"
         >
           {contact.email}
         </a>
@@ -127,7 +127,7 @@ function ContactLines({
           href={phoneHref}
           target="_blank"
           rel="noopener noreferrer"
-          className="footer-nav-link block text-ink/80"
+          className="footer-nav-link block text-ink"
         >
           {contact.phone}
         </a>
@@ -245,12 +245,12 @@ export default function Footer({ initialData = null }: FooterProps) {
           <div className="sm:col-span-2 lg:col-span-1">
             <BrandLogo logo={footerData.brand.logo} />
             {footerData.brand.credentials ? (
-              <p className="type-eyebrow mt-2.5 text-[9px] tracking-[0.14em] text-muted">
+              <p className="type-eyebrow mt-2.5 text-[11px] tracking-[0.14em] text-ink">
                 {footerData.brand.credentials}
               </p>
             ) : null}
             {footerData.brand.tagline ? (
-              <p className="mt-2.5 max-w-xs font-sans text-[12.5px] leading-snug text-ink/65 line-clamp-2">
+              <p className="mt-2.5 max-w-xs text-sm leading-snug text-ink line-clamp-2">
                 {footerData.brand.tagline}
               </p>
             ) : null}
@@ -276,7 +276,7 @@ export default function Footer({ initialData = null }: FooterProps) {
         </div>
 
         <div className="mt-7 border-t border-ink/8 pt-3.5 md:mt-8">
-          <div className="flex flex-col gap-2 font-sans text-[11px] tracking-wide text-muted sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-2 text-xs tracking-wide text-ink sm:flex-row sm:items-center sm:justify-between">
             <p>© {new Date().getFullYear()} Nirvana Yoga School India</p>
             {footerData.legal.length > 0 ? (
               <nav
@@ -291,7 +291,7 @@ export default function Footer({ initialData = null }: FooterProps) {
                       href={l.href}
                       target={external ? "_blank" : undefined}
                       rel={external ? "noopener noreferrer" : undefined}
-                      className="footer-nav-link text-muted hover:text-primary"
+                      className="footer-nav-link text-ink hover:text-primary"
                     >
                       {l.label}
                     </Link>

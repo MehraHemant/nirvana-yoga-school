@@ -37,9 +37,7 @@ export function FaqUsageIndicator({
     return (
       <div className="admin-faq-usage admin-faq-usage--detail">
         <span
-          className={`admin-status-chip${
-            inUse ? " admin-status-chip--warn" : " admin-status-chip--ok"
-          }`}
+          className={`admin-status-chip${inUse ? " admin-status-chip--warn" : " admin-status-chip--ok"}`}
         >
           {inUse ? "In use" : "Not assigned"}
         </span>
@@ -68,9 +66,7 @@ export function FaqUsageIndicator({
 
   return (
     <span
-      className={`admin-status-chip${
-        inUse ? " admin-status-chip--warn" : " admin-status-chip--ok"
-      }`}
+      className={`admin-status-chip${inUse ? " admin-status-chip--warn" : " admin-status-chip--ok"}`}
       title={inUse ? formatFaqUsageDetail(resolved) : undefined}
     >
       {inUse ? "In use" : "Not assigned"}

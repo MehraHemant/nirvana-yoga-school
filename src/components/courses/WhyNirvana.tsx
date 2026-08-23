@@ -60,8 +60,7 @@ export default function WhyNirvana({
   if (!content || !shouldRenderSection(content, hasData)) return null;
 
   const resolvedHeading =
-    content.heading?.trim() ||
-    "What Makes Nirvana a Truly Unique Experience?";
+    content.heading?.trim() || "What Makes Nirvana a Truly Unique Experience?";
 
   return (
     <section id="why-nirvana" className="bg-white">
@@ -89,7 +88,7 @@ export default function WhyNirvana({
           viewport={VIEWPORT_ONCE}
           variants={fadeUp}
         >
-          <h3 className="type-h3 mb-8 text-center font-serif tracking-wide text-ink">
+          <h3 className="type-h3 mb-8 text-center tracking-wide text-ink">
             {resolvedHeading}
           </h3>
 
@@ -97,19 +96,19 @@ export default function WhyNirvana({
             {content.highlights.map((item, i) => {
               const Icon = HIGHLIGHT_ICONS[i] ?? BookOpen;
               return (
-                <li key={item.title}>
-                  <article className="group surface-panel flex h-full gap-4 rounded-2xl p-4 transition-all duration-300 hover:border-primary/15 hover:shadow-soft sm:p-5">
+                <li key={item.title} className="shadow-sm rounded-2xl">
+                  <article className="group flex h-full gap-4 rounded-2xl p-4 transition-all duration-300 hover:border-primary/15 hover:shadow-soft sm:p-5">
                     <span
-                      className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-ink/8 bg-white shadow-xs transition-colors group-hover:border-primary/20 group-hover:bg-primary/5"
+                      className="surface-bordered mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center shadow-xs transition-colors group-hover:border-primary/20 group-hover:bg-primary/5"
                       aria-hidden="true"
                     >
                       <Icon size={18} className="text-primary" />
                     </span>
                     <div className="min-w-0">
-                      <h4 className="type-display-sm mb-1.5 font-serif leading-snug text-ink">
+                      <h4 className="text-lg lg:text-2xl font-semibold mb-1.5 leading-snug text-ink">
                         {item.title}
                       </h4>
-                      <p className="font-sans text-sm leading-relaxed text-muted">
+                      <p className="text-base lg:text-lg font-normal text-ink">
                         {stripHtml(item.body)}
                       </p>
                     </div>
@@ -119,7 +118,7 @@ export default function WhyNirvana({
             })}
           </ul>
 
-          <p className="mx-auto mt-12 max-w-3xl border-t border-ink/10 pt-10 text-center font-sans text-sm leading-relaxed text-muted sm:text-base">
+          <p className="mx-auto mt-12 max-w-3xl border-t border-ink/10 pt-10 text-center text-sm leading-relaxed text-ink sm:text-base">
             {content.closing}
           </p>
         </motion.div>

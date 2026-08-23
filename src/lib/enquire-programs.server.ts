@@ -6,10 +6,6 @@ import {
 } from "@/content/pages/slugs";
 import { getPageLabel } from "@/content/repositories/page-labels";
 
-const RETREAT_PROGRAM_SLUGS = RETREAT_SLUGS.filter(
-  (slug) => slug !== "retreat-booking",
-);
-
 /**
  * Builds enquiry form program presets from published page titles in Postgres.
  */
@@ -25,7 +21,7 @@ export async function buildEnquireProgramOptions(): Promise<
       type: "online" as const,
       slug,
     })),
-    ...RETREAT_PROGRAM_SLUGS.map((slug) => ({
+    ...RETREAT_SLUGS.map((slug) => ({
       type: "retreat" as const,
       slug,
     })),

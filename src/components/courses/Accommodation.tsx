@@ -64,11 +64,7 @@ function RoomTypeSelector({
               type="button"
               onClick={() => onChange(room.id)}
               aria-pressed={isActive}
-              className={`group flex w-full items-center justify-between gap-4 rounded-2xl border px-3 py-2.5 text-left transition-all duration-300 ${
-                isActive
-                  ? "border-primary/25 bg-primary/5 shadow-xs ring-1 ring-primary/10"
-                  : "surface-panel border-ink/8 hover:border-primary/15"
-              }`}
+              className={`group flex w-full items-center justify-between gap-4 rounded-2xl border px-3 py-2.5 text-left transition-all duration-300 ${isActive ? "border-primary/25 bg-primary/5 shadow-xs ring-1 ring-primary/10" : "surface-panel border-ink/8 hover:border-primary/15"}`}
             >
               <div className="flex min-w-0 items-center gap-3">
                 <span
@@ -76,9 +72,7 @@ function RoomTypeSelector({
                   aria-hidden="true"
                 >
                   <span
-                    className={`h-2 w-2 rounded-full transition-colors duration-300 ${
-                      isActive ? "bg-primary" : "bg-transparent"
-                    }`}
+                    className={`h-2 w-2 rounded-full transition-colors duration-300 ${isActive ? "bg-primary" : "bg-transparent"}`}
                   />
                 </span>
 
@@ -88,25 +82,21 @@ function RoomTypeSelector({
                       src={thumb}
                       alt={room.label}
                       fill
-                      sizes="48px"
+                      sizes="50px"
                       unoptimized
-                      className={`object-cover transition-transform duration-500 ${
-                        isActive ? "scale-105" : "group-hover:scale-105"
-                      }`}
+                      className={`object-cover transition-transform duration-500 ${isActive ? "scale-105" : "group-hover:scale-105"}`}
                     />
                   )}
                 </div>
 
                 <p
-                  className={`type-ui min-w-0 truncate font-medium leading-snug ${
-                    isActive ? "text-ink" : "text-ink/75"
-                  }`}
+                  className={`min-w-0 truncate font-semibold leading-snug ${isActive ? "text-ink" : "text-ink"}`}
                 >
                   {room.label}
                 </p>
               </div>
 
-              <p className="type-eyebrow ml-auto shrink-0 text-muted">
+              <p className="type-eyebrow ml-auto shrink-0 text-ink">
                 {room.images.length} photos
               </p>
             </button>
@@ -130,7 +120,7 @@ function FacilitiesGrid({ facilities }: { facilities: SharedFacility[] }) {
           <p className="type-eyebrow mb-0.5 text-secondary">
             Campus facilities
           </p>
-          <p className="type-ui max-w-xl text-muted">
+          <p className="type-ui max-w-xl text-ink">
             Included with your stay — optional add-ons for cooler months.
           </p>
         </div>
@@ -150,20 +140,16 @@ function FacilitiesGrid({ facilities }: { facilities: SharedFacility[] }) {
               className="surface-panel flex items-start gap-2 rounded-xl p-2.5 transition-shadow hover:shadow-soft"
             >
               <span
-                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border ${
-                  isPaidExtra
-                    ? "border-ink/10 bg-ink/5 text-ink"
-                    : "border-primary/10 bg-primary/10 text-primary"
-                }`}
+                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border ${isPaidExtra ? "border-ink/10 bg-ink/5 text-ink" : "border-primary/10 bg-primary/10 text-primary"}`}
               >
                 <Icon size={14} strokeWidth={2} />
               </span>
               <div className="min-w-0">
-                <p className="type-ui font-medium leading-snug text-ink">
+                <p className="type-ui font-semibold leading-snug text-ink">
                   {facility.label}
                 </p>
                 {facility.note ? (
-                  <p className="type-eyebrow mt-0.5 text-muted">
+                  <p className="type-eyebrow mt-0.5 text-ink">
                     {facility.note}
                   </p>
                 ) : null}
@@ -240,7 +226,9 @@ export default function Accommodation({
         <div className="grid items-start gap-6 lg:grid-cols-12 lg:gap-8 xl:gap-10">
           <div className="flex min-w-0 flex-col gap-5 lg:col-span-5">
             <ResidentialSectionHeader
-              eyebrow={content.accommodation.eyebrow?.trim() || "Residential Life"}
+              eyebrow={
+                content.accommodation.eyebrow?.trim() || "Residential Life"
+              }
               title={
                 content.accommodation.title?.trim() ? (
                   content.accommodation.title
@@ -254,7 +242,7 @@ export default function Accommodation({
 
             <div className="space-y-5">
               <ResidentialSectionIntro
-                eyebrow="Ashram Lodging"
+                eyebrow="Residential Life"
                 title={
                   content.accommodation.stay.title.trim() ? (
                     content.accommodation.stay.title

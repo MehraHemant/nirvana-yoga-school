@@ -63,8 +63,8 @@ function TestimonialCard({ review }: { review: Testimonial }) {
   }, [isExpanded]);
 
   return (
-    <div className="flex h-full min-h-[380px] flex-col items-stretch gap-6 pr-3 md:min-h-[240px] md:flex-row md:gap-8">
-      <div className="relative h-55 w-full shrink-0 overflow-hidden rounded-2xl md:h-60 md:w-1/3">
+    <div className="flex h-full min-h-[380px] flex-col items-stretch gap-6 pr-3 md:min-h-[280px] md:flex-row md:gap-8">
+      <div className="relative h-[220px] w-full shrink-0 overflow-hidden rounded-2xl md:h-60 md:w-1/3">
         <Image
           src={review.image}
           alt={`${review.name} - Testimonial`}
@@ -78,7 +78,7 @@ function TestimonialCard({ review }: { review: Testimonial }) {
       <div className="flex w-full flex-col justify-center py-4 select-text md:w-2/3 md:py-6">
         <div className="mb-2 flex items-start justify-between">
           <div>
-            <h4 className="font-sans text-base font-bold leading-tight text-ink md:text-lg">
+            <h4 className="text-base font-bold leading-tight text-ink md:text-lg">
               {review.name}
             </h4>
             <div className="mt-1 flex gap-0.5" role="img" aria-label="5 stars">
@@ -93,7 +93,7 @@ function TestimonialCard({ review }: { review: Testimonial }) {
           </div>
         </div>
 
-        <h5 className="type-display-sm mb-3 font-semibold leading-snug text-ink">
+        <h5 className="type-display-sm mb-3 line-clamp-2 font-semibold leading-snug text-ink">
           {review.title}
         </h5>
 
@@ -101,9 +101,7 @@ function TestimonialCard({ review }: { review: Testimonial }) {
           <p
             ref={messageRef}
             id={messageId}
-            className={`type-body leading-relaxed text-ink/75 ${
-              isExpanded ? "" : "line-clamp-4 h-[4lh]"
-            }`}
+            className={`type-body leading-relaxed text-ink ${isExpanded ? "" : "line-clamp-4 h-[4lh]"}`}
           >
             &ldquo;{review.message}&rdquo;
           </p>
@@ -165,23 +163,23 @@ function TestimonialSlider({
   return (
     <section
       aria-label="Testimonial slider"
-      className="relative w-full"
+      className="relative h-full w-full"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="flex w-full items-center gap-2 sm:gap-3">
+      <div className="flex h-full w-full items-stretch gap-2 sm:gap-3">
         {reviews.length > 1 ? (
           <button
             type="button"
             onClick={() => paginate(-1)}
-            className="z-20 flex shrink-0 cursor-pointer items-center justify-center rounded-full border border-ink/5 bg-white p-2.5 text-ink/75 shadow-soft transition-all hover:bg-primary hover:text-white"
+            className="z-20 flex shrink-0 cursor-pointer items-center justify-center self-center rounded-full border border-ink/5 bg-white p-2.5 text-ink/75 shadow-soft transition-all hover:bg-primary hover:text-white"
             aria-label="Previous review"
           >
             <ChevronLeft size={16} />
           </button>
         ) : null}
 
-        <div className="relative min-h-[380px] min-w-0 flex-1 overflow-hidden md:min-h-[240px]">
+        <div className="relative min-h-[380px] min-w-0 flex-1 overflow-hidden md:min-h-[280px]">
           <AnimatePresence initial={false} custom={direction} mode="wait">
             <motion.div
               key={page}
@@ -201,7 +199,7 @@ function TestimonialSlider({
           <button
             type="button"
             onClick={() => paginate(1)}
-            className="z-20 flex shrink-0 cursor-pointer items-center justify-center rounded-full border border-ink/5 bg-white p-2.5 text-ink/75 shadow-soft transition-all hover:bg-primary hover:text-white"
+            className="z-20 flex shrink-0 cursor-pointer items-center justify-center self-center rounded-full border border-ink/5 bg-white p-2.5 text-ink/75 shadow-soft transition-all hover:bg-primary hover:text-white"
             aria-label="Next review"
           >
             <ChevronRight size={16} />
@@ -250,32 +248,26 @@ function RatingCard({
       <div>
         <div className="mb-6 flex items-center justify-between">
           {getBrandLogo()}
-          <span className="type-eyebrow rounded-full bg-white/60 px-2.5 py-1 font-bold text-muted">
+          <span className="type-eyebrow rounded-full bg-white/60 px-2.5 py-1 font-bold text-ink">
             Verified
           </span>
         </div>
 
         <h3 className="type-display-sm mb-1 font-bold text-ink">{title}</h3>
-        <p className="mb-4 font-sans text-xs text-muted">
-          Official Student Reviews
-        </p>
+        <p className="mb-4 text-xs text-ink">Official Student Reviews</p>
 
         <div className="mb-2 flex items-center gap-0.5">
           {[0, 1, 2, 3, 4].map((num) => (
             <Star
               key={`rating-star-${num}`}
               size={16}
-              className={`${
-                num < Math.floor(ratingValue)
-                  ? getStarColorClass(platform)
-                  : "fill-transparent text-ink/10"
-              } shrink-0`}
+              className={`${num < Math.floor(ratingValue) ? getStarColorClass(platform) : "fill-transparent text-ink/10"} shrink-0`}
             />
           ))}
         </div>
-        <p className="font-sans text-2xl font-black text-ink">
+        <p className="text-2xl font-black text-ink">
           {ratingText}{" "}
-          <span className="text-xs font-normal uppercase tracking-wider text-muted">
+          <span className="text-xs font-semibold uppercase tracking-wider text-ink">
             rating
           </span>
         </p>
@@ -289,7 +281,7 @@ function RatingCard({
         href={link}
         target="_blank"
         rel="noopener noreferrer"
-        className="block transition-opacity hover:opacity-85"
+        className="block h-full transition-opacity hover:opacity-85"
       >
         {content}
       </a>
@@ -324,7 +316,7 @@ export default function PlatformReviewsRows({
   return (
     <div className={`w-full space-y-8 md:space-y-10 ${className}`}>
       <div className="grid w-full grid-cols-1 items-stretch gap-6 rounded-3xl p-5 md:p-6 lg:grid-cols-4 lg:gap-8">
-        <div className="lg:col-span-1">
+        <div className="flex h-full flex-col lg:col-span-1">
           <RatingCard
             platform="Google"
             title="Google Reviews"
@@ -333,13 +325,13 @@ export default function PlatformReviewsRows({
             link="https://g.co/kgs/cftBiC3"
           />
         </div>
-        <div className="relative lg:col-span-3">
+        <div className="relative flex h-full flex-col lg:col-span-3">
           <TestimonialSlider reviews={googleReviews} autoplayInterval={3200} />
         </div>
       </div>
 
       <div className="grid w-full grid-cols-1 items-stretch gap-6 rounded-3xl p-5 md:p-6 lg:grid-cols-4 lg:gap-8">
-        <div className="lg:col-span-1">
+        <div className="flex h-full flex-col lg:col-span-1">
           <RatingCard
             platform="Tripadvisor"
             title="TripAdvisor Reviews"
@@ -348,7 +340,7 @@ export default function PlatformReviewsRows({
             link="https://www.tripadvisor.com/Attraction_Review-g580106-d27745947-Reviews-Nirvana_Yoga_School-Rishikesh_Dehradun_District_Uttarakhand.html"
           />
         </div>
-        <div className="relative lg:col-span-3">
+        <div className="relative flex h-full flex-col lg:col-span-3">
           <TestimonialSlider
             reviews={tripadvisorReviews}
             autoplayInterval={4200}
@@ -357,7 +349,7 @@ export default function PlatformReviewsRows({
       </div>
 
       <div className="grid w-full grid-cols-1 items-stretch gap-6 rounded-3xl p-5 md:p-6 lg:grid-cols-4 lg:gap-8">
-        <div className="lg:col-span-1">
+        <div className="flex h-full flex-col lg:col-span-1">
           <RatingCard
             platform="Trustpilot"
             title="Trustpilot Reviews"
@@ -366,7 +358,7 @@ export default function PlatformReviewsRows({
             link="https://www.trustpilot.com/review/nirvanayogaschoolindia.com"
           />
         </div>
-        <div className="relative lg:col-span-3">
+        <div className="relative flex h-full flex-col lg:col-span-3">
           <TestimonialSlider
             reviews={trustpilotReviews}
             autoplayInterval={3500}

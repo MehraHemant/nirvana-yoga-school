@@ -52,12 +52,10 @@ export default function FinalCTASection({
         <Pill invert className="mb-4 sm:mb-6 mx-auto">
           {pill}
         </Pill>
-        <Heading as="h2" align="center" font="serif" size="h2" invert>
+        <Heading as="h2" align="center" size="h2" invert>
           {title}
           <br />
-          <span className="font-serif font-medium text-accent">
-            {titleAccent}
-          </span>
+          <span className="font-bold text-accent">{titleAccent}</span>
         </Heading>
         <p className="type-lead mt-4 sm:mt-6 text-white/85 max-w-2xl mx-auto">
           {lead}

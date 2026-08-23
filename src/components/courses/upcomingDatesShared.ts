@@ -32,6 +32,11 @@ export type UpcomingDatesProps = {
     roomType: string,
     batch: string,
   ) => string;
+  /** Controlled selection — when set with callbacks, parent owns booking state */
+  selectedRoomType?: string;
+  selectedBatch?: string;
+  onRoomSelect?: (roomType: string) => void;
+  onBatchSelect?: (batch: string) => void;
 };
 
 export type BatchItem = {

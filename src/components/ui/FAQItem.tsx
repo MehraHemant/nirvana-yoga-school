@@ -50,19 +50,11 @@ export default function FAQItem({
             alt=""
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
-            className={`object-cover transition-all duration-700 ease-out ${
-              isActive
-                ? "scale-105 opacity-45 grayscale-0"
-                : "scale-100 opacity-25 grayscale group-hover:scale-102 group-hover:opacity-40 group-hover:grayscale-0"
-            }`}
+            className={`object-cover transition-all duration-700 ease-out ${isActive ? "scale-105 opacity-45 grayscale-0" : "scale-100 opacity-25 grayscale group-hover:scale-102 group-hover:opacity-40 group-hover:grayscale-0"}`}
             priority={index === 0}
           />
           <div
-            className={`absolute inset-0 transition-colors duration-500 ${
-              isActive
-                ? "bg-linear-to-r from-primary/90 via-primary/75 to-transparent"
-                : "bg-linear-to-r from-primary/80 via-primary/60 to-transparent group-hover:from-primary/70 group-hover:via-primary/50"
-            }`}
+            className={`absolute inset-0 transition-colors duration-500 ${isActive ? "bg-linear-to-r from-primary/90 via-primary/75 to-transparent" : "bg-linear-to-r from-primary/80 via-primary/60 to-transparent group-hover:from-primary/70 group-hover:via-primary/50"}`}
           />
         </div>
       )}
@@ -72,14 +64,10 @@ export default function FAQItem({
         aria-expanded={isActive}
         aria-controls={`faq-answer-${index}`}
         onClick={onToggle}
-        className={`relative z-10 flex w-full cursor-pointer items-center justify-between gap-4 p-5 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 sm:p-6 ${
-          hasImage ? "md:p-7" : ""
-        }`}
+        className={`relative z-10 flex w-full cursor-pointer items-center justify-between gap-4 p-5 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 sm:p-6 ${hasImage ? "md:p-7" : ""}`}
       >
         <span
-          className={`type-display-sm leading-snug ${
-            hasImage ? "font-medium text-white" : "font-semibold text-ink"
-          }`}
+          className={`leading-snug text-base lg:text-lg font-semibold tracking-tight ${hasImage ? "text-white" : "text-ink"}`}
         >
           {question}
         </span>
@@ -129,11 +117,7 @@ export default function FAQItem({
             className="relative z-10 overflow-hidden"
           >
             <div
-              className={`max-w-3xl border-t px-5 pb-5 sm:px-6 sm:pb-6 ${
-                hasImage
-                  ? "border-white/10 pt-4 md:px-7 md:pb-7"
-                  : "border-ink/5 pt-1"
-              }`}
+              className={`max-w-3xl border-t px-5 pb-5 sm:px-6 sm:pb-6 ${hasImage ? "border-white/10 pt-4 md:px-7 md:pb-7" : "border-ink/5 pt-1"}`}
             >
               {hasImage && tag && (
                 <span className="type-eyebrow mb-2 block font-semibold tracking-wider text-accent">
@@ -141,11 +125,7 @@ export default function FAQItem({
                 </span>
               )}
               <p
-                className={`type-body leading-relaxed ${
-                  hasImage
-                    ? "text-white/85"
-                    : "font-sans text-sm text-muted sm:text-base"
-                }`}
+                className={`${hasImage ? "text-white/85" : " text-sm text-ink sm:text-base"}`}
               >
                 {answer}
               </p>

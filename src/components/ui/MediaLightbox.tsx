@@ -118,7 +118,7 @@ export default function MediaLightbox({
             <span className="type-eyebrow text-accent font-semibold tracking-wider">
               {title}
             </span>
-            <span className="text-white/65 text-xs mt-1 font-sans">
+            <span className="text-white/65 text-xs mt-1">
               Media {activeIndex + 1} of {items.length}
             </span>
           </div>
@@ -230,11 +230,7 @@ export default function MediaLightbox({
                     data-index={idx}
                     type="button"
                     onClick={() => onChangeActiveIndex(idx)}
-                    className={`relative shrink-0 w-16 h-10 rounded-lg overflow-hidden border-2 transition-all cursor-pointer snap-center ${
-                      isActive
-                        ? "border-accent scale-105 shadow-md"
-                        : "border-white/10 opacity-55 hover:opacity-100"
-                    }`}
+                    className={`relative shrink-0 w-16 h-10 rounded-lg overflow-hidden border-2 transition-all cursor-pointer snap-center ${isActive ? "border-accent scale-105 shadow-md" : "border-white/10 opacity-55 hover:opacity-100"}`}
                     aria-label={`Go to slide ${idx + 1}`}
                   >
                     {item.type === "image" ? (

@@ -164,11 +164,7 @@ export default function TeachersPageClient({
                   type="button"
                   onClick={() => selectTeacher(slug)}
                   aria-current={isActive ? "true" : undefined}
-                  className={`type-ui shrink-0 rounded-full border px-3.5 py-2 font-semibold transition-colors ${
-                    isActive
-                      ? "border-primary bg-primary text-white"
-                      : "surface-panel border-ink/8 text-ink"
-                  }`}
+                  className={`type-ui shrink-0 rounded-full border px-3.5 py-2 font-semibold transition-colors ${isActive ? "border-primary bg-primary text-white" : "surface-panel border-ink/8 text-ink"}`}
                 >
                   {teacher.name.replace(/^Dr\.\s/, "").split(" ")[0]}
                 </button>
@@ -183,7 +179,7 @@ export default function TeachersPageClient({
               aside leaves zero travel room for an inner sticky node.
             */}
             <aside className="sticky top-[calc(var(--site-header-height,4.75rem)+1.5rem)] z-10 hidden max-h-[calc(100svh-var(--site-header-height,4.75rem)-3rem)] w-full flex-col overflow-hidden lg:flex">
-              <p className="type-eyebrow mb-3 shrink-0 text-muted">Jump to</p>
+              <p className="type-eyebrow mb-3 shrink-0 text-ink">Jump to</p>
               <nav
                 aria-label="Faculty profiles"
                 className="scrollbar-thin-primary min-h-0 flex-1 space-y-0.5 overflow-y-auto overscroll-y-contain pr-1"
@@ -197,11 +193,7 @@ export default function TeachersPageClient({
                       type="button"
                       onClick={() => selectTeacher(slug)}
                       aria-current={isActive ? "true" : undefined}
-                      className={`type-ui block w-full border-l-2 py-2 pl-3 text-left transition-colors ${
-                        isActive
-                          ? "border-primary font-semibold text-primary"
-                          : "border-transparent text-muted hover:border-ink/20 hover:text-ink"
-                      }`}
+                      className={`type-ui block w-full border-l-2 py-2 pl-3 text-left transition-colors ${isActive ? "border-primary font-semibold text-primary" : "border-transparent text-ink hover:border-ink/20 hover:text-ink"}`}
                     >
                       {teacher.name.replace(/^Dr\.\s/, "")}
                     </button>

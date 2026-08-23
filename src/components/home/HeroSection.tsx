@@ -86,9 +86,7 @@ export default function HeroSection({
               >
                 {titleLead} <br />
                 <div className="relative inline-block whitespace-nowrap">
-                  <span className="font-serif font-normal text-accent">
-                    {titleAccent}
-                  </span>
+                  <span className="font-bold text-accent">{titleAccent}</span>
                   <HeroUnderline className="absolute -bottom-1 md:-bottom-2 left-0 w-full text-accent" />
                 </div>
                 <span className="text-accent">.</span>
@@ -157,7 +155,7 @@ export default function HeroSection({
                       key={`${set}-${item}`}
                       className="flex items-center gap-5 md:gap-10 px-5 md:px-10 text-white/75 text-xs md:text-sm whitespace-nowrap"
                     >
-                      <span className="font-sans tracking-wide">{item}</span>
+                      <span className="tracking-wide">{item}</span>
                       <span
                         className="w-1 h-1 rounded-full bg-accent/70"
                         aria-hidden="true"

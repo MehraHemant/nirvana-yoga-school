@@ -157,7 +157,7 @@ export default function TravelGuide({
               </>
             }
           />
-          <p className="type-body border-l-2 border-primary/20 pl-4 font-sans text-muted sm:text-base">
+          <p className="type-body border-l-2 border-primary/20 pl-4 text-ink sm:text-base">
             {intro}
           </p>
         </div>
@@ -181,16 +181,10 @@ export default function TravelGuide({
                     onClick={() => setActiveId(isActive ? null : topic.id)}
                     aria-expanded={isActive}
                     aria-current={isActive ? "true" : undefined}
-                    className={`flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 ${
-                      isActive
-                        ? "bg-primary text-white"
-                        : "bg-sand/40 hover:bg-sand"
-                    }`}
+                    className={`flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 ${isActive ? "bg-primary text-white" : "bg-sand/40 hover:bg-sand"}`}
                   >
                     <span
-                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl transition-colors duration-200 ${
-                        isActive ? "bg-white/15" : "bg-primary/10"
-                      }`}
+                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl transition-colors duration-200 ${isActive ? "bg-white/15" : "bg-primary/10"}`}
                       aria-hidden="true"
                     >
                       <Icon
@@ -200,16 +194,14 @@ export default function TravelGuide({
                     </span>
 
                     <span
-                      className={`min-w-0 flex-1 font-sans text-sm font-semibold ${isActive ? "text-white" : "text-ink"}`}
+                      className={`min-w-0 flex-1 text-sm font-semibold ${isActive ? "text-white" : "text-ink"}`}
                     >
                       {topic.title}
                     </span>
 
                     <ChevronDown
                       size={14}
-                      className={`shrink-0 transition-transform duration-300 ${
-                        isActive ? "rotate-180 text-white/70" : "text-ink/30"
-                      }`}
+                      className={`shrink-0 transition-transform duration-300 ${isActive ? "rotate-180 text-white/70" : "text-ink/30"}`}
                     />
                   </button>
 
@@ -226,11 +218,11 @@ export default function TravelGuide({
                         }}
                         className="overflow-hidden"
                       >
-                        <div className="space-y-3 bg-paper px-4 py-4">
-                          <p className="font-sans text-xs leading-relaxed text-muted sm:text-[13px]">
+                        {/* <div className="space-y-3 bg-paper px-4 py-4"> */}
+                          <p className="text-sm px-4 py-4 text-ink">
                             {topic.content}
                           </p>
-                        </div>
+                        {/* </div> */}
                       </motion.div>
                     )}
                   </AnimatePresence>

@@ -45,11 +45,7 @@ function VideoPlaylistItem({
       type="button"
       onClick={() => onSelect(video.id)}
       aria-current={isActive ? "true" : undefined}
-      className={`group flex h-full w-full min-w-0 overflow-hidden rounded-2xl border text-left transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 max-md:flex-col md:flex-row md:items-stretch md:gap-3 md:p-2.5 ${
-        isActive
-          ? "border-primary/30 bg-white shadow-soft ring-1 ring-primary/20 md:border-l-[3px] md:border-l-primary md:pl-[calc(0.625rem-2px)]"
-          : "border-ink/8 bg-white shadow-card hover:border-primary/20 hover:bg-white hover:shadow-soft md:border-l-[3px] md:border-l-transparent"
-      }`}
+      className={`group flex h-full w-full min-w-0 overflow-hidden rounded-2xl border text-left transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 max-md:flex-col md:flex-row md:items-stretch md:gap-3 md:p-2.5 ${isActive ? "border-primary/30 bg-white shadow-soft ring-1 ring-primary/20 md:border-l-[3px] md:border-l-primary md:pl-[calc(0.625rem-2px)]" : "border-ink/8 bg-white shadow-card hover:border-primary/20 hover:bg-white hover:shadow-soft md:border-l-[3px] md:border-l-transparent"}`}
     >
       <div className="relative aspect-video w-full shrink-0 overflow-hidden bg-ink/10 max-md:rounded-t-2xl md:w-[38%] md:rounded-xl lg:w-[40%]">
         <Image
@@ -57,14 +53,10 @@ function VideoPlaylistItem({
           alt=""
           fill
           sizes="(max-width: 768px) 72vw, (max-width: 1024px) 140px, 160px"
-          className={`object-cover transition-transform duration-500 ${
-            isActive ? "scale-100" : "group-hover:scale-105"
-          }`}
+          className={`object-cover transition-transform duration-500 ${isActive ? "scale-100" : "group-hover:scale-105"}`}
         />
         <div
-          className={`absolute inset-0 transition-colors duration-300 ${
-            isActive ? "bg-primary/15" : "bg-ink/10 group-hover:bg-ink/5"
-          }`}
+          className={`absolute inset-0 transition-colors duration-300 ${isActive ? "bg-primary/15" : "bg-ink/10 group-hover:bg-ink/5"}`}
           aria-hidden="true"
         />
         {!isActive && (
@@ -83,7 +75,7 @@ function VideoPlaylistItem({
           </span>
         )}
         {video.durationSeconds > 0 ? (
-          <span className="type-ui absolute bottom-2 right-2 rounded-md bg-ink/80 px-1.5 py-0.5 text-[10px] font-medium text-white backdrop-blur-sm">
+          <span className="type-ui absolute bottom-2 right-2 rounded-md bg-ink/80 px-1.5 py-0.5 text-[10px] font-semibold text-white backdrop-blur-sm">
             {formatDuration(video.durationSeconds)}
           </span>
         ) : null}
@@ -91,9 +83,7 @@ function VideoPlaylistItem({
 
       <div className="flex min-w-0 flex-1 flex-col justify-center gap-1 p-3 md:py-1 md:pr-1 md:pl-0">
         <span
-          className={`type-eyebrow text-[10px] sm:text-xs ${
-            isActive ? "text-primary" : "text-ink"
-          }`}
+          className={`type-eyebrow text-[10px] sm:text-sm ${isActive ? "text-primary" : "text-ink"}`}
         >
           {isActive
             ? "Now playing"
@@ -102,9 +92,7 @@ function VideoPlaylistItem({
               : video.channel}
         </span>
         <span
-          className={`type-ui line-clamp-2 font-medium leading-snug md:line-clamp-3 md:text-[0.9375rem] ${
-            isActive ? "text-primary" : "text-ink group-hover:text-primary"
-          }`}
+          className={`type-ui line-clamp-2 font-semibold leading-snug md:line-clamp-3 md:text-[0.9375rem] ${isActive ? "text-primary" : "text-ink group-hover:text-primary"}`}
         >
           {video.title}
         </span>
@@ -182,7 +170,7 @@ export default function VideoSectionPlayer({
   return (
     <section
       id={resolveSectionHtmlId("video", sectionId)}
-      className="relative w-full overflow-hidden bg-white py-12 sm:py-14 lg:py-16"
+      className="section-white overflow-hidden"
     >
       <Container size="2xl" className="relative min-w-0">
         <motion.div
@@ -197,9 +185,7 @@ export default function VideoSectionPlayer({
               header?.title ?? (
                 <>
                   Stories from{" "}
-                  <span className="font-medium text-primary font-serif">
-                    Rishikesh
-                  </span>
+                  <span className="font-semibold text-primary">Rishikesh</span>
                 </>
               )
             }
@@ -207,7 +193,8 @@ export default function VideoSectionPlayer({
               header?.description ??
               "Watch real students share why they chose Nirvana Yoga School — tap a video to play."
             }
-            className="mb-6 sm:mb-8 lg:mb-10 lg:max-w-xl [&_.type-lead]:!text-ink"
+            descriptionClassName="text-ink"
+            className="mb-6 sm:mb-8 lg:mb-10 lg:max-w-5xl"
           />
         </motion.div>
 

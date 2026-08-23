@@ -77,7 +77,7 @@ export default function CourseSyllabus({
             }
             align="center"
           />
-          <p className="type-lead text-muted mt-6 max-w-xl mx-auto font-sans text-base sm:text-lg">
+          <p className="text-ink mt-6 max-w-2xl mx-auto text-base sm:text-lg">
             {description}
           </p>
         </motion.div>
@@ -93,11 +93,7 @@ export default function CourseSyllabus({
               return (
                 <div
                   key={item.title}
-                  className={`rounded-2xl border transition-all duration-300 ${
-                    isOpen
-                      ? "border-primary bg-surface-muted shadow-soft"
-                      : "surface-panel border-ink/10 hover:border-primary/50"
-                  }`}
+                  className={`rounded-2xl border border-primary/50 transition-all duration-300 ${isOpen ? "border-primary bg-surface-muted shadow-soft" : "surface-panel border-ink/10 hover:border-primary/50"}`}
                 >
                   {/* Accordion header button */}
                   <button
@@ -108,17 +104,15 @@ export default function CourseSyllabus({
                     className="w-full flex items-center justify-between gap-4 p-5 sm:p-6 text-left cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
                   >
                     <div className="flex items-center gap-4 sm:gap-6">
-                      <span className="font-serif text-sm sm:text-base font-semibold text-primary/60 select-none">
+                      <span className="text-sm sm:text-base font-semibold text-primary/60 select-none">
                         {moduleNumber}
                       </span>
-                      <span className="type-display-sm text-ink">
+                      <span className="text-lg lg:text-2xl font-semibold text-ink">
                         {item.title}
                       </span>
                     </div>
                     <span
-                      className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-colors ${
-                        isOpen ? "bg-primary text-white" : "bg-ink/5 text-ink"
-                      }`}
+                      className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-colors ${isOpen ? "bg-primary text-white" : "bg-ink/5 text-ink"}`}
                     >
                       <motion.span
                         animate={{ rotate: isOpen ? 45 : 0 }}
@@ -156,22 +150,22 @@ export default function CourseSyllabus({
                         className="overflow-hidden"
                       >
                         <div className="px-5 sm:px-16 pb-6 pt-1 border-t border-ink/5 space-y-5">
-                          <p className="type-body text-muted leading-relaxed font-sans text-sm sm:text-base">
+                          <p className="text-ink text-base lg:text-lg">
                             {item.description}
                           </p>
 
                           <div className="surface-panel rounded-2xl p-5 shadow-xs">
-                            <span className="type-eyebrow text-primary block mb-3">
+                            <span className="text-primary block mb-3 text-sm lg:text-base font-semibold uppercase tracking-wider">
                               {subtopicsLabel}
                             </span>
-                            <div className="grid gap-3 sm:grid-cols-2">
+                            <div className="grid gap-2 sm:grid-cols-2">
                               {item.subtopics.map((topic) => (
                                 <div
                                   key={topic}
                                   className="flex items-start gap-2.5"
                                 >
                                   <span className="w-1.5 h-1.5 rounded-full bg-accent mt-2 shrink-0" />
-                                  <span className="text-xs sm:text-sm text-ink/80 leading-normal font-sans font-medium">
+                                  <span className="text-sm lg:text-base text-ink leading-normal font-medium">
                                     {topic}
                                   </span>
                                 </div>
@@ -193,15 +187,13 @@ export default function CourseSyllabus({
                 <h3 className="type-display-sm text-ink mb-1">
                   {sidebarTitle}
                 </h3>
-                <p className="text-xs text-muted font-sans mb-6">
-                  {sidebarSubtitle}
-                </p>
+                <p className="text-xs lg:text-sm text-ink mb-6">{sidebarSubtitle}</p>
 
                 <div className="space-y-4">
                   {distributionItems.map((item) => (
                     <div key={item.area} className="space-y-2">
-                      <div className="flex justify-between text-xs font-semibold font-sans">
-                        <span className="text-ink/85">{item.area}</span>
+                      <div className="flex justify-between text-xs lg:text-sm font-semibold">
+                        <span className="text-ink">{item.area}</span>
                         <span className="text-primary">{item.hours}</span>
                       </div>
                       {showProgressBars && item.pct && (
@@ -216,7 +208,7 @@ export default function CourseSyllabus({
                   ))}
                 </div>
 
-                <div className="surface-panel mt-8 rounded-2xl p-4 text-center font-sans text-xs leading-relaxed text-muted">
+                <div className="surface-panel mt-8 rounded-2xl p-4 text-center text-xs lg:text-sm leading-relaxed text-ink">
                   {sidebarFooter}
                 </div>
               </div>

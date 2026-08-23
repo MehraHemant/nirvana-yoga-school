@@ -189,9 +189,7 @@ export function ImageListField({
 
   return (
     <div
-      className={`admin-field${
-        layout === "slides" ? " admin-image-slides-field" : ""
-      }`}
+      className={`admin-field${layout === "slides" ? " admin-image-slides-field" : ""}`}
     >
       <div className="admin-field-header">
         <div>
@@ -202,7 +200,9 @@ export function ImageListField({
           >
             <span className="admin-label">{label}</span>
             {layout === "slides" && hasImages ? (
-              <span className="admin-image-slides__count">{slideCountLabel}</span>
+              <span className="admin-image-slides__count">
+                {slideCountLabel}
+              </span>
             ) : null}
           </div>
           {hint ? <p className="admin-hint admin-hint--tight">{hint}</p> : null}
@@ -245,9 +245,7 @@ export function ImageListField({
               >
                 {({ dragHandleProps, isDragging }) => (
                   <div
-                    className={`admin-image-slides__row${
-                      isDragging ? " admin-image-slides__row--dragging" : ""
-                    }`}
+                    className={`admin-image-slides__row${isDragging ? " admin-image-slides__row--dragging" : ""}`}
                   >
                     <DragHandle dragHandleProps={dragHandleProps} />
                     <div className="admin-image-slides__thumb">

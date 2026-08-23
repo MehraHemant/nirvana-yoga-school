@@ -1,9 +1,4 @@
 import type { SearchableSelectOption } from "@/components/ui";
-import { RETREAT_SLUGS } from "@/content/pages/slugs";
-
-const _RETREAT_PROGRAM_SLUGS = RETREAT_SLUGS.filter(
-  (slug) => slug !== "retreat-booking",
-);
 
 /** Preset accommodation choices for enquiry and contact forms. */
 export const ACCOMMODATION_PREFERENCE_OPTIONS: SearchableSelectOption[] = [

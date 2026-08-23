@@ -1,12 +1,17 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useMemo, useState } from "react";
 import {
   CourseBookingFab,
   CourseOverview,
   CourseStickyNav,
   PageHeroRenderer,
 } from "@/components/courses";
+import {
+  bookingReserveHref,
+  getBatchDates,
+} from "@/components/courses/upcomingDatesShared";
 import { publicPricingOptionsWithFees } from "@/content/mappers/page-room-fees";
 import {
   hasExamCertificationContent,
@@ -98,12 +103,29 @@ export default function CourseClient({
   const overview = m?.overview;
 
   const faqItems =
-    (m?.faqs?.items?.length ?? 0) > 0
-      ? (m?.faqs.items ?? [])
-      : course.faqs;
+    (m?.faqs?.items?.length ?? 0) > 0 ? (m?.faqs.items ?? []) : course.faqs;
   const publicPricing = publicPricingOptionsWithFees(
     m?.pricing.options ?? course.pricing,
   );
+  const pricingDuration = m?.pricing.duration ?? course.duration;
+  const pricingBatches = useMemo(
+    () =>
+      m?.pricing.batches?.length
+        ? m.pricing.batches
+        : getBatchDates(pricingDuration),
+    [m?.pricing.batches, pricingDuration],
+  );
+  const [selectedRoomType, setSelectedRoomType] = useState("");
+  const [selectedBatch, setSelectedBatch] = useState(
+    () => pricingBatches[0]?.dates ?? "",
+  );
+  const selectedRoom = publicPricing.find(
+    (option) => option.roomType === selectedRoomType,
+  );
+  const bookingReady = Boolean(selectedRoomType && selectedBatch);
+  const bookingHref = bookingReady
+    ? bookingReserveHref("course", course.slug, selectedRoomType, selectedBatch)
+    : `#${resolveSectionHtmlId("pricing", m?.pricing._id)}`;
   const showHero = isSectionLive(m?.hero);
   const showStickyNav = isSectionLive(m?.stickyNav);
   const showOverview = isSectionLive(m?.overview);
@@ -194,7 +216,11 @@ export default function CourseClient({
       <CourseBookingFab
         fee={heroFee ?? course.fee}
         title={course.title}
-        href={`/booking?course=${encodeURIComponent(course.slug)}`}
+        href={bookingHref}
+        selectedPrice={selectedRoom?.price}
+        selectedDate={selectedBatch}
+        ready={bookingReady}
+        pricingAnchor={`#${resolveSectionHtmlId("pricing", m?.pricing._id)}`}
       />
 
       <article className="min-h-screen max-w-full overflow-x-clip">
@@ -285,14 +311,18 @@ export default function CourseClient({
         {showPricing ? (
           <UpcomingDates
             htmlId={resolveSectionHtmlId("pricing", m?.pricing._id)}
-            duration={m?.pricing.duration ?? course.duration}
+            duration={pricingDuration}
             pricing={publicPricing}
             pricingDescription={
               m?.pricing.description ?? course.pricingDescription
             }
-            batches={m?.pricing.batches}
+            batches={pricingBatches}
             programSlug={course.slug}
             bookingType="course"
+            selectedRoomType={selectedRoomType}
+            selectedBatch={selectedBatch}
+            onRoomSelect={setSelectedRoomType}
+            onBatchSelect={setSelectedBatch}
           />
         ) : null}
 

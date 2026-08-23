@@ -43,10 +43,10 @@ export default function Food({ content = null, htmlId }: FoodProps = {}) {
   const gallery = content?.food.gallery ?? [];
   const hasData = Boolean(
     foodContent &&
-    (foodContent.title.trim() ||
-      foodContent.description.trim() ||
-      foodContent.points.length > 0 ||
-      gallery.length > 0),
+      (foodContent.title.trim() ||
+        foodContent.description.trim() ||
+        foodContent.points.length > 0 ||
+        gallery.length > 0),
   );
   const isLive =
     shouldRenderSection(content, hasData) &&
@@ -119,7 +119,7 @@ export default function Food({ content = null, htmlId }: FoodProps = {}) {
                     <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-secondary/10 bg-secondary/10 text-secondary">
                       <Check size={11} className="stroke-[2.5]" />
                     </span>
-                    <span className="type-body pt-0.5 leading-snug text-ink/80">
+                    <span className="type-body pt-0.5 leading-snug text-ink">
                       {point}
                     </span>
                   </li>
@@ -128,7 +128,7 @@ export default function Food({ content = null, htmlId }: FoodProps = {}) {
             </div>
           </div>
         </div>
-        {foodContent.dietaryNote ?
+        {foodContent.dietaryNote ? (
           <motion.div
             initial="hidden"
             whileInView="visible"
@@ -137,14 +137,15 @@ export default function Food({ content = null, htmlId }: FoodProps = {}) {
             className="mt-6 lg:mt-8"
           >
             <div className="rounded-2xl border border-secondary/15 bg-secondary/5 p-4 sm:p-5">
-              <p className="type-eyebrow mb-1 text-secondary">
+              <p className="text-sm font-semibold uppercase tracking-wider mb-1 text-secondary">
                 Something in particular?
               </p>
-              <p className="type-ui max-w-4xl leading-relaxed text-muted">
+              <p className="text-sm font-medium leading-relaxed text-ink">
                 {foodContent.dietaryNote}
               </p>
             </div>
-          </motion.div> : null}
+          </motion.div>
+        ) : null}
       </Container>
 
       <MediaLightbox

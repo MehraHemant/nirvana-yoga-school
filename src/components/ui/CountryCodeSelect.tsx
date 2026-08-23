@@ -152,7 +152,7 @@ export default function CountryCodeSelect({
         aria-controls={open ? listboxId : undefined}
         onClick={() => (open ? close() : setOpen(true))}
         onKeyDown={handleTriggerKeyDown}
-        className="flex h-full min-h-12 w-[6.75rem] rounded-2xl cursor-pointer items-center gap-1.5 border-r border-ink/10 bg-surface px-2.5 py-3 font-sans text-sm text-ink transition-colors hover:bg-surface-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-60 sm:w-[7.5rem] sm:px-3"
+        className="flex h-full min-h-12 w-[6.75rem] rounded-2xl cursor-pointer items-center gap-1.5 border-r border-ink/10 bg-surface px-2.5 py-3 text-sm text-ink transition-colors hover:bg-surface-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary/40 disabled:cursor-not-allowed disabled:opacity-60 sm:w-[7.5rem] sm:px-3"
       >
         <span className="text-base leading-none" aria-hidden="true">
           {isoToFlag(selected.iso2)}
@@ -162,7 +162,7 @@ export default function CountryCodeSelect({
         </span>
         <ChevronDown
           size={14}
-          className={`shrink-0 text-muted transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+          className={`shrink-0 text-ink transition-transform duration-200 ${open ? "rotate-180" : ""}`}
         />
       </button>
 
@@ -191,7 +191,7 @@ export default function CountryCodeSelect({
                 }}
                 onKeyDown={handleSearchKeyDown}
                 placeholder="Search country or code"
-                className="w-full rounded-xl border border-ink/10 bg-white px-3 py-2 font-sans text-sm text-ink placeholder:text-muted/70 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30"
+                className="w-full rounded-xl border border-ink/10 bg-white px-3 py-2 text-sm text-ink placeholder:text-ink/50 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30"
               />
             </div>
 
@@ -201,7 +201,7 @@ export default function CountryCodeSelect({
               className="max-h-56 overflow-y-auto overscroll-contain py-1.5"
             >
               {filtered.length === 0 ? (
-                <li className="px-3 py-4 text-center font-sans text-xs text-muted">
+                <li className="px-3 py-4 text-center text-xs text-ink">
                   No countries found
                 </li>
               ) : (
@@ -217,13 +217,7 @@ export default function CountryCodeSelect({
                         aria-selected={isSelected}
                         onMouseEnter={() => setHighlightIndex(index)}
                         onClick={() => selectCountry(country.iso2)}
-                        className={`flex w-full cursor-pointer items-center gap-2.5 px-3 py-2.5 text-left font-sans transition-colors ${
-                          isSelected
-                            ? "bg-primary/8 text-ink"
-                            : isHighlighted
-                              ? "bg-surface text-ink"
-                              : "text-ink/90 hover:bg-surface/80"
-                        }`}
+                        className={`flex w-full cursor-pointer items-center gap-2.5 px-3 py-2.5 text-left transition-colors ${isSelected ? "bg-primary/8 text-ink" : isHighlighted ? "bg-surface text-ink" : "text-ink hover:bg-surface/80"}`}
                       >
                         <span
                           className="w-6 shrink-0 text-center text-base leading-none"
@@ -235,9 +229,7 @@ export default function CountryCodeSelect({
                           {country.name}
                         </span>
                         <span
-                          className={`shrink-0 text-xs font-semibold tabular-nums ${
-                            isSelected ? "text-primary" : "text-muted"
-                          }`}
+                          className={`shrink-0 text-xs font-semibold tabular-nums ${isSelected ? "text-primary" : "text-ink"}`}
                         >
                           {country.iso2 === "OTHER"
                             ? "—"

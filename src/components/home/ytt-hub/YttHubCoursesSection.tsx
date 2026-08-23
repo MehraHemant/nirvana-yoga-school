@@ -47,7 +47,8 @@ export default function YttHubCoursesSection({
             title={coursesIntro.title}
             description={description}
             align="left"
-            className="max-w-none [&_.type-lead]:text-ink"
+            descriptionClassName="text-ink"
+            className="max-w-none"
           />
           {supporting.length > 0 ? (
             <div className="mt-5 space-y-4 border-t border-ink/8 pt-5">

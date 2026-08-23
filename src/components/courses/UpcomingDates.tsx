@@ -2,14 +2,12 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Button, Container, Heading, SectionHeader } from "@/components/ui";
+import { Container, Heading, SectionHeader } from "@/components/ui";
 import { Check } from "@/icons";
 import {
-  bookingReserveHref,
   getBatchDates,
   type PricingOption,
   type UpcomingDatesProps,
-  whatsAppHref,
 } from "./upcomingDatesShared";
 
 /** Site-wide enquire CTA used by availability status chips. */
@@ -28,32 +26,43 @@ function savingsPct(price: string, original: string) {
  *
  * @param option - CMS pricing option (roomType, price, features, etc.)
  * @param wide - When true, span both grid columns on sm+
- * @param reserveHref - Book-now destination
+ * @param selected - Whether this room is the active selection
+ * @param onSelect - Sets the selected room type
  */
 function RoomCard({
   option,
   wide = false,
-  reserveHref,
+  selected,
+  onSelect,
 }: {
   option: PricingOption;
   wide?: boolean;
-  reserveHref: string;
+  selected: boolean;
+  onSelect: () => void;
 }) {
   const noRoom = option.roomType.toLowerCase().includes("without");
   const saving = option.originalPrice
     ? savingsPct(option.price, option.originalPrice)
     : null;
   const features = option.features ?? [];
+  const selectedClasses = selected
+    ? "border-primary/8 bg-primary/10"
+    : "border-ink/8 bg-white hover:border-primary/15";
 
   if (noRoom) {
     return (
-      <article className="col-span-2 flex flex-col gap-3 rounded-2xl border border-dashed border-ink/20 bg-white px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-5">
+      <button
+        type="button"
+        onClick={onSelect}
+        aria-pressed={selected}
+        className={`flex w-full cursor-pointer col-span-2 shadow-lg rounded-2xl border p-4 text-left transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 ${selectedClasses}`}
+      >
         <div className="min-w-0">
-          <h4 className="font-serif text-lg font-medium leading-snug text-ink">
+          <h4 className="text-lg font-bold leading-snug text-ink">
             {option.roomType}
           </h4>
           <div className="mt-2 flex flex-wrap items-baseline gap-2">
-            <span className="font-serif text-2xl font-medium leading-none text-primary">
+            <span className="text-2xl font-bold tracking-tight text-primary">
               {option.price}
             </span>
             {option.originalPrice && (
@@ -62,91 +71,70 @@ function RoomCard({
               </span>
             )}
             {saving && (
-              <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
+              <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-bold text-emerald-700">
                 {saving}
               </span>
             )}
           </div>
-          <p className="mt-1.5 line-clamp-2 font-sans text-xs leading-relaxed text-muted">
+          <p className="mt-2 line-clamp-2 text-sm text-ink">
             {option.description}
           </p>
           {features.length > 0 && (
             <ul className="mt-2 space-y-1.5">
               {features.map((f) => (
-                <li
-                  key={f}
-                  className="flex items-start gap-2 font-sans text-[11px] leading-snug text-ink/75"
-                >
-                  <Check size={10} className="mt-0.5 shrink-0 text-primary" />
+                <li key={f} className="flex items-start gap-2 text-sm text-ink">
+                  <Check size={12} className="mt-0.5 shrink-0 text-primary" />
                   {f}
                 </li>
               ))}
             </ul>
           )}
         </div>
-        <Button
-          href={reserveHref}
-          variant="primary"
-          size="sm"
-          className="w-full shrink-0 sm:w-auto"
-        >
-          Book now
-        </Button>
-      </article>
+      </button>
     );
   }
 
   return (
-    <article
-      className={`flex flex-col rounded-2xl border border-ink/9 bg-white p-4 transition-all duration-300 hover:border-primary/15${
-        wide ? " sm:col-span-2" : ""
-      }`}
+    <button
+      type="button"
+      onClick={onSelect}
+      aria-pressed={selected}
+      className={`flex w-full cursor-pointer flex-col shadow-lg rounded-2xl border p-4 text-left transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 ${selected ? "border-primary/8 bg-primary/10" : "border-ink/8 bg-white hover:border-primary/15"}${wide ? " sm:col-span-2" : ""}`}
     >
-      <h4 className="line-clamp-2 font-serif type-lead  font-medium leading-snug text-ink">
+      <h4 className="line-clamp-2 type-lead font-semibold leading-snug text-ink">
         {option.roomType}
       </h4>
 
-      <div className="mt-3 rounded-xl border border-ink/7 bg-white shadow-soft px-3 py-2.5">
-        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-          <span className="font-serif text-2xl font-medium leading-none text-primary">
-            {option.price}
+      <div className="flex flex-wrap items-baseline gap-x-2 py-3 pl-2 gap-y-1">
+        <span className="text-2xl font-bold tracking-tight text-primary">
+          {option.price}
+        </span>
+        {option.originalPrice && (
+          <span className="text-xs text-muted/50 tabular-nums line-through">
+            {option.originalPrice}
           </span>
-          {option.originalPrice && (
-            <span className="text-xs text-muted/50 tabular-nums line-through">
-              {option.originalPrice}
-            </span>
-          )}
-          {saving && (
-            <span className="rounded-full bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700">
-              {saving}
-            </span>
-          )}
-        </div>
+        )}
+        {saving && (
+          <span className="rounded-full bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700">
+            {saving}
+          </span>
+        )}
       </div>
 
       {features.length > 0 && (
-        <ul className="mb-3 mt-3 flex-1 space-y-1.5">
+        <ul className="mb-2 mt-2 flex-1 space-y-1.5">
           {features.map((f) => (
             <li
               key={f}
-              className="flex items-start gap-2 font-sans text-[11px] leading-snug text-ink/75"
+              className="flex items-start gap-1 text-sm leading-snug text-ink"
             >
-              <Check size={10} className="mt-0.5 shrink-0 text-primary" />
+              <Check size={12} className="mt-0.5 shrink-0 text-primary" />
               {f}
             </li>
           ))}
         </ul>
       )}
-
-      <Button
-        href={reserveHref}
-        variant="primary"
-        size="sm"
-        className="mt-auto w-full"
-      >
-        Book now
-      </Button>
-    </article>
+    </button>
   );
 }
 
@@ -163,28 +151,38 @@ export default function UpcomingDates({
   batches: batchesProp,
   lodgingTitle = "Lodging packages",
   datesTitle = "Training dates",
-  programSlug,
-  bookingType = "course",
   htmlId = "pricing",
-  buildWhatsAppHref = whatsAppHref,
-  buildReserveHref,
+  selectedRoomType: selectedRoomTypeProp,
+  selectedBatch: selectedBatchProp,
+  onRoomSelect,
+  onBatchSelect,
 }: UpcomingDatesProps) {
   const batches = batchesProp?.length ? batchesProp : getBatchDates(duration);
-  const [selectedBatch, setSelectedBatch] = useState(batches[0]?.dates ?? "");
+  const [internalRoomType, setInternalRoomType] = useState("");
+  const [internalBatch, setInternalBatch] = useState(batches[0]?.dates ?? "");
 
-  function getReserveHref(roomType: string) {
-    if (buildReserveHref) {
-      return buildReserveHref(duration, roomType, selectedBatch);
+  const isControlled = onRoomSelect != null || onBatchSelect != null;
+  const selectedRoomType = isControlled
+    ? (selectedRoomTypeProp ?? "")
+    : internalRoomType;
+  const selectedBatch = isControlled
+    ? (selectedBatchProp ?? "")
+    : internalBatch;
+
+  function handleRoomSelect(roomType: string) {
+    if (onRoomSelect) {
+      onRoomSelect(roomType);
+    } else {
+      setInternalRoomType(roomType);
     }
-    if (programSlug) {
-      return bookingReserveHref(
-        bookingType,
-        programSlug,
-        roomType,
-        selectedBatch,
-      );
+  }
+
+  function handleBatchSelect(batch: string) {
+    if (onBatchSelect) {
+      onBatchSelect(batch);
+    } else {
+      setInternalBatch(batch);
     }
-    return buildWhatsAppHref(duration, roomType, selectedBatch);
   }
 
   return (
@@ -204,29 +202,20 @@ export default function UpcomingDates({
               </>
             }
             align="left"
-            className="mb-0!"
           />
-          {pricingDescription && (
-            <p className="text-xs text-muted font-sans max-w-xs sm:text-right leading-relaxed shrink-0">
-              {pricingDescription}
-            </p>
-          )}
         </div>
 
-        <div className="grid items-start gap-6 lg:grid-cols-[7fr_5fr] lg:items-stretch lg:gap-10">
+        <div className="grid items-start mt-10 gap-6 lg:grid-cols-[7fr_5fr] lg:items-stretch lg:gap-10">
           {/* ── Pricing column (left) — sets row height on desktop ── */}
           <div className="flex flex-col gap-2.5">
             <div className="mb-0.5 flex items-baseline justify-between gap-2">
-              <Heading as="h3" size="h4" font="poppins" className="mb-0">
+              <Heading as="h3" size="h4" className="mb-0">
                 {lodgingTitle}
               </Heading>
-              <p className="shrink-0 font-sans text-[10px] italic text-muted">
+              <p className="shrink-0 text-base font-normal text-ink">
                 Includes room, meals &amp; materials
               </p>
             </div>
-            <p className="-mt-1 mb-1 font-sans text-[10px] text-muted/70">
-              Note: Some rooms have private balconies, others shared.
-            </p>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {pricing.map((option, idx) => {
                 const noRoom = option.roomType
@@ -242,7 +231,8 @@ export default function UpcomingDates({
                     key={option.roomType}
                     option={option}
                     wide={wide}
-                    reserveHref={getReserveHref(option.roomType)}
+                    selected={selectedRoomType === option.roomType}
+                    onSelect={() => handleRoomSelect(option.roomType)}
                   />
                 );
               })}
@@ -251,7 +241,7 @@ export default function UpcomingDates({
 
           {/* ── Dates column (right) — same row height as left, list scrolls ── */}
           <div className="flex min-h-0 flex-col gap-3 lg:h-0 lg:min-h-full lg:overflow-hidden">
-            <Heading as="h2" size="h4" font="poppins" className="mb-0 shrink-0">
+            <Heading as="h2" size="h4" className="mb-0 shrink-0">
               {datesTitle}
             </Heading>
 
@@ -262,35 +252,27 @@ export default function UpcomingDates({
                   return (
                     <li key={batch.dates} className="relative pl-6">
                       <span
-                        className={`absolute -left-[6px] top-4 h-3 w-3 rounded-full border-2 ${
-                          selected
-                            ? "border-primary bg-primary"
-                            : "border-ink/20 bg-white"
-                        }`}
+                        className={`absolute -left-1.5 top-4 h-3 w-3 rounded-full border-2 ${selected ? "border-primary bg-primary" : "border-ink/20 bg-white"}`}
                         aria-hidden="true"
                       />
                       <div
-                        className={`flex w-full items-start gap-2 rounded-xl border p-2.5 transition-all ${
-                          selected
-                            ? "surface-elevated border-primary shadow-soft"
-                            : "surface-panel border-ink/8 hover:border-primary/20"
-                        }`}
+                        className={`flex w-full items-start gap-2 rounded-xl border p-2.5 transition-all ${selected ? "border-primary/8 bg-primary/10" : "surface-panel border-ink/8 hover:border-primary/20"}`}
                       >
                         <button
                           type="button"
-                          onClick={() => setSelectedBatch(batch.dates)}
+                          onClick={() => handleBatchSelect(batch.dates)}
                           className="min-w-0 flex-1 cursor-pointer text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
                         >
-                          <p className="font-sans type-body font-medium text-ink">
+                          <p className="type-body font-semibold text-ink">
                             {batch.dates}
                           </p>
-                          <p className="mt-0.5 font-sans text-xs sm:text-sm text-muted">
+                          <p className="mt-0.5 text-xs sm:text-sm text-ink">
                             {batch.spaces} · {duration}
                           </p>
                         </button>
                         <Link
                           href={ENQUIRE_HREF}
-                          className={`type-eyebrow shrink-0 inline-block rounded-full border px-2 py-0.5 text-[9px] transition-opacity hover:opacity-85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 ${batch.statusColor}`}
+                          className={`inline-block rounded-full border px-2 py-0.5 text-sm transition-opacity hover:opacity-85 uppercase tracking-widest ${batch.statusColor}`}
                           aria-label={`${batch.status} — Enquire now`}
                         >
                           {batch.status}

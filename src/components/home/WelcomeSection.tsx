@@ -213,7 +213,7 @@ export default function WelcomeSection({
         duration: 0.6,
         ease: EASE_OUT,
       })}
-      className="bg-white py-12 sm:py-14 lg:py-16 relative overflow-hidden"
+      className="bg-white section-padding-y relative overflow-hidden"
     >
       <Container size="2xl" className="w-full lg:py-10">
         <div className="grid lg:grid-cols-[minmax(0,0.7fr)_minmax(0,1.1fr)] gap-10 lg:gap-14 xl:gap-16 items-center">
@@ -387,7 +387,7 @@ export default function WelcomeSection({
             whileInView="visible"
             viewport={VIEWPORT_ONCE}
             variants={rightColumnContainer}
-            className="order-1 lg:order-2 flex flex-col gap-6 "
+            className="order-1 lg:order-2 flex flex-col gap-6"
           >
             <motion.div variants={rightColumnItem}>
               <Pill>{content.eyebrow}</Pill>
@@ -397,13 +397,7 @@ export default function WelcomeSection({
               variants={rightColumnItem}
               className="space-y-3 sm:space-y-4"
             >
-              <Heading
-                as="h2"
-                align="left"
-                font="serif"
-                size="h2"
-                className="text-balance"
-              >
+              <Heading as="h2" align="left" size="h2" className="text-balance">
                 {content.title}
               </Heading>
               <div
@@ -414,7 +408,7 @@ export default function WelcomeSection({
 
             {/* Lead Story Paragraph */}
             <motion.div variants={rightColumnItem}>
-              <p className="text-base md:text-lg leading-snug font-medium text-ink">
+              <p className="text-base md:text-lg leading-snug font-semibold text-ink">
                 {content.lead}
               </p>
             </motion.div>
@@ -430,7 +424,7 @@ export default function WelcomeSection({
                     <span className="text-primary font-bold text-sm uppercase tracking-wide block">
                       {content.vision.label}
                     </span>
-                    <p className="text-sm sm:text-sm md:text-base leading-snug font-sans font-normal text-ink">
+                    <p className="text-sm sm:text-sm md:text-base leading-snug font-semibold text-ink">
                       {content.vision.body}
                     </p>
                   </div>
@@ -441,7 +435,7 @@ export default function WelcomeSection({
                     <span className="text-primary font-bold text-sm uppercase tracking-wide block">
                       {content.promise.label}
                     </span>
-                    <p className="text-sm sm:text-sm md:text-base leading-snug font-sans font-normal text-ink">
+                    <p className="text-sm sm:text-sm md:text-base leading-snug font-semibold text-ink">
                       {content.promise.body}
                     </p>
                   </div>
@@ -463,7 +457,7 @@ export default function WelcomeSection({
                     <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary mt-0.5">
                       <Check size={10} strokeWidth={3} />
                     </span>
-                    <span className="font-sans text-xs sm:text-sm font-medium leading-tight text-ink">
+                    <span className="text-xs sm:text-sm font-semibold leading-tight text-ink">
                       {item}
                     </span>
                   </div>

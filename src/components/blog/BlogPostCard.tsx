@@ -43,7 +43,7 @@ export function BlogPostCard({
         </div>
 
         <div className="relative z-30 mx-auto -mt-8 w-[88%] bg-white px-4 py-5 shadow-soft sm:-mt-10 sm:px-5 sm:py-6">
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 font-sans text-[0.68rem] uppercase tracking-[0.16em] text-muted">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[0.68rem] uppercase tracking-[0.16em] text-ink">
             <span className="text-primary">{post.category}</span>
             {publishedDate ? (
               <>
@@ -57,13 +57,11 @@ export function BlogPostCard({
             ) : null}
           </div>
 
-          <h3 className="mt-2 text-balance font-serif text-lg font-medium tracking-[-0.02em] text-ink transition-colors duration-300 group-hover:text-primary">
+          <h3 className="mt-2 text-balance text-lg font-bold tracking-[-0.02em] text-ink transition-colors duration-300 group-hover:text-primary">
             {post.title}
           </h3>
 
-          <p className="mt-2 font-sans text-sm leading-6 text-muted">
-            {post.excerpt}
-          </p>
+          <p className="mt-2 text-sm leading-6 text-ink">{post.excerpt}</p>
         </div>
       </Link>
     </article>

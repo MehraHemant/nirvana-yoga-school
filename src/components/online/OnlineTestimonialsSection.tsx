@@ -32,7 +32,7 @@ export default function OnlineTestimonialsSection({
         whileInView="visible"
         viewport={{ once: true, amount: 0.08 }}
         variants={gridVariants}
-        className="grid gap-5 md:grid-cols-2"
+        className="grid items-stretch gap-5 md:grid-cols-2"
       >
         {testimonials.map((item) => (
           <OnlineTestimonialCard key={item.name} testimonial={item} />

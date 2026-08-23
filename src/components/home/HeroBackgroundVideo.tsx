@@ -72,9 +72,7 @@ export default function HeroBackgroundVideo({
       {/* Responsive poster — visible until video is playing */}
       {desktopPoster ? (
         <picture
-          className={`absolute inset-0 transition-opacity duration-500 ${
-            playing ? "opacity-0" : "opacity-100"
-          }`}
+          className={`absolute inset-0 transition-opacity duration-500 ${playing ? "opacity-0" : "opacity-100"}`}
         >
           {mobilePoster ? (
             <source media="(max-width: 768px)" srcSet={mobilePoster} />
@@ -94,9 +92,7 @@ export default function HeroBackgroundVideo({
       {hasMp4 ? (
         <video
           ref={videoRef}
-          className={`absolute inset-0 h-full w-full object-cover animate-hero-zoom transition-opacity duration-500 ${
-            playing ? "opacity-100" : "opacity-0"
-          }`}
+          className={`absolute inset-0 h-full w-full object-cover animate-hero-zoom transition-opacity duration-500 ${playing ? "opacity-100" : "opacity-0"}`}
           autoPlay
           muted
           loop

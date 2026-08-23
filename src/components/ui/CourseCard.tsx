@@ -109,7 +109,7 @@ function MetaPills({
 }) {
   const chip = compact
     ? "rounded-full border px-2 py-0.5 text-[11px] leading-tight tracking-wide"
-    : "rounded-full border px-2.5 py-0.5 text-xs font-medium leading-tight tracking-wide";
+    : "rounded-full border px-2.5 py-0.5 text-xs font-semibold leading-tight tracking-wide";
 
   return (
     <div className="flex flex-wrap gap-1.5">
@@ -251,13 +251,7 @@ function CourseCardImage({
 
           {hours ? (
             <span
-              className={`absolute z-20 font-bold text-white shadow-sm ${badgePad} ${
-                hub
-                  ? "rounded-full bg-primary px-2 py-0.5 text-[9px] tracking-wide"
-                  : stacked
-                    ? "rounded-md bg-primary px-2.5 py-1 type-eyebrow tracking-[0.14em]"
-                    : "rounded-full bg-primary px-3 py-1 type-eyebrow"
-              }`}
+              className={`absolute z-20 font-bold text-white shadow-sm ${badgePad} ${hub ? "rounded-full bg-primary px-2 py-0.5 text-[9px] tracking-wide" : stacked ? "rounded-md bg-primary px-2.5 py-1 type-eyebrow tracking-[0.14em]" : "rounded-full bg-primary px-3 py-1 type-eyebrow"}`}
               style={{
                 transform: prefersReduced ? "none" : "translateZ(15px)",
               }}
@@ -268,9 +262,7 @@ function CourseCardImage({
 
           {certBadge ? (
             <div
-              className={`absolute z-20 flex items-center justify-center rounded-full border border-white/30 bg-white/95 shadow-sm backdrop-blur-xs ${certPad} ${
-                hub ? "size-8 p-0.5" : stacked ? "size-11 p-1" : "size-10 p-1"
-              }`}
+              className={`absolute z-20 flex items-center justify-center rounded-full border border-white/30 bg-white/95 shadow-sm backdrop-blur-xs ${certPad} ${hub ? "size-8 p-0.5" : stacked ? "size-11 p-1" : "size-10 p-1"}`}
               style={{
                 transform: prefersReduced ? "none" : "translateZ(15px)",
               }}
@@ -354,7 +346,7 @@ function CourseCardBody({
             {certShort(certification)} · Yoga Alliance
           </span>
           <span className="h-px flex-1 bg-primary/30" aria-hidden="true" />
-          <span className="font-serif text-sm font-semibold tabular-nums text-ink/45">
+          <span className="text-sm font-semibold tabular-nums text-ink/45">
             {courseNumber}
           </span>
         </div>
@@ -364,7 +356,7 @@ function CourseCardBody({
         className={
           editorial
             ? "type-display-sm mt-1.5 line-clamp-2 font-semibold tracking-tight leading-snug text-ink transition-colors duration-300 group-hover:text-primary"
-            : "mt-2 line-clamp-2 font-serif text-[1.35rem] font-medium leading-[1.16] tracking-tight text-ink transition-colors duration-300 group-hover:text-primary sm:text-[1.45rem]"
+            : "mt-2 line-clamp-2  text-[1.35rem] font-bold leading-[1.16] tracking-tight text-ink transition-colors duration-300 group-hover:text-primary sm:text-[1.45rem]"
         }
       >
         {title}
@@ -375,7 +367,7 @@ function CourseCardBody({
           className={
             editorial
               ? "mt-2 line-clamp-2 text-sm leading-snug text-ink sm:text-[0.9375rem]"
-              : "mt-1.5 line-clamp-1 text-[12.5px] leading-snug text-ink/70"
+              : "mt-1.5 line-clamp-1 text-[12.5px] leading-snug text-ink"
           }
         >
           {description}
@@ -389,7 +381,7 @@ function CourseCardBody({
       ) : (
         <div className="mt-3 grid grid-cols-[0.9fr_1fr_1.15fr] border-y border-ink/10">
           <div className="min-w-0 py-2.5 pr-2">
-            <p className="text-[9px] font-semibold uppercase tracking-[0.15em] text-muted">
+            <p className="text-[9px] font-semibold uppercase tracking-[0.15em] text-ink">
               Duration
             </p>
             <p className="mt-1 truncate text-[12px] font-semibold leading-none text-ink">
@@ -397,7 +389,7 @@ function CourseCardBody({
             </p>
           </div>
           <div className="min-w-0 border-l border-ink/10 px-2 py-2.5">
-            <p className="text-[9px] font-semibold uppercase tracking-[0.15em] text-muted">
+            <p className="text-[9px] font-semibold uppercase tracking-[0.15em] text-ink">
               Level
             </p>
             <p className="mt-1 truncate text-[12px] font-semibold leading-none text-ink">
@@ -405,10 +397,10 @@ function CourseCardBody({
             </p>
           </div>
           <div className="min-w-0 border-l border-ink/10 py-2.5 pl-3 text-right">
-            <p className="text-[9px] font-semibold uppercase tracking-[0.15em] text-muted">
+            <p className="text-[9px] font-semibold uppercase tracking-[0.15em] text-ink">
               From
             </p>
-            <p className="mt-0.5 truncate font-serif text-[1.15rem] font-semibold leading-none tracking-tight text-primary">
+            <p className="mt-0.5 truncate text-[1.15rem] font-semibold leading-none tracking-tight text-primary">
               {fee}
             </p>
           </div>
@@ -423,7 +415,7 @@ function CourseCardBody({
           </div>
         ) : (
           <div className="mt-3">
-            <p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-muted">
+            <p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-ink">
               Key outcomes
             </p>
             <ul className="mt-1.5 grid gap-x-3 gap-y-1 sm:grid-cols-2">
@@ -433,7 +425,7 @@ function CourseCardBody({
                     className="mt-[0.45rem] h-px w-2.5 shrink-0 bg-primary"
                     aria-hidden="true"
                   />
-                  <span className="line-clamp-1 text-[12px] leading-snug text-ink/85">
+                  <span className="line-clamp-1 text-[12px] leading-snug text-ink">
                     {item}
                   </span>
                 </li>
@@ -477,7 +469,7 @@ function HubCourseCardBody({
         {certShort(certification) || "Yoga Alliance"} · Certified
       </p>
 
-      <h3 className="mt-1 line-clamp-2 text-base font-semibold leading-snug text-ink transition-colors duration-300 group-hover:text-primary sm:text-[1.05rem]">
+      <h3 className="mt-1 line-clamp-2 text-base font-bold leading-snug text-ink transition-colors duration-300 group-hover:text-primary sm:text-[1.05rem]">
         {title}
       </h3>
 
@@ -632,7 +624,7 @@ export default function CourseCard({
   const isExternal = href.startsWith("http");
 
   const shellClass = hub
-    ? `${className} group relative flex h-full flex-col overflow-hidden rounded-2xl border border-ink/8 bg-white shadow-card course-card-transition hover:border-primary hover:shadow-[0_18px_36px_-12px_rgba(163,36,50,0.14)] hover:ring-1 hover:ring-primary`
+    ? `${className} group surface-bordered relative flex h-full flex-col overflow-hidden shadow-card course-card-transition hover:border-primary hover:shadow-[0_18px_36px_-12px_rgba(163,36,50,0.14)] hover:ring-1 hover:ring-primary`
     : `${className} group relative flex h-full flex-col overflow-hidden rounded-[1.25rem] border border-ink/10 bg-sand shadow-card course-card-transition sm:rounded-3xl hover:border-primary/80 hover:shadow-[0_28px_56px_-18px_rgba(163,36,50,0.18)] hover:ring-1 hover:ring-primary/70`;
 
   const radiusClass = hub ? "rounded-2xl" : "rounded-[1.25rem] sm:rounded-3xl";
@@ -714,14 +706,10 @@ export default function CourseCard({
           </div>
         ) : (
           <div
-            className={`mt-auto flex items-center justify-between border-t border-ink/8 transition-colors duration-300 group-hover:border-t-primary/20 group-hover:bg-primary ${
-              hub ? "px-4 py-2.5 sm:px-5" : "px-5 py-3"
-            }`}
+            className={`mt-auto flex items-center justify-between border-t border-ink/8 transition-colors duration-300 group-hover:border-t-primary/20 group-hover:bg-primary ${hub ? "px-4 py-2.5 sm:px-5" : "px-5 py-3"}`}
           >
             <span
-              className={`pb-0.5 font-serif font-medium tracking-wider text-ink transition-colors duration-300 group-hover:text-white ${
-                hub ? "text-xs sm:text-[13px]" : "text-sm"
-              }`}
+              className={`pb-0.5 font-bold tracking-wider text-ink transition-colors duration-300 group-hover:text-white ${hub ? "text-xs sm:text-[13px]" : "text-sm"}`}
             >
               View course details
             </span>

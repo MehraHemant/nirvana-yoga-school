@@ -39,7 +39,7 @@ export default async function WhyRishikeshSection({
   return (
     <section
       id={resolveSectionHtmlId("why-rishikesh", sectionId ?? content._id)}
-      className="relative overflow-hidden bg-white py-12 sm:py-14 lg:py-16"
+      className="relative overflow-hidden bg-white section-padding-y"
     >
       <WhyRishikeshClient
         content={content}

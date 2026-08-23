@@ -213,7 +213,7 @@ function HeroBlock({
             <p className="type-eyebrow mb-4 text-accent">{eyebrow}</p>
           ) : null}
           {headline ? (
-            <Heading as="h1" font="serif" size="h1" invert>
+            <Heading as="h1" size="h1" invert>
               {headline}
             </Heading>
           ) : null}
@@ -278,11 +278,11 @@ function ProseBlock({
               <p className="type-eyebrow mb-3 text-primary">{eyebrow}</p>
             ) : null}
             {title ? (
-              <Heading as="h2" font="serif" size="h2">
+              <Heading as="h2" size="h2">
                 {title}
               </Heading>
             ) : null}
-            {lead ? <p className="type-lead mt-4 text-muted">{lead}</p> : null}
+            {lead ? <p className="type-lead mt-4 text-ink">{lead}</p> : null}
             {body ? (
               <div className="mt-6">
                 <BlogHtmlContent html={body} className="prose-blog space-y-5" />
@@ -328,7 +328,7 @@ function ListBlock({
     <section className="bg-white py-16 md:py-20">
       <Container size="lg">
         {title ? (
-          <Heading as="h2" font="serif" size="h2" className="mb-8">
+          <Heading as="h2" size="h2" className="mb-8">
             {title}
           </Heading>
         ) : null}
@@ -346,8 +346,8 @@ function ListBlock({
         ) : null}
         {excludes.length > 0 ? (
           <div className="mt-8">
-            <p className="type-eyebrow mb-3 text-muted">Not included</p>
-            <ul className="space-y-2 text-muted type-body">
+            <p className="type-eyebrow mb-3 text-ink">Not included</p>
+            <ul className="space-y-2 text-ink type-body">
               {excludes.map((item) => (
                 <li key={item}>{item}</li>
               ))}
@@ -375,13 +375,11 @@ function ContactBlock({ data }: { data: Record<string, unknown> }) {
       <Container size="lg">
         <div className="grid gap-10 lg:grid-cols-[1fr_20rem]">
           <div>
-            <Heading as="h2" font="serif" size="h2">
+            <Heading as="h2" size="h2">
               {str(data, "headline") || "Get in touch"}
             </Heading>
             {str(data, "summary") ? (
-              <p className="type-lead mt-4 text-muted">
-                {str(data, "summary")}
-              </p>
+              <p className="type-lead mt-4 text-ink">{str(data, "summary")}</p>
             ) : null}
             {str(data, "body") ? (
               <div className="mt-6">
@@ -396,7 +394,7 @@ function ContactBlock({ data }: { data: Record<string, unknown> }) {
             <dl className="space-y-4">
               {email ? (
                 <div>
-                  <dt className="type-eyebrow text-muted">Email</dt>
+                  <dt className="type-eyebrow text-ink">Email</dt>
                   <dd className="mt-1">
                     <a
                       className="text-primary hover:underline"
@@ -409,7 +407,7 @@ function ContactBlock({ data }: { data: Record<string, unknown> }) {
               ) : null}
               {phone ? (
                 <div>
-                  <dt className="type-eyebrow text-muted">Phone</dt>
+                  <dt className="type-eyebrow text-ink">Phone</dt>
                   <dd className="mt-1 type-body">{phone}</dd>
                 </div>
               ) : null}
@@ -426,7 +424,7 @@ function ContactBlock({ data }: { data: Record<string, unknown> }) {
               ) : null}
               {address ? (
                 <div>
-                  <dt className="type-eyebrow text-muted">Address</dt>
+                  <dt className="type-eyebrow text-ink">Address</dt>
                   <dd className="mt-1 whitespace-pre-line type-body">
                     {address}
                   </dd>
@@ -434,7 +432,7 @@ function ContactBlock({ data }: { data: Record<string, unknown> }) {
               ) : null}
               {hours ? (
                 <div>
-                  <dt className="type-eyebrow text-muted">Hours</dt>
+                  <dt className="type-eyebrow text-ink">Hours</dt>
                   <dd className="mt-1 type-body">{hours}</dd>
                 </div>
               ) : null}
@@ -483,7 +481,7 @@ function GalleryBlock({ data }: { data: Record<string, unknown> }) {
     <section className="bg-white py-16 md:py-20">
       <Container size="lg">
         {title ? (
-          <Heading as="h2" font="serif" size="h2" className="mb-8">
+          <Heading as="h2" size="h2" className="mb-8">
             {title}
           </Heading>
         ) : null}
@@ -504,7 +502,7 @@ function GalleryBlock({ data }: { data: Record<string, unknown> }) {
                 />
               </div>
               {cell(image, "caption") ? (
-                <figcaption className="px-4 py-3 type-ui text-muted">
+                <figcaption className="px-4 py-3 type-ui text-ink">
                   {cell(image, "caption")}
                 </figcaption>
               ) : null}
@@ -528,7 +526,7 @@ function CardsBlock({ data }: { data: Record<string, unknown> }) {
           <p className="type-eyebrow mb-3 text-primary">{eyebrow}</p>
         ) : null}
         {title ? (
-          <Heading as="h2" font="serif" size="h2" className="mb-8">
+          <Heading as="h2" size="h2" className="mb-8">
             {title}
           </Heading>
         ) : null}
@@ -555,12 +553,12 @@ function CardsBlock({ data }: { data: Record<string, unknown> }) {
                 ) : null}
                 <div className="flex flex-1 flex-col p-6">
                   {cell(card, "title") ? (
-                    <Heading as="h3" font="serif" size="display-sm">
+                    <Heading as="h3" size="display-sm">
                       {cell(card, "title")}
                     </Heading>
                   ) : null}
                   {cell(card, "text") ? (
-                    <p className="mt-2 type-body text-muted">
+                    <p className="mt-2 type-body text-ink">
                       {cell(card, "text")}
                     </p>
                   ) : null}
@@ -590,11 +588,11 @@ function FeatureListBlock({ data }: { data: Record<string, unknown> }) {
     <section className="bg-white py-16 md:py-20">
       <Container size="lg">
         {title ? (
-          <Heading as="h2" font="serif" size="h2">
+          <Heading as="h2" size="h2">
             {title}
           </Heading>
         ) : null}
-        {intro ? <p className="type-lead mt-4 text-muted">{intro}</p> : null}
+        {intro ? <p className="type-lead mt-4 text-ink">{intro}</p> : null}
         {items.length > 0 ? (
           <ul className="mt-8 grid gap-3 sm:grid-cols-2">
             {items.map((item, index) => (
@@ -603,11 +601,11 @@ function FeatureListBlock({ data }: { data: Record<string, unknown> }) {
                 key={`feature-${index}`}
                 className="rounded-2xl border border-ink/8 bg-sand/60 px-4 py-3"
               >
-                <p className="type-body font-medium text-ink">
+                <p className="type-body font-semibold text-ink">
                   {cell(item, "text")}
                 </p>
                 {cell(item, "note") ? (
-                  <p className="type-ui text-muted">{cell(item, "note")}</p>
+                  <p className="type-ui text-ink">{cell(item, "note")}</p>
                 ) : null}
               </li>
             ))}
@@ -626,7 +624,7 @@ function PricingTableBlock({ data }: { data: Record<string, unknown> }) {
     <section className="bg-white py-16 md:py-20">
       <Container size="lg">
         {title ? (
-          <Heading as="h2" font="serif" size="h2" className="mb-8">
+          <Heading as="h2" size="h2" className="mb-8">
             {title}
           </Heading>
         ) : null}
@@ -640,16 +638,14 @@ function PricingTableBlock({ data }: { data: Record<string, unknown> }) {
                 key={`plan-${index}`}
                 className="flex flex-col rounded-3xl border border-ink/8 bg-white p-7 shadow-card"
               >
-                <h3 className="type-eyebrow text-muted">
-                  {cell(plan, "name")}
-                </h3>
+                <h3 className="type-eyebrow text-ink">{cell(plan, "name")}</h3>
                 {cell(plan, "price") ? (
-                  <p className="mt-2 font-serif text-4xl text-primary">
+                  <p className="mt-2 text-4xl text-primary">
                     {cell(plan, "price")}
                   </p>
                 ) : null}
                 {cell(plan, "note") ? (
-                  <p className="mt-3 type-body text-muted">
+                  <p className="mt-3 type-body text-ink">
                     {cell(plan, "note")}
                   </p>
                 ) : null}
@@ -687,7 +683,7 @@ function FaqBlock({
           <p className="type-eyebrow mb-3 text-primary">{eyebrow}</p>
         ) : null}
         {title ? (
-          <Heading as="h2" font="serif" size="h2" className="mb-8">
+          <Heading as="h2" size="h2" className="mb-8">
             {title}
           </Heading>
         ) : null}
@@ -702,7 +698,7 @@ function FaqBlock({
                 {cell(item, "question")}
               </summary>
               {cell(item, "answer") ? (
-                <p className="mt-3 type-body text-muted">
+                <p className="mt-3 type-body text-ink">
                   {cell(item, "answer")}
                 </p>
               ) : null}

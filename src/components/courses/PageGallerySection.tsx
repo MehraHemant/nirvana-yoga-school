@@ -189,10 +189,7 @@ export default function PageGallerySection({
   if (images.length === 0) return null;
 
   return (
-    <section
-      id="gallery"
-      className="relative w-full bg-white py-12 sm:py-14 lg:py-16"
-    >
+    <section id="gallery" className="section-white">
       <Container size="2xl" className="relative">
         <motion.div
           initial="hidden"
@@ -206,12 +203,13 @@ export default function PageGallerySection({
               title={
                 <>
                   Life at{" "}
-                  <span className="font-medium text-primary">Nirvana</span>
+                  <span className="font-semibold text-primary">Nirvana</span>
                 </>
               }
               description="A detailed look at our yoga halls, dining room, private and shared rooms, dorms, balconies, and peaceful campus in Upper Tapovan, Rishikesh."
               align="left"
-              className="mb-0! max-w-2xl [&_.type-lead]:text-ink"
+              descriptionClassName="text-ink"
+              className="max-w-2xl"
             />
           </div>
         </motion.div>
@@ -232,9 +230,7 @@ export default function PageGallerySection({
                   key={category.id}
                   type="button"
                   onClick={() => setSelectedCategory(category.id)}
-                  className={`type-ui relative px-4 py-2 font-medium transition-colors duration-300 focus-visible:outline-none ${
-                    isActive ? "text-primary" : "text-ink"
-                  }`}
+                  className={`type-ui relative px-4 py-2 font-semibold transition-colors duration-300 focus-visible:outline-none ${isActive ? "text-primary" : "text-ink"}`}
                 >
                   {category.label}
                   {isActive && (
@@ -306,7 +302,7 @@ export default function PageGallerySection({
                       <span className="type-eyebrow block text-[9px] font-bold tracking-widest text-primary">
                         {categoryEyebrow(item.category)}
                       </span>
-                      <h4 className="mt-1 font-serif text-sm leading-tight font-medium tracking-wide text-ink transition-colors duration-300 sm:text-base">
+                      <h4 className="mt-1 text-sm leading-tight font-bold tracking-wide text-ink transition-colors duration-300 sm:text-base">
                         {item.title}
                       </h4>
                     </div>

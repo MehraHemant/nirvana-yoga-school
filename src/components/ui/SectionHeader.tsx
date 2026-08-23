@@ -7,6 +7,8 @@ type Props = {
   description?: ReactNode;
   align?: "left" | "center" | "end";
   invert?: boolean;
+  /** Overrides default muted/white description color */
+  descriptionClassName?: string;
   className?: string;
 };
 
@@ -16,6 +18,7 @@ export default function SectionHeader({
   description,
   align = "left",
   invert = false,
+  descriptionClassName,
   className = "",
 }: Props) {
   const alignment =
@@ -25,12 +28,14 @@ export default function SectionHeader({
         ? "text-right ml-auto"
         : "text-left";
   const eyebrowColor = invert ? "text-accent" : "text-primary";
-  const descColor = invert ? "text-white/75" : "text-muted";
+  const descColor = invert ? "text-white/75" : "text-ink";
 
   return (
-    <div className={`max-w-3xl ${alignment} ${className}`}>
+    <div className={`max-w-6xl ${alignment} ${className}`}>
       {eyebrow && (
-        <div className={`type-eyebrow ${eyebrowColor} mb-3 sm:mb-4`}>
+        <div
+          className={`uppercase tracking-wider ${eyebrowColor} mb-3 sm:mb-4`}
+        >
           {eyebrow}
         </div>
       )}
@@ -39,13 +44,14 @@ export default function SectionHeader({
         align={align}
         invert={invert}
         size="h2"
-        font="serif"
         className="leading-tight"
       >
         {title}
       </Heading>
       {description && (
-        <p className={`type-lead leading-tight mt-4 sm:mt-5 ${descColor}`}>
+        <p
+          className={`text-base lg:text-lg leading-tight mt-4 sm:mt-5 ${descriptionClassName ?? descColor}`}
+        >
           {description}
         </p>
       )}

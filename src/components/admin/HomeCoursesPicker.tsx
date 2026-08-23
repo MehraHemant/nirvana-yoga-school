@@ -162,10 +162,7 @@ export function HomeCoursesPicker({ value, onChange }: HomeCoursesPickerProps) {
   function reorderVisible(fromIndex: number, toIndex: number) {
     const nextSlugs = reorderItems(visibleSlugs, fromIndex, toIndex);
     const hidden = value.filter((ref) => ref.live === false);
-    onChange([
-      ...nextSlugs.map((courseSlug) => ({ courseSlug })),
-      ...hidden,
-    ]);
+    onChange([...nextSlugs.map((courseSlug) => ({ courseSlug })), ...hidden]);
   }
 
   /** Adds every published course not already on the homepage. */
@@ -198,18 +195,12 @@ export function HomeCoursesPicker({ value, onChange }: HomeCoursesPickerProps) {
       isLive: boolean;
     },
   ) {
-    const thumbSrc = course.image
-      ? cloudinaryThumbUrl(course.image, 120)
-      : "";
+    const thumbSrc = course.image ? cloudinaryThumbUrl(course.image, 120) : "";
     const viewHref = publicViewHref(course.type, course.slug);
 
     return (
       <div
-        className={`admin-home-courses-picker__row${
-          options.isLive
-            ? " admin-home-courses-picker__row--live"
-            : " admin-home-courses-picker__row--hidden"
-        }`}
+        className={`admin-home-courses-picker__row${options.isLive ? " admin-home-courses-picker__row--live" : " admin-home-courses-picker__row--hidden"}`}
       >
         <span
           className="admin-home-courses-picker__order"
@@ -221,7 +212,10 @@ export function HomeCoursesPicker({ value, onChange }: HomeCoursesPickerProps) {
         {options.isLive && options.dragHandleProps ? (
           <DragHandle dragHandleProps={options.dragHandleProps} />
         ) : (
-          <span className="admin-home-courses-picker__drag-spacer" aria-hidden />
+          <span
+            className="admin-home-courses-picker__drag-spacer"
+            aria-hidden
+          />
         )}
 
         <div className="admin-home-courses-picker__thumb">
@@ -236,12 +230,17 @@ export function HomeCoursesPicker({ value, onChange }: HomeCoursesPickerProps) {
               unoptimized
             />
           ) : (
-            <span className="admin-home-courses-picker__thumb-empty" aria-hidden />
+            <span
+              className="admin-home-courses-picker__thumb-empty"
+              aria-hidden
+            />
           )}
         </div>
 
         <div className="admin-home-courses-picker__copy">
-          <span className="admin-home-courses-picker__title">{course.title}</span>
+          <span className="admin-home-courses-picker__title">
+            {course.title}
+          </span>
           <span className="admin-home-courses-picker__slug">{course.slug}</span>
           <span className="admin-home-courses-picker__meta">
             {courseMetaLabel(course)}
@@ -249,11 +248,7 @@ export function HomeCoursesPicker({ value, onChange }: HomeCoursesPickerProps) {
         </div>
 
         <span
-          className={`admin-status-chip${
-            course.published
-              ? " admin-status-chip--ok"
-              : " admin-status-chip--warn"
-          }`}
+          className={`admin-status-chip${course.published ? " admin-status-chip--ok" : " admin-status-chip--warn"}`}
         >
           {course.published ? "Published" : "Draft"}
         </span>
@@ -332,8 +327,7 @@ export function HomeCoursesPicker({ value, onChange }: HomeCoursesPickerProps) {
   }
 
   const publishedNotOnHomepage = courses.filter(
-    (course) =>
-      course.published && !visibleSlugs.includes(course.slug),
+    (course) => course.published && !visibleSlugs.includes(course.slug),
   ).length;
 
   return (

@@ -671,9 +671,7 @@ function AddonRow({
                 <button
                   key={program.slug}
                   type="button"
-                  className={`admin-chip ${
-                    !explicit || selected ? "admin-chip--active" : ""
-                  }`}
+                  className={`admin-chip ${!explicit || selected ? "admin-chip--active" : ""}`}
                   onClick={() => {
                     const current = item.programSlugs?.length
                       ? [...item.programSlugs]

@@ -45,7 +45,7 @@ export default function KirtanHighlightsSection({
             }
             description="A short, focused format designed for beginners and practitioners who want devotional music they can actually use."
             align="center"
-            className="mx-auto mb-0! max-w-2xl"
+            className="mx-auto max-w-2xl"
           />
         </motion.div>
 
@@ -88,10 +88,8 @@ export default function KirtanHighlightsSection({
               <span className="type-eyebrow text-[10px] font-bold text-primary">
                 0{index + 1}
               </span>
-              <h3 className="mt-2 font-serif text-lg font-medium text-ink">
-                {item.title}
-              </h3>
-              <p className="mt-2 font-sans text-sm leading-relaxed text-muted">
+              <h3 className="mt-2 text-lg font-bold text-ink">{item.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-ink">
                 {item.description}
               </p>
             </motion.article>

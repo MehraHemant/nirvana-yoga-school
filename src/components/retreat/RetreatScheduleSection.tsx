@@ -34,7 +34,7 @@ const SCHEDULE_ICON_META: Record<
     caption: "Traditional lecture & ceremony",
   },
   yoga: { color: "text-accent", caption: "Pranayama, Hatha & Yin yoga" },
-  default: { color: "text-muted", caption: "Leisure & reflection time" },
+  default: { color: "text-ink", caption: "Leisure & reflection time" },
 };
 
 function ScheduleIcon({ type }: { type: ScheduleIconType }) {
@@ -169,7 +169,7 @@ export default function RetreatScheduleSection({
             }
             align="center"
           />
-          <p className="type-lead mx-auto mt-6 max-w-xl font-sans text-base text-muted">
+          <p className="type-lead mx-auto mt-6 max-w-xl text-base text-ink">
             Follow our balanced daily rhythm of yoga practice, meditation,
             nourishing meals, and sound healing designed for deep relaxation and
             inner harmony.
@@ -190,9 +190,7 @@ export default function RetreatScheduleSection({
       <div
         ref={tabsRef}
         style={isPinned ? { top: tabsTop } : undefined}
-        className={`z-30 bg-transparent ${
-          isPinned ? "fixed inset-x-0" : "relative"
-        }`}
+        className={`z-30 bg-transparent ${isPinned ? "fixed inset-x-0" : "relative"}`}
       >
         <Container size="2xl" className="py-3">
           <TabSwitcher
@@ -202,7 +200,8 @@ export default function RetreatScheduleSection({
             layoutId="activeRetreatDayTab"
             variant="pill"
             size="sm"
-            className="mb-0! pb-0! "
+            className="mb-0 pb-0"
+            flush
           />
         </Container>
       </div>
@@ -229,7 +228,7 @@ export default function RetreatScheduleSection({
                 <span className="type-eyebrow font-semibold tracking-wider text-primary">
                   Day 0{active.day} Focus
                 </span>
-                <h4 className="mt-1 font-serif text-2xl font-medium leading-tight text-ink sm:text-3xl">
+                <h4 className="mt-1 text-2xl font-bold leading-tight text-ink sm:text-3xl">
                   {active.title}
                 </h4>
               </div>
@@ -251,13 +250,9 @@ export default function RetreatScheduleSection({
                         className="relative flex flex-col items-start sm:flex-row sm:justify-between"
                       >
                         <div
-                          className={`w-full pl-16 sm:w-[44%] sm:pl-0 ${
-                            isEven
-                              ? "text-left sm:order-first sm:text-right"
-                              : "text-left sm:order-last sm:text-left"
-                          }`}
+                          className={`w-full pl-16 sm:w-[44%] sm:pl-0 ${isEven ? "text-left sm:order-first sm:text-right" : "text-left sm:order-last sm:text-left"}`}
                         >
-                          <span className="type-ui inline-block rounded-full border border-primary/10 bg-primary/5 px-3 py-1 font-sans font-semibold tracking-wide text-primary sm:border-0 sm:bg-transparent sm:p-0 sm:text-base">
+                          <span className="type-ui inline-block rounded-full border border-primary/10 bg-primary/5 px-3 py-1 font-semibold tracking-wide text-primary sm:border-0 sm:bg-transparent sm:p-0 sm:text-base">
                             {item.time}
                           </span>
                         </div>
@@ -267,19 +262,17 @@ export default function RetreatScheduleSection({
                         </div>
 
                         <div
-                          className={`mt-2 w-full pl-16 sm:mt-0 sm:w-[44%] sm:pl-0 ${
-                            isEven ? "sm:order-last" : "sm:order-first"
-                          }`}
+                          className={`mt-2 w-full pl-16 sm:mt-0 sm:w-[44%] sm:pl-0 ${isEven ? "sm:order-last" : "sm:order-first"}`}
                         >
                           <div className="surface-card flex gap-4 rounded-3xl p-5 transition-all duration-300 hover:border-primary/20 hover:shadow-soft sm:p-6">
                             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-ink/8 bg-surface-muted">
                               <ScheduleIcon type={iconType} />
                             </div>
                             <div className="space-y-1">
-                              <h4 className="type-display-sm font-medium leading-tight text-ink">
+                              <h4 className="type-display-sm font-bold leading-tight text-ink">
                                 {item.activity}
                               </h4>
-                              <span className="block font-sans text-xs font-medium text-muted">
+                              <span className="block text-xs font-semibold text-ink">
                                 {SCHEDULE_ICON_META[iconType].caption}
                               </span>
                             </div>
@@ -292,7 +285,7 @@ export default function RetreatScheduleSection({
               </div>
 
               {active.note && (
-                <div className="surface-panel mx-auto mt-8 max-w-md rounded-2xl p-4 text-center text-xs font-medium text-muted shadow-xs">
+                <div className="surface-panel mx-auto mt-8 max-w-md rounded-2xl p-4 text-center text-xs font-semibold text-ink shadow-xs">
                   💡 <strong>Daily Note:</strong> {active.note}
                 </div>
               )}

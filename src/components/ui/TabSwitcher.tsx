@@ -19,6 +19,8 @@ interface TabSwitcherProps {
   size?: "sm" | "md";
   /** Container background style */
   variant?: "pill" | "inline";
+  /** When true, omits outer scroll padding (for sticky tab bars). */
+  flush?: boolean;
   className?: string;
   /** Optional click handler for anchor tabs (e.g. smooth-scroll) */
   onAnchorClick?: (
@@ -39,6 +41,7 @@ export default function TabSwitcher({
   layoutId,
   size = "md",
   variant = "pill",
+  flush = false,
   className = "",
   onAnchorClick,
 }: TabSwitcherProps) {
@@ -52,15 +55,17 @@ export default function TabSwitcher({
       ? "inline-flex bg-white/70 p-1.5 rounded-full border border-ink/5 shadow-xs"
       : "flex items-center gap-1 sm:gap-2 md:gap-4 w-full justify-start md:justify-center";
 
+  const outerSpacing = flush ? "" : "pb-2 px-4";
+
   return (
     <div
-      className={`no-scrollbar flex justify-center overflow-x-auto pb-2 px-4 ${className}`}
+      className={`no-scrollbar flex justify-center overflow-x-auto ${outerSpacing} ${className}`}
     >
       <div className={`${wrapperClasses} bg-white`}>
         {tabs.map((tab) => {
           const isActive = activeId === tab.id;
-          const sharedClassName = `relative ${sizeClasses} rounded-full bg-white font-semibold font-sans tracking-wide transition-colors whitespace-nowrap cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 ${
-            isActive ? "text-primary" : "text-muted hover:text-ink"
+          const sharedClassName = `relative ${sizeClasses} rounded-full bg-white font-semibold  tracking-wide transition-colors whitespace-nowrap cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 ${
+            isActive ? "text-primary" : "text-ink hover:text-ink"
           }`;
 
           const indicator = isActive ? (
@@ -102,7 +107,7 @@ export default function TabSwitcher({
               className={sharedClassName}
             >
               {indicator}
-              <span className="relative z-10">{tab.label}</span>
+              <span className="relative text-sm z-10">{tab.label}</span>
             </button>
           );
         })}

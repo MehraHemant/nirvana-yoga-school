@@ -76,13 +76,11 @@ export const NAV_DROPDOWN_ENTRIES: Record<NavDropdownKey, NavDropdownConfig> = {
     },
   },
   retreats: {
-    items: RETREAT_SLUGS.filter((slug) => slug !== "retreat-booking").map(
-      (slug, index) => ({
-        sort: index + 1,
-        type: "retreat" as const,
-        slug,
-      }),
-    ),
+    items: RETREAT_SLUGS.map((slug, index) => ({
+      sort: index + 1,
+      type: "retreat" as const,
+      slug,
+    })),
   },
   venue: {
     items: [

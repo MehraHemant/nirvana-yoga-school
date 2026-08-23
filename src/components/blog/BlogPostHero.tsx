@@ -82,7 +82,7 @@ export function BlogPostHero({ post }: BlogPostHeroProps) {
                   <span className="h-px w-6 bg-white/20" aria-hidden="true" />
                   <time
                     dateTime={post.publishedAt ?? undefined}
-                    className="font-sans text-xs tracking-wide text-white/55 sm:text-sm"
+                    className="text-xs tracking-wide text-white/55 sm:text-sm"
                   >
                     {publishedDate}
                   </time>
@@ -90,11 +90,11 @@ export function BlogPostHero({ post }: BlogPostHeroProps) {
               ) : null}
             </div>
 
-            <h1 className="animate-fade-up fade-delay-200 mt-7 max-w-4xl text-balance font-serif text-[clamp(2.35rem,5.6vw,4.4rem)] font-medium leading-[1.04] tracking-tight text-white sm:mt-8">
+            <h1 className="animate-fade-up fade-delay-200 mt-7 max-w-4xl text-balance text-[clamp(2.35rem,5.6vw,4.4rem)] font-bold leading-[1.04] tracking-tight text-white sm:mt-8">
               {post.title}
             </h1>
 
-            <p className="animate-fade-up fade-delay-300 mt-6 max-w-2xl text-pretty font-serif text-[clamp(1.15rem,2vw,1.4rem)] font-medium leading-snug tracking-[-0.01em] text-white/82 sm:mt-7">
+            <p className="animate-fade-up fade-delay-300 mt-6 max-w-2xl text-pretty text-[clamp(1.15rem,2vw,1.4rem)] font-semibold leading-snug tracking-[-0.01em] text-white/82 sm:mt-7">
               {post.excerpt}
             </p>
           </div>

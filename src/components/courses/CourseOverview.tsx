@@ -214,31 +214,33 @@ export default function CourseOverview({
               eyebrow={eyebrow}
               title={title}
               align="left"
-              className="mb-0! max-w-none"
+              className="mb-4 max-w-6xl"
             />
-            {resolvedHeading ? (
-              <h3 className="max-w-3xl font-serif text-2xl font-medium leading-snug tracking-tight text-ink sm:text-3xl lg:text-[2rem] lg:leading-[1.25]">
-                {resolvedHeading}
-              </h3>
-            ) : null}
-            {resolvedOverview ? (
-              <SanitizedHtml
-                html={resolvedOverview}
-                className="cms-overview-lead type-lead text-ink"
-              />
-            ) : null}
+            <div>
+              {resolvedHeading ? (
+                <h3 className="max-w-3xl mb-3 text-2xl font-bold leading-snug tracking-tight text-ink sm:text-3xl lg:text-[2rem] lg:leading-tight">
+                  {resolvedHeading}
+                </h3>
+              ) : null}
+              {resolvedOverview ? (
+                <SanitizedHtml
+                  html={resolvedOverview}
+                  className="cms-overview-lead font-medium flex flex-col gap-2 type-lead text-ink"
+                />
+              ) : null}
+            </div>
             {resolvedSupporting ? (
-              <p className="type-lead font-sans leading-relaxed text-ink">
+              <p className="type-lead leading-relaxed text-ink">
                 {resolvedSupporting}
               </p>
             ) : null}
             {resolvedSaying ? (
               <figure className="max-w-3xl border-l-2 border-primary/25 pl-5 sm:pl-6">
-                <blockquote className="font-serif text-xl italic leading-relaxed text-ink sm:text-2xl">
+                <blockquote className="text-xl leading-normal text-ink">
                   {resolvedSaying.text}
                 </blockquote>
                 {resolvedSaying.author ? (
-                  <figcaption className="mt-3 font-sans text-sm text-muted">
+                  <figcaption className="mt-3 text-right text-sm text-ink">
                     — {resolvedSaying.author}
                   </figcaption>
                 ) : null}
@@ -257,7 +259,7 @@ export default function CourseOverview({
               <div className="mb-5 flex items-end justify-between gap-4 sm:mb-6">
                 <div>
                   <p className="type-eyebrow text-primary">Course films</p>
-                  <h3 className="mt-1 font-serif text-2xl text-ink sm:text-3xl">
+                  <h3 className="mt-1 text-2xl text-ink sm:text-3xl">
                     Watch the journey
                   </h3>
                 </div>
@@ -314,11 +316,7 @@ export default function CourseOverview({
                       type="button"
                       onClick={() => setActiveImageIndex(index)}
                       aria-label={`Show image ${index + 1}`}
-                      className={`h-2 rounded-full transition-all ${
-                        index === activeImageIndex
-                          ? "w-6 bg-white"
-                          : "w-2 bg-white/60"
-                      }`}
+                      className={`h-2 rounded-full transition-all ${index === activeImageIndex ? "w-6 bg-white" : "w-2 bg-white/60"}`}
                     />
                   ))}
                 </div>
@@ -354,7 +352,7 @@ export default function CourseOverview({
                 <p className="type-eyebrow font-semibold uppercase tracking-[0.2em] text-primary">
                   Course at a glance
                 </p>
-                <p className="font-sans text-xs text-ink">
+                <p className="text-xs text-ink">
                   Residential program essentials
                 </p>
               </div>
@@ -363,43 +361,31 @@ export default function CourseOverview({
                 {overviewSpecs.map((spec) => (
                   <div
                     key={spec.label}
-                    className={`group relative flex flex-col gap-3 px-6 py-8 transition-colors sm:px-7 md:py-9 ${
-                      "highlight" in spec && spec.highlight
-                        ? "bg-linear-to-br from-primary/10 via-primary/5 to-transparent lg:rounded-br-3xl"
-                        : "hover:bg-surface"
-                    }`}
+                    className={`group relative flex flex-col gap-3 px-6 py-8 transition-colors sm:px-7 md:py-9 ${"highlight" in spec && spec.highlight ? "bg-linear-to-br from-primary/10 via-primary/5 to-transparent lg:rounded-br-3xl" : "hover:bg-surface"}`}
                   >
                     <div className="flex items-baseline justify-between gap-3">
                       <span className="type-eyebrow font-semibold uppercase tracking-wider text-primary">
                         {spec.label}
                       </span>
                       <span
-                        className="font-serif text-lg leading-none text-primary/20"
+                        className="text-lg leading-none text-primary/20"
                         aria-hidden="true"
                       >
                         {spec.index}
                       </span>
                     </div>
                     <p
-                      className={`font-serif text-2xl font-medium leading-[1.15] tracking-tight sm:text-[1.65rem] ${
-                        "highlight" in spec && spec.highlight
-                          ? "text-primary"
-                          : "text-ink"
-                      }`}
+                      className={`text-2xl font-bold leading-[1.15] tracking-tight sm:text-[1.65rem] ${"highlight" in spec && spec.highlight ? "text-primary" : "text-ink"}`}
                     >
                       {spec.value}
                     </p>
                     {spec.hint ? (
-                      <p className="max-w-[16rem] font-sans text-xs leading-relaxed text-ink">
+                      <p className="max-w-[16rem] text-xs leading-relaxed text-ink">
                         {spec.hint}
                       </p>
                     ) : null}
                     <span
-                      className={`absolute bottom-0 left-6 right-6 h-px origin-left scale-x-0 transition-transform duration-300 group-hover:scale-x-100 sm:left-7 sm:right-7 ${
-                        "highlight" in spec && spec.highlight
-                          ? "bg-primary/25"
-                          : "bg-accent/50"
-                      }`}
+                      className={`absolute bottom-0 left-6 right-6 h-px origin-left scale-x-0 transition-transform duration-300 group-hover:scale-x-100 sm:left-7 sm:right-7 ${"highlight" in spec && spec.highlight ? "bg-primary/25" : "bg-accent/50"}`}
                       aria-hidden="true"
                     />
                   </div>
