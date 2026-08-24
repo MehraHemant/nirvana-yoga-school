@@ -14,7 +14,15 @@ import {
   type ImageClickAction,
   normalizeCmsImage,
 } from "@/content/types/cms-image";
-import { HeroFlourish } from "@/icons";
+import {
+  BadgeStar,
+  Certificate,
+  Clock,
+  Compass,
+  HeroFlourish,
+  Layers,
+  Wallet,
+} from "@/icons";
 import { resolveInlineRichTextHtml } from "@/lib/cms/blog-html";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 import type { YouTubeVideo } from "@/lib/youtube";
@@ -99,6 +107,97 @@ function mergeOverviewLead(description: string, lead: string): string {
   const leadHtml = resolveInlineRichTextHtml(lead);
   if (descHtml && leadHtml) return `${descHtml}${leadHtml}`;
   return descHtml || leadHtml;
+}
+
+type GlanceIcon = (props: { size?: number; strokeWidth?: number; className?: string }) => ReactNode;
+
+/**
+ * Picks a contextual icon for a glance stat from its label.
+ *
+ * @param label - Glance row label from CMS or legacy defaults
+ */
+function glanceIconForLabel(label: string): GlanceIcon {
+  const key = label.toLowerCase();
+  if (/fee|price|tuition|cost|investment/.test(key)) return Wallet;
+  if (/cert|credential|alliance|yoga alliance/.test(key)) {
+    return Certificate;
+  }
+  if (/duration|day|week|month|hour/.test(key)) return Clock;
+  if (/level|focus|experience|style/.test(key)) return Layers;
+  if (/certified|badge|award/.test(key)) return BadgeStar;
+  return Compass;
+}
+
+/**
+ * Single stat card for the course overview glance grid.
+ *
+ * @param props - Glance spec row and stagger index for motion
+ */
+function OverviewGlanceCard({
+  spec,
+  index,
+}: {
+  spec: OverviewSpec;
+  index: number;
+}) {
+  const Icon = glanceIconForLabel(spec.label);
+  const highlighted = Boolean(spec.highlight);
+
+  return (
+    <motion.article
+      initial="hidden"
+      whileInView="visible"
+      viewport={VIEWPORT_ONCE}
+      custom={index * 0.07}
+      variants={fadeUp}
+      className={`group relative flex h-full flex-col gap-4 rounded-3xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-soft ${
+        highlighted
+          ? "border border-primary/20 bg-linear-to-br from-primary/10 via-primary/5 to-white shadow-card ring-1 ring-primary/10"
+          : "surface-card hover:border-primary/15"
+      }`}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div
+          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl transition-transform duration-300 group-hover:scale-105 ${
+            highlighted
+              ? "bg-primary text-white shadow-md shadow-primary/25"
+              : "bg-primary/8 text-primary ring-1 ring-primary/10"
+          }`}
+        >
+          <Icon size={22} strokeWidth={highlighted ? 2.25 : 2} aria-hidden />
+        </div>
+        <span
+          className="text-sm font-bold tabular-nums leading-none text-primary/25"
+          aria-hidden
+        >
+          {spec.index}
+        </span>
+      </div>
+
+      <div className="flex min-w-0 flex-1 flex-col gap-2">
+        <p className="type-eyebrow font-semibold uppercase tracking-wider text-primary">
+          {spec.label}
+        </p>
+        <p
+          className={`text-xl font-bold leading-tight tracking-tight sm:text-2xl ${
+            highlighted ? "text-primary" : "text-ink"
+          }`}
+        >
+          {spec.value}
+        </p>
+        {spec.hint ? (
+          <p className="text-sm leading-relaxed text-ink">{spec.hint}</p>
+        ) : null}
+      </div>
+
+      <span
+        className={`absolute bottom-0 left-6 right-6 h-0.5 origin-left scale-x-0 rounded-full transition-transform duration-300 group-hover:scale-x-100 ${
+          highlighted ? "bg-primary/30" : "bg-primary/20"
+        }`}
+        aria-hidden
+      />
+    </motion.article>
+  );
 }
 
 type CourseOverviewProps = {
@@ -336,62 +435,37 @@ export default function CourseOverview({
           ) : null}
 
           {overviewSpecs.length > 0 ? (
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={VIEWPORT_ONCE}
-              variants={fadeUp}
-              className="relative mt-2 overflow-hidden rounded-3xl border border-ink/8 bg-surface shadow-card ring-1 ring-ink/5"
-            >
-              <HeroFlourish
-                className="pointer-events-none absolute -right-10 -top-10 h-44 w-44 text-primary/6"
-                aria-hidden="true"
-              />
-
-              <div className="relative flex flex-col gap-1 border-b border-ink/8 bg-surface-muted px-6 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-8">
-                <p className="type-eyebrow font-semibold uppercase tracking-[0.2em] text-primary">
-                  Course at a glance
+            <div className="space-y-6">
+              <motion.div
+                initial="hidden"
+                whileInView="visible"
+                viewport={VIEWPORT_ONCE}
+                variants={fadeUp}
+                className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
+              >
+                <div>
+                  <p className="type-eyebrow font-semibold uppercase tracking-[0.2em] text-primary">
+                    Course at a glance
+                  </p>
+                  <h3 className="mt-1.5 text-xl font-bold tracking-tight text-ink sm:text-2xl">
+                    Program essentials
+                  </h3>
+                </div>
+                <p className="max-w-sm text-sm leading-relaxed text-ink sm:text-right">
+                  Key details for your residential stay in Rishikesh
                 </p>
-                <p className="text-xs text-ink">
-                  Residential program essentials
-                </p>
-              </div>
+              </motion.div>
 
-              <div className="relative grid grid-cols-1 divide-y divide-ink/6 sm:grid-cols-2 sm:divide-x sm:divide-y-0 lg:grid-cols-4">
-                {overviewSpecs.map((spec) => (
-                  <div
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5">
+                {overviewSpecs.map((spec, index) => (
+                  <OverviewGlanceCard
                     key={spec.label}
-                    className={`group relative flex flex-col gap-3 px-6 py-8 transition-colors sm:px-7 md:py-9 ${"highlight" in spec && spec.highlight ? "bg-linear-to-br from-primary/10 via-primary/5 to-transparent lg:rounded-br-3xl" : "hover:bg-surface"}`}
-                  >
-                    <div className="flex items-baseline justify-between gap-3">
-                      <span className="type-eyebrow font-semibold uppercase tracking-wider text-primary">
-                        {spec.label}
-                      </span>
-                      <span
-                        className="text-lg leading-none text-primary/20"
-                        aria-hidden="true"
-                      >
-                        {spec.index}
-                      </span>
-                    </div>
-                    <p
-                      className={`text-2xl font-bold leading-[1.15] tracking-tight sm:text-[1.65rem] ${"highlight" in spec && spec.highlight ? "text-primary" : "text-ink"}`}
-                    >
-                      {spec.value}
-                    </p>
-                    {spec.hint ? (
-                      <p className="max-w-[16rem] text-xs leading-relaxed text-ink">
-                        {spec.hint}
-                      </p>
-                    ) : null}
-                    <span
-                      className={`absolute bottom-0 left-6 right-6 h-px origin-left scale-x-0 transition-transform duration-300 group-hover:scale-x-100 sm:left-7 sm:right-7 ${"highlight" in spec && spec.highlight ? "bg-primary/25" : "bg-accent/50"}`}
-                      aria-hidden="true"
-                    />
-                  </div>
+                    spec={spec}
+                    index={index}
+                  />
                 ))}
               </div>
-            </motion.div>
+            </div>
           ) : null}
         </div>
       </Container>

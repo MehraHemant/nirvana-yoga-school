@@ -6,8 +6,8 @@
   --color-secondary: #1c1917;
   --color-secondary-dark: #141210;
   --color-accent: #78716c;
-  --color-ink: #1c1917;
-  --color-muted: #1c1917;
+  --color-ink: #000;
+  --color-muted: #666;
   --color-light-gray: #ffffff;
   --color-sand: #ffffff;
   --color-surface: #ffffff;
@@ -40,6 +40,16 @@
 @media (min-width: 768px) {
   :root {
     --site-header-height: 5.5rem;
+  }
+}
+
+/* MacBook / laptop range — slightly tighter base scale before large desktops */
+@media (min-width: 1024px) and (max-width: 1535px) {
+  :root {
+    --text-xs: 0.75rem;
+    --text-sm: 0.875rem;
+    --text-base: 1rem;
+    --text-lg: 1.125rem;
   }
 }
 
@@ -150,15 +160,15 @@ body {
 }
 
 @utility type-body {
-  @apply font-semibold text-sm leading-[1.65] sm:text-base;
+  @apply font-medium text-sm leading-[1.65] sm:text-base lg:text-[0.9375rem] xl:text-base;
 }
 
 @utility type-lead {
-  @apply font-semibold text-sm leading-normal sm:text-base md:text-lg;
+  @apply font-medium text-sm leading-normal sm:text-base md:text-base lg:text-lg 2xl:text-xl;
 }
 
 @utility section-padding-y {
-  @apply py-12 sm:py-14 lg:py-16;
+  @apply py-12 sm:py-14 lg:py-14 xl:py-16;
 }
 
 @utility section-white {
@@ -239,6 +249,18 @@ body {
   }
 }
 
+@media (min-width: 1024px) {
+  .type-display-sm {
+    font-size: 1.3125rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .type-display-sm {
+    font-size: 1.375rem;
+  }
+}
+
 /* Centralized Heading Scales */
 .type-h1 {
   font-weight: 700;
@@ -264,12 +286,26 @@ body {
 
 @media (min-width: 1024px) {
   .type-h1 {
+    font-size: 3.25rem;
+    /* 52px */
+  }
+}
+
+@media (min-width: 1280px) {
+  .type-h1 {
     font-size: 3.5rem;
     /* 56px */
   }
 }
 
-@media (min-width: 1280px) {
+@media (min-width: 1536px) {
+  .type-h1 {
+    font-size: 3.75rem;
+    /* 60px */
+  }
+}
+
+@media (min-width: 1920px) {
   .type-h1 {
     font-size: 4rem;
     /* 64px */
@@ -300,12 +336,26 @@ body {
 
 @media (min-width: 1024px) {
   .type-h2 {
-    font-size: 2.75rem;
-    /* 44px */
+    font-size: 2.5rem;
+    /* 40px */
   }
 }
 
 @media (min-width: 1280px) {
+  .type-h2 {
+    font-size: 2.625rem;
+    /* 42px */
+  }
+}
+
+@media (min-width: 1536px) {
+  .type-h2 {
+    font-size: 2.875rem;
+    /* 46px */
+  }
+}
+
+@media (min-width: 1920px) {
   .type-h2 {
     font-size: 3.25rem;
     /* 52px */
@@ -335,6 +385,20 @@ body {
 
 @media (min-width: 1024px) {
   .type-h3 {
+    font-size: 1.875rem;
+    /* 30px */
+  }
+}
+
+@media (min-width: 1280px) {
+  .type-h3 {
+    font-size: 1.9375rem;
+    /* 31px */
+  }
+}
+
+@media (min-width: 1536px) {
+  .type-h3 {
     font-size: 2rem;
     /* 32px */
   }
@@ -355,6 +419,20 @@ body {
 }
 
 @media (min-width: 768px) {
+  .type-h4 {
+    font-size: 1.375rem;
+    /* 22px */
+  }
+}
+
+@media (min-width: 1024px) {
+  .type-h4 {
+    font-size: 1.3125rem;
+    /* 21px */
+  }
+}
+
+@media (min-width: 1280px) {
   .type-h4 {
     font-size: 1.375rem;
     /* 22px */
@@ -1225,7 +1303,7 @@ details[open] .accordion-icon {
 }
 
 .online-course-theme .online-hero {
-  border-bottom: 1px solid rgb(255 255 255 / 0.08);
+  border-bottom: 1px solid rgb(28 25 23 / 0.08);
 }
 
 /* Online hub — Why online band (clean white, editorial index) */
@@ -1323,9 +1401,9 @@ details[open] .accordion-icon {
 .online-hero-wash {
   background: linear-gradient(
     145deg,
-    var(--color-ink) 0%,
-    #241c1d 52%,
-    #2a1719 100%
+    var(--color-surface) 0%,
+    var(--color-surface-muted) 55%,
+    color-mix(in srgb, var(--color-primary) 5%, var(--color-surface)) 100%
   );
 }
 
@@ -1333,12 +1411,40 @@ details[open] .accordion-icon {
   background:
     radial-gradient(
       ellipse 60% 50% at 92% 8%,
-      rgb(255 255 255 / 0.08),
+      rgb(163 36 50 / 0.1),
       transparent 55%
     ),
     radial-gradient(
       ellipse 45% 55% at 6% 92%,
-      rgb(163 36 50 / 0.28),
+      rgb(28 25 23 / 0.04),
+      transparent 60%
+    );
+}
+
+/* Online hub hero — clean white band with primary accents */
+.online-hub-hero {
+  border-bottom: 1px solid rgb(28 25 23 / 0.08);
+}
+
+.online-hub-hero-wash {
+  background: linear-gradient(
+    145deg,
+    var(--color-surface) 0%,
+    var(--color-surface-muted) 50%,
+    color-mix(in srgb, var(--color-primary) 6%, var(--color-surface)) 100%
+  );
+}
+
+.online-hub-hero-glow {
+  background:
+    radial-gradient(
+      ellipse 55% 45% at 88% 12%,
+      rgb(163 36 50 / 0.12),
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse 40% 50% at 8% 88%,
+      rgb(28 25 23 / 0.05),
       transparent 60%
     );
 }

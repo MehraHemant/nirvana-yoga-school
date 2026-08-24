@@ -205,14 +205,14 @@ export default function UpcomingDates({
           />
         </div>
 
-        <div className="grid items-start mt-10 gap-6 lg:grid-cols-[7fr_5fr] lg:items-stretch lg:gap-10">
+        <div className="grid items-start mt-10 gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-stretch lg:gap-6 xl:grid-cols-[7fr_5fr] xl:gap-8">
           {/* ── Pricing column (left) — sets row height on desktop ── */}
           <div className="flex flex-col gap-2.5">
             <div className="mb-0.5 flex items-baseline justify-between gap-2">
               <Heading as="h3" size="h4" className="mb-0">
                 {lodgingTitle}
               </Heading>
-              <p className="shrink-0 text-base font-normal text-ink">
+              <p className="shrink-0 text-sm xl:text-base font-normal text-ink">
                 Includes room, meals &amp; materials
               </p>
             </div>

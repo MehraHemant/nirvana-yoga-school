@@ -82,7 +82,7 @@ export default function YogaAllianceSection({
       />
 
       <Container size="2xl" className="relative z-10 w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-[1.3fr_1.1fr] gap-8 lg:gap-16 items-start border-b border-white/15 pb-12 mb-12 lg:mb-16">
+        <div className="grid grid-cols-1 lg:grid-cols-[1.3fr_1.1fr] gap-8 lg:gap-10 xl:gap-14 2xl:gap-16 items-start border-b border-white/15 pb-12 mb-12 lg:mb-16">
           <motion.div
             initial="hidden"
             whileInView="visible"
@@ -101,7 +101,7 @@ export default function YogaAllianceSection({
               ) : null}
             </div>
 
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-[1.1] text-white">
+            <h2 className="text-3xl sm:text-4xl lg:text-4xl xl:text-[2.75rem] 2xl:text-5xl font-semibold leading-[1.1] text-white">
               {content.title}
             </h2>
             {content.description ? (
@@ -110,7 +110,7 @@ export default function YogaAllianceSection({
               </p>
             ) : null}
 
-            <div className="flex items-center gap-4 pt-2 bg-white/10 border border-white/20 rounded-2xl p-4 w-fit backdrop-blur-md shadow-lg">
+            {/* <div className="flex items-center gap-4 pt-2 bg-white/10 border border-white/20 rounded-2xl p-4 w-fit backdrop-blur-md shadow-lg">
               <div className="relative w-14 h-14 bg-white rounded-full flex items-center justify-center p-2 shadow-md">
                 <YogaAllianceSeal className="text-primary w-10 h-10" />
               </div>
@@ -122,7 +122,7 @@ export default function YogaAllianceSection({
                   {content.sealTitle}
                 </p>
               </div>
-            </div>
+            </div> */}
           </motion.div>
 
           <motion.div

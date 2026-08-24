@@ -78,7 +78,7 @@ function TestimonialCard({ review }: { review: Testimonial }) {
       <div className="flex w-full flex-col justify-center py-4 select-text md:w-2/3 md:py-6">
         <div className="mb-2 flex items-start justify-between">
           <div>
-            <h4 className="text-base font-bold leading-tight text-ink md:text-lg">
+            <h4 className="text-base font-semibold leading-tight text-ink md:text-lg">
               {review.name}
             </h4>
             <div className="mt-1 flex gap-0.5" role="img" aria-label="5 stars">

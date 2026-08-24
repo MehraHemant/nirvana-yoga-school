@@ -30,7 +30,7 @@ export default function OnlineHubCtaSection({
 
   return (
     <section className="bg-ink py-16 text-white md:py-24">
-      <Container size="md" className="text-center">
+      <Container size="2xl" className="text-center">
         <motion.div
           initial="hidden"
           whileInView="visible"

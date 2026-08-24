@@ -167,7 +167,7 @@ export default function TeachersSection({
                       >
                         {teacher.name}
                       </h4>
-                      <p className="type-eyebrow mt-0.5 truncate text-ink">
+                      <p className="type-eyebrow mt-0.5 truncate text-muted">
                         {teacher.experienceSummary}
                       </p>
                     </div>

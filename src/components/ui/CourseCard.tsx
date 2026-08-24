@@ -356,7 +356,7 @@ function CourseCardBody({
         className={
           editorial
             ? "type-display-sm mt-1.5 line-clamp-2 font-semibold tracking-tight leading-snug text-ink transition-colors duration-300 group-hover:text-primary"
-            : "mt-2 line-clamp-2  text-[1.35rem] font-bold leading-[1.16] tracking-tight text-ink transition-colors duration-300 group-hover:text-primary sm:text-[1.45rem]"
+            : "mt-2 line-clamp-2 text-[1.3rem] font-bold leading-[1.16] tracking-tight text-ink transition-colors duration-300 group-hover:text-primary sm:text-[1.4rem] lg:text-[1.3rem] xl:text-[1.35rem] 2xl:text-[1.45rem]"
         }
       >
         {title}

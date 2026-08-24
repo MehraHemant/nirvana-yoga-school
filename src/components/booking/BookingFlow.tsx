@@ -337,7 +337,7 @@ export function BookingFlow({
   if (success) {
     return (
       <section className="bg-white py-20">
-        <Container size="md">
+        <Container size="2xl">
           <div className="rounded-3xl border border-emerald-200 bg-white p-10 text-center shadow-card">
             <h1 className="text-3xl text-ink">Booking confirmed!</h1>
             <p className="mt-4 text-ink">
@@ -365,7 +365,7 @@ export function BookingFlow({
           imageAlt=""
         >
           <Container
-            size="xl"
+            size="2xl"
             className="relative z-10 flex min-h-[52svh] flex-col justify-center pb-12 pt-[calc(var(--site-header-height,4.75rem)+3rem)] sm:pb-14 sm:pt-[calc(var(--site-header-height,4.75rem)+3.5rem)] lg:min-h-[58svh] lg:pb-16 lg:pt-[calc(var(--site-header-height,4.75rem)+4rem)]"
           >
             <div className="max-w-2xl space-y-5">
@@ -384,7 +384,7 @@ export function BookingFlow({
       ) : null}
 
       <section className="bg-white py-16 md:py-20">
-        <Container size="lg">
+        <Container size="2xl">
           {shouldRenderSection(
             content.stepsSection,
             content.steps.length > 0,

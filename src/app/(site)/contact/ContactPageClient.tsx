@@ -126,7 +126,7 @@ export default function ContactPageClient({
       {/* 1. Hero */}
       <DarkMediaHero id={heroHtmlId} image={content.hero.image} imageAlt="">
         <Container
-          size="xl"
+          size="2xl"
           className="relative z-10 flex min-h-[52svh] flex-col justify-center pb-12 pt-[calc(var(--site-header-height,4.75rem)+3rem)] sm:pb-14 sm:pt-[calc(var(--site-header-height,4.75rem)+3.5rem)] lg:min-h-[58svh] lg:pb-16 lg:pt-[calc(var(--site-header-height,4.75rem)+4rem)]"
         >
           <motion.div
@@ -183,7 +183,7 @@ export default function ContactPageClient({
         id={formHtmlId}
         className="relative overflow-hidden bg-white py-16 sm:py-20 scroll-mt-[calc(var(--site-header-height,4.75rem)+0.5rem)]"
       >
-        <Container size="xl">
+        <Container size="2xl">
           <div className="grid gap-12 lg:grid-cols-12 lg:items-stretch lg:gap-14">
             {/* Left Column: Direct Contact Info (col-span-5) */}
             <div id={detailsHtmlId} className="flex lg:col-span-5">

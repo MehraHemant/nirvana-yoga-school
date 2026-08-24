@@ -216,7 +216,7 @@ export default function WelcomeSection({
       className="bg-white section-padding-y relative overflow-hidden"
     >
       <Container size="2xl" className="w-full lg:py-10">
-        <div className="grid lg:grid-cols-[minmax(0,0.7fr)_minmax(0,1.1fr)] gap-10 lg:gap-14 xl:gap-16 items-center">
+        <div className="grid lg:grid-cols-[minmax(0,0.7fr)_minmax(0,1.1fr)] gap-10 lg:gap-10 xl:gap-14 2xl:gap-16 items-center">
           {/* Left Column — video player or 2x2 collage */}
           <motion.div
             variants={leftColumnContainer}
@@ -397,7 +397,7 @@ export default function WelcomeSection({
               variants={rightColumnItem}
               className="space-y-3 sm:space-y-4"
             >
-              <Heading as="h2" align="left" size="h2" className="text-balance">
+              <Heading as="h2" align="left" size="h2" className="text-balance font-semibold">
                 {content.title}
               </Heading>
               <div
@@ -408,7 +408,7 @@ export default function WelcomeSection({
 
             {/* Lead Story Paragraph */}
             <motion.div variants={rightColumnItem}>
-              <p className="text-base md:text-lg leading-snug font-semibold text-ink">
+              <p className="text-base md:text-lg leading-snug">
                 {content.lead}
               </p>
             </motion.div>
@@ -424,7 +424,7 @@ export default function WelcomeSection({
                     <span className="text-primary font-bold text-sm uppercase tracking-wide block">
                       {content.vision.label}
                     </span>
-                    <p className="text-sm sm:text-sm md:text-base leading-snug font-semibold text-ink">
+                    <p className="text-sm sm:text-sm md:text-base leading-snug">
                       {content.vision.body}
                     </p>
                   </div>
@@ -435,7 +435,7 @@ export default function WelcomeSection({
                     <span className="text-primary font-bold text-sm uppercase tracking-wide block">
                       {content.promise.label}
                     </span>
-                    <p className="text-sm sm:text-sm md:text-base leading-snug font-semibold text-ink">
+                    <p className="text-sm sm:text-sm md:text-base leading-snug">
                       {content.promise.body}
                     </p>
                   </div>

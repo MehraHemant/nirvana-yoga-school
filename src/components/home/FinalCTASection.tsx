@@ -48,7 +48,7 @@ export default function FinalCTASection({
         aria-hidden="true"
       />
 
-      <Container size="md" className="relative z-10 text-center">
+      <Container size="2xl" className="relative z-10 text-center">
         <Pill invert className="mb-4 sm:mb-6 mx-auto">
           {pill}
         </Pill>

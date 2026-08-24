@@ -136,7 +136,7 @@ export default function EnquireNowPageClient({
     <div className="bg-white">
       <DarkMediaHero id={heroHtmlId} image={content.hero.image} imageAlt="">
         <Container
-          size="xl"
+          size="2xl"
           className="relative z-10 flex min-h-[52svh] flex-col justify-center pb-12 pt-[calc(var(--site-header-height,4.75rem)+3rem)] sm:pb-14 sm:pt-[calc(var(--site-header-height,4.75rem)+3.5rem)] lg:min-h-[58svh] lg:pb-16 lg:pt-[calc(var(--site-header-height,4.75rem)+4rem)]"
         >
           <motion.div
@@ -193,7 +193,7 @@ export default function EnquireNowPageClient({
         id={formHtmlId}
         className="relative overflow-hidden bg-white py-16 sm:py-20 scroll-mt-[calc(var(--site-header-height,4.75rem)+0.5rem)]"
       >
-        <Container size="xl">
+        <Container size="2xl">
           <div className="grid gap-12 lg:grid-cols-12 lg:items-stretch lg:gap-14">
             <div id={stepsHtmlId} className="flex lg:col-span-5">
               <div className="surface-card flex h-full w-full flex-col rounded-3xl p-6 sm:p-8 lg:p-9">

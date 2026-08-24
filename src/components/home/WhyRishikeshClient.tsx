@@ -247,7 +247,7 @@ export default function WhyRishikeshClient({
                       </span>
 
                       <h3
-                        className={`type-display-sm transition-colors duration-300 ${isActive ? "text-ink font-bold" : "text-ink font-semibold"}`}
+                        className={`text-lg sm:text-xl lg:text-2xl transition-colors duration-300 ${isActive ? "text-ink font-bold" : "text-ink font-semibold"}`}
                       >
                         {sutra.title}
                       </h3>
@@ -295,7 +295,7 @@ export default function WhyRishikeshClient({
           </div>
 
           <div className="border-l border-primary/20 pl-4 py-1 mt-4">
-            <p className="italic text-base sm:text-lg md:text-lg font-semibold leading-snug text-ink">
+            <p className="italic text-base leading-snug text-ink">
               "{content.closingInvitation}"
             </p>
           </div>

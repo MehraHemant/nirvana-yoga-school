@@ -56,7 +56,7 @@ function HeaderCtaControl({
     return (
       <Link
         {...props}
-        className={`nav-link text-base font-semibold tracking-wide px-2 py-1.5 transition-colors hover:text-primary  ${solid ? "text-ink" : "text-white/85"} ${className}`.trim()}
+        className={`nav-link text-sm xl:text-[0.9375rem] 2xl:text-base font-medium tracking-wide px-2 py-1.5 transition-colors hover:text-primary  ${solid ? "text-ink" : "text-white/85"} ${className}`.trim()}
       >
         {cta.label}
       </Link>
@@ -136,7 +136,7 @@ function DesktopDropdown({
   const textClass = NavText({
     solid,
     className:
-      "nav-link nav-dropdown-trigger text-base font-semibold tracking-wide flex items-center gap-1.5 py-1.5 ",
+      "nav-link nav-dropdown-trigger text-sm xl:text-[0.9375rem] 2xl:text-base font-medium tracking-wide flex items-center gap-1.5 py-1.5 ",
   });
 
   const regularItems = item.items.filter(
@@ -222,7 +222,7 @@ function DesktopDropdown({
                   "external" in seeAllItem ? seeAllItem.external : undefined,
                 )}
                 onClick={closeDropdown}
-                className="nav-dropdown-cta flex items-center justify-between rounded-2xl bg-primary/5 hover:bg-primary/10 px-4 py-3 text-base font-semibold text-primary transition-colors"
+                className="nav-dropdown-cta flex items-center justify-between rounded-2xl bg-primary/5 hover:bg-primary/10 px-4 py-3 text-base font-medium text-primary transition-colors"
               >
                 {seeAllItem.label} <ArrowRight size={16} />
               </Link>
@@ -255,7 +255,7 @@ function MobileNavItem({
         {...linkProps(href, item.external)}
         onClick={onNavigate}
         style={style}
-        className="mobile-nav-item py-3.5 px-3 text-lg font-semibold text-ink hover:text-primary border-b border-ink/5 tracking-wide"
+        className="mobile-nav-item py-3.5 px-3 text-lg font-medium text-ink hover:text-primary border-b border-ink/5 tracking-wide"
       >
         {item.label}
       </Link>
@@ -269,7 +269,7 @@ function MobileNavItem({
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         aria-controls={panelId}
-        className="w-full py-3.5 px-3 flex items-center justify-between text-lg font-semibold text-ink hover:text-primary tracking-wide"
+        className="w-full py-3.5 px-3 flex items-center justify-between text-lg font-medium text-ink hover:text-primary tracking-wide"
       >
         {item.label}{" "}
         <ChevronDown
@@ -286,7 +286,7 @@ function MobileNavItem({
               <Link
                 {...linkProps(navItemHref(item) ?? "#", item.external)}
                 onClick={onNavigate}
-                className="py-2 px-2 text-base font-semibold text-primary tracking-wide"
+                className="py-2 px-2 text-base font-medium text-primary tracking-wide"
               >
                 View all {item.label.toLowerCase()}
               </Link>
@@ -399,7 +399,8 @@ export default function Header({ initialData = null }: HeaderProps) {
     : "top-[4.75rem] md:top-[5.5rem]";
   const linkClass = NavText({
     solid,
-    className: "nav-link text-base font-semibold tracking-wide py-1.5 ",
+    className:
+      "nav-link text-sm xl:text-[0.9375rem] 2xl:text-base font-medium tracking-wide py-1.5 ",
   });
 
   useLayoutEffect(() => {
@@ -438,14 +439,14 @@ export default function Header({ initialData = null }: HeaderProps) {
         className={`header-shell fixed top-0 z-50 w-full ${solid ? "header-shell--solid" : "bg-transparent"}`}
       >
         <div
-          className={`header-inner mx-auto max-w-368 px-5 md:px-8 flex items-center justify-between gap-4 ${innerHeightClass}`}
+          className={`header-inner w-full px-4 md:px-6 lg:px-8 flex items-center justify-between gap-4 ${innerHeightClass}`}
         >
           <Link
             {...linkProps(logoHref)}
             className="flex items-center shrink-0 group"
             aria-label={logoLightAlt}
           >
-            <div className="relative h-16 md:h-20 w-[168px] md:w-[196px]">
+            <div className="relative h-14 md:h-16 xl:h-[4.25rem] 2xl:h-20 w-[148px] md:w-[168px] xl:w-[180px] 2xl:w-[196px]">
               <Image
                 src={logoDark}
                 alt={logoDarkAlt}
@@ -466,7 +467,7 @@ export default function Header({ initialData = null }: HeaderProps) {
           </Link>
 
           <nav
-            className="hidden xl:flex items-center gap-4 2xl:gap-6"
+            className="hidden xl:flex items-center gap-2.5 2xl:gap-5"
             aria-label="Primary"
           >
             {navigation.map((item) =>
@@ -484,7 +485,7 @@ export default function Header({ initialData = null }: HeaderProps) {
             )}
           </nav>
 
-          <div className="hidden xl:flex items-center gap-3 shrink-0">
+          <div className="hidden xl:flex items-center gap-2 2xl:gap-3 shrink-0">
             {ctas.map((cta, index) => {
               const prev = index > 0 ? ctas[index - 1] : null;
               const showDivider =
@@ -529,7 +530,7 @@ export default function Header({ initialData = null }: HeaderProps) {
             aria-hidden={false}
           >
             <nav
-              className="mx-auto max-w-7xl px-4 py-5 flex flex-col"
+              className="w-full px-4 md:px-6 lg:px-8 py-5 flex flex-col"
               aria-label="Mobile"
             >
               {navigation.map((item, i) => (
@@ -547,7 +548,7 @@ export default function Header({ initialData = null }: HeaderProps) {
                     cta={cta}
                     solid
                     onNavigate={() => setMobileOpen(false)}
-                    className="mobile-nav-item mobile-nav-item--block py-3.5 px-3 text-lg font-semibold text-ink hover:text-primary border-b border-ink/5 tracking-wide"
+                    className="mobile-nav-item mobile-nav-item--block py-3.5 px-3 text-lg font-medium text-ink hover:text-primary border-b border-ink/5 tracking-wide"
                   />
                 ) : (
                   <div

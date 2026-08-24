@@ -31,7 +31,7 @@ export default function SectionHeader({
   const descColor = invert ? "text-white/75" : "text-ink";
 
   return (
-    <div className={`max-w-6xl ${alignment} ${className}`}>
+    <div className={`${alignment} ${className}`}>
       {eyebrow && (
         <div
           className={`uppercase tracking-wider ${eyebrowColor} mb-3 sm:mb-4`}
@@ -50,7 +50,7 @@ export default function SectionHeader({
       </Heading>
       {description && (
         <p
-          className={`text-base lg:text-lg leading-tight mt-4 sm:mt-5 ${descriptionClassName ?? descColor}`}
+          className={`text-base lg:text-base xl:text-lg leading-tight mt-4 sm:mt-5 ${descriptionClassName ?? descColor}`}
         >
           {description}
         </p>

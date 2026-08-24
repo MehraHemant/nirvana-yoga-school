@@ -24,7 +24,7 @@ export default function KirtanCertificationSection({
 }: KirtanCertificationSectionProps) {
   return (
     <section id="certification" className="bg-white py-20 sm:py-28">
-      <Container size="md">
+      <Container size="2xl">
         <motion.div
           initial="hidden"
           whileInView="visible"

@@ -21,10 +21,12 @@ export default function Container({
   children,
   className = "",
   as: Tag = "div",
-  size = "xl",
+  size = "2xl",
   flush = false,
 }: Props) {
-  const padding = flush ? "" : "px-5 md:px-8";
+  const padding = flush
+    ? ""
+    : "px-5 sm:px-6 md:px-8 lg:px-8 xl:px-10 2xl:px-12";
 
   return (
     <Tag className={`mx-auto w-full ${padding} ${sizes[size]} ${className}`}>

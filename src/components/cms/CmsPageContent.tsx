@@ -205,7 +205,7 @@ function HeroBlock({
       )}
       <div className="absolute inset-0 bg-linear-to-t from-ink/90 via-ink/55 to-ink/25" />
       <Container
-        size="lg"
+        size="2xl"
         className="relative flex min-h-[60vh] items-end py-16 md:py-24"
       >
         <div className="max-w-3xl">
@@ -265,7 +265,7 @@ function ProseBlock({
   if (!title && !body && !lead) return null;
   return (
     <section className="bg-white py-16 md:py-20">
-      <Container size="lg">
+      <Container size="2xl">
         <div
           className={
             image
@@ -326,7 +326,7 @@ function ListBlock({
 }) {
   return (
     <section className="bg-white py-16 md:py-20">
-      <Container size="lg">
+      <Container size="2xl">
         {title ? (
           <Heading as="h2" size="h2" className="mb-8">
             {title}
@@ -372,7 +372,7 @@ function ContactBlock({ data }: { data: Record<string, unknown> }) {
   const hours = str(data, "hours");
   return (
     <section className="bg-white py-16 md:py-20">
-      <Container size="lg">
+      <Container size="2xl">
         <div className="grid gap-10 lg:grid-cols-[1fr_20rem]">
           <div>
             <Heading as="h2" size="h2">
@@ -479,7 +479,7 @@ function GalleryBlock({ data }: { data: Record<string, unknown> }) {
   if (images.length === 0) return null;
   return (
     <section className="bg-white py-16 md:py-20">
-      <Container size="lg">
+      <Container size="2xl">
         {title ? (
           <Heading as="h2" size="h2" className="mb-8">
             {title}
@@ -521,7 +521,7 @@ function CardsBlock({ data }: { data: Record<string, unknown> }) {
   if (cards.length === 0) return null;
   return (
     <section className="bg-white py-16 md:py-20">
-      <Container size="lg">
+      <Container size="2xl">
         {eyebrow ? (
           <p className="type-eyebrow mb-3 text-primary">{eyebrow}</p>
         ) : null}
@@ -586,7 +586,7 @@ function FeatureListBlock({ data }: { data: Record<string, unknown> }) {
   if (items.length === 0 && !title) return null;
   return (
     <section className="bg-white py-16 md:py-20">
-      <Container size="lg">
+      <Container size="2xl">
         {title ? (
           <Heading as="h2" size="h2">
             {title}
@@ -622,7 +622,7 @@ function PricingTableBlock({ data }: { data: Record<string, unknown> }) {
   if (plans.length === 0) return null;
   return (
     <section className="bg-white py-16 md:py-20">
-      <Container size="lg">
+      <Container size="2xl">
         {title ? (
           <Heading as="h2" size="h2" className="mb-8">
             {title}
@@ -678,7 +678,7 @@ function FaqBlock({
   if (entries.length === 0) return null;
   return (
     <section className="bg-white py-16 md:py-20">
-      <Container size="md">
+      <Container size="2xl">
         {eyebrow ? (
           <p className="type-eyebrow mb-3 text-primary">{eyebrow}</p>
         ) : null}

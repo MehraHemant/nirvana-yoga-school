@@ -170,7 +170,7 @@ export default function GallerySection({
                   key={category.id}
                   type="button"
                   onClick={() => setSelectedCategory(category.id)}
-                  className={`type-ui text-lg relative px-4 py-2 font-semibold transition-colors duration-300 focus-visible:outline-none ${isActive ? "text-primary" : "text-ink"}`}
+                  className={`type-ui text-lg relative px-4 py-2 transition-colors duration-300 focus-visible:outline-none ${isActive ? "text-primary" : "text-ink"}`}
                 >
                   {category.label}
                   {isActive && (
@@ -237,15 +237,15 @@ export default function GallerySection({
                       </AnimatePresence>
                     </button>
 
-                    <div className="mt-3 px-2">
-                      <span className="type-eyebrow text-[9px] text-primary tracking-widest block font-bold">
+                    <div className="mt-1 px-2">
+                      <span className="text-[10px] uppercase font-semibold tracking-widest leading-snug text-primary">
                         {item.category === "practice"
                           ? "Yoga Practice"
                           : item.category === "campus"
                             ? "Campus Life"
                             : "Excursion"}
                       </span>
-                      <h4 className="text-sm sm:text-base font-bold text-ink leading-tight tracking-wide mt-1 transition-colors duration-300 truncate">
+                      <h4 className="text-xs sm:text-sm text-ink leading-tight transition-colors duration-300 truncate">
                         {item.title}
                       </h4>
                     </div>

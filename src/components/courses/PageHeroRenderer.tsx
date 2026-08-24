@@ -65,7 +65,7 @@ export default function PageHeroRenderer({ modules }: PageHeroRendererProps) {
         />
         <div className="absolute inset-0 bg-linear-to-t from-ink/80 via-ink/40 to-transparent" />
         <Container
-          size="xl"
+          size="2xl"
           className="relative z-10 flex h-full items-end pb-12"
         >
           <div className="max-w-3xl space-y-4 text-white">
@@ -89,7 +89,7 @@ export default function PageHeroRenderer({ modules }: PageHeroRendererProps) {
   if (hero.type === "page-minimal") {
     return (
       <HeroFrame className="relative overflow-hidden bg-primary pt-[var(--site-header-height)]">
-        <Container size="xl" className="py-12 md:py-16">
+        <Container size="2xl" className="py-12 md:py-16">
           <div className="grid gap-8 lg:grid-cols-2 lg:items-center">
             <div className="space-y-4">
               {hero.eyebrow ? (

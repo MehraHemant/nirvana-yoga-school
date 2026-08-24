@@ -105,10 +105,10 @@ export default function WhyNirvana({
                       <Icon size={18} className="text-primary" />
                     </span>
                     <div className="min-w-0">
-                      <h4 className="text-lg lg:text-2xl font-semibold mb-1.5 leading-snug text-ink">
+                      <h4 className="text-lg lg:text-xl font-semibold mb-1.5 leading-snug text-ink">
                         {item.title}
                       </h4>
-                      <p className="text-base lg:text-lg font-normal text-ink">
+                      <p className="text-base lg:text-lg/snug font-normal text-ink">
                         {stripHtml(item.body)}
                       </p>
                     </div>
