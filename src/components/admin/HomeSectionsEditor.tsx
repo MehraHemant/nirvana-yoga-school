@@ -25,6 +25,7 @@ import { useAdminSectionJump } from "@/components/admin/useAdminSectionJump";
 import { useStableListKeys } from "@/components/admin/useStableListKeys";
 import { VideoField } from "@/components/admin/VideoField";
 import type {
+  HomeAuthenticYogaVideo,
   HomeGalleryItem,
   HomePageContent,
   HomeWelcomeImage,
@@ -59,6 +60,11 @@ const HOME_JUMP_DEFS = [
     slug: "why-rishikesh",
     label: "Why Rishikesh",
     key: "whyRishikesh" as const,
+  },
+  {
+    slug: "authentic-yoga",
+    label: "Authentic yoga",
+    key: "authenticYoga" as const,
   },
   { slug: "courses", label: "Courses", key: "courses" as const },
   {
@@ -137,6 +143,10 @@ export function HomeSectionsEditor({
   const certKeys = useStableListKeys(doc.yogaAlliance.certifications.length);
   const sutraKeys = useStableListKeys(doc.whyRishikesh.sutras.length);
   const logoKeys = useStableListKeys(doc.whyRishikesh.trustLogos.length);
+  const authenticParagraphKeys = useStableListKeys(
+    doc.authenticYoga.paragraphs.length,
+  );
+  const authenticVideoKeys = useStableListKeys(doc.authenticYoga.videos.length);
 
   const galleryCategoryOptions =
     doc.gallery.categories && doc.gallery.categories.length > 0
@@ -1191,6 +1201,191 @@ export function HomeSectionsEditor({
                         whyRishikesh: {
                           ...doc.whyRishikesh,
                           sutras: doc.whyRishikesh.sutras.filter(
+                            (_, i) => i !== index,
+                          ),
+                        },
+                      });
+                    }}
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+            </div>
+          </CollapsiblePanel>
+
+          <CollapsiblePanel
+            id={panelId("authentic-yoga")}
+            title="Authentic yoga"
+            subtitle="Best yoga school copy and video grid"
+            description="Heading, body paragraphs, and the 2×2 YouTube grid from the live homepage."
+            actions={
+              <SectionLiveField
+                id="authentic-yoga-section-live"
+                value={doc.authenticYoga.live}
+                onChange={(live) =>
+                  setDoc({
+                    ...doc,
+                    authenticYoga: { ...doc.authenticYoga, live },
+                  })
+                }
+              />
+            }
+          >
+            <SectionIdField
+              fieldId="authentic-yoga-section-id"
+              value={doc.authenticYoga._id}
+              onChange={(_id) =>
+                setDoc({
+                  ...doc,
+                  authenticYoga: { ...doc.authenticYoga, _id },
+                })
+              }
+            />
+            <TextField
+              label="Eyebrow"
+              value={doc.authenticYoga.eyebrow}
+              onChange={(eyebrow) =>
+                setDoc({
+                  ...doc,
+                  authenticYoga: { ...doc.authenticYoga, eyebrow },
+                })
+              }
+            />
+            <TextField
+              label="Title"
+              value={doc.authenticYoga.title}
+              onChange={(title) =>
+                setDoc({
+                  ...doc,
+                  authenticYoga: { ...doc.authenticYoga, title },
+                })
+              }
+            />
+            <div className="admin-nested-list">
+              <div className="admin-nested-list-head">
+                <span className="admin-label">Paragraphs</span>
+                <button
+                  type="button"
+                  className="admin-btn-sm"
+                  onClick={() => {
+                    authenticParagraphKeys.addKey();
+                    setDoc({
+                      ...doc,
+                      authenticYoga: {
+                        ...doc.authenticYoga,
+                        paragraphs: [...doc.authenticYoga.paragraphs, ""],
+                      },
+                    });
+                  }}
+                >
+                  Add paragraph
+                </button>
+              </div>
+              {doc.authenticYoga.paragraphs.map((paragraph, index) => (
+                <div
+                  key={authenticParagraphKeys.keys[index]}
+                  className="admin-nested-card"
+                >
+                  <TextField
+                    label={`Paragraph ${index + 1}`}
+                    value={paragraph}
+                    onChange={(value) => {
+                      const paragraphs = [...doc.authenticYoga.paragraphs];
+                      paragraphs[index] = value;
+                      setDoc({
+                        ...doc,
+                        authenticYoga: { ...doc.authenticYoga, paragraphs },
+                      });
+                    }}
+                    multiline
+                    rows={4}
+                  />
+                  <button
+                    type="button"
+                    className="admin-btn-sm admin-btn-sm--ghost"
+                    onClick={() => {
+                      authenticParagraphKeys.removeKey(index);
+                      setDoc({
+                        ...doc,
+                        authenticYoga: {
+                          ...doc.authenticYoga,
+                          paragraphs: doc.authenticYoga.paragraphs.filter(
+                            (_, i) => i !== index,
+                          ),
+                        },
+                      });
+                    }}
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+            </div>
+            <div className="admin-nested-list">
+              <div className="admin-nested-list-head">
+                <span className="admin-label">Videos</span>
+                <button
+                  type="button"
+                  className="admin-btn-sm"
+                  onClick={() => {
+                    authenticVideoKeys.addKey();
+                    const blank: HomeAuthenticYogaVideo = {
+                      youtubeUrl: "",
+                      caption: "",
+                    };
+                    setDoc({
+                      ...doc,
+                      authenticYoga: {
+                        ...doc.authenticYoga,
+                        videos: [...doc.authenticYoga.videos, blank],
+                      },
+                    });
+                  }}
+                >
+                  Add video
+                </button>
+              </div>
+              {doc.authenticYoga.videos.map((video, index) => (
+                <div
+                  key={authenticVideoKeys.keys[index]}
+                  className="admin-nested-card"
+                >
+                  <TextField
+                    label="YouTube URL"
+                    value={video.youtubeUrl}
+                    onChange={(youtubeUrl) => {
+                      const videos = [...doc.authenticYoga.videos];
+                      videos[index] = { ...video, youtubeUrl };
+                      setDoc({
+                        ...doc,
+                        authenticYoga: { ...doc.authenticYoga, videos },
+                      });
+                    }}
+                    hint="Watch or embed URL"
+                  />
+                  <TextField
+                    label="Caption"
+                    value={video.caption}
+                    onChange={(caption) => {
+                      const videos = [...doc.authenticYoga.videos];
+                      videos[index] = { ...video, caption };
+                      setDoc({
+                        ...doc,
+                        authenticYoga: { ...doc.authenticYoga, videos },
+                      });
+                    }}
+                  />
+                  <button
+                    type="button"
+                    className="admin-btn-sm admin-btn-sm--ghost"
+                    onClick={() => {
+                      authenticVideoKeys.removeKey(index);
+                      setDoc({
+                        ...doc,
+                        authenticYoga: {
+                          ...doc.authenticYoga,
+                          videos: doc.authenticYoga.videos.filter(
                             (_, i) => i !== index,
                           ),
                         },

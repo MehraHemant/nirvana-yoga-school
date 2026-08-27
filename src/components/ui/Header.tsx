@@ -32,17 +32,17 @@ function ctaIsExternal(cta: HeaderCta): boolean {
 /**
  * Renders one header CTA as a text link or button.
  *
- * @param props - CTA row, solid header state, and optional click handler
+ * @param props - CTA row, overlay-nav state, and optional click handler
  */
 function HeaderCtaControl({
   cta,
-  solid,
+  lightNav,
   onNavigate,
   className = "",
   size = "sm",
 }: {
   cta: HeaderCta;
-  solid: boolean;
+  lightNav: boolean;
   onNavigate?: () => void;
   className?: string;
   size?: "sm" | "md";
@@ -56,7 +56,7 @@ function HeaderCtaControl({
     return (
       <Link
         {...props}
-        className={`nav-link text-sm xl:text-[0.9375rem] 2xl:text-base font-medium tracking-wide px-2 py-1.5 transition-colors hover:text-primary  ${solid ? "text-ink" : "text-white/85"} ${className}`.trim()}
+        className={`nav-link text-sm xl:text-[0.9375rem] 2xl:text-base font-medium tracking-wide px-2 py-1.5 transition-colors hover:text-primary  ${lightNav ? "text-white/85" : "text-ink"} ${className}`.trim()}
       >
         {cta.label}
       </Link>
@@ -115,26 +115,26 @@ function hasTransparentHeader(pathname: string | null): boolean {
 }
 
 function NavText({
-  solid,
+  lightNav,
   className = "",
 }: {
-  solid: boolean;
+  lightNav: boolean;
   className?: string;
 }) {
-  return solid ? `text-ink ${className}` : `text-white/90 ${className}`;
+  return lightNav ? `text-white/90 ${className}` : `text-ink ${className}`;
 }
 
 function DesktopDropdown({
   item,
-  solid,
+  lightNav,
 }: {
   item: Extract<NavItem, { type: "dropdown" }>;
-  solid: boolean;
+  lightNav: boolean;
 }) {
   const menuId = useId();
   const [forceClosed, setForceClosed] = useState(false);
   const textClass = NavText({
-    solid,
+    lightNav,
     className:
       "nav-link nav-dropdown-trigger text-sm xl:text-[0.9375rem] 2xl:text-base font-medium tracking-wide flex items-center gap-1.5 py-1.5 ",
   });
@@ -320,7 +320,7 @@ type HeaderProps = {
 };
 
 /**
- * Site header with scroll solidification and mobile menu.
+ * Site header with a clear overlay at rest and a solid bar after scroll.
  *
  * @param props - Server-provided header settings (no client API fetch)
  */
@@ -390,7 +390,10 @@ export default function Header({ initialData = null }: HeaderProps) {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [mobileOpen]);
 
-  const solid = !hasTransparentHero || scrolled || mobileOpen;
+  // Clear overlay at rest; solid bar after scroll or when the mobile menu is open.
+  // White nav only over dark/media heroes — light pages keep dark nav for contrast.
+  const solid = scrolled || mobileOpen;
+  const lightNav = hasTransparentHero && !solid;
   const innerHeightClass = scrolled
     ? "h-[4.5rem] md:h-[5rem]"
     : "h-[4.75rem] md:h-[5.5rem]";
@@ -398,7 +401,7 @@ export default function Header({ initialData = null }: HeaderProps) {
     ? "top-[4.5rem] md:top-[5rem]"
     : "top-[4.75rem] md:top-[5.5rem]";
   const linkClass = NavText({
-    solid,
+    lightNav,
     className:
       "nav-link text-sm xl:text-[0.9375rem] 2xl:text-base font-medium tracking-wide py-1.5 ",
   });
@@ -436,7 +439,7 @@ export default function Header({ initialData = null }: HeaderProps) {
   return (
     <>
       <header
-        className={`header-shell fixed top-0 z-50 w-full ${solid ? "header-shell--solid" : "bg-transparent"}`}
+        className={`header-shell fixed top-0 z-50 w-full ${solid ? "header-shell--solid" : "header-shell--overlay"}${lightNav ? " header-shell--light-nav" : ""}`}
       >
         <div
           className={`header-inner w-full px-4 md:px-6 lg:px-8 flex items-center justify-between gap-4 ${innerHeightClass}`}
@@ -446,14 +449,14 @@ export default function Header({ initialData = null }: HeaderProps) {
             className="flex items-center shrink-0 group"
             aria-label={logoLightAlt}
           >
-            <div className="relative h-14 md:h-16 xl:h-[4.25rem] 2xl:h-20 w-[148px] md:w-[168px] xl:w-[180px] 2xl:w-[196px]">
+            <div className="header-logo-mark relative h-14 md:h-16 xl:h-[4.25rem] 2xl:h-20 w-[148px] md:w-[168px] xl:w-[180px] 2xl:w-[196px]">
               <Image
                 src={logoDark}
                 alt={logoDarkAlt}
                 width={196}
                 height={78}
                 priority
-                className={`absolute inset-0 h-full w-auto object-contain object-left transition-all duration-500 ease-out ${solid ? "opacity-0 scale-95" : "opacity-100 scale-100 group-hover:scale-[1.02]"}`}
+                className={`absolute inset-0 h-full w-auto object-contain object-left transition-all duration-500 ease-out ${lightNav ? "opacity-100 scale-100 group-hover:scale-[1.02]" : "opacity-0 scale-95"}`}
               />
               <Image
                 src={logoLight}
@@ -461,7 +464,7 @@ export default function Header({ initialData = null }: HeaderProps) {
                 width={196}
                 height={78}
                 priority
-                className={`absolute inset-0 h-full w-auto object-contain object-left transition-all duration-500 ease-out ${solid ? "opacity-100 scale-100 group-hover:scale-[1.02]" : "opacity-0 scale-95"}`}
+                className={`absolute inset-0 h-full w-auto object-contain object-left transition-all duration-500 ease-out ${lightNav ? "opacity-0 scale-95" : "opacity-100 scale-100 group-hover:scale-[1.02]"}`}
               />
             </div>
           </Link>
@@ -480,7 +483,7 @@ export default function Header({ initialData = null }: HeaderProps) {
                   {item.label}
                 </Link>
               ) : (
-                <DesktopDropdown key={item.label} item={item} solid={solid} />
+                <DesktopDropdown key={item.label} item={item} lightNav={lightNav} />
               ),
             )}
           </nav>
@@ -495,11 +498,11 @@ export default function Header({ initialData = null }: HeaderProps) {
                 <Fragment key={`${cta.label}-${cta.href}-${index}`}>
                   {showDivider ? (
                     <span
-                      className={`h-4 w-px transition-colors duration-500 ${solid ? "bg-ink/10" : "bg-white/20"}`}
+                      className={`h-4 w-px transition-colors duration-500 ${lightNav ? "bg-white/20" : "bg-ink/10"}`}
                       aria-hidden="true"
                     />
                   ) : null}
-                  <HeaderCtaControl cta={cta} solid={solid} />
+                  <HeaderCtaControl cta={cta} lightNav={lightNav} />
                 </Fragment>
               );
             })}
@@ -510,7 +513,7 @@ export default function Header({ initialData = null }: HeaderProps) {
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileOpen}
             onClick={() => setMobileOpen((o) => !o)}
-            className={`xl:hidden p-2.5 rounded-full transition-colors duration-300 ${solid ? "text-ink hover:bg-ink/5" : "text-white hover:bg-white/10"}`}
+            className={`header-menu-btn xl:hidden p-2.5 rounded-full transition-colors duration-300 ${lightNav ? "text-white hover:bg-white/10" : "text-ink hover:bg-ink/5"}`}
           >
             <MenuIcon open={mobileOpen} />
           </button>
@@ -546,7 +549,7 @@ export default function Header({ initialData = null }: HeaderProps) {
                   <HeaderCtaControl
                     key={`mobile-cta-${cta.label}-${cta.href}-${index}`}
                     cta={cta}
-                    solid
+                    lightNav={false}
                     onNavigate={() => setMobileOpen(false)}
                     className="mobile-nav-item mobile-nav-item--block py-3.5 px-3 text-lg font-medium text-ink hover:text-primary border-b border-ink/5 tracking-wide"
                   />
@@ -560,7 +563,7 @@ export default function Header({ initialData = null }: HeaderProps) {
                   >
                     <HeaderCtaControl
                       cta={cta}
-                      solid
+                      lightNav={false}
                       size="md"
                       onNavigate={() => setMobileOpen(false)}
                       className="w-full"

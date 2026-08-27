@@ -49,15 +49,11 @@ export function BlogPostHero({ post }: BlogPostHeroProps) {
       />
 
       <div
-        className="absolute inset-0 bg-linear-to-t from-ink via-ink/58 to-ink/18"
+        className="absolute inset-0 bg-linear-to-t from-ink via-ink/58 to-transparent"
         aria-hidden="true"
       />
       <div
         className="absolute inset-0 bg-linear-to-r from-ink/82 via-ink/32 to-ink/10"
-        aria-hidden="true"
-      />
-      <div
-        className="absolute inset-x-0 top-0 h-36 bg-linear-to-b from-ink/68 to-transparent sm:h-44"
         aria-hidden="true"
       />
       <div

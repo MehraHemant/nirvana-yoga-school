@@ -88,7 +88,10 @@ export default function PageHeroRenderer({ modules }: PageHeroRendererProps) {
 
   if (hero.type === "page-minimal") {
     return (
-      <HeroFrame className="relative overflow-hidden bg-primary pt-[var(--site-header-height)]">
+      <HeroFrame
+        transparentHeader
+        className="relative overflow-hidden bg-primary pt-[var(--site-header-height)]"
+      >
         <Container size="2xl" className="py-12 md:py-16">
           <div className="grid gap-8 lg:grid-cols-2 lg:items-center">
             <div className="space-y-4">

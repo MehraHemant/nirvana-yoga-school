@@ -127,7 +127,7 @@ html.site-inner-page {
 body {
   font-family: var(--font-sans);
   font-size: var(--text-base);
-  font-weight: 500;
+  font-weight: 400;
   line-height: 1.65;
   color: var(--color-ink);
   min-height: 100%;
@@ -160,11 +160,11 @@ body {
 }
 
 @utility type-body {
-  @apply font-medium text-sm leading-[1.65] sm:text-base lg:text-[0.9375rem] xl:text-base;
+  @apply font-normal text-sm leading-[1.65] sm:text-base lg:text-[0.9375rem] xl:text-base;
 }
 
 @utility type-lead {
-  @apply font-medium text-sm leading-normal sm:text-base md:text-base lg:text-lg 2xl:text-xl;
+  @apply font-normal text-sm leading-normal sm:text-base md:text-base lg:text-lg 2xl:text-xl;
 }
 
 @utility section-padding-y {
@@ -615,6 +615,11 @@ body {
   );
 }
 
+/* Keep dark hero washes below the overlay header so the photo shows through. */
+.hero-overlay-below-header {
+  mask-image: linear-gradient(to bottom, transparent 0, black 7.5rem);
+}
+
 /* Marquee edge fade */
 .marquee-mask {
   mask-image: linear-gradient(
@@ -718,12 +723,31 @@ body {
 }
 
 /* ── Header ── */
+.header-shell,
+.header-shell--overlay {
+  background-color: transparent;
+  background-image: none;
+  border-bottom: 1px solid transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
 .header-shell {
   transition:
     background-color 0.5s cubic-bezier(0.22, 1, 0.36, 1),
     border-color 0.5s cubic-bezier(0.22, 1, 0.36, 1),
     box-shadow 0.5s cubic-bezier(0.22, 1, 0.36, 1),
     backdrop-filter 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.header-shell--light-nav .nav-link,
+.header-shell--light-nav .header-menu-btn {
+  text-shadow: 0 1px 12px rgb(0 0 0 / 0.4);
+}
+
+.header-shell--light-nav .header-logo-mark {
+  filter: drop-shadow(0 2px 10px rgb(0 0 0 / 0.35));
 }
 
 .header-shell--solid {

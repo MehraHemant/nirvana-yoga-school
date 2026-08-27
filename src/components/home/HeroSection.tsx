@@ -67,11 +67,7 @@ export default function HeroSection({
           <HeroBackgroundVideo video={video} />
 
           <div
-            className="absolute inset-0 bg-linear-to-t from-black/92 via-black/40 via-50% to-black/20"
-            aria-hidden="true"
-          />
-          <div
-            className="absolute inset-x-0 top-0 h-28 bg-linear-to-b from-black/55 to-transparent"
+            className="absolute inset-0 bg-linear-to-t from-black/92 via-black/40 via-55% to-transparent"
             aria-hidden="true"
           />
           <div

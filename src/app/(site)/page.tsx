@@ -30,6 +30,9 @@ const GallerySection = dynamic(
 const WhyRishikeshSection = dynamic(
   () => import("@/components/home/WhyRishikeshSection"),
 );
+const AuthenticYogaSection = dynamic(
+  () => import("@/components/home/AuthenticYogaSection"),
+);
 const CoursesSection = dynamic(
   () => import("@/components/home/CoursesSection"),
 );
@@ -178,10 +181,11 @@ export default async function Home() {
           <WhyRishikeshSection content={home.whyRishikesh} />
         </Suspense>
       ) : null}
+      {shouldRenderHomeSection("authenticYoga", home) ? (
+        <AuthenticYogaSection content={home.authenticYoga} />
+      ) : null}
       {shouldRenderHomeSection("courses", home) ? (
-        <CoursesSection
-          content={{ ...home.courses, cards: homeCourseCards }}
-        />
+        <CoursesSection content={{ ...home.courses, cards: homeCourseCards }} />
       ) : null}
       {shouldRenderHomeSection("yogaAlliance", home) ? (
         <YogaAllianceSection content={home.yogaAlliance} />

@@ -97,18 +97,24 @@ export default function WhyNirvana({
               const Icon = HIGHLIGHT_ICONS[i] ?? BookOpen;
               return (
                 <li key={item.title} className="shadow-sm rounded-2xl">
-                  <article className="group flex h-full gap-4 rounded-2xl p-4 transition-all duration-300 hover:border-primary/15 hover:shadow-soft sm:p-5">
+                  <article
+                    tabIndex={0}
+                    className="group flex h-full gap-4 rounded-2xl p-4 transition-colors duration-200 hover:bg-primary hover:shadow-soft hover:text-white focus-visible:bg-primary focus-visible:text-white focus-visible:shadow-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 sm:p-5"
+                  >
                     <span
-                      className="surface-bordered mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center shadow-xs transition-colors group-hover:border-primary/20 group-hover:bg-primary/5"
+                      className="surface-bordered mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center shadow-xs transition-colors duration-200 group-hover:border-white/25 group-hover:bg-white/15 group-focus-visible:border-white/25 group-focus-visible:bg-white/15"
                       aria-hidden="true"
                     >
-                      <Icon size={18} className="text-primary" />
+                      <Icon
+                        size={18}
+                        className="text-primary transition-colors duration-200 group-hover:text-white group-focus-visible:text-white"
+                      />
                     </span>
                     <div className="min-w-0">
-                      <h4 className="text-lg lg:text-xl font-semibold mb-1.5 leading-snug text-ink">
+                      <h4 className="text-lg lg:text-xl font-semibold mb-1.5 leading-snug text-ink transition-colors duration-200 group-hover:text-white group-focus-visible:text-white">
                         {item.title}
                       </h4>
-                      <p className="text-base lg:text-lg/snug font-normal text-ink">
+                      <p className="text-base lg:text-lg/snug font-normal text-ink transition-colors duration-200 group-hover:text-white group-focus-visible:text-white">
                         {stripHtml(item.body)}
                       </p>
                     </div>

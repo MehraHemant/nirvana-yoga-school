@@ -119,6 +119,16 @@ export function normalizeHomeContent(value: unknown): HomePageContent {
         ? value.whyRishikesh.sutras
         : base.whyRishikesh.sutras,
     },
+    authenticYoga: {
+      ...base.authenticYoga,
+      ...value.authenticYoga,
+      paragraphs: value.authenticYoga?.paragraphs?.length
+        ? value.authenticYoga.paragraphs
+        : base.authenticYoga.paragraphs,
+      videos: value.authenticYoga?.videos?.length
+        ? value.authenticYoga.videos
+        : base.authenticYoga.videos,
+    },
     courses: {
       ...base.courses,
       ...value.courses,
