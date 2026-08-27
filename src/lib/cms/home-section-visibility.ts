@@ -1,5 +1,5 @@
-import type { HomePageContent } from "@/content/types/dedicated-pages";
 import { isHomeCoursePlacementLive } from "@/content/mappers/home-courses";
+import type { HomePageContent } from "@/content/types/dedicated-pages";
 import { shouldRenderSection } from "@/lib/cms/section-visibility";
 
 type HomeSectionKey = Exclude<keyof HomePageContent, "kind" | "meta" | "seo">;
@@ -27,6 +27,12 @@ export function homeSectionHasData(
       return home.gallery.items.length > 0;
     case "whyRishikesh":
       return Boolean(home.whyRishikesh.title.trim());
+    case "authenticYoga":
+      return Boolean(
+        home.authenticYoga.title.trim() ||
+          home.authenticYoga.paragraphs.some((paragraph) => paragraph.trim()) ||
+          home.authenticYoga.videos.some((video) => video.youtubeUrl.trim()),
+      );
     case "courses":
       return (
         (home.courses.placements?.some(isHomeCoursePlacementLive) ?? false) ||

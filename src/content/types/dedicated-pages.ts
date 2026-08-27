@@ -148,6 +148,20 @@ export type HomeWhyRishikeshContent = HomeSectionIdFields & {
   videoCard: HomeWhyRishikeshVideoCard;
 };
 
+/** Labeled YouTube tile in the authentic yoga band. */
+export type HomeAuthenticYogaVideo = {
+  youtubeUrl: string;
+  caption: string;
+};
+
+/** Homepage “Learn Real & Authentic Yoga” band. */
+export type HomeAuthenticYogaContent = HomeSectionIdFields & {
+  eyebrow: string;
+  title: string;
+  paragraphs: string[];
+  videos: HomeAuthenticYogaVideo[];
+};
+
 /** Homepage course card resolved for public UI. */
 export type HomeCourseCard = {
   title: string;
@@ -288,6 +302,7 @@ export type HomePageContent = {
   video: HomeVideoSectionContent;
   gallery: HomeGallerySectionContent;
   whyRishikesh: HomeWhyRishikeshContent;
+  authenticYoga: HomeAuthenticYogaContent;
   courses: HomeCoursesSectionContent;
   yogaAlliance: HomeYogaAllianceContent;
   teachersTeaser: HomeTeachersTeaserContent;

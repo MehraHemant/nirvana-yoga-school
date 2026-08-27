@@ -21,14 +21,14 @@ export default function OnlineTrustBar() {
         {TRUST_FEATURES.map(({ title, description, icon: Icon }) => (
           <div
             key={title}
-            className="flex items-start gap-4 rounded-3xl border border-accent/15 bg-accent/8 px-5 py-5"
+            className="flex items-center gap-4 rounded-3xl border border-accent/15 bg-accent/8 px-5 py-3"
           >
             <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-primary text-white">
               <Icon size={20} />
             </span>
             <div>
-              <p className="text-xl text-ink">{title}</p>
-              <p className="mt-1 type-body text-ink">{description}</p>
+              <p className="text-xl font-semibold">{title}</p>
+              <p className="">{description}</p>
             </div>
           </div>
         ))}

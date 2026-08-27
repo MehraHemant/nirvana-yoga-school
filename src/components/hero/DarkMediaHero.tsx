@@ -40,11 +40,7 @@ export function DarkMediaHero({
         className="object-cover object-center"
       />
       <div
-        className="absolute inset-0 bg-linear-to-r from-ink/90 via-ink/65 to-ink/25"
-        aria-hidden="true"
-      />
-      <div
-        className="absolute inset-x-0 top-0 h-48 bg-linear-to-b from-ink/75 to-transparent"
+        className="hero-overlay-below-header absolute inset-0 bg-linear-to-r from-ink/90 via-ink/55 to-ink/20"
         aria-hidden="true"
       />
       <div

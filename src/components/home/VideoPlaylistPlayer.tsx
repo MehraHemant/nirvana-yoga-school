@@ -126,7 +126,8 @@ function startPlayback(
 /**
  * Playlist-left / player-right YouTube player. Poster + play control first;
  * the iframe mounts only after click (or playlist selection). Shared by the
- * course overview (and similar surfaces).
+ * course overview (and similar surfaces). On large screens the playlist
+ * column matches the player height and scrolls internally.
  *
  * @param props - Videos to show and optional grid wrapper classes
  */
@@ -170,18 +171,18 @@ export default function VideoPlaylistPlayer({
 
   return (
     <div
-      className={`grid w-full min-w-0 grid-cols-1 items-start gap-6 sm:gap-8 lg:grid-cols-12 lg:gap-10 ${className}`}
+      className={`grid w-full min-w-0 grid-cols-1 items-start gap-6 sm:gap-8 lg:grid-cols-12 lg:items-stretch lg:gap-10 ${className}`}
     >
-      {/* Player */}
+      {/* Player — aspect-video sets the desktop row height */}
       <motion.div
-        className="order-1 min-w-0 lg:order-2 lg:col-span-8 lg:sticky lg:top-24"
+        className="order-1 min-w-0 lg:order-2 lg:col-span-8 lg:h-full"
         initial="hidden"
         whileInView="visible"
         viewport={VIEWPORT_ONCE}
         custom={0.08}
         variants={fadeUp}
       >
-        <div className="relative w-full min-w-0">
+        <div className="relative w-full min-w-0 lg:h-full">
           <div
             className="pointer-events-none absolute -inset-2 rounded-3xl bg-linear-to-br from-primary/12 via-transparent to-accent/12 blur-md sm:-inset-3 sm:rounded-[1.75rem]"
             aria-hidden="true"
@@ -236,16 +237,16 @@ export default function VideoPlaylistPlayer({
         </div>
       </motion.div>
 
-      {/* Playlist — one list, responsive layout */}
-      <div className="order-2 min-w-0 lg:order-1 lg:col-span-4 lg:sticky lg:top-24 lg:self-start">
-        <div className="mb-3 flex items-end justify-between gap-3 lg:mb-4">
+      {/* Playlist — h-0/min-h-full so this column cannot grow the row */}
+      <div className="order-2 min-w-0 lg:order-1 lg:col-span-4 lg:flex lg:h-0 lg:min-h-full lg:flex-col lg:overflow-hidden">
+        <div className="mb-3 flex shrink-0 items-end justify-between gap-3 lg:mb-4">
           <p className="type-eyebrow text-ink">{videos.length} videos</p>
           <p className="type-eyebrow text-ink md:hidden">Swipe →</p>
         </div>
 
         <div className="marquee-mask max-md:-mx-5 max-md:px-5 md:contents">
           <ul
-            className="flex gap-3 overflow-x-auto overscroll-x-contain pb-1 snap-x snap-mandatory max-lg:[-ms-overflow-style:none] max-lg:[scrollbar-width:none] max-lg:[&::-webkit-scrollbar]:hidden md:grid md:grid-cols-1 md:gap-2.5 md:overflow-visible md:pb-0 lg:flex lg:max-h-[min(32rem,calc(100svh-8rem))] lg:flex-col lg:gap-2.5 lg:overflow-y-auto lg:pr-1.5 lg:[scrollbar-color:var(--color-accent)_transparent] lg:[scrollbar-width:thin] lg:[&::-webkit-scrollbar]:w-1.5 lg:[&::-webkit-scrollbar-thumb]:rounded-full lg:[&::-webkit-scrollbar-thumb]:bg-accent/60 lg:[&::-webkit-scrollbar-track]:bg-transparent"
+            className="flex gap-3 overflow-x-auto overscroll-x-contain pb-1 snap-x snap-mandatory max-lg:[-ms-overflow-style:none] max-lg:[scrollbar-width:none] max-lg:[&::-webkit-scrollbar]:hidden md:grid md:grid-cols-1 md:gap-2.5 md:overflow-visible md:pb-0 lg:flex lg:min-h-0 lg:flex-1 lg:flex-col lg:gap-2.5 lg:overflow-y-auto lg:pr-1.5 lg:[scrollbar-color:var(--color-accent)_transparent] lg:[scrollbar-width:thin] lg:[&::-webkit-scrollbar]:w-1.5 lg:[&::-webkit-scrollbar-thumb]:rounded-full lg:[&::-webkit-scrollbar-thumb]:bg-accent/60 lg:[&::-webkit-scrollbar-track]:bg-transparent"
             aria-label="Video playlist"
           >
             {videos.map((video) => {

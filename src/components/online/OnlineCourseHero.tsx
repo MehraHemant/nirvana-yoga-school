@@ -76,24 +76,25 @@ export default function OnlineCourseHero({
           initial="hidden"
           animate="visible"
           variants={fadeUp}
-          className="space-y-5 sm:space-y-6"
+          className="space-y-5 sm:space-y-8"
         >
           <div className="space-y-3 sm:space-y-3.5">
             {eyebrow ? <Pill>{eyebrow}</Pill> : null}
             <Heading
               as="h1"
               size="none"
-              className="max-w-xl text-balance text-[1.75rem] font-bold leading-[1.08] tracking-tight sm:text-4xl md:text-[2.5rem] lg:text-[2.75rem]"
+              className="max-w-3xl text-balance text-[1.75rem] font-bold leading-[1.08] tracking-tight sm:text-4xl md:text-[2.5rem] lg:text-[2.75rem]"
             >
               {title}
             </Heading>
             {subtitle ? (
-              <p className="max-w-lg type-body text-pretty text-muted sm:text-base md:text-lg">
+              <p className="max-w-3xl text-pretty  sm:text-base md:text-lg">
                 {subtitle}
               </p>
             ) : null}
           </div>
 
+<div className="space-y-4">
           {metaItems.length > 0 ? (
             <motion.dl
               initial="hidden"
@@ -133,8 +134,10 @@ export default function OnlineCourseHero({
                 {ctaSecondary}
               </Button>
             ) : null}
+            </div>
           </div>
         </motion.div>
+
 
         {previewThumb ? (
           <motion.div

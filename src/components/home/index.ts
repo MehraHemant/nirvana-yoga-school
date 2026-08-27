@@ -1,3 +1,4 @@
+export { default as AuthenticYogaSection } from "./AuthenticYogaSection";
 export { default as CoursesSection } from "./CoursesSection";
 export { default as FinalCTASection } from "./FinalCTASection";
 export { default as GallerySection } from "./GallerySection";

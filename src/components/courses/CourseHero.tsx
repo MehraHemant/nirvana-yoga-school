@@ -51,8 +51,7 @@ type HeroPhoto = CmsInteractiveImage & {
   pictured?: string;
 };
 
-const HERO_MAIN_WIDTH = 1280;
-const HERO_BENTO_WIDTH = 480;
+const HERO_MAIN_WIDTH = 1600;
 const HERO_THUMB_WIDTH = 160;
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -146,7 +145,8 @@ export default function CourseHero({
   certification,
 }: CourseHeroProps) {
   const prefersReduced = useReducedMotion() ?? false;
-  const stripRef = useRef<HTMLDivElement>(null);
+  const photoStripRef = useRef<HTMLDivElement>(null);
+  const videoStripRef = useRef<HTMLDivElement>(null);
   const imageMetaByUrl = useMemo(
     () => buildImageMetaMap(imageDetails),
     [imageDetails],
@@ -206,11 +206,12 @@ export default function CourseHero({
   const [hovered, setHovered] = useState(false);
   const [lightboxIdx, setLightboxIdx] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [videoStripOverflow, setVideoStripOverflow] = useState(false);
 
-  const stripTotal = photos.length + videoIds.length;
-  const activeStripIndex = activeVideoId
-    ? photos.length + Math.max(0, videoIds.indexOf(activeVideoId))
-    : photoIdx;
+  const photoStripTotal = photos.length;
+  const activeVideoIdx = activeVideoId
+    ? Math.max(0, videoIds.indexOf(activeVideoId))
+    : -1;
 
   // ── Auto-advance ──────────────────────────────────────────────────────────
   useEffect(() => {
@@ -260,11 +261,11 @@ export default function CourseHero({
     }
   };
 
-  // ── Filmstrip centering ───────────────────────────────────────────────────
+  // ── Photo filmstrip centering ─────────────────────────────────────────────
   useEffect(() => {
-    const el = stripRef.current;
+    const el = photoStripRef.current;
     if (!el) return;
-    const thumb = el.children[activeStripIndex] as HTMLElement | undefined;
+    const thumb = el.children[photoIdx] as HTMLElement | undefined;
     if (!thumb) return;
     el.scrollTo({
       left: Math.max(
@@ -273,7 +274,43 @@ export default function CourseHero({
       ),
       behavior: "auto",
     });
-  }, [activeStripIndex]);
+  }, [photoIdx]);
+
+  // ── Video filmstrip centering (vertical on desktop) ───────────────────────
+  useEffect(() => {
+    if (activeVideoIdx < 0) return;
+    const el = videoStripRef.current;
+    if (!el) return;
+    const thumb = el.children[activeVideoIdx] as HTMLElement | undefined;
+    if (!thumb) return;
+    el.scrollTo({
+      top: Math.max(
+        0,
+        thumb.offsetTop - el.clientHeight / 2 + thumb.offsetHeight / 2,
+      ),
+      behavior: "auto",
+    });
+  }, [activeVideoIdx]);
+
+  // ── Track when the video panel has more content to scroll ───────────────
+  useEffect(() => {
+    const el = videoStripRef.current;
+    if (!el) return;
+
+    const checkOverflow = () => {
+      setVideoStripOverflow(el.scrollHeight > el.clientHeight + 2);
+    };
+
+    checkOverflow();
+    el.addEventListener("scroll", checkOverflow, { passive: true });
+    const observer = new ResizeObserver(checkOverflow);
+    observer.observe(el);
+
+    return () => {
+      el.removeEventListener("scroll", checkOverflow);
+      observer.disconnect();
+    };
+  }, [videoIds.length]);
 
   // ── Lightbox keyboard nav ─────────────────────────────────────────────────
   useEffect(() => {
@@ -318,20 +355,68 @@ export default function CourseHero({
     handleCmsImageClick(photo, () => openLightbox(idx));
   };
 
-  // ── Bento cell definitions ────────────────────────────────────────────────
-  // 4-col, 2-row grid: large featured (2×2) + 4 smaller cells
-  const smallCells: {
-    offset: number;
-    type: "photo" | "video";
-    vidIdx: number;
-  }[] = [
-    { offset: 1, type: "photo", vidIdx: -1 },
-    { offset: 0, type: "video", vidIdx: 0 },
-    { offset: 2, type: "photo", vidIdx: -1 },
-    { offset: 1, type: "video", vidIdx: 1 },
-  ];
-
   const hasMeta = !!(duration || certification || fee);
+
+  /** Renders a video card — 16:9 thumb, play icon, and one-line title overlay. */
+  const renderVideoThumb = (
+    id: string,
+    vi: number,
+    variant: "desktop" | "mobile",
+  ) => {
+    const isActive = activeVideoId === id;
+    const videoTitle =
+      YOUTUBE_METADATA_REGISTRY[id]?.title ?? `Video ${vi + 1}`;
+    const isMobile = variant === "mobile";
+
+    return (
+      <button
+        key={`video-${id}`}
+        type="button"
+        onClick={() => playVideo(id)}
+        className={`group relative shrink-0 cursor-pointer overflow-hidden rounded-xl text-left shadow-soft transition-all duration-300 ${isMobile ? "w-[11.75rem] snap-start sm:w-[12.75rem]" : "w-full"} ${isActive ? "ring-2 ring-primary shadow-md" : "ring-1 ring-ink/10 hover:-translate-y-0.5 hover:ring-primary/40 hover:shadow-md"}`}
+        aria-label={`Video ${vi + 1}: ${videoTitle}`}
+        aria-current={isActive ? "true" : undefined}
+      >
+        <div className="relative aspect-video w-full overflow-hidden bg-ink">
+          <Image
+            src={ytThumb(id)}
+            alt=""
+            fill
+            loading="lazy"
+            sizes={isMobile ? "204px" : "(max-width:1280px)224px,256px"}
+            className={`object-cover transition-transform duration-500 ${isActive ? "scale-[1.03]" : "group-hover:scale-105"}`}
+          />
+          <div
+            className={`absolute inset-0 transition-colors duration-300 ${isActive ? "bg-primary/20" : "bg-ink/10 group-hover:bg-ink/5"}`}
+          />
+          <div className="absolute inset-0 bg-linear-to-t from-ink/90 via-ink/35 via-35% to-transparent" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span
+              className={`flex items-center justify-center rounded-full shadow-soft backdrop-blur-sm transition-all duration-300 ${isMobile ? "h-10 w-10" : "h-11 w-11 lg:h-12 lg:w-12"} ${isActive ? "scale-100 bg-primary ring-4 ring-white/25" : "scale-95 bg-white/95 opacity-95 group-hover:scale-100 group-hover:opacity-100"}`}
+            >
+              <Play
+                size={isMobile ? 14 : 16}
+                className={
+                  isActive ? "fill-white text-white" : "fill-ink/70 text-ink/70"
+                }
+              />
+            </span>
+          </div>
+          <p
+            className={`absolute inset-x-0 bottom-0 truncate font-semibold leading-tight text-white ${isMobile ? "px-2.5 pb-2.5 text-[10px]" : "px-3 pb-3 text-[11px] lg:text-xs"}`}
+          >
+            {videoTitle}
+          </p>
+          {isActive ? (
+            <span
+              className="absolute top-2 left-2 h-1.5 w-1.5 rounded-full bg-primary shadow-[0_0_0_3px_rgba(255,255,255,0.85)]"
+              aria-hidden="true"
+            />
+          ) : null}
+        </div>
+      </button>
+    );
+  };
   const activePhoto = photos[photoIdx] ?? photos[0];
   const activePictured = activePhoto?.pictured;
   const activeAlt = activePhoto
@@ -340,7 +425,7 @@ export default function CourseHero({
   const activeClickAction = activePhoto?.clickAction ?? "fullscreen";
 
   return (
-    <HeroFrame className="course-hero-section relative flex h-svh min-h-svh w-full shrink-0 flex-col overflow-hidden bg-white">
+    <HeroFrame className="course-hero-section relative flex w-full shrink-0 flex-col bg-white md:max-h-dvh md:overflow-hidden">
       {/* Fixed max header height — avoids layout shift when the bar shrinks on scroll */}
       <div className="h-[4.75rem] shrink-0 md:h-[5.5rem]" aria-hidden="true" />
       {/* Ambient glow */}
@@ -351,7 +436,7 @@ export default function CourseHero({
 
       <Container
         size="2xl"
-        className="relative flex h-full min-h-0 flex-col overflow-hidden py-2 md:py-3"
+        className="relative flex min-h-0 flex-col py-2 md:py-3"
       >
         {/* ── Header row ─────────────────────────────────────────────────── */}
         <motion.div
@@ -369,17 +454,18 @@ export default function CourseHero({
           </Heading>
         </motion.div>
 
-        {/* ── Bento grid ─────────────────────────────────────────────────── */}
+        {/* ── Gallery: main stage + video filmstrip ──────────────────────── */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.35, ease: [0.25, 0, 0, 1] }}
           onMouseEnter={() => setHovered(true)}
           onMouseLeave={() => setHovered(false)}
-          className="grid min-h-0 flex-1 grid-cols-1 grid-rows-1 gap-2 overflow-hidden rounded-2xl sm:rounded-3xl md:grid-cols-4 md:grid-rows-2 md:gap-2.5"
+          className="flex min-h-0 w-full shrink-0 flex-col gap-2"
         >
-          {/* ── Large featured cell ─────────────────────────────────────── */}
-          <div className="relative h-full min-h-0 overflow-hidden rounded-2xl bg-sand/70 md:col-span-2 md:row-span-2 md:rounded-3xl">
+          <div className="grid min-h-0 w-full grid-cols-1 gap-2 overflow-hidden sm:gap-2.5 md:aspect-[16/10] md:max-h-[calc(100dvh-18rem)] md:grid-cols-[minmax(0,1fr)_auto]">
+            {/* ── Large main stage ───────────────────────────────────────── */}
+            <div className="relative aspect-4/3 min-h-0 min-w-0 overflow-hidden rounded-2xl bg-sand/70 sm:rounded-3xl md:aspect-auto md:h-full md:max-h-full md:rounded-3xl">
             {activeVideoId ? (
               <motion.iframe
                 key={`v-${activeVideoId}`}
@@ -414,7 +500,7 @@ export default function CourseHero({
                     priority={i === 0}
                     fetchPriority={i === 0 ? "high" : "auto"}
                     loading={i === 0 ? "eager" : "lazy"}
-                    sizes="(max-width:768px)100vw,50vw"
+                    sizes="(max-width:768px)100vw,(max-width:1280px)70vw,60vw"
                     aria-hidden={!isTarget}
                     onLoad={() => markPhotoLoaded(photo.url, i)}
                     className={`absolute inset-0 object-cover object-center ${transitionClass} ${opacityClass}`}
@@ -549,7 +635,8 @@ export default function CourseHero({
                     </button>
                   </div>
                   <span className="rounded-full bg-white/85 px-2.5 py-0.5 text-[10px] tabular-nums text-ink shadow-soft backdrop-blur-sm sm:px-3 sm:text-[11px]">
-                    {stripTotal > 0 ? activeStripIndex + 1 : 0} / {stripTotal}
+                    {photoStripTotal > 0 ? photoIdx + 1 : 0} /{" "}
+                    {photoStripTotal}
                   </span>
                 </div>
 
@@ -568,112 +655,54 @@ export default function CourseHero({
             )}
           </div>
 
-          {/* ── 4 small cells ─────────────────────────────────────────── */}
-          {smallCells.map((cell, ci) => (
-            <div
-              // biome-ignore lint/suspicious/noArrayIndexKey: bento cells, stable order
-              key={ci}
-              className="relative hidden min-h-0 overflow-hidden rounded-2xl md:block"
-            >
-              {cell.type === "video" && videoIds[cell.vidIdx] ? (
-                /* Video cell */
-                <button
-                  type="button"
-                  onClick={() => playVideo(videoIds[cell.vidIdx])}
-                  className={`group h-full w-full overflow-hidden rounded-2xl bg-ink ${activeVideoId === videoIds[cell.vidIdx] ? "ring-2 ring-primary" : ""}`}
-                  aria-label={`Play: ${ytTitle(videoIds[cell.vidIdx], cell.vidIdx)}`}
-                >
-                  <div className="relative h-full w-full">
-                    <Image
-                      src={ytThumb(videoIds[cell.vidIdx])}
-                      alt={ytTitle(videoIds[cell.vidIdx], cell.vidIdx)}
-                      fill
-                      sizes="18vw"
-                      className="object-cover opacity-70 transition-opacity group-hover:opacity-85"
-                    />
-                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-ink/25 transition-colors group-hover:bg-ink/15">
-                      <span
-                        className={`flex h-9 w-9 items-center justify-center rounded-full shadow-soft backdrop-blur-sm transition-all group-hover:scale-105 ${activeVideoId === videoIds[cell.vidIdx] ? "bg-primary" : "bg-white/90"}`}
-                      >
-                        <Play
-                          size={13}
-                          className={
-                            activeVideoId === videoIds[cell.vidIdx]
-                              ? "fill-white text-white"
-                              : "fill-ink/70 text-ink/70"
-                          }
-                        />
-                      </span>
-                      <p className="mx-2 line-clamp-2 text-center text-[9px] font-semibold leading-tight text-white md:text-[10px]">
-                        {ytTitle(videoIds[cell.vidIdx], cell.vidIdx)}
-                      </p>
-                    </div>
-                    <span className="absolute top-2 left-2 rounded-full bg-primary px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-white">
-                      {activeVideoId === videoIds[cell.vidIdx]
-                        ? "Playing"
-                        : "Video"}
+            {/* ── Vertical video panel (desktop) ─────────────────────────── */}
+            {videoIds.length > 0 ? (
+              <aside className="relative hidden h-full max-h-full min-h-0 w-52 shrink-0 flex-col overflow-hidden rounded-2xl bg-linear-to-b from-white to-sand/80 ring-1 ring-ink/8 lg:w-56 xl:w-60 md:flex lg:rounded-3xl">
+                <div className="shrink-0 border-b border-ink/8 px-3.5 py-3 lg:px-4">
+                  <p className="type-eyebrow text-[8px] text-ink/45 lg:text-[9px]">
+                    Watch
+                  </p>
+                  <div className="mt-1 flex items-center justify-between gap-2">
+                    <p className="text-sm font-semibold text-ink">Videos</p>
+                    <span className="rounded-full bg-ink/6 px-2.5 py-0.5 text-[10px] font-semibold tabular-nums text-ink/60">
+                      {videoIds.length}
                     </span>
                   </div>
-                </button>
-              ) : cell.type === "photo" ? (
-                /* Photo cell */
-                (() => {
-                  const cellIdx = (photoIdx + cell.offset) % photos.length;
-                  const cellPhoto = photos[cellIdx];
-                  const cellAction = cellPhoto?.clickAction ?? "fullscreen";
-                  const cellAlt = cellPhoto
-                    ? cmsImageAlt(cellPhoto, title)
-                    : title;
-                  return (
-                    <button
-                      type="button"
-                      onClick={() => onPhotoActivate(cellIdx)}
-                      disabled={cellAction === "none"}
-                      className={`group relative h-full w-full overflow-hidden rounded-2xl ${cmsImageCursorClass(cellAction)} disabled:cursor-default`}
-                      aria-label={
-                        cellAction === "none"
-                          ? cellAlt
-                          : cellAction === "redirect"
-                            ? `Open link for ${cellAlt}`
-                            : `View ${cellAlt} fullscreen`
-                      }
-                    >
-                      <Image
-                        src={cloudinarySizedUrl(
-                          cellPhoto.url,
-                          HERO_BENTO_WIDTH,
-                        )}
-                        alt={cellAlt}
-                        fill
-                        loading="lazy"
-                        sizes="18vw"
-                        className="object-cover object-center transition-transform duration-500 group-hover:scale-[1.03]"
-                      />
-                    </button>
-                  );
-                })()
-              ) : (
-                /* Fallback: extra photo when no video available */
-                <div className="relative h-full w-full overflow-hidden rounded-2xl bg-sand/60">
-                  <Image
-                    src={cloudinarySizedUrl(
-                      photos[(photoIdx + cell.offset) % photos.length].url,
-                      HERO_BENTO_WIDTH,
-                    )}
-                    alt={title}
-                    fill
-                    loading="lazy"
-                    sizes="18vw"
-                    className="object-cover object-center"
-                  />
                 </div>
-              )}
+                <div
+                  ref={videoStripRef}
+                  className="scrollbar-thin-primary flex min-h-0 flex-1 touch-pan-y flex-col gap-2.5 overflow-y-auto overscroll-y-contain scroll-smooth p-2.5 [-webkit-overflow-scrolling:touch] lg:gap-3 lg:p-3"
+                >
+                  {videoIds.map((id, vi) => renderVideoThumb(id, vi, "desktop"))}
+                </div>
+                {videoStripOverflow ? (
+                  <div
+                    className="pointer-events-none absolute inset-x-0 bottom-0 h-12 rounded-b-2xl bg-linear-to-t from-white via-white/70 to-transparent lg:rounded-b-3xl"
+                    aria-hidden="true"
+                  />
+                ) : null}
+              </aside>
+            ) : null}
+          </div>
+
+          {/* ── Horizontal video strip (mobile) ──────────────────────────── */}
+          {videoIds.length > 0 ? (
+            <div className="rounded-xl bg-linear-to-b from-white to-sand/80 p-2.5 ring-1 ring-ink/8 md:hidden">
+              <div className="mb-2.5 flex items-center justify-between px-0.5">
+                <p className="text-[11px] font-semibold text-ink">Videos</p>
+                <span className="rounded-full bg-ink/6 px-2 py-0.5 text-[9px] font-semibold tabular-nums text-ink/60">
+                  {videoIds.length}
+                </span>
+              </div>
+              <div className="no-scrollbar flex touch-pan-x gap-2.5 overflow-x-auto scroll-smooth snap-x snap-mandatory">
+                {videoIds.map((id, vi) => renderVideoThumb(id, vi, "mobile"))}
+              </div>
             </div>
-          ))}
+          ) : null}
         </motion.div>
 
-        {/* ── Bottom filmstrip (photos + videos) ───────────────────────── */}
-        {stripTotal > 1 && (
+        {/* ── Bottom photo filmstrip ───────────────────────────────────── */}
+        {photoStripTotal > 1 ? (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -683,8 +712,8 @@ export default function CourseHero({
             className="shrink-0 overflow-hidden rounded-xl bg-white/50 px-2 pt-2 backdrop-blur-sm sm:rounded-2xl"
           >
             <div
-              ref={stripRef}
-              className="no-scrollbar flex touch-pan-x gap-1.5 overflow-x-auto py-2 px-2 scroll-smooth snap-x snap-mandatory [-webkit-overflow-scrolling:touch] sm:gap-2"
+              ref={photoStripRef}
+              className="no-scrollbar flex touch-pan-x gap-1.5 overflow-x-auto scroll-smooth px-2 py-2 snap-x snap-mandatory [-webkit-overflow-scrolling:touch] sm:gap-2"
             >
               {photos.map((photo, i) => {
                 const isActive = i === photoIdx && !activeVideoId;
@@ -693,7 +722,7 @@ export default function CourseHero({
                     key={photo.url}
                     type="button"
                     onClick={() => pickPhoto(i)}
-                    className={`relative h-14 w-[4.25rem] shrink-0 snap-start cursor-pointer overflow-hidden rounded-lg transition-all duration-200 sm:h-14 sm:w-20 sm:rounded-xl border-2 ${isActive ? "border-primary" : "border-ink/8 hover:border-primary/40"}`}
+                    className={`relative h-14 w-[4.25rem] shrink-0 snap-start cursor-pointer overflow-hidden rounded-lg border-2 transition-all duration-200 sm:h-16 sm:w-24 sm:rounded-xl ${isActive ? "border-primary" : "border-ink/8 hover:border-primary/40"}`}
                     aria-label={`Photo ${i + 1}`}
                     aria-current={isActive ? "true" : undefined}
                   >
@@ -702,34 +731,9 @@ export default function CourseHero({
                       alt=""
                       fill
                       loading="lazy"
-                      sizes="80px"
+                      sizes="96px"
                       className="object-cover"
                     />
-                  </button>
-                );
-              })}
-              {videoIds.map((id, vi) => {
-                const isActive = activeVideoId === id;
-                return (
-                  <button
-                    key={`video-${id}`}
-                    type="button"
-                    onClick={() => playVideo(id)}
-                    className={`relative h-14 w-[4.25rem] shrink-0 snap-start cursor-pointer overflow-hidden rounded-lg transition-all duration-200 sm:h-14 sm:w-20 sm:rounded-xl border-2 ${isActive ? "border-primary" : "border-ink/8 hover:border-primary/40"}`}
-                    aria-label={`Video ${vi + 1}: ${ytTitle(id, vi)}`}
-                    aria-current={isActive ? "true" : undefined}
-                  >
-                    <Image
-                      src={ytThumb(id)}
-                      alt=""
-                      fill
-                      loading="lazy"
-                      sizes="80px"
-                      className="object-cover"
-                    />
-                    <span className="absolute inset-0 flex items-center justify-center bg-ink/25">
-                      <Play size={12} className="fill-white text-white" />
-                    </span>
                   </button>
                 );
               })}
@@ -741,15 +745,15 @@ export default function CourseHero({
                 className="h-full bg-accent/55"
                 animate={{
                   width:
-                    stripTotal > 1
-                      ? `${(activeStripIndex / (stripTotal - 1)) * 100}%`
+                    photoStripTotal > 1
+                      ? `${(photoIdx / (photoStripTotal - 1)) * 100}%`
                       : "100%",
                 }}
                 transition={{ duration: 1.92, ease: "linear" }}
               />
             </div>
           </motion.div>
-        )}
+        ) : null}
       </Container>
 
       <MediaLightbox

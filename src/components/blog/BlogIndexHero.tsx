@@ -33,9 +33,8 @@ export function BlogIndexHero({ imageSrc }: BlogIndexHeroProps) {
         className="object-cover object-[center_30%] opacity-90 animate-hero-zoom"
       />
 
-      <div className="absolute inset-0 bg-ink/50" aria-hidden="true" />
       <div
-        className="absolute inset-0 bg-linear-to-t from-ink/70 via-ink/20 to-ink/35"
+        className="absolute inset-0 bg-linear-to-t from-ink/80 via-ink/30 to-transparent"
         aria-hidden="true"
       />
 

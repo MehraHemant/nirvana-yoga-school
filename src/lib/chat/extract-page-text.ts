@@ -18,6 +18,7 @@ const SKIP_KEYS = new Set([
   "desktopSrc",
   "url",
   "youtubeUrls",
+  "youtubeUrl",
   "cloudinaryUrl",
   "publicId",
   "thumbnailUrl",
@@ -252,6 +253,7 @@ function extractDedicatedBlocks(
   const sectionKeys = [
     "welcome",
     "whyRishikesh",
+    "authenticYoga",
     "yogaAlliance",
     "teachersTeaser",
     "faqs",
