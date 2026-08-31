@@ -44,7 +44,7 @@ export default function KirtanCertificationSection({
             }
             align="center"
           />
-          <p className="type-lead mx-auto mt-6 max-w-2xl leading-relaxed text-ink">
+          <p className="type-lead mx-auto mt-6 max-w-2xl text-ink">
             {description}
           </p>
 

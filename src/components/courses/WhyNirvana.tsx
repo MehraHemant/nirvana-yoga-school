@@ -111,10 +111,10 @@ export default function WhyNirvana({
                       />
                     </span>
                     <div className="min-w-0">
-                      <h4 className="text-lg lg:text-xl font-semibold mb-1.5 leading-snug text-ink transition-colors duration-200 group-hover:text-white group-focus-visible:text-white">
+                      <h4 className="type-h4 mb-1.5 text-ink transition-colors duration-200 group-hover:text-white group-focus-visible:text-white">
                         {item.title}
                       </h4>
-                      <p className="text-base lg:text-lg/snug font-normal text-ink transition-colors duration-200 group-hover:text-white group-focus-visible:text-white">
+                      <p className="type-body text-ink transition-colors duration-200 group-hover:text-white group-focus-visible:text-white">
                         {stripHtml(item.body)}
                       </p>
                     </div>
@@ -124,7 +124,7 @@ export default function WhyNirvana({
             })}
           </ul>
 
-          <p className="mx-auto mt-12 max-w-3xl border-t border-ink/10 pt-10 text-center text-sm leading-relaxed text-ink sm:text-base">
+          <p className="type-body mx-auto mt-12 max-w-3xl border-t border-ink/10 pt-10 text-center text-ink">
             {content.closing}
           </p>
         </motion.div>

@@ -57,7 +57,7 @@ export function BlogPostCard({
             ) : null}
           </div>
 
-          <h3 className="mt-2 text-balance text-lg font-bold tracking-[-0.02em] text-ink transition-colors duration-300 group-hover:text-primary">
+          <h3 className="mt-2 text-balance text-lg font-semibold leading-[1.35] tracking-[-0.015em] text-ink transition-colors duration-300 group-hover:text-primary">
             {post.title}
           </h3>
 

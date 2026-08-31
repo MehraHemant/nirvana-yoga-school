@@ -192,16 +192,16 @@ export default function WhatIsIncluded({
               align="left"
               className="mb-3"
             />
-            <p className="text-ink text-base/normal font-medium">
+            <p className="type-body text-ink">
               {description}
             </p>
 
             {showArrivalSupport ? (
               <div className="surface-panel space-y-2 rounded-3xl p-6 transition-all duration-300 hover:shadow-soft">
-                <span className="uppercase tracking-wider text-primary font-semibold block mb-1">
+                <span className="type-eyebrow mb-1 block text-primary">
                   {arrivalTitle}
                 </span>
-                <p className="text-sm text-ink font-medium">{arrivalBody}</p>
+                <p className="type-body text-ink">{arrivalBody}</p>
               </div>
             ) : null}
           </div>
@@ -220,13 +220,13 @@ export default function WhatIsIncluded({
                   className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"
                   aria-hidden="true"
                 />
-                <span className="type-eyebrow text-[9px] font-bold tracking-wider">
+                <span className="type-eyebrow">
                   Tuition Inclusions
                 </span>
               </div>
             </div>
 
-            <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-ink mb-6">
+            <h3 className="type-h3 mb-6 text-ink">
               Everything included in your fee
             </h3>
 
@@ -242,14 +242,14 @@ export default function WhatIsIncluded({
                   >
                     {getInclusionIcon(item)}
                   </span>
-                  <span className="text-ink text-base/snug font-medium group-hover:text-ink transition-colors duration-200">
+                  <span className="type-body text-ink transition-colors duration-200 group-hover:text-ink">
                     {item}
                   </span>
                 </li>
               ))}
             </ul>
 
-            <div className="mt-8 pt-5 border-t border-ink/5 text-sm font-medium text-ink flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div className="type-ui mt-8 flex flex-col gap-2 border-t border-ink/5 pt-5 text-ink sm:flex-row sm:items-center sm:justify-between">
               <span className="flex items-center gap-1.5">
                 <span
                   className="w-1.5 h-1.5 rounded-full bg-primary"

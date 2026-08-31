@@ -27,7 +27,7 @@ export default function OnlineOverviewSection({
     <OnlineSectionShell id={id} title={title} description={description}>
       <div className="space-y-5">
         {paragraphs.map((paragraph) => (
-          <p key={paragraph.slice(0, 48)} className="text-sm sm:text-base lg:text-lg/snug text-ink">
+          <p key={paragraph.slice(0, 48)} className="type-body text-ink">
             {paragraph}
           </p>
         ))}

@@ -82,7 +82,7 @@ export default function TeachersSection({
   const resolvedTitle = title ?? (
     <>
       Lineage Teachers,{" "}
-      <span className="font-bold text-primary">Guided by Compassion</span>
+      <span className="font-semibold text-primary">Guided by Compassion</span>
     </>
   );
 
@@ -163,7 +163,7 @@ export default function TeachersSection({
                     </div>
                     <div className="relative z-10 min-w-0">
                       <h4
-                        className={`type-ui truncate ${isSelected ? "font-semibold text-primary" : "font-semibold text-ink"}`}
+                        className={`type-ui truncate ${isSelected ? "font-medium text-primary" : "font-medium text-ink"}`}
                       >
                         {teacher.name}
                       </h4>
@@ -217,7 +217,7 @@ export default function TeachersSection({
                     const row = event.currentTarget.parentElement;
                     if (row) scrollChildIntoContainer(row, event.currentTarget);
                   }}
-                  className={`type-ui shrink-0 rounded-full border px-3.5 py-2 font-semibold transition-colors ${isSelected ? "border-primary bg-primary text-white" : "surface-panel border-ink/8 text-ink"}`}
+                  className={`type-ui shrink-0 rounded-full border px-3.5 py-2 font-medium transition-colors ${isSelected ? "border-primary bg-primary text-white" : "surface-panel border-ink/8 text-ink"}`}
                 >
                   {teacher.name.replace(/^Dr\.\s/, "").split(" ")[0]}
                 </button>

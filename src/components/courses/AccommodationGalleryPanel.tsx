@@ -114,7 +114,7 @@ export function ImageGalleryPanel({
           aria-hidden="true"
         />
 
-        <div className="relative aspect-[5/3] md:aspect-[4/3] rounded-3xl overflow-hidden group">
+        <div className="relative aspect-3/2 rounded-3xl overflow-hidden group">
           <AnimatePresence mode="popLayout">
             <motion.button
               key={active.url}
@@ -156,7 +156,7 @@ export function ImageGalleryPanel({
           </AnimatePresence>
 
           <div className="absolute top-3 left-3 pointer-events-none">
-            <span className="px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider bg-primary text-white">
+            <span className="type-eyebrow rounded-full bg-primary px-2.5 py-1 text-white">
               {label}
             </span>
           </div>
@@ -203,7 +203,7 @@ export function ImageGalleryPanel({
                 () => onOpenLightbox(activeIndex),
               )
             }
-            className="absolute -bottom-2.5 right-3 sm:right-4 px-3 py-1.5 rounded-full bg-white border border-ink/8 text-[10px] font-semibold text-ink shadow-soft hover:shadow-md hover:border-primary/20 transition-all cursor-pointer"
+            className="absolute -bottom-2.5 right-3 cursor-pointer rounded-full border border-ink/8 bg-white px-3 py-1.5 text-xs font-medium leading-[1.4] text-ink shadow-soft transition-all hover:border-primary/20 hover:shadow-md sm:right-4"
           >
             {activeAction === "redirect" ? "Open link" : "Open full gallery"}
           </button>
@@ -224,7 +224,7 @@ export function ImageGalleryPanel({
                   <button
                     type="button"
                     onClick={() => setActiveIndex(index)}
-                    className={`relative w-14 h-14 sm:w-16 sm:h-16 rounded-lg overflow-hidden border-2 transition-all duration-300 cursor-pointer ${
+                    className={`relative aspect-3/2 w-20 overflow-hidden rounded-lg border-2 transition-all duration-300 cursor-pointer sm:w-24 ${
                       isActive
                         ? `${accentThumb} shadow-sm scale-[1.02]`
                         : "border-transparent hover:opacity-100 hover:scale-[1.02]"
@@ -236,7 +236,7 @@ export function ImageGalleryPanel({
                       src={item.url}
                       alt={item.alt || item.title}
                       fill
-                      sizes="80px"
+                      sizes="96px"
                       unoptimized
                       className="object-cover"
                     />

@@ -42,7 +42,7 @@ export default function OnlinePricingCard({
       className={`online-pricing-card overflow-hidden rounded-3xl border border-primary/10 bg-white shadow-card ${className}`}
     >
       <div className="bg-primary px-5 py-3 text-center">
-        <p className="text-lg text-white">20% OFF</p>
+        <p className="text-lg font-semibold leading-[1.3] text-white">20% OFF</p>
         <p className="type-eyebrow mt-1 text-white/80">Limited time offer</p>
       </div>
 
@@ -88,7 +88,9 @@ export default function OnlinePricingCard({
               {formatUsd(originalAmount)}
             </p>
           )}
-          <p className="text-4xl text-primary">{pricing.price}</p>
+          <p className="text-4xl font-semibold leading-[1.1] text-primary">
+            {pricing.price}
+          </p>
         </div>
 
         <div className="grid gap-3">

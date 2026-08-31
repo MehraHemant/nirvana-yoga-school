@@ -638,9 +638,9 @@ function PricingTableBlock({ data }: { data: Record<string, unknown> }) {
                 key={`plan-${index}`}
                 className="flex flex-col rounded-3xl border border-ink/8 bg-white p-7 shadow-card"
               >
-                <h3 className="type-eyebrow text-ink">{cell(plan, "name")}</h3>
+                <h3 className="type-h4 text-ink">{cell(plan, "name")}</h3>
                 {cell(plan, "price") ? (
-                  <p className="mt-2 text-4xl text-primary">
+                  <p className="mt-2 text-4xl font-semibold leading-[1.1] text-primary">
                     {cell(plan, "price")}
                   </p>
                 ) : null}

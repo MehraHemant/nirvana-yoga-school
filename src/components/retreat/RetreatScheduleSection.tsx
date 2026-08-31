@@ -141,7 +141,7 @@ export default function RetreatScheduleSection({
   return (
     <section
       id="schedule"
-      className="relative border-b border-ink/8 bg-white py-16 sm:py-20"
+      className="relative overflow-x-clip border-b border-ink/8 bg-white py-16 sm:py-20"
     >
       <div
         className="pointer-events-none absolute top-[20%] right-[-10%] h-[500px] w-[500px] rounded-full bg-accent/6 blur-[100px]"
@@ -169,7 +169,7 @@ export default function RetreatScheduleSection({
             }
             align="center"
           />
-          <p className="type-lead mx-auto mt-6 max-w-xl text-base text-ink">
+          <p className="type-lead mx-auto mt-6 max-w-xl text-ink">
             Follow our balanced daily rhythm of yoga practice, meditation,
             nourishing meals, and sound healing designed for deep relaxation and
             inner harmony.
@@ -225,10 +225,10 @@ export default function RetreatScheduleSection({
               className="space-y-8"
             >
               <div className="pb-2 text-center">
-                <span className="type-eyebrow font-semibold tracking-wider text-primary">
+                <span className="type-eyebrow text-primary">
                   Day 0{active.day} Focus
                 </span>
-                <h4 className="mt-1 text-2xl font-bold leading-tight text-ink sm:text-3xl">
+                <h4 className="type-h3 mt-1 text-ink">
                   {active.title}
                 </h4>
               </div>
@@ -252,7 +252,7 @@ export default function RetreatScheduleSection({
                         <div
                           className={`w-full pl-16 sm:w-[44%] sm:pl-0 ${isEven ? "text-left sm:order-first sm:text-right" : "text-left sm:order-last sm:text-left"}`}
                         >
-                          <span className="type-ui inline-block rounded-full border border-primary/10 bg-primary/5 px-3 py-1 font-semibold tracking-wide text-primary sm:border-0 sm:bg-transparent sm:p-0 sm:text-base">
+                          <span className="type-ui inline-block rounded-full border border-primary/10 bg-primary/5 px-3 py-1 text-primary sm:border-0 sm:bg-transparent sm:p-0">
                             {item.time}
                           </span>
                         </div>
@@ -269,10 +269,10 @@ export default function RetreatScheduleSection({
                               <ScheduleIcon type={iconType} />
                             </div>
                             <div className="space-y-1">
-                              <h4 className="type-display-sm font-bold leading-tight text-ink">
+                              <h4 className="type-h4 text-ink">
                                 {item.activity}
                               </h4>
-                              <span className="block text-xs font-semibold text-ink">
+                              <span className="type-ui block text-ink">
                                 {SCHEDULE_ICON_META[iconType].caption}
                               </span>
                             </div>
@@ -285,7 +285,7 @@ export default function RetreatScheduleSection({
               </div>
 
               {active.note && (
-                <div className="surface-panel mx-auto mt-8 max-w-md rounded-2xl p-4 text-center text-xs font-semibold text-ink shadow-xs">
+                <div className="surface-panel type-ui mx-auto mt-8 max-w-md rounded-2xl p-4 text-center text-ink shadow-xs">
                   💡 <strong>Daily Note:</strong> {active.note}
                 </div>
               )}

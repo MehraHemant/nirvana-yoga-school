@@ -29,10 +29,10 @@ export default function RetreatHighlightsBar({
               />
             </div>
             <div className="min-w-0">
-              <h3 className="text-lg md:text-xl text-ink leading-snug font-bold transition-colors group-hover:text-primary">
+              <h3 className="type-h4 text-ink transition-colors group-hover:text-primary">
                 {item.title}
               </h3>
-              <p className="mt-1.5 type-body text-sm leading-relaxed text-ink">
+              <p className="type-body mt-1.5 text-ink">
                 {item.description}
               </p>
             </div>

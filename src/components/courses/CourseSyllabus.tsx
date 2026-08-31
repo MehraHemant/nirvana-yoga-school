@@ -77,7 +77,7 @@ export default function CourseSyllabus({
             }
             align="center"
           />
-          <p className="text-ink mt-6 max-w-2xl mx-auto text-base sm:text-lg">
+          <p className="type-lead mx-auto mt-6 max-w-2xl text-ink">
             {description}
           </p>
         </motion.div>
@@ -104,10 +104,10 @@ export default function CourseSyllabus({
                     className="w-full flex items-center justify-between gap-4 p-5 sm:p-6 text-left cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
                   >
                     <div className="flex items-center gap-4 sm:gap-6">
-                      <span className="text-sm sm:text-base font-semibold text-primary/60 select-none">
+                      <span className="type-ui select-none font-semibold text-primary/60">
                         {moduleNumber}
                       </span>
-                      <span className="text-lg lg:text-2xl font-semibold text-ink">
+                      <span className="type-h4 text-ink">
                         {item.title}
                       </span>
                     </div>
@@ -150,12 +150,12 @@ export default function CourseSyllabus({
                         className="overflow-hidden"
                       >
                         <div className="px-5 sm:px-16 pb-6 pt-1 border-t border-ink/5 space-y-5">
-                          <p className="text-ink text-base lg:text-lg">
+                          <p className="type-body text-ink">
                             {item.description}
                           </p>
 
                           <div className="surface-panel rounded-2xl p-5 shadow-xs">
-                            <span className="text-primary block mb-3 text-sm lg:text-base font-semibold uppercase tracking-wider">
+                            <span className="type-eyebrow mb-3 block text-primary">
                               {subtopicsLabel}
                             </span>
                             <div className="grid gap-2 sm:grid-cols-2">
@@ -165,7 +165,7 @@ export default function CourseSyllabus({
                                   className="flex items-start gap-2.5"
                                 >
                                   <span className="w-1.5 h-1.5 rounded-full bg-accent mt-2 shrink-0" />
-                                  <span className="text-sm lg:text-base text-ink leading-normal font-medium">
+                                  <span className="type-body text-ink">
                                     {topic}
                                   </span>
                                 </div>
@@ -187,12 +187,12 @@ export default function CourseSyllabus({
                 <h3 className="type-display-sm text-ink mb-1">
                   {sidebarTitle}
                 </h3>
-                <p className="text-xs lg:text-sm text-ink mb-6">{sidebarSubtitle}</p>
+                <p className="type-ui mb-6 text-ink">{sidebarSubtitle}</p>
 
                 <div className="space-y-4">
                   {distributionItems.map((item) => (
                     <div key={item.area} className="space-y-2">
-                      <div className="flex justify-between text-xs lg:text-sm font-semibold">
+                      <div className="type-ui flex justify-between font-semibold">
                         <span className="text-ink">{item.area}</span>
                         <span className="text-primary">{item.hours}</span>
                       </div>
@@ -208,7 +208,7 @@ export default function CourseSyllabus({
                   ))}
                 </div>
 
-                <div className="surface-panel mt-8 rounded-2xl p-4 text-center text-xs lg:text-sm leading-relaxed text-ink">
+                <div className="surface-panel type-ui mt-8 rounded-2xl p-4 text-center text-ink">
                   {sidebarFooter}
                 </div>
               </div>

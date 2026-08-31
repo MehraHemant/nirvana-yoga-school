@@ -85,10 +85,10 @@ export default function KirtanHighlightsSection({
               custom={index * 0.05}
               className="surface-card rounded-3xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-soft sm:p-7"
             >
-              <span className="type-eyebrow text-[10px] font-bold text-primary">
+              <span className="type-eyebrow font-semibold text-primary">
                 0{index + 1}
               </span>
-              <h3 className="mt-2 text-lg font-bold text-ink">{item.title}</h3>
+              <h3 className="type-h4 mt-2 text-ink">{item.title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-ink">
                 {item.description}
               </p>

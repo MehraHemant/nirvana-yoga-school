@@ -47,7 +47,7 @@ export async function generateMetadata({
 }
 
 /**
- * Loads YTT hub placements enriched with lodging tiers for the Programs & pricing rail.
+ * Loads YTT hub placements enriched with all priced rooms + upcoming dates for the rail.
  */
 async function loadBlogCourses(): Promise<BlogRailCourse[]> {
   try {

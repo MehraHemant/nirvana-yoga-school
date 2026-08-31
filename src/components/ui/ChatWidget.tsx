@@ -344,7 +344,7 @@ export default function ChatWidget() {
           <header className="flex items-center justify-between gap-3 bg-primary px-4 py-3.5 text-white">
             <div className="min-w-0">
               <p className="type-eyebrow text-white/75">Nirvana Yoga School</p>
-              <h2 className="text-lg leading-tight tracking-tight">Ask us</h2>
+              <h2 className="type-display-sm">Ask us</h2>
             </div>
             <div className="flex shrink-0 items-center gap-1">
               {messages.length > 0 || conversationId ? (

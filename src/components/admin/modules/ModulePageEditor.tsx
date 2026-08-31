@@ -216,6 +216,7 @@ const DEFAULT_OPEN: Record<string, boolean> = {};
 /**
  * Residential course panels.
  * Gallery/teachers/videos stay on venue or hub layouts only.
+ * Why-online is online-hub only — never edit/render on residential courses.
  */
 export const RESIDENTIAL_MODULE_PANELS: ModulePanelId[] = MODULE_SECTIONS.map(
   (s) => s.id,
@@ -223,7 +224,8 @@ export const RESIDENTIAL_MODULE_PANELS: ModulePanelId[] = MODULE_SECTIONS.map(
   (id) =>
     id !== "module-videos" &&
     id !== "module-gallery" &&
-    id !== "module-teachers",
+    id !== "module-teachers" &&
+    id !== "module-why-online",
 );
 
 /** Hub / marketing layout panels. */
@@ -340,6 +342,16 @@ function normalizeModules(
       stickyNav: {
         ...doc.stickyNav,
         items: doc.stickyNav.items.filter((item) => item.id !== "#exam"),
+      },
+    };
+  } else if (layoutId === "residentialCourse") {
+    // Drop online-hub-only band if it was saved onto a residential course doc.
+    const { whyOnline: _whyOnline, ...withoutWhyOnline } = doc;
+    doc = {
+      ...withoutWhyOnline,
+      stickyNav: {
+        ...doc.stickyNav,
+        items: doc.stickyNav.items.filter((item) => item.id !== "#why-online"),
       },
     };
   }

@@ -626,18 +626,28 @@ export async function getPageRoomOffers(
   }, options);
 }
 
+type PricedOffersBySlugOptions = RepositoryOptions & {
+  /**
+   * When true, only `page_room_offers.live` rows (lodging gallery allowlist).
+   * When false (default for public pricing), all rows with a non-empty fee.
+   */
+  liveOnly?: boolean;
+};
+
 /**
- * Lean batch load of live, priced room offers for many page slugs.
+ * Lean batch load of priced room offers for many page slugs.
  * Joins `page_room_offers` → `rooms` → `room_images`/`media_images`.
- * Skips non-live and empty-price rows (no residentialLife JSON).
+ * Skips empty-price rows. `liveOnly` matches lodging gallery when true;
+ * public Dates & pricing / blog rail should pass `liveOnly: false`.
  *
  * @param slugs - Published page slugs
- * @param options - Repository options
+ * @param options - Repository options + optional live filter
  */
-export async function getLivePricedRoomOffersByPageSlugs(
+export async function getPricedRoomOffersByPageSlugs(
   slugs: string[],
-  options?: RepositoryOptions,
+  options?: PricedOffersBySlugOptions,
 ): Promise<ContentResult<Map<string, PageRoomOfferRecord[]>>> {
+  const liveOnly = options?.liveOnly === true;
   return requireDb(async () => {
     const unique = [...new Set(slugs.map((s) => s.trim()).filter(Boolean))];
     const map = new Map<string, PageRoomOfferRecord[]>();
@@ -655,10 +665,11 @@ export async function getLivePricedRoomOffersByPageSlugs(
        INNER JOIN "page_room_offers" o ON o."page_id" = p."id"
        INNER JOIN "rooms" r ON r."id" = o."room_id"
        WHERE p."slug" = ANY($1::text[])
-         AND o."live" = TRUE
+         AND ($2::boolean = FALSE OR o."live" = TRUE)
          AND TRIM(BOTH FROM o."price") <> ''
        ORDER BY p."slug" ASC, o."sort" ASC, r."sort" ASC, r."name" ASC`,
       unique,
+      liveOnly,
     );
 
     const offersBySlug = new Map<string, PageRoomOfferRecord[]>();
@@ -684,6 +695,67 @@ export async function getLivePricedRoomOffersByPageSlugs(
           ),
         })),
       );
+    }
+    return map;
+  }, options);
+}
+
+/**
+ * Lean batch load of live, priced room offers for many page slugs
+ * (lodging gallery Live only). Prefer {@link getPricedRoomOffersByPageSlugs}
+ * with `liveOnly: false` for public fee tables.
+ *
+ * @param slugs - Published page slugs
+ * @param options - Repository options
+ */
+export async function getLivePricedRoomOffersByPageSlugs(
+  slugs: string[],
+  options?: RepositoryOptions,
+): Promise<ContentResult<Map<string, PageRoomOfferRecord[]>>> {
+  return getPricedRoomOffersByPageSlugs(slugs, { ...options, liveOnly: true });
+}
+
+/**
+ * Batch-loads `page_date_batches` for many page slugs (sort order preserved).
+ *
+ * @param slugs - Published page slugs
+ * @param options - Repository options
+ */
+export async function getDateBatchesByPageSlugs(
+  slugs: string[],
+  options?: RepositoryOptions,
+): Promise<ContentResult<Map<string, PageDateBatchRecord[]>>> {
+  return requireDb(async () => {
+    const unique = [...new Set(slugs.map((s) => s.trim()).filter(Boolean))];
+    const map = new Map<string, PageDateBatchRecord[]>();
+    if (unique.length === 0) return map;
+
+    const rows = await db.$queryRawUnsafe<
+      Array<Record<string, unknown> & { page_slug: string }>
+    >(
+      `SELECT p."slug" AS page_slug,
+              b."id", b."page_id", b."dates", b."spaces", b."status", b."tone", b."sort"
+       FROM "pages" p
+       INNER JOIN "page_date_batches" b ON b."page_id" = p."id"
+       WHERE p."slug" = ANY($1::text[])
+       ORDER BY p."slug" ASC, b."sort" ASC`,
+      unique,
+    );
+
+    for (const row of rows) {
+      const slug = String(row.page_slug ?? "");
+      if (!slug) continue;
+      const list = map.get(slug) ?? [];
+      list.push({
+        id: String(row.id ?? ""),
+        pageId: String(row.page_id ?? row.pageId ?? ""),
+        dates: String(row.dates ?? ""),
+        spaces: String(row.spaces ?? ""),
+        status: String(row.status ?? ""),
+        tone: String(row.tone ?? "open"),
+        sort: Number(row.sort ?? 0),
+      });
+      map.set(slug, list);
     }
     return map;
   }, options);

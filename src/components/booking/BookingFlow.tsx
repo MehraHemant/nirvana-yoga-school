@@ -339,7 +339,7 @@ export function BookingFlow({
       <section className="bg-white py-20">
         <Container size="2xl">
           <div className="rounded-3xl border border-emerald-200 bg-white p-10 text-center shadow-card">
-            <h1 className="text-3xl text-ink">Booking confirmed!</h1>
+            <h1 className="type-h2 text-ink">Booking confirmed!</h1>
             <p className="mt-4 text-ink">
               Thank you, {form.name}. Your payment was received and our team
               will contact you shortly at {form.email}.
@@ -369,13 +369,13 @@ export function BookingFlow({
             className="relative z-10 flex min-h-[52svh] flex-col justify-center pb-12 pt-[calc(var(--site-header-height,4.75rem)+3rem)] sm:pb-14 sm:pt-[calc(var(--site-header-height,4.75rem)+3.5rem)] lg:min-h-[58svh] lg:pb-16 lg:pt-[calc(var(--site-header-height,4.75rem)+4rem)]"
           >
             <div className="max-w-2xl space-y-5">
-              <span className="type-eyebrow font-semibold tracking-widest text-white/80 uppercase">
+              <span className="type-eyebrow text-white/80">
                 {content.hero.eyebrow}
               </span>
-              <h1 className="text-4xl font-bold leading-[1.08] tracking-tight text-white sm:text-5xl md:text-6xl">
+              <h1 className="type-h1 text-white">
                 {content.hero.title}
               </h1>
-              <p className="type-lead max-w-xl pt-1 text-base leading-relaxed text-white/85 sm:text-lg">
+              <p className="type-lead max-w-xl pt-1 text-white/85">
                 {content.hero.lead}
               </p>
             </div>
@@ -398,10 +398,10 @@ export function BookingFlow({
                   key={`${item.step}-${item.title}`}
                   className="surface-bordered p-5 shadow-card"
                 >
-                  <span className="type-eyebrow text-[10px] font-bold text-secondary">
+                  <span className="type-eyebrow text-secondary">
                     {item.step}
                   </span>
-                  <h2 className="mt-1 text-lg font-bold text-ink">
+                  <h2 className="type-h4 mt-1 text-ink">
                     {item.title}
                   </h2>
                   <p className="mt-1.5 text-sm leading-relaxed text-ink">
@@ -432,7 +432,7 @@ export function BookingFlow({
               {step === 1 ? (
                 <div className="space-y-5">
                   <div>
-                    <h2 className="text-2xl text-ink">Program details</h2>
+                    <h2 className="type-h3 text-ink">Program details</h2>
                     <p className="mt-1 text-sm text-ink">
                       Select your preferred {programLabel.toLowerCase()},
                       accommodation, and dates.
@@ -442,7 +442,7 @@ export function BookingFlow({
                   <div className="space-y-2">
                     <label
                       htmlFor="booking-program"
-                      className="text-sm font-semibold text-ink"
+                      className="text-sm font-medium leading-[1.4] text-ink"
                     >
                       Select {programLabel} *
                     </label>
@@ -469,7 +469,7 @@ export function BookingFlow({
                   <div className="space-y-2">
                     <label
                       htmlFor="booking-date"
-                      className="text-sm font-semibold text-ink"
+                      className="text-sm font-medium leading-[1.4] text-ink"
                     >
                       Select date *
                     </label>
@@ -493,7 +493,7 @@ export function BookingFlow({
                   <div className="space-y-2">
                     <label
                       htmlFor="booking-room"
-                      className="text-sm font-semibold text-ink"
+                      className="text-sm font-medium leading-[1.4] text-ink"
                     >
                       Room type *
                     </label>
@@ -541,7 +541,7 @@ export function BookingFlow({
               {step === 2 ? (
                 <div className="space-y-5">
                   <div>
-                    <h2 className="text-2xl text-ink">
+                    <h2 className="type-h3 text-ink">
                       {needsSecondGuest
                         ? "Guest details"
                         : "Personal information"}
@@ -556,7 +556,7 @@ export function BookingFlow({
                   <div className="grid gap-4 sm:grid-cols-2">
                     {needsSecondGuest ? (
                       <div className="sm:col-span-2">
-                        <p className="type-eyebrow text-[10px] font-bold uppercase tracking-wider text-primary">
+                        <p className="type-eyebrow text-primary">
                           Guest 1 — Primary contact
                         </p>
                       </div>
@@ -564,7 +564,7 @@ export function BookingFlow({
                     <div className="space-y-2 sm:col-span-2">
                       <label
                         htmlFor="booking-name"
-                        className="text-sm font-semibold text-ink"
+                        className="text-sm font-medium leading-[1.4] text-ink"
                       >
                         {needsSecondGuest ? "Guest 1 name *" : "Name *"}
                       </label>
@@ -580,7 +580,7 @@ export function BookingFlow({
                     <div className="space-y-2">
                       <label
                         htmlFor="booking-gender"
-                        className="text-sm font-semibold text-ink"
+                        className="text-sm font-medium leading-[1.4] text-ink"
                       >
                         {needsSecondGuest ? "Guest 1 gender *" : "Gender *"}
                       </label>
@@ -598,7 +598,7 @@ export function BookingFlow({
                     <div className="space-y-2">
                       <label
                         htmlFor="booking-email"
-                        className="text-sm font-semibold text-ink"
+                        className="text-sm font-medium leading-[1.4] text-ink"
                       >
                         Email *
                       </label>
@@ -615,7 +615,7 @@ export function BookingFlow({
                     <div className="space-y-2 sm:col-span-2">
                       <label
                         htmlFor="booking-phone"
-                        className="text-sm font-semibold text-ink"
+                        className="text-sm font-medium leading-[1.4] text-ink"
                       >
                         WhatsApp / Phone *
                       </label>
@@ -639,14 +639,14 @@ export function BookingFlow({
                     {needsSecondGuest ? (
                       <>
                         <div className="sm:col-span-2 border-t border-ink/8 pt-4">
-                          <p className="type-eyebrow text-[10px] font-bold uppercase tracking-wider text-primary">
+                          <p className="type-eyebrow text-primary">
                             Guest 2
                           </p>
                         </div>
                         <div className="space-y-2 sm:col-span-2">
                           <label
                             htmlFor="booking-second-guest-name"
-                            className="text-sm font-semibold text-ink"
+                            className="text-sm font-medium leading-[1.4] text-ink"
                           >
                             Guest 2 name *
                           </label>
@@ -665,7 +665,7 @@ export function BookingFlow({
                         <div className="space-y-2 sm:col-span-2">
                           <label
                             htmlFor="booking-second-guest-gender"
-                            className="text-sm font-semibold text-ink"
+                            className="text-sm font-medium leading-[1.4] text-ink"
                           >
                             Guest 2 gender *
                           </label>
@@ -686,7 +686,7 @@ export function BookingFlow({
                     <div className="space-y-2 sm:col-span-2 border-t border-ink/8 pt-4">
                       <label
                         htmlFor="booking-payment-mode"
-                        className="text-sm font-semibold text-ink"
+                        className="text-sm font-medium leading-[1.4] text-ink"
                       >
                         Payment mode *
                       </label>
@@ -707,7 +707,7 @@ export function BookingFlow({
                     <div className="space-y-2">
                       <label
                         htmlFor="booking-reference"
-                        className="text-sm font-semibold text-ink"
+                        className="text-sm font-medium leading-[1.4] text-ink"
                       >
                         Reference code
                       </label>
@@ -726,7 +726,7 @@ export function BookingFlow({
                     <div className="space-y-2">
                       <label
                         htmlFor="booking-hear-about"
-                        className="text-sm font-semibold text-ink"
+                        className="text-sm font-medium leading-[1.4] text-ink"
                       >
                         How did you hear about us?
                       </label>
@@ -776,7 +776,7 @@ export function BookingFlow({
               {step === 3 ? (
                 <div className="space-y-5">
                   <div>
-                    <h2 className="text-2xl text-ink">Add-ons</h2>
+                    <h2 className="type-h3 text-ink">Add-ons</h2>
                     <p className="mt-1 text-sm text-ink">
                       {addons?.intro?.trim() ||
                         "Optional extras for your stay. Skip if you do not need any."}
@@ -941,7 +941,7 @@ export function BookingFlow({
               {step === 4 && bookingId ? (
                 <div className="space-y-5">
                   <div>
-                    <h2 className="text-2xl text-ink">Payment method</h2>
+                    <h2 className="type-h3 text-ink">Payment method</h2>
                     <p className="mt-1 text-sm text-ink">
                       Safe payment using PayPal, credit card, or debit card. A{" "}
                       {Math.round(PAYPAL_FEE_RATE * 100)}% processing fee
@@ -982,7 +982,7 @@ export function BookingFlow({
             </div>
 
             <aside className="h-fit min-w-0 rounded-3xl border border-ink/8 bg-white p-6 shadow-card lg:sticky lg:top-[calc(var(--site-header-height,4.75rem)+1rem)]">
-              <h3 className="text-xl text-ink">Fee breakdown</h3>
+              <h3 className="type-h4 text-ink">Fee breakdown</h3>
               {pricing && selectedProgram ? (
                 <dl className="mt-4 space-y-3 text-sm">
                   <div className="flex justify-between gap-4">

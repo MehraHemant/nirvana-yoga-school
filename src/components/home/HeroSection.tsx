@@ -48,7 +48,7 @@ export default function HeroSection({
       className={
         isOnline
           ? "online-hub-hero relative min-h-[85svh] w-full overflow-hidden bg-surface pt-(--site-header-height) text-ink"
-          : "relative min-h-svh w-full overflow-hidden bg-primary"
+          : "relative min-h-svh w-full overflow-hidden bg-transparent"
       }
     >
       {isOnline ? (
@@ -135,7 +135,7 @@ export default function HeroSection({
 
               {supportText ? (
                 <p
-                  className={`animate-fade-up fade-delay-400 mt-4 max-w-xl text-pretty type-body sm:mt-5 lg:text-[0.9375rem] xl:text-base 2xl:text-lg ${isOnline ? "text-muted" : "text-white/85"}`}
+                  className={`animate-fade-up fade-delay-400 mt-4 max-w-xl text-pretty type-lead sm:mt-5 ${isOnline ? "text-muted" : "text-white/85"}`}
                 >
                   {supportText}
                 </p>

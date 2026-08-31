@@ -7,7 +7,7 @@ export default function MobileStickyBar() {
         <div className="type-eyebrow text-ink">200hr YTT from</div>
         <div className="text-base sm:text-lg font-semibold leading-none text-ink">
           $649
-          <span className="type-eyebrow text-ink ml-1 font-semibold text-[9px] sm:text-[10px]">
+          <span className="type-eyebrow ml-1 text-ink">
             all-inclusive
           </span>
         </div>

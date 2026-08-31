@@ -119,7 +119,7 @@ export default function Food({ content = null, htmlId }: FoodProps = {}) {
                     <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-secondary/10 bg-secondary/10 text-secondary">
                       <Check size={11} className="stroke-[2.5]" />
                     </span>
-                    <span className="type-body pt-0.5 leading-snug text-ink">
+                    <span className="type-body pt-0.5 text-ink">
                       {point}
                     </span>
                   </li>
@@ -137,10 +137,10 @@ export default function Food({ content = null, htmlId }: FoodProps = {}) {
             className="mt-6 lg:mt-8"
           >
             <div className="rounded-2xl border border-secondary/15 bg-secondary/5 p-4 sm:p-5">
-              <p className="text-sm font-semibold uppercase tracking-wider mb-1 text-secondary">
+              <p className="type-eyebrow mb-1 text-secondary">
                 Something in particular?
               </p>
-              <p className="text-sm font-medium leading-relaxed text-ink">
+              <p className="type-body text-ink">
                 {foodContent.dietaryNote}
               </p>
             </div>

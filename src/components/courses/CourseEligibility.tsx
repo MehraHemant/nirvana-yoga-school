@@ -107,14 +107,14 @@ function PrerequisiteCard({
         <div className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
           <IconComponent size={14} />
         </div>
-        <span className="font-semibold tracking-wide text-sm text-ink">
+        <span className="type-ui text-ink">
           Prerequisite {num}
         </span>
       </div>
-      <h4 className="text-lg md:text-xl lg:text-2xl font-semibold text-ink">
+      <h4 className="type-h4 text-ink">
         {title}
       </h4>
-      <p className="text-base font-medium text-ink">{desc}</p>
+      <p className="type-body text-ink">{desc}</p>
     </motion.div>
   );
 }
@@ -151,7 +151,7 @@ export default function CourseEligibility({
           {/* Column 1 (Left 4-cols): Header & Intro */}
           <div className="lg:col-span-4 space-y-6">
             <SectionHeader eyebrow={eyebrow} title={title} align="left" />
-            <p className="text-ink text-base/normal font-medium">
+            <p className="type-body text-ink">
               {description}
             </p>
             {showAllianceBadge && (
@@ -159,7 +159,7 @@ export default function CourseEligibility({
                 <div className="text-primary/70 select-none">
                   <YogaAllianceSeal size={38} />
                 </div>
-                <div className="text-xs text-ink leading-normal">
+                <div className="type-ui text-ink">
                   <span className="font-semibold text-ink block">
                     RYS 200/300/500
                   </span>

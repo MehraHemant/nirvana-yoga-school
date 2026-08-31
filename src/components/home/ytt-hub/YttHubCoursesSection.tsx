@@ -55,7 +55,7 @@ export default function YttHubCoursesSection({
               {supporting.map((paragraph) => (
                 <p
                   key={paragraph.slice(0, 48)}
-                  className="type-body leading-relaxed text-ink"
+                  className="type-body text-ink"
                 >
                   {paragraph}
                 </p>

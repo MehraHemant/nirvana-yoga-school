@@ -183,7 +183,7 @@ export default function RetreatClient({
         href={`/retreat-booking?course=${encodeURIComponent(retreat.slug)}`}
       />
 
-      <article className="min-h-screen max-w-full bg-white">
+      <article className="min-h-screen max-w-full overflow-x-clip bg-white">
         {showOverview ? (
           <CourseOverview
             htmlId={resolveSectionHtmlId("overview", modules?.overview._id)}

@@ -6,7 +6,7 @@ import type {
 
 /**
  * Converts any hero variant into a venue-friendly simple-banner.
- * Venue pages use DarkMediaHero (one background image + copy), not course bento.
+ * Venue pages use a clear full-bleed image hero + copy below, not course bento.
  *
  * @param hero - Existing hero module (any type)
  * @param fallbackImage - Image used when the hero has no media

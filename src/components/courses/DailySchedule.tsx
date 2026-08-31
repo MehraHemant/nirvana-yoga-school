@@ -165,7 +165,7 @@ export default function DailySchedule({
             }
             align="center"
           />
-          <p className="text-ink mt-6 max-w-xl mx-auto text-base sm:text-lg">
+          <p className="type-lead mx-auto mt-6 max-w-xl text-ink">
             {description}
           </p>
         </motion.div>
@@ -229,7 +229,7 @@ export default function DailySchedule({
                     <div
                       className={`pl-12 sm:pl-0 w-full sm:w-[44%] ${isEven ? "text-left sm:text-right sm:order-first" : "text-left sm:text-left sm:order-last"}`}
                     >
-                      <span className="inline-block font-semibold text-primary px-3 py-1 bg-primary/5 rounded-full border border-primary/10 sm:border-0 sm:bg-transparent sm:p-0 sm:text-base tracking-wide">
+                      <span className="type-ui inline-block rounded-full border border-primary/10 bg-primary/5 px-3 py-1 text-primary sm:border-0 sm:bg-transparent sm:p-0">
                         {item.time}
                       </span>
                     </div>
@@ -248,10 +248,10 @@ export default function DailySchedule({
                           <ScheduleIcon type={iconType} />
                         </div>
                         <div className="space-y-1">
-                          <h4 className="text-ink leading-tight font-semibold">
+                          <h4 className="type-h4 text-ink">
                             {item.activity}
                           </h4>
-                          <span className="text-sm text-ink block font-medium">
+                          <span className="type-ui block text-ink">
                             {SCHEDULE_ICON_META[iconType].caption}
                           </span>
                         </div>
@@ -265,7 +265,7 @@ export default function DailySchedule({
         </div>
 
         {/* Footer Warning block */}
-        <div className="surface-panel mx-auto mt-16 max-w-md rounded-2xl p-4 text-center text-xs lg:text-sm font-semibold text-ink shadow-xs">
+        <div className="surface-panel type-ui mx-auto mt-16 max-w-md rounded-2xl p-4 text-center text-ink shadow-xs">
           ⚠️ <strong>Note:</strong> The schedule is subject to minor adjustments
           based on seasonal weather conditions, excursion timings (Sundays), or
           special ceremonies.

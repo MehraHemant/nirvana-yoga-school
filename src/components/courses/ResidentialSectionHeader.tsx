@@ -61,10 +61,10 @@ export function ResidentialSectionIntro({
   return (
     <div className="border-l-2 border-secondary/35 pl-4 sm:pl-5">
       <p className="type-eyebrow mb-1.5 text-primary">{eyebrow}</p>
-      <h3 className="mb-2 text-lg md:text-2xl font-semibold">
+      <h3 className="type-h4 mb-2">
         {title}
       </h3>
-      <p className="text-base lg:text-lg font-normal text-ink leading-snug">{description}</p>
+      <p className="type-body text-ink">{description}</p>
     </div>
   );
 }

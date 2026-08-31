@@ -93,7 +93,7 @@ function AuthenticYogaVideoTile({
         </button>
       )}
       {caption.trim() ? (
-        <p className="mt-3 text-center text-sm font-semibold leading-snug text-ink sm:text-[1.0625rem]">
+        <p className="type-body mt-3 text-center font-medium text-ink">
           {caption}
         </p>
       ) : null}

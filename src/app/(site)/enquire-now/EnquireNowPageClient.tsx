@@ -145,13 +145,13 @@ export default function EnquireNowPageClient({
             variants={fadeUp}
             className="max-w-2xl space-y-5"
           >
-            <span className="type-eyebrow font-semibold tracking-widest text-white/80 uppercase">
+            <span className="type-eyebrow text-white/80">
               {content.hero.eyebrow}
             </span>
-            <h1 className="text-4xl font-bold leading-[1.08] tracking-tight text-white sm:text-5xl md:text-6xl">
+            <h1 className="type-h1 text-white">
               {content.hero.title}
             </h1>
-            <p className="type-lead max-w-xl pt-1 text-base leading-relaxed text-white/85 sm:text-lg">
+            <p className="type-lead max-w-xl pt-1 text-white/85">
               {content.hero.lead}
             </p>
 
@@ -201,7 +201,7 @@ export default function EnquireNowPageClient({
                   <span className="type-eyebrow block font-semibold uppercase text-primary">
                     {content.form.eyebrow}
                   </span>
-                  <h2 className="text-2xl font-bold text-ink sm:text-3xl">
+                  <h2 className="type-h3 text-ink">
                     {content.form.title}
                   </h2>
                   <p className="text-sm leading-relaxed text-ink">
@@ -215,10 +215,10 @@ export default function EnquireNowPageClient({
                       key={item.step}
                       className="surface-panel rounded-2xl p-4 sm:p-5"
                     >
-                      <span className="type-eyebrow text-[10px] font-bold text-secondary">
+                      <span className="type-eyebrow text-secondary">
                         {item.step}
                       </span>
-                      <h3 className="mt-1 text-base font-bold text-ink">
+                      <h3 className="type-h4 mt-1 text-ink">
                         {item.title}
                       </h3>
                       <p className="mt-1.5 text-sm leading-relaxed text-ink">
@@ -238,13 +238,13 @@ export default function EnquireNowPageClient({
                     <Compass size={20} className="text-secondary" />
                   </span>
                   <div className="min-w-0 space-y-1">
-                    <h3 className="type-ui font-bold text-ink">
+                    <h3 className="type-ui font-semibold text-ink">
                       Ashram in Tapovan
                     </h3>
                     <p className="text-sm text-ink">
                       Upper Tapovan, Rishikesh · Uttarakhand, India
                     </p>
-                    <span className="inline-block pt-1 text-[11px] font-semibold text-secondary">
+                    <span className="inline-block pt-1 text-[11px] font-medium leading-[1.4] text-secondary">
                       View on Google Maps →
                     </span>
                   </div>
@@ -270,7 +270,7 @@ export default function EnquireNowPageClient({
                         <Check size={28} className="stroke-3" />
                       </div>
                       <div className="space-y-2">
-                        <h3 className="text-2xl font-bold text-ink">
+                        <h3 className="type-h3 text-ink">
                           Enquiry received!
                         </h3>
                         <p className="mx-auto max-w-sm text-sm leading-relaxed text-ink">
@@ -313,7 +313,7 @@ export default function EnquireNowPageClient({
                         <span className="type-eyebrow mb-1 block font-semibold uppercase text-primary">
                           Programme Enquiry
                         </span>
-                        <h3 className="text-xl font-bold text-ink sm:text-2xl">
+                        <h3 className="type-h4 text-ink">
                           Tell us about your plans
                         </h3>
                       </div>
@@ -322,7 +322,7 @@ export default function EnquireNowPageClient({
                         <div className="space-y-2">
                           <label
                             htmlFor="enquire-name"
-                            className="text-xs font-semibold text-ink"
+                            className="text-xs font-medium leading-[1.4] text-ink"
                           >
                             Full Name *
                           </label>
@@ -342,7 +342,7 @@ export default function EnquireNowPageClient({
                         <div className="space-y-2">
                           <label
                             htmlFor="enquire-email"
-                            className="text-xs font-semibold text-ink"
+                            className="text-xs font-medium leading-[1.4] text-ink"
                           >
                             Email Address *
                           </label>
@@ -367,7 +367,7 @@ export default function EnquireNowPageClient({
                         <div className="space-y-2">
                           <label
                             htmlFor="enquire-phone"
-                            className="text-xs font-semibold text-ink"
+                            className="text-xs font-medium leading-[1.4] text-ink"
                           >
                             WhatsApp / Phone *
                           </label>
@@ -391,7 +391,7 @@ export default function EnquireNowPageClient({
                         <div className="space-y-2">
                           <label
                             htmlFor="enquire-program"
-                            className="text-xs font-semibold text-ink"
+                            className="text-xs font-medium leading-[1.4] text-ink"
                           >
                             Program of Interest *
                           </label>
@@ -413,7 +413,7 @@ export default function EnquireNowPageClient({
                         <div className="space-y-2">
                           <label
                             htmlFor="enquire-start-date"
-                            className="text-xs font-semibold text-ink"
+                            className="text-xs font-medium leading-[1.4] text-ink"
                           >
                             Preferred Start Date
                           </label>
@@ -435,7 +435,7 @@ export default function EnquireNowPageClient({
                         <div className="space-y-2">
                           <label
                             htmlFor="enquire-accommodation"
-                            className="text-xs font-semibold text-ink"
+                            className="text-xs font-medium leading-[1.4] text-ink"
                           >
                             Accommodation Preference
                           </label>
@@ -457,7 +457,7 @@ export default function EnquireNowPageClient({
                       <div className="space-y-2">
                         <label
                           htmlFor="enquire-message"
-                          className="text-xs font-semibold text-ink"
+                          className="text-xs font-medium leading-[1.4] text-ink"
                         >
                           Your Message *
                         </label>
@@ -498,7 +498,7 @@ export default function EnquireNowPageClient({
                         <button
                           type="submit"
                           disabled={formState === "submitting"}
-                          className="group flex w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-primary px-8 py-3.5 text-sm font-bold text-white shadow-xs transition-all duration-300 hover:bg-primary-dark hover:shadow-soft"
+                          className="group flex w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-primary px-8 py-3.5 text-sm font-semibold text-white shadow-xs transition-all duration-300 hover:bg-primary-dark hover:shadow-soft"
                         >
                           {formState === "submitting" ? (
                             "Sending Enquiry..."

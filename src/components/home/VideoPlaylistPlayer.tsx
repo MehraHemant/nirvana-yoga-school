@@ -2,10 +2,14 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Play } from "@/icons";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 import type { YouTubeVideo } from "@/lib/youtube";
+import {
+  postYouTubeCommand,
+  useViewportMutedAutoplay,
+} from "./useViewportMutedAutoplay";
 
 function formatDuration(totalSeconds: number) {
   const minutes = Math.floor(totalSeconds / 60);
@@ -13,12 +17,22 @@ function formatDuration(totalSeconds: number) {
   return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 }
 
+/**
+ * Builds a YouTube embed URL; muted autoplay + jsapi for viewport play/pause.
+ *
+ * @param videoId - YouTube video id
+ * @param autoplay - Whether to start muted autoplay
+ */
 function buildEmbedUrl(videoId: string, autoplay: boolean) {
   const params = new URLSearchParams({
     rel: "0",
     modestbranding: "1",
     playsinline: "1",
+    enablejsapi: "1",
   });
+  if (typeof window !== "undefined") {
+    params.set("origin", window.location.origin);
+  }
   if (autoplay) {
     params.set("autoplay", "1");
     params.set("mute", "1");
@@ -71,7 +85,7 @@ function VideoPlaylistItem({
         {isActive && (
           <span className="absolute left-2 top-2 flex items-center gap-1 rounded-full bg-primary px-2 py-0.5 md:hidden">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
-            <span className="type-eyebrow text-[9px] normal-case tracking-normal text-white">
+            <span className="type-eyebrow normal-case tracking-normal text-white">
               Live
             </span>
           </span>
@@ -83,12 +97,12 @@ function VideoPlaylistItem({
 
       <div className="flex min-w-0 flex-1 flex-col justify-center gap-1 p-3 md:py-1 md:pr-1 md:pl-0">
         <span
-          className={`type-eyebrow text-[10px] sm:text-xs ${isActive ? "text-primary" : "text-ink"}`}
+          className={`type-eyebrow ${isActive ? "text-primary" : "text-ink"}`}
         >
           {isActive ? "Now playing" : video.channel}
         </span>
         <span
-          className={`type-ui line-clamp-2 font-semibold leading-snug md:line-clamp-3 md:text-[0.9375rem] ${isActive ? "text-primary" : "text-ink group-hover:text-primary"}`}
+          className={`type-ui line-clamp-2 font-semibold md:line-clamp-3 ${isActive ? "text-primary" : "text-ink group-hover:text-primary"}`}
         >
           {video.title}
         </span>
@@ -105,10 +119,10 @@ type VideoPlaylistPlayerProps = {
 };
 
 /**
- * Starts muted autoplay after the user taps play or picks a playlist item.
+ * Starts muted autoplay after viewport entry, play tap, or playlist selection.
  *
  * @param setStarted - Marks the main player as interactive
- * @param setAutoplay - Enables muted autoplay after user intent
+ * @param setAutoplay - Enables muted autoplay unless reduced motion
  * @param setPlayerKey - Remounts the iframe
  * @param prefersReduced - When true, skips autoplay
  */
@@ -124,10 +138,9 @@ function startPlayback(
 }
 
 /**
- * Playlist-left / player-right YouTube player. Poster + play control first;
- * the iframe mounts only after click (or playlist selection). Shared by the
- * course overview (and similar surfaces). On large screens the playlist
- * column matches the player height and scrolls internally.
+ * Playlist-left / player-right YouTube player. Poster first; muted autoplay
+ * when the player enters the viewport (or after click / playlist selection).
+ * Pauses when scrolled out of view. Shared by the course overview.
  *
  * @param props - Videos to show and optional grid wrapper classes
  */
@@ -135,6 +148,8 @@ export default function VideoPlaylistPlayer({
   videos,
   className = "",
 }: VideoPlaylistPlayerProps) {
+  const playerRef = useRef<HTMLDivElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   const [activeId, setActiveId] = useState(videos[0]?.id ?? "");
   const [playerKey, setPlayerKey] = useState(0);
   const [started, setStarted] = useState(false);
@@ -155,6 +170,16 @@ export default function VideoPlaylistPlayer({
       setPlayerKey((key) => key + 1);
     }
   }, [videos, activeId]);
+
+  useViewportMutedAutoplay({
+    rootRef: playerRef,
+    prefersReduced,
+    started,
+    onStart: () =>
+      startPlayback(setStarted, setAutoplay, setPlayerKey, prefersReduced),
+    onResume: () => postYouTubeCommand(iframeRef.current, "playVideo"),
+    onPause: () => postYouTubeCommand(iframeRef.current, "pauseVideo"),
+  });
 
   /**
    * Selects a playlist item and mounts the iframe if needed.
@@ -188,10 +213,14 @@ export default function VideoPlaylistPlayer({
             aria-hidden="true"
           />
           <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl">
-            <div className="relative aspect-video w-full bg-ink">
+            <div
+              ref={playerRef}
+              className="relative aspect-video w-full bg-ink"
+            >
               {started ? (
                 <iframe
                   key={playerKey}
+                  ref={iframeRef}
                   src={buildEmbedUrl(activeId, autoplay)}
                   title={`${active.title} — ${active.channel}`}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"

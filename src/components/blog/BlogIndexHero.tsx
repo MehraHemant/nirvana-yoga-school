@@ -44,7 +44,7 @@ export function BlogIndexHero({ imageSrc }: BlogIndexHeroProps) {
             <p className="animate-fade-up text-lg font-semibold sm:text-xl">
               Nirvana Yoga School
             </p>
-            <h1 className="animate-fade-up fade-delay-100 mt-2 text-[clamp(2rem,4.5vw,3.25rem)] font-bold leading-[0.98] tracking-[-0.03em]">
+            <h1 className="animate-fade-up fade-delay-100 mt-2 text-[clamp(1.75rem,4vw,2.875rem)] font-semibold leading-[1.08] tracking-[-0.02em]">
               The Journal
             </h1>
             <p className="animate-fade-up fade-delay-200 mt-3 text-sm leading-relaxed text-white/75 sm:text-base">

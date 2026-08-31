@@ -83,12 +83,12 @@ export default function OnlineCourseHero({
             <Heading
               as="h1"
               size="none"
-              className="max-w-3xl text-balance text-[1.75rem] font-bold leading-[1.08] tracking-tight sm:text-4xl md:text-[2.5rem] lg:text-[2.75rem]"
+              className="type-h1 max-w-3xl text-balance"
             >
               {title}
             </Heading>
             {subtitle ? (
-              <p className="max-w-3xl text-pretty  sm:text-base md:text-lg">
+              <p className="type-lead max-w-3xl text-pretty text-ink">
                 {subtitle}
               </p>
             ) : null}
@@ -106,7 +106,7 @@ export default function OnlineCourseHero({
               {metaItems.map((item) => (
                 <div key={item.label} className="min-w-22">
                   <dt className="type-eyebrow text-muted">{item.label}</dt>
-                  <dd className="mt-1 text-sm font-semibold leading-snug text-secondary">
+                  <dd className="mt-1 text-sm font-medium leading-snug text-secondary">
                     {item.value}
                   </dd>
                 </div>

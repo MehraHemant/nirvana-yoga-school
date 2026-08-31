@@ -12,12 +12,7 @@ import type {
 } from "@/content/types/shared-sections";
 import { shouldRenderSection } from "@/lib/cms/section-visibility";
 import { resolveSectionHtmlId } from "@/lib/html-id";
-import {
-  EASE_OUT,
-  fadeUp,
-  reducedTransition,
-  VIEWPORT_ONCE,
-} from "@/lib/motion";
+import { EASE_OUT, reducedTransition } from "@/lib/motion";
 import { ImageGalleryPanel } from "./AccommodationGalleryPanel";
 import { facilityIcon } from "./facility-icons";
 import {
@@ -90,7 +85,7 @@ function RoomTypeSelector({
                 </div>
 
                 <p
-                  className={`min-w-0 truncate font-semibold leading-snug ${isActive ? "text-ink" : "text-ink"}`}
+                  className={`type-ui min-w-0 truncate font-semibold ${isActive ? "text-ink" : "text-ink"}`}
                 >
                   {room.label}
                 </p>
@@ -107,48 +102,37 @@ function RoomTypeSelector({
   );
 }
 
-/** Shared responsive column classes for facility grids. */
-const FACILITY_GRID_COLS =
-  "grid grid-cols-1 gap-2.5 sm:grid-cols-2 sm:gap-3 lg:grid-cols-3 lg:gap-3.5";
+/** Shared responsive column classes for amenity lists. */
+const AMENITY_GRID_COLS =
+  "grid grid-cols-1 gap-x-10 gap-y-4 sm:grid-cols-2 lg:grid-cols-3";
 
 /**
- * Uniform grid tile for a single campus amenity — icon + label on one line.
+ * Polished amenity row — soft icon well + label, optional on-request note.
  *
- * @param props - Facility data and the accent used for the icon tint
+ * @param props - Facility data from the residential-life API
  */
-function FacilityGridTile({
-  facility,
-  variant,
-}: {
-  facility: SharedFacility;
-  variant: "included" | "addon";
-}) {
+function AmenityItem({ facility }: { facility: SharedFacility }) {
   const Icon = facilityIcon(facility.iconKey);
-  const isAddon = variant === "addon";
-  const hasNote = Boolean(facility.note);
+  const isAddon = Boolean(facility.note);
 
   return (
-    <li
-      className={`group flex list-none gap-3 rounded-2xl border border-ink/8 bg-white px-3.5 py-3 shadow-xs transition-all duration-300 hover:shadow-sm sm:gap-3.5 sm:px-4 sm:py-3.5 ${
-        hasNote ? "items-start" : "items-center"
-      } ${isAddon ? "hover:border-secondary/20" : "hover:border-primary/15"}`}
-    >
-      <div
-        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ring-1 transition-colors duration-300 sm:h-10 sm:w-10 ${
+    <li className="flex list-none items-start gap-3">
+      <span
+        className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
           isAddon
-            ? "bg-secondary/10 text-secondary ring-secondary/15 group-hover:bg-secondary/15"
-            : "bg-primary/8 text-primary ring-primary/10 group-hover:bg-primary/12"
-        } ${hasNote ? "mt-0.5" : ""}`}
+            ? "bg-secondary/10 text-secondary"
+            : "bg-primary/8 text-primary"
+        }`}
+        aria-hidden
       >
-        <Icon size={18} strokeWidth={2} aria-hidden />
-      </div>
-
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-semibold leading-snug text-ink sm:text-[0.9375rem]">
+        <Icon size={16} strokeWidth={1.85} />
+      </span>
+      <div className="min-w-0 pt-0.5">
+        <p className="type-ui font-medium leading-snug text-ink">
           {facility.label}
         </p>
         {facility.note ? (
-          <p className="mt-0.5 text-xs leading-relaxed text-ink/65 sm:text-sm">
+          <p className="mt-0.5 text-sm leading-relaxed text-ink/55">
             {facility.note}
           </p>
         ) : null}
@@ -158,38 +142,25 @@ function FacilityGridTile({
 }
 
 /**
- * Text-labelled grid of facilities for one group (included or on request).
+ * Labelled amenity group (included stay items or on-request extras).
  *
- * @param props - Group label, facilities, and the accent used for the icons
+ * @param props - Group label and amenity items
  */
-function FacilityGroup({
+function AmenityGroup({
   label,
   facilities,
-  variant,
 }: {
   label: string;
   facilities: SharedFacility[];
-  variant: "included" | "addon";
 }) {
   if (facilities.length === 0) return null;
 
   return (
-    <div className="space-y-3 sm:space-y-3.5">
-      <p
-        className={`type-eyebrow ${
-          variant === "addon" ? "text-secondary" : "text-primary"
-        }`}
-      >
-        {label}
-      </p>
-
-      <ul className={FACILITY_GRID_COLS}>
+    <div className="space-y-4">
+      <p className="type-eyebrow tracking-wide text-ink/50">{label}</p>
+      <ul className={AMENITY_GRID_COLS}>
         {facilities.map((facility) => (
-          <FacilityGridTile
-            key={facility.label}
-            facility={facility}
-            variant={variant}
-          />
+          <AmenityItem key={facility.label} facility={facility} />
         ))}
       </ul>
     </div>
@@ -197,37 +168,34 @@ function FacilityGroup({
 }
 
 /**
- * Grid of included campus amenities with per-amenity icons and paid-extra notes.
+ * Campus amenities — included items plus on-request extras from CMS.
  *
  * @param props - Facilities from the residential-life API
  */
-function FacilitiesGrid({ facilities }: { facilities: SharedFacility[] }) {
+function AmenitiesSection({ facilities }: { facilities: SharedFacility[] }) {
+  if (facilities.length === 0) return null;
+
   const included = facilities.filter((facility) => !facility.note);
   const addOns = facilities.filter((facility) => Boolean(facility.note));
   const hasBothGroups = included.length > 0 && addOns.length > 0;
 
   return (
-    <div className="space-y-7 border-t border-ink/5 pt-8 sm:space-y-8 sm:pt-10 lg:space-y-9 lg:pt-12">
+    <div className="space-y-7 border-t border-ink/5 pt-8 sm:space-y-8 sm:pt-10 lg:pt-12">
       <ResidentialSectionIntro
-        eyebrow="Campus facilities"
+        eyebrow="Campus amenities"
         title="Everything for a comfortable ashram stay"
         description="Core amenities are included with your stay — extras like heaters or laundry are available on request."
       />
 
       <div className="space-y-7 sm:space-y-8">
-        <FacilityGroup
+        <AmenityGroup
           label={hasBothGroups ? "Included with your stay" : "Campus amenities"}
           facilities={included}
-          variant="included"
         />
         {hasBothGroups ? (
-          <div className="border-t border-ink/5" aria-hidden="true" />
+          <div className="border-t border-ink/6" aria-hidden="true" />
         ) : null}
-        <FacilityGroup
-          label="Available on request"
-          facilities={addOns}
-          variant="addon"
-        />
+        <AmenityGroup label="Available on request" facilities={addOns} />
       </div>
     </div>
   );
@@ -242,7 +210,7 @@ type AccommodationProps = {
 
 /**
  * Ashram lodging section — room-type selector with a synced photo gallery and
- * a campus facilities grid. Default anchor: `#accommodation`.
+ * campus amenities. Default anchor: `#accommodation`.
  *
  * @param props - Server-provided residential-life content
  */
@@ -295,44 +263,44 @@ export default function Accommodation({
 
       <Container size="2xl" className="relative w-full">
         <div className="grid items-start gap-6 lg:grid-cols-12 lg:gap-8 xl:gap-10">
-          <div className="flex min-w-0 flex-col gap-5 lg:col-span-5">
+          <div className="min-w-0 space-y-5 lg:col-span-5">
             <ResidentialSectionHeader
               eyebrow={
                 content.accommodation.eyebrow?.trim() || "Residential Life"
               }
               title={
                 content.accommodation.title?.trim() ? (
-                  content.accommodation.title
+                  <span className="whitespace-nowrap">
+                    {content.accommodation.title}
+                  </span>
                 ) : (
-                  <>
+                  <span className="whitespace-nowrap">
                     Ashram <span className="text-primary">Accommodation</span>
-                  </>
+                  </span>
                 )
               }
             />
 
-            <div className="space-y-5">
-              <ResidentialSectionIntro
-                eyebrow="Residential Life"
-                title={
-                  content.accommodation.stay.title.trim() ? (
-                    content.accommodation.stay.title
-                  ) : (
-                    <>
-                      Comfortable stay in the{" "}
-                      <span className="text-primary">heart of Rishikesh</span>
-                    </>
-                  )
-                }
-                description={content.accommodation.stay.description}
-              />
+            <ResidentialSectionIntro
+              eyebrow="Residential Life"
+              title={
+                content.accommodation.stay.title.trim() ? (
+                  content.accommodation.stay.title
+                ) : (
+                  <>
+                    Comfortable stay in the{" "}
+                    <span className="text-primary">heart of Rishikesh</span>
+                  </>
+                )
+              }
+              description={content.accommodation.stay.description}
+            />
 
-              <RoomTypeSelector
-                galleries={galleries}
-                activeId={roomTab}
-                onChange={setRoomTab}
-              />
-            </div>
+            <RoomTypeSelector
+              galleries={galleries}
+              activeId={roomTab}
+              onChange={setRoomTab}
+            />
           </div>
 
           <div className="min-w-0 lg:col-span-7">
@@ -366,15 +334,16 @@ export default function Accommodation({
           </div>
         </div>
 
-        <motion.div
+        {/* Temporarily hidden — Campus amenities */}
+        {/* <motion.div
           initial="hidden"
           whileInView="visible"
           viewport={VIEWPORT_ONCE}
           variants={fadeUp}
           className="mt-8 sm:mt-10 lg:mt-12"
         >
-          <FacilitiesGrid facilities={content.facilities} />
-        </motion.div>
+          <AmenitiesSection facilities={content.facilities} />
+        </motion.div> */}
       </Container>
 
       <MediaLightbox

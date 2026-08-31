@@ -55,7 +55,7 @@ export default function FinalCTASection({
         <Heading as="h2" align="center" size="h2" invert>
           {title}
           <br />
-          <span className="font-bold text-accent">{titleAccent}</span>
+          <span className="font-semibold text-accent">{titleAccent}</span>
         </Heading>
         <p className="type-lead mt-4 sm:mt-6 text-white/85 max-w-2xl mx-auto">
           {lead}

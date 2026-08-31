@@ -157,7 +157,7 @@ export default function TravelGuide({
               </>
             }
           />
-          <p className="type-body border-l-2 border-primary/20 pl-4 text-ink sm:text-base">
+          <p className="type-body border-l-2 border-primary/20 pl-4 text-ink">
             {intro}
           </p>
         </div>

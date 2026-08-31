@@ -238,14 +238,14 @@ export default function GallerySection({
                     </button>
 
                     <div className="mt-1 px-2">
-                      <span className="text-[10px] uppercase font-semibold tracking-widest leading-snug text-primary">
+                      <span className="type-eyebrow text-primary">
                         {item.category === "practice"
                           ? "Yoga Practice"
                           : item.category === "campus"
                             ? "Campus Life"
                             : "Excursion"}
                       </span>
-                      <h4 className="text-xs sm:text-sm text-ink leading-tight transition-colors duration-300 truncate">
+                      <h4 className="type-ui truncate text-ink transition-colors duration-300">
                         {item.title}
                       </h4>
                     </div>

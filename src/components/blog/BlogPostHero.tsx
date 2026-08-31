@@ -86,11 +86,11 @@ export function BlogPostHero({ post }: BlogPostHeroProps) {
               ) : null}
             </div>
 
-            <h1 className="animate-fade-up fade-delay-200 mt-7 max-w-4xl text-balance text-[clamp(2.35rem,5.6vw,4.4rem)] font-bold leading-[1.04] tracking-tight text-white sm:mt-8">
+            <h1 className="animate-fade-up fade-delay-200 mt-7 max-w-4xl text-balance text-[clamp(2rem,4.8vw,3.5rem)] font-semibold leading-[1.1] tracking-[-0.02em] text-white sm:mt-8">
               {post.title}
             </h1>
 
-            <p className="animate-fade-up fade-delay-300 mt-6 max-w-2xl text-pretty text-[clamp(1.15rem,2vw,1.4rem)] font-semibold leading-snug tracking-[-0.01em] text-white/82 sm:mt-7">
+            <p className="animate-fade-up fade-delay-300 mt-6 max-w-2xl text-pretty text-[clamp(1.0625rem,1rem+0.5vw,1.25rem)] font-normal leading-[1.6] text-white/82 sm:mt-7">
               {post.excerpt}
             </p>
           </div>

@@ -59,14 +59,30 @@ export async function loadCoursePageData(
       modules)
     : modules;
 
+  // Why-online is online-hub only — never pass it to residential course pages.
+  const courseModules = hydratedModules
+    ? (() => {
+        const { whyOnline: _whyOnline, ...rest } = hydratedModules;
+        return {
+          ...rest,
+          stickyNav: {
+            ...rest.stickyNav,
+            items: rest.stickyNav.items.filter(
+              (item) => item.id !== "#why-online",
+            ),
+          },
+        };
+      })()
+    : null;
+
   const faqResult = await resolvePageFaqs(slug, course.faqs).catch(() => ({
     data: course.faqs,
     source: "db" as const,
   }));
   const hydratedCourse = { ...course, faqs: faqResult.data };
 
-  const media: CourseMedia = modules
-    ? extractMediaFromModules(modules)
+  const media: CourseMedia = courseModules
+    ? extractMediaFromModules(courseModules)
     : { images: [], videos: [] };
 
   const videos = await fetchYouTubeVideos(
@@ -74,7 +90,7 @@ export async function loadCoursePageData(
   );
   const residentialLife = await resolveProductResidentialLife(
     "course",
-    modules?.residentialLife,
+    courseModules?.residentialLife,
     { pageSlug: slug },
   ).catch((error) => {
     console.error(
@@ -88,7 +104,7 @@ export async function loadCoursePageData(
     course: hydratedCourse,
     media,
     videos,
-    modules: hydratedModules,
+    modules: courseModules,
     residentialLife,
     whyNirvana: whyNirvana?.data ?? null,
     reviews: reviews?.data ?? null,

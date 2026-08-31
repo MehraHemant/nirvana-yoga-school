@@ -34,7 +34,7 @@ export default function SectionHeader({
     <div className={`${alignment} ${className}`}>
       {eyebrow && (
         <div
-          className={`uppercase tracking-wider ${eyebrowColor} mb-3 sm:mb-4`}
+          className={`type-eyebrow ${eyebrowColor} mb-3 sm:mb-4`}
         >
           {eyebrow}
         </div>
@@ -44,13 +44,12 @@ export default function SectionHeader({
         align={align}
         invert={invert}
         size="h2"
-        className="leading-tight"
       >
         {title}
       </Heading>
       {description && (
         <p
-          className={`text-base lg:text-base xl:text-lg leading-tight mt-4 sm:mt-5 ${descriptionClassName ?? descColor}`}
+          className={`type-lead mt-4 sm:mt-5 ${descriptionClassName ?? descColor}`}
         >
           {description}
         </p>

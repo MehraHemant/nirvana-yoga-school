@@ -56,7 +56,7 @@ export default function PageEditorialSection({
                 {section.body?.split("\n\n").map((paragraph) => (
                   <p
                     key={paragraph.slice(0, 48)}
-                    className="type-lead leading-relaxed text-ink"
+                    className="type-lead text-ink"
                   >
                     {paragraph}
                   </p>
@@ -88,7 +88,7 @@ export default function PageEditorialSection({
                       {sub.title}
                     </h3>
                     {sub.body && (
-                      <p className="type-body leading-relaxed text-ink">
+                      <p className="type-body text-ink">
                         {sub.body}
                       </p>
                     )}

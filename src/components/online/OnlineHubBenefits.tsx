@@ -101,7 +101,7 @@ export default function OnlineHubBenefits({
           >
             <div className="online-why-intro max-w-md lg:max-w-lg">
               <p
-                className="online-why-count mb-6 text-[0.7rem] tracking-[0.22em] text-primary uppercase sm:mb-7"
+                className="online-why-count type-eyebrow mb-6 text-primary sm:mb-7"
                 aria-hidden="true"
               >
                 {countLabel} reasons
@@ -166,11 +166,11 @@ export default function OnlineHubBenefits({
                     </motion.span>
 
                     <div className="min-w-0 pt-1">
-                      <h3 className="text-[1.3rem] leading-[1.2] tracking-[-0.01em] text-ink sm:text-[1.5rem]">
+                      <h3 className="text-[1.3rem] font-semibold leading-tight tracking-[-0.01em] text-ink sm:text-[1.5rem]">
                         {itemTitle}
                       </h3>
                       {itemDescription ? (
-                        <p className="mt-2.5 max-w-md type-body leading-relaxed text-ink sm:mt-3">
+                        <p className="type-body mt-2.5 max-w-md text-ink sm:mt-3">
                           {itemDescription}
                         </p>
                       ) : null}

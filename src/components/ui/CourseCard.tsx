@@ -141,7 +141,7 @@ function FocusList({ highlights }: { highlights: string[] }) {
           <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-primary/10">
             <Check size={11} strokeWidth={3} className="text-primary" />
           </span>
-          <span className="type-body text-sm leading-snug text-ink">
+          <span className="text-sm leading-[1.6] text-ink">
             {item}
           </span>
         </li>
@@ -251,7 +251,7 @@ function CourseCardImage({
 
           {hours ? (
             <span
-              className={`absolute z-20 font-bold text-white shadow-sm ${badgePad} ${hub ? "rounded-full bg-primary px-2 py-0.5 text-[9px] tracking-wide" : stacked ? "rounded-md bg-primary px-2.5 py-1 type-eyebrow tracking-[0.14em]" : "rounded-full bg-primary px-3 py-1 type-eyebrow"}`}
+              className={`absolute z-20 font-semibold text-white shadow-sm ${badgePad} ${hub ? "rounded-full bg-primary px-2 py-0.5 text-[9px] tracking-wide" : stacked ? "rounded-md bg-primary px-2.5 py-1 type-eyebrow tracking-[0.14em]" : "rounded-full bg-primary px-3 py-1 type-eyebrow"}`}
               style={{
                 transform: prefersReduced ? "none" : "translateZ(15px)",
               }}
@@ -356,7 +356,7 @@ function CourseCardBody({
         className={
           editorial
             ? "type-display-sm mt-1.5 line-clamp-2 font-semibold tracking-tight leading-snug text-ink transition-colors duration-300 group-hover:text-primary"
-            : "mt-2 line-clamp-2 text-[1.3rem] font-bold leading-[1.16] tracking-tight text-ink transition-colors duration-300 group-hover:text-primary sm:text-[1.4rem] lg:text-[1.3rem] xl:text-[1.35rem] 2xl:text-[1.45rem]"
+            : "mt-2 line-clamp-2 text-[1.25rem] font-semibold leading-[1.2] tracking-[-0.015em] text-ink transition-colors duration-300 group-hover:text-primary sm:text-[1.35rem] lg:text-[1.25rem] xl:text-[1.3rem] 2xl:text-[1.35rem]"
         }
       >
         {title}
@@ -366,8 +366,8 @@ function CourseCardBody({
         <p
           className={
             editorial
-              ? "mt-2 line-clamp-2 text-sm leading-snug text-ink sm:text-[0.9375rem]"
-              : "mt-1.5 line-clamp-1 text-[12.5px] leading-snug text-ink"
+              ? "mt-2 line-clamp-2 text-sm leading-[1.55] text-ink sm:text-[0.9375rem]"
+              : "mt-1.5 line-clamp-1 text-[12.5px] leading-normal text-ink"
           }
         >
           {description}
@@ -381,7 +381,7 @@ function CourseCardBody({
       ) : (
         <div className="mt-3 grid grid-cols-[0.9fr_1fr_1.15fr] border-y border-ink/10">
           <div className="min-w-0 py-2.5 pr-2">
-            <p className="text-[9px] font-semibold uppercase tracking-[0.15em] text-ink">
+            <p className="text-[10px] font-semibold uppercase leading-[1.4] tracking-[0.14em] text-ink">
               Duration
             </p>
             <p className="mt-1 truncate text-[12px] font-semibold leading-none text-ink">
@@ -389,7 +389,7 @@ function CourseCardBody({
             </p>
           </div>
           <div className="min-w-0 border-l border-ink/10 px-2 py-2.5">
-            <p className="text-[9px] font-semibold uppercase tracking-[0.15em] text-ink">
+            <p className="text-[10px] font-semibold uppercase leading-[1.4] tracking-[0.14em] text-ink">
               Level
             </p>
             <p className="mt-1 truncate text-[12px] font-semibold leading-none text-ink">
@@ -397,7 +397,7 @@ function CourseCardBody({
             </p>
           </div>
           <div className="min-w-0 border-l border-ink/10 py-2.5 pl-3 text-right">
-            <p className="text-[9px] font-semibold uppercase tracking-[0.15em] text-ink">
+            <p className="text-[10px] font-semibold uppercase leading-[1.4] tracking-[0.14em] text-ink">
               From
             </p>
             <p className="mt-0.5 truncate text-[1.15rem] font-semibold leading-none tracking-tight text-primary">
@@ -415,7 +415,7 @@ function CourseCardBody({
           </div>
         ) : (
           <div className="mt-3">
-            <p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-ink">
+            <p className="text-[10px] font-semibold uppercase leading-[1.4] tracking-[0.14em] text-ink">
               Key outcomes
             </p>
             <ul className="mt-1.5 grid gap-x-3 gap-y-1 sm:grid-cols-2">
@@ -425,7 +425,7 @@ function CourseCardBody({
                     className="mt-[0.45rem] h-px w-2.5 shrink-0 bg-primary"
                     aria-hidden="true"
                   />
-                  <span className="line-clamp-1 text-[12px] leading-snug text-ink">
+                  <span className="line-clamp-1 text-[12px] leading-normal text-ink">
                     {item}
                   </span>
                 </li>
@@ -465,16 +465,16 @@ function HubCourseCardBody({
 
   return (
     <div className="flex flex-1 flex-col px-4 pb-2.5 pt-2 sm:px-5">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-primary sm:text-[11px]">
+      <p className="type-eyebrow text-primary">
         {certShort(certification) || "Yoga Alliance"} · Certified
       </p>
 
-      <h3 className="mt-1 line-clamp-2 text-base font-bold leading-snug text-ink transition-colors duration-300 group-hover:text-primary sm:text-[1.05rem]">
+      <h3 className="mt-1 line-clamp-2 text-base font-semibold leading-snug text-ink transition-colors duration-300 group-hover:text-primary sm:text-[1.05rem]">
         {title}
       </h3>
 
       {description ? (
-        <p className="mt-1.5 line-clamp-2 text-xs leading-snug text-ink sm:text-[13px]">
+        <p className="mt-1.5 line-clamp-2 text-xs leading-normal text-ink sm:text-[13px]">
           {description}
         </p>
       ) : null}
@@ -491,7 +491,7 @@ function HubCourseCardBody({
                 className="mt-1.5 size-1 shrink-0 rounded-full bg-primary"
                 aria-hidden="true"
               />
-              <span className="line-clamp-1 text-xs leading-snug text-ink">
+              <span className="line-clamp-1 text-xs leading-normal text-ink">
                 {item}
               </span>
             </li>
@@ -690,7 +690,7 @@ export default function CourseCard({
 
         {stacked ? (
           <div className="mt-auto flex items-center justify-between gap-3 border-t border-ink/10 bg-sand px-5 py-2.5 transition-colors duration-300 group-hover:border-t-primary group-hover:bg-primary">
-            <span className="flex items-center gap-2.5 text-[10px] font-bold uppercase tracking-[0.17em] text-ink transition-colors duration-300 group-hover:text-white">
+            <span className="type-eyebrow flex items-center gap-2.5 text-ink transition-colors duration-300 group-hover:text-white">
               <span
                 className="h-px w-5 bg-primary transition-colors duration-300 group-hover:bg-white"
                 aria-hidden="true"
@@ -709,7 +709,7 @@ export default function CourseCard({
             className={`mt-auto flex items-center justify-between border-t border-ink/8 transition-colors duration-300 group-hover:border-t-primary/20 group-hover:bg-primary ${hub ? "px-4 py-2.5 sm:px-5" : "px-5 py-3"}`}
           >
             <span
-              className={`pb-0.5 font-bold tracking-wider text-ink transition-colors duration-300 group-hover:text-white ${hub ? "text-xs sm:text-[13px]" : "text-sm"}`}
+              className={`pb-0.5 font-semibold tracking-wider text-ink transition-colors duration-300 group-hover:text-white ${hub ? "text-xs sm:text-[13px]" : "text-sm"}`}
             >
               View course details
             </span>

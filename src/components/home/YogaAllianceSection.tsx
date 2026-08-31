@@ -95,13 +95,13 @@ export default function YogaAllianceSection({
                 {content.badgeLabel}
               </Pill>
               {content.eyebrow ? (
-                <span className="type-eyebrow yoga-alliance-muted tracking-widest text-[10px] sm:text-xs">
+                <span className="type-eyebrow yoga-alliance-muted">
                   {content.eyebrow}
                 </span>
               ) : null}
             </div>
 
-            <h2 className="text-3xl sm:text-4xl lg:text-4xl xl:text-[2.75rem] 2xl:text-5xl font-semibold leading-[1.1] text-white">
+            <h2 className="type-h2 text-white">
               {content.title}
             </h2>
             {content.description ? (
@@ -133,10 +133,10 @@ export default function YogaAllianceSection({
             variants={fadeUp}
             className="space-y-4 lg:pt-4"
           >
-            <p className="type-lead yoga-alliance-copy font-semibold leading-relaxed text-sm sm:text-base md:text-lg">
+            <p className="type-lead yoga-alliance-copy">
               {content.lead}
             </p>
-            <p className="type-body yoga-alliance-muted leading-relaxed text-xs sm:text-sm">
+            <p className="type-body yoga-alliance-muted">
               {content.body}
             </p>
           </motion.div>
@@ -175,16 +175,16 @@ export default function YogaAllianceSection({
 
                 <div className="relative z-10">
                   <div className="flex items-baseline justify-between mb-4 lg:mb-6">
-                    <span className="type-eyebrow yoga-alliance-tag rounded-full px-3 py-1 text-[10px] uppercase font-bold tracking-wider">
+                    <span className="type-eyebrow yoga-alliance-tag rounded-full px-3 py-1">
                       {cert.level}
                     </span>
                   </div>
 
-                  <h3 className="text-xl sm:text-2xl text-white font-bold mb-3 mt-4">
+                  <h3 className="mb-3 mt-4 text-xl font-semibold leading-[1.3] text-white sm:text-2xl">
                     {cert.title}
                   </h3>
 
-                  <p className="type-body yoga-alliance-muted leading-relaxed mb-6 text-sm">
+                  <p className="type-body yoga-alliance-muted mb-6">
                     {cert.description}
                   </p>
                 </div>

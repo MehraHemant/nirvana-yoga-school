@@ -58,11 +58,11 @@ function RoomCard({
         className={`flex w-full cursor-pointer col-span-2 shadow-lg rounded-2xl border p-4 text-left transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 ${selectedClasses}`}
       >
         <div className="min-w-0">
-          <h4 className="text-lg font-bold leading-snug text-ink">
+          <h4 className="type-h4 text-ink">
             {option.roomType}
           </h4>
           <div className="mt-2 flex flex-wrap items-baseline gap-2">
-            <span className="text-2xl font-bold tracking-tight text-primary">
+            <span className="text-2xl font-semibold leading-[1.2] tracking-tight text-primary">
               {option.price}
             </span>
             {option.originalPrice && (
@@ -71,7 +71,7 @@ function RoomCard({
               </span>
             )}
             {saving && (
-              <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-bold text-emerald-700">
+              <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700">
                 {saving}
               </span>
             )}
@@ -101,12 +101,12 @@ function RoomCard({
       aria-pressed={selected}
       className={`flex w-full cursor-pointer flex-col shadow-lg rounded-2xl border p-4 text-left transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 ${selected ? "border-primary/8 bg-primary/10" : "border-ink/8 bg-white hover:border-primary/15"}${wide ? " sm:col-span-2" : ""}`}
     >
-      <h4 className="line-clamp-2 type-lead font-semibold leading-snug text-ink">
+      <h4 className="type-h4 line-clamp-2 text-ink">
         {option.roomType}
       </h4>
 
       <div className="flex flex-wrap items-baseline gap-x-2 py-3 pl-2 gap-y-1">
-        <span className="text-2xl font-bold tracking-tight text-primary">
+        <span className="text-2xl font-semibold leading-[1.2] tracking-tight text-primary">
           {option.price}
         </span>
         {option.originalPrice && (
@@ -115,7 +115,7 @@ function RoomCard({
           </span>
         )}
         {saving && (
-          <span className="rounded-full bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700">
+          <span className="rounded-full bg-emerald-50 px-1.5 py-0.5 text-xs font-semibold text-emerald-700">
             {saving}
           </span>
         )}
@@ -126,7 +126,7 @@ function RoomCard({
           {features.map((f) => (
             <li
               key={f}
-              className="flex items-start gap-1 text-sm leading-snug text-ink"
+              className="type-ui flex items-start gap-1 text-ink"
             >
               <Check size={12} className="mt-0.5 shrink-0 text-primary" />
               {f}
@@ -212,7 +212,7 @@ export default function UpcomingDates({
               <Heading as="h3" size="h4" className="mb-0">
                 {lodgingTitle}
               </Heading>
-              <p className="shrink-0 text-sm xl:text-base font-normal text-ink">
+              <p className="type-ui shrink-0 text-ink">
                 Includes room, meals &amp; materials
               </p>
             </div>
@@ -266,13 +266,13 @@ export default function UpcomingDates({
                           <p className="type-body font-semibold text-ink">
                             {batch.dates}
                           </p>
-                          <p className="mt-0.5 text-xs sm:text-sm text-ink">
+                          <p className="type-ui mt-0.5 text-ink">
                             {batch.spaces} · {duration}
                           </p>
                         </button>
                         <Link
                           href={ENQUIRE_HREF}
-                          className={`inline-block rounded-full border px-2 py-0.5 text-sm transition-opacity hover:opacity-85 uppercase tracking-widest ${batch.statusColor}`}
+                          className={`type-eyebrow inline-block rounded-full border px-2 py-0.5 transition-opacity hover:opacity-85 ${batch.statusColor}`}
                           aria-label={`${batch.status} — Enquire now`}
                         >
                           {batch.status}

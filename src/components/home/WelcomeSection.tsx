@@ -260,10 +260,10 @@ export default function WelcomeSection({
                           })}
                           className="flex flex-col items-center"
                         >
-                          <span className="type-h1 font-bold leading-none text-white mb-2">
+                          <span className="type-h1 font-semibold leading-none text-white mb-2">
                             {rotatingStats[activeStatIndex]?.value}
                           </span>
-                          <span className="type-eyebrow text-white/95 max-w-[85%] leading-tight">
+                          <span className="type-eyebrow text-white/95 max-w-[85%]">
                             {rotatingStats[activeStatIndex]?.label}
                           </span>
                         </motion.div>
@@ -408,7 +408,7 @@ export default function WelcomeSection({
 
             {/* Lead Story Paragraph */}
             <motion.div variants={rightColumnItem}>
-              <p className="text-base md:text-lg leading-snug">
+              <p className="type-lead">
                 {content.lead}
               </p>
             </motion.div>
@@ -421,10 +421,10 @@ export default function WelcomeSection({
               >
                 {showVision ? (
                   <div className="space-y-2 border-t border-ink/5 pt-4">
-                    <span className="text-primary font-bold text-sm uppercase tracking-wide block">
+                    <span className="text-primary font-medium text-sm uppercase tracking-wide block">
                       {content.vision.label}
                     </span>
-                    <p className="text-sm sm:text-sm md:text-base leading-snug">
+                    <p className="type-body">
                       {content.vision.body}
                     </p>
                   </div>
@@ -432,10 +432,10 @@ export default function WelcomeSection({
 
                 {showPromise ? (
                   <div className="space-y-2 border-t border-ink/5 pt-4">
-                    <span className="text-primary font-bold text-sm uppercase tracking-wide block">
+                    <span className="text-primary font-medium text-sm uppercase tracking-wide block">
                       {content.promise.label}
                     </span>
-                    <p className="text-sm sm:text-sm md:text-base leading-snug">
+                    <p className="type-body">
                       {content.promise.body}
                     </p>
                   </div>
@@ -457,7 +457,7 @@ export default function WelcomeSection({
                     <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary mt-0.5">
                       <Check size={10} strokeWidth={3} />
                     </span>
-                    <span className="text-xs sm:text-sm font-semibold leading-tight text-ink">
+                    <span className="type-ui font-semibold text-ink">
                       {item}
                     </span>
                   </div>

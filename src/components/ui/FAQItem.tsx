@@ -67,7 +67,7 @@ export default function FAQItem({
         className={`relative z-10 flex w-full cursor-pointer items-center justify-between gap-4 p-5 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 sm:p-6 ${hasImage ? "md:p-7" : ""}`}
       >
         <span
-          className={`leading-snug text-base lg:text-lg font-semibold tracking-tight ${hasImage ? "text-white" : "text-ink"}`}
+          className={`type-h4 ${hasImage ? "text-white" : "text-ink"}`}
         >
           {question}
         </span>
@@ -120,12 +120,12 @@ export default function FAQItem({
               className={`max-w-3xl border-t px-5 pb-5 sm:px-6 sm:pb-6 ${hasImage ? "border-white/10 pt-4 md:px-7 md:pb-7" : "border-ink/5 pt-1"}`}
             >
               {hasImage && tag && (
-                <span className="type-eyebrow mb-2 block font-semibold tracking-wider text-accent">
+                <span className="type-eyebrow mb-2 block text-accent">
                   {tag}
                 </span>
               )}
               <p
-                className={`${hasImage ? "text-white/85" : " text-sm text-ink sm:text-base"}`}
+                className={`type-body ${hasImage ? "text-white/85" : "text-ink"}`}
               >
                 {answer}
               </p>

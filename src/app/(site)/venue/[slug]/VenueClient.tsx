@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { DarkMediaHero } from "@/components/hero";
+import { HeroFrame, HeroMediaImage } from "@/components/hero";
 import { Container } from "@/components/ui";
 import VenueGallery from "@/components/venue/VenueGallery";
 import {
@@ -56,7 +56,7 @@ function resolveVenueImages(
 
 /**
  * Gallery-first venue page — course venue and retreat venue.
- * Dark media hero, CMS videos above the photo gallery, map, and FAQ.
+ * Image hero with a light darkening wash, copy below, then videos/gallery/map/FAQ.
  *
  * @param props - Mapped venue content, page modules, and optional videos
  */
@@ -100,42 +100,56 @@ export default function VenueClient({
   const videosModule = normalizeVideosModule(modules?.videos);
   const showVideos = shouldRenderSection(videosModule, videos.length > 0);
 
+  const photoMeta =
+    images.length > 0 ? (
+      <p className="mt-4 text-sm text-ink/65">
+        {images.length} photos
+        {gallery.sectionOrder && gallery.sectionOrder.length > 0
+          ? ` · ${gallery.sectionOrder.length} collections`
+          : ""}
+      </p>
+    ) : null;
+
   return (
     <>
       {heroImage ? (
-        <DarkMediaHero
-          id={hero._id || "hero"}
-          image={heroImage}
-          imageAlt={`${String(title)} — Nirvana Yoga School`}
-        >
-          <Container
-            size="2xl"
-            className="relative z-10 flex min-h-[52svh] flex-col justify-end pb-12 pt-28 lg:min-h-[58svh] lg:pb-16"
+        <>
+          <HeroFrame
+            id={hero._id || "hero"}
+            transparentHeader
+            className="relative min-h-[52svh] overflow-hidden bg-ink lg:min-h-[58svh]"
           >
-            <p className="type-eyebrow mb-3 text-white/70">{eyebrow}</p>
-            <h1 className="max-w-3xl text-4xl leading-tight text-white sm:text-5xl lg:text-6xl">
-              {title}
-            </h1>
-            {subtitle ? (
-              <p className="mt-4 max-w-xl text-base leading-relaxed text-white/80 sm:text-lg">
-                {subtitle}
-              </p>
-            ) : null}
-            {images.length > 0 ? (
-              <p className="mt-4 text-sm text-white/65">
-                {images.length} photos
-                {gallery.sectionOrder && gallery.sectionOrder.length > 0
-                  ? ` · ${gallery.sectionOrder.length} collections`
-                  : ""}
-              </p>
-            ) : null}
-          </Container>
-        </DarkMediaHero>
+            <HeroMediaImage
+              src={heroImage}
+              alt={`${String(title)} — Nirvana Yoga School`}
+              priority
+              sizes="100vw"
+              className="object-cover object-center"
+            />
+            <div className="absolute inset-0 bg-black/20" aria-hidden="true" />
+            <div
+              className="relative min-h-[52svh] lg:min-h-[58svh]"
+              aria-hidden="true"
+            />
+          </HeroFrame>
+          <header className="border-b border-ink/8 bg-white pb-10 pt-8 sm:pb-12">
+            <Container size="2xl">
+              <p className="type-eyebrow text-primary">{eyebrow}</p>
+              <h1 className="type-h1 mt-2 max-w-3xl text-ink">{title}</h1>
+              {subtitle ? (
+                <p className="mt-3 max-w-2xl text-base leading-relaxed text-ink sm:text-lg">
+                  {subtitle}
+                </p>
+              ) : null}
+              {photoMeta}
+            </Container>
+          </header>
+        </>
       ) : (
         <header className="border-b border-ink/8 bg-white pt-28 pb-10 sm:pt-32 sm:pb-12">
           <Container size="2xl">
             <p className="type-eyebrow text-primary">{eyebrow}</p>
-            <h1 className="mt-2 max-w-3xl text-4xl leading-tight text-ink sm:text-5xl">
+            <h1 className="type-h1 mt-2 max-w-3xl text-ink">
               {title}
             </h1>
             {subtitle ? (

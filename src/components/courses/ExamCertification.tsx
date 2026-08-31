@@ -101,17 +101,17 @@ export default function ExamCertification({ content }: ExamCertificationProps) {
                       </span>
                       <div className="space-y-1">
                         {step.tag?.trim() ? (
-                          <span className="type-eyebrow text-primary/90 font-semibold tracking-wider block uppercase mb-1">
+                          <span className="type-eyebrow mb-1 block text-primary/90">
                             {step.tag}
                           </span>
                         ) : null}
                         {step.title?.trim() ? (
-                          <h4 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-ink">
+                          <h4 className="type-h4 text-ink">
                             {step.title}
                           </h4>
                         ) : null}
                         {step.description?.trim() ? (
-                          <p className="text-base lg:text-lg pt-1">
+                          <p className="type-body pt-1">
                             {step.description}
                           </p>
                         ) : null}

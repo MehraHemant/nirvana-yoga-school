@@ -44,7 +44,7 @@ export default function OnlineCurriculumSection({
                 onClick={() => setOpenIndex(isOpen ? -1 : index)}
                 className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left sm:px-6 sm:py-5"
               >
-                <span className="text-lg text-ink sm:text-xl md:text-2xl font-semibold">
+                <span className="type-h4 text-ink">
                   {item.title}
                 </span>
                 <span
@@ -92,7 +92,7 @@ export default function OnlineCurriculumSection({
                           {item.subtopics.map((topic) => (
                             <li
                               key={topic}
-                              className="flex items-start gap-2 text-sm md:text-base text-ink"
+                              className="type-body flex items-start gap-2 text-ink"
                             >
                               <span
                                 className="mt-2 size-1.5 shrink-0 rounded-full bg-primary"

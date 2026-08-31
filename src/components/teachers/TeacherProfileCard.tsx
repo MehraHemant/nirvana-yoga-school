@@ -190,7 +190,7 @@ export default function TeacherProfileCard({
       </Heading>
       <p className="type-eyebrow mt-2 text-ink">{teacher.experienceSummary}</p>
       <p
-        className={`type-body leading-relaxed text-ink ${compactMedia ? "mt-3" : "mt-5"} ${bioClampClass}`}
+        className={`type-body text-ink ${compactMedia ? "mt-3" : "mt-5"} ${bioClampClass}`}
       >
         {teacher.bio}
       </p>
@@ -258,7 +258,7 @@ export default function TeacherProfileCard({
     >
       {items.map((item) =>
         clampListBlock ? (
-          <li key={item} className="type-body leading-snug text-ink">
+          <li key={item} className="type-body text-ink">
             {item}
           </li>
         ) : (
@@ -267,7 +267,7 @@ export default function TeacherProfileCard({
               className={`mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full ${bulletClass}`}
               aria-hidden="true"
             />
-            <span className="type-body leading-snug text-ink">{item}</span>
+            <span className="type-body text-ink">{item}</span>
           </li>
         ),
       )}
@@ -307,7 +307,7 @@ export default function TeacherProfileCard({
           Expertise
         </p>
         {clampListBlock ? (
-          <p className="type-body line-clamp-4 leading-snug text-ink">
+          <p className="type-body line-clamp-4 text-ink">
             {expertiseItems.join(", ")}
           </p>
         ) : (

@@ -1,16 +1,14 @@
 import Link from "next/link";
-import type {
-  BlogRailCourse,
-  BlogRailPricingTier,
-} from "@/content/mappers/resolve-blog-rail-courses";
+import type { BlogRailCourse } from "@/content/mappers/resolve-blog-rail-courses";
+import { bookingReserveHref } from "@/components/courses/upcomingDatesShared";
 import { Bed, Bowl, Lotus } from "@/icons";
-import { BlogRoomImagesCarousel } from "./BlogRoomImagesCarousel";
+import { BlogPricingCarousel } from "./BlogPricingCarousel";
 
 type BlogCourseRailProps = {
   courses: BlogRailCourse[];
 };
 
-const INCLUSION_PILLS = [
+const INCLUSION_ITEMS = [
   { label: "Meals", Icon: Bowl },
   { label: "Stay", Icon: Bed },
   { label: "Yoga", Icon: Lotus },
@@ -50,33 +48,6 @@ function CalendarGlyph({ size = 12 }: { size?: number }) {
 }
 
 /**
- * Splits a CMS price string into amount + currency for display.
- *
- * @param price - Raw price (e.g. "299 USD", "$649")
- */
-function splitPriceLabel(price: string): { amount: string; suffix: string } {
-  const trimmed = price.trim();
-  const match = trimmed.match(/^\$?\s*([\d,]+(?:\.\d+)?)\s*(USD|INR)?$/i);
-  if (match?.[1]) {
-    return {
-      amount: match[1].replace(/,/g, ""),
-      suffix: (match[2] ?? "USD").toUpperCase(),
-    };
-  }
-  return { amount: trimmed, suffix: "" };
-}
-
-/**
- * Formats a price for the rail (e.g. "299 USD").
- *
- * @param price - CMS price string
- */
-function formatPriceDisplay(price: string): string {
-  const { amount, suffix } = splitPriceLabel(price);
-  return suffix ? `${amount} ${suffix}` : amount;
-}
-
-/**
  * Uppercases duration for the solid badge.
  *
  * @param duration - CMS duration string
@@ -97,112 +68,109 @@ function isRetreatProgram(course: BlogRailCourse): boolean {
 }
 
 /**
- * Accommodation tier row: icon tile, room name, struck original + outlined sale.
+ * Booking type for reserve deep-links from the rail.
  *
- * @param props - Tier fields
+ * @param course - Resolved rail course
  */
-function PricingTierRow({ tier }: { tier: BlogRailPricingTier }) {
-  const current = formatPriceDisplay(tier.price);
-  const was = tier.originalPrice?.trim()
-    ? formatPriceDisplay(tier.originalPrice)
-    : null;
-
-  return (
-    <li className="flex items-center justify-between gap-3 rounded-xl border border-ink/10 bg-[#faf6ef] px-2.5 py-2">
-      <span className="flex min-w-0 items-center gap-2.5">
-        <span
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#f0e4d4] text-ink/65"
-          aria-hidden="true"
-        >
-          <Bed size={14} />
-        </span>
-        <span className="truncate text-sm font-semibold leading-5 text-ink">
-          {tier.roomType}
-        </span>
-      </span>
-      <span className="flex shrink-0 flex-col items-end gap-0.5">
-        {was ? (
-          <span className="text-[11px] tabular-nums text-ink line-through">
-            {was}
-          </span>
-        ) : null}
-        <span className="inline-flex items-center rounded-lg border border-primary/50 bg-white px-2.5 py-1 text-sm font-semibold tabular-nums text-primary">
-          {current}
-        </span>
-      </span>
-    </li>
-  );
+function bookingTypeForCourse(
+  course: BlogRailCourse,
+): "course" | "retreat" | null {
+  if (isRetreatProgram(course)) return "retreat";
+  if (course.href.includes("/online")) return null;
+  if (course.courseSlug || course.href.includes("/course/")) return "course";
+  return null;
 }
 
 /**
- * Single program block: title, duration badge + link, room image, tier rows.
+ * Single program block: title, duration + link, room pricing carousel.
  *
  * @param props - Resolved course card
  */
 function ProgramCard({ course }: { course: BlogRailCourse }) {
   const isExternal = course.href.startsWith("http");
   const duration = course.duration?.trim() ?? "";
-  const roomImages = course.roomImages.map((url) => url.trim()).filter(Boolean);
   const viewLabel = isRetreatProgram(course)
     ? "View retreat →"
     : "View program →";
+  const bookingType = bookingTypeForCourse(course);
+  const programSlug = course.courseSlug?.trim() || null;
   const tiers =
     course.pricing.length > 0
       ? course.pricing
       : course.fee?.trim()
-        ? [{ roomType: "Program fee", price: course.fee.trim() }]
+        ? [
+            {
+              roomType: "Program fee",
+              price: course.fee.trim(),
+              ...(course.fromDate ? { fromDate: course.fromDate } : {}),
+              ...(course.batchDates ? { batchDates: course.batchDates } : {}),
+              ...(course.roomImages[0]
+                ? { image: course.roomImages[0] }
+                : course.image?.trim()
+                  ? { image: course.image.trim() }
+                  : {}),
+            },
+          ]
         : [];
 
   return (
-    <article>
-      <h3 className="text-[1.05rem] font-bold leading-snug tracking-[-0.01em] text-ink">
-        {course.title}
-      </h3>
+    <article className="space-y-0">
+      <div className="space-y-2.5">
+        <h3 className="type-display-sm text-ink">{course.title}</h3>
 
-      <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-2">
-        {duration ? (
-          <span className="inline-flex items-center gap-1.5 rounded-md bg-primary px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-white">
-            <CalendarGlyph size={12} />
-            {durationBadgeLabel(duration)}
-          </span>
-        ) : null}
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+          {duration ? (
+            <span className="inline-flex items-center gap-1.5 rounded-md bg-primary px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-white">
+              <CalendarGlyph size={12} />
+              {durationBadgeLabel(duration)}
+            </span>
+          ) : null}
+          {course.fromDate ? (
+            <span className="text-xs font-medium text-ink/60">
+              Next start{" "}
+              <span className="text-ink/80">{course.fromDate}</span>
+            </span>
+          ) : null}
+        </div>
+
         <Link
           href={course.href}
           {...(isExternal
             ? { target: "_blank", rel: "noopener noreferrer" }
             : {})}
-          className="text-sm font-semibold text-primary transition-colors hover:text-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
+          className="inline-flex text-sm font-semibold text-primary transition-colors hover:text-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
         >
           {viewLabel}
         </Link>
       </div>
 
-      {roomImages.length > 0 ? (
-        <BlogRoomImagesCarousel
-          images={roomImages}
-          label={`${course.title} room photos`}
-        />
-      ) : null}
-
       {tiers.length > 0 ? (
-        <ul className="mt-3 space-y-2">
-          {tiers.map((tier) => (
-            <PricingTierRow
-              key={`${tier.roomType}-${tier.price}`}
-              tier={tier}
-            />
-          ))}
-        </ul>
+        <BlogPricingCarousel
+          tiers={tiers.map((tier) => {
+            const batch = tier.batchDates?.trim() || course.batchDates;
+            const bookHref =
+              bookingType && programSlug && batch
+                ? bookingReserveHref(
+                    bookingType,
+                    programSlug,
+                    tier.roomType,
+                    batch,
+                  )
+                : undefined;
+            return bookHref ? { ...tier, bookHref } : tier;
+          })}
+          label={`${course.title} room pricing`}
+        />
       ) : null}
     </article>
   );
 }
 
 /**
- * Sticky Programs & pricing rail — screenshot-faithful commerce aside.
+ * Sticky Programs & pricing rail — commerce aside with room fee carousel.
  * On desktop the card fills the sticky column; all card content scrolls together.
  *
- * @param props - Resolved hub courses with lodging tiers / room images
+ * @param props - Resolved hub courses with all priced rooms / upcoming dates
  */
 export function BlogCourseRail({ courses }: BlogCourseRailProps) {
   return (
@@ -210,25 +178,29 @@ export function BlogCourseRail({ courses }: BlogCourseRailProps) {
       <div className="h-1 w-full shrink-0 bg-primary" aria-hidden="true" />
 
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-5 sm:px-6 sm:py-6 lg:scrollbar-thin-primary">
-        <header>
+        <header className="pb-5">
+          <p className="type-eyebrow text-primary">Stay with us</p>
           <h2
             id="blog-programs-heading"
-            className="text-[1.65rem] font-bold leading-tight tracking-[-0.02em] text-ink"
+            className="mt-2 type-h3 tracking-tight text-ink"
           >
             Programs & pricing
           </h2>
 
-          <p className="mt-2 text-sm leading-6 text-ink">
-            Stay, meals, and yoga included—pick an accommodation tier.
+          <p className="mt-2.5 max-w-[36ch] text-sm leading-6 text-ink/70">
+            Stay, meals, and yoga included—browse every accommodation tier and
+            upcoming start date.
           </p>
 
-          <ul className="mt-3.5 flex flex-wrap gap-2">
-            {INCLUSION_PILLS.map(({ label, Icon }) => (
-              <li
-                key={label}
-                className="inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-primary/6 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-widest text-primary"
-              >
-                <Icon size={12} aria-hidden="true" />
+          <ul className="mt-4 flex flex-wrap items-center gap-x-1 gap-y-2 border-t border-ink/8 pt-4 text-xs font-medium text-ink/65">
+            {INCLUSION_ITEMS.map(({ label, Icon }, index) => (
+              <li key={label} className="inline-flex items-center gap-1.5">
+                {index > 0 ? (
+                  <span className="mx-1.5 text-ink/25" aria-hidden="true">
+                    ·
+                  </span>
+                ) : null}
+                <Icon size={13} className="text-primary" aria-hidden="true" />
                 {label}
               </li>
             ))}
@@ -236,19 +208,23 @@ export function BlogCourseRail({ courses }: BlogCourseRailProps) {
         </header>
 
         {courses.length > 0 ? (
-          <div className="mt-6 space-y-7">
+          <div className="space-y-0 divide-y divide-ink/10 border-t border-ink/10">
             {courses.map((course, index) => (
-              <ProgramCard
+              <div
                 key={
                   course.courseSlug || course.href || `${course.title}-${index}`
                 }
-                course={course}
-              />
+                className="py-6 first:pt-5 last:pb-1"
+              >
+                <ProgramCard course={course} />
+              </div>
             ))}
           </div>
         ) : (
-          <div className="mt-6 rounded-2xl border border-ink/10 bg-surface/60 px-4 py-5">
-            <p className="text-sm leading-6 text-ink">New dates coming soon.</p>
+          <div className="mt-1 rounded-2xl border border-ink/10 bg-surface-muted/60 px-4 py-5">
+            <p className="text-sm leading-6 text-ink/80">
+              New dates coming soon.
+            </p>
             <Link
               href="/yoga-teacher-training-in-rishikesh-india"
               className="mt-3 inline-flex text-sm font-semibold text-primary transition-colors hover:text-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"

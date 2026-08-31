@@ -135,13 +135,13 @@ export default function ContactPageClient({
             variants={fadeUp}
             className="max-w-2xl space-y-5"
           >
-            <span className="type-eyebrow font-semibold tracking-widest text-white/80 uppercase">
+            <span className="type-eyebrow text-white/80">
               {content.hero.eyebrow}
             </span>
-            <h1 className="text-4xl font-bold leading-[1.08] tracking-tight text-white sm:text-5xl md:text-6xl">
+            <h1 className="type-h1 text-white">
               {content.hero.title}
             </h1>
-            <p className="type-lead max-w-xl pt-1 text-base leading-relaxed text-white/85 sm:text-lg">
+            <p className="type-lead max-w-xl pt-1 text-white/85">
               {content.hero.lead}
             </p>
 
@@ -153,7 +153,7 @@ export default function ContactPageClient({
               ].map((chip) => (
                 <span
                   key={chip}
-                  className="rounded-full border border-white/20 bg-ink/20 px-3 py-1 text-xs font-semibold text-white/90 backdrop-blur-sm"
+                  className="rounded-full border border-white/20 bg-ink/20 px-3 py-1 text-xs font-medium text-white/90 backdrop-blur-sm"
                 >
                   {chip}
                 </span>
@@ -192,7 +192,7 @@ export default function ContactPageClient({
                   <span className="type-eyebrow block font-semibold uppercase text-primary">
                     {content.form.eyebrow}
                   </span>
-                  <h2 className="text-2xl font-bold text-ink sm:text-3xl">
+                  <h2 className="type-h3 text-ink">
                     {content.form.title}
                   </h2>
                   <p className="text-sm leading-relaxed text-ink">
@@ -214,13 +214,13 @@ export default function ContactPageClient({
                           {detail.icon}
                         </span>
                         <div className="min-w-0 space-y-1">
-                          <h3 className="type-ui font-bold text-ink">
+                          <h3 className="type-ui font-semibold text-ink">
                             {detail.title}
                           </h3>
                           <p className="wrap-break-word text-sm leading-relaxed text-ink">
                             {detail.value}
                           </p>
-                          <span className="inline-block pt-1 text-[11px] font-semibold text-secondary">
+                          <span className="inline-block pt-1 text-[11px] font-medium leading-[1.4] text-secondary">
                             {detail.actionText}
                           </span>
                         </div>
@@ -250,7 +250,7 @@ export default function ContactPageClient({
                         <Check size={28} className="stroke-[3]" />
                       </div>
                       <div className="space-y-2">
-                        <h3 className="text-2xl font-bold text-ink">
+                        <h3 className="type-h3 text-ink">
                           Inquiry Received!
                         </h3>
                         <p className="text-sm text-ink max-w-sm leading-relaxed mx-auto">
@@ -292,7 +292,7 @@ export default function ContactPageClient({
                         <span className="type-eyebrow text-primary font-semibold block uppercase mb-1">
                           Online Inquiry
                         </span>
-                        <h3 className="text-xl sm:text-2xl font-bold text-ink">
+                        <h3 className="type-h4 text-ink">
                           Send a Message
                         </h3>
                       </div>
@@ -302,7 +302,7 @@ export default function ContactPageClient({
                         <div className="space-y-2">
                           <label
                             htmlFor="name"
-                            className="text-xs font-semibold text-ink"
+                            className="text-xs font-medium leading-[1.4] text-ink"
                           >
                             Full Name *
                           </label>
@@ -323,7 +323,7 @@ export default function ContactPageClient({
                         <div className="space-y-2">
                           <label
                             htmlFor="email"
-                            className="text-xs font-semibold text-ink"
+                            className="text-xs font-medium leading-[1.4] text-ink"
                           >
                             Email Address *
                           </label>
@@ -349,7 +349,7 @@ export default function ContactPageClient({
                         <div className="space-y-2">
                           <label
                             htmlFor="phone"
-                            className="text-xs font-semibold text-ink"
+                            className="text-xs font-medium leading-[1.4] text-ink"
                           >
                             WhatsApp / Phone *
                           </label>
@@ -374,7 +374,7 @@ export default function ContactPageClient({
                         <div className="space-y-2">
                           <label
                             htmlFor="accommodation"
-                            className="text-xs font-semibold text-ink"
+                            className="text-xs font-medium leading-[1.4] text-ink"
                           >
                             Accommodation Preference
                           </label>
@@ -397,7 +397,7 @@ export default function ContactPageClient({
                         {/* Subject */}
                         <label
                           htmlFor="subject"
-                          className="text-xs font-semibold text-ink"
+                          className="text-xs font-medium leading-[1.4] text-ink"
                         >
                           Subject *
                         </label>
@@ -421,7 +421,7 @@ export default function ContactPageClient({
                       <div className="space-y-2">
                         <label
                           htmlFor="message"
-                          className="text-xs font-semibold text-ink"
+                          className="text-xs font-medium leading-[1.4] text-ink"
                         >
                           Your Message *
                         </label>
@@ -462,7 +462,7 @@ export default function ContactPageClient({
                         <button
                           type="submit"
                           disabled={formState === "submitting"}
-                          className="group flex w-full items-center justify-center gap-2 rounded-full bg-primary px-8 py-3.5 text-sm font-bold text-white shadow-xs hover:bg-primary-dark transition-all duration-300 hover:shadow-soft cursor-pointer"
+                          className="group flex w-full items-center justify-center gap-2 rounded-full bg-primary px-8 py-3.5 text-sm font-semibold text-white shadow-xs hover:bg-primary-dark transition-all duration-300 hover:shadow-soft cursor-pointer"
                         >
                           {formState === "submitting" ? (
                             <>

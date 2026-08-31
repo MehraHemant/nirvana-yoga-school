@@ -99,7 +99,8 @@ export default function CourseClient({
   examCertification,
 }: CoursePageData) {
   const m = modules;
-  const heroFee = m?.hero.type === "bento-media" ? m.hero.fee : course.fee;
+  const bentoHero = m?.hero.type === "bento-media" ? m.hero : null;
+  const heroFee = bentoHero?.fee ?? course.fee;
   const overview = m?.overview;
 
   const faqItems =
@@ -211,7 +212,11 @@ export default function CourseClient({
         )
       ) : null}
 
-      {showStickyNav ? <CourseStickyNav items={m?.stickyNav.items} /> : null}
+      {showStickyNav ? (
+        <CourseStickyNav
+          items={m?.stickyNav.items?.filter((item) => item.id !== "#why-online")}
+        />
+      ) : null}
 
       <CourseBookingFab
         fee={heroFee ?? course.fee}

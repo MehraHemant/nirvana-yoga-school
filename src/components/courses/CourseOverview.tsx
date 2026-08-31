@@ -14,15 +14,7 @@ import {
   type ImageClickAction,
   normalizeCmsImage,
 } from "@/content/types/cms-image";
-import {
-  BadgeStar,
-  Certificate,
-  Clock,
-  Compass,
-  HeroFlourish,
-  Layers,
-  Wallet,
-} from "@/icons";
+import { HeroFlourish } from "@/icons";
 import { resolveInlineRichTextHtml } from "@/lib/cms/blog-html";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 import type { YouTubeVideo } from "@/lib/youtube";
@@ -37,7 +29,7 @@ type OverviewSpec = {
 };
 
 /**
- * Maps CMS glance rows into overview card specs.
+ * Maps CMS glance rows into overview fact-sheet specs.
  *
  * @param glance - Overview glance items from page modules
  */
@@ -109,94 +101,85 @@ function mergeOverviewLead(description: string, lead: string): string {
   return descHtml || leadHtml;
 }
 
-type GlanceIcon = (props: { size?: number; strokeWidth?: number; className?: string }) => ReactNode;
-
 /**
- * Picks a contextual icon for a glance stat from its label.
+ * Responsive column classes so the glance sheet stays even for common counts.
  *
- * @param label - Glance row label from CMS or legacy defaults
+ * @param count - Number of fact cells
  */
-function glanceIconForLabel(label: string): GlanceIcon {
-  const key = label.toLowerCase();
-  if (/fee|price|tuition|cost|investment/.test(key)) return Wallet;
-  if (/cert|credential|alliance|yoga alliance/.test(key)) {
-    return Certificate;
+function glanceGridClass(count: number): string {
+  switch (count) {
+    case 1:
+      return "grid-cols-1";
+    case 2:
+      return "grid-cols-1 sm:grid-cols-2";
+    case 3:
+      return "grid-cols-1 sm:grid-cols-3";
+    case 4:
+      return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4";
+    case 5:
+      return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-5";
+    case 6:
+      return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
+    default:
+      return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
   }
-  if (/duration|day|week|month|hour/.test(key)) return Clock;
-  if (/level|focus|experience|style/.test(key)) return Layers;
-  if (/certified|badge|award/.test(key)) return BadgeStar;
-  return Compass;
 }
 
 /**
- * Single stat card for the course overview glance grid.
+ * Single fact cell for the course overview glance sheet.
  *
  * @param props - Glance spec row and stagger index for motion
  */
-function OverviewGlanceCard({
+function OverviewGlanceItem({
   spec,
   index,
 }: {
   spec: OverviewSpec;
   index: number;
 }) {
-  const Icon = glanceIconForLabel(spec.label);
   const highlighted = Boolean(spec.highlight);
 
   return (
-    <motion.article
+    <motion.div
       initial="hidden"
       whileInView="visible"
       viewport={VIEWPORT_ONCE}
-      custom={index * 0.07}
+      custom={index * 0.06}
       variants={fadeUp}
-      className={`group relative flex h-full flex-col gap-4 rounded-3xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-soft ${
-        highlighted
-          ? "border border-primary/20 bg-linear-to-br from-primary/10 via-primary/5 to-white shadow-card ring-1 ring-primary/10"
-          : "surface-card hover:border-primary/15"
+      className={`relative flex min-h-full flex-col gap-3 px-5 py-6 sm:gap-3.5 sm:px-7 sm:py-7 ${
+        highlighted ? "bg-primary/[0.035]" : "bg-white"
       }`}
     >
-      <div className="flex items-start justify-between gap-3">
-        <div
-          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl transition-transform duration-300 group-hover:scale-105 ${
-            highlighted
-              ? "bg-primary text-white shadow-md shadow-primary/25"
-              : "bg-primary/8 text-primary ring-1 ring-primary/10"
-          }`}
-        >
-          <Icon size={22} strokeWidth={highlighted ? 2.25 : 2} aria-hidden />
-        </div>
+      {highlighted ? (
         <span
-          className="text-sm font-bold tabular-nums leading-none text-primary/25"
+          className="absolute inset-y-0 left-0 w-0.5 bg-primary/50"
+          aria-hidden
+        />
+      ) : null}
+      <div className="flex items-baseline justify-between gap-3">
+        <dt className="type-eyebrow text-ink/40">{spec.label}</dt>
+        <span
+          className="shrink-0 text-[0.6875rem] font-medium tabular-nums tracking-[0.12em] text-ink/25"
           aria-hidden
         >
           {spec.index}
         </span>
       </div>
-
-      <div className="flex min-w-0 flex-1 flex-col gap-2">
-        <p className="type-eyebrow font-semibold uppercase tracking-wider text-primary">
-          {spec.label}
-        </p>
-        <p
-          className={`text-xl font-bold leading-tight tracking-tight sm:text-2xl ${
-            highlighted ? "text-primary" : "text-ink"
+      <dd className="flex min-w-0 flex-1 flex-col gap-2">
+        <span
+          className={`type-display-sm tracking-tight ${
+            highlighted ? "font-semibold text-primary" : "font-semibold text-ink"
           }`}
         >
           {spec.value}
-        </p>
+        </span>
         {spec.hint ? (
-          <p className="text-sm leading-relaxed text-ink">{spec.hint}</p>
+          <span className="mt-auto max-w-[18rem] text-sm leading-relaxed text-ink/50">
+            {spec.hint}
+          </span>
         ) : null}
-      </div>
-
-      <span
-        className={`absolute bottom-0 left-6 right-6 h-0.5 origin-left scale-x-0 rounded-full transition-transform duration-300 group-hover:scale-x-100 ${
-          highlighted ? "bg-primary/30" : "bg-primary/20"
-        }`}
-        aria-hidden
-      />
-    </motion.article>
+      </dd>
+    </motion.div>
   );
 }
 
@@ -317,25 +300,25 @@ export default function CourseOverview({
             />
             <div>
               {resolvedHeading ? (
-                <h3 className="max-w-3xl mb-3 text-2xl font-bold leading-snug tracking-tight text-ink sm:text-3xl lg:text-[2rem] lg:leading-tight">
+                <h3 className="type-h3 mb-3 max-w-3xl text-ink">
                   {resolvedHeading}
                 </h3>
               ) : null}
               {resolvedOverview ? (
                 <SanitizedHtml
                   html={resolvedOverview}
-                  className="cms-overview-lead font-medium flex flex-col gap-2 type-lead text-ink"
+                  className="cms-overview-lead flex flex-col gap-2 type-lead text-ink"
                 />
               ) : null}
             </div>
             {resolvedSupporting ? (
-              <p className="type-lead leading-relaxed text-ink">
+              <p className="type-lead text-ink">
                 {resolvedSupporting}
               </p>
             ) : null}
             {resolvedSaying ? (
               <figure className="max-w-3xl border-l-2 border-primary/25 pl-5 sm:pl-6">
-                <blockquote className="text-xl leading-normal text-ink">
+                <blockquote className="type-lead text-ink">
                   {resolvedSaying.text}
                 </blockquote>
                 {resolvedSaying.author ? (
@@ -358,7 +341,7 @@ export default function CourseOverview({
               <div className="mb-5 flex items-end justify-between gap-4 sm:mb-6">
                 <div>
                   <p className="type-eyebrow text-primary">Course films</p>
-                  <h3 className="mt-1 text-2xl text-ink sm:text-3xl">
+                  <h3 className="type-h3 mt-1 text-ink">
                     Watch the journey
                   </h3>
                 </div>
@@ -435,36 +418,29 @@ export default function CourseOverview({
           ) : null}
 
           {overviewSpecs.length > 0 ? (
-            <div className="space-y-6">
+            <div className="space-y-5 sm:space-y-6">
               <motion.div
                 initial="hidden"
                 whileInView="visible"
                 viewport={VIEWPORT_ONCE}
                 variants={fadeUp}
-                className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
+                className="flex flex-col gap-1 border-b border-ink/8 pb-4 sm:pb-5"
               >
-                <div>
-                  <p className="type-eyebrow font-semibold uppercase tracking-[0.2em] text-primary">
-                    Course at a glance
-                  </p>
-                  <h3 className="mt-1.5 text-xl font-bold tracking-tight text-ink sm:text-2xl">
-                    Program essentials
-                  </h3>
-                </div>
-                <p className="max-w-sm text-sm leading-relaxed text-ink sm:text-right">
-                  Key details for your residential stay in Rishikesh
-                </p>
+                <p className="type-eyebrow text-primary">Course at a glance</p>
+                <h3 className="type-h3 text-ink">Program essentials</h3>
               </motion.div>
 
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5">
+              <dl
+                className={`grid gap-px overflow-hidden rounded-2xl border border-ink/10 bg-ink/10 shadow-[0_1px_0_rgb(26_20_16/0.03)] ${glanceGridClass(overviewSpecs.length)}`}
+              >
                 {overviewSpecs.map((spec, index) => (
-                  <OverviewGlanceCard
-                    key={spec.label}
+                  <OverviewGlanceItem
+                    key={`${spec.label}-${spec.index}`}
                     spec={spec}
                     index={index}
                   />
                 ))}
-              </div>
+              </dl>
             </div>
           ) : null}
         </div>

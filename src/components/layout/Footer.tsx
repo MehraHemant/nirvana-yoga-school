@@ -57,7 +57,7 @@ function whatsappHrefFromPhone(phone: string): string | null {
  */
 function ColHeading({ children }: { children: string }) {
   return (
-    <p className="type-eyebrow mb-2.5 text-xs font-semibold tracking-[0.18em] text-primary">
+    <p className="type-eyebrow mb-2.5 text-primary">
       {children}
     </p>
   );
@@ -83,7 +83,7 @@ function NavLinks({
               href={l.href}
               target={external ? "_blank" : undefined}
               rel={external ? "noopener noreferrer" : undefined}
-              className="footer-nav-link text-sm font-semibold leading-snug text-ink"
+              className="footer-nav-link text-sm font-medium leading-snug text-ink"
             >
               {l.label}
             </Link>
@@ -110,7 +110,7 @@ function ContactLines({
     whatsappHref ?? whatsappHrefFromPhone(contact.phone) ?? undefined;
 
   return (
-    <address className="space-y-1.5 text-sm leading-snug not-italic text-ink">
+    <address className="space-y-1.5 text-sm leading-relaxed not-italic text-ink">
       {contact.address ? (
         <p className="max-w-[16rem] whitespace-pre-line">{contact.address}</p>
       ) : null}
@@ -250,7 +250,7 @@ export default function Footer({ initialData = null }: FooterProps) {
               </p>
             ) : null}
             {footerData.brand.tagline ? (
-              <p className="mt-2.5 max-w-xs text-sm leading-snug text-ink line-clamp-2">
+              <p className="mt-2.5 max-w-xs text-sm leading-relaxed text-ink line-clamp-2">
                 {footerData.brand.tagline}
               </p>
             ) : null}

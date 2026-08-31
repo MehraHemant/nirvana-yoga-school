@@ -7,13 +7,13 @@ import { ArrowRight } from "@/icons";
 export function BlogIndexEmpty() {
   return (
     <div className="flex flex-col items-center px-4 py-20 text-center sm:py-28">
-      <p className="text-[0.7rem] font-semibold uppercase tracking-[0.28em] text-primary">
+      <p className="type-eyebrow text-primary">
         Coming soon
       </p>
-      <p className="mt-5 max-w-lg text-[clamp(1.75rem,3.4vw,2.5rem)] font-bold leading-tight tracking-[-0.025em] text-ink">
+      <p className="type-h2 mt-5 max-w-lg text-ink">
         New essays are being prepared
       </p>
-      <p className="mx-auto mt-4 max-w-md text-base font-semibold leading-relaxed text-ink">
+      <p className="type-body mx-auto mt-4 max-w-md text-ink">
         Our teachers are shaping the next collection of practice notes and
         philosophy guides. Please check back soon.
       </p>

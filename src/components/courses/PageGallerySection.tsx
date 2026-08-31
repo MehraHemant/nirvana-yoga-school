@@ -299,10 +299,10 @@ export default function PageGallerySection({
                     </button>
 
                     <div className="mt-3 px-2">
-                      <span className="type-eyebrow block text-[9px] font-bold tracking-widest text-primary">
+                      <span className="type-eyebrow block text-primary">
                         {categoryEyebrow(item.category)}
                       </span>
-                      <h4 className="mt-1 text-sm leading-tight font-bold tracking-wide text-ink transition-colors duration-300 sm:text-base">
+                      <h4 className="type-ui mt-1 font-semibold text-ink transition-colors duration-300">
                         {item.title}
                       </h4>
                     </div>

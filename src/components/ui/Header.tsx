@@ -190,7 +190,7 @@ function DesktopDropdown({
         <div className="nav-dropdown-menu min-w-[360px] max-w-[420px] max-h-[72vh] overflow-hidden rounded-3xl">
           <span className="nav-dropdown-caret" aria-hidden="true" />
           <div className="px-6 pt-6 pb-4 border-b border-ink/5">
-            <p className="text-2xl text-ink leading-tight">{item.label}</p>
+            <p className="text-xl font-medium text-ink leading-tight">{item.label}</p>
             <p className="text-sm text-ink mt-1.5 tracking-wide">
               Programs in Rishikesh, India
             </p>
@@ -361,7 +361,7 @@ export default function Header({ initialData = null }: HeaderProps) {
       if (ticking) return;
       ticking = true;
       requestAnimationFrame(() => {
-        setScrolled(window.scrollY > 48);
+        setScrolled(window.scrollY > 16);
         ticking = false;
       });
     };
@@ -371,7 +371,7 @@ export default function Header({ initialData = null }: HeaderProps) {
   }, []);
 
   useEffect(() => {
-    setScrolled(pathname ? window.scrollY > 48 : false);
+    setScrolled(pathname ? window.scrollY > 16 : false);
   }, [pathname]);
 
   useEffect(() => {
@@ -529,7 +529,7 @@ export default function Header({ initialData = null }: HeaderProps) {
             onClick={() => setMobileOpen(false)}
           />
           <div
-            className={`xl:hidden mobile-menu-panel mobile-menu-panel--open fixed inset-x-0 ${headerTop} bottom-0 z-40 bg-sand/97 backdrop-blur-xl border-t border-ink/5 overflow-y-auto`}
+            className={`xl:hidden mobile-menu-panel mobile-menu-panel--open fixed inset-x-0 ${headerTop} bottom-0 z-40 bg-white border-t border-ink/5 overflow-y-auto`}
             aria-hidden={false}
           >
             <nav

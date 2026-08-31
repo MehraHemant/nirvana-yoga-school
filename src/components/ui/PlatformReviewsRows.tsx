@@ -78,7 +78,7 @@ function TestimonialCard({ review }: { review: Testimonial }) {
       <div className="flex w-full flex-col justify-center py-4 select-text md:w-2/3 md:py-6">
         <div className="mb-2 flex items-start justify-between">
           <div>
-            <h4 className="text-base font-semibold leading-tight text-ink md:text-lg">
+            <h4 className="type-h4 text-ink">
               {review.name}
             </h4>
             <div className="mt-1 flex gap-0.5" role="img" aria-label="5 stars">
@@ -93,7 +93,7 @@ function TestimonialCard({ review }: { review: Testimonial }) {
           </div>
         </div>
 
-        <h5 className="type-display-sm mb-3 line-clamp-2 font-semibold leading-snug text-ink">
+        <h5 className="type-display-sm mb-3 line-clamp-2 text-ink">
           {review.title}
         </h5>
 
@@ -101,7 +101,7 @@ function TestimonialCard({ review }: { review: Testimonial }) {
           <p
             ref={messageRef}
             id={messageId}
-            className={`type-body leading-relaxed text-ink ${isExpanded ? "" : "line-clamp-4 h-[4lh]"}`}
+            className={`type-body text-ink ${isExpanded ? "" : "line-clamp-4 h-[4lh]"}`}
           >
             &ldquo;{review.message}&rdquo;
           </p>
@@ -248,12 +248,12 @@ function RatingCard({
       <div>
         <div className="mb-6 flex items-center justify-between">
           {getBrandLogo()}
-          <span className="type-eyebrow rounded-full bg-white/60 px-2.5 py-1 font-bold text-ink">
+          <span className="type-eyebrow rounded-full bg-white/60 px-2.5 py-1 text-ink">
             Verified
           </span>
         </div>
 
-        <h3 className="type-display-sm mb-1 font-bold text-ink">{title}</h3>
+        <h3 className="type-display-sm mb-1 text-ink">{title}</h3>
         <p className="mb-4 text-xs text-ink">Official Student Reviews</p>
 
         <div className="mb-2 flex items-center gap-0.5">
@@ -265,9 +265,9 @@ function RatingCard({
             />
           ))}
         </div>
-        <p className="text-2xl font-black text-ink">
+        <p className="text-2xl font-semibold text-ink">
           {ratingText}{" "}
-          <span className="text-xs font-semibold uppercase tracking-wider text-ink">
+          <span className="text-xs font-medium uppercase tracking-wider text-ink">
             rating
           </span>
         </p>

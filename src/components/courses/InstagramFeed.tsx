@@ -118,7 +118,7 @@ function InstagramProfileBar({
           <ul className="mb-4 inline-flex flex-wrap justify-center divide-x divide-white/30 sm:gap-0 lg:justify-start">
             {stats.map((stat) => (
               <li key={stat.label} className="px-4 first:pl-0 sm:px-6">
-                <p className="text-lg font-bold leading-none tabular-nums sm:text-xl">
+                <p className="text-lg font-semibold leading-none tabular-nums sm:text-xl">
                   {stat.value}
                 </p>
                 <p className="mt-1 text-xs text-white/80 sm:text-sm">
@@ -128,7 +128,7 @@ function InstagramProfileBar({
             ))}
           </ul>
 
-          <p className="text-xl font-bold leading-tight sm:text-2xl">
+          <p className="text-xl font-semibold leading-tight sm:text-2xl">
             {handle}
           </p>
           <p className="mt-1 text-sm font-semibold text-white/90">
@@ -474,7 +474,7 @@ function InstagramPostCard({
         </p>
 
         {item.caption && (
-          <p className="text-[13px] leading-snug text-ink">
+          <p className="text-[13px] leading-normal text-ink">
             <span className="mr-1.5 font-semibold">{username}</span>
             <span className="text-ink">{truncateCaption(item.caption)}</span>
           </p>

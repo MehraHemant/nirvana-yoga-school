@@ -247,7 +247,7 @@ export default function WhyRishikeshClient({
                       </span>
 
                       <h3
-                        className={`text-lg sm:text-xl lg:text-2xl transition-colors duration-300 ${isActive ? "text-ink font-bold" : "text-ink font-semibold"}`}
+                        className="type-h4 text-ink transition-colors duration-300"
                       >
                         {sutra.title}
                       </h3>
@@ -256,7 +256,7 @@ export default function WhyRishikeshClient({
                         <motion.span
                           animate={{ rotate: isActive ? 45 : 0 }}
                           transition={{ duration: 0.25 }}
-                          className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-lg ${isActive ? "hidden" : "bg-ink/5 text-ink/40"}`}
+                          className={`flex h-5 w-5 items-center justify-center rounded-full text-lg font-medium leading-none ${isActive ? "hidden" : "bg-ink/5 text-ink/40"}`}
                         >
                           ＋
                         </motion.span>
@@ -281,7 +281,7 @@ export default function WhyRishikeshClient({
                           className="overflow-hidden"
                         >
                           <div className="pt-3 border-t border-ink/5 mt-3">
-                            <p className="type-body text-sm sm:text-base text-ink leading-relaxed">
+                            <p className="type-body text-ink">
                               {sutra.body}
                             </p>
                           </div>
@@ -295,7 +295,7 @@ export default function WhyRishikeshClient({
           </div>
 
           <div className="border-l border-primary/20 pl-4 py-1 mt-4">
-            <p className="italic text-base leading-snug text-ink">
+            <p className="type-body italic text-ink">
               "{content.closingInvitation}"
             </p>
           </div>
@@ -320,7 +320,7 @@ export default function WhyRishikeshClient({
                   aria-hidden="true"
                 />
               </div>
-              <h3 className="type-display-sm font-bold mt-1 text-ink leading-tight">
+              <h3 className="type-display-sm mt-1 text-ink">
                 {videoCard.title}
               </h3>
             </div>
@@ -342,7 +342,7 @@ export default function WhyRishikeshClient({
                   />
                   <div className="absolute inset-0 bg-ink/35 group-hover:bg-ink/25 transition-colors duration-300" />
 
-                  <span className="absolute top-3 left-3 z-10 px-2.5 py-0.5 rounded-full text-[9px] uppercase font-bold tracking-wider text-white bg-ink/40 border border-white/10 backdrop-blur-xs">
+                  <span className="type-eyebrow absolute top-3 left-3 z-10 rounded-full border border-white/10 bg-ink/40 px-2.5 py-0.5 text-white backdrop-blur-xs">
                     {videoCard.speakerTag}
                   </span>
 
@@ -372,10 +372,10 @@ export default function WhyRishikeshClient({
             </div>
 
             <div className="pb-3 border-b border-ink/5">
-              <p className="type-ui text-xs sm:text-sm font-semibold text-ink leading-snug line-clamp-2">
+              <p className="type-ui line-clamp-2 font-semibold text-ink">
                 {videoTitle}
               </p>
-              <p className="type-eyebrow text-ink mt-1 text-[9px]">
+              <p className="type-eyebrow mt-1 text-ink">
                 {videoCard.speakerSubtitle}
               </p>
             </div>

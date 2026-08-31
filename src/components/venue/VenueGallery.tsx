@@ -140,7 +140,7 @@ export default function VenueGallery({
             }
           >
             <header className="mb-5 border-b border-ink/10 pb-3">
-              <h2 className="text-2xl text-ink sm:text-3xl">
+              <h2 className="type-h3 text-ink">
                 {videosHeader?.title?.trim() || "Videos"}
               </h2>
               {videosHeader?.description?.trim() ? (
@@ -263,7 +263,7 @@ export default function VenueGallery({
                       return (
                         <div key={section.id} id={`gallery-${section.id}`}>
                           <header className="mb-5 border-b border-ink/10 pb-3">
-                            <h2 className="text-2xl text-ink sm:text-3xl">
+                            <h2 className="type-h3 text-ink">
                               {section.label ||
                                 galleryCategoryLabel(section.id)}
                             </h2>
@@ -338,7 +338,7 @@ export default function VenueGallery({
             className="mt-16 border-t border-ink/10 pt-12"
           >
             <header className="mb-5 border-b border-ink/10 pb-3">
-              <h2 className="text-2xl text-ink sm:text-3xl">Videos</h2>
+              <h2 className="type-h3 text-ink">Videos</h2>
             </header>
             <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-3">
               {legacyVideos.map((video) => {
