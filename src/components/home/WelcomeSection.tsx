@@ -8,13 +8,13 @@ import {
 } from "framer-motion";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { Button, Container, Heading, Pill } from "@/components/ui";
+import { Button, Container, Heading, Pill, YouTubeThumbImage } from "@/components/ui";
 import type { HomeWelcomeContent } from "@/content/types/dedicated-pages";
 import { Check, Play } from "@/icons";
 import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 import { resolveSectionHtmlId } from "@/lib/html-id";
 import { EASE_OUT, reducedTransition, VIEWPORT_ONCE } from "@/lib/motion";
-import { parseYouTubeId } from "@/lib/youtube";
+import { parseYouTubeId, youTubeThumbnailUrl } from "@/lib/youtube";
 
 type WelcomeSectionProps = {
   /** Optional CMS welcome band content */
@@ -103,7 +103,7 @@ function WelcomeVideoPlayer({
   const isMp4 = /\.mp4($|\?)/i.test(url);
   const posterSrc =
     poster?.trim() ||
-    (youtubeId ? `https://i.ytimg.com/vi/${youtubeId}/hqdefault.jpg` : "");
+    (youtubeId ? youTubeThumbnailUrl(youtubeId) : "");
 
   if (playing && youtubeId) {
     return (
@@ -145,14 +145,26 @@ function WelcomeVideoPlayer({
       aria-label={`Play ${title}`}
     >
       {posterSrc ? (
-        <Image
-          src={posterSrc}
-          alt=""
-          fill
-          sizes="(max-width: 1024px) 100vw, 480px"
-          className="object-cover transition-transform duration-700 group-hover:scale-105"
-          priority
-        />
+        youtubeId ? (
+          <YouTubeThumbImage
+            videoId={youtubeId}
+            src={posterSrc}
+            alt=""
+            fill
+            sizes="(max-width: 1024px) 100vw, 480px"
+            className="object-cover transition-transform duration-700 group-hover:scale-105"
+            priority
+          />
+        ) : (
+          <Image
+            src={posterSrc}
+            alt=""
+            fill
+            sizes="(max-width: 1024px) 100vw, 480px"
+            className="object-cover transition-transform duration-700 group-hover:scale-105"
+            priority
+          />
+        )
       ) : (
         <div className="absolute inset-0 bg-ink/20" />
       )}

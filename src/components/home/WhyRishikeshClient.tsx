@@ -8,7 +8,7 @@ import {
 } from "framer-motion";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { Container, Heading, Pill } from "@/components/ui";
+import { Container, Heading, Pill, YouTubeThumbImage } from "@/components/ui";
 import type { HomeWhyRishikeshContent } from "@/content/types/dedicated-pages";
 import { Play } from "@/icons";
 import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
@@ -333,7 +333,8 @@ export default function WhyRishikeshClient({
                   className="absolute inset-0 w-full h-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 cursor-pointer"
                   aria-label={`Play video: ${videoTitle}`}
                 >
-                  <Image
+                  <YouTubeThumbImage
+                    videoId={videoId}
                     src={thumbnailUrl}
                     alt=""
                     fill

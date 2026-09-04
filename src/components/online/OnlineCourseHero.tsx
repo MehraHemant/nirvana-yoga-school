@@ -3,7 +3,7 @@
 import { motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import { HeroFrame } from "@/components/hero";
-import { Button, Container, Heading, Pill } from "@/components/ui";
+import { Button, Container, Heading, Pill, YouTubeThumbImage } from "@/components/ui";
 import { ArrowRight, Play } from "@/icons";
 import { fadeUp, reducedTransition } from "@/lib/motion";
 import { parseYouTubeId, youTubeWatchUrl } from "@/lib/youtube";
@@ -47,9 +47,7 @@ export default function OnlineCourseHero({
 }: OnlineCourseHeroProps) {
   const prefersReduced = useReducedMotion() ?? false;
   const previewVideo = previewVideoId ? parseYouTubeId(previewVideoId) : null;
-  const previewThumb = previewVideo
-    ? `https://img.youtube.com/vi/${previewVideo}/maxresdefault.jpg`
-    : image;
+  const previewThumb = previewVideo ? undefined : image;
   const metaItems = [
     { label: "Duration", value: duration },
     { label: "Level", value: level },
@@ -139,7 +137,7 @@ export default function OnlineCourseHero({
         </motion.div>
 
 
-        {previewThumb ? (
+        {previewVideo || previewThumb ? (
           <motion.div
             initial={
               prefersReduced ? false : { opacity: 0, y: 18, scale: 0.98 }
@@ -158,14 +156,25 @@ export default function OnlineCourseHero({
             />
             <div className="group relative overflow-hidden rounded-[1.35rem] ring-1 ring-ink/10 shadow-[0_24px_60px_-20px_rgb(28_25_23/0.12)]">
               <div className="relative aspect-16/10 overflow-hidden">
-                <Image
-                  src={previewThumb}
-                  alt=""
-                  fill
-                  priority
-                  sizes="(max-width: 1024px) 100vw, 420px"
-                  className="object-cover object-center transition-transform duration-[1.5s] ease-out group-hover:scale-[1.04]"
-                />
+                {previewVideo ? (
+                  <YouTubeThumbImage
+                    videoId={previewVideo}
+                    alt=""
+                    fill
+                    priority
+                    sizes="(max-width: 1024px) 100vw, 420px"
+                    className="object-cover object-center transition-transform duration-[1.5s] ease-out group-hover:scale-[1.04]"
+                  />
+                ) : previewThumb ? (
+                  <Image
+                    src={previewThumb}
+                    alt=""
+                    fill
+                    priority
+                    sizes="(max-width: 1024px) 100vw, 420px"
+                    className="object-cover object-center transition-transform duration-[1.5s] ease-out group-hover:scale-[1.04]"
+                  />
+                ) : null}
                 <div
                   className="absolute inset-0 bg-linear-to-t from-secondary/40 via-transparent to-transparent"
                   aria-hidden="true"

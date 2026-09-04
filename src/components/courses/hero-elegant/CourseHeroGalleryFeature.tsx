@@ -36,7 +36,9 @@ export default function CourseHeroGalleryFeature(props: ElegantHeroProps) {
 
         <div
           className="flex min-h-0 flex-1 flex-col"
-          onPointerEnter={() => gallery.setInteracting(true)}
+          onPointerDown={() => gallery.setInteracting(true)}
+          onPointerUp={() => gallery.setInteracting(false)}
+          onPointerCancel={() => gallery.setInteracting(false)}
           onPointerLeave={() => gallery.setInteracting(false)}
         >
           <div

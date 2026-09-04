@@ -4,6 +4,10 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
+import GlanceSoftWashGrid, {
+  glanceToSpecs,
+  legacyOverviewSpecs,
+} from "@/components/courses/GlanceSoftWashGrid";
 import VideoPlaylistPlayer from "@/components/home/VideoPlaylistPlayer";
 import { Container, MediaLightbox, SectionHeader } from "@/components/ui";
 import { SanitizedHtml } from "@/components/ui/SanitizedHtml";
@@ -20,74 +24,6 @@ import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 import type { YouTubeVideo } from "@/lib/youtube";
 import type { GlanceItem } from "@/content/types/page-modules";
 
-type OverviewSpec = {
-  index: string;
-  label: string;
-  value: string;
-  hint?: string;
-  highlight?: boolean;
-};
-
-/**
- * Maps CMS glance rows into overview fact-sheet specs.
- *
- * @param glance - Overview glance items from page modules
- */
-function glanceToSpecs(glance: GlanceItem[]): OverviewSpec[] {
-  return glance
-    .filter((item) => Boolean(item.value?.trim()))
-    .map((item, index) => ({
-      index: String(index + 1).padStart(2, "0"),
-      label: item.label,
-      value: item.value,
-      hint: item.hint?.trim() ? item.hint : undefined,
-      highlight: /fee|price|tuition|cost/i.test(item.label),
-    }));
-}
-
-/**
- * Legacy fallback when no glance rows exist in page modules.
- *
- * @param level - Focus level
- * @param duration - Program duration
- * @param certification - Certification line
- * @param fee - Fee display
- */
-function legacyOverviewSpecs(
-  level: string,
-  duration: string,
-  certification: string,
-  fee: string,
-): OverviewSpec[] {
-  return [
-    {
-      index: "01",
-      label: "Focus Level",
-      value: level,
-      hint: "All training experience welcome",
-    },
-    {
-      index: "02",
-      label: "Immersive Duration",
-      value: duration,
-      hint: "Full-time ashram residency",
-    },
-    {
-      index: "03",
-      label: "Certification",
-      value: certification,
-      hint: "Worldwide standard credentials",
-    },
-    {
-      index: "04",
-      label: "Course Fee",
-      value: fee,
-      hint: "All-inclusive tuition & board",
-      highlight: true,
-    },
-  ].filter((spec) => Boolean(spec.value?.trim()));
-}
-
 /**
  * Merges overview description + lead into one HTML body for public display.
  *
@@ -99,88 +35,6 @@ function mergeOverviewLead(description: string, lead: string): string {
   const leadHtml = resolveInlineRichTextHtml(lead);
   if (descHtml && leadHtml) return `${descHtml}${leadHtml}`;
   return descHtml || leadHtml;
-}
-
-/**
- * Responsive column classes so the glance sheet stays even for common counts.
- *
- * @param count - Number of fact cells
- */
-function glanceGridClass(count: number): string {
-  switch (count) {
-    case 1:
-      return "grid-cols-1";
-    case 2:
-      return "grid-cols-1 sm:grid-cols-2";
-    case 3:
-      return "grid-cols-1 sm:grid-cols-3";
-    case 4:
-      return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4";
-    case 5:
-      return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-5";
-    case 6:
-      return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
-    default:
-      return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
-  }
-}
-
-/**
- * Single fact cell for the course overview glance sheet.
- *
- * @param props - Glance spec row and stagger index for motion
- */
-function OverviewGlanceItem({
-  spec,
-  index,
-}: {
-  spec: OverviewSpec;
-  index: number;
-}) {
-  const highlighted = Boolean(spec.highlight);
-
-  return (
-    <motion.div
-      initial="hidden"
-      whileInView="visible"
-      viewport={VIEWPORT_ONCE}
-      custom={index * 0.06}
-      variants={fadeUp}
-      className={`relative flex min-h-full flex-col gap-3 px-5 py-6 sm:gap-3.5 sm:px-7 sm:py-7 ${
-        highlighted ? "bg-primary/[0.035]" : "bg-white"
-      }`}
-    >
-      {highlighted ? (
-        <span
-          className="absolute inset-y-0 left-0 w-0.5 bg-primary/50"
-          aria-hidden
-        />
-      ) : null}
-      <div className="flex items-baseline justify-between gap-3">
-        <dt className="type-eyebrow text-ink/40">{spec.label}</dt>
-        <span
-          className="shrink-0 text-[0.6875rem] font-medium tabular-nums tracking-[0.12em] text-ink/25"
-          aria-hidden
-        >
-          {spec.index}
-        </span>
-      </div>
-      <dd className="flex min-w-0 flex-1 flex-col gap-2">
-        <span
-          className={`type-display-sm tracking-tight ${
-            highlighted ? "font-semibold text-primary" : "font-semibold text-ink"
-          }`}
-        >
-          {spec.value}
-        </span>
-        {spec.hint ? (
-          <span className="mt-auto max-w-[18rem] text-sm leading-relaxed text-ink/50">
-            {spec.hint}
-          </span>
-        ) : null}
-      </dd>
-    </motion.div>
-  );
 }
 
 type CourseOverviewProps = {
@@ -418,30 +272,7 @@ export default function CourseOverview({
           ) : null}
 
           {overviewSpecs.length > 0 ? (
-            <div className="space-y-5 sm:space-y-6">
-              <motion.div
-                initial="hidden"
-                whileInView="visible"
-                viewport={VIEWPORT_ONCE}
-                variants={fadeUp}
-                className="flex flex-col gap-1 border-b border-ink/8 pb-4 sm:pb-5"
-              >
-                <p className="type-eyebrow text-primary">Course at a glance</p>
-                <h3 className="type-h3 text-ink">Program essentials</h3>
-              </motion.div>
-
-              <dl
-                className={`grid gap-px overflow-hidden rounded-2xl border border-ink/10 bg-ink/10 shadow-[0_1px_0_rgb(26_20_16/0.03)] ${glanceGridClass(overviewSpecs.length)}`}
-              >
-                {overviewSpecs.map((spec, index) => (
-                  <OverviewGlanceItem
-                    key={`${spec.label}-${spec.index}`}
-                    spec={spec}
-                    index={index}
-                  />
-                ))}
-              </dl>
-            </div>
+            <GlanceSoftWashGrid specs={overviewSpecs} />
           ) : null}
         </div>
       </Container>

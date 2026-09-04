@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import type { ReactNode } from "react";
-import { MediaLightbox } from "@/components/ui";
+import { MediaLightbox, YouTubeThumbImage } from "@/components/ui";
 import { cmsImageCursorClass } from "@/content/types/cms-image";
 import { ChevronLeft, ChevronRight, Play } from "@/icons";
 import {
@@ -227,7 +227,7 @@ export function MediaRail({
               alt=""
               fill
               loading="lazy"
-              sizes="120px"
+              sizes="160px"
               className="object-cover"
             />
           </button>
@@ -244,12 +244,13 @@ export function MediaRail({
             aria-label={`Play ${ytTitle(id, index)}`}
             aria-current={isActive}
           >
-            <Image
+            <YouTubeThumbImage
+              videoId={id}
               src={ytThumb(id)}
               alt=""
               fill
               loading="lazy"
-              sizes="120px"
+              sizes="160px"
               className="object-cover"
             />
             <span className="absolute inset-0 grid place-items-center">

@@ -3,6 +3,7 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import { useCallback, useEffect, useRef } from "react";
+import YouTubeThumbImage from "@/components/ui/YouTubeThumbImage";
 import { ChevronLeft, ChevronRight, Close, Play } from "@/icons";
 import { EASE_OUT } from "@/lib/motion";
 
@@ -21,9 +22,6 @@ interface MediaLightboxProps {
   onChangeActiveIndex: (index: number) => void;
   title?: string;
 }
-
-const getYouTubeThumbnail = (videoId: string) =>
-  `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
 
 export default function MediaLightbox({
   isOpen,
@@ -243,10 +241,9 @@ export default function MediaLightbox({
                       />
                     ) : (
                       <div className="relative w-full h-full bg-black/50">
-                        <Image
-                          src={
-                            item.thumbnailUrl || getYouTubeThumbnail(item.url)
-                          }
+                        <YouTubeThumbImage
+                          videoId={item.url}
+                          src={item.thumbnailUrl}
                           alt=""
                           fill
                           sizes="64px"

@@ -13,6 +13,7 @@ export * from "./Heading";
 export { default as Heading } from "./Heading";
 export { default as JsonLd } from "./JsonLd";
 export { default as MediaLightbox } from "./MediaLightbox";
+export { default as YouTubeThumbImage } from "./YouTubeThumbImage";
 export type { PhoneInputProps } from "./PhoneInput";
 export { default as PhoneInput } from "./PhoneInput";
 export { default as Pill } from "./Pill";

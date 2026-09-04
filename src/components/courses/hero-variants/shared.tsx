@@ -17,7 +17,11 @@ import {
   cloudinaryHeroUrl,
   cloudinarySizedUrl,
 } from "@/lib/cdn/cloudinary-thumb-url";
-import { parseYouTubeId, YOUTUBE_METADATA_REGISTRY } from "@/lib/youtube";
+import {
+  parseYouTubeId,
+  youTubeThumbnailUrl,
+  YOUTUBE_METADATA_REGISTRY,
+} from "@/lib/youtube";
 
 // ─── Props ───────────────────────────────────────────────────────────────────
 
@@ -58,15 +62,14 @@ export const HERO_THUMB_WIDTH = 320;
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 /**
- * Resolves a YouTube thumbnail, preferring registry metadata.
+ * Resolves a YouTube thumbnail URL (maxres), preferring registry metadata.
  *
  * @param id - YouTube video ID
  * @returns Thumbnail URL
  */
 export function ytThumb(id: string): string {
   return (
-    YOUTUBE_METADATA_REGISTRY[id]?.thumbnail_url ??
-    `https://img.youtube.com/vi/${id}/hqdefault.jpg`
+    YOUTUBE_METADATA_REGISTRY[id]?.thumbnail_url ?? youTubeThumbnailUrl(id)
   );
 }
 
@@ -179,7 +182,7 @@ export function useHeroGallery({
   const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
   const [lightboxIdx, setLightboxIdx] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
-  /** True while the pointer is over the gallery chrome (pauses autoplay). */
+  /** True while the pointer is pressed on the gallery (pauses autoplay). */
   const [isInteracting, setInteracting] = useState(false);
 
   const imageMetaByUrl = useMemo(
@@ -278,9 +281,9 @@ export function useHeroGallery({
 
   /**
    * Auto-advances the main-stage photo every 5s. Pauses for reduced motion,
-   * a single photo, an inline video, an open lightbox, a hidden tab, or
-   * pointer interaction. Depends on `photoIdx` so manual next/prev resets
-   * the timer.
+   * a single photo, an inline video, an open lightbox, a hidden tab, or an
+   * active pointer press. Depends on `photoIdx` so manual next/prev / thumb
+   * clicks reset the timer. Clears the interval on unmount.
    */
   useEffect(() => {
     if (

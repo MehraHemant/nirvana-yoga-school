@@ -1,9 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Image from "next/image";
 import { useState } from "react";
-import { Container, SectionHeader } from "@/components/ui";
+import { Container, SectionHeader, YouTubeThumbImage } from "@/components/ui";
 import type { HomeAuthenticYogaContent } from "@/content/types/dedicated-pages";
 import { Play } from "@/icons";
 import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
@@ -51,7 +50,6 @@ function AuthenticYogaVideoTile({
   const videoId = parseYouTubeId(youtubeUrl);
   if (!videoId) return null;
 
-  const posterSrc = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
   const label = caption.trim() || "Play video";
 
   return (
@@ -74,8 +72,8 @@ function AuthenticYogaVideoTile({
           className="group relative aspect-video w-full overflow-hidden rounded-2xl border border-ink/5 bg-ink/10 text-left shadow-card sm:rounded-3xl"
           aria-label={`Play ${label}`}
         >
-          <Image
-            src={posterSrc}
+          <YouTubeThumbImage
+            videoId={videoId}
             alt=""
             fill
             sizes="(max-width: 768px) 100vw, 50vw"

@@ -44,6 +44,47 @@ export function youTubeWatchUrl(videoId: string) {
   return `https://www.youtube.com/watch?v=${videoId}`;
 }
 
+/** YouTube static thumbnail quality ladder (maxres/sd may 404; hq is reliable). */
+export type YouTubeThumbQuality = "maxres" | "sd" | "hq";
+
+const YT_THUMB_FILE: Record<YouTubeThumbQuality, string> = {
+  maxres: "maxresdefault.jpg",
+  sd: "sddefault.jpg",
+  hq: "hqdefault.jpg",
+};
+
+/**
+ * Builds a YouTube thumbnail URL. Defaults to `maxres` (`maxresdefault.jpg`).
+ * Prefer maxres; fall back via {@link nextYouTubeThumbnailUrl} when it 404s.
+ *
+ * @param videoId - YouTube video ID
+ * @param quality - Thumbnail quality (default `maxres`)
+ * @returns Absolute thumbnail URL on `i.ytimg.com`
+ */
+export function youTubeThumbnailUrl(
+  videoId: string,
+  quality: YouTubeThumbQuality = "maxres",
+): string {
+  return `https://i.ytimg.com/vi/${videoId}/${YT_THUMB_FILE[quality]}`;
+}
+
+/**
+ * Steps down YouTube thumbnail quality after a failed image load:
+ * maxres → sd → hq. Returns null when already at hq or not a YT thumb URL.
+ *
+ * @param src - Current thumbnail URL that failed to load
+ * @returns Next-lower quality URL, or null
+ */
+export function nextYouTubeThumbnailUrl(src: string): string | null {
+  if (src.includes("/maxresdefault.")) {
+    return src.replace("/maxresdefault.", "/sddefault.");
+  }
+  if (src.includes("/sddefault.")) {
+    return src.replace("/sddefault.", "/hqdefault.");
+  }
+  return null;
+}
+
 const LENGTH_SECONDS_PATTERN = /"lengthSeconds":"(\d+)"/;
 
 // Registry of static video metadata to speed up builds and avoid prerender/scraping errors
@@ -61,21 +102,21 @@ export const YOUTUBE_METADATA_REGISTRY: Record<
     title: "NIRVANA YOGA SCHOOL RISHIKESH, INDIA",
     author_name: "Nirvana Yoga School",
     author_url: "https://www.youtube.com/@NirvanaYogaSchool",
-    thumbnail_url: "https://i.ytimg.com/vi/PH2fv7TtRfc/hqdefault.jpg",
+    thumbnail_url: youTubeThumbnailUrl("PH2fv7TtRfc"),
     durationSeconds: 918,
   },
   RqG48joKLp8: {
     title: "Why I Chose Nirvana Yoga School: My yoga journey in Rishikesh",
     author_name: "Nirvana Yoga School",
     author_url: "https://www.youtube.com/@NirvanaYogaSchool",
-    thumbnail_url: "https://i.ytimg.com/vi/RqG48joKLp8/hqdefault.jpg",
+    thumbnail_url: youTubeThumbnailUrl("RqG48joKLp8"),
     durationSeconds: 276,
   },
   Rcqr1gSe2uE: {
     title: "Beyond the Mat: Why This Yoga School Became My Home",
     author_name: "Nirvana Yoga School",
     author_url: "https://www.youtube.com/@NirvanaYogaSchool",
-    thumbnail_url: "https://i.ytimg.com/vi/Rcqr1gSe2uE/hqdefault.jpg",
+    thumbnail_url: youTubeThumbnailUrl("Rcqr1gSe2uE"),
     durationSeconds: 93,
   },
   TYal8a3zGow: {
@@ -83,21 +124,21 @@ export const YOUTUBE_METADATA_REGISTRY: Record<
       "Unplugged: Real Student Reviews of 200-Hour Yoga Training in Rishikesh l Nirvana Yoga School",
     author_name: "Nirvana Yoga School",
     author_url: "https://www.youtube.com/@NirvanaYogaSchool",
-    thumbnail_url: "https://i.ytimg.com/vi/TYal8a3zGow/hqdefault.jpg",
+    thumbnail_url: youTubeThumbnailUrl("TYal8a3zGow"),
     durationSeconds: 1073,
   },
   "_NOezBf-LYs": {
     title: "Why Learning Yoga in Rishikesh is Life-Changing l Gurudev Dhruvaji",
     author_name: "Nirvana Yoga School",
     author_url: "https://www.youtube.com/@NirvanaYogaSchool",
-    thumbnail_url: "https://i.ytimg.com/vi/_NOezBf-LYs/hqdefault.jpg",
+    thumbnail_url: youTubeThumbnailUrl("_NOezBf-LYs"),
     durationSeconds: 827,
   },
   hHjuGhx8qSk: {
     title: "Online Yoga Teacher Training | Nirvana Yoga School",
     author_name: "Nirvana Yoga School",
     author_url: "https://www.youtube.com/@NirvanaYogaSchool",
-    thumbnail_url: "https://i.ytimg.com/vi/hHjuGhx8qSk/hqdefault.jpg",
+    thumbnail_url: youTubeThumbnailUrl("hHjuGhx8qSk"),
     durationSeconds: 600,
   },
 };
@@ -113,8 +154,8 @@ export async function fetchYouTubeOEmbed(
       author_name: data.author_name,
       author_url: data.author_url,
       thumbnail_url: data.thumbnail_url,
-      thumbnail_width: 480,
-      thumbnail_height: 360,
+      thumbnail_width: 1280,
+      thumbnail_height: 720,
     };
   }
 
@@ -126,16 +167,25 @@ export async function fetchYouTubeOEmbed(
       throw new Error(`YouTube oEmbed failed (${response.status})`);
     }
 
-    return (await response.json()) as YouTubeOEmbed;
+    const data = (await response.json()) as YouTubeOEmbed;
+    // Prefer maxres for a sharper poster; client falls back on 404.
+    if (videoId) {
+      return {
+        ...data,
+        thumbnail_url: youTubeThumbnailUrl(videoId),
+        thumbnail_width: 1280,
+        thumbnail_height: 720,
+      };
+    }
+    return data;
   } catch (error) {
     console.warn(`Failed to fetch YouTube oEmbed for ${watchUrl}:`, error);
     return {
       title: "Yoga Training - Nirvana Yoga School",
       author_name: "Nirvana Yoga School",
       author_url: "https://www.youtube.com/@NirvanaYogaSchool",
-      thumbnail_url: videoId
-        ? `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`
-        : "https://i.ytimg.com/vi/PH2fv7TtRfc/hqdefault.jpg",
+      // hq is reliable when oEmbed fails and we cannot rely on client fallback.
+      thumbnail_url: youTubeThumbnailUrl(videoId ?? "PH2fv7TtRfc", "hq"),
       thumbnail_width: 480,
       thumbnail_height: 360,
     };

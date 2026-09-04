@@ -3,7 +3,7 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import { useMemo, useState } from "react";
-import { Container, MediaLightbox } from "@/components/ui";
+import { Container, MediaLightbox, YouTubeThumbImage } from "@/components/ui";
 import {
   extractYouTubeId,
   galleryCategoryLabel,
@@ -189,14 +189,26 @@ export default function VenueGallery({
                           aria-label={`Play ${video.title || "video"}`}
                           className="relative block h-full w-full"
                         >
-                          <Image
-                            src={video.thumbnailUrl}
-                            alt={video.title || "Venue video"}
-                            fill
-                            unoptimized
-                            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 33vw"
-                            className="object-cover"
-                          />
+                          {video.source === "youtube" ? (
+                            <YouTubeThumbImage
+                              videoId={video.id}
+                              src={video.thumbnailUrl}
+                              alt={video.title || "Venue video"}
+                              fill
+                              unoptimized
+                              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 33vw"
+                              className="object-cover"
+                            />
+                          ) : (
+                            <Image
+                              src={video.thumbnailUrl}
+                              alt={video.title || "Venue video"}
+                              fill
+                              unoptimized
+                              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 33vw"
+                              className="object-cover"
+                            />
+                          )}
                           <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
                             <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-primary shadow-soft sm:h-14 sm:w-14">
                               <Play size={22} />
@@ -351,8 +363,8 @@ export default function VenueGallery({
                       rel="noreferrer"
                       className="group relative block aspect-video w-full overflow-hidden bg-ink/5"
                     >
-                      <Image
-                        src={`https://img.youtube.com/vi/${id}/hqdefault.jpg`}
+                      <YouTubeThumbImage
+                        videoId={id}
                         alt={video.title ?? "Venue video"}
                         fill
                         unoptimized

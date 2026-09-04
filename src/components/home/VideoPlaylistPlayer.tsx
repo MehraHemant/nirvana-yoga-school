@@ -1,8 +1,8 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { YouTubeThumbImage } from "@/components/ui";
 import { Play } from "@/icons";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 import type { YouTubeVideo } from "@/lib/youtube";
@@ -64,7 +64,8 @@ function VideoPlaylistItem({
       className={`group flex h-full w-full min-w-0 overflow-hidden rounded-2xl border text-left transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 max-md:flex-col md:flex-row md:items-stretch md:gap-3 md:p-2.5 ${isActive ? "border-primary/30 bg-white shadow-soft ring-1 ring-primary/20 md:border-l-[3px] md:border-l-primary md:pl-[calc(0.625rem-2px)]" : "border-ink/8 bg-white shadow-card hover:border-primary/20 hover:bg-white hover:shadow-soft md:border-l-[3px] md:border-l-transparent"}`}
     >
       <div className="relative aspect-video w-full shrink-0 overflow-hidden bg-ink/10 max-md:rounded-t-2xl md:w-[38%] md:rounded-xl lg:w-[40%]">
-        <Image
+        <YouTubeThumbImage
+          videoId={video.id}
           src={video.thumbnailUrl}
           alt=""
           fill
@@ -242,7 +243,8 @@ export default function VideoPlaylistPlayer({
                   className="group absolute inset-0 h-full w-full text-left"
                   aria-label={`Play ${active.title}`}
                 >
-                  <Image
+                  <YouTubeThumbImage
+                    videoId={active.id}
                     src={active.thumbnailUrl}
                     alt=""
                     fill
