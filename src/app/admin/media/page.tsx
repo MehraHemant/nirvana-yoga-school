@@ -70,6 +70,8 @@ export default function AdminMediaPage() {
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState("");
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
 
   const loadAssets = useCallback(async () => {
     setLoading(true);
@@ -122,6 +124,14 @@ export default function AdminMediaPage() {
 
   const pageInUseCount = assets.filter((asset) => asset.usage?.inUse).length;
   const pageUnusedCount = assets.length - pageInUseCount;
+  const unusedOnPage = useMemo(
+    () => filteredAssets.filter((asset) => !asset.usage?.inUse),
+    [filteredAssets],
+  );
+  const selectedCount = selectedIds.length;
+  const allUnusedSelected =
+    unusedOnPage.length > 0 &&
+    unusedOnPage.every((asset) => selectedIds.includes(asset.id));
 
   /**
    * Applies a tag chip filter and resets to the first page.
@@ -132,6 +142,7 @@ export default function AdminMediaPage() {
     setTagFilter(nextTag);
     setPage(1);
     setEditingAsset(null);
+    setSelectedIds([]);
   }
 
   /**
@@ -163,6 +174,7 @@ export default function AdminMediaPage() {
     setEditingAsset(null);
     setUsageFilter("all");
     setSearchQuery("");
+    setSelectedIds([]);
   }
 
   /**
@@ -205,6 +217,7 @@ export default function AdminMediaPage() {
       await deleteAdminMedia(asset.id);
       setMessage(libraryKind === "video" ? "Video deleted" : "Image deleted");
       setEditingAsset(null);
+      setSelectedIds((prev) => prev.filter((id) => id !== asset.id));
       await loadAssets();
     } catch (err) {
       if (err instanceof ApiClientError && err.references?.length) {
@@ -212,6 +225,104 @@ export default function AdminMediaPage() {
       } else {
         setError(err instanceof Error ? err.message : "Delete failed");
       }
+    }
+  }
+
+  /**
+   * Toggles one unused asset in the bulk-delete selection.
+   *
+   * @param id - Media asset id
+   */
+  function toggleSelected(id: string) {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
+    );
+  }
+
+  /**
+   * Selects every unused asset on the current filtered page.
+   */
+  function selectUnusedOnPage() {
+    setSelectedIds(unusedOnPage.map((asset) => asset.id));
+  }
+
+  /**
+   * Clears the bulk-delete selection.
+   */
+  function clearSelection() {
+    setSelectedIds([]);
+  }
+
+  /**
+   * Deletes every selected unused asset via the existing single-delete API.
+   */
+  async function deleteSelected() {
+    const toDelete = assets.filter(
+      (asset) => selectedIds.includes(asset.id) && !asset.usage?.inUse,
+    );
+    if (toDelete.length === 0) return;
+
+    const noun = toDelete.length === 1 ? assetNoun : assetNounPlural;
+    if (
+      !window.confirm(
+        `Delete ${toDelete.length} ${noun} from the library and CDN?`,
+      )
+    ) {
+      return;
+    }
+
+    setBulkDeleting(true);
+    setError("");
+    setMessage("");
+
+    try {
+      const results = await Promise.allSettled(
+        toDelete.map((asset) => deleteAdminMedia(asset.id)),
+      );
+
+      const failed: string[] = [];
+      let succeeded = 0;
+      results.forEach((result, index) => {
+        if (result.status === "fulfilled") {
+          succeeded += 1;
+          return;
+        }
+        const asset = toDelete[index];
+        const label = asset?.caption || asset?.id || "Asset";
+        const err = result.reason;
+        if (err instanceof ApiClientError && err.references?.length) {
+          failed.push(`${label}: ${err.message} (${err.references.join(", ")})`);
+        } else {
+          failed.push(
+            `${label}: ${err instanceof Error ? err.message : "Delete failed"}`,
+          );
+        }
+      });
+
+      const deletedIds = new Set(
+        toDelete
+          .filter((_, index) => results[index]?.status === "fulfilled")
+          .map((asset) => asset.id),
+      );
+      if (editingAsset && deletedIds.has(editingAsset.id)) {
+        setEditingAsset(null);
+      }
+      setSelectedIds([]);
+      await loadAssets();
+
+      if (failed.length > 0 && succeeded > 0) {
+        setError(
+          `${succeeded} deleted. ${failed.length} could not be deleted: ${failed.join("; ")}`,
+        );
+      } else if (failed.length > 0) {
+        setError(`${failed.length} could not be deleted: ${failed.join("; ")}`);
+      } else {
+        setMessage(
+          `${succeeded} ${succeeded === 1 ? assetNoun : assetNounPlural} deleted`,
+        );
+      }
+    } finally {
+      setBulkDeleting(false);
     }
   }
 
@@ -272,6 +383,7 @@ export default function AdminMediaPage() {
           <AdminIconButton
             label={`Delete ${assetNoun}`}
             variant="danger"
+            disabled={bulkDeleting}
             onClick={() => deleteAsset(asset)}
             icon={<Trash size={15} />}
           />
@@ -290,14 +402,26 @@ export default function AdminMediaPage() {
     const title = asset.caption || `Untitled ${assetNoun}`;
     const altText = asset.alt || asset.caption || "Media asset";
     const inUse = asset.usage?.inUse ?? false;
+    const selected = selectedIds.includes(asset.id);
 
     return (
       <article
         key={asset.id}
         className={`admin-media-library__card${
           editingAsset?.id === asset.id ? " admin-media-library__card--active" : ""
-        }`}
+        }${selected ? " admin-media-library__card--selected" : ""}`}
       >
+        {!inUse ? (
+          <label className="admin-media-library__select">
+            <input
+              type="checkbox"
+              checked={selected}
+              disabled={bulkDeleting}
+              onChange={() => toggleSelected(asset.id)}
+              aria-label={`Select ${title}`}
+            />
+          </label>
+        ) : null}
         <button
           type="button"
           className="admin-media-library__card-thumb-btn"
@@ -379,14 +503,26 @@ export default function AdminMediaPage() {
     const previewUrl = asset.thumbUrl || cloudinaryThumbUrl(asset.url, 120);
     const title = asset.caption || `Untitled ${assetNoun}`;
     const inUse = asset.usage?.inUse ?? false;
+    const selected = selectedIds.includes(asset.id);
 
     return (
       <article
         key={asset.id}
         className={`admin-media-library__row${
           editingAsset?.id === asset.id ? " admin-media-library__row--active" : ""
-        }`}
+        }${selected ? " admin-media-library__row--selected" : ""}`}
       >
+        <div className="admin-media-library__row-select">
+          {!inUse ? (
+            <input
+              type="checkbox"
+              checked={selected}
+              disabled={bulkDeleting}
+              onChange={() => toggleSelected(asset.id)}
+              aria-label={`Select ${title}`}
+            />
+          ) : null}
+        </div>
         <button
           type="button"
           className="admin-media-library__row-thumb-btn"
@@ -544,6 +680,37 @@ export default function AdminMediaPage() {
           onChange={(event) => setSearchQuery(event.target.value)}
           placeholder="Search caption, alt, tags…"
         />
+        {unusedOnPage.length > 0 || selectedCount > 0 ? (
+          <div className="admin-actions admin-media-library__bulk">
+            <span className="admin-media-library__bulk-count">
+              {selectedCount} selected
+            </span>
+            <button
+              type="button"
+              className="admin-btn-sm admin-btn-sm--ghost"
+              disabled={unusedOnPage.length === 0 || allUnusedSelected || bulkDeleting}
+              onClick={selectUnusedOnPage}
+            >
+              Select unused
+            </button>
+            <button
+              type="button"
+              className="admin-btn-sm admin-btn-sm--ghost"
+              disabled={selectedCount === 0 || bulkDeleting}
+              onClick={clearSelection}
+            >
+              Clear
+            </button>
+            <button
+              type="button"
+              className="admin-btn-sm admin-btn-sm--danger"
+              disabled={selectedCount === 0 || bulkDeleting}
+              onClick={() => void deleteSelected()}
+            >
+              {bulkDeleting ? "Deleting…" : "Delete selected"}
+            </button>
+          </div>
+        ) : null}
         <div className="admin-media-library__view-toggle" role="group" aria-label="View mode">
           <button
             type="button"
@@ -648,16 +815,22 @@ export default function AdminMediaPage() {
             <button
               type="button"
               className="admin-btn-sm admin-btn-sm--ghost"
-              disabled={page <= 1 || loading}
-              onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+              disabled={page <= 1 || loading || bulkDeleting}
+              onClick={() => {
+                setSelectedIds([]);
+                setPage((prev) => Math.max(1, prev - 1));
+              }}
             >
               Previous
             </button>
             <button
               type="button"
               className="admin-btn-sm admin-btn-sm--ghost"
-              disabled={page >= totalPages || loading}
-              onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
+              disabled={page >= totalPages || loading || bulkDeleting}
+              onClick={() => {
+                setSelectedIds([]);
+                setPage((prev) => Math.min(totalPages, prev + 1));
+              }}
             >
               Next
             </button>
@@ -693,6 +866,7 @@ export default function AdminMediaPage() {
                 key={`skeleton-${index}`}
                 className="admin-media-library__row admin-media-library__row--skeleton"
               >
+                <div className="admin-media-library__row-select" />
                 <div className="admin-media-skeleton admin-media-library__skeleton-thumb" />
                 <div className="admin-media-library__skeleton-copy">
                   <div className="admin-media-skeleton admin-media-skeleton--line" />
@@ -779,8 +953,11 @@ export default function AdminMediaPage() {
             <button
               type="button"
               className="admin-btn-sm admin-btn-sm--ghost"
-              disabled={page <= 1 || loading}
-              onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+              disabled={page <= 1 || loading || bulkDeleting}
+              onClick={() => {
+                setSelectedIds([]);
+                setPage((prev) => Math.max(1, prev - 1));
+              }}
             >
               Previous
             </button>
@@ -790,8 +967,11 @@ export default function AdminMediaPage() {
             <button
               type="button"
               className="admin-btn-sm admin-btn-sm--ghost"
-              disabled={page >= totalPages || loading}
-              onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
+              disabled={page >= totalPages || loading || bulkDeleting}
+              onClick={() => {
+                setSelectedIds([]);
+                setPage((prev) => Math.min(totalPages, prev + 1));
+              }}
             >
               Next
             </button>

@@ -3,7 +3,10 @@
 import Image from "next/image";
 import { HeroFrame } from "@/components/hero";
 import { Container } from "@/components/ui";
-import { useHeroGallery } from "../hero-variants/shared";
+import {
+  HERO_IMAGE_QUALITY,
+  useHeroGallery,
+} from "../hero-variants/shared";
 import {
   ELEGANT_HERO_FRAME,
   type ElegantHeroProps,
@@ -50,7 +53,7 @@ export default function CourseHeroGalleryFeature(props: ElegantHeroProps) {
           >
             <HeroStage
               gallery={gallery}
-              sizes="(max-width: 768px) 100vw, 75vw"
+              sizes="(max-width: 768px) 100vw, min(75vw, 1100px)"
               className="aspect-16/10 h-full min-h-48 w-full md:aspect-auto"
             />
             {sidePhotos.length > 0 ? (
@@ -64,11 +67,12 @@ export default function CourseHeroGalleryFeature(props: ElegantHeroProps) {
                     aria-label={`Show photo ${index + 1}`}
                   >
                     <Image
-                      src={gallery.thumbSrc(photo)}
+                      src={gallery.sideSrc(photo)}
                       alt=""
                       fill
                       loading="lazy"
-                      sizes="(max-width: 768px) 33vw, 20vw"
+                      quality={HERO_IMAGE_QUALITY}
+                      sizes="(max-width: 768px) 33vw, 400px"
                       className="object-cover transition-transform duration-500 hover:scale-[1.02]"
                     />
                   </button>

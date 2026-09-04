@@ -1539,6 +1539,16 @@
   margin-bottom: 0.35rem;
 }
 
+.admin-media-library__bulk {
+  flex-wrap: wrap;
+}
+
+.admin-media-library__bulk-count {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #1c1917;
+}
+
 .admin-media-library__view-toggle {
   display: inline-flex;
   border: 1px solid rgb(26 20 16 / 10%);
@@ -1686,6 +1696,7 @@
 }
 
 .admin-media-library__card {
+  position: relative;
   display: flex;
   flex-direction: column;
   min-width: 0;
@@ -1703,9 +1714,34 @@
   box-shadow: 0 8px 22px rgb(26 20 16 / 6%);
 }
 
-.admin-media-library__card--active {
+.admin-media-library__card--active,
+.admin-media-library__card--selected {
   border-color: #a32432;
   box-shadow: 0 0 0 2px rgb(163 36 50 / 18%);
+}
+
+.admin-media-library__select {
+  position: absolute;
+  top: 0.45rem;
+  right: 0.45rem;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.65rem;
+  height: 1.65rem;
+  margin: 0;
+  border-radius: 0.4rem;
+  background: rgb(255 255 255 / 94%);
+  box-shadow: 0 1px 6px rgb(26 20 16 / 18%);
+}
+
+.admin-media-library__select input {
+  width: 0.95rem;
+  height: 0.95rem;
+  margin: 0;
+  accent-color: #a32432;
+  cursor: pointer;
 }
 
 .admin-media-library__card--skeleton {
@@ -1812,7 +1848,7 @@
 
 .admin-media-library__row {
   display: grid;
-  grid-template-columns: 4.5rem minmax(0, 1fr) auto auto;
+  grid-template-columns: 1.35rem 4.5rem minmax(0, 1fr) auto auto;
   gap: 0.85rem;
   align-items: center;
   padding: 0.75rem 0.85rem;
@@ -1829,9 +1865,24 @@
   box-shadow: 0 6px 18px rgb(26 20 16 / 5%);
 }
 
-.admin-media-library__row--active {
+.admin-media-library__row--active,
+.admin-media-library__row--selected {
   border-color: #a32432;
   box-shadow: 0 0 0 2px rgb(163 36 50 / 18%);
+}
+
+.admin-media-library__row-select {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-media-library__row-select input {
+  width: 0.95rem;
+  height: 0.95rem;
+  margin: 0;
+  accent-color: #a32432;
+  cursor: pointer;
 }
 
 .admin-media-library__row--skeleton {
@@ -2066,12 +2117,12 @@
   }
 
   .admin-media-library__row {
-    grid-template-columns: 4rem 1fr;
+    grid-template-columns: 1.35rem 4rem 1fr;
     grid-template-rows: auto auto;
   }
 
   .admin-media-library__row > .admin-status-chip {
-    grid-column: 2;
+    grid-column: 3;
     justify-self: start;
   }
 
@@ -3614,6 +3665,11 @@
   background: rgb(163 36 50 / 8%);
   border-color: rgb(163 36 50 / 40%);
   color: #7d1a25;
+}
+
+.admin-btn-sm:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .admin-btn-icon--remove {

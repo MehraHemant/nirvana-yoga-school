@@ -4,10 +4,11 @@ import Image from "next/image";
 import type { ReactNode } from "react";
 import { MediaLightbox, YouTubeThumbImage } from "@/components/ui";
 import { cmsImageCursorClass } from "@/content/types/cms-image";
-import { ChevronLeft, ChevronRight, Play } from "@/icons";
+import { Play } from "@/icons";
 import {
   type CourseHeroProps,
-  MaximizeIcon,
+  HERO_IMAGE_QUALITY,
+  useHeldHeroSrc,
   type useHeroGallery,
   ytThumb,
   ytTitle,
@@ -33,7 +34,11 @@ export function pickSidePhotos<T>(
 ): { photo: T; index: number }[] {
   if (photos.length <= 1) return [];
   const side: { photo: T; index: number }[] = [];
-  for (let offset = 1; offset < photos.length && side.length < count; offset++) {
+  for (
+    let offset = 1;
+    offset < photos.length && side.length < count;
+    offset++
+  ) {
     const index = (photoIdx + offset) % photos.length;
     const photo = photos[index];
     if (photo === undefined) continue;
@@ -99,9 +104,13 @@ export function HeroStage({
   children?: ReactNode;
 }) {
   const g = gallery;
+  const targetSrc = g.activePhoto ? g.photoSrc(g.activePhoto) : undefined;
+  const { readySrc, incomingSrc, onIncomingLoad } = useHeldHeroSrc(targetSrc);
 
   return (
-    <div className={`relative overflow-hidden rounded-xl bg-neutral-100 ${className}`}>
+    <div
+      className={`relative overflow-hidden rounded-xl bg-neutral-100 ${className}`}
+    >
       {g.activeVideoId ? (
         <>
           <iframe
@@ -122,17 +131,39 @@ export function HeroStage({
         </>
       ) : g.activePhoto ? (
         <>
-          <Image
-            key={g.activePhoto.url}
-            src={g.photoSrc(g.activePhoto)}
-            alt={g.activeAlt}
-            fill
-            priority
-            loading="eager"
-            fetchPriority="high"
-            sizes={sizes}
-            className={imageClassName}
-          />
+          {readySrc ? (
+            <Image
+              key={readySrc}
+              src={readySrc}
+              alt={g.activeAlt}
+              fill
+              priority
+              loading="eager"
+              fetchPriority="high"
+              decoding="sync"
+              quality={HERO_IMAGE_QUALITY}
+              sizes={sizes}
+              unoptimized
+              className={imageClassName}
+            />
+          ) : null}
+          {incomingSrc ? (
+            <Image
+              key={incomingSrc}
+              src={incomingSrc}
+              alt=""
+              fill
+              priority
+              loading="eager"
+              fetchPriority="high"
+              quality={HERO_IMAGE_QUALITY}
+              sizes={sizes}
+              unoptimized
+              onLoad={onIncomingLoad}
+              className={`${imageClassName} opacity-0`}
+              aria-hidden
+            />
+          ) : null}
           {g.activeClickAction !== "none" ? (
             <button
               type="button"
@@ -145,40 +176,6 @@ export function HeroStage({
               }
             />
           ) : null}
-          {g.activeClickAction === "fullscreen" ? (
-            <button
-              type="button"
-              onClick={() => g.activatePhoto(g.photoIdx)}
-              className="absolute top-3 right-3 z-20 bg-white p-2.5 text-secondary shadow-sm transition-colors hover:bg-neutral-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-              aria-label="Open image fullscreen"
-            >
-              <MaximizeIcon />
-            </button>
-          ) : null}
-          <div className="absolute inset-x-0 bottom-0 z-20 flex items-end justify-between gap-4 bg-linear-to-t from-black/55 to-transparent px-3 pt-14 pb-3 text-white">
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => g.stepPhoto(-1)}
-                className="bg-white/95 p-2 text-secondary hover:bg-white focus-visible:outline-2 focus-visible:outline-white"
-                aria-label="Previous photo"
-              >
-                <ChevronLeft size={15} />
-              </button>
-              <button
-                type="button"
-                onClick={() => g.stepPhoto(1)}
-                className="bg-white/95 p-2 text-secondary hover:bg-white focus-visible:outline-2 focus-visible:outline-white"
-                aria-label="Next photo"
-              >
-                <ChevronRight size={15} />
-              </button>
-            </div>
-            <span className="text-[10px] tabular-nums tracking-[0.14em]">
-              {String(g.photoIdx + 1).padStart(2, "0")} /{" "}
-              {String(g.photos.length).padStart(2, "0")}
-            </span>
-          </div>
         </>
       ) : null}
       {children}
@@ -210,7 +207,9 @@ export function MediaRail({
   const idle = "border-transparent hover:border-secondary/20";
 
   return (
-    <div className={`no-scrollbar flex min-w-0 justify-start overflow-x-auto ${className}`}>
+    <div
+      className={`no-scrollbar flex min-w-0 justify-start overflow-x-auto ${className}`}
+    >
       {g.photos.map((photo, index) => {
         const isActive = !g.activeVideoId && g.photoIdx === index;
         return (
@@ -227,7 +226,8 @@ export function MediaRail({
               alt=""
               fill
               loading="lazy"
-              sizes="160px"
+              quality={HERO_IMAGE_QUALITY}
+              sizes="180px"
               className="object-cover"
             />
           </button>

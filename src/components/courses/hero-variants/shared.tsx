@@ -14,13 +14,14 @@ import {
   normalizeCmsImage,
 } from "@/content/types/cms-image";
 import {
+  CLOUDINARY_HERO_MAIN_WIDTH,
   cloudinaryHeroUrl,
   cloudinarySizedUrl,
 } from "@/lib/cdn/cloudinary-thumb-url";
 import {
   parseYouTubeId,
-  youTubeThumbnailUrl,
   YOUTUBE_METADATA_REGISTRY,
+  youTubeThumbnailUrl,
 } from "@/lib/youtube";
 
 // ─── Props ───────────────────────────────────────────────────────────────────
@@ -54,10 +55,55 @@ export type HeroPhoto = CmsInteractiveImage & {
   pictured?: string;
 };
 
-/** Cloudinary width for the main stage image. */
-export const HERO_MAIN_WIDTH = 1600;
-/** Cloudinary width for filmstrip / grid thumbnails. */
+/** Cloudinary width for the 16:10 main stage (covers ~1100px CSS at 2x). */
+export const HERO_MAIN_WIDTH = CLOUDINARY_HERO_MAIN_WIDTH;
+/** Cloudinary width for large side-stack tiles (200–400px CSS at 2x). */
+export const HERO_SIDE_WIDTH = 800;
+/** Cloudinary width for filmstrip thumbnails. */
 export const HERO_THUMB_WIDTH = 320;
+/** Next/Image quality for hero photos (default is 75). */
+export const HERO_IMAGE_QUALITY = 85;
+
+/**
+ * Prefetches main-stage hero URLs into the browser cache.
+ *
+ * @param urls - Absolute Cloudinary (or other) image URLs to warm
+ */
+export function prefetchHeroUrls(urls: readonly string[]): void {
+  if (typeof window === "undefined") return;
+  for (const url of urls) {
+    if (!url) continue;
+    const img = new window.Image();
+    img.decoding = "async";
+    img.src = url;
+  }
+}
+
+/**
+ * Keeps the last decoded hero URL painted until the next photo is ready.
+ *
+ * @param src - Target main-stage URL for the active photo
+ */
+export function useHeldHeroSrc(src: string | undefined): {
+  readySrc: string;
+  incomingSrc: string;
+  onIncomingLoad: () => void;
+} {
+  const [readySrc, setReadySrc] = useState(() => src ?? "");
+  if (src && !readySrc) setReadySrc(src);
+
+  // First known `src` must paint immediately (SSR + first client frame).
+  const paintedSrc = readySrc || src || "";
+  const incomingSrc = src && src !== paintedSrc ? src : "";
+
+  return {
+    readySrc: paintedSrc,
+    incomingSrc,
+    onIncomingLoad: () => {
+      if (src) setReadySrc(src);
+    },
+  };
+}
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -84,24 +130,6 @@ export function ytTitle(id: string, fallbackIdx: number): string {
   const t = YOUTUBE_METADATA_REGISTRY[id]?.title;
   if (!t) return `Video ${fallbackIdx + 1}`;
   return t.length > 60 ? `${t.slice(0, 57)}…` : t;
-}
-
-/** Expand-to-fullscreen glyph sized for hero control buttons. */
-export function MaximizeIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="h-3 w-3"
-      aria-hidden="true"
-    >
-      <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
-    </svg>
-  );
 }
 
 /**
@@ -275,9 +303,27 @@ export function useHeroGallery({
   const photoSrc = (photo: HeroPhoto) =>
     cloudinaryHeroUrl(photo.url, HERO_MAIN_WIDTH);
 
-  /** Thumbnail source for a photo. */
+  /** Side-stack source — larger than filmstrip thumbs. */
+  const sideSrc = (photo: HeroPhoto) =>
+    cloudinaryHeroUrl(photo.url, HERO_SIDE_WIDTH);
+
+  /** Filmstrip thumbnail source for a photo. */
   const thumbSrc = (photo: HeroPhoto) =>
     cloudinarySizedUrl(photo.url, HERO_THUMB_WIDTH);
+
+  /**
+   * Warms the next and previous main-stage URLs so autoplay / wrap can paint
+   * from cache instead of waiting on a network fetch.
+   */
+  useEffect(() => {
+    if (photos.length <= 1) return;
+    const next = photos[(photoIdx + 1) % photos.length];
+    const prev = photos[(photoIdx - 1 + photos.length) % photos.length];
+    prefetchHeroUrls([
+      next ? cloudinaryHeroUrl(next.url, HERO_MAIN_WIDTH) : "",
+      prev ? cloudinaryHeroUrl(prev.url, HERO_MAIN_WIDTH) : "",
+    ]);
+  }, [photoIdx, photos]);
 
   /**
    * Auto-advances the main-stage photo every 5s. Pauses for reduced motion,
@@ -285,6 +331,7 @@ export function useHeroGallery({
    * active pointer press. Depends on `photoIdx` so manual next/prev / thumb
    * clicks reset the timer. Clears the interval on unmount.
    */
+  // biome-ignore lint/correctness/useExhaustiveDependencies: photoIdx resets the interval after manual navigation
   useEffect(() => {
     if (
       prefersReduced ||
@@ -353,6 +400,7 @@ export function useHeroGallery({
     openLightbox,
     activatePhoto,
     photoSrc,
+    sideSrc,
     thumbSrc,
     lightboxProps: {
       isOpen: lightboxOpen,

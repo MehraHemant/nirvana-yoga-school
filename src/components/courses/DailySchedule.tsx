@@ -21,6 +21,62 @@ interface DailyScheduleProps {
 
 type ScheduleIconType = "morning" | "meal" | "study" | "yoga" | "default";
 
+interface ScheduleCardWash {
+  base: string;
+  overlay?: string;
+}
+
+/** Light primary→white washes; same family, different direction and intensity. */
+const SCHEDULE_CARD_WASHES: ScheduleCardWash[] = [
+  {
+    base: "bg-linear-to-br from-primary/16 via-primary/7 to-white",
+    overlay:
+      "bg-[radial-gradient(ellipse_at_top_right,var(--tw-gradient-stops))] from-primary/18 via-primary/5 to-transparent",
+  },
+  {
+    base: "bg-linear-to-tl from-primary/14 via-primary/6 to-white",
+  },
+  {
+    base: "bg-radial-[at_top_left] from-primary/16 via-primary/6 to-white",
+  },
+  {
+    base: "bg-radial-[at_top_right] from-primary/18 via-primary/7 to-white",
+  },
+  {
+    base: "bg-linear-to-b from-primary/18 via-primary/8 to-white",
+  },
+  {
+    base: "bg-linear-to-tr from-primary/10 via-primary/14 to-white",
+    overlay:
+      "bg-[radial-gradient(ellipse_at_bottom_left,var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent",
+  },
+  {
+    base: "bg-linear-to-bl from-primary/12 via-primary/5 to-white",
+  },
+];
+
+/**
+ * Stable 32-bit hash so the same seed always maps to the same wash.
+ * @param value Activity title used as the hash seed.
+ */
+function hashString(value: string): number {
+  let hash = 0;
+  for (let i = 0; i < value.length; i++) {
+    hash = (hash * 31 + value.charCodeAt(i)) | 0;
+  }
+  return Math.abs(hash);
+}
+
+/**
+ * Picks a wash from the palette by hashing the activity title.
+ * @param activity Schedule activity title used as a stable seed.
+ */
+function getScheduleCardWash(activity: string): ScheduleCardWash {
+  return SCHEDULE_CARD_WASHES[
+    hashString(activity) % SCHEDULE_CARD_WASHES.length
+  ];
+}
+
 const SCHEDULE_ICON_META: Record<
   ScheduleIconType,
   { color: string; caption: string }
@@ -214,6 +270,7 @@ export default function DailySchedule({
               {filteredSchedule.map((item, index) => {
                 const isEven = index % 2 === 0;
                 const iconType = getIconType(item.activity, item.time);
+                const wash = getScheduleCardWash(item.activity);
 
                 return (
                   <motion.div
@@ -243,11 +300,19 @@ export default function DailySchedule({
                     <div
                       className={`pl-12 sm:pl-0 w-full sm:w-[44%] mt-2 sm:mt-0 ${isEven ? "sm:order-last" : "sm:order-first"}`}
                     >
-                      <div className="surface-card flex gap-4 rounded-3xl p-5 transition-all duration-300 hover:border-primary/20 hover:shadow-soft sm:p-6">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-ink/8 bg-surface-muted">
+                      <div
+                        className={`relative flex gap-4 overflow-hidden rounded-3xl border border-ink/6 ${wash.base} p-5 shadow-soft sm:p-6`}
+                      >
+                        {wash.overlay ? (
+                          <span
+                            className={`pointer-events-none absolute inset-0 ${wash.overlay}`}
+                            aria-hidden
+                          />
+                        ) : null}
+                        <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-ink/8 bg-surface-muted">
                           <ScheduleIcon type={iconType} />
                         </div>
-                        <div className="space-y-1">
+                        <div className="relative space-y-1">
                           <h4 className="type-h4 text-ink">
                             {item.activity}
                           </h4>

@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
+/** Content-hashed so next/image cache updates when the PNG is replaced. */
+import heroMandalaSrc from "../../../public/images/hero-mandala.png";
 import GlanceSoftWashGrid, {
   glanceToSpecs,
   legacyOverviewSpecs,
@@ -18,7 +20,6 @@ import {
   type ImageClickAction,
   normalizeCmsImage,
 } from "@/content/types/cms-image";
-import { HeroFlourish } from "@/icons";
 import { resolveInlineRichTextHtml } from "@/lib/cms/blog-html";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 import type { YouTubeVideo } from "@/lib/youtube";
@@ -35,6 +36,36 @@ function mergeOverviewLead(description: string, lead: string): string {
   const leadHtml = resolveInlineRichTextHtml(lead);
   if (descHtml && leadHtml) return `${descHtml}${leadHtml}`;
   return descHtml || leadHtml;
+}
+
+/**
+ * Spinning overview flourish: circular clip + white disc so PNG gaps
+ * read as a filled medallion on the white section, not a hollow hole.
+ *
+ * @param size - Intrinsic image width/height
+ * @param className - Position, size, and opacity utilities
+ */
+function HeroMandalaFlourish({
+  size,
+  className,
+}: {
+  size: number;
+  className: string;
+}) {
+  return (
+    <div
+      aria-hidden
+      className={`hero-mandala-spin pointer-events-none absolute overflow-hidden rounded-full bg-white ${className}`}
+    >
+      <Image
+        src={heroMandalaSrc}
+        alt=""
+        width={size}
+        height={size}
+        className="h-full w-full object-contain"
+      />
+    </div>
+  );
 }
 
 type CourseOverviewProps = {
@@ -134,8 +165,14 @@ export default function CourseOverview({
       id={htmlId}
       className="relative overflow-hidden bg-white py-16 sm:py-14"
     >
-      <HeroFlourish className="pointer-events-none absolute right-[-8%] top-[5%] h-[450px] w-[450px] rotate-45 text-accent/12" />
-      <HeroFlourish className="pointer-events-none absolute bottom-[-5%] left-[-12%] h-[380px] w-[380px] text-primary/4" />
+      <HeroMandalaFlourish
+        size={450}
+        className="right-[-8%] top-[5%] h-[450px] w-[450px] opacity-25"
+      />
+      <HeroMandalaFlourish
+        size={380}
+        className="bottom-[-5%] left-[-12%] h-[380px] w-[380px] opacity-15"
+      />
 
       <Container size="2xl" className="w-full">
         <div className="space-y-10 lg:space-y-12">

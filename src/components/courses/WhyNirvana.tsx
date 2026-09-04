@@ -25,6 +25,68 @@ import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 
 type IconFC = React.FC<{ size?: number; className?: string }>;
 
+type WhyNirvanaCardWash = {
+  base: string;
+  overlay?: string;
+};
+
+/** Light primary→white washes; same family, different direction and intensity. */
+const WHY_NIRVANA_CARD_WASHES: WhyNirvanaCardWash[] = [
+  {
+    base: "bg-linear-to-br from-primary/16 via-primary/7 to-white",
+    overlay:
+      "bg-[radial-gradient(ellipse_at_top_right,var(--tw-gradient-stops))] from-primary/18 via-primary/5 to-transparent",
+  },
+  {
+    base: "bg-linear-to-tl from-primary/14 via-primary/6 to-white",
+  },
+  {
+    base: "bg-radial-[at_top_left] from-primary/16 via-primary/6 to-white",
+  },
+  {
+    base: "bg-radial-[at_top_right] from-primary/18 via-primary/7 to-white",
+  },
+  {
+    base: "bg-linear-to-b from-primary/18 via-primary/8 to-white",
+  },
+  {
+    base: "bg-linear-to-tr from-primary/10 via-primary/14 to-white",
+    overlay:
+      "bg-[radial-gradient(ellipse_at_bottom_left,var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent",
+  },
+  {
+    base: "bg-linear-to-bl from-primary/12 via-primary/5 to-white",
+  },
+];
+
+/**
+ * Stable 32-bit hash so the same seed always maps to the same wash.
+ * @param value Highlight title used as the hash seed.
+ */
+function hashString(value: string): number {
+  let hash = 0;
+  for (let i = 0; i < value.length; i++) {
+    hash = (hash * 31 + value.charCodeAt(i)) | 0;
+  }
+  return Math.abs(hash);
+}
+
+/**
+ * Picks a wash from the palette by hashing the highlight title.
+ * Falls back to index when the title is empty.
+ * @param title Highlight title used as a stable seed.
+ * @param index Card index used when title is empty.
+ */
+function getWhyNirvanaCardWash(
+  title: string,
+  index: number,
+): WhyNirvanaCardWash {
+  const seed = title.trim() || String(index);
+  return WHY_NIRVANA_CARD_WASHES[
+    hashString(seed) % WHY_NIRVANA_CARD_WASHES.length
+  ];
+}
+
 // Mapped 1-to-1 with WHY_NIRVANA_HIGHLIGHTS order
 const HIGHLIGHT_ICONS = [
   BookOpen, // Quality Education
@@ -95,26 +157,27 @@ export default function WhyNirvana({
           <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-x-8 md:gap-y-5">
             {content.highlights.map((item, i) => {
               const Icon = HIGHLIGHT_ICONS[i] ?? BookOpen;
+              const wash = getWhyNirvanaCardWash(item.title, i);
               return (
-                <li key={item.title} className="shadow-sm rounded-2xl">
+                <li key={item.title} className="rounded-2xl">
                   <article
-                    tabIndex={0}
-                    className="group flex h-full gap-4 rounded-2xl p-4 transition-colors duration-200 hover:bg-primary hover:shadow-soft hover:text-white focus-visible:bg-primary focus-visible:text-white focus-visible:shadow-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 sm:p-5"
+                    className={`relative flex h-full gap-4 overflow-hidden rounded-2xl border border-ink/6 ${wash.base} p-4 shadow-sm sm:p-5`}
                   >
+                    {wash.overlay ? (
+                      <span
+                        className={`pointer-events-none absolute inset-0 ${wash.overlay}`}
+                        aria-hidden
+                      />
+                    ) : null}
                     <span
-                      className="surface-bordered mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center shadow-xs transition-colors duration-200 group-hover:border-white/25 group-hover:bg-white/15 group-focus-visible:border-white/25 group-focus-visible:bg-white/15"
+                      className="surface-bordered relative mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center shadow-xs"
                       aria-hidden="true"
                     >
-                      <Icon
-                        size={18}
-                        className="text-primary transition-colors duration-200 group-hover:text-white group-focus-visible:text-white"
-                      />
+                      <Icon size={18} className="text-primary" />
                     </span>
-                    <div className="min-w-0">
-                      <h4 className="type-h4 mb-1.5 text-ink transition-colors duration-200 group-hover:text-white group-focus-visible:text-white">
-                        {item.title}
-                      </h4>
-                      <p className="type-body text-ink transition-colors duration-200 group-hover:text-white group-focus-visible:text-white">
+                    <div className="relative min-w-0">
+                      <h4 className="type-h4 mb-1.5 text-ink">{item.title}</h4>
+                      <p className="type-body text-ink">
                         {stripHtml(item.body)}
                       </p>
                     </div>
