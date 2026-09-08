@@ -4,7 +4,10 @@ import { motion } from "framer-motion";
 import type { StaticImageData } from "next/image";
 import type { ReactNode } from "react";
 import { useMemo, useState } from "react";
-import type { FaqCategoryId } from "@/content/types/faq-categories";
+import {
+  DEFAULT_FAQ_CATEGORY,
+  type FaqCategoryId,
+} from "@/content/types/faq-categories";
 import { groupFaqsByCategory } from "@/lib/cms/faq-utils";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 import Container from "./Container";
@@ -47,7 +50,9 @@ export default function FAQSection({
   sectionClassName = "",
 }: FAQSectionProps) {
   const groups = useMemo(() => groupFaqsByCategory(faqs), [faqs]);
-  const [activeView, setActiveView] = useState<FaqViewMode>("all");
+  const [activeView, setActiveView] = useState<FaqViewMode>(
+    DEFAULT_FAQ_CATEGORY,
+  );
   const [activeKey, setActiveKey] = useState<string | null>(null);
 
   const categoryTabs = useMemo(

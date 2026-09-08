@@ -169,10 +169,10 @@ export default function CourseOverview({
         size={450}
         className="right-[-8%] top-[5%] h-[450px] w-[450px] opacity-25"
       />
-      <HeroMandalaFlourish
+      {/* <HeroMandalaFlourish
         size={380}
         className="bottom-[-5%] left-[-12%] h-[380px] w-[380px] opacity-15"
-      />
+      /> */}
 
       <Container size="2xl" className="w-full">
         <div className="space-y-10 lg:space-y-12">

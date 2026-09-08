@@ -11,6 +11,7 @@ import {
   ELEGANT_HERO_FRAME,
   type ElegantHeroProps,
   ElegantLightbox,
+  HeroSideVideo,
   HeroStage,
   MediaRail,
   pickSidePhotos,
@@ -23,7 +24,16 @@ import {
  */
 export default function CourseHeroGalleryFeature(props: ElegantHeroProps) {
   const gallery = useHeroGallery(props);
-  const sidePhotos = pickSidePhotos(gallery.photos, gallery.photoIdx, 3);
+  const cornerVideoId = gallery.videoIds[0];
+  const sidePhotos = pickSidePhotos(
+    gallery.photos,
+    gallery.photoIdx,
+    cornerVideoId ? 2 : 3,
+  );
+  const showSideColumn = Boolean(cornerVideoId) || sidePhotos.length > 0;
+  const railItemCount =
+    gallery.photos.length +
+    gallery.videoIds.filter((id) => id !== cornerVideoId).length;
 
   return (
     <HeroFrame className={`${ELEGANT_HERO_FRAME} bg-white text-secondary`}>
@@ -46,7 +56,7 @@ export default function CourseHeroGalleryFeature(props: ElegantHeroProps) {
         >
           <div
             className={`grid min-h-0 flex-1 gap-2 md:items-stretch ${
-              sidePhotos.length > 0
+              showSideColumn
                 ? "md:grid-cols-[minmax(0,3fr)_minmax(9rem,1fr)]"
                 : ""
             }`}
@@ -56,8 +66,15 @@ export default function CourseHeroGalleryFeature(props: ElegantHeroProps) {
               sizes="(max-width: 768px) 100vw, min(75vw, 1100px)"
               className="aspect-16/10 h-full min-h-48 w-full md:aspect-auto"
             />
-            {sidePhotos.length > 0 ? (
+            {showSideColumn ? (
               <div className="grid min-h-0 grid-cols-3 gap-2 md:grid-cols-1 md:grid-rows-3">
+                {cornerVideoId ? (
+                  <HeroSideVideo
+                    videoId={cornerVideoId}
+                    index={0}
+                    className="aspect-16/10 min-h-0 md:aspect-auto"
+                  />
+                ) : null}
                 {sidePhotos.map(({ photo, index }) => (
                   <button
                     key={photo.url}
@@ -81,10 +98,11 @@ export default function CourseHeroGalleryFeature(props: ElegantHeroProps) {
             ) : null}
           </div>
 
-          {gallery.mediaCount > 1 ? (
+          {railItemCount > 1 ? (
             <div className="mt-3 grid min-w-0 shrink-0 gap-2 border-t border-secondary/15 pt-3 md:grid-cols-[auto_minmax(0,1fr)] md:items-center">
               <MediaRail
                 gallery={gallery}
+                excludeVideoIds={cornerVideoId ? [cornerVideoId] : []}
                 className="min-w-0 w-full gap-2"
                 itemClassName="h-14 aspect-[16/10]"
               />

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import type { ReactNode } from "react";
+import { type ReactNode, useState } from "react";
 import { MediaLightbox, YouTubeThumbImage } from "@/components/ui";
 import { cmsImageCursorClass } from "@/content/types/cms-image";
 import { Play } from "@/icons";
@@ -192,12 +192,16 @@ export function MediaRail({
   gallery,
   className = "",
   itemClassName = "h-12 aspect-video",
+  excludeVideoIds = [],
 }: {
   gallery: ElegantGallery;
   className?: string;
   itemClassName?: string;
+  /** Video ids already shown elsewhere in the hero (e.g. corner slot). */
+  excludeVideoIds?: string[];
 }) {
   const g = gallery;
+  const excludedVideoIds = new Set(excludeVideoIds);
   // Border color must live only in selected/idle — putting `border-transparent`
   // on the shared base leaves both utilities on the active thumb, and without
   // tailwind-merge the transparent rule often wins in generated CSS order.
@@ -233,34 +237,93 @@ export function MediaRail({
           </button>
         );
       })}
-      {g.videoIds.map((id, index) => {
-        const isActive = g.activeVideoId === id;
-        return (
-          <button
-            key={id}
-            type="button"
-            onClick={() => g.playVideo(id)}
-            className={`${base} ${itemClassName} ${isActive ? selected : idle}`}
-            aria-label={`Play ${ytTitle(id, index)}`}
-            aria-current={isActive}
-          >
-            <YouTubeThumbImage
-              videoId={id}
-              src={ytThumb(id)}
-              alt=""
-              fill
-              loading="lazy"
-              sizes="160px"
-              className="object-cover"
-            />
-            <span className="absolute inset-0 grid place-items-center">
-              <span className="grid h-6 w-6 place-items-center rounded-full bg-white text-secondary shadow-sm">
-                <Play size={10} className="ml-px fill-current" />
+      {g.videoIds
+        .filter((id) => !excludedVideoIds.has(id))
+        .map((id, index) => {
+          const isActive = g.activeVideoId === id;
+          return (
+            <button
+              key={id}
+              type="button"
+              onClick={() => g.playVideo(id)}
+              className={`${base} ${itemClassName} ${isActive ? selected : idle}`}
+              aria-label={`Play ${ytTitle(id, index)}`}
+              aria-current={isActive}
+            >
+              <YouTubeThumbImage
+                videoId={id}
+                src={ytThumb(id)}
+                alt=""
+                fill
+                loading="lazy"
+                sizes="160px"
+                className="object-cover"
+              />
+              <span className="absolute inset-0 grid place-items-center">
+                <span className="grid h-6 w-6 place-items-center rounded-full bg-white text-secondary shadow-sm">
+                  <Play size={10} className="ml-px fill-current" />
+                </span>
               </span>
+            </button>
+          );
+        })}
+    </div>
+  );
+}
+
+/**
+ * Pinned corner video — thumbnail until play, then inline YouTube embed.
+ *
+ * @param props - Video id, positional index, and layout classes
+ */
+export function HeroSideVideo({
+  videoId,
+  index,
+  className = "",
+}: {
+  videoId: string;
+  index: number;
+  className?: string;
+}) {
+  const [playing, setPlaying] = useState(false);
+
+  return (
+    <div
+      className={`relative overflow-hidden rounded-xl bg-neutral-900 ${className}`}
+    >
+      {playing ? (
+        <iframe
+          key={videoId}
+          src={`https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&playsinline=1`}
+          title={ytTitle(videoId, index)}
+          allow="autoplay; fullscreen; encrypted-media"
+          allowFullScreen
+          className="absolute inset-0 h-full w-full border-0"
+        />
+      ) : (
+        <button
+          type="button"
+          onClick={() => setPlaying(true)}
+          className="group absolute inset-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          aria-label={`Play ${ytTitle(videoId, index)}`}
+        >
+          <YouTubeThumbImage
+            videoId={videoId}
+            src={ytThumb(videoId)}
+            alt=""
+            fill
+            loading="lazy"
+            sizes="(max-width: 768px) 33vw, 400px"
+            className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+          />
+          <span className="absolute inset-0 bg-secondary/15 transition-colors group-hover:bg-secondary/25" />
+          <span className="absolute inset-0 grid place-items-center">
+            <span className="grid h-10 w-10 place-items-center rounded-full bg-white text-secondary shadow-md transition-transform group-hover:scale-110">
+              <Play size={14} className="ml-0.5 fill-current" />
             </span>
-          </button>
-        );
-      })}
+          </span>
+        </button>
+      )}
     </div>
   );
 }

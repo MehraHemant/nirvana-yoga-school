@@ -248,7 +248,18 @@ export default function RetreatClient({
         ) : null}
 
         {showWhyNirvana ? (
-          <WhyNirvana content={whyNirvana} reviews={reviews} />
+          <WhyNirvana
+            content={whyNirvana}
+            reviews={reviews}
+            images={[
+              whyNirvana?.banner,
+              ...mapped.heroImages,
+              mapped.heroImage,
+              retreat.heroImage,
+              ...retreat.overviewImages,
+              ...retreat.gallery,
+            ].filter((url): url is string => Boolean(url?.trim()))}
+          />
         ) : null}
 
         {showTravel && travel ? <TravelGuide content={travel} /> : null}

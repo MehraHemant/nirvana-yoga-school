@@ -3,7 +3,10 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useMemo, useState } from "react";
 import type { FAQ } from "@/content/types";
-import type { FaqCategoryId } from "@/content/types/faq-categories";
+import {
+  DEFAULT_FAQ_CATEGORY,
+  type FaqCategoryId,
+} from "@/content/types/faq-categories";
 import { groupFaqsByCategory } from "@/lib/cms/faq-utils";
 import { Plus } from "@/icons";
 import { EASE_OUT } from "@/lib/motion";
@@ -29,7 +32,9 @@ export default function OnlineFAQSection({
   faqs,
 }: OnlineFAQSectionProps) {
   const groups = useMemo(() => groupFaqsByCategory(faqs), [faqs]);
-  const [activeView, setActiveView] = useState<FaqViewMode>("all");
+  const [activeView, setActiveView] = useState<FaqViewMode>(
+    DEFAULT_FAQ_CATEGORY,
+  );
   const [openKey, setOpenKey] = useState<string | null>(null);
   const prefersReduced = useReducedMotion() ?? false;
 

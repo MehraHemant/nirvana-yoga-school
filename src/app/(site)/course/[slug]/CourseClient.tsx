@@ -149,6 +149,15 @@ export default function CourseClient({
   const showWhyNirvana =
     (m?.flags.showWhyNirvana ?? true) &&
     shouldRenderSection(whyNirvana, Boolean(whyNirvana?.highlights?.length));
+  const whyNirvanaImages = [
+    whyNirvana?.banner,
+    ...media.images,
+    ...(course.heroImages ?? []),
+    course.image,
+    ...(overview?.media.items ?? [])
+      .filter((item) => item.type === "image" && item.url.trim())
+      .map((item) => item.url),
+  ].filter((url): url is string => Boolean(url?.trim()));
   const showMap =
     (m?.flags.showMap ?? true) &&
     shouldRenderSection(siteMap, Boolean(siteMap?.embedUrl?.trim()));
@@ -332,7 +341,11 @@ export default function CourseClient({
         ) : null}
 
         {showWhyNirvana ? (
-          <WhyNirvana content={whyNirvana} reviews={reviews} />
+          <WhyNirvana
+            content={whyNirvana}
+            reviews={reviews}
+            images={whyNirvanaImages}
+          />
         ) : null}
 
         {showTravel && travel ? <TravelGuide content={travel} /> : null}
