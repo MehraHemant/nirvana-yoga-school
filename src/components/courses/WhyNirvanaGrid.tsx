@@ -4,7 +4,7 @@ import Image from "next/image";
 import { stripHtml } from "@/lib/cms/blog-html";
 import {
   FLOURISH_PATHS,
-  getWhyNirvanaCardWash,
+  getWhyNirvanaCardWashBySlot,
   type WhyNirvanaHighlight,
 } from "./whyNirvanaShared";
 
@@ -39,17 +39,20 @@ export function SectionCornerLeaf({ side }: { side: "left" | "right" }) {
 /**
  * Pastel text card showing the full CMS highlight body.
  * @param props.item CMS highlight title and body.
- * @param props.index Highlight index for wash fallback.
+ * @param props.index Highlight index for flourish rotation.
+ * @param props.slot Flat grid slot for repeating gradient pattern.
  */
 export function WhyNirvanaTextCard({
   item,
   index,
+  slot,
 }: {
   item: WhyNirvanaHighlight;
   index: number;
+  slot: number;
 }) {
   const body = stripHtml(item.body);
-  const wash = getWhyNirvanaCardWash(item.title, index);
+  const wash = getWhyNirvanaCardWashBySlot(slot);
   const flourish = FLOURISH_PATHS[index % FLOURISH_PATHS.length];
 
   return (
@@ -86,23 +89,36 @@ export function WhyNirvanaTextCard({
  * Full-bleed photo cell with no overlay text.
  * @param props.src Real photo URL.
  * @param props.alt Accessible image description.
+ * @param props.slot Flat grid slot for matching gradient frame pattern.
  */
 export function WhyNirvanaImageCard({
   src,
   alt,
+  slot,
 }: {
   src: string;
   alt: string;
+  slot: number;
 }) {
+  const wash = getWhyNirvanaCardWashBySlot(slot);
+
   return (
-    <article className="relative h-full shadow-lg! min-h-66 overflow-hidden rounded-2xl sm:min-h-72">
-      <Image
-        src={src}
-        alt={alt}
-        fill
-        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-        className="object-cover"
-      />
+    <article
+      className={`relative h-full min-h-66 overflow-hidden rounded-2xl p-px shadow-lg! sm:min-h-72 ${wash.base}`}
+    >
+      <div className="relative h-full min-h-[calc(16.5rem-2px)] overflow-hidden rounded-[calc(1rem-1px)] bg-white sm:min-h-[calc(18rem-2px)]">
+        <Image
+          src={src}
+          alt={alt}
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          className="object-cover"
+        />
+        <span
+          className={`pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,var(--tw-gradient-stops))] ${wash.glow} via-transparent to-transparent`}
+          aria-hidden
+        />
+      </div>
     </article>
   );
 }

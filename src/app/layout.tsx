@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Poppins } from "next/font/google";
+import { Lora, Poppins } from "next/font/google";
 import { getSiteConfig } from "@/content/repositories/global-settings";
 import "./globals.css";
 
@@ -7,6 +7,13 @@ const poppins = Poppins({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   variable: "--font-poppins",
+  display: "swap",
+});
+
+const lora = Lora({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-quote",
   display: "swap",
 });
 
@@ -97,7 +104,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${poppins.variable} h-full antialiased scroll-smooth`}
+      className={`${poppins.variable} ${lora.variable} h-full antialiased scroll-smooth`}
       data-scroll-behavior="smooth"
     >
       <body className="flex min-h-full flex-col bg-white text-ink">

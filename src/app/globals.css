@@ -157,6 +157,10 @@ body {
   line-height: 1.6;
 }
 
+@utility font-quote {
+  font-family: var(--font-quote), Georgia, "Times New Roman", serif;
+}
+
 @utility section-padding-y {
   @apply py-12 sm:py-14 lg:py-14 xl:py-16;
 }
@@ -211,7 +215,39 @@ body {
 }
 
 .why-nirvana-section {
-  background-color: #faf7f2;
+  background-color: #fff;
+}
+
+/* Five light spots — peach, sage, mint, blush, blue */
+.why-nirvana-gradient-pattern {
+  background-color: #fcfbfa;
+  background-image:
+    radial-gradient(
+      circle at 8% 12%,
+      rgb(248 232 226 / 0.55) 0%,
+      transparent 40%
+    ),
+    radial-gradient(
+      circle at 90% 10%,
+      rgb(216 236 226 / 0.45) 0%,
+      transparent 38%
+    ),
+    radial-gradient(
+      circle at 16% 82%,
+      rgb(232 243 236 / 0.42) 0%,
+      transparent 38%
+    ),
+    radial-gradient(
+      circle at 74% 24%,
+      rgb(163 36 50 / 0.04) 0%,
+      transparent 34%
+    ),
+    radial-gradient(
+      circle at 82% 76%,
+      rgb(216 232 244 / 0.45) 0%,
+      transparent 40%
+    );
+  background-repeat: no-repeat;
 }
 
 .why-nirvana-text-card {

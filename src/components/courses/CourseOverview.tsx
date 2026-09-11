@@ -5,7 +5,7 @@ import Image from "next/image";
 import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 /** Content-hashed so next/image cache updates when the PNG is replaced. */
-import heroMandalaSrc from "../../../public/images/hero-mandala.png";
+import heroMandalaSrc from "../../../public/images/mandala.png";
 import GlanceSoftWashGrid, {
   glanceToSpecs,
   legacyOverviewSpecs,
@@ -65,6 +65,97 @@ function HeroMandalaFlourish({
         className="h-full w-full object-contain"
       />
     </div>
+  );
+}
+
+/**
+ * Hand-drawn flourish beside quote attribution.
+ */
+function QuoteAttributionFlourish() {
+  return (
+    <svg
+      className="h-4 w-9 shrink-0 text-primary/35"
+      viewBox="0 0 36 16"
+      fill="none"
+      aria-hidden
+    >
+      <path
+        d="M1 12C9 4 18 2 28 6c3 1.5 6 1 7-1"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+/**
+ * Borderless editorial pull quote — organic glow, overlapping serif
+ * watermarks, and a ceremonial top ornament.
+ *
+ * @param props.text - Quote body copy
+ * @param props.author - Optional attribution line
+ */
+function OverviewQuote({
+  text,
+  author = "",
+}: {
+  text: string;
+  author?: string;
+}) {
+  return (
+    <figure className="relative max-w-3xl py-1">
+      <span
+        aria-hidden
+        className="pointer-events-none absolute -left-10 top-1/2 -z-10 h-44 w-44 -translate-y-1/2 rounded-full bg-primary/10 blur-3xl"
+      />
+      <span
+        aria-hidden
+        className="pointer-events-none absolute -right-6 bottom-0 -z-10 h-32 w-32 rounded-full bg-primary/6 blur-2xl"
+      />
+
+      <blockquote className="relative">
+        <div
+          aria-hidden
+          className="mb-5 flex items-center gap-2.5 sm:mb-6"
+        >
+          <span className="h-px w-10 bg-linear-to-r from-transparent to-primary/35 sm:w-14" />
+          <span className="size-1 rotate-45 rounded-sm bg-primary/45" />
+          <span className="h-px w-10 bg-linear-to-l from-transparent to-primary/35 sm:w-14" />
+        </div>
+
+        <div className="relative flex items-start">
+          <span
+            aria-hidden
+            className="font-quote shrink-0 select-none text-[clamp(4.25rem,11vw,6.25rem)] leading-[0.82] text-primary/14 sm:-mt-1"
+          >
+            “
+          </span>
+
+          <div className="relative min-w-0 flex-1 -ml-5 pt-1 sm:-ml-7 sm:pt-2">
+            <span
+              aria-hidden
+              className="font-quote pointer-events-none absolute -right-1 bottom-0 z-0 select-none text-[clamp(2.5rem,6vw,3.75rem)] leading-none text-primary/10 sm:-right-2"
+            >
+              ”
+            </span>
+
+            <p className="relative z-10 text-pretty type-lead leading-[1.78] text-ink">
+              {text}
+            </p>
+
+            {author ? (
+              <footer className="relative z-10 mt-6 flex items-center gap-3 sm:mt-7">
+                <QuoteAttributionFlourish />
+                <cite className="type-eyebrow text-primary not-italic">
+                  {author}
+                </cite>
+              </footer>
+            ) : null}
+          </div>
+        </div>
+      </blockquote>
+    </figure>
   );
 }
 
@@ -167,7 +258,7 @@ export default function CourseOverview({
     >
       <HeroMandalaFlourish
         size={450}
-        className="right-[-8%] top-[5%] h-[450px] w-[450px] opacity-25"
+        className="right-[-8%] top-[5%] h-[450px] w-[450px] opacity-20 grayscale"
       />
       {/* <HeroMandalaFlourish
         size={380}
@@ -208,16 +299,10 @@ export default function CourseOverview({
               </p>
             ) : null}
             {resolvedSaying ? (
-              <figure className="max-w-3xl border-l-2 border-primary/25 pl-5 sm:pl-6">
-                <blockquote className="type-lead text-ink">
-                  {resolvedSaying.text}
-                </blockquote>
-                {resolvedSaying.author ? (
-                  <figcaption className="mt-3 text-right text-sm text-ink">
-                    — {resolvedSaying.author}
-                  </figcaption>
-                ) : null}
-              </figure>
+              <OverviewQuote
+                text={resolvedSaying.text}
+                author={resolvedSaying.author}
+              />
             ) : null}
           </motion.div>
 

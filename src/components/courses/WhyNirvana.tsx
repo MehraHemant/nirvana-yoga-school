@@ -45,7 +45,7 @@ export default function WhyNirvana({
   return (
     <section
       id="why-nirvana"
-      className="relative overflow-hidden"
+      className="why-nirvana-section relative overflow-hidden"
     >
       {/* <SectionCornerLeaf side="left" /> */}
       {/* <SectionCornerLeaf side="right" /> */}
@@ -75,12 +75,20 @@ export default function WhyNirvana({
           variants={fadeUp}
           className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5 lg:grid-cols-3 lg:gap-6"
         >
-          {cells.map((cell) => (
-            <li key={`${cell.kind}-${cell.index}`} className="min-h-0">
+          {cells.map((cell, slot) => (
+            <li key={`${cell.kind}-${cell.index}-${slot}`} className="min-h-0">
               {cell.kind === "text" ? (
-                <WhyNirvanaTextCard item={cell.item} index={cell.index} />
+                <WhyNirvanaTextCard
+                  item={cell.item}
+                  index={cell.index}
+                  slot={slot}
+                />
               ) : (
-                <WhyNirvanaImageCard src={cell.src} alt={cell.alt} />
+                <WhyNirvanaImageCard
+                  src={cell.src}
+                  alt={cell.alt}
+                  slot={slot}
+                />
               )}
             </li>
           ))}

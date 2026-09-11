@@ -7,35 +7,27 @@ export type WhyNirvanaCardWash = {
   glow: string;
 };
 
-/** Pale pastel washes — peach, mint, primary, dusty blue, terracotta. */
+/** Five light pastel washes — peach, sage, mint, blush, blue. */
 export const WHY_NIRVANA_CARD_WASHES: WhyNirvanaCardWash[] = [
   {
-    base: "bg-linear-to-br from-[#f3d4c8] via-[#fbeee8] to-[#fff8f5]",
-    glow: "from-[#f0cfc4]/50",
+    base: "bg-linear-to-br from-[#f8e8e2] via-[#fdf6f3] to-white",
+    glow: "from-[#f0ddd6]/28",
   },
   {
-    base: "bg-linear-to-bl from-[#dceee3] via-[#eef6f1] to-white",
-    glow: "from-[#c5ddd0]/45",
+    base: "bg-linear-to-br from-[#d8ece2] via-[#f2f9f5] to-white",
+    glow: "from-[#c5ddd0]/25",
   },
   {
-    base: "bg-linear-to-tr from-primary/16 via-[#f7e8ea] to-white",
-    glow: "from-primary/18",
+    base: "bg-linear-to-bl from-[#e8f3ec] via-[#f6fbf8] to-white",
+    glow: "from-[#d4e8dc]/25",
   },
   {
-    base: "bg-linear-to-tl from-[#d5e3ef] via-[#eef3f8] to-white",
-    glow: "from-[#c5d4e4]/45",
+    base: "bg-linear-to-tr from-primary/8 via-[#fbf4f5] to-white",
+    glow: "from-primary/10",
   },
   {
-    base: "bg-linear-to-br from-[#edd9c8] via-[#f7eee6] to-white",
-    glow: "from-[#e0c8b0]/40",
-  },
-  {
-    base: "bg-linear-to-b from-primary/12 via-[#faf0f1] to-white",
-    glow: "from-primary/14",
-  },
-  {
-    base: "bg-linear-to-tr from-[#e4efe6] via-[#f4f8f5] to-white",
-    glow: "from-[#c9dccf]/40",
+    base: "bg-linear-to-tr from-[#d8e8f4] via-[#f2f7fb] to-white",
+    glow: "from-[#c5d8ea]/25",
   },
 ];
 
@@ -77,6 +69,16 @@ export function getWhyNirvanaCardWash(
   return WHY_NIRVANA_CARD_WASHES[
     hashString(seed) % WHY_NIRVANA_CARD_WASHES.length
   ];
+}
+
+/**
+ * Repeating checkerboard wash — cycles palette by grid slot so gradients
+ * form a visible pattern across the section.
+ *
+ * @param slot - Flat grid index in row-major order
+ */
+export function getWhyNirvanaCardWashBySlot(slot: number): WhyNirvanaCardWash {
+  return WHY_NIRVANA_CARD_WASHES[slot % WHY_NIRVANA_CARD_WASHES.length];
 }
 
 /**
