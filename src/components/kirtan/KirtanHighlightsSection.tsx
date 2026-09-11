@@ -27,7 +27,7 @@ export default function KirtanHighlightsSection({
   images = [],
 }: KirtanHighlightsSectionProps) {
   return (
-    <section id="highlights" className="bg-white py-20 sm:py-28">
+    <section id="highlights" className="bg-white section-padding-y">
       <Container size="2xl">
         <motion.div
           initial="hidden"

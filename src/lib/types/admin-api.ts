@@ -151,6 +151,15 @@ export type AdminMeResponse = ApiEntityBody<"user", AdminSession>;
 /** POST /api/admin/auth/logout */
 export type AdminLogoutResponse = ApiMutationResponse;
 
+/** POST /api/admin/auth/change-password */
+export type AdminChangePasswordInput = {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+};
+
+export type AdminChangePasswordResponse = ApiMutationResponse;
+
 /** PUT /api/admin/pages|courses|modules/[slug] */
 export type AdminSavePageResponse = ApiMutationResponse & { id: string };
 

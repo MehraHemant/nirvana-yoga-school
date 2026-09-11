@@ -21,7 +21,7 @@ export default function PageProgramsSection({
   if (cards.length === 0) return null;
 
   return (
-    <section id="programs" className="bg-white py-20 sm:py-28">
+    <section id="programs" className="bg-white section-padding-y">
       <Container size="2xl">
         <motion.div
           initial="hidden"

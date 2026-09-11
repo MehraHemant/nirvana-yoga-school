@@ -264,7 +264,7 @@ function ProseBlock({
 }) {
   if (!title && !body && !lead) return null;
   return (
-    <section className="bg-white py-16 md:py-20">
+    <section className="bg-white section-padding-y">
       <Container size="2xl">
         <div
           className={
@@ -325,7 +325,7 @@ function ListBlock({
   body: string;
 }) {
   return (
-    <section className="bg-white py-16 md:py-20">
+    <section className="bg-white section-padding-y">
       <Container size="2xl">
         {title ? (
           <Heading as="h2" size="h2" className="mb-8">
@@ -371,7 +371,7 @@ function ContactBlock({ data }: { data: Record<string, unknown> }) {
   const address = str(data, "address");
   const hours = str(data, "hours");
   return (
-    <section className="bg-white py-16 md:py-20">
+    <section className="bg-white section-padding-y">
       <Container size="2xl">
         <div className="grid gap-10 lg:grid-cols-[1fr_20rem]">
           <div>
@@ -478,7 +478,7 @@ function GalleryBlock({ data }: { data: Record<string, unknown> }) {
   const images = rows(data, "images").filter((row) => cell(row, "image"));
   if (images.length === 0) return null;
   return (
-    <section className="bg-white py-16 md:py-20">
+    <section className="bg-white section-padding-y">
       <Container size="2xl">
         {title ? (
           <Heading as="h2" size="h2" className="mb-8">
@@ -520,7 +520,7 @@ function CardsBlock({ data }: { data: Record<string, unknown> }) {
   const cards = rows(data, "cards");
   if (cards.length === 0) return null;
   return (
-    <section className="bg-white py-16 md:py-20">
+    <section className="bg-white section-padding-y">
       <Container size="2xl">
         {eyebrow ? (
           <p className="type-eyebrow mb-3 text-primary">{eyebrow}</p>
@@ -585,7 +585,7 @@ function FeatureListBlock({ data }: { data: Record<string, unknown> }) {
   const items = rows(data, "items").filter((row) => cell(row, "text"));
   if (items.length === 0 && !title) return null;
   return (
-    <section className="bg-white py-16 md:py-20">
+    <section className="bg-white section-padding-y">
       <Container size="2xl">
         {title ? (
           <Heading as="h2" size="h2">
@@ -621,7 +621,7 @@ function PricingTableBlock({ data }: { data: Record<string, unknown> }) {
   const plans = rows(data, "plans").filter((row) => cell(row, "name"));
   if (plans.length === 0) return null;
   return (
-    <section className="bg-white py-16 md:py-20">
+    <section className="bg-white section-padding-y">
       <Container size="2xl">
         {title ? (
           <Heading as="h2" size="h2" className="mb-8">
@@ -677,7 +677,7 @@ function FaqBlock({
   const entries = items.filter((item) => cell(item, "question"));
   if (entries.length === 0) return null;
   return (
-    <section className="bg-white py-16 md:py-20">
+    <section className="bg-white section-padding-y">
       <Container size="2xl">
         {eyebrow ? (
           <p className="type-eyebrow mb-3 text-primary">{eyebrow}</p>

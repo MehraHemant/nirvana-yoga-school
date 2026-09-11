@@ -202,7 +202,7 @@ export default function DailySchedule({
   return (
     <section
       id={htmlId}
-      className="relative overflow-x-clip bg-white py-20 sm:py-28"
+      className="relative overflow-x-clip bg-white section-padding-y"
     >
       <Container size="2xl">
         <motion.div

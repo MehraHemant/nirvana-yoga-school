@@ -165,6 +165,81 @@
   margin-bottom: 1rem;
 }
 
+.admin-password-field {
+  position: relative;
+}
+
+.admin-input--password {
+  padding-right: 2.75rem;
+}
+
+.admin-password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: #8a7b72;
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.admin-password-toggle:hover {
+  color: #1c1917;
+  background: rgb(26 20 16 / 5%);
+}
+
+.admin-password-toggle:focus-visible {
+  outline: none;
+  color: #1c1917;
+  box-shadow: 0 0 0 3px rgb(163 36 50 / 12%);
+}
+
+.admin-account-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 1.25rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid rgb(26 20 16 / 8%);
+  background: rgb(26 20 16 / 3%);
+  font-size: 0.84rem;
+  color: #1c1917;
+}
+
+.admin-account-badge strong {
+  font-weight: 600;
+}
+
+.admin-form-panel {
+  max-width: 32rem;
+}
+
+.admin-form-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgb(26 20 16 / 6%);
+}
+
+.admin-success {
+  color: #15803d;
+  font-size: 0.875rem;
+}
+
 .admin-table {
   width: 100%;
   border-collapse: collapse;
@@ -472,12 +547,12 @@
 }
 
 .admin-textarea--compact {
-  min-height: 5rem;
+  min-height: 8rem;
 }
 
 .admin-textarea--row {
   width: 100%;
-  min-height: 3.25rem;
+  min-height: 8rem;
   resize: vertical;
   padding: 0.45rem 0.625rem;
   font-family: inherit;
@@ -5663,7 +5738,7 @@
 }
 
 .admin-footer-contact-grid .admin-textarea {
-  min-height: 4.75rem;
+  min-height: 8rem;
 }
 
 @media (max-width: 900px) {
@@ -5857,11 +5932,15 @@
 .admin-home-editor .admin-select {
   padding: 0.45rem 0.65rem;
   font-size: 0.8125rem;
+}
+
+.admin-home-editor .admin-input,
+.admin-home-editor .admin-select {
   min-height: 2.15rem;
 }
 
 .admin-home-editor .admin-textarea {
-  min-height: auto;
+  min-height: 8rem;
 }
 
 .admin-home-editor .admin-nested-card {
@@ -5903,9 +5982,16 @@
 
 .admin-booking-editor .admin-input,
 .admin-booking-editor .admin-textarea {
-  min-height: 2.15rem;
   padding: 0.45rem 0.65rem;
   font-size: 0.8125rem;
+}
+
+.admin-booking-editor .admin-input {
+  min-height: 2.15rem;
+}
+
+.admin-booking-editor .admin-textarea {
+  min-height: 8rem;
 }
 
 .admin-booking-editor .admin-nested-card {

@@ -4,9 +4,12 @@ import type {
   AdminBlogCreateResponse,
   AdminBlogPostGetResponse,
   AdminBookingsListResponse,
+  AdminChangePasswordInput,
+  AdminChangePasswordResponse,
   AdminLeadsListResponse,
   AdminLoginInput,
   AdminLoginResponse,
+  AdminMeResponse,
   AdminMediaItemResponse,
   AdminMediaListResponse,
   AdminMediaUploadResponse,
@@ -102,6 +105,31 @@ export async function logoutAdmin(): Promise<ApiMutationResponse> {
   return adminFetch<ApiMutationResponse>("/api/admin/auth/logout", {
     method: "POST",
   });
+}
+
+/**
+ * Load the current admin session user.
+ */
+export async function fetchAdminMe(): Promise<AdminMeResponse> {
+  return adminFetch<AdminMeResponse>("/api/admin/auth/me");
+}
+
+/**
+ * Change the signed-in admin user's password.
+ *
+ * @param input - Current, new, and confirm passwords
+ */
+export async function changeAdminPassword(
+  input: AdminChangePasswordInput,
+): Promise<AdminChangePasswordResponse> {
+  return adminFetch<AdminChangePasswordResponse>(
+    "/api/admin/auth/change-password",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    },
+  );
 }
 
 /**

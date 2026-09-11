@@ -59,7 +59,10 @@ export default function CourseSyllabus({
   const showProgressBars = !sidebar;
 
   return (
-    <section id={htmlId} className="py-20 sm:py-28 bg-white">
+    <section
+      id={htmlId}
+      className="section-padding-y bg-white"
+    >
       <Container size="2xl">
         <motion.div
           initial="hidden"

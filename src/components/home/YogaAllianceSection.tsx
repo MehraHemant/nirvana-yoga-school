@@ -66,7 +66,7 @@ export default function YogaAllianceSection({
   return (
     <section
       id={optionalSectionHtmlId(content._id)}
-      className="yoga-alliance-band relative w-full overflow-hidden bg-primary py-20 md:py-28 text-white"
+      className="yoga-alliance-band relative w-full overflow-hidden bg-primary section-padding-y text-white"
     >
       <div
         className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-white/5 blur-[130px] rounded-full pointer-events-none"

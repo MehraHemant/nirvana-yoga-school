@@ -19,7 +19,7 @@ export default function OnlineSectionShell({
   return (
     <section
       id={id}
-      className={`scroll-mt-28 border-b border-ink/8 py-14 md:py-16 ${className}`}
+      className={`scroll-mt-28 border-b border-ink/8 section-padding-y ${className}`}
     >
       <div className="space-y-8">
         <div className="space-y-4">

@@ -23,7 +23,7 @@ export default function KirtanCertificationSection({
   images = [],
 }: KirtanCertificationSectionProps) {
   return (
-    <section id="certification" className="bg-white py-20 sm:py-28">
+    <section id="certification" className="bg-white section-padding-y">
       <Container size="2xl">
         <motion.div
           initial="hidden"

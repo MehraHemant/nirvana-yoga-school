@@ -141,7 +141,7 @@ export default function RetreatScheduleSection({
   return (
     <section
       id="schedule"
-      className="relative overflow-x-clip border-b border-ink/8 bg-white py-16 sm:py-20"
+      className="relative overflow-x-clip border-b border-ink/8 bg-white section-padding-y"
     >
       <div
         className="pointer-events-none absolute top-[20%] right-[-10%] h-[500px] w-[500px] rounded-full bg-accent/6 blur-[100px]"

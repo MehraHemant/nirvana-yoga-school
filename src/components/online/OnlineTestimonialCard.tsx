@@ -1,7 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useEffect, useId, useRef, useState } from "react";
+import { useId } from "react";
+import { useLineClampReadMore } from "@/lib/hooks/useLineClampReadMore";
 import { EASE_OUT } from "@/lib/motion";
 
 export type OnlineTestimonial = {
@@ -42,27 +43,16 @@ function initialsFromName(name: string): string {
 export default function OnlineTestimonialCard({
   testimonial,
 }: OnlineTestimonialCardProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [isTruncated, setIsTruncated] = useState(false);
-  const quoteRef = useRef<HTMLParagraphElement>(null);
   const quoteId = useId();
   const initials = initialsFromName(testimonial.name);
-
-  useEffect(() => {
-    if (isExpanded) return;
-
-    const quote = quoteRef.current;
-    if (!quote) return;
-
-    const updateTruncation = () => {
-      setIsTruncated(quote.scrollHeight > quote.clientHeight);
-    };
-    updateTruncation();
-
-    const observer = new ResizeObserver(updateTruncation);
-    observer.observe(quote);
-    return () => observer.disconnect();
-  }, [isExpanded]);
+  const {
+    ref: quoteRef,
+    isExpanded,
+    expand,
+    collapse,
+    isTruncated,
+    clampClassName,
+  } = useLineClampReadMore(testimonial.quote);
 
   return (
     <motion.blockquote
@@ -80,7 +70,7 @@ export default function OnlineTestimonialCard({
         <p
           ref={quoteRef}
           id={quoteId}
-          className={`type-body text-ink ${isExpanded ? "" : "line-clamp-4"}`}
+          className={`type-body text-ink ${clampClassName}`}
         >
           {testimonial.quote}
         </p>
@@ -89,21 +79,21 @@ export default function OnlineTestimonialCard({
             type="button"
             aria-controls={quoteId}
             aria-expanded={false}
-            onClick={() => setIsExpanded(true)}
+            onClick={expand}
             className="mt-3 cursor-pointer type-ui font-semibold text-primary hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           >
             Read more
           </button>
         ) : null}
-        {isExpanded ? (
+        {isTruncated && isExpanded ? (
           <button
             type="button"
             aria-controls={quoteId}
             aria-expanded={true}
-            onClick={() => setIsExpanded(false)}
+            onClick={collapse}
             className="mt-3 cursor-pointer type-ui font-semibold text-primary hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           >
-            Show less
+            Read less
           </button>
         ) : null}
       </div>

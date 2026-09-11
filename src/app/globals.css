@@ -162,7 +162,7 @@ body {
 }
 
 @utility section-padding-y {
-  @apply py-12 sm:py-14 lg:py-14 xl:py-16;
+  @apply py-12 sm:py-14 lg:py-[4.5rem] xl:py-20;
 }
 
 @utility section-white {

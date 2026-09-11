@@ -102,6 +102,7 @@ export function StringListField({
           </p>
           <textarea
             className="admin-textarea admin-textarea--compact"
+            rows={4}
             value={pasteText}
             placeholder={"Item one\nItem two\nItem three"}
             onChange={(event) => setPasteText(event.target.value)}

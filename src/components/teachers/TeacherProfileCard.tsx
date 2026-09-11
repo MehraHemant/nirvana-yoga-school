@@ -28,8 +28,8 @@ export const TEACHER_PAGE_PREVIEW: TeacherCardPreview = {
 };
 
 export const HOMEPAGE_TEACHER_PREVIEW: TeacherCardPreview = {
-  education: 2,
-  experience: 2,
+  education: 1,
+  experience: 1,
   expertise: 3,
   bioChars: 384,
   bioLines: 6,
@@ -126,19 +126,22 @@ export default function TeacherProfileCard({
   const canExpand =
     bioNeedsMore || listsNeedMoreByCount || listsNeedMoreByClamp;
 
-  // Homepage/hub: show all list items (line-clamp handles overflow). Teachers page: slice when collapsed.
-  const educationItems =
-    isExpanded || compactMedia
-      ? teacher.education
-      : teacher.education.slice(0, preview.education);
-  const experienceItems =
-    isExpanded || compactMedia
-      ? teacher.detailedExperience
-      : teacher.detailedExperience.slice(0, preview.experience);
-  const expertiseItems =
-    isExpanded || compactMedia
-      ? teacher.expertise
-      : teacher.expertise.slice(0, preview.expertise);
+  const educationItems = isExpanded
+    ? teacher.education
+    : teacher.education.slice(0, preview.education);
+  const experienceItems = isExpanded
+    ? teacher.detailedExperience
+    : teacher.detailedExperience.slice(0, preview.experience);
+  const expertiseItems = isExpanded
+    ? teacher.expertise
+    : teacher.expertise.slice(0, preview.expertise);
+
+  const educationHasMore =
+    !isExpanded && teacher.education.length > preview.education;
+  const experienceHasMore =
+    !isExpanded && teacher.detailedExperience.length > preview.experience;
+  const expertiseHasMore =
+    !isExpanded && teacher.expertise.length > preview.expertise;
 
   const bioClampClass =
     isExpanded || !canExpand
@@ -243,35 +246,56 @@ export default function TeacherProfileCard({
   /**
    * Education / Experience list — bullets always; homepage/hub clamps to 4 lines.
    *
-   * @param items - Full list (UI may clip via line-clamp)
+   * @param items - Visible list items (may be sliced by preview limits)
    * @param bulletClass - Dot / marker color class
+   * @param hasMore - When true, append an ellipsis after truncated content
    */
-  const detailList = (items: string[], bulletClass: string) => (
-    <ul
-      className={
-        clampListBlock
-          ? `line-clamp-4 list-disc space-y-0.5 pl-4 ${bulletClass}`
-          : compactMedia
-            ? "space-y-1.5"
-            : "space-y-2.5"
-      }
-    >
-      {items.map((item) =>
-        clampListBlock ? (
-          <li key={item} className="type-body text-ink">
-            {item}
-          </li>
-        ) : (
-          <li key={item} className="flex items-start gap-2.5">
-            <span
-              className={`mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full ${bulletClass}`}
-              aria-hidden="true"
-            />
-            <span className="type-body text-ink">{item}</span>
-          </li>
-        ),
-      )}
-    </ul>
+  const detailList = (
+    items: string[],
+    bulletClass: string,
+    hasMore: boolean,
+  ) => (
+    <>
+      <ul
+        className={
+          clampListBlock
+            ? `line-clamp-4 list-disc space-y-0.5 pl-4 ${bulletClass}`
+            : compactMedia
+              ? "space-y-1.5"
+              : "space-y-2.5"
+        }
+      >
+        {items.map((item, itemIndex) => {
+          const inlineEllipsis =
+            hasMore && compactMedia && itemIndex === items.length - 1;
+
+          return clampListBlock ? (
+            <li key={item} className="type-body text-ink">
+              {item}
+              {inlineEllipsis ? (
+                <span className="text-muted" aria-hidden="true">
+                  {" "}
+                  …
+                </span>
+              ) : null}
+            </li>
+          ) : (
+            <li key={item} className="flex items-start gap-2.5">
+              <span
+                className={`mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full ${bulletClass}`}
+                aria-hidden="true"
+              />
+              <span className="type-body text-ink">{item}</span>
+            </li>
+          );
+        })}
+      </ul>
+      {hasMore && !compactMedia ? (
+        <p className="type-body mt-1 text-muted" aria-hidden="true">
+          …
+        </p>
+      ) : null}
+    </>
   );
 
   const detailsColumns = (
@@ -285,6 +309,7 @@ export default function TeacherProfileCard({
         {detailList(
           educationItems,
           clampListBlock ? "marker:text-primary/60" : "bg-primary/60",
+          educationHasMore,
         )}
       </div>
 
@@ -297,6 +322,7 @@ export default function TeacherProfileCard({
         {detailList(
           experienceItems,
           clampListBlock ? "marker:text-primary/50" : "bg-primary/50",
+          experienceHasMore,
         )}
       </div>
 
@@ -309,18 +335,31 @@ export default function TeacherProfileCard({
         {clampListBlock ? (
           <p className="type-body line-clamp-4 text-ink">
             {expertiseItems.join(", ")}
+            {expertiseHasMore ? (
+              <span className="text-muted" aria-hidden="true">
+                {" "}
+                …
+              </span>
+            ) : null}
           </p>
         ) : (
-          <div className="flex flex-wrap gap-2">
-            {expertiseItems.map((item) => (
-              <span
-                key={item}
-                className="type-ui inline-flex items-center rounded-full border border-accent/35 bg-white px-3 py-1 text-ink transition-all duration-150 hover:border-primary/35 hover:bg-white hover:shadow-2xs"
-              >
-                {item}
-              </span>
-            ))}
-          </div>
+          <>
+            <div className="flex flex-wrap gap-2">
+              {expertiseItems.map((item) => (
+                <span
+                  key={item}
+                  className="type-ui inline-flex items-center rounded-full border border-accent/35 bg-white px-3 py-1 text-ink transition-all duration-150 hover:border-primary/35 hover:bg-white hover:shadow-2xs"
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+            {expertiseHasMore ? (
+              <p className="type-body mt-1 text-muted" aria-hidden="true">
+                …
+              </p>
+            ) : null}
+          </>
         )}
       </div>
     </div>

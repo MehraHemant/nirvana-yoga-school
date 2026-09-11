@@ -33,7 +33,7 @@ export default function YttHubCoursesSection({
   if (!coursesIntro.title.trim() && courses.length === 0) return null;
 
   return (
-    <section id={htmlId} className="scroll-mt-28 bg-white py-16 md:py-24">
+    <section id={htmlId} className="scroll-mt-28 bg-white section-padding-y">
       <Container size="2xl">
         <motion.div
           initial="hidden"

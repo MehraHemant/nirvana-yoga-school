@@ -45,11 +45,11 @@ export default function WhyNirvana({
   return (
     <section
       id="why-nirvana"
-      className="why-nirvana-section relative overflow-hidden"
+      className="why-nirvana-section relative overflow-hidden section-padding-y"
     >
       {/* <SectionCornerLeaf side="left" /> */}
       {/* <SectionCornerLeaf side="right" /> */}
-      <Container size="2xl" className="relative py-16 sm:py-20">
+      <Container size="2xl" className="relative">
         <motion.div
           initial="hidden"
           whileInView="visible"
@@ -100,7 +100,7 @@ export default function WhyNirvana({
       </Container>
 
       {shouldRenderSection(reviews, Boolean(reviews?.reviews?.length)) ? (
-        <div className="relative mt-8 overflow-hidden bg-white pb-16 sm:pb-20">
+        <div className="relative mt-8 overflow-hidden bg-white">
           <Container size="2xl" className="relative z-10">
             <PlatformReviewsRows content={reviews} />
           </Container>

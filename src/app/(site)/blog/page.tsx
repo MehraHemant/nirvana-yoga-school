@@ -44,9 +44,9 @@ export default async function BlogPage() {
 
       <section
         id="journal"
-        className="relative scroll-mt-[calc(var(--site-header-height)+0.75rem)] bg-white"
+        className="relative scroll-mt-[calc(var(--site-header-height)+0.75rem)] bg-white section-padding-y"
       >
-        <Container size="2xl" className="py-10 sm:py-12 lg:py-14">
+        <Container size="2xl">
           {posts.length > 0 ? (
             <ul className="grid list-none gap-10 p-0 sm:grid-cols-3 sm:gap-x-8 sm:gap-y-12 lg:gap-x-10">
               {posts.map((post, index) => (

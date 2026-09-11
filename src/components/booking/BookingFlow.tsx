@@ -336,7 +336,7 @@ export function BookingFlow({
 
   if (success) {
     return (
-      <section className="bg-white py-20">
+      <section className="bg-white section-padding-y">
         <Container size="2xl">
           <div className="rounded-3xl border border-emerald-200 bg-white p-10 text-center shadow-card">
             <h1 className="type-h2 text-ink">Booking confirmed!</h1>
@@ -383,7 +383,7 @@ export function BookingFlow({
         </DarkMediaHero>
       ) : null}
 
-      <section className="bg-white py-16 md:py-20">
+      <section className="bg-white section-padding-y">
         <Container size="2xl">
           {shouldRenderSection(
             content.stepsSection,

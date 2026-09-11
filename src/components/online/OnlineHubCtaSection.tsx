@@ -29,7 +29,7 @@ export default function OnlineHubCtaSection({
     : undefined;
 
   return (
-    <section className="bg-ink py-16 text-white md:py-24">
+    <section className="bg-ink section-padding-y text-white">
       <Container size="2xl" className="text-center">
         <motion.div
           initial="hidden"

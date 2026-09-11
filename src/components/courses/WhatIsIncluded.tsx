@@ -157,7 +157,7 @@ export default function WhatIsIncluded({
   return (
     <section
       id={htmlId}
-      className="py-16 lg:py-0 lg:min-h-[calc(100svh-4rem)] lg:flex lg:items-center bg-white relative overflow-hidden"
+      className="section-padding-y bg-white relative overflow-hidden"
     >
       {/* Background geometric flourishes */}
       <div

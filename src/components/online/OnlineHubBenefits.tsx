@@ -88,7 +88,7 @@ export default function OnlineHubBenefits({
   return (
     <section
       id={sectionId}
-      className="online-why relative scroll-mt-28 overflow-hidden bg-white py-20 md:py-28"
+      className="online-why relative scroll-mt-28 overflow-hidden bg-white section-padding-y"
     >
       <Container size="2xl" className="relative z-10">
         <div className="grid gap-16 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:items-start lg:gap-20 xl:gap-28">

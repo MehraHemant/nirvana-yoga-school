@@ -6,13 +6,13 @@ import {
   useReducedMotion,
   type Variants,
 } from "framer-motion";
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Container, Heading, Pill, YouTubeThumbImage } from "@/components/ui";
 import type { HomeWhyRishikeshContent } from "@/content/types/dedicated-pages";
 import { Play } from "@/icons";
 import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 import { EASE_OUT, fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
+import WhyRishikeshImageBatchStack from "./WhyRishikeshImageBatchStack";
 
 const listContainerVariants: Variants = {
   hidden: {},
@@ -46,6 +46,10 @@ const playerCardVariants: Variants = {
     transition: { duration: 0.4, ease: EASE_OUT },
   },
 };
+
+/** Shared two-column layout for header + sutras/video rows. */
+const WHY_RISHIKESH_GRID =
+  "grid grid-cols-1 lg:grid-cols-[1.15fr_1fr] gap-x-6 lg:gap-x-10 gap-y-8 lg:gap-y-10";
 
 /**
  * Formats a duration in seconds as `m:ss`.
@@ -142,14 +146,14 @@ export default function WhyRishikeshClient({
 
   return (
     <Container size="2xl">
-      <motion.div
-        initial="hidden"
-        whileInView="visible"
-        viewport={VIEWPORT_ONCE}
-        variants={fadeUp}
-        className="grid grid-cols-1 lg:grid-cols-[1.25fr_1fr] gap-6 lg:gap-10 mb-8 sm:mb-10 lg:mb-10 items-end"
-      >
-        <div>
+      <div className={WHY_RISHIKESH_GRID}>
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={VIEWPORT_ONCE}
+          variants={fadeUp}
+          className="self-end"
+        >
           {content.eyebrow ? <Pill>{content.eyebrow}</Pill> : null}
           <Heading
             as="h2"
@@ -165,29 +169,11 @@ export default function WhyRishikeshClient({
             ) : null}
             {content.description ? ` ${content.description}` : null}
           </Heading>
-        </div>
+        </motion.div>
 
-        <div className="flex items-start justify-center">
-          <div className="flex items-center gap-6 sm:gap-8 pt-2">
-            {trustLogos.map((logo) => (
-              <div
-                key={logo.src}
-                className="relative w-24 h-24 sm:w-36 sm:h-36 transition-transform duration-300 hover:scale-105"
-              >
-                <Image
-                  src={logo.src}
-                  alt={logo.alt}
-                  fill
-                  sizes="(max-width: 640px) 96px, 128px"
-                  className="object-contain"
-                />
-              </div>
-            ))}
-          </div>
+        <div className="w-full self-end">
+          <WhyRishikeshImageBatchStack images={trustLogos} />
         </div>
-      </motion.div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-[1.15fr_1fr] gap-6 lg:gap-10 items-start">
         <div className="space-y-6">
           <div className="relative flex gap-6 items-stretch">
             <div

@@ -135,7 +135,7 @@ export default function TravelGuide({
       ref={sectionRef}
       id="travel"
       aria-label="Guide to travelling to India"
-      className="travel-guide-section relative overflow-x-clip bg-white py-20 sm:py-28"
+      className="travel-guide-section relative overflow-x-clip bg-white section-padding-y"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       onFocusCapture={() => setIsPaused(true)}

@@ -16,7 +16,9 @@ type ExamCertificationProps = {
  *
  * @param props - Shared CMS content
  */
-export default function ExamCertification({ content }: ExamCertificationProps) {
+export default function ExamCertification({
+  content,
+}: ExamCertificationProps) {
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [activeCertIndex, setActiveCertIndex] = useState(0);
   const certificates = content.certificates.filter((c) => c.image?.trim());
@@ -27,7 +29,10 @@ export default function ExamCertification({ content }: ExamCertificationProps) {
   const showSteps = steps.length > 0;
 
   return (
-    <section id="exam" className="relative bg-white py-20 sm:py-28">
+    <section
+      id="exam"
+      className="relative bg-white section-padding-y"
+    >
       <Container size="2xl">
         <div className="space-y-16">
           <SectionHeader

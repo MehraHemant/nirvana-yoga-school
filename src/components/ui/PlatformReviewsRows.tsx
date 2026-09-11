@@ -2,12 +2,13 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import type {
   ReviewsContent,
   SharedReview,
 } from "@/content/types/shared-sections";
 import { ChevronLeft, ChevronRight, Google, Star, Tripadvisor } from "@/icons";
+import { useLineClampReadMore } from "@/lib/hooks/useLineClampReadMore";
 
 type Testimonial = SharedReview;
 
@@ -41,29 +42,18 @@ const slideVariants = {
 };
 
 function TestimonialCard({ review }: { review: Testimonial }) {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [isTruncated, setIsTruncated] = useState(false);
-  const messageRef = useRef<HTMLParagraphElement>(null);
   const messageId = useId();
-
-  useEffect(() => {
-    if (isExpanded) return;
-
-    const message = messageRef.current;
-    if (!message) return;
-
-    const updateTruncation = () => {
-      setIsTruncated(message.scrollHeight > message.clientHeight);
-    };
-    updateTruncation();
-
-    const observer = new ResizeObserver(updateTruncation);
-    observer.observe(message);
-    return () => observer.disconnect();
-  }, [isExpanded]);
+  const {
+    ref: messageRef,
+    isExpanded,
+    expand,
+    collapse,
+    isTruncated,
+    clampClassName,
+  } = useLineClampReadMore(review.message);
 
   return (
-    <div className="flex h-full min-h-[380px] flex-col items-stretch gap-6 pr-3 md:min-h-[280px] md:flex-row md:gap-8">
+    <div className="flex h-full flex-col items-stretch gap-4 pr-3 md:flex-row md:gap-6">
       <div className="relative h-[220px] w-full shrink-0 overflow-hidden rounded-2xl md:h-60 md:w-1/3">
         <Image
           src={review.image}
@@ -75,7 +65,7 @@ function TestimonialCard({ review }: { review: Testimonial }) {
         <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent md:hidden" />
       </div>
 
-      <div className="flex w-full flex-col justify-center py-4 select-text md:w-2/3 md:py-6">
+      <div className="flex w-full flex-col select-text md:w-2/3">
         <div className="mb-2 flex items-start justify-between">
           <div>
             <h4 className="type-h4 text-ink">
@@ -97,11 +87,11 @@ function TestimonialCard({ review }: { review: Testimonial }) {
           {review.title}
         </h5>
 
-        <div className="relative">
+        <div>
           <p
             ref={messageRef}
             id={messageId}
-            className={`type-body text-ink ${isExpanded ? "" : "line-clamp-4 h-[4lh]"}`}
+            className={`type-body text-ink ${clampClassName}`}
           >
             &ldquo;{review.message}&rdquo;
           </p>
@@ -110,21 +100,21 @@ function TestimonialCard({ review }: { review: Testimonial }) {
               type="button"
               aria-controls={messageId}
               aria-expanded={false}
-              onClick={() => setIsExpanded(true)}
-              className="absolute right-0 bottom-0 z-10 cursor-pointer whitespace-nowrap bg-linear-to-l from-white from-40% to-transparent pl-10 leading-relaxed font-semibold text-primary hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              onClick={expand}
+              className="mt-1.5 w-fit cursor-pointer font-semibold text-primary hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             >
               Read more
             </button>
           ) : null}
-          {isExpanded ? (
+          {isTruncated && isExpanded ? (
             <button
               type="button"
               aria-controls={messageId}
               aria-expanded={true}
-              onClick={() => setIsExpanded(false)}
+              onClick={collapse}
               className="mt-1.5 w-fit cursor-pointer font-semibold text-primary hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             >
-              Show less
+              Read less
             </button>
           ) : null}
         </div>
@@ -179,7 +169,7 @@ function TestimonialSlider({
           </button>
         ) : null}
 
-        <div className="relative min-h-[380px] min-w-0 flex-1 overflow-hidden md:min-h-[280px]">
+        <div className="relative min-w-0 flex-1 overflow-hidden">
           <AnimatePresence initial={false} custom={direction} mode="wait">
             <motion.div
               key={page}
@@ -244,9 +234,9 @@ function RatingCard({
   };
 
   const content = (
-    <div className="flex h-full flex-col justify-between py-4">
+    <div className="flex h-full flex-col justify-between py-1">
       <div>
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-4 flex items-center justify-between">
           {getBrandLogo()}
           <span className="type-eyebrow rounded-full bg-white/60 px-2.5 py-1 text-ink">
             Verified
@@ -315,7 +305,7 @@ export default function PlatformReviewsRows({
 
   return (
     <div className={`w-full space-y-8 md:space-y-10 ${className}`}>
-      <div className="grid w-full grid-cols-1 items-stretch gap-6 rounded-3xl p-5 md:p-6 lg:grid-cols-4 lg:gap-8">
+      <div className="grid w-full grid-cols-1 items-stretch gap-4 rounded-3xl px-5 py-4 md:px-6 md:py-4 lg:grid-cols-4 lg:gap-6">
         <div className="flex h-full flex-col lg:col-span-1">
           <RatingCard
             platform="Google"
@@ -330,7 +320,7 @@ export default function PlatformReviewsRows({
         </div>
       </div>
 
-      <div className="grid w-full grid-cols-1 items-stretch gap-6 rounded-3xl p-5 md:p-6 lg:grid-cols-4 lg:gap-8">
+      <div className="grid w-full grid-cols-1 items-stretch gap-4 rounded-3xl px-5 py-4 md:px-6 md:py-4 lg:grid-cols-4 lg:gap-6">
         <div className="flex h-full flex-col lg:col-span-1">
           <RatingCard
             platform="Tripadvisor"
@@ -348,7 +338,7 @@ export default function PlatformReviewsRows({
         </div>
       </div>
 
-      <div className="grid w-full grid-cols-1 items-stretch gap-6 rounded-3xl p-5 md:p-6 lg:grid-cols-4 lg:gap-8">
+      <div className="grid w-full grid-cols-1 items-stretch gap-4 rounded-3xl px-5 py-4 md:px-6 md:py-4 lg:grid-cols-4 lg:gap-6">
         <div className="flex h-full flex-col lg:col-span-1">
           <RatingCard
             platform="Trustpilot"

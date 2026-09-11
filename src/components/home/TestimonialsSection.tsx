@@ -36,7 +36,7 @@ export default function TestimonialsSection({
   return (
     <section
       id={resolveSectionHtmlId("reviews", content?._id)}
-      className="relative w-full overflow-hidden bg-white py-20 md:py-28"
+      className="relative w-full overflow-hidden bg-white section-padding-y"
     >
       <Container size="2xl" className="relative z-10 w-full">
         <div className="mx-auto mb-16 w-full max-w-2xl text-center">

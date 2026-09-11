@@ -34,7 +34,7 @@ export default function FinalCTASection({
   return (
     <section
       id={resolveSectionHtmlId("contact", content._id)}
-      className="relative py-16 sm:py-20 md:py-28 lg:py-32 overflow-hidden"
+      className="relative section-padding-y overflow-hidden"
     >
       <Image
         src={image}

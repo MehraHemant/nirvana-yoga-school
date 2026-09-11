@@ -29,7 +29,7 @@ export default function PageEditorialSection({
   return (
     <section
       id={optionalSectionHtmlId(section._id)}
-      className="bg-white py-20 sm:py-28"
+      className="bg-white section-padding-y"
     >
       <Container size="2xl">
         <motion.div

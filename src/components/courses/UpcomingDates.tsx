@@ -188,7 +188,7 @@ export default function UpcomingDates({
   return (
     <section
       id={htmlId}
-      className="py-8 sm:py-10 bg-white lg:min-h-[calc(100svh-5.5rem)] lg:flex lg:flex-col lg:justify-center"
+      className="section-padding-y bg-white"
     >
       <Container size="2xl">
         {/* Compact split header */}

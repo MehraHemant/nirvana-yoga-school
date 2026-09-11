@@ -28,6 +28,8 @@ type FoodProps = {
   content?: ResidentialLifeContent | null;
   /** Optional override for the section HTML id */
   htmlId?: string;
+  /** Outer section vertical padding utility classes */
+  paddingClass?: string;
 };
 
 /**
@@ -36,7 +38,11 @@ type FoodProps = {
  *
  * @param props - Server-provided residential-life content
  */
-export default function Food({ content = null, htmlId }: FoodProps = {}) {
+export default function Food({
+  content = null,
+  htmlId,
+  paddingClass = "section-padding-y",
+}: FoodProps = {}) {
   const [lightbox, setLightbox] = useState<LightboxState>(null);
 
   const foodContent = content?.food.content;
@@ -59,7 +65,7 @@ export default function Food({ content = null, htmlId }: FoodProps = {}) {
   return (
     <section
       id={sectionId}
-      className="relative overflow-hidden bg-white py-8 sm:py-10"
+      className={`relative overflow-hidden bg-white ${paddingClass}`}
     >
       <div
         className="absolute right-[-8%] top-[40%] w-[240px] h-[240px] rounded-full bg-secondary/5 blur-[80px] pointer-events-none"

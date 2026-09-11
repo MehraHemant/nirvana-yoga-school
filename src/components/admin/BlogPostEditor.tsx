@@ -211,7 +211,7 @@ export function BlogPostEditor({
           <textarea
             id="blog-excerpt"
             className="admin-textarea"
-            rows={3}
+            rows={4}
             value={doc.excerpt}
             placeholder="Short summary for cards and search results…"
             onChange={(event) =>

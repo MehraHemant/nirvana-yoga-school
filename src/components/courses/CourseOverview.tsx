@@ -254,7 +254,7 @@ export default function CourseOverview({
   return (
     <section
       id={htmlId}
-      className="relative overflow-hidden bg-white py-16 sm:py-14"
+      className="relative overflow-hidden bg-white section-padding-y"
     >
       <HeroMandalaFlourish
         size={450}

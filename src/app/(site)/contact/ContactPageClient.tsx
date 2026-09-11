@@ -181,7 +181,7 @@ export default function ContactPageClient({
       {/* 2. Main Content splitting Grid */}
       <section
         id={formHtmlId}
-        className="relative overflow-hidden bg-white py-16 sm:py-20 scroll-mt-[calc(var(--site-header-height,4.75rem)+0.5rem)]"
+        className="relative overflow-hidden bg-white section-padding-y scroll-mt-[calc(var(--site-header-height,4.75rem)+0.5rem)]"
       >
         <Container size="2xl">
           <div className="grid gap-12 lg:grid-cols-12 lg:items-stretch lg:gap-14">

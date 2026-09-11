@@ -206,6 +206,8 @@ type AccommodationProps = {
   content?: ResidentialLifeContent | null;
   /** Optional override for the section HTML id */
   htmlId?: string;
+  /** Outer section vertical padding utility classes */
+  paddingClass?: string;
 };
 
 /**
@@ -217,6 +219,7 @@ type AccommodationProps = {
 export default function Accommodation({
   content = null,
   htmlId,
+  paddingClass = "section-padding-y",
 }: AccommodationProps = {}) {
   const prefersReduced = useReducedMotion() ?? false;
   const galleries = content?.accommodation.galleries ?? [];
@@ -244,7 +247,7 @@ export default function Accommodation({
   return (
     <section
       id={sectionId}
-      className="relative overflow-hidden bg-white py-8 sm:py-10"
+      className={`relative overflow-hidden bg-white ${paddingClass}`}
     >
       <div
         className="absolute left-[-8%] top-[40%] w-[240px] h-[240px] rounded-full bg-primary/5 blur-[80px] pointer-events-none"

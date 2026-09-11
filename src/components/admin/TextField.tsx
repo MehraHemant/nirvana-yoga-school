@@ -24,6 +24,7 @@ export function TextField({
   placeholder,
   hint,
 }: TextFieldProps) {
+  const textareaRows = Math.max(rows, 4);
   const fieldId = id ?? label.toLowerCase().replace(/\s+/g, "-");
 
   return (
@@ -35,7 +36,7 @@ export function TextField({
         <textarea
           id={fieldId}
           className="admin-textarea"
-          rows={rows}
+          rows={textareaRows}
           value={value}
           placeholder={placeholder}
           onChange={(event) => onChange(event.target.value)}

@@ -17,6 +17,8 @@ export { default as Compass } from "./Compass";
 export { default as Copy } from "./Copy";
 export { default as Droplet } from "./Droplet";
 export { default as ExternalLink } from "./ExternalLink";
+export { default as Eye } from "./Eye";
+export { default as EyeOff } from "./EyeOff";
 export { default as Facebook } from "./Facebook";
 export { default as Flame } from "./Flame";
 export { default as Garden } from "./Garden";

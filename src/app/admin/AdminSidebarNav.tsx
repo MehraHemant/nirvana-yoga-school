@@ -90,6 +90,16 @@ const NAV_SECTIONS: NavSection[] = [
       },
     ],
   },
+  {
+    label: "Account",
+    items: [
+      {
+        label: "Change password",
+        href: "/admin/settings/password",
+        Icon: Shield,
+      },
+    ],
+  },
 ];
 
 /**

@@ -550,7 +550,7 @@ export default function InstagramFeed({
   return (
     <section
       id="instagram"
-      className="relative overflow-x-clip bg-white py-20 sm:py-28"
+      className="relative overflow-x-clip bg-white section-padding-y"
     >
       <Container size="2xl">
         {media.length > 0 ? (

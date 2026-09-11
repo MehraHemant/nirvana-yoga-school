@@ -106,7 +106,7 @@ function PrerequisiteItem({
       viewport={VIEWPORT_ONCE}
       variants={fadeUp}
       transition={{ duration: 0.4, delay }}
-      className="space-y-3 rounded-2xl bg-white/55 px-4 py-4 sm:px-5 sm:py-5"
+      className="flex h-full flex-col space-y-3 rounded-2xl bg-white/55 px-4 py-4 sm:px-5 sm:py-5"
     >
       <div className="flex items-center gap-3">
         <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/8 text-primary">
@@ -146,7 +146,10 @@ export default function CourseEligibility({
   );
 
   return (
-    <section id={htmlId} className="py-20 sm:py-28 bg-white overflow-hidden">
+    <section
+      id={htmlId}
+      className="section-padding-y bg-white overflow-hidden"
+    >
       <Container size="2xl">
         <div className="relative overflow-hidden rounded-3xl border border-primary/12 bg-linear-to-br from-primary/12 via-primary/5 to-white p-6 shadow-soft sm:p-8 lg:p-10">
           <div
@@ -174,9 +177,9 @@ export default function CourseEligibility({
               )}
             </div>
 
-            {/* Column 2 (Middle 4-cols): Req 1 & 2 */}
-            <div className="lg:col-span-4 flex flex-col gap-4 sm:gap-5">
-              {resolvedRequirements.slice(0, 2).map((req, index) => (
+            {/* Column 2 (8-cols): Requirement cards */}
+            <div className="lg:col-span-8 grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 sm:gap-5">
+              {resolvedRequirements.map((req, index) => (
                 <PrerequisiteItem
                   key={req.title}
                   title={req.title}
@@ -184,20 +187,6 @@ export default function CourseEligibility({
                   num={req.num}
                   icon={req.icon}
                   delay={index * 0.1}
-                />
-              ))}
-            </div>
-
-            {/* Column 3 (Right 4-cols): Req 3 & 4 */}
-            <div className="lg:col-span-4 flex flex-col gap-4 sm:gap-5">
-              {resolvedRequirements.slice(2, 4).map((req, index) => (
-                <PrerequisiteItem
-                  key={req.title}
-                  title={req.title}
-                  desc={req.desc}
-                  num={req.num}
-                  icon={req.icon}
-                  delay={(index + 2) * 0.1}
                 />
               ))}
             </div>
