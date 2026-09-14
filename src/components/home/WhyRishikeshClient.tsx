@@ -211,7 +211,7 @@ export default function WhyRishikeshClient({
                     onFocus={() => setIsPaused(true)}
                     onBlur={() => setIsPaused(false)}
                     variants={itemVariants}
-                    className={`w-full text-left rounded-3xl p-4 sm:p-5 transition-all duration-300 border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 cursor-pointer relative overflow-hidden ${isActive ? "bg-white shadow-soft border-primary/20 ring-1 ring-primary/10" : "bg-white/40 border-ink/5 hover:bg-white/80 hover:border-ink/10"}`}
+                    className={`w-full text-left rounded-3xl p-4 sm:p-5 transition-all duration-300 border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 cursor-pointer relative overflow-hidden ${isActive ? "bg-white shadow-soft border-primary/20 ring-1 ring-primary/10" : "bg-linear-to-br from-primary/8 to-white border-ink/5 hover:border-ink/10"}`}
                   >
                     {isActive && !prefersReduced && (
                       <div
@@ -277,13 +277,7 @@ export default function WhyRishikeshClient({
                 );
               })}
 
-              {content.closingInvitation.trim() ? (
-                <blockquote className="mt-6 border-l-2 border-primary/70 py-1.5 pl-5 sm:mt-8 sm:pl-6">
-                  <p className="type-lead font-quote italic text-pretty leading-[1.75] text-ink">
-                    {content.closingInvitation}
-                  </p>
-                </blockquote>
-              ) : null}
+
             </motion.div>
         </div>
 
@@ -359,6 +353,13 @@ export default function WhyRishikeshClient({
           </motion.div>
         </div>
       </div>
+        {content.closingInvitation.trim() ? (
+                <blockquote className="mt-6 py-1.5 pl-5 sm:mt-8 sm:pl-6">
+                  <p className="type-lead font-quote text-pretty leading-[1.75] text-ink">
+                    {content.closingInvitation}
+                  </p>
+                </blockquote>
+              ) : null}
     </Container>
   );
 }
