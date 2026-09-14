@@ -4,6 +4,8 @@ import type {
   HomeCoursesSectionContent,
 } from "@/content/types/dedicated-pages";
 import type { CourseDocument } from "@/content/types/course";
+import { isPageModulesDocument } from "@/lib/cms/db-page-modules";
+import { syncPageFieldsFromModules } from "@/lib/cms/page-modules-builder";
 import { db } from "@/lib/db";
 import {
   isHomeCoursePlacementLive,
@@ -14,7 +16,18 @@ import {
 type CourseEntityRow = {
   slug: string;
   document: CourseDocument;
+  pageModules: unknown;
 };
+
+/**
+ * Homepage card photo — first image from the course hero module only.
+ *
+ * @param pageModules - `pages.page_modules` JSON
+ */
+function resolveHomeCardImage(pageModules: unknown): string {
+  if (!isPageModulesDocument(pageModules)) return "";
+  return syncPageFieldsFromModules(pageModules).image.trim();
+}
 
 /**
  * Loads published residential course entities by slug (batch).
@@ -49,6 +62,7 @@ async function loadResidentialCoursesBySlug(
           ...record,
           slug: typeof record.slug === "string" ? record.slug : page.slug,
         },
+        pageModules: page.pageModules,
       });
     }
     return map;
@@ -59,7 +73,7 @@ async function loadResidentialCoursesBySlug(
 
 /**
  * Resolves homepage course placements to public cards.
- * Falls back to legacy embedded cards when no entity matches.
+ * Card photos come from each course hero section.
  *
  * @param section - Homepage courses section from CMS
  */
@@ -67,22 +81,18 @@ export async function resolveHomeCourses(
   section: HomeCoursesSectionContent,
 ): Promise<HomeCourseCard[]> {
   const refs = normalizeHomeCourseRefs(section).filter(isHomeCoursePlacementLive);
-  if (refs.length === 0) {
-    return section.cards?.length ? section.cards : [];
-  }
+  if (refs.length === 0) return [];
 
   const slugs = refs.map((ref) => ref.courseSlug);
   const entities = await loadResidentialCoursesBySlug(slugs);
 
   return refs.flatMap((ref) => {
     const entity = entities.get(ref.courseSlug);
-    if (entity) {
-      return [mapCourseDocumentToHomeCard(entity.document)];
-    }
+    if (!entity) return [];
 
-    const legacyCard = section.cards?.find(
-      (card) => card.href.includes(`/${ref.courseSlug}`),
-    );
-    return legacyCard ? [legacyCard] : [];
+    const image = resolveHomeCardImage(entity.pageModules);
+    if (!image) return [];
+
+    return [mapCourseDocumentToHomeCard(entity.document, image)];
   });
 }

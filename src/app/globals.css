@@ -72,15 +72,20 @@ html {
   height: 100%;
 }
 
-/* Primary scrollbar theme for public and admin surfaces. */
-html,
-* {
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-primary) var(--color-surface-muted);
+/* Primary scrollbar theme for public and admin surfaces.
+   Keep `scrollbar-width` off WebKit: Chrome treats it as a Mac overlay bar
+   that hides when idle, and then ignores `::-webkit-scrollbar`. */
+@supports not selector(::-webkit-scrollbar) {
+  html,
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-primary) var(--color-surface-muted);
+  }
 }
 
 html::-webkit-scrollbar,
 *::-webkit-scrollbar {
+  -webkit-appearance: none;
   width: 0.75rem;
   height: 0.75rem;
 }
@@ -218,7 +223,7 @@ body {
   background-color: #fff;
 }
 
-/* Five light spots — peach, sage, mint, blush, blue */
+/* Three light spots — peach, sage, mint (matches the 3-column card washes) */
 .why-nirvana-gradient-pattern {
   background-color: #fcfbfa;
   background-image:
@@ -233,19 +238,9 @@ body {
       transparent 38%
     ),
     radial-gradient(
-      circle at 16% 82%,
+      circle at 50% 82%,
       rgb(232 243 236 / 0.42) 0%,
       transparent 38%
-    ),
-    radial-gradient(
-      circle at 74% 24%,
-      rgb(163 36 50 / 0.04) 0%,
-      transparent 34%
-    ),
-    radial-gradient(
-      circle at 82% 76%,
-      rgb(216 232 244 / 0.45) 0%,
-      transparent 40%
     );
   background-repeat: no-repeat;
 }
@@ -1016,18 +1011,21 @@ details[open] .accordion-icon {
 }
 
 /* Custom Scrollbar Utility */
-.scrollbar-thin-primary {
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-primary) transparent;
+@supports not selector(::-webkit-scrollbar) {
+  .scrollbar-thin-primary {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-primary) var(--color-surface-muted);
+  }
 }
 
 .scrollbar-thin-primary::-webkit-scrollbar {
+  -webkit-appearance: none;
   width: 7px;
   height: 7px;
 }
 
 .scrollbar-thin-primary::-webkit-scrollbar-track {
-  background: transparent;
+  background: var(--color-surface-muted);
 }
 
 .scrollbar-thin-primary::-webkit-scrollbar-thumb {
@@ -1043,18 +1041,21 @@ details[open] .accordion-icon {
   background-clip: padding-box;
 }
 
-.scrollbar-thin-calm {
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-primary) transparent;
+@supports not selector(::-webkit-scrollbar) {
+  .scrollbar-thin-calm {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-primary) var(--color-surface-muted);
+  }
 }
 
 .scrollbar-thin-calm::-webkit-scrollbar {
+  -webkit-appearance: none;
   width: 6px;
   height: 6px;
 }
 
 .scrollbar-thin-calm::-webkit-scrollbar-track {
-  background: transparent;
+  background: var(--color-surface-muted);
 }
 
 .scrollbar-thin-calm::-webkit-scrollbar-thumb {
@@ -1394,30 +1395,11 @@ details[open] .accordion-icon {
   background: rgb(255 255 255 / 0.96);
 }
 
-/* Yoga Alliance band — force light text on primary red (overrides accent gray). */
+/* Yoga Alliance band — white + primary. Reset tokens from the old red fill. */
 .yoga-alliance-band {
-  color: #fff;
-  /* If any child still uses text-accent / text-muted, map to light on red. */
-  --color-accent: #ffffff;
-  --color-muted: rgb(255 255 255 / 0.82);
-}
-
-.yoga-alliance-band .yoga-alliance-copy {
-  color: rgb(255 255 255 / 0.95);
-}
-
-.yoga-alliance-band .yoga-alliance-muted {
-  color: rgb(255 255 255 / 0.85);
-}
-
-.yoga-alliance-band .yoga-alliance-tag,
-.yoga-alliance-band .yoga-alliance-tag * {
-  color: #fff;
-}
-
-.yoga-alliance-band .yoga-alliance-tag {
-  background-color: rgb(255 255 255 / 0.18);
-  border-color: rgb(255 255 255 / 0.35);
+  color: var(--color-ink);
+  --color-accent: #78716c;
+  --color-muted: #666;
 }
 
 /* ── Retreat wellness theme (legacy) ── */

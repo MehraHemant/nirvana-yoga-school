@@ -7,7 +7,7 @@ export type WhyNirvanaCardWash = {
   glow: string;
 };
 
-/** Five light pastel washes — peach, sage, mint, blush, blue. */
+/** Three pastel washes — one per checkerboard column (peach, sage, mint). */
 export const WHY_NIRVANA_CARD_WASHES: WhyNirvanaCardWash[] = [
   {
     base: "bg-linear-to-br from-[#f8e8e2] via-[#fdf6f3] to-white",
@@ -20,14 +20,6 @@ export const WHY_NIRVANA_CARD_WASHES: WhyNirvanaCardWash[] = [
   {
     base: "bg-linear-to-bl from-[#e8f3ec] via-[#f6fbf8] to-white",
     glow: "from-[#d4e8dc]/25",
-  },
-  {
-    base: "bg-linear-to-tr from-primary/8 via-[#fbf4f5] to-white",
-    glow: "from-primary/10",
-  },
-  {
-    base: "bg-linear-to-tr from-[#d8e8f4] via-[#f2f7fb] to-white",
-    glow: "from-[#c5d8ea]/25",
   },
 ];
 
@@ -72,13 +64,13 @@ export function getWhyNirvanaCardWash(
 }
 
 /**
- * Repeating checkerboard wash — cycles palette by grid slot so gradients
- * form a visible pattern across the section.
+ * Column-aligned wash — cycles the 3-color palette by grid slot so each
+ * column keeps one gradient and the set never grows past three.
  *
  * @param slot - Flat grid index in row-major order
  */
 export function getWhyNirvanaCardWashBySlot(slot: number): WhyNirvanaCardWash {
-  return WHY_NIRVANA_CARD_WASHES[slot % WHY_NIRVANA_CARD_WASHES.length];
+  return WHY_NIRVANA_CARD_WASHES[slot % CHECKERBOARD_COLUMNS];
 }
 
 /**
@@ -127,7 +119,9 @@ function photoAlt(highlights: WhyNirvanaHighlight[], photoIndex: number): string
 
 /**
  * Maps CMS highlights onto text cells and photos onto image cells.
- * Image slots always render a photo when the pool is non-empty, cycling URLs.
+ * Image slots use a photo when the pool is non-empty, cycling URLs.
+ * Trailing photos only fill an incomplete row — they never start a new line
+ * once a 3-column set is already complete.
  * @param highlights CMS highlight rows.
  * @param photos Deduped real photo URLs from banner and page media.
  */
@@ -161,7 +155,15 @@ export function buildCheckerboardCells(
     slot += 1;
   }
 
-  while (isImageSlot(slot) && photos.length > 0) {
+  const remainder = cells.length % CHECKERBOARD_COLUMNS;
+  if (remainder === 0 || photos.length === 0) return cells;
+
+  const needed = CHECKERBOARD_COLUMNS - remainder;
+  for (let offset = 0; offset < needed; offset += 1) {
+    if (!isImageSlot(slot + offset)) return cells;
+  }
+
+  for (let offset = 0; offset < needed; offset += 1) {
     cells.push({
       kind: "image",
       src: photos[photoIndex % photos.length],

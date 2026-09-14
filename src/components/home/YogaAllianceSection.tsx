@@ -1,49 +1,16 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Button, Container, Pill } from "@/components/ui";
+import Link from "next/link";
+import { Container, Pill } from "@/components/ui";
 import type {
-  HomeYogaAllianceCertIconKey,
+  HomeYogaAllianceCertification,
   HomeYogaAllianceContent,
 } from "@/content/types/dedicated-pages";
-import {
-  ArrowRight,
-  Certificate,
-  Compass,
-  Leaf,
-  YogaAllianceSeal,
-} from "@/icons";
+import { ArrowRight, YogaAllianceSeal } from "@/icons";
 import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 import { optionalSectionHtmlId } from "@/lib/html-id";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
-
-const ICON_BY_KEY: Record<HomeYogaAllianceCertIconKey, typeof Leaf> = {
-  leaf: Leaf,
-  compass: Compass,
-  certificate: Certificate,
-};
-
-const containerVariants = {
-  hidden: {},
-  visible: {
-    transition: {
-      staggerChildren: 0.15,
-    },
-  },
-} as const;
-
-const cardVariants = {
-  hidden: { opacity: 0, y: 25 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      type: "spring",
-      stiffness: 150,
-      damping: 20,
-    },
-  },
-} as const;
 
 type YogaAllianceSectionProps = {
   /** Full CMS Yoga Alliance section */
@@ -51,7 +18,52 @@ type YogaAllianceSectionProps = {
 };
 
 /**
- * Homepage Yoga Alliance certification band driven by CMS content.
+ * First sentence only — keeps pathway copy from ending mid-clause.
+ *
+ * @param text - CMS pathway description
+ */
+function firstSentence(text: string): string {
+  const trimmed = text.trim();
+  const match = trimmed.match(/^[^.!?]+[.!?]/);
+  return match ? match[0].trim() : trimmed;
+}
+
+/**
+ * Open pathway column with a primary left rule.
+ *
+ * @param cert - CMS certification
+ */
+function PathwayColumn({ cert }: { cert: HomeYogaAllianceCertification }) {
+  return (
+    <Link
+      href={cert.href}
+      aria-label={`${cert.title} — course details`}
+      className="group block border-l-2 border-primary/70 py-1 pl-6 transition-[border-color,padding] duration-300 hover:border-primary hover:pl-7"
+    >
+      <p className="text-5xl font-semibold tracking-tight text-primary tabular-nums lg:text-6xl">
+        {cert.hours}
+      </p>
+      <p className="type-eyebrow mt-1 text-primary/70">Hours</p>
+      <p className="type-eyebrow mt-6 text-primary">{cert.level}</p>
+      <h3 className="type-h3 mt-2 text-ink">{cert.title}</h3>
+      {cert.description ? (
+        <p className="type-body mt-3 max-w-sm text-ink/55">
+          {firstSentence(cert.description)}
+        </p>
+      ) : null}
+      <span className="type-ui mt-6 inline-flex items-center gap-2 text-primary underline-offset-4 group-hover:underline">
+        Course Details
+        <ArrowRight
+          size={14}
+          className="transition-transform duration-300 group-hover:translate-x-1"
+        />
+      </span>
+    </Link>
+  );
+}
+
+/**
+ * Homepage Yoga Alliance band — open columns with a primary left rule.
  *
  * @param props - Optional CMS Yoga Alliance section
  */
@@ -62,153 +74,74 @@ export default function YogaAllianceSection({
     content.certifications?.length > 0
       ? content.certifications
       : createEmptyHomePageContent().yogaAlliance.certifications;
+  const showSeal = Boolean(content.sealTitle?.trim());
+  const kicker = content.eyebrow || content.badgeLabel;
 
   return (
     <section
-      id={optionalSectionHtmlId(content._id)}
-      className="yoga-alliance-band relative w-full overflow-hidden bg-primary section-padding-y text-white"
+      id={optionalSectionHtmlId(content._id) ?? "yoga-alliance"}
+      className="yoga-alliance-band relative w-full bg-white section-padding-y"
     >
-      <div
-        className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-white/5 blur-[130px] rounded-full pointer-events-none"
-        aria-hidden="true"
-      />
-      <div
-        className="absolute top-1/2 left-1/3 w-[500px] h-[500px] bg-white/5 blur-[120px] rounded-full pointer-events-none"
-        aria-hidden="true"
-      />
-      <div
-        className="absolute -bottom-40 -right-40 w-[600px] h-[600px] bg-white/5 blur-[130px] rounded-full pointer-events-none"
-        aria-hidden="true"
-      />
-
-      <Container size="2xl" className="relative z-10 w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-[1.3fr_1.1fr] gap-8 lg:gap-10 xl:gap-14 2xl:gap-16 items-start border-b border-white/15 pb-12 mb-12 lg:mb-16">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={VIEWPORT_ONCE}
-            variants={fadeUp}
-            className="space-y-5"
-          >
-            <div className="flex flex-wrap items-center gap-3">
-              <Pill invert className="yoga-alliance-tag">
-                {content.badgeLabel}
-              </Pill>
-              {content.eyebrow ? (
-                <span className="type-eyebrow yoga-alliance-muted">
-                  {content.eyebrow}
-                </span>
-              ) : null}
-            </div>
-
-            <h2 className="type-h2 text-white">
-              {content.title}
-            </h2>
-            {content.description ? (
-              <p className="type-lead yoga-alliance-muted max-w-xl">
-                {content.description}
-              </p>
-            ) : null}
-
-            {/* <div className="flex items-center gap-4 pt-2 bg-white/10 border border-white/20 rounded-2xl p-4 w-fit backdrop-blur-md shadow-lg">
-              <div className="relative w-14 h-14 bg-white rounded-full flex items-center justify-center p-2 shadow-md">
-                <YogaAllianceSeal className="text-primary w-10 h-10" />
-              </div>
-              <div>
-                <p className="type-eyebrow yoga-alliance-muted tracking-widest text-[9px] mb-0.5">
-                  {content.sealEyebrow}
-                </p>
-                <p className="type-ui text-white font-semibold text-xs sm:text-sm">
-                  {content.sealTitle}
-                </p>
-              </div>
-            </div> */}
-          </motion.div>
-
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={VIEWPORT_ONCE}
-            custom={0.12}
-            variants={fadeUp}
-            className="space-y-4 lg:pt-4"
-          >
-            <p className="type-lead yoga-alliance-copy">
-              {content.lead}
-            </p>
-            <p className="type-body yoga-alliance-muted">
-              {content.body}
-            </p>
-          </motion.div>
-        </div>
-
+      <Container size="2xl" className="w-full">
         <motion.div
-          variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={VIEWPORT_ONCE}
-          className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8"
+          variants={fadeUp}
+          className="grid items-start gap-10 lg:grid-cols-[minmax(0,1.25fr)_minmax(16rem,0.75fr)] lg:gap-20"
         >
-          {certifications.map((cert) => {
-            const WatermarkIcon = ICON_BY_KEY[cert.iconKey] ?? ICON_BY_KEY.leaf;
-            return (
-              <motion.div
-                key={cert.hours}
-                variants={cardVariants}
-                className="group relative overflow-hidden rounded-3xl bg-white/5 border border-white/10 p-6 lg:p-8 flex flex-col justify-between min-h-[360px] hover:bg-white/10 hover:border-white/30 hover:-translate-y-2 transition-all duration-500 hover:shadow-soft"
-              >
-                <div
-                  className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-0"
-                  aria-hidden="true"
-                />
+          <div className="max-w-2xl">
+            {kicker ? (
+              <p className="type-eyebrow mb-4 text-primary">{kicker}</p>
+            ) : null}
+            <h2 className="type-h2 text-ink">{content.title}</h2>
+            {content.description ? (
+              <p className="type-lead mt-5 text-ink/70">{content.description}</p>
+            ) : null}
+          </div>
 
-                <div
-                  className="absolute -right-2 top-0 select-none text-[8.5rem] sm:text-[9.5rem] font-bold text-white/10 pointer-events-none leading-none z-0"
-                  aria-hidden="true"
-                >
-                  {cert.hours}
-                </div>
-
-                <div className="absolute -left-6 -bottom-6 w-32 h-32 text-white/10 pointer-events-none z-0">
-                  <WatermarkIcon className="w-full h-full object-contain" />
-                </div>
-
-                <div className="relative z-10">
-                  <div className="flex items-baseline justify-between mb-4 lg:mb-6">
-                    <span className="type-eyebrow yoga-alliance-tag rounded-full px-3 py-1">
-                      {cert.level}
-                    </span>
-                  </div>
-
-                  <h3 className="mb-3 mt-4 text-xl font-semibold leading-[1.3] text-white sm:text-2xl">
-                    {cert.title}
-                  </h3>
-
-                  <p className="type-body yoga-alliance-muted mb-6">
-                    {cert.description}
-                  </p>
-                </div>
-
-                <div className="relative z-10">
-                  <Button
-                    href={cert.href}
-                    variant="outline-light"
-                    size="md"
-                    className="w-full justify-between group/btn"
+          {showSeal || content.badgeLabel || content.lead ? (
+            <div className="flex gap-4 lg:pt-1">
+              {showSeal ? (
+                <YogaAllianceSeal className="mt-0.5 shrink-0 text-primary" size={72} />
+              ) : null}
+              <div>
+                {content.badgeLabel ? <Pill>{content.badgeLabel}</Pill> : null}
+                {showSeal ? (
+                  <p
+                    className={`type-ui text-ink ${content.badgeLabel ? "mt-2" : ""}`}
                   >
-                    <span className="flex items-center gap-2">
-                      Course Details
-                    </span>
-                    <ArrowRight
-                      size={14}
-                      className="transition-transform duration-300 group-hover/btn:translate-x-1"
-                    />
-                  </Button>
-                </div>
-              </motion.div>
-            );
-          })}
+                    {content.sealTitle}
+                  </p>
+                ) : null}
+                {content.lead ? (
+                  <p className="type-body mt-3 text-ink/55">{content.lead}</p>
+                ) : null}
+              </div>
+            </div>
+          ) : null}
         </motion.div>
+
+        {certifications.length > 0 ? (
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={VIEWPORT_ONCE}
+            custom={0.08}
+            variants={fadeUp}
+            className="mt-14 lg:mt-16"
+          >
+            <div className="flex items-center gap-3" aria-hidden>
+              <span className="h-px w-12 bg-primary" />
+              <span className="h-px flex-1 bg-ink/10" />
+            </div>
+            <div className="mt-10 grid grid-cols-1 gap-12 md:grid-cols-3 md:gap-10 lg:mt-12 lg:gap-14">
+              {certifications.map((cert) => (
+                <PathwayColumn key={`${cert.hours}-${cert.title}`} cert={cert} />
+              ))}
+            </div>
+          </motion.div>
+        ) : null}
       </Container>
     </section>
   );

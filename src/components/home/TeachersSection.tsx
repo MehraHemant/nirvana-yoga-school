@@ -117,7 +117,7 @@ export default function TeachersSection({
             title={resolvedTitle}
             description={description}
             align="center"
-            className="mx-auto max-w-3xl"
+            className="mx-auto max-w-6xl"
           />
         </div>
 

@@ -67,7 +67,7 @@ export default function HeroSection({
           <HeroBackgroundVideo video={video} />
 
           <div
-            className="absolute inset-0 bg-linear-to-t from-black/92 via-black/40 via-55% to-transparent"
+            className="absolute inset-0 bg-linear-to-b from-black/62 via-black/20 via-25% to-transparent"
             aria-hidden="true"
           />
           <div
@@ -87,40 +87,20 @@ export default function HeroSection({
         <Container size="2xl" className="w-full">
           <div className="grid lg:grid-cols-12 gap-10 items-end">
             <div className="lg:col-span-7 xl:col-span-8 relative">
-              <span
-                className={`hidden md:block absolute -left-6 top-2 bottom-2 w-px bg-linear-to-b from-transparent to-transparent ${isOnline ? "via-primary/35" : "via-accent/70"}`}
-                aria-hidden="true"
-              />
 
-              <div
-                className={`animate-fade-up fade-delay-200 inline-flex items-center gap-2 rounded-full px-3 py-1.5 mb-4 sm:gap-2.5 sm:px-4 sm:py-2 sm:mb-6 ${isOnline ? "border border-primary/20 bg-primary/8" : "hero-glass"}`}
-              >
-                <span className="relative flex h-1.5 w-1.5 sm:h-2 sm:w-2">
-                  <span
-                    className={`absolute inline-flex h-full w-full animate-ping rounded-full opacity-60 ${isOnline ? "bg-primary" : "bg-accent"}`}
-                  />
-                  <span
-                    className={`relative inline-flex h-full w-full rounded-full ${isOnline ? "bg-primary" : "bg-accent"}`}
-                  />
-                </span>
-                <span
-                  className={`type-eyebrow ${isOnline ? "text-primary" : "text-white/90"}`}
-                >
-                  {badge}
-                </span>
-              </div>
+         
 
-              <Heading
+              {/* <Heading
                 as="h1"
                 align="left"
                 invert={!isOnline}
                 size="h1"
-                className="animate-fade-up fade-delay-300 text-balance"
+                className="animate-fade-up opacity-50 fade-delay-300 text-balance"
               >
                 {titleLead} <br />
-                <div className="relative inline-block whitespace-nowrap">
+                <div className="relative inline-block whitespace-nowrap opacity-15">
                   <span
-                    className={`font-semibold ${isOnline ? "text-primary" : "text-accent"}`}
+                    className={`font-semibold opacity-50 ${isOnline ? "text-primary" : "text-accent"}`}
                   >
                     {titleAccent}
                   </span>
@@ -131,15 +111,9 @@ export default function HeroSection({
                 <span className={isOnline ? "text-primary" : "text-accent"}>
                   .
                 </span>
-              </Heading>
+              </Heading> */}
 
-              {supportText ? (
-                <p
-                  className={`animate-fade-up fade-delay-400 mt-4 max-w-xl text-pretty type-lead sm:mt-5 ${isOnline ? "text-muted" : "text-white/85"}`}
-                >
-                  {supportText}
-                </p>
-              ) : null}
+
 
               <div className="animate-fade-up fade-delay-500 mt-5 sm:mt-8 flex flex-wrap gap-2 sm:gap-3">
                 <Button
@@ -164,6 +138,7 @@ export default function HeroSection({
                   </Button>
                 ) : null}
               </div>
+
 
               {mobileTrust.length > 0 ? (
                 <div className="animate-fade-up fade-delay-600 lg:hidden mt-5 sm:mt-8 flex gap-2 sm:gap-3 overflow-x-auto pb-1">
@@ -190,7 +165,25 @@ export default function HeroSection({
           </div>
         </Container>
       </div>
-
+      {/* <div className="flex absolute bottom-0 -translate-x-1/2 justify-center w-full">
+              <div
+                className={`animate-fade-up fade-delay-200 inline-flex items-center gap-2 rounded-full px-3 py-1.5 mb-4 sm:gap-2.5 sm:px-4 sm:py-2 sm:mb-6 ${isOnline ? "border border-primary/20 bg-primary/8" : "hero-glass"}`}
+              >
+                <span className="relative flex h-1.5 w-1.5 sm:h-2 sm:w-2">
+                  <span
+                    className={`absolute inline-flex h-full w-full animate-ping rounded-full opacity-60 ${isOnline ? "bg-primary" : "bg-accent"}`}
+                  />
+                  <span
+                    className={`relative inline-flex h-full w-full rounded-full ${isOnline ? "bg-primary" : "bg-accent"}`}
+                  />
+                </span>
+                <span
+                  className={`type-eyebrow ${isOnline ? "text-primary" : "text-white/90"}`}
+                >
+                  {badge}
+                </span>
+              </div>
+              </div> */}
       {marqueeItems.length > 0 ? (
         <div
           className={`absolute bottom-0 inset-x-0 z-10 border-t backdrop-blur-md ${isOnline ? "border-ink/8 bg-surface/90" : "border-white/10 bg-black/55"}`}

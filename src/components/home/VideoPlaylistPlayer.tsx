@@ -277,7 +277,7 @@ export default function VideoPlaylistPlayer({
 
         <div className="marquee-mask max-md:-mx-5 max-md:px-5 md:contents">
           <ul
-            className="flex gap-3 overflow-x-auto overscroll-x-contain pb-1 snap-x snap-mandatory max-lg:[-ms-overflow-style:none] max-lg:[scrollbar-width:none] max-lg:[&::-webkit-scrollbar]:hidden md:grid md:grid-cols-1 md:gap-2.5 md:overflow-visible md:pb-0 lg:flex lg:min-h-0 lg:flex-1 lg:flex-col lg:gap-2.5 lg:overflow-y-auto lg:pr-1.5 lg:[scrollbar-color:var(--color-accent)_transparent] lg:[scrollbar-width:thin] lg:[&::-webkit-scrollbar]:w-1.5 lg:[&::-webkit-scrollbar-thumb]:rounded-full lg:[&::-webkit-scrollbar-thumb]:bg-accent/60 lg:[&::-webkit-scrollbar-track]:bg-transparent"
+            className="flex gap-3 overflow-x-auto overscroll-x-contain pb-1 snap-x snap-mandatory max-lg:[-ms-overflow-style:none] max-lg:[scrollbar-width:none] max-lg:[&::-webkit-scrollbar]:hidden md:grid md:grid-cols-1 md:gap-2.5 md:overflow-visible md:pb-0 lg:flex lg:min-h-0 lg:flex-1 lg:flex-col lg:gap-2.5 lg:overflow-y-auto lg:pr-1.5 lg:[&::-webkit-scrollbar]:w-1.5 lg:[&::-webkit-scrollbar-thumb]:rounded-full lg:[&::-webkit-scrollbar-thumb]:bg-accent/60 lg:[&::-webkit-scrollbar-track]:bg-surface-muted"
             aria-label="Video playlist"
           >
             {videos.map((video) => {

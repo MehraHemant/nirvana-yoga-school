@@ -69,29 +69,7 @@ function HeroMandalaFlourish({
 }
 
 /**
- * Hand-drawn flourish beside quote attribution.
- */
-function QuoteAttributionFlourish() {
-  return (
-    <svg
-      className="h-4 w-9 shrink-0 text-primary/35"
-      viewBox="0 0 36 16"
-      fill="none"
-      aria-hidden
-    >
-      <path
-        d="M1 12C9 4 18 2 28 6c3 1.5 6 1 7-1"
-        stroke="currentColor"
-        strokeWidth="1.2"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
-/**
- * Borderless editorial pull quote — organic glow, overlapping serif
- * watermarks, and a ceremonial top ornament.
+ * Editorial pull quote — large Lora italic with one primary rule.
  *
  * @param props.text - Quote body copy
  * @param props.author - Optional attribution line
@@ -104,57 +82,21 @@ function OverviewQuote({
   author?: string;
 }) {
   return (
-    <figure className="relative max-w-3xl py-1">
+    <figure className="mx-auto max-w-3xl py-10 text-center sm:py-14">
       <span
         aria-hidden
-        className="pointer-events-none absolute -left-10 top-1/2 -z-10 h-44 w-44 -translate-y-1/2 rounded-full bg-primary/10 blur-3xl"
+        className="mx-auto mb-8 block h-0.5 w-16 bg-primary sm:mb-10"
       />
-      <span
-        aria-hidden
-        className="pointer-events-none absolute -right-6 bottom-0 -z-10 h-32 w-32 rounded-full bg-primary/6 blur-2xl"
-      />
-
-      <blockquote className="relative">
-        <div
-          aria-hidden
-          className="mb-5 flex items-center gap-2.5 sm:mb-6"
-        >
-          <span className="h-px w-10 bg-linear-to-r from-transparent to-primary/35 sm:w-14" />
-          <span className="size-1 rotate-45 rounded-sm bg-primary/45" />
-          <span className="h-px w-10 bg-linear-to-l from-transparent to-primary/35 sm:w-14" />
-        </div>
-
-        <div className="relative flex items-start">
-          <span
-            aria-hidden
-            className="font-quote shrink-0 select-none text-[clamp(4.25rem,11vw,6.25rem)] leading-[0.82] text-primary/14 sm:-mt-1"
-          >
-            “
-          </span>
-
-          <div className="relative min-w-0 flex-1 -ml-5 pt-1 sm:-ml-7 sm:pt-2">
-            <span
-              aria-hidden
-              className="font-quote pointer-events-none absolute -right-1 bottom-0 z-0 select-none text-[clamp(2.5rem,6vw,3.75rem)] leading-none text-primary/10 sm:-right-2"
-            >
-              ”
-            </span>
-
-            <p className="relative z-10 text-pretty type-lead leading-[1.78] text-ink">
-              {text}
-            </p>
-
-            {author ? (
-              <footer className="relative z-10 mt-6 flex items-center gap-3 sm:mt-7">
-                <QuoteAttributionFlourish />
-                <cite className="type-eyebrow text-primary not-italic">
-                  {author}
-                </cite>
-              </footer>
-            ) : null}
-          </div>
-        </div>
+      <blockquote>
+        <p className="font-quote italic text-pretty text-[clamp(1.375rem,1.15rem+1.1vw,1.75rem)] leading-[1.6] text-ink">
+          {text}
+        </p>
       </blockquote>
+      {author ? (
+        <figcaption className="mt-8 sm:mt-10">
+          <cite className="type-eyebrow text-primary not-italic">{author}</cite>
+        </figcaption>
+      ) : null}
     </figure>
   );
 }
@@ -257,8 +199,8 @@ export default function CourseOverview({
       className="relative overflow-hidden bg-white section-padding-y"
     >
       <HeroMandalaFlourish
-        size={450}
-        className="right-[-8%] top-[5%] h-[450px] w-[450px] opacity-20 grayscale"
+        size={350}
+        className="right-[-10%] top-[10%] h-[350px] w-[350px] opacity-10 grayscale"
       />
       {/* <HeroMandalaFlourish
         size={380}
@@ -289,7 +231,7 @@ export default function CourseOverview({
               {resolvedOverview ? (
                 <SanitizedHtml
                   html={resolvedOverview}
-                  className="cms-overview-lead flex flex-col gap-2 type-lead text-ink"
+                  className="cms-overview-lead flex flex-col gap-2 text-lg xl:text-xl text-ink"
                 />
               ) : null}
             </div>

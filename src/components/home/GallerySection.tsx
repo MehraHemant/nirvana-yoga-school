@@ -149,7 +149,7 @@ export default function GallerySection({
               description={content.description}
               align="left"
               descriptionClassName="text-ink"
-              className="max-w-2xl"
+              className="w-full"
             />
           </div>
         </motion.div>

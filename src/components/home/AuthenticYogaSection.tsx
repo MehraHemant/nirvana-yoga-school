@@ -69,7 +69,7 @@ function AuthenticYogaVideoTile({
         <button
           type="button"
           onClick={() => setPlaying(true)}
-          className="group relative aspect-video w-full overflow-hidden rounded-2xl border border-ink/5 bg-ink/10 text-left shadow-card sm:rounded-3xl"
+          className="group relative aspect-video w-full cursor-pointer overflow-hidden rounded-2xl border border-ink/5 bg-ink/10 text-left shadow-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 sm:rounded-3xl"
           aria-label={`Play ${label}`}
         >
           <YouTubeThumbImage
@@ -79,13 +79,19 @@ function AuthenticYogaVideoTile({
             sizes="(max-width: 768px) 100vw, 50vw"
             className="object-cover transition-transform duration-700 group-hover:scale-105"
           />
-          <span
-            className="absolute inset-0 bg-ink/25 transition-colors group-hover:bg-ink/35"
-            aria-hidden="true"
-          />
           <span className="absolute inset-0 flex items-center justify-center">
-            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-primary shadow-lg transition-transform group-hover:scale-105 sm:h-14 sm:w-14">
-              <Play size={20} className="ml-0.5" aria-hidden="true" />
+            <span className="relative flex items-center justify-center">
+              <span
+                className="pointer-events-none absolute size-20 rounded-full bg-white/40 blur-md transition-transform duration-300 group-hover:scale-125 sm:size-24"
+                aria-hidden="true"
+              />
+              <span className="relative flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white shadow-soft ring-2 ring-white/80 transition-all duration-300 group-hover:scale-110 group-hover:brightness-110 sm:h-16 sm:w-16">
+                <Play
+                  size={24}
+                  className="-translate-x-[2.5px]"
+                  aria-hidden="true"
+                />
+              </span>
             </span>
           </span>
         </button>

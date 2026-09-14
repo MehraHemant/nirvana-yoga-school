@@ -3,7 +3,7 @@
  * Scoped under `.ytt-hub-page` so homepage / course pages are untouched.
  */
 
-/* Pure white bands below hero — hero (primary) + yoga-alliance stay colored */
+/* Pure white bands below hero */
 .ytt-hub-page > section:not(.yoga-alliance-band),
 .ytt-hub-page .ytt-hub-shared > section:not(.yoga-alliance-band) {
   background-color: #fff;

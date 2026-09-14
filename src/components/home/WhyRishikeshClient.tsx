@@ -174,8 +174,7 @@ export default function WhyRishikeshClient({
         <div className="w-full self-end">
           <WhyRishikeshImageBatchStack images={trustLogos} />
         </div>
-        <div className="space-y-6">
-          <div className="relative flex gap-6 items-stretch">
+        <div className="relative flex gap-6 items-stretch">
             <div
               className="hidden sm:flex flex-col items-center relative select-none"
               aria-hidden="true"
@@ -277,14 +276,15 @@ export default function WhyRishikeshClient({
                   </motion.button>
                 );
               })}
-            </motion.div>
-          </div>
 
-          <div className="border-l border-primary/20 pl-4 py-1 mt-4">
-            <p className="type-body italic text-ink">
-              "{content.closingInvitation}"
-            </p>
-          </div>
+              {content.closingInvitation.trim() ? (
+                <blockquote className="mt-6 border-l-2 border-primary/70 py-1.5 pl-5 sm:mt-8 sm:pl-6">
+                  <p className="type-lead font-quote italic text-pretty leading-[1.75] text-ink">
+                    {content.closingInvitation}
+                  </p>
+                </blockquote>
+              ) : null}
+            </motion.div>
         </div>
 
         <div className="lg:sticky lg:top-24">
@@ -298,13 +298,7 @@ export default function WhyRishikeshClient({
           >
             <div>
               <div className="flex items-center gap-2">
-                <span className="type-eyebrow text-primary tracking-wider">
-                  {videoCard.eyebrow}
-                </span>
-                <span
-                  className="flex h-1.5 w-1.5 rounded-full bg-primary animate-pulse"
-                  aria-hidden="true"
-                />
+
               </div>
               <h3 className="type-display-sm mt-1 text-ink">
                 {videoCard.title}
@@ -328,10 +322,6 @@ export default function WhyRishikeshClient({
                     className="object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-ink/35 group-hover:bg-ink/25 transition-colors duration-300" />
-
-                  <span className="type-eyebrow absolute top-3 left-3 z-10 rounded-full border border-white/10 bg-ink/40 px-2.5 py-0.5 text-white backdrop-blur-xs">
-                    {videoCard.speakerTag}
-                  </span>
 
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="relative flex items-center justify-center">

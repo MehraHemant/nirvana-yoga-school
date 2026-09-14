@@ -128,7 +128,7 @@ export const YOUTUBE_METADATA_REGISTRY: Record<
     durationSeconds: 1073,
   },
   "_NOezBf-LYs": {
-    title: "Why Learning Yoga in Rishikesh is Life-Changing l Gurudev Dhruvaji",
+    title: "Why Learning Yoga in Rishikesh is Life-Changing",
     author_name: "Nirvana Yoga School",
     author_url: "https://www.youtube.com/@NirvanaYogaSchool",
     thumbnail_url: youTubeThumbnailUrl("_NOezBf-LYs"),

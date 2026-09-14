@@ -51,9 +51,11 @@ export function normalizeHomeCourseRefs(
  * Maps a residential course document into a homepage card.
  *
  * @param document - Course entity document
+ * @param image - First hero-section photo
  */
 export function mapCourseDocumentToHomeCard(
   document: CourseDocument,
+  image: string,
 ): HomeCourseCard {
   return {
     title: document.title,
@@ -61,7 +63,7 @@ export function mapCourseDocumentToHomeCard(
     level: document.level,
     certification: document.certification,
     fee: document.fee,
-    image: document.image,
+    image,
     certBadge: document.certBadge?.trim() || "",
     href: pagePath({ type: "course", slug: document.slug }),
     highlights: document.highlights?.filter((item) => item.trim()) ?? [],
