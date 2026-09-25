@@ -1,31 +1,23 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import { Container, Heading, SectionHeader } from "@/components/ui";
-import { Check } from "@/icons";
 import {
   getBatchDates,
   type PricingOption,
   type UpcomingDatesProps,
 } from "./upcomingDatesShared";
 
-/** Site-wide enquire CTA used by availability status chips. */
-const ENQUIRE_HREF = "/enquire-now";
-
-function savingsPct(price: string, original: string) {
-  const p = Number.parseFloat(price.replace(/[^0-9.]/g, ""));
-  const o = Number.parseFloat(original.replace(/[^0-9.]/g, ""));
-  if (!p || !o || o <= p) return null;
-  return `${Math.round((1 - p / o) * 100)}% off`;
-}
+const CARD_IDLE =
+  "relative overflow-hidden rounded-2xl border border-ink/6 bg-white hover:border-primary/20";
+const CARD_SELECTED =
+  "relative overflow-hidden rounded-2xl border border-primary/25 bg-linear-to-br from-primary/18 via-primary/8 to-white";
 
 /**
- * Room pricing card. Compact dashed layout is only for "Without Accommodation";
- * `wide` spans a normal card across both columns (odd last item) and still shows features.
+ * Compact lodging fee card — name and price only.
  *
- * @param option - CMS pricing option (roomType, price, features, etc.)
- * @param wide - When true, span both grid columns on sm+
+ * @param option - CMS pricing option
+ * @param wide - Span both grid columns on sm+
  * @param selected - Whether this room is the active selection
  * @param onSelect - Sets the selected room type
  */
@@ -41,99 +33,33 @@ function RoomCard({
   onSelect: () => void;
 }) {
   const noRoom = option.roomType.toLowerCase().includes("without");
-  const saving = option.originalPrice
-    ? savingsPct(option.price, option.originalPrice)
-    : null;
-  const features = option.features ?? [];
-  const selectedClasses = selected
-    ? "border-primary/8 bg-primary/10"
-    : "border-ink/8 bg-white hover:border-primary/15";
-
-  if (noRoom) {
-    return (
-      <button
-        type="button"
-        onClick={onSelect}
-        aria-pressed={selected}
-        className={`flex w-full cursor-pointer col-span-2 shadow-lg rounded-2xl border p-4 text-left transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 ${selectedClasses}`}
-      >
-        <div className="min-w-0">
-          <h4 className="type-h4 text-ink">
-            {option.roomType}
-          </h4>
-          <div className="mt-2 flex flex-wrap items-baseline gap-2">
-            <span className="text-2xl font-semibold leading-[1.2] tracking-tight text-primary">
-              {option.price}
-            </span>
-            {option.originalPrice && (
-              <span className="text-xs text-muted/50 tabular-nums line-through">
-                {option.originalPrice}
-              </span>
-            )}
-            {saving && (
-              <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700">
-                {saving}
-              </span>
-            )}
-          </div>
-          <p className="mt-2 line-clamp-2 text-sm text-ink">
-            {option.description}
-          </p>
-          {features.length > 0 && (
-            <ul className="mt-2 space-y-1.5">
-              {features.map((f) => (
-                <li key={f} className="flex items-start gap-2 text-sm text-ink">
-                  <Check size={12} className="mt-0.5 shrink-0 text-primary" />
-                  {f}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      </button>
-    );
-  }
 
   return (
     <button
       type="button"
       onClick={onSelect}
       aria-pressed={selected}
-      className={`flex w-full cursor-pointer flex-col shadow-lg rounded-2xl border p-4 text-left transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 ${selected ? "border-primary/8 bg-primary/10" : "border-ink/8 bg-white hover:border-primary/15"}${wide ? " sm:col-span-2" : ""}`}
+      className={`flex h-full w-full cursor-pointer flex-col p-4 text-left transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 ${selected ? CARD_SELECTED : CARD_IDLE}${noRoom || wide ? " sm:col-span-2" : ""}`}
     >
-      <h4 className="type-h4 line-clamp-2 text-ink">
+      {selected ? (
+        <span
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,var(--tw-gradient-stops))] from-primary/20 via-primary/6 to-transparent"
+          aria-hidden
+        />
+      ) : null}
+      <h4 className="relative type-h4 line-clamp-2 text-ink">
         {option.roomType}
       </h4>
-
-      <div className="flex flex-wrap items-baseline gap-x-2 py-3 pl-2 gap-y-1">
+      <div className="relative mt-auto flex flex-wrap items-baseline gap-x-2 pt-3">
         <span className="text-2xl font-semibold leading-[1.2] tracking-tight text-primary">
           {option.price}
         </span>
-        {option.originalPrice && (
+        {option.originalPrice ? (
           <span className="text-xs text-muted/50 tabular-nums line-through">
             {option.originalPrice}
           </span>
-        )}
-        {saving && (
-          <span className="rounded-full bg-emerald-50 px-1.5 py-0.5 text-xs font-semibold text-emerald-700">
-            {saving}
-          </span>
-        )}
+        ) : null}
       </div>
-
-      {features.length > 0 && (
-        <ul className="mb-2 mt-2 flex-1 space-y-1.5">
-          {features.map((f) => (
-            <li
-              key={f}
-              className="type-ui flex items-start gap-1 text-ink"
-            >
-              <Check size={12} className="mt-0.5 shrink-0 text-primary" />
-              {f}
-            </li>
-          ))}
-        </ul>
-      )}
     </button>
   );
 }
@@ -147,7 +73,6 @@ function RoomCard({
 export default function UpcomingDates({
   duration,
   pricing,
-  pricingDescription,
   batches: batchesProp,
   lodgingTitle = "Lodging packages",
   datesTitle = "Training dates",
@@ -186,42 +111,75 @@ export default function UpcomingDates({
   }
 
   return (
-    <section
-      id={htmlId}
-      className="section-padding-y bg-white"
-    >
+    <section id={htmlId} className="section-padding-y bg-white">
       <Container size="2xl">
-        {/* Compact split header */}
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-6">
-          <SectionHeader
-            eyebrow="Schedule & Fees"
-            title={
-              <>
-                Upcoming Batches &{" "}
-                <span className="text-primary">Investment</span>
-              </>
-            }
-            align="left"
-          />
-        </div>
+        <SectionHeader
+          eyebrow="Schedule & Fees"
+          title={
+            <>
+              Upcoming Batches &{" "}
+              <span className="text-primary">Investment</span>
+            </>
+          }
+          align="left"
+        />
 
-        <div className="grid items-start mt-10 gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-stretch lg:gap-6 xl:grid-cols-[7fr_5fr] xl:gap-8">
-          {/* ── Pricing column (left) — sets row height on desktop ── */}
-          <div className="flex flex-col gap-2.5">
-            <div className="mb-0.5 flex items-baseline justify-between gap-2">
-              <Heading as="h3" size="h4" className="mb-0">
-                {lodgingTitle}
-              </Heading>
-              <p className="type-ui shrink-0 text-ink">
-                Includes room, meals &amp; materials
-              </p>
+        <div className="mt-10 grid items-start gap-8 lg:grid-cols-2 lg:items-stretch lg:gap-8">
+          {/* Dates column (left) — matches right column height; list scrolls */}
+          <div className="flex min-h-0 flex-col lg:h-0 lg:min-h-full lg:overflow-hidden">
+            <Heading as="h3" size="h4" className="mb-4 h-8 shrink-0">
+              {datesTitle}
+            </Heading>
+
+            <div className="scrollbar-thin-primary min-h-0 flex-1 overflow-y-auto overscroll-y-contain touch-pan-y pr-1">
+              <ol className="space-y-2.5">
+                {batches.map((batch) => {
+                  const selected = selectedBatch === batch.dates;
+                  return (
+                    <li key={batch.dates}>
+                      <button
+                        type="button"
+                        onClick={() => handleBatchSelect(batch.dates)}
+                        aria-pressed={selected}
+                        className={`flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 ${selected ? CARD_SELECTED : CARD_IDLE}`}
+                      >
+                        {selected ? (
+                          <span
+                            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,var(--tw-gradient-stops))] from-primary/20 via-primary/6 to-transparent"
+                            aria-hidden
+                          />
+                        ) : null}
+                        <span className="relative min-w-0 flex-1">
+                          <span className="type-body block font-semibold text-ink">
+                            {batch.dates}
+                          </span>
+                          <span className="type-ui mt-0.5 block text-ink/55">
+                            {batch.spaces}
+                          </span>
+                        </span>
+                        <span
+                          className={`relative type-eyebrow shrink-0 rounded-full border px-2 py-0.5 ${batch.statusColor}`}
+                        >
+                          {batch.status}
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ol>
             </div>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          </div>
+
+          {/* Pricing column (right) — sets row height on desktop */}
+          <div className="flex flex-col">
+            <Heading as="h3" size="h4" className="mb-4 h-8">
+              {lodgingTitle}
+            </Heading>
+            <div className="grid auto-rows-fr grid-cols-1 gap-3 sm:grid-cols-2">
               {pricing.map((option, idx) => {
                 const noRoom = option.roomType
                   .toLowerCase()
                   .includes("without");
-                // Span last room card only when odd count leaves a single cell; never use compact no-features layout for rooms.
                 const wide =
                   !noRoom &&
                   idx === pricing.length - 1 &&
@@ -236,52 +194,6 @@ export default function UpcomingDates({
                   />
                 );
               })}
-            </div>
-          </div>
-
-          {/* ── Dates column (right) — same row height as left, list scrolls ── */}
-          <div className="flex min-h-0 flex-col gap-3 lg:h-0 lg:min-h-full lg:overflow-hidden">
-            <Heading as="h2" size="h4" className="mb-0 shrink-0">
-              {datesTitle}
-            </Heading>
-
-            <div className="scrollbar-thin-primary min-h-0 flex-1 overflow-y-auto overscroll-y-contain touch-pan-y pr-1">
-              <ol className="relative ml-3 space-y-2.5 border-l border-primary/20 pr-1">
-                {batches.map((batch) => {
-                  const selected = selectedBatch === batch.dates;
-                  return (
-                    <li key={batch.dates} className="relative pl-6">
-                      <span
-                        className={`absolute -left-1.5 top-4 h-3 w-3 rounded-full border-2 ${selected ? "border-primary bg-primary" : "border-ink/20 bg-white"}`}
-                        aria-hidden="true"
-                      />
-                      <div
-                        className={`flex w-full items-start gap-2 rounded-xl border p-2.5 transition-all ${selected ? "border-primary/8 bg-primary/10" : "surface-panel border-ink/8 hover:border-primary/20"}`}
-                      >
-                        <button
-                          type="button"
-                          onClick={() => handleBatchSelect(batch.dates)}
-                          className="min-w-0 flex-1 cursor-pointer text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
-                        >
-                          <p className="type-body font-semibold text-ink">
-                            {batch.dates}
-                          </p>
-                          <p className="type-ui mt-0.5 text-ink">
-                            {batch.spaces} · {duration}
-                          </p>
-                        </button>
-                        <Link
-                          href={ENQUIRE_HREF}
-                          className={`type-eyebrow inline-block rounded-full border px-2 py-0.5 transition-opacity hover:opacity-85 ${batch.statusColor}`}
-                          aria-label={`${batch.status} — Enquire now`}
-                        >
-                          {batch.status}
-                        </Link>
-                      </div>
-                    </li>
-                  );
-                })}
-              </ol>
             </div>
           </div>
         </div>

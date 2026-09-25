@@ -231,7 +231,7 @@ export default function CourseOverview({
               {resolvedOverview ? (
                 <SanitizedHtml
                   html={resolvedOverview}
-                  className="cms-overview-lead flex flex-col gap-2 text-lg xl:text-xl text-ink"
+                  className="cms-overview-lead flex flex-col gap-2 type-body text-ink"
                 />
               ) : null}
             </div>

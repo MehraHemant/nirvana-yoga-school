@@ -176,11 +176,6 @@ export default async function Home() {
       {shouldRenderHomeSection("gallery", home) ? (
         <GallerySection content={home.gallery} />
       ) : null}
-      {shouldRenderHomeSection("whyRishikesh", home) ? (
-        <Suspense fallback={<SectionSkeleton minHeight="min-h-[50vh]" />}>
-          <WhyRishikeshSection content={home.whyRishikesh} />
-        </Suspense>
-      ) : null}
       {shouldRenderHomeSection("authenticYoga", home) ? (
         <AuthenticYogaSection content={home.authenticYoga} />
       ) : null}
@@ -189,6 +184,11 @@ export default async function Home() {
       ) : null}
       {shouldRenderHomeSection("yogaAlliance", home) ? (
         <YogaAllianceSection content={home.yogaAlliance} />
+      ) : null}
+      {shouldRenderHomeSection("whyRishikesh", home) ? (
+        <Suspense fallback={<SectionSkeleton minHeight="min-h-[50vh]" />}>
+          <WhyRishikeshSection content={home.whyRishikesh} />
+        </Suspense>
       ) : null}
       {shouldRenderHomeSection("teachersTeaser", home) ? (
         <TeachersSection

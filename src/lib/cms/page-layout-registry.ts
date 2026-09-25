@@ -95,9 +95,9 @@ export const PAGE_LAYOUTS: Record<PageLayoutId, PageLayoutDefinition> = {
       { id: "welcome", label: "Welcome", source: "contentData" },
       { id: "video", label: "Video", source: "contentData" },
       { id: "gallery", label: "Gallery", source: "contentData" },
-      { id: "why-rishikesh", label: "Why Rishikesh", source: "contentData" },
       { id: "courses", label: "Courses", source: "contentData" },
       { id: "yoga-alliance", label: "Yoga Alliance", source: "contentData" },
+      { id: "why-rishikesh", label: "Why Rishikesh", source: "contentData" },
       {
         id: "teachers-teaser",
         label: "Teachers teaser",

@@ -106,7 +106,7 @@ function PrerequisiteItem({
       viewport={VIEWPORT_ONCE}
       variants={fadeUp}
       transition={{ duration: 0.4, delay }}
-      className="flex h-full flex-col space-y-3 rounded-2xl bg-white/55 px-4 py-4 sm:px-5 sm:py-5"
+      className="flex h-full flex-col space-y-3 rounded-2xl bg-white px-4 py-4 shadow-card sm:px-5 sm:py-5"
     >
       <div className="flex items-center gap-3">
         <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/8 text-primary">
@@ -151,13 +151,8 @@ export default function CourseEligibility({
       className="section-padding-y bg-white overflow-hidden"
     >
       <Container size="2xl">
-        <div className="relative overflow-hidden rounded-3xl border border-primary/12 bg-linear-to-br from-primary/12 via-primary/5 to-white p-6 shadow-soft sm:p-8 lg:p-10">
-          <div
-            className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_90%_at_0%_0%,rgb(163_36_50/0.1),transparent_55%)]"
-            aria-hidden
-          />
-
-          <div className="relative grid gap-10 lg:grid-cols-12 lg:gap-12 items-start">
+        <div className="rounded-3xl border border-ink/8 bg-white p-6 sm:p-8 lg:p-10">
+          <div className="grid gap-10 lg:grid-cols-12 lg:gap-12 items-start">
             {/* Column 1 (Left 4-cols): Header & Intro */}
             <div className="lg:col-span-4 space-y-6">
               <SectionHeader eyebrow={eyebrow} title={title} align="left" />

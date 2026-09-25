@@ -34,7 +34,7 @@ type WhyRishikeshImageBatchStackProps = {
 };
 
 /**
- * Row of circular trust logos capped at 120px width each.
+ * Overlapping row of circular trust logos capped at 120px width each.
  *
  * @param props - Trust logo images from CMS
  */
@@ -50,14 +50,15 @@ export default function WhyRishikeshImageBatchStack({
       initial="hidden"
       whileInView="visible"
       viewport={VIEWPORT_ONCE}
-      className="flex w-full items-center justify-center gap-3 sm:gap-4 lg:px-8"
+      className="flex w-full items-center justify-center lg:px-8"
       aria-label="Certifications and trust badges"
     >
       {filledImages.map((image, index) => (
         <motion.li
           key={`${image.src}-${index}`}
           variants={badgeVariants}
-          className="relative aspect-square w-[120px] max-w-full shrink-0 overflow-hidden rounded-full border border-ink/10 bg-white shadow-soft ring-1 ring-ink/5 transition-transform duration-300 hover:scale-105 hover:shadow-card"
+          style={{ zIndex: index + 1 }}
+          className="relative -ml-6 sm:-ml-8 first:ml-0 aspect-square w-[120px] max-w-full shrink-0 overflow-hidden rounded-full border border-ink/10 bg-white shadow-soft ring-1 ring-ink/5 transition-transform duration-300 hover:z-50 hover:scale-105 hover:shadow-card"
         >
           <Image
             src={image.src}

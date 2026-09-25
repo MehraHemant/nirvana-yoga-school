@@ -57,11 +57,6 @@ const HOME_JUMP_DEFS = [
   { slug: "video", label: "Video", key: "video" as const },
   { slug: "gallery", label: "Gallery", key: "gallery" as const },
   {
-    slug: "why-rishikesh",
-    label: "Why Rishikesh",
-    key: "whyRishikesh" as const,
-  },
-  {
     slug: "authentic-yoga",
     label: "Authentic yoga",
     key: "authenticYoga" as const,
@@ -71,6 +66,11 @@ const HOME_JUMP_DEFS = [
     slug: "yoga-alliance",
     label: "Yoga Alliance",
     key: "yogaAlliance" as const,
+  },
+  {
+    slug: "why-rishikesh",
+    label: "Why Rishikesh",
+    key: "whyRishikesh" as const,
   },
   {
     slug: "teachers",
