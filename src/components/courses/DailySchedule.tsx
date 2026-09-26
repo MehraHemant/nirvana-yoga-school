@@ -104,6 +104,12 @@ function ScheduleIcon({ type }: { type: ScheduleIconType }) {
   return <Clock size={20} className={className} />;
 }
 
+/**
+ * Course daily timetable with sticky period tabs and a responsive timeline.
+ * @param description Intro copy under the section header.
+ * @param schedule Ordered time/activity rows from the course CMS.
+ * @param htmlId Public section HTML id (defaults to `schedule`).
+ */
 export default function DailySchedule({
   description,
   schedule,
@@ -249,7 +255,7 @@ export default function DailySchedule({
             activeId={activeTab}
             onChange={handleTabChange}
             layoutId="activeScheduleTab"
-            className="mb-0 pb-0"
+            className="mb-0 justify-start pb-0 lg:justify-center"
             flush
           />
         </Container>
@@ -259,13 +265,16 @@ export default function DailySchedule({
         {/* Dynamic Schedule Feed */}
         <div
           ref={feedRef}
-          className="relative max-w-3xl mx-auto min-h-100"
+          className="relative mx-auto min-h-100 min-w-0 max-w-7xl items-center"
           style={{ scrollMarginTop: tabsTop + tabsHeight + 16 }}
         >
-          {/* Vertical central timeline guide */}
-          <div className="absolute left-7.5 sm:left-1/2 top-4 bottom-4 w-0.5 bg-ink/10 -translate-x-1/2 hidden sm:block" />
+          {/* Vertical timeline: left rail below lg, centered spine on desktop */}
+          <div
+            className="absolute top-4 bottom-4 left-7.5 w-0.5 -translate-x-1/2 bg-ink/10 lg:left-1/2"
+            aria-hidden="true"
+          />
 
-          <motion.div layout className="space-y-6 sm:space-y-8">
+          <motion.div layout className="space-y-6 lg:space-y-8">
             <AnimatePresence mode="popLayout">
               {filteredSchedule.map((item, index) => {
                 const isEven = index % 2 === 0;
@@ -280,28 +289,28 @@ export default function DailySchedule({
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ duration: 0.4 }}
-                    className="relative flex flex-col sm:flex-row items-start sm:justify-between"
+                    className="relative flex flex-col items-start lg:flex-row lg:items-center lg:justify-center lg:gap-x-14"
                   >
-                    {/* Left side: Time element */}
+                    {/* Time: stacked above the card below lg; alternating columns on desktop */}
                     <div
-                      className={`pl-12 sm:pl-0 w-full sm:w-[44%] ${isEven ? "text-left sm:text-right sm:order-first" : "text-left sm:text-left sm:order-last"}`}
+                      className={`min-w-0 w-full pl-14 lg:w-[40%] lg:pl-0 ${isEven ? "text-left lg:text-right lg:order-first" : "text-left lg:order-last"}`}
                     >
-                      <span className="type-ui inline-block rounded-full border border-primary/10 bg-primary/5 px-3 py-1 text-primary sm:border-0 sm:bg-transparent sm:p-0">
+                      <span className="type-ui inline-block rounded-full border border-primary/10 bg-primary/5 px-3 py-1.5 text-primary lg:border-0 lg:bg-transparent lg:p-0">
                         {item.time}
                       </span>
                     </div>
 
-                    {/* Center Timeline Ring */}
-                    <div className="absolute left-2 sm:left-1/2 top-1.5 w-6 h-6 rounded-full border border-primary/30 bg-white shadow-soft -translate-x-1/2 z-10 flex items-center justify-center">
-                      <div className="w-2.5 h-2.5 rounded-full bg-primary" />
+                    {/* Timeline node: left rail below lg, centered on desktop */}
+                    <div className="absolute top-1.5 left-7.5 z-10 flex h-6 w-6 -translate-x-1/2 items-center justify-center rounded-full border border-primary/30 bg-white shadow-soft lg:top-1/2 lg:left-1/2 lg:-translate-y-1/2">
+                      <div className="h-2.5 w-2.5 rounded-full bg-primary" />
                     </div>
 
-                    {/* Right side: Activity Card */}
+                    {/* Activity card */}
                     <div
-                      className={`pl-12 sm:pl-0 w-full sm:w-[44%] mt-2 sm:mt-0 ${isEven ? "sm:order-last" : "sm:order-first"}`}
+                      className={`mt-2 min-w-0 w-full pl-14 lg:mt-0 lg:w-[40%] lg:pl-0 ${isEven ? "lg:order-last" : "lg:order-first"}`}
                     >
                       <div
-                        className={`relative flex gap-4 overflow-hidden rounded-3xl border border-ink/6 ${wash.base} p-5 shadow-soft sm:p-6`}
+                        className={`relative flex min-w-0 gap-3 overflow-hidden rounded-3xl border border-ink/6 ${wash.base} p-4 shadow-soft sm:gap-4 sm:p-5 lg:p-6`}
                       >
                         {wash.overlay ? (
                           <span
@@ -312,7 +321,7 @@ export default function DailySchedule({
                         <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-ink/8 bg-surface-muted">
                           <ScheduleIcon type={iconType} />
                         </div>
-                        <div className="relative space-y-1">
+                        <div className="relative min-w-0 space-y-1">
                           <h4 className="type-h4 text-ink">
                             {item.activity}
                           </h4>
