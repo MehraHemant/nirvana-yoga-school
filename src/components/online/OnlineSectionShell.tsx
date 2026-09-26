@@ -5,14 +5,27 @@ type OnlineSectionShellProps = {
   id: string;
   title: ReactNode;
   description?: ReactNode;
+  /** Optional uppercase label above the title */
+  eyebrow?: string;
   children: ReactNode;
   className?: string;
 };
 
+/**
+ * Shared online-course section frame — left header, rule, and padded body.
+ *
+ * @param id - Section HTML id (sticky nav target)
+ * @param title - Section heading
+ * @param description - Optional supporting copy
+ * @param eyebrow - Optional uppercase label above the title
+ * @param children - Section body
+ * @param className - Optional extra section classes
+ */
 export default function OnlineSectionShell({
   id,
   title,
   description,
+  eyebrow,
   children,
   className = "",
 }: OnlineSectionShellProps) {
@@ -24,6 +37,7 @@ export default function OnlineSectionShell({
       <div className="space-y-8">
         <div className="space-y-4">
           <SectionHeader
+            eyebrow={eyebrow}
             title={title}
             description={description}
             align="left"

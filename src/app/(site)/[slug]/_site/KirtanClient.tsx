@@ -16,6 +16,7 @@ import {
   WhatIsIncluded,
   WhyNirvana,
 } from "@/components/courses";
+import { resolveOverviewStillFromModule } from "@/components/courses/overview-layouts/resolve";
 import {
   KirtanCertificationSection,
   KirtanHighlightsSection,
@@ -141,6 +142,7 @@ export default function KirtanClient({
                 ? kirtan.overviewImages
                 : mapped.heroImages.slice(1, 5))
             }
+            stillImage={resolveOverviewStillFromModule(modules?.overview)}
             eyebrow={modules?.overview.eyebrow ?? page.eyebrow}
             title={modules?.overview.title ?? page.title}
             supportingCopy={modules?.overview.supportingCopy ?? ""}

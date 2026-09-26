@@ -5,6 +5,30 @@ import { shouldRenderSection } from "@/lib/cms/section-visibility";
 type HomeSectionKey = Exclude<keyof HomePageContent, "kind" | "meta" | "seo">;
 
 /**
+ * Whether homepage hero has enough CMS fields to render.
+ * Video, CTA, marquee, or trust chips are enough — titles are not required.
+ *
+ * @param hero - Normalized home hero
+ */
+function homeHeroHasData(hero: HomePageContent["hero"]): boolean {
+  const video = hero.video;
+  return Boolean(
+    hero.badge.trim() ||
+      hero.titleLead.trim() ||
+      hero.titleAccent.trim() ||
+      hero.support?.trim() ||
+      (hero.ctaLabel.trim() && hero.ctaHref.trim()) ||
+      (hero.secondaryCtaLabel?.trim() && hero.secondaryCtaHref?.trim()) ||
+      hero.marqueeItems.some((item) => item.trim()) ||
+      hero.mobileTrust.some((chip) => chip.value.trim() || chip.label.trim()) ||
+      video.mobileSrc.trim() ||
+      video.desktopSrc.trim() ||
+      video.mobilePoster.trim() ||
+      video.desktopPoster.trim(),
+  );
+}
+
+/**
  * Whether a homepage section has enough CMS content to render.
  *
  * @param key - Home section key
@@ -16,9 +40,7 @@ export function homeSectionHasData(
 ): boolean {
   switch (key) {
     case "hero":
-      return Boolean(
-        home.hero.titleLead.trim() || home.hero.titleAccent.trim(),
-      );
+      return homeHeroHasData(home.hero);
     case "welcome":
       return Boolean(home.welcome.title.trim() || home.welcome.lead.trim());
     case "video":

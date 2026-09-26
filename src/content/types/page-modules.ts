@@ -145,6 +145,8 @@ export type OverviewModule = ModuleLiveFields & {
   saying?: OverviewSaying;
   supportingCopy?: string;
   glance: GlanceItem[];
+  /** Optional still shown beside glance on the public overview */
+  overviewImage?: string;
   media: {
     mode: "image" | "video" | "carousel";
     items: OverviewMediaItem[];

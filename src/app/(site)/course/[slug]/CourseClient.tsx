@@ -8,6 +8,7 @@ import {
   CourseStickyNav,
   PageHeroRenderer,
 } from "@/components/courses";
+import { resolveOverviewStillFromModule } from "@/components/courses/overview-layouts/resolve";
 import {
   bookingReserveHref,
   getBatchDates,
@@ -251,6 +252,7 @@ export default function CourseClient({
             heading={overview?.heading}
             saying={overview?.saying}
             videos={videos}
+            stillImage={resolveOverviewStillFromModule(overview)}
             eyebrow={overview?.eyebrow}
             title={overview?.title}
             featureImages={

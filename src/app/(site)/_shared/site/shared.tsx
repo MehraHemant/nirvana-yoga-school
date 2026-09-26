@@ -6,6 +6,7 @@ import {
   PageEditorialSection,
   PageHeroRenderer,
 } from "@/components/courses";
+import { resolveOverviewStillFromModule } from "@/components/courses/overview-layouts/resolve";
 import { FAQSection } from "@/components/ui";
 import {
   isSectionLive,
@@ -112,6 +113,7 @@ export function SiteOverview({
         featureImages={overview.media.items
           .filter((item) => item.type === "image")
           .map((item) => item.url)}
+        stillImage={resolveOverviewStillFromModule(overview)}
         eyebrow={overview.eyebrow}
         title={overview.title}
         supportingCopy={overview.supportingCopy ?? ""}

@@ -7,6 +7,7 @@ import {
   CourseStickyNav,
   PageHeroRenderer,
 } from "@/components/courses";
+import { resolveOverviewStillFromModule } from "@/components/courses/overview-layouts/resolve";
 import { RetreatHighlightsBar } from "@/components/retreat";
 import { filterItemsWithPrice } from "@/content/mappers/residential-life-utils";
 import { retreatWhatsAppHref } from "@/content/mappers/retreat-page";
@@ -201,6 +202,7 @@ export default function RetreatClient({
                 .filter((item) => item.type === "image")
                 .map((item) => item.url) ?? retreat.overviewImages
             }
+            stillImage={resolveOverviewStillFromModule(modules?.overview)}
             eyebrow={modules?.overview.eyebrow ?? retreat.eyebrow}
             title={modules?.overview.title ?? retreat.title}
             supportingCopy={modules?.overview.supportingCopy ?? ""}

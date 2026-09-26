@@ -200,6 +200,12 @@ export function OverviewModuleEditor({
           }
         />
       ) : null}
+      <ImageField
+        label="Overview still image"
+        value={overview.overviewImage ?? ""}
+        onChange={(overviewImage) => onChange({ ...overview, overviewImage })}
+        hint="Optional. One still beside glance on the public overview. Leave empty to let glance fill that column."
+      />
 
       {welcomeStyle ? (
         <>
