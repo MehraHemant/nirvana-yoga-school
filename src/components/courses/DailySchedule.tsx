@@ -307,10 +307,10 @@ export default function DailySchedule({
 
                     {/* Activity card */}
                     <div
-                      className={`mt-2 min-w-0 w-full pl-14 lg:mt-0 lg:w-[40%] lg:pl-0 ${isEven ? "lg:order-last" : "lg:order-first"}`}
+                      className={`mt-2 min-w-0 w-full pl-10 lg:mt-0 lg:w-[40%] lg:pl-0 ${isEven ? "lg:order-last" : "lg:order-first"}`}
                     >
                       <div
-                        className={`relative flex min-w-0 gap-3 overflow-hidden rounded-3xl border border-ink/6 ${wash.base} p-4 shadow-soft sm:gap-4 sm:p-5 lg:p-6`}
+                        className={`relative flex min-w-0 gap-3 rounded-2xl border border-ink/6 ${wash.base} p-4 shadow-soft sm:gap-4`}
                       >
                         {wash.overlay ? (
                           <span
@@ -322,10 +322,10 @@ export default function DailySchedule({
                           <ScheduleIcon type={iconType} />
                         </div>
                         <div className="relative min-w-0 space-y-1">
-                          <h4 className="type-h4 text-ink">
+                          <h4 className="type-h5 font-medium text-ink">
                             {item.activity}
                           </h4>
-                          <span className="type-ui block text-ink">
+                          <span className="type-ui font-normal! block text-ink">
                             {SCHEDULE_ICON_META[iconType].caption}
                           </span>
                         </div>
