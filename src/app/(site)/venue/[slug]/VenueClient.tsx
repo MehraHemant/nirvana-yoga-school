@@ -1,19 +1,23 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { HeroFrame, HeroMediaImage } from "@/components/hero";
-import { Container } from "@/components/ui";
+import { PageHeroRenderer } from "@/components/courses";
+import { HeroSection } from "@/components/home";
 import VenueGallery from "@/components/venue/VenueGallery";
 import {
   createEmptyGalleryModule,
   resolveGallerySections,
 } from "@/content/mappers/gallery-module";
 import { normalizeVenueHero } from "@/content/mappers/venue-hero";
-import { normalizeVideosModule } from "@/content/mappers/videos-module";
+import {
+  mapVenueToHomeHero,
+  venueHeroHasPlayableVideo,
+  venueHeroHasStillContent,
+} from "@/content/mappers/venue-home-hero";
+import { isRetreatVenuePage } from "@/content/mappers/venue-page";
 import type { GalleryModule } from "@/content/types/page-modules";
 import type { SitePageGalleryImage } from "@/content/types/site-page";
 import { shouldRenderSection } from "@/lib/cms/section-visibility";
-import type { PlaylistVideo } from "@/lib/playlist-video";
 import { SiteFaq } from "../../_shared/site/shared";
 import type { SiteClientProps } from "../../_shared/site/types";
 
@@ -34,11 +38,6 @@ const MapSection = dynamic(() => import("@/components/home/MapSection"), {
   loading: () => <SectionSkeleton minHeight="min-h-[50vh]" />,
 });
 
-type VenueClientProps = SiteClientProps & {
-  /** Pre-fetched playlist for `page_modules.videos` (YouTube and/or Cloudinary) */
-  videos?: PlaylistVideo[];
-};
-
 /**
  * Resolves the gallery image list from DB-backed sources.
  * Prefers `page_gallery_images` (mapped.gallery), then modules.gallery.images.
@@ -55,18 +54,17 @@ function resolveVenueImages(
 }
 
 /**
- * Gallery-first venue page — course venue and retreat venue.
- * Image hero with a light darkening wash, copy below, then videos/gallery/map/FAQ.
+ * Venue page — video hero (course) or still/video hero (retreat), then gallery.
+ * Retreat venue omits map and FAQ to match the live site.
  *
- * @param props - Mapped venue content, page modules, and optional videos
+ * @param props - Mapped venue content and page modules
  */
 export default function VenueClient({
   page,
   mapped,
   modules,
   siteMap,
-  videos = [],
-}: VenueClientProps) {
+}: SiteClientProps) {
   const moduleGallery = modules?.gallery;
   const images = resolveVenueImages(mapped.gallery ?? [], moduleGallery);
 
@@ -83,99 +81,69 @@ export default function VenueClient({
         })),
   };
 
-  const hero = normalizeVenueHero(
-    modules?.hero,
-    page.image || images[0]?.url || "",
-  );
+  const isRetreatVenue = isRetreatVenuePage(page.slug);
+  const heroModule = normalizeVenueHero(modules?.hero);
+  const heroContent = mapVenueToHomeHero(heroModule);
+  const hasVideoHero = venueHeroHasPlayableVideo(heroContent.video);
+  const showVideoHero = shouldRenderSection(heroModule, hasVideoHero);
+  const showStillHero =
+    isRetreatVenue &&
+    !hasVideoHero &&
+    Boolean(modules) &&
+    shouldRenderSection(heroModule, venueHeroHasStillContent(heroModule));
+  const showHero = showVideoHero || showStillHero;
 
-  const title = hero.title || gallery.title || page.title;
-  const subtitle = hero.subtitle || gallery.description || page.description;
-  const eyebrow = hero.eyebrow || gallery.eyebrow || page.eyebrow || "Venue";
-  const heroImage = hero.backgroundImage || page.image || images[0]?.url || "";
+  const lightboxTitle = gallery.title?.trim() || page.title?.trim() || "";
 
   const showMap =
+    !isRetreatVenue &&
     (modules?.flags.showMap ?? mapped.showMap ?? true) &&
     shouldRenderSection(siteMap, Boolean(siteMap?.embedUrl?.trim()));
 
-  const videosModule = normalizeVideosModule(modules?.videos);
-  const showVideos = shouldRenderSection(videosModule, videos.length > 0);
-
-  const photoMeta =
-    images.length > 0 ? (
-      <p className="mt-4 text-sm text-ink/65">
-        {images.length} photos
-        {gallery.sectionOrder && gallery.sectionOrder.length > 0
-          ? ` · ${gallery.sectionOrder.length} collections`
-          : ""}
-      </p>
-    ) : null;
-
   return (
     <>
-      {heroImage ? (
-        <>
-          <HeroFrame
-            id={hero._id || "hero"}
-            transparentHeader
-            className="relative min-h-[52svh] overflow-hidden bg-ink lg:min-h-[58svh]"
-          >
-            <HeroMediaImage
-              src={heroImage}
-              alt={`${String(title)} — Nirvana Yoga School`}
-              priority
-              sizes="100vw"
-              className="object-cover object-center"
-            />
-            <div className="absolute inset-0 bg-black/20" aria-hidden="true" />
-            <div
-              className="relative min-h-[52svh] lg:min-h-[58svh]"
-              aria-hidden="true"
-            />
-          </HeroFrame>
-          <header className="border-b border-ink/8 bg-white pb-10 pt-8 sm:pb-12">
-            <Container size="2xl">
-              <p className="type-eyebrow text-primary">{eyebrow}</p>
-              <h1 className="type-h1 mt-2 max-w-3xl text-ink">{title}</h1>
-              {subtitle ? (
-                <p className="mt-3 max-w-2xl text-base leading-relaxed text-ink sm:text-lg">
-                  {subtitle}
-                </p>
-              ) : null}
-              {photoMeta}
-            </Container>
-          </header>
-        </>
-      ) : (
-        <header className="border-b border-ink/8 bg-white pt-28 pb-10 sm:pt-32 sm:pb-12">
-          <Container size="2xl">
-            <p className="type-eyebrow text-primary">{eyebrow}</p>
-            <h1 className="type-h1 mt-2 max-w-3xl text-ink">
-              {title}
-            </h1>
-            {subtitle ? (
-              <p className="mt-3 max-w-2xl text-base leading-relaxed text-ink sm:text-lg">
-                {subtitle}
-              </p>
-            ) : null}
-          </Container>
-        </header>
-      )}
+      {showVideoHero ? <HeroSection content={heroContent} /> : null}
+      {showStillHero && modules ? (
+        <PageHeroRenderer
+          modules={{
+            ...modules,
+            hero: heroModule.heroImage?.trim()
+              ? {
+                  type: "simple-banner",
+                  live: heroModule.live,
+                  _id: heroModule._id,
+                  eyebrow: heroModule.eyebrow,
+                  title: heroModule.title,
+                  subtitle:
+                    heroModule.subtitle?.trim() ||
+                    heroModule.description?.trim() ||
+                    "",
+                  backgroundImage: heroModule.heroImage,
+                  ctaLabel: heroModule.ctaLabel,
+                  ctaHref: heroModule.ctaHref,
+                }
+              : heroModule,
+          }}
+        />
+      ) : null}
 
-      <article className="min-h-screen max-w-full overflow-x-clip bg-white">
+      <article
+        className={
+          showHero
+            ? "min-h-screen max-w-full overflow-x-clip bg-white"
+            : "min-h-screen max-w-full overflow-x-clip bg-white pt-(--site-header-height)"
+        }
+      >
         <VenueGallery
           gallery={gallery}
           images={images}
-          lightboxTitle={String(title)}
-          playlistVideos={showVideos ? videos : []}
-          videosHeader={{
-            title: videosModule.title || "Videos",
-            description: videosModule.description,
-          }}
+          lightboxTitle={lightboxTitle}
+          variant={isRetreatVenue ? "retreat" : "default"}
         />
         {showMap && siteMap ? (
           <MapSection className="bg-white" content={siteMap} />
         ) : null}
-        <SiteFaq mapped={mapped} modules={modules} />
+        {isRetreatVenue ? null : <SiteFaq mapped={mapped} modules={modules} />}
       </article>
     </>
   );

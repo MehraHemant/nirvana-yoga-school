@@ -1,4 +1,8 @@
 import { revalidatePath } from "next/cache";
+import {
+  isVenuePage,
+  stripVenueYoutubeModules,
+} from "@/content/mappers/venue-page";
 import { getPageRef } from "@/content/pages/registry";
 import { upsertPageSeo } from "@/content/repositories/page-seo";
 import { teacherSlug } from "@/content/teachers-slug";
@@ -200,7 +204,11 @@ export async function upsertPageModules(
 ) {
   const ref = getPageRef(slug);
   const type = ref?.type ?? "site";
-  const fields = syncPageFieldsFromModules(modules);
+  const toSave =
+    type === "venue" || isVenuePage(slug)
+      ? stripVenueYoutubeModules(modules)
+      : modules;
+  const fields = syncPageFieldsFromModules(toSave);
   const data = {
     type: type as never,
     eyebrow: fields.eyebrow,
@@ -209,7 +217,7 @@ export async function upsertPageModules(
     image: fields.image,
     fee: fields.fee,
     duration: fields.duration,
-    pageModules: modules,
+    pageModules: toSave,
   };
 
   const existing = await db.page.findUnique({

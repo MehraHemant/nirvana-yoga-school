@@ -275,6 +275,7 @@ export function HeroSectionEditor({
         type: "page-minimal",
         title: "title" in hero ? hero.title : "",
         heroImage: "",
+        heroVideo: { ...EMPTY_HERO_VIDEO },
       });
     }
   }

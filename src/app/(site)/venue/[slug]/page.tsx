@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getSitePage } from "@/content";
+import { normalizeVenueHero } from "@/content/mappers/venue-hero";
 import {
-  normalizeVideosModule,
-  videosModuleHasClips,
-} from "@/content/mappers/videos-module";
+  mapVenueToHomeHero,
+  venueHeroHasPlayableVideo,
+} from "@/content/mappers/venue-home-hero";
 import { getPageModules } from "@/content/repositories/page-modules";
 import { fetchPageSlugsByTypeFromDb } from "@/lib/cms/cache";
 import { shouldRenderSection } from "@/lib/cms/section-visibility";
-import { resolvePlaylistVideos } from "@/lib/playlist-video";
 import { metadataForSlug } from "../../_shared/metadata";
 import { loadSitePageDataAsync } from "../../_shared/site/data.server";
 import VenueClient from "./VenueClient";
@@ -53,29 +53,51 @@ export default async function Page({ params }: PageProps) {
   if (!result.data) notFound();
 
   const data = await loadSitePageDataAsync(result.data);
-  const videosModule = normalizeVideosModule(data.modules?.videos);
-  const showVideos = shouldRenderSection(
-    videosModule,
-    videosModuleHasClips(videosModule),
+
+  const heroModule = normalizeVenueHero(data.modules?.hero);
+  const heroVideo = mapVenueToHomeHero(heroModule).video;
+  const showHero = shouldRenderSection(
+    heroModule,
+    venueHeroHasPlayableVideo(heroVideo),
   );
-  const videos = showVideos
-    ? await resolvePlaylistVideos(videosModule.items)
-    : [];
 
   return (
-    <VenueClient
-      page={data.page}
-      mapped={data.mapped}
-      teachers={data.teachers}
-      modules={data.modules}
-      residentialLife={data.residentialLife}
-      whyNirvana={data.whyNirvana}
-      reviews={data.reviews}
-      siteMap={data.siteMap}
-      instagram={data.instagram}
-      travel={data.travel}
-      examCertification={data.examCertification}
-      videos={videos}
-    />
+    <>
+      {showHero && (heroVideo.mobilePoster || heroVideo.desktopPoster) ? (
+        <>
+          {heroVideo.mobilePoster ? (
+            <link
+              rel="preload"
+              as="image"
+              href={heroVideo.mobilePoster}
+              media="(max-width: 767px)"
+              fetchPriority="high"
+            />
+          ) : null}
+          {heroVideo.desktopPoster ? (
+            <link
+              rel="preload"
+              as="image"
+              href={heroVideo.desktopPoster}
+              media="(min-width: 768px)"
+              fetchPriority="high"
+            />
+          ) : null}
+        </>
+      ) : null}
+      <VenueClient
+        page={data.page}
+        mapped={data.mapped}
+        teachers={data.teachers}
+        modules={data.modules}
+        residentialLife={data.residentialLife}
+        whyNirvana={data.whyNirvana}
+        reviews={data.reviews}
+        siteMap={data.siteMap}
+        instagram={data.instagram}
+        travel={data.travel}
+        examCertification={data.examCertification}
+      />
+    </>
   );
 }

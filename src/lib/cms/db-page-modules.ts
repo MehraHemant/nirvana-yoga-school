@@ -3,7 +3,10 @@ import {
   galleryCategoryLabel,
   resolveGallerySections,
 } from "@/content/mappers/gallery-module";
-import { createEmptyVideosModule } from "@/content/mappers/videos-module";
+import {
+  isVenuePage,
+  stripVenueYoutubeModules,
+} from "@/content/mappers/venue-page";
 import { createEmptyPageModules } from "@/content/page-modules-defaults";
 import type { PageModulesDocument } from "@/content/types";
 import type { SitePageGalleryImage } from "@/content/types/site-page";
@@ -38,7 +41,9 @@ export async function fetchPageModulesRow(
     select: { pageModules: true },
   });
 
-  return mapPageModulesFromRow(page ?? { pageModules: null });
+  const mapped = mapPageModulesFromRow(page ?? { pageModules: null });
+  if (!mapped) return null;
+  return isVenuePage(slug) ? stripVenueYoutubeModules(mapped) : mapped;
 }
 
 /**
@@ -63,12 +68,14 @@ export function mapPageModulesFromRow(page: {
  * @param pageModules - Raw JSON from the page row
  * @param title - Optional title to seed into the scaffold hero
  * @param galleryRows - Optional relational gallery rows from the database
+ * @param slug - Page slug; venue pages omit playlist / gallery YouTube keys
  * @returns Always a complete `PageModulesDocument`
  */
 export function resolvePageModulesForEditor(
   pageModules: unknown,
   title?: string,
   galleryRows: SitePageGalleryImage[] = [],
+  slug?: string,
 ): PageModulesDocument {
   const existing = mapPageModulesFromRow({ pageModules });
   const doc =
@@ -97,9 +104,8 @@ export function resolvePageModulesForEditor(
     };
   }
 
-  // Ensure venue (and other) editors always have an editable videos scaffold.
-  if (!doc.videos) {
-    doc.videos = createEmptyVideosModule();
+  if (slug && isVenuePage(slug)) {
+    return stripVenueYoutubeModules(doc);
   }
 
   return doc;

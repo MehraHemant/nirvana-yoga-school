@@ -129,11 +129,26 @@ export async function GET(
   let modules =
     (await hydrateModulesFromPageTables(
       slug,
-      resolvePageModulesForEditor(page.pageModules, page.title, galleryRows),
+      resolvePageModulesForEditor(
+        page.pageModules,
+        page.title,
+        galleryRows,
+        slug,
+      ),
     ).catch(() =>
-      resolvePageModulesForEditor(page.pageModules, page.title, galleryRows),
+      resolvePageModulesForEditor(
+        page.pageModules,
+        page.title,
+        galleryRows,
+        slug,
+      ),
     )) ??
-    resolvePageModulesForEditor(page.pageModules, page.title, galleryRows);
+    resolvePageModulesForEditor(
+      page.pageModules,
+      page.title,
+      galleryRows,
+      slug,
+    );
 
   if (pageSeo) {
     if (modules) {

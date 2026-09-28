@@ -196,12 +196,7 @@ export const PAGE_LAYOUTS: Record<PageLayoutId, PageLayoutDefinition> = {
       SHARED_LINK("retreatAccommodation", "Retreat accommodation (shared)"),
       SHARED_LINK("retreatFood", "Retreat food (shared)"),
       { id: "packages", label: "Packages & dates", source: "courseDocument" },
-      { id: "testimonials", label: "Testimonials", source: "courseDocument" },
-      SHARED_LINK("whyNirvana", "Why Nirvana (shared)"),
-      SHARED_LINK("siteMap", "Map (shared)"),
-      SHARED_LINK("instagram", "Instagram (shared)"),
-      SHARED_LINK("travel", "Travel (shared)"),
-      SHARED_LINK("examCertification", "Exam & certification (shared)"),
+      SHARED_LINK("reviews", "Testimonials (shared)"),
       { id: "faq", label: "FAQ", source: "courseDocument" },
     ],
   },
@@ -210,9 +205,8 @@ export const PAGE_LAYOUTS: Record<PageLayoutId, PageLayoutDefinition> = {
     label: "Venue gallery",
     sections: [
       { id: "meta", label: "SEO", source: "pageModules" },
-      { id: "hero", label: "Page title", source: "pageModules" },
+      { id: "hero", label: "Hero", source: "pageModules" },
       { id: "gallery", label: "Photo gallery", source: "pageModules" },
-      { id: "videos", label: "Videos", source: "pageModules" },
       SHARED_LINK("siteMap", "Map (shared)"),
       { id: "faq", label: "FAQ", source: "pageModules" },
     ],
@@ -427,10 +421,10 @@ export const HERO_LAYOUT_BY_PAGE: Partial<
       "Retreat hero — bento gallery (recommended) or page-minimal banner.",
   },
   venue: {
-    defaultType: "simple-banner",
-    allowedTypes: ["simple-banner"],
+    defaultType: "page-minimal",
+    allowedTypes: ["page-minimal"],
     description:
-      "Page title band — background image, title, and short description at the top of the venue page.",
+      "Homepage-style full-bleed video hero — optional badge, title lead/accent, CTA, marquee, and per-venue background video. Leave title and CTA empty for video only.",
   },
   onlineHub: {
     defaultType: "page-minimal",

@@ -10,14 +10,12 @@ import {
   SortableList,
   SortableRow,
 } from "@/components/admin/SortableList";
-import { StringListField } from "@/components/admin/StringListField";
 import { TextField } from "@/components/admin/TextField";
 import { useStableListKeys } from "@/components/admin/useStableListKeys";
 import {
   createEmptyGalleryModule,
   flattenGallerySections,
   galleryCategoryLabel,
-  normalizeGalleryVideos,
   type ResolvedGallerySection,
   resolveGallerySections,
   sectionOrderFromResolved,
@@ -60,7 +58,7 @@ function commitSections(
 }
 
 /**
- * Admin editor for venue gallery sections, images, and videos.
+ * Admin editor for venue gallery sections and images.
  * Supports media multi-select, tag filter, and drag reorder.
  *
  * @param props - Gallery document and panel chrome
@@ -328,31 +326,6 @@ export function GalleryModuleEditor({
             );
           })}
         </SortableList>
-
-        <CollapsiblePanel
-          title="Videos"
-          subtitle="YouTube clips"
-          description="Paste YouTube urls or 11-character video ids. Shown below the photo gallery."
-          defaultOpen={Boolean(doc.videos?.length)}
-        >
-          <StringListField
-            label="Video urls / ids"
-            items={(doc.videos ?? []).map((video) => video.url)}
-            onChange={(urls) => {
-              const previous = doc.videos ?? [];
-              onChange({
-                ...doc,
-                videos: normalizeGalleryVideos(
-                  urls.map((url, index) => ({
-                    url,
-                    title: previous[index]?.title,
-                  })),
-                ),
-              });
-            }}
-            hint="One YouTube link or id per row."
-          />
-        </CollapsiblePanel>
       </CollapsiblePanel>
 
       <MediaMultiPicker

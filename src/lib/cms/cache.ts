@@ -1,4 +1,8 @@
 import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
+import {
+  isVenuePage,
+  stripVenueYoutubeModules,
+} from "@/content/mappers/venue-page";
 import { inferPageType } from "@/content/pages/registry";
 import { teacherSlug } from "@/content/teachers-slug";
 import type {
@@ -493,7 +497,9 @@ async function loadPageModulesUncached(
     select: { pageModules: true, published: true },
   });
   if (!page || !page.published) return null;
-  return mapPageModulesFromRow(page);
+  const mapped = mapPageModulesFromRow(page);
+  if (!mapped) return null;
+  return isVenuePage(slug) ? stripVenueYoutubeModules(mapped) : mapped;
 }
 
 /**
@@ -507,7 +513,7 @@ export async function fetchPageModulesFromDb(
 ): Promise<PageModulesDocument | null> {
   const cached = unstable_cache(
     () => loadPageModulesUncached(slug),
-    [`page-modules-v3-${slug}`],
+    [`page-modules-v4-${slug}`],
     {
       tags: [contentCacheTag(slug)],
       revalidate: 3600,

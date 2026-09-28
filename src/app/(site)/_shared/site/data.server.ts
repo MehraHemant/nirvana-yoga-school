@@ -1,7 +1,10 @@
-import { isVenuePage } from "@/content/mappers/venue-page";
-import { hydrateModulesFromPageTables } from "@/content/repositories/page-modules-sync";
+import {
+  isVenuePage,
+  stripVenueYoutubeModules,
+} from "@/content/mappers/venue-page";
 import { hydratePageModulesFaqs } from "@/content/repositories/faqs";
 import { getPageModules } from "@/content/repositories/page-modules";
+import { hydrateModulesFromPageTables } from "@/content/repositories/page-modules-sync";
 import {
   getExamCertification,
   getInstagramFeed,
@@ -54,13 +57,18 @@ export async function loadSitePageDataAsync(page: SitePageDocument) {
     )) ?? modulesResult.data;
 
   const hydratedModules = modules
-    ? ((await hydratePageModulesFaqs(page.slug, modules).catch(() => modules)) ??
-      modules)
+    ? ((await hydratePageModulesFaqs(page.slug, modules).catch(
+        () => modules,
+      )) ?? modules)
     : modules;
+  const pageModules =
+    hydratedModules && isVenuePage(page.slug)
+      ? stripVenueYoutubeModules(hydratedModules)
+      : hydratedModules;
 
   const data = loadSitePageData(
     page,
-    hydratedModules,
+    pageModules,
     venueFaqsResult?.data.faqs ?? [],
   );
 

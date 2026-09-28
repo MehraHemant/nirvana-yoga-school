@@ -252,7 +252,7 @@ export type GallerySectionMeta = {
   description?: string;
 };
 
-/** YouTube clip shown in the venue video strip. */
+/** Legacy YouTube clip previously stored on venue gallery JSON. */
 export type GalleryVideoItem = {
   /** YouTube video id (preferred) or full watch URL */
   url: string;
@@ -266,6 +266,7 @@ export type GalleryModule = ModuleLiveFields & {
   images: SitePageGalleryImage[];
   /** Ordered section list; when omitted, order follows first appearance in `images` */
   sectionOrder?: GallerySectionMeta[];
+  /** @deprecated Venue no longer reads or writes gallery YouTube clips */
   videos?: GalleryVideoItem[];
 };
 
@@ -292,7 +293,7 @@ export type VideosModuleItem = {
 };
 
 /**
- * Dedicated video playlist section (venue and other module pages).
+ * Dedicated video playlist section for layouts that opt in (not venue).
  * Stored at `page_modules.videos`.
  * Prefer `items` for mixed YouTube / Cloudinary sources; `youtubeUrls` is
  * kept in sync for legacy readers and older DB documents.
@@ -342,7 +343,7 @@ export type PageModulesDocument = {
   faqs: FaqsModule;
   teachers?: TeachersModule;
   gallery?: GalleryModule;
-  /** YouTube playlist band — venue pages and other layouts that opt in */
+  /** Optional playlist band for layouts that opt in — not used on venue */
   videos?: VideosModule;
   programs?: ProgramsModule;
   /** Why-online benefits band (online courses hub) */

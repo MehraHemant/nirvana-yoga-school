@@ -51,7 +51,12 @@ export async function GET(
     return jsonNotFound();
   }
 
-  const base = resolvePageModulesForEditor(page.pageModules, page.title);
+  const base = resolvePageModulesForEditor(
+    page.pageModules,
+    page.title,
+    [],
+    slug,
+  );
   const modules =
     (await hydrateModulesFromPageTables(slug, base).catch(() => base)) ?? base;
 

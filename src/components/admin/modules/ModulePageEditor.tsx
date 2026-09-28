@@ -9,6 +9,7 @@ import {
   upsertCoursePricingForRoom,
 } from "@/content/mappers/page-room-fees";
 import { normalizeVenueHero } from "@/content/mappers/venue-hero";
+import { stripVenueYoutubeModules } from "@/content/mappers/venue-page";
 import { createEmptyVideosModule } from "@/content/mappers/videos-module";
 import {
   createEmptyPageModules,
@@ -29,17 +30,17 @@ import { AdminSaveBar } from "../AdminSaveBar";
 import { AdminSectionJumpNav } from "../AdminSectionJumpNav";
 import { CollapsiblePanel } from "../CollapsiblePanel";
 import { ResidentialLifeFields } from "../LodgingFields";
+import { PageFaqAssignmentsEditor } from "../PageFaqAssignmentsEditor";
 import { PageSeoFields } from "../PageSeoFields";
 import { scrollToSection, toSectionDomId } from "../sectionDomId";
 import { useSectionScrollSpy } from "../useSectionScrollSpy";
 import { EligibilityModuleEditor } from "./EligibilityModuleEditor";
-import { PageFaqAssignmentsEditor } from "../PageFaqAssignmentsEditor";
 import { FaqModuleEditor } from "./FaqModuleEditor";
 import { GalleryModuleEditor } from "./GalleryModuleEditor";
 import { HeroModuleEditor } from "./HeroModuleEditor";
-import { ModuleLiveField } from "./ModuleLiveField";
 import { InclusionsModuleEditor } from "./InclusionsModuleEditor";
 import { ModuleFlagsPanel } from "./ModuleFlagsPanel";
+import { ModuleLiveField } from "./ModuleLiveField";
 import { OverviewModuleEditor } from "./OverviewModuleEditor";
 import { PricingModuleEditor } from "./PricingModuleEditor";
 import { ScheduleModuleEditor } from "./ScheduleModuleEditor";
@@ -81,7 +82,7 @@ type ModulePageEditorProps = {
   layoutHint?: string;
   /** Public preview override */
   previewHref?: string;
-  /** Layout family — drives venue hero normalization and tip copy */
+  /** Layout family — drives venue hero (page-minimal video) and tip copy */
   layoutId?: PageLayoutId;
 };
 
@@ -215,7 +216,7 @@ const DEFAULT_OPEN: Record<string, boolean> = {};
 
 /**
  * Residential course panels.
- * Gallery/teachers/videos stay on venue or hub layouts only.
+ * Gallery/teachers stay on venue or hub layouts only.
  * Why-online is online-hub only — never edit/render on residential courses.
  */
 export const RESIDENTIAL_MODULE_PANELS: ModulePanelId[] = MODULE_SECTIONS.map(
@@ -259,12 +260,11 @@ export const EDITORIAL_MODULE_PANELS: ModulePanelId[] = [
   "module-faq",
 ];
 
-/** Venue layout panels — SEO + page title first, then gallery, videos, map Live, FAQ. */
+/** Venue layout panels — SEO + video hero first, then gallery, map Live, FAQ. */
 export const VENUE_MODULE_PANELS: ModulePanelId[] = [
   "module-meta",
   "module-hero",
   "module-gallery",
-  "module-videos",
   "module-flags",
   "module-faq",
 ];
@@ -302,7 +302,7 @@ function modulePanelDomId(panelId: ModulePanelId, module?: unknown): string {
  *
  * @param value - Modules from the API (may be partial/empty)
  * @param fallbackTitle - Title used when scaffolding a missing hero
- * @param venueLayout - When true, coerce hero to simple-banner for DarkMediaHero
+ * @param venueLayout - When true, coerce hero to page-minimal (homepage video fields)
  */
 function normalizeModules(
   value: PageModulesDocument | null | undefined,
@@ -315,11 +315,7 @@ function normalizeModules(
   if (value?.hero && typeof value.hero.type === "string") {
     doc = value;
   } else {
-    const scaffold = createEmptyPageModules(
-      venueLayout
-        ? "simple-banner"
-        : defaultHeroTypeForLayout(layoutId),
-    );
+    const scaffold = createEmptyPageModules(defaultHeroTypeForLayout(layoutId));
     if (fallbackTitle.trim()) {
       scaffold.hero = { ...scaffold.hero, title: fallbackTitle.trim() };
     }
@@ -375,17 +371,11 @@ function normalizeModules(
 
   if (!venueLayout) return doc;
 
-  const fallbackImage =
-    doc.gallery?.images?.[0]?.url ||
-    (doc.hero.type === "page-minimal" ? doc.hero.heroImage : "") ||
-    (doc.hero.type === "simple-banner" ? doc.hero.backgroundImage : "") ||
-    "";
-  return {
+  return stripVenueYoutubeModules({
     ...doc,
-    hero: normalizeVenueHero(doc.hero, fallbackImage),
+    hero: normalizeVenueHero(doc.hero),
     gallery: doc.gallery ?? createEmptyGalleryModule(),
-    videos: doc.videos ?? createEmptyVideosModule(),
-  };
+  });
 }
 
 /**
@@ -411,7 +401,13 @@ export function ModulePageEditor({
   );
   const [baseline, setBaseline] = useState(() =>
     JSON.stringify(
-      normalizeModules(initial, slug, isVenueLayout, isOnlineHubLayout, layoutId),
+      normalizeModules(
+        initial,
+        slug,
+        isVenueLayout,
+        isOnlineHubLayout,
+        layoutId,
+      ),
     ),
   );
   const [saving, setSaving] = useState(false);
@@ -447,7 +443,7 @@ export function ModulePageEditor({
               : undefined;
         const label =
           isVenueLayout && section.id === "module-hero"
-            ? "Page title"
+            ? "Hero"
             : isVenueLayout && section.id === "module-meta"
               ? "SEO"
               : isVenueLayout && section.id === "module-flags"
@@ -620,10 +616,10 @@ export function ModulePageEditor({
         <strong>Quick guide:</strong>{" "}
         {isVenueLayout ? (
           <>
-            Photo gallery is the main content for this page. Edit the hero
-            banner image and title, manage gallery sections, then add YouTube
-            URLs under Videos (Live + at least one URL to show). Changes save to
-            the database and show on <code>/venue/{slug}</code>.
+            Photo gallery is the main content for this page. The hero uses the
+            same homepage video fields (desktop + mobile MP4, posters, optional
+            title/CTA). Manage gallery sections here. Changes save to the
+            database and show on <code>/venue/{slug}</code>.
           </>
         ) : (
           <>

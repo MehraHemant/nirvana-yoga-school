@@ -1,7 +1,6 @@
 import type {
   GalleryModule,
   GallerySectionMeta,
-  GalleryVideoItem,
 } from "@/content/types/page-modules";
 import type { SitePageGalleryImage } from "@/content/types/site-page";
 import { MEDIA_TAG_PRESETS } from "@/lib/cdn/media-tags";
@@ -74,25 +73,6 @@ export function galleryCategoryFromTag(tag: string | undefined): string {
  */
 export function galleryMediaTagOptions(): string[] {
   return [...MEDIA_TAG_PRESETS];
-}
-
-/**
- * Extracts a YouTube video id from a watch URL or bare id.
- *
- * @param value - Watch URL or id
- */
-export function extractYouTubeId(value: string): string {
-  const trimmed = value.trim();
-  if (/^[\w-]{11}$/.test(trimmed)) return trimmed;
-  try {
-    const url = new URL(trimmed);
-    if (url.hostname.includes("youtu.be")) {
-      return url.pathname.replace("/", "") || trimmed;
-    }
-    return url.searchParams.get("v") ?? trimmed;
-  } catch {
-    return trimmed;
-  }
 }
 
 /**
@@ -191,22 +171,6 @@ export function sectionOrderFromResolved(
 }
 
 /**
- * Normalizes gallery videos to YouTube ids.
- *
- * @param videos - Raw video entries
- */
-export function normalizeGalleryVideos(
-  videos: GalleryVideoItem[] | undefined,
-): GalleryVideoItem[] {
-  return (videos ?? [])
-    .map((video) => ({
-      ...video,
-      url: extractYouTubeId(video.url),
-    }))
-    .filter((video) => Boolean(video.url));
-}
-
-/**
  * Empty gallery module scaffold for admin.
  */
 export function createEmptyGalleryModule(): GalleryModule {
@@ -218,6 +182,5 @@ export function createEmptyGalleryModule(): GalleryModule {
       "Explore yoga halls, rooms, dining, and the peaceful ashram grounds.",
     images: [],
     sectionOrder: [],
-    videos: [],
   };
 }

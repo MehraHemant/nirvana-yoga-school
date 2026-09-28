@@ -1,72 +1,95 @@
 import { cmsImageUrl } from "@/content/types/cms-image";
-import type {
-  HeroModule,
-  SimpleBannerHero,
-} from "@/content/types/page-modules";
+import type { HomeHeroVideoContent } from "@/content/types/dedicated-pages";
+import type { HeroModule, PageMinimalHero } from "@/content/types/page-modules";
+
+const EMPTY_HERO_VIDEO: HomeHeroVideoContent = {
+  mobileSrc: "",
+  mobilePoster: "",
+  desktopSrc: "",
+  desktopPoster: "",
+};
 
 /**
- * Converts any hero variant into a venue-friendly simple-banner.
- * Venue pages use a clear full-bleed image hero + copy below, not course bento.
+ * Empty page-minimal venue hero — no invented title, CTA, or media.
+ *
+ * @param live - Optional live flag copied from the source hero
+ * @param id - Optional section HTML id
+ */
+function emptyPageMinimalHero(live?: boolean, id?: string): PageMinimalHero {
+  return {
+    type: "page-minimal",
+    live,
+    _id: id,
+    title: "",
+    heroImage: "",
+    heroVideo: { ...EMPTY_HERO_VIDEO },
+  };
+}
+
+/**
+ * Coerces any hero variant into a venue page-minimal hero with video fields.
+ * Preserves existing CMS copy and media; does not invent titles, CTAs, or URLs.
  *
  * @param hero - Existing hero module (any type)
- * @param fallbackImage - Image used when the hero has no media
  */
 export function normalizeVenueHero(
   hero: HeroModule | null | undefined,
-  fallbackImage = "",
-): SimpleBannerHero {
-  const title =
-    hero && "title" in hero && hero.title.trim() ? hero.title : "Venue";
-  const subtitle =
-    hero && "subtitle" in hero && typeof hero.subtitle === "string"
-      ? hero.subtitle
-      : undefined;
+): PageMinimalHero {
+  if (!hero) return emptyPageMinimalHero();
 
-  let backgroundImage = fallbackImage;
-  let eyebrow = "Venue";
-  let ctaLabel: string | undefined;
-  let ctaHref: string | undefined;
-
-  if (!hero) {
+  if (hero.type === "page-minimal") {
     return {
-      type: "simple-banner",
-      live: true,
-      eyebrow,
-      title,
-      subtitle,
-      backgroundImage,
+      ...hero,
+      type: "page-minimal",
+      title: hero.title ?? "",
+      heroImage: hero.heroImage ?? "",
+      heroVideo: {
+        mobileSrc: hero.heroVideo?.mobileSrc ?? "",
+        mobilePoster: hero.heroVideo?.mobilePoster ?? "",
+        desktopSrc: hero.heroVideo?.desktopSrc ?? "",
+        desktopPoster: hero.heroVideo?.desktopPoster ?? "",
+      },
     };
   }
 
   if (hero.type === "simple-banner") {
-    backgroundImage = hero.backgroundImage || fallbackImage;
-    eyebrow = hero.eyebrow?.trim() || eyebrow;
-    ctaLabel = hero.ctaLabel;
-    ctaHref = hero.ctaHref;
-  } else if (hero.type === "page-minimal") {
-    backgroundImage = hero.heroImage || fallbackImage;
-    eyebrow = hero.eyebrow?.trim() || eyebrow;
-    ctaLabel = hero.ctaLabel;
-    ctaHref = hero.ctaHref;
-  } else if (hero.type === "bento-media") {
-    const first = hero.heroImages?.[0];
-    backgroundImage = (first ? cmsImageUrl(first) : "") || fallbackImage;
-  } else if (hero.type === "split-copy") {
-    backgroundImage = hero.previewUrl || fallbackImage;
-    eyebrow = hero.eyebrow?.trim() || eyebrow;
-    ctaLabel = hero.ctaPrimary;
-    ctaHref = hero.ctaPrimaryHref;
+    return {
+      type: "page-minimal",
+      live: hero.live,
+      _id: hero._id,
+      eyebrow: hero.eyebrow,
+      title: hero.title ?? "",
+      subtitle: hero.subtitle,
+      heroImage: hero.backgroundImage ?? "",
+      ctaLabel: hero.ctaLabel,
+      ctaHref: hero.ctaHref,
+      heroVideo: { ...EMPTY_HERO_VIDEO },
+    };
   }
 
+  if (hero.type === "split-copy") {
+    return {
+      type: "page-minimal",
+      live: hero.live,
+      _id: hero._id,
+      eyebrow: hero.eyebrow,
+      title: hero.title ?? "",
+      subtitle: hero.subtitle,
+      heroImage: hero.previewUrl ?? "",
+      ctaLabel: hero.ctaPrimary,
+      ctaHref: hero.ctaPrimaryHref,
+      heroVideo: { ...EMPTY_HERO_VIDEO },
+    };
+  }
+
+  const first = hero.heroImages?.[0];
   return {
-    type: "simple-banner",
+    type: "page-minimal",
     live: hero.live,
     _id: hero._id,
-    eyebrow,
-    title,
-    subtitle,
-    backgroundImage,
-    ctaLabel,
-    ctaHref,
+    title: hero.title ?? "",
+    subtitle: hero.subtitle,
+    heroImage: first ? cmsImageUrl(first) : "",
+    heroVideo: { ...EMPTY_HERO_VIDEO },
   };
 }

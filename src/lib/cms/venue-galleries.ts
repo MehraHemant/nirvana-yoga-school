@@ -72,7 +72,6 @@ export function createRetreatVenueGallery(): GalleryModule {
         description: "Gardens, terraces, and the calm retreat campus.",
       },
     ],
-    videos: [],
   };
 }
 
@@ -118,6 +117,5 @@ export function createCourseVenueGallery(
             } as Record<string, string>
           )[id] ?? id,
       })),
-    videos: [],
   };
 }

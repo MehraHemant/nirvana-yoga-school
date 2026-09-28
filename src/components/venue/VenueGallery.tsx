@@ -3,46 +3,91 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import { useMemo, useState } from "react";
-import { Container, MediaLightbox, YouTubeThumbImage } from "@/components/ui";
+import { Container, MediaLightbox } from "@/components/ui";
 import {
-  extractYouTubeId,
   galleryCategoryLabel,
-  normalizeGalleryVideos,
   resolveGallerySections,
 } from "@/content/mappers/gallery-module";
 import type { GalleryModule } from "@/content/types/page-modules";
 import type { SitePageGalleryImage } from "@/content/types/site-page";
-import { Play } from "@/icons";
 import { shouldRenderSection } from "@/lib/cms/section-visibility";
-import type { PlaylistVideo } from "@/lib/playlist-video";
 
 type VenueGalleryProps = {
-  /** Gallery module from page_modules (copy, sections, videos) */
+  /** Gallery module from page_modules (copy and sections) */
   gallery?: GalleryModule | null;
   /** Images from database (`page_gallery_images` / modules) */
   images: SitePageGalleryImage[];
   /** Page title for lightbox */
   lightboxTitle?: string;
-  /** CMS `page_modules.videos` playlist (YouTube and/or Cloudinary) */
-  playlistVideos?: PlaylistVideo[];
-  /** Section copy for the CMS videos block */
-  videosHeader?: { title?: string; description?: string };
+  /** Retreat venue uses photographic cards; course venue stays letterboxed */
+  variant?: "default" | "retreat";
 };
 
 type DisplayItem = SitePageGalleryImage & { key: string; flatIndex: number };
 
+type VenuePhotoCardProps = {
+  item: DisplayItem;
+  alt: string;
+  onOpen: (item: DisplayItem) => void;
+  variant: "default" | "retreat";
+};
+
+/**
+ * Venue photo tile. Course venue keeps the full image visible; retreat venue
+ * uses a photographic crop to match the live retreat gallery.
+ *
+ * @param props.item - Gallery image to open in the lightbox
+ * @param props.alt - Accessible image label
+ * @param props.onOpen - Opens the lightbox on this item
+ * @param props.variant - Course vs retreat card treatment
+ */
+function VenuePhotoCard({ item, alt, onOpen, variant }: VenuePhotoCardProps) {
+  const isRetreat = variant === "retreat";
+
+  return (
+    <button
+      type="button"
+      onClick={() => onOpen(item)}
+      className={
+        isRetreat
+          ? "group relative block aspect-4/3 w-full overflow-hidden rounded-xl bg-surface-muted ring-1 ring-ink/8"
+          : "group relative block aspect-4/3 w-full overflow-hidden bg-white"
+      }
+    >
+      <Image
+        src={item.url}
+        alt={alt}
+        fill
+        unoptimized
+        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+        className={
+          isRetreat
+            ? "object-cover transition-transform duration-500 group-hover:scale-105"
+            : "object-contain"
+        }
+        style={isRetreat ? undefined : { objectFit: "contain" }}
+      />
+      <span
+        className={
+          isRetreat
+            ? "pointer-events-none absolute inset-0 bg-ink/0 transition-colors group-hover:bg-ink/15"
+            : "pointer-events-none absolute inset-0 bg-ink/0 transition-colors group-hover:bg-ink/25"
+        }
+      />
+    </button>
+  );
+}
+
 /**
  * Classic photo gallery for course/retreat venue pages.
- * Optional CMS videos play inline above category filters + square image grid + lightbox.
  *
- * @param props - Gallery module metadata, DB images, and optional playlist
+ * @param props - Gallery module metadata and DB images
  */
 export default function VenueGallery({
   gallery = null,
   images,
   lightboxTitle = "Venue gallery",
-  playlistVideos = [],
-  videosHeader,
+  variant = "default",
 }: VenueGalleryProps) {
   const prefersReduced = useReducedMotion() ?? false;
   const sections = useMemo(
@@ -53,16 +98,10 @@ export default function VenueGallery({
       }),
     [gallery?.sectionOrder, images],
   );
-  const legacyVideos = useMemo(
-    () => normalizeGalleryVideos(gallery?.videos),
-    [gallery?.videos],
-  );
 
   const [activeSection, setActiveSection] = useState("all");
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
-  /** Playlist video currently playing inline (one at a time) */
-  const [playingVideoId, setPlayingVideoId] = useState<string | null>(null);
 
   const allItems: DisplayItem[] = useMemo(
     () =>
@@ -90,11 +129,10 @@ export default function VenueGallery({
 
   const showGalleryMedia = shouldRenderSection(
     gallery ?? { live: true },
-    images.length > 0 || legacyVideos.length > 0,
+    images.length > 0,
   );
-  const showPlaylist = playlistVideos.length > 0;
 
-  if (!showGalleryMedia && !showPlaylist) {
+  if (!showGalleryMedia) {
     return null;
   }
 
@@ -118,116 +156,20 @@ export default function VenueGallery({
     setLightboxOpen(true);
   }
 
-  /**
-   * Starts inline playback for a playlist clip (stops any other playing tile).
-   *
-   * @param videoId - `PlaylistVideo.id` to play
-   */
-  function playInline(videoId: string) {
-    setPlayingVideoId(videoId);
-  }
-
   return (
-    <section id="gallery" className="bg-white pb-16 pt-2 mt-4 sm:pb-20">
+    <section
+      id="gallery"
+      className={
+        variant === "retreat"
+          ? "bg-white pb-16 pt-6 sm:pb-24 sm:pt-8"
+          : "bg-white pb-16 pt-2 mt-4 sm:pb-20"
+      }
+    >
       <Container size="2xl">
-        {showPlaylist ? (
-          <div
-            id="videos"
-            className={
-              showGalleryMedia && images.length > 0
-                ? "mb-12 sm:mb-14"
-                : undefined
-            }
-          >
-            <header className="mb-5 border-b border-ink/10 pb-3">
-              <h2 className="type-h3 text-ink">
-                {videosHeader?.title?.trim() || "Videos"}
-              </h2>
-              {videosHeader?.description?.trim() ? (
-                <p className="mt-1 max-w-2xl text-sm text-ink">
-                  {videosHeader.description}
-                </p>
-              ) : null}
-            </header>
-            <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-3">
-              {playlistVideos.map((video) => {
-                const isPlaying = playingVideoId === video.id;
-                return (
-                  <li key={video.id}>
-                    <div className="relative aspect-video w-full overflow-hidden bg-ink">
-                      {isPlaying ? (
-                        video.source === "cloudinary" && video.playbackUrl ? (
-                          // biome-ignore lint/a11y/useMediaCaption: venue gallery preview clip
-                          <video
-                            key={video.id}
-                            src={video.playbackUrl}
-                            poster={
-                              video.thumbnailUrl !== video.playbackUrl
-                                ? video.thumbnailUrl
-                                : undefined
-                            }
-                            controls
-                            playsInline
-                            autoPlay
-                            className="absolute inset-0 h-full w-full object-contain"
-                          />
-                        ) : (
-                          <iframe
-                            key={video.id}
-                            src={`https://www.youtube.com/embed/${video.id}?autoplay=1&rel=0&modestbranding=1&playsinline=1`}
-                            title={video.title || "Venue video"}
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                            referrerPolicy="strict-origin-when-cross-origin"
-                            allowFullScreen
-                            className="absolute inset-0 h-full w-full border-0"
-                          />
-                        )
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => playInline(video.id)}
-                          aria-label={`Play ${video.title || "video"}`}
-                          className="relative block h-full w-full"
-                        >
-                          {video.source === "youtube" ? (
-                            <YouTubeThumbImage
-                              videoId={video.id}
-                              src={video.thumbnailUrl}
-                              alt={video.title || "Venue video"}
-                              fill
-                              unoptimized
-                              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 33vw"
-                              className="object-cover"
-                            />
-                          ) : (
-                            <Image
-                              src={video.thumbnailUrl}
-                              alt={video.title || "Venue video"}
-                              fill
-                              unoptimized
-                              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 33vw"
-                              className="object-cover"
-                            />
-                          )}
-                          <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-primary shadow-soft sm:h-14 sm:w-14">
-                              <Play size={22} />
-                            </span>
-                          </span>
-                        </button>
-                      )}
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        ) : null}
-
         {showGalleryMedia && images.length > 0 ? (
           <>
             {sections.length > 1 ? (
-              <div className="sticky top-16 z-30 -mx-5 mb-8 border-b border-ink/10 bg-white px-5 py-3 md:top-18 md:-mx-8 md:mb-10 md:px-8">
+              <div className="sticky top-17 z-30 -mx-5 mb-8 border-b border-ink/10 bg-white px-5 py-3 md:top-20 md:-mx-8 md:mb-10 md:px-8">
                 <div
                   className="flex flex-wrap gap-2"
                   role="tablist"
@@ -280,32 +222,29 @@ export default function VenueGallery({
                                 galleryCategoryLabel(section.id)}
                             </h2>
                             {section.description ? (
-                              <p className="mt-1 max-w-2xl text-sm text-ink">
+                              <p className="mt-1 max-w-2xl text-sm text-ink/70">
                                 {section.description}
                               </p>
                             ) : null}
                           </header>
-                          <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-4">
+                          <ul
+                            className={
+                              variant === "retreat"
+                                ? "grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3.5 lg:grid-cols-4"
+                                : "grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-4"
+                            }
+                          >
                             {sectionItems.map((item, index) => (
                               <li key={item.key}>
-                                <button
-                                  type="button"
-                                  onClick={() => openLightbox(item)}
-                                  className="group relative block aspect-square w-full overflow-hidden bg-ink/5"
-                                >
-                                  <Image
-                                    src={item.url}
-                                    alt={
-                                      item.alt ??
-                                      `${section.label || galleryCategoryLabel(section.id)} ${index + 1}`
-                                    }
-                                    fill
-                                    unoptimized
-                                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                                    className="object-cover transition-transform duration-500 group-hover:scale-105"
-                                  />
-                                  <span className="pointer-events-none absolute inset-0 bg-ink/0 transition-colors group-hover:bg-ink/25" />
-                                </button>
+                                <VenuePhotoCard
+                                  item={item}
+                                  alt={
+                                    item.alt ??
+                                    `${section.label || galleryCategoryLabel(section.id)} ${index + 1}`
+                                  }
+                                  onOpen={openLightbox}
+                                  variant={variant}
+                                />
                               </li>
                             ))}
                           </ul>
@@ -314,27 +253,24 @@ export default function VenueGallery({
                     })}
                   </div>
                 ) : (
-                  <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-4">
+                  <ul
+                    className={
+                      variant === "retreat"
+                        ? "grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3.5 lg:grid-cols-4"
+                        : "grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-4"
+                    }
+                  >
                     {visibleItems.map((item, index) => (
                       <li key={item.key}>
-                        <button
-                          type="button"
-                          onClick={() => openLightbox(item)}
-                          className="group relative block aspect-square w-full overflow-hidden bg-ink/5"
-                        >
-                          <Image
-                            src={item.url}
-                            alt={
-                              item.alt ??
-                              `${galleryCategoryLabel(item.category)} ${index + 1}`
-                            }
-                            fill
-                            unoptimized
-                            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                            className="object-cover transition-transform duration-500 group-hover:scale-105"
-                          />
-                          <span className="pointer-events-none absolute inset-0 bg-ink/0 transition-colors group-hover:bg-ink/25" />
-                        </button>
+                        <VenuePhotoCard
+                          item={item}
+                          alt={
+                            item.alt ??
+                            `${galleryCategoryLabel(item.category)} ${index + 1}`
+                          }
+                          onOpen={openLightbox}
+                          variant={variant}
+                        />
                       </li>
                     ))}
                   </ul>
@@ -342,47 +278,6 @@ export default function VenueGallery({
               </motion.div>
             </AnimatePresence>
           </>
-        ) : null}
-
-        {showGalleryMedia && legacyVideos.length > 0 ? (
-          <div
-            id={showPlaylist ? "gallery-videos" : "videos"}
-            className="mt-16 border-t border-ink/10 pt-12"
-          >
-            <header className="mb-5 border-b border-ink/10 pb-3">
-              <h2 className="type-h3 text-ink">Videos</h2>
-            </header>
-            <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-3">
-              {legacyVideos.map((video) => {
-                const id = extractYouTubeId(video.url);
-                return (
-                  <li key={id}>
-                    <a
-                      href={`https://www.youtube.com/watch?v=${id}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="group relative block aspect-video w-full overflow-hidden bg-ink/5"
-                    >
-                      <YouTubeThumbImage
-                        videoId={id}
-                        alt={video.title ?? "Venue video"}
-                        fill
-                        unoptimized
-                        className="object-cover transition-transform duration-500 group-hover:scale-105"
-                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 33vw"
-                      />
-                      <span className="pointer-events-none absolute inset-0 bg-ink/0 transition-colors group-hover:bg-ink/25" />
-                      <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-primary shadow-soft sm:h-14 sm:w-14">
-                          <Play size={22} />
-                        </span>
-                      </span>
-                    </a>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
         ) : null}
       </Container>
 
