@@ -1,3 +1,7 @@
+import {
+  mapVenueToHomeHero,
+  resolveVenueHeroVideo,
+} from "@/content/mappers/venue-home-hero";
 import type {
   HomeHeroContent,
   HomeHeroVideoContent,
@@ -8,127 +12,44 @@ import type {
   PageMinimalHero,
 } from "@/content/types/page-modules";
 import {
-  DEFAULT_ONLINE_HUB_HERO_VIDEO,
   DEFAULT_ONLINE_HUB_OVERVIEW_VIDEO_POSTER,
   DEFAULT_ONLINE_HUB_OVERVIEW_VIDEO_URL,
 } from "@/lib/cms/online-hub-defaults";
 
-/** Prior seed copy — upgraded in presentation only when still exact-match. */
-const LEGACY_HERO_COPY = {
-  eyebrow: "Online Yoga Teacher Training",
-  titleLead: "Online yoga teacher",
-  titleAccent: "training courses",
-  subtitle: "Learn anytime, anywhere with teachers of Rishikesh",
-  ctaLabel: "Enquire now",
-  ctaHref: "/enquire-now",
-} as const;
-
-const PRESENTATION_DEFAULTS = {
-  badge: "Online · Yoga Alliance certified",
-  titleLead: "Nirvana online yoga",
-  titleAccent: "teacher training",
-  support:
-    "Self-paced courses from Rishikesh teachers — lifetime access and weekly live Q&A.",
-  ctaLabel: "Browse courses",
-  ctaHref: "#courses",
-} as const;
-
 /**
- * True when the hero has a playable MP4 source.
+ * Whether mapped hub hero has enough CMS fields to render.
+ * Matches homepage hero visibility: copy, CTA, marquee, chips, or video/poster.
  *
- * @param video - Resolved hero video fields
+ * @param hero - Mapped homepage-shaped hero
  */
-function hasPlayableHeroVideo(video: HomeHeroVideoContent): boolean {
-  return Boolean(video.mobileSrc?.trim() || video.desktopSrc?.trim());
-}
-
-/**
- * Returns presentation copy, replacing exact legacy seed strings with tighter defaults.
- *
- * @param value - CMS string
- * @param legacy - Prior default to treat as unset
- * @param next - Replacement presentation default
- */
-function upgradeLegacyCopy(
-  value: string | undefined,
-  legacy: string,
-  next: string,
-): string {
-  const trimmed = value?.trim() || "";
-  if (!trimmed || trimmed === legacy) return next;
-  return trimmed;
-}
-
-/**
- * Splits a single title into lead + accent when CMS accent is unset.
- * Uses the last two words as the accent phrase when possible.
- *
- * @param title - Full hero title from CMS
- */
-function splitTitleLeadAccent(title: string): {
-  titleLead: string;
-  titleAccent: string;
-} {
-  const words = title.trim().split(/\s+/).filter(Boolean);
-  if (words.length === 0) return { titleLead: "", titleAccent: "" };
-  if (words.length === 1) return { titleLead: words[0] ?? "", titleAccent: "" };
-  if (words.length === 2) {
-    return { titleLead: words[0] ?? "", titleAccent: words[1] ?? "" };
-  }
-  return {
-    titleLead: words.slice(0, -2).join(" "),
-    titleAccent: words.slice(-2).join(" "),
-  };
-}
-
-/**
- * True when a CTA already points at the courses band.
- *
- * @param label - CTA label
- * @param href - CTA href
- */
-function isCoursesCta(label: string, href: string): boolean {
-  return (
-    href.includes("#courses") || /browse|view courses|see courses/i.test(label)
+export function onlineHubHeroHasData(hero: HomeHeroContent): boolean {
+  const video = hero.video;
+  return Boolean(
+    hero.badge.trim() ||
+      hero.titleLead.trim() ||
+      hero.titleAccent.trim() ||
+      hero.support?.trim() ||
+      (hero.ctaLabel.trim() && hero.ctaHref.trim()) ||
+      (hero.secondaryCtaLabel?.trim() && hero.secondaryCtaHref?.trim()) ||
+      hero.marqueeItems.some((item) => item.trim()) ||
+      hero.mobileTrust.some((chip) => chip.value.trim() || chip.label.trim()) ||
+      video.mobileSrc.trim() ||
+      video.desktopSrc.trim() ||
+      video.mobilePoster.trim() ||
+      video.desktopPoster.trim(),
   );
 }
 
 /**
- * True when a CTA is an enquire / contact action.
- *
- * @param label - CTA label
- * @param href - CTA href
- */
-function isEnquireCta(label: string, href: string): boolean {
-  return /enquire|enquir|contact/i.test(label) || href.includes("enquire");
-}
-
-/**
- * Resolves hub hero video sources; posters fall back to the still image.
+ * Resolves hub hero video from this page's CMS only — never the homepage MP4.
+ * Posters may use `heroImage` when a playable src exists; otherwise stay empty.
  *
  * @param hero - Online hub page-minimal hero module
  */
 export function resolveOnlineHubHeroVideo(
   hero: PageMinimalHero,
 ): HomeHeroVideoContent {
-  const stored = hero.heroVideo;
-  const fromCms: HomeHeroVideoContent = {
-    mobileSrc: stored?.mobileSrc?.trim() || "",
-    desktopSrc: stored?.desktopSrc?.trim() || "",
-    mobilePoster: stored?.mobilePoster?.trim() || "",
-    desktopPoster: stored?.desktopPoster?.trim() || "",
-  };
-  // Seeded hub pages may omit heroVideo — match the homepage MP4 sources.
-  const video = hasPlayableHeroVideo(fromCms)
-    ? fromCms
-    : { ...DEFAULT_ONLINE_HUB_HERO_VIDEO };
-  const posterFallback = hero.heroImage?.trim() || "";
-  return {
-    mobileSrc: video.mobileSrc?.trim() || "",
-    desktopSrc: video.desktopSrc?.trim() || "",
-    mobilePoster: video.mobilePoster?.trim() || posterFallback,
-    desktopPoster: video.desktopPoster?.trim() || posterFallback,
-  };
+  return resolveVenueHeroVideo(hero);
 }
 
 /**
@@ -232,68 +153,10 @@ export function mapOnlineHubToHomeWelcome(
 
 /**
  * Maps online hub CMS hero fields onto the homepage {@link HomeHeroContent} shape.
- * Adds a complementary secondary CTA (browse ↔ enquire) when only one is set.
+ * Copy and CTAs stay empty unless the CMS provides them — no invented defaults.
  *
  * @param hero - Online hub `page-minimal` hero module
  */
 export function mapOnlineHubToHomeHero(hero: PageMinimalHero): HomeHeroContent {
-  const split = splitTitleLeadAccent(hero.title);
-  const titleLead = upgradeLegacyCopy(
-    hero.titleLead?.trim() || split.titleLead,
-    LEGACY_HERO_COPY.titleLead,
-    PRESENTATION_DEFAULTS.titleLead,
-  );
-  const titleAccent = upgradeLegacyCopy(
-    hero.titleAccent?.trim() || split.titleAccent,
-    LEGACY_HERO_COPY.titleAccent,
-    PRESENTATION_DEFAULTS.titleAccent,
-  );
-  const support = upgradeLegacyCopy(
-    hero.subtitle?.trim() || hero.description?.trim(),
-    LEGACY_HERO_COPY.subtitle,
-    PRESENTATION_DEFAULTS.support,
-  );
-  const rawCtaLabel = hero.ctaLabel?.trim() || "";
-  const rawCtaHref = hero.ctaHref?.trim() || "";
-  const isLegacyEnquirePair =
-    (!rawCtaLabel || rawCtaLabel === LEGACY_HERO_COPY.ctaLabel) &&
-    (!rawCtaHref || rawCtaHref === LEGACY_HERO_COPY.ctaHref);
-  // Seeded enquire-only CTA → Browse primary; custom CMS CTAs stay untouched.
-  const ctaLabel = isLegacyEnquirePair
-    ? PRESENTATION_DEFAULTS.ctaLabel
-    : rawCtaLabel || PRESENTATION_DEFAULTS.ctaLabel;
-  const ctaHref = isLegacyEnquirePair
-    ? PRESENTATION_DEFAULTS.ctaHref
-    : rawCtaHref || PRESENTATION_DEFAULTS.ctaHref;
-
-  let secondaryCtaLabel: string | undefined;
-  let secondaryCtaHref: string | undefined;
-  if (isCoursesCta(ctaLabel, ctaHref)) {
-    secondaryCtaLabel = "Enquire now";
-    secondaryCtaHref = "/enquire-now";
-  } else if (isEnquireCta(ctaLabel, ctaHref)) {
-    secondaryCtaLabel = "Browse courses";
-    secondaryCtaHref = "#courses";
-  }
-
-  return {
-    _id: hero._id,
-    badge: upgradeLegacyCopy(
-      hero.eyebrow,
-      LEGACY_HERO_COPY.eyebrow,
-      PRESENTATION_DEFAULTS.badge,
-    ),
-    titleLead,
-    titleAccent,
-    support,
-    ctaLabel,
-    ctaHref,
-    secondaryCtaLabel,
-    secondaryCtaHref,
-    marqueeItems: hero.marqueeItems?.filter((item) => item.trim()) ?? [],
-    mobileTrust: (hero.mobileTrust ?? []).filter(
-      (stat) => stat.value.trim() || stat.label.trim(),
-    ),
-    video: resolveOnlineHubHeroVideo(hero),
-  };
+  return mapVenueToHomeHero(hero);
 }

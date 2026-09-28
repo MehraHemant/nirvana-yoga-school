@@ -9,8 +9,8 @@ import { liveImage } from "@/lib/live-site";
 const HERO_IMAGE = liveImage("/img/home/banner_3.webp");
 
 /**
- * Matches the homepage hero MP4 sources so the online hub autoplays the same
- * full-bleed background (muted, looping, no controls).
+ * Seed video for newly created hub modules only. Public render never falls
+ * back to these paths when the page's CMS `heroVideo` is empty.
  */
 export const DEFAULT_ONLINE_HUB_HERO_VIDEO: HomeHeroVideoContent = {
   mobileSrc: "/videos/videomobile.mp4",

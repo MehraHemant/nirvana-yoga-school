@@ -5,25 +5,11 @@ import { invalidateContentCache } from "@/lib/cms/cache";
 import { upsertPageModules } from "@/lib/cms/document-to-db";
 import {
   createDefaultOnlineHubModules,
-  DEFAULT_ONLINE_HUB_HERO_VIDEO,
   DEFAULT_ONLINE_HUB_OVERVIEW_VIDEO_POSTER,
   DEFAULT_ONLINE_HUB_OVERVIEW_VIDEO_URL,
   ONLINE_HUB_HERO_IMAGE,
 } from "@/lib/cms/online-hub-defaults";
 import { db } from "@/lib/db";
-
-/**
- * True when hub hero modules already have a playable video source.
- *
- * @param modules - Stored page modules
- */
-function hasHeroVideoSource(modules: PageModulesDocument): boolean {
-  const hero = modules.hero;
-  if (!hero || hero.type !== "page-minimal") return false;
-  const video = hero.heroVideo;
-  if (!video) return false;
-  return Boolean(video.mobileSrc?.trim() || video.desktopSrc?.trim());
-}
 
 /**
  * True when overview already has a video media item with a URL.
@@ -47,7 +33,7 @@ function needsAboutNavBackfill(modules: PageModulesDocument): boolean {
 
 /**
  * Ensures the published online-courses hub site page exists with editable modules.
- * Backfills homepage-matching hero video, overview content video, and `#about` nav.
+ * Backfills overview content video and `#about` nav. Does not invent hero video URLs.
  *
  * @returns Whether a write was performed
  */
@@ -64,17 +50,6 @@ export async function ensureOnlineHubPage(): Promise<{
     const modules = existing.pageModules as PageModulesDocument;
     let next: PageModulesDocument = modules;
     let changed = false;
-
-    if (!hasHeroVideoSource(next) && next.hero?.type === "page-minimal") {
-      next = {
-        ...next,
-        hero: {
-          ...next.hero,
-          heroVideo: { ...DEFAULT_ONLINE_HUB_HERO_VIDEO },
-        },
-      };
-      changed = true;
-    }
 
     if (!hasOverviewVideo(next)) {
       const defaults = createDefaultOnlineHubModules().overview;

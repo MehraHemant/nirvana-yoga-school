@@ -5,10 +5,13 @@ import {
   OnlineHubHeroSection,
   OnlineHubOverviewSection,
 } from "@/components/online";
-import { resolveOnlineHubHeroVideo } from "@/content/mappers/online-hub";
+import {
+  mapOnlineHubToHomeHero,
+  onlineHubHeroHasData,
+} from "@/content/mappers/online-hub";
 import { resolveOnlineHubCourses } from "@/content/mappers/resolve-online-hub-courses";
 import type { PageMinimalHero, SitePageDocument } from "@/content/types";
-import { isSectionLive } from "@/lib/cms/section-visibility";
+import { isSectionLive, shouldRenderSection } from "@/lib/cms/section-visibility";
 import { resolveSectionHtmlId } from "@/lib/html-id";
 import { loadSitePageDataAsync } from "../../_shared/site/data.server";
 import { SiteFaq } from "../../_shared/site/shared";
@@ -45,9 +48,13 @@ export default async function OnlineHubPage({ page }: OnlineHubPageProps) {
     modules?.hero?.type === "page-minimal"
       ? (modules.hero as PageMinimalHero)
       : null;
-  const showHero = heroModule ? isSectionLive(heroModule) : false;
+  const heroContent = heroModule ? mapOnlineHubToHomeHero(heroModule) : null;
+  const showHero =
+    heroModule && heroContent
+      ? shouldRenderSection(heroModule, onlineHubHeroHasData(heroContent))
+      : false;
   const showStickyNav = modules ? isSectionLive(modules.stickyNav) : false;
-  const heroVideo = heroModule ? resolveOnlineHubHeroVideo(heroModule) : null;
+  const heroVideo = heroContent?.video ?? null;
   // Welcome-style overview uses `#about` (same as YTT hub); rewrite legacy anchors.
   // Drop retired Certification / `#exam` anchors from older CMS sticky navs.
   const stickyNavItems =
@@ -61,22 +68,26 @@ export default async function OnlineHubPage({ page }: OnlineHubPageProps) {
     <div className="ytt-hub-page bg-white">
       {showHero && heroModule && heroVideo ? (
         <>
-          {heroVideo.mobilePoster || heroModule.heroImage ? (
+          {heroVideo.mobilePoster || heroVideo.desktopPoster ? (
             <>
-              <link
-                rel="preload"
-                as="image"
-                href={heroVideo.mobilePoster || heroModule.heroImage}
-                media="(max-width: 767px)"
-                fetchPriority="high"
-              />
-              <link
-                rel="preload"
-                as="image"
-                href={heroVideo.desktopPoster || heroModule.heroImage}
-                media="(min-width: 768px)"
-                fetchPriority="high"
-              />
+              {heroVideo.mobilePoster ? (
+                <link
+                  rel="preload"
+                  as="image"
+                  href={heroVideo.mobilePoster}
+                  media="(max-width: 767px)"
+                  fetchPriority="high"
+                />
+              ) : null}
+              {heroVideo.desktopPoster ? (
+                <link
+                  rel="preload"
+                  as="image"
+                  href={heroVideo.desktopPoster}
+                  media="(min-width: 768px)"
+                  fetchPriority="high"
+                />
+              ) : null}
             </>
           ) : null}
           <OnlineHubHeroSection hero={heroModule} />
