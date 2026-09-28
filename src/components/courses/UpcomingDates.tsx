@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { Container, Heading, SectionHeader } from "@/components/ui";
 import {
@@ -9,9 +10,9 @@ import {
 } from "./upcomingDatesShared";
 
 const CARD_IDLE =
-  "relative overflow-hidden rounded-2xl border border-ink/6 bg-white hover:border-primary/20";
+  "relative overflow-hidden rounded-2xl border border-black/40 bg-white hover:border-primary/20";
 const CARD_SELECTED =
-  "relative overflow-hidden rounded-2xl border border-primary/25 bg-linear-to-br from-primary/18 via-primary/8 to-white";
+  "relative overflow-hidden rounded-2xl border border-primary/40 bg-linear-to-br from-primary/18 via-primary/8 to-white";
 
 /**
  * Compact lodging fee card — name and price only.
@@ -20,19 +21,23 @@ const CARD_SELECTED =
  * @param wide - Span both grid columns on sm+
  * @param selected - Whether this room is the active selection
  * @param onSelect - Sets the selected room type
+ * @param showImage - When true, render the package photo above the price
  */
 function RoomCard({
   option,
   wide = false,
   selected,
   onSelect,
+  showImage = false,
 }: {
   option: PricingOption;
   wide?: boolean;
   selected: boolean;
   onSelect: () => void;
+  showImage?: boolean;
 }) {
   const noRoom = option.roomType.toLowerCase().includes("without");
+  const photo = option.image?.trim() ?? "";
 
   return (
     <button
@@ -46,6 +51,17 @@ function RoomCard({
           className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,var(--tw-gradient-stops))] from-primary/20 via-primary/6 to-transparent"
           aria-hidden
         />
+      ) : null}
+      {showImage && photo ? (
+        <span className="relative mb-3 block aspect-16/10 overflow-hidden rounded-xl">
+          <Image
+            src={photo}
+            alt=""
+            fill
+            sizes="(max-width: 640px) 100vw, 40vw"
+            className="object-cover"
+          />
+        </span>
       ) : null}
       <h4 className="relative type-h4 line-clamp-2 text-ink">
         {option.roomType}
@@ -81,7 +97,9 @@ export default function UpcomingDates({
   selectedBatch: selectedBatchProp,
   onRoomSelect,
   onBatchSelect,
+  variant = "default",
 }: UpcomingDatesProps) {
+  const isRetreat = variant === "retreat";
   const batches = batchesProp?.length ? batchesProp : getBatchDates(duration);
   const [internalRoomType, setInternalRoomType] = useState("");
   const [internalBatch, setInternalBatch] = useState(batches[0]?.dates ?? "");
@@ -114,12 +132,18 @@ export default function UpcomingDates({
     <section id={htmlId} className="section-padding-y bg-white">
       <Container size="2xl">
         <SectionHeader
-          eyebrow="Schedule & Fees"
+          eyebrow={isRetreat ? "Including stay & food" : "Schedule & Fees"}
           title={
-            <>
-              Upcoming Batches &{" "}
-              <span className="text-primary">Investment</span>
-            </>
+            isRetreat ? (
+              <>
+                Retreat <span className="text-primary">Packages</span> & Dates
+              </>
+            ) : (
+              <>
+                Upcoming Batches &{" "}
+                <span className="text-primary">Investment</span>
+              </>
+            )
           }
           align="left"
         />
@@ -191,6 +215,7 @@ export default function UpcomingDates({
                     wide={wide}
                     selected={selectedRoomType === option.roomType}
                     onSelect={() => handleRoomSelect(option.roomType)}
+                    showImage={isRetreat}
                   />
                 );
               })}

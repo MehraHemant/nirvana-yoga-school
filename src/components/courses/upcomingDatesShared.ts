@@ -37,6 +37,8 @@ export type UpcomingDatesProps = {
   selectedBatch?: string;
   onRoomSelect?: (roomType: string) => void;
   onBatchSelect?: (batch: string) => void;
+  /** Retreat pages show package photos and retreat-specific headings */
+  variant?: "default" | "retreat";
 };
 
 export type BatchItem = {

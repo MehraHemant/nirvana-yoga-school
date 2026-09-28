@@ -6,37 +6,41 @@ type RetreatHighlightsBarProps = {
   highlights: RetreatHighlight[];
 };
 
+/**
+ * Three-up photo cards under the retreat hero (yoga, healing, excursions).
+ *
+ * @param props.highlights - Title, description, and image from retreat CMS
+ */
 export default function RetreatHighlightsBar({
   highlights,
 }: RetreatHighlightsBarProps) {
   if (highlights.length === 0) return null;
 
   return (
-    <div className="border-b border-ink/8 bg-white py-8 md:py-12">
-      <Container size="2xl" className="grid gap-6 md:grid-cols-3">
+    <div className="border-b border-ink/8 bg-white py-10 md:py-14">
+      <Container
+        size="2xl"
+        className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 md:gap-6"
+      >
         {highlights.map((item) => (
-          <div
+          <article
             key={item.title}
-            className="group surface-card flex items-start gap-4 rounded-3xl p-6 transition-all duration-300 hover:-translate-y-1 hover:border-primary/20 hover:shadow-soft"
+            className="group overflow-hidden rounded-2xl border border-ink/8 bg-white shadow-xs transition-shadow duration-300 hover:shadow-soft"
           >
-            <div className="relative size-16 shrink-0 overflow-hidden rounded-2xl ring-1 ring-primary/10 transition-transform duration-300 group-hover:scale-105">
+            <div className="relative aspect-16/10 overflow-hidden bg-surface-muted">
               <Image
                 src={item.image}
                 alt=""
                 fill
-                sizes="64px"
-                className="object-cover"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
               />
             </div>
-            <div className="min-w-0">
-              <h3 className="type-h4 text-ink transition-colors group-hover:text-primary">
-                {item.title}
-              </h3>
-              <p className="type-body mt-1.5 text-ink">
-                {item.description}
-              </p>
+            <div className="p-5 md:p-6">
+              <h3 className="type-h4 text-ink">{item.title}</h3>
+              <p className="type-body mt-2 text-ink/70">{item.description}</p>
             </div>
-          </div>
+          </article>
         ))}
       </Container>
     </div>

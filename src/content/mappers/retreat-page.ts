@@ -1,16 +1,57 @@
 import type { StickyNavItem } from "@/components/courses/CourseStickyNav";
 import type { PricingOption } from "@/components/courses/upcomingDatesShared";
+import { DEFAULT_RETREAT_NAV } from "@/content/page-modules-defaults";
 import type { RetreatDocument } from "@/content/types/retreat-page";
 import type { ResidentialLifeContent } from "@/content/types/shared-sections";
 
-const RETREAT_NAV: StickyNavItem[] = [
-  { id: "#overview", label: "Overview", shortLabel: "Overview" },
-  { id: "#inclusions", label: "Inclusions", shortLabel: "Include" },
-  { id: "#schedule", label: "Schedule", shortLabel: "Schedule" },
-  { id: "#accommodation", label: "Lodging", shortLabel: "Lodging" },
-  { id: "#pricing", label: "Packages", shortLabel: "Packages" },
-  { id: "#reviews", label: "Testimonials", shortLabel: "Reviews" },
-];
+const RETREAT_PUBLIC_NAV_IDS = new Set<StickyNavItem["id"]>([
+  "#overview",
+  "#inclusions",
+  "#schedule",
+  "#accommodation",
+  "#pricing",
+  "#reviews",
+  "#faq",
+]);
+
+/**
+ * Keeps sticky-nav items that match sections on the live retreat pages.
+ *
+ * @param items - CMS or mapped nav items
+ * @param options.showFaqs - Whether the FAQ section will render
+ * @param options.showReviews - Whether testimonials will render
+ */
+export function filterRetreatNavItems(
+  items: StickyNavItem[],
+  options: { showFaqs: boolean; showReviews: boolean },
+): StickyNavItem[] {
+  const filtered = items.filter((item) => {
+    if (!RETREAT_PUBLIC_NAV_IDS.has(item.id)) return false;
+    if (item.id === "#faq") return options.showFaqs;
+    if (item.id === "#reviews") return options.showReviews;
+    return true;
+  });
+
+  if (
+    options.showReviews &&
+    !filtered.some((item) => item.id === "#reviews")
+  ) {
+    const faqIndex = filtered.findIndex((item) => item.id === "#faq");
+    const reviewsItem = {
+      id: "#reviews" as const,
+      label: "Testimonials",
+      shortLabel: "Reviews",
+    };
+    if (faqIndex >= 0) filtered.splice(faqIndex, 0, reviewsItem);
+    else filtered.push(reviewsItem);
+  }
+
+  if (options.showFaqs && !filtered.some((item) => item.id === "#faq")) {
+    filtered.push({ id: "#faq", label: "FAQ", shortLabel: "FAQ" });
+  }
+
+  return filtered;
+}
 
 function lowestFee(packages: RetreatDocument["packages"]): string {
   const prices = packages
@@ -141,7 +182,7 @@ export function mapRetreatPage(
   const heroImages = buildRetreatHeroImages(retreat, residentialLife);
 
   return {
-    navItems: RETREAT_NAV,
+    navItems: DEFAULT_RETREAT_NAV,
     fee: lowestFee(retreat.packages),
     heroImage: heroImages[0] ?? retreat.heroImage,
     heroImages,

@@ -10,12 +10,11 @@ import {
 import { resolveOverviewStillFromModule } from "@/components/courses/overview-layouts/resolve";
 import { RetreatHighlightsBar } from "@/components/retreat";
 import { filterItemsWithPrice } from "@/content/mappers/residential-life-utils";
-import { retreatWhatsAppHref } from "@/content/mappers/retreat-page";
 import {
-  hasExamCertificationContent,
-  isSectionLive,
-  shouldRenderSection,
-} from "@/lib/cms/section-visibility";
+  filterRetreatNavItems,
+  retreatWhatsAppHref,
+} from "@/content/mappers/retreat-page";
+import { isSectionLive, shouldRenderSection } from "@/lib/cms/section-visibility";
 import { resolveSectionHtmlId } from "@/lib/html-id";
 import type { RetreatPageData } from "./types";
 
@@ -40,10 +39,6 @@ const RetreatScheduleSection = dynamic(
   () => import("@/components/retreat/RetreatScheduleSection"),
   { loading: () => <SectionSkeleton /> },
 );
-const ExamCertification = dynamic(
-  () => import("@/components/courses/ExamCertification"),
-  { loading: () => <SectionSkeleton minHeight="min-h-[30vh]" /> },
-);
 const AccommodationFood = dynamic(
   () => import("@/components/courses/AccommodationFood"),
   { loading: () => <SectionSkeleton /> },
@@ -52,26 +47,16 @@ const UpcomingDates = dynamic(
   () => import("@/components/courses/UpcomingDates"),
   { loading: () => <SectionSkeleton /> },
 );
-const WhyNirvana = dynamic(() => import("@/components/courses/WhyNirvana"), {
-  loading: () => <SectionSkeleton />,
-});
-const TravelGuide = dynamic(() => import("@/components/courses/TravelGuide"), {
-  loading: () => <SectionSkeleton minHeight="min-h-[30vh]" />,
-});
-const InstagramFeed = dynamic(
-  () => import("@/components/courses/InstagramFeed"),
+const TestimonialsSection = dynamic(
+  () => import("@/components/home/TestimonialsSection"),
   { loading: () => <SectionSkeleton minHeight="min-h-[30vh]" /> },
 );
-const MapSection = dynamic(() => import("@/components/home/MapSection"), {
-  loading: () => <SectionSkeleton minHeight="min-h-[50vh]" />,
-});
 const FAQSection = dynamic(() => import("@/components/ui/FAQSection"), {
   loading: () => <SectionSkeleton minHeight="min-h-[30vh]" />,
 });
 
 /**
- * Retreat product page — hero, highlights, sticky nav stay eager;
- * below-fold sections are code-split.
+ * Retreat product page — only sections that exist on the live retreat pages.
  *
  * @param props - Retreat document, modules, and shared section content
  */
@@ -80,16 +65,13 @@ export default function RetreatClient({
   mapped,
   modules,
   residentialLife,
-  whyNirvana,
   reviews,
-  siteMap,
-  instagram,
-  travel,
-  examCertification,
 }: RetreatPageData) {
-  const publicPricing = filterItemsWithPrice(
-    modules?.pricing.options?.length ? modules.pricing.options : mapped.pricing,
-  );
+  const modulePricing = filterItemsWithPrice(modules?.pricing.options ?? []);
+  const publicPricing =
+    modulePricing.length > 0
+      ? modulePricing
+      : filterItemsWithPrice(mapped.pricing);
   const showHero = isSectionLive(modules?.hero);
   const showStickyNav = isSectionLive(modules?.stickyNav);
   const showOverview = isSectionLive(modules?.overview);
@@ -106,24 +88,14 @@ export default function RetreatClient({
     : (retreat.faqs ?? []);
   const showFaqs = shouldRenderSection(modules?.faqs, faqItems.length > 0);
   const showAccommodation = modules?.flags.showAccommodation ?? true;
-  const showWhyNirvana =
-    (modules?.flags.showWhyNirvana ?? true) &&
-    shouldRenderSection(whyNirvana, Boolean(whyNirvana?.highlights?.length));
-  const showMap =
-    (modules?.flags.showMap ?? true) &&
-    shouldRenderSection(siteMap, Boolean(siteMap?.embedUrl?.trim()));
-  const showTravel =
-    (modules?.flags.showTravel ?? true) &&
-    shouldRenderSection(travel, Boolean(travel?.topics?.length));
-  const showInstagram =
-    (modules?.flags.showInstagram ?? true) &&
-    shouldRenderSection(instagram, Boolean(instagram?.media?.length));
-  const showExam =
-    (modules?.flags.showExam ?? false) &&
-    shouldRenderSection(
-      examCertification,
-      hasExamCertificationContent(examCertification),
-    );
+  const showReviews = shouldRenderSection(
+    reviews,
+    Boolean(reviews?.reviews?.length),
+  );
+  const navItems = filterRetreatNavItems(
+    modules?.stickyNav.items ?? mapped.navItems,
+    { showFaqs, showReviews },
+  );
 
   return (
     <div className="retreat-product-theme bg-white">
@@ -159,10 +131,10 @@ export default function RetreatClient({
               flags: {
                 showExam: false,
                 showAccommodation: true,
-                showWhyNirvana: true,
-                showTravel: true,
-                showInstagram: true,
-                showMap: true,
+                showWhyNirvana: false,
+                showTravel: false,
+                showInstagram: false,
+                showMap: false,
               },
             }}
           />
@@ -171,11 +143,8 @@ export default function RetreatClient({
 
       <RetreatHighlightsBar highlights={retreat.highlights} />
 
-      {showStickyNav ? (
-        <CourseStickyNav
-          items={modules?.stickyNav.items ?? mapped.navItems}
-          variant="retreat"
-        />
+      {showStickyNav && navItems.length > 0 ? (
+        <CourseStickyNav items={navItems} variant="retreat" />
       ) : null}
 
       <CourseBookingFab
@@ -197,11 +166,11 @@ export default function RetreatClient({
             glance={modules?.overview.glance ?? []}
             heading={modules?.overview.heading}
             saying={modules?.overview.saying}
-            featureImages={
-              modules?.overview.media.items
-                .filter((item) => item.type === "image")
-                .map((item) => item.url) ?? retreat.overviewImages
-            }
+            // featureImages={
+            //   modules?.overview.media.items
+            //     .filter((item) => item.type === "image")
+            //     .map((item) => item.url) ?? retreat.overviewImages
+            // }
             stillImage={resolveOverviewStillFromModule(modules?.overview)}
             eyebrow={modules?.overview.eyebrow ?? retreat.eyebrow}
             title={modules?.overview.title ?? retreat.title}
@@ -213,19 +182,18 @@ export default function RetreatClient({
           <WhatIsIncluded
             htmlId={resolveSectionHtmlId("inclusions", modules?.inclusions._id)}
             inclusions={modules?.inclusions.items ?? retreat.inclusions}
-            eyebrow={modules?.inclusions.eyebrow}
-            title={modules?.inclusions.title}
-            description={modules?.inclusions.description}
+            eyebrow={modules?.inclusions.eyebrow || "Inclusions"}
+            title={modules?.inclusions.title || "What is Included"}
+            description={
+              modules?.inclusions.description ||
+              "Yoga, meditation, healing sessions, excursions, stay, and sattvic meals listed here are part of this retreat."
+            }
             arrivalSupport={modules?.inclusions.arrivalSupport}
           />
         ) : null}
 
         {retreat.schedule?.length ? (
           <RetreatScheduleSection schedule={retreat.schedule} />
-        ) : null}
-
-        {showExam && examCertification ? (
-          <ExamCertification content={examCertification} />
         ) : null}
 
         {showAccommodation ? (
@@ -246,32 +214,19 @@ export default function RetreatClient({
             programSlug={retreat.slug}
             bookingType="retreat"
             buildWhatsAppHref={retreatWhatsAppHref}
+            variant="retreat"
           />
         ) : null}
 
-        {showWhyNirvana ? (
-          <WhyNirvana
-            content={whyNirvana}
+        {showReviews ? (
+          <TestimonialsSection
             reviews={reviews}
-            images={[
-              whyNirvana?.banner,
-              ...mapped.heroImages,
-              mapped.heroImage,
-              retreat.heroImage,
-              ...retreat.overviewImages,
-              ...retreat.gallery,
-            ].filter((url): url is string => Boolean(url?.trim()))}
+            content={{
+              eyebrow: "Reviews",
+              title: "Testimonials",
+              description: "",
+            }}
           />
-        ) : null}
-
-        {showTravel && travel ? <TravelGuide content={travel} /> : null}
-
-        {showInstagram && instagram ? (
-          <InstagramFeed content={instagram} />
-        ) : null}
-
-        {showMap && siteMap ? (
-          <MapSection className="bg-white" content={siteMap} />
         ) : null}
 
         {showFaqs ? (

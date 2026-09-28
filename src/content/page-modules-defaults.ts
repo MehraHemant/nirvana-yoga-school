@@ -69,6 +69,16 @@ export const DEFAULT_ONLINE_HUB_WHY_ONLINE: WhyOnlineModule = {
   ],
 };
 
+/** Sticky nav for live retreat pages (no YTT-only sections). */
+export const DEFAULT_RETREAT_NAV: StickyNavItem[] = [
+  { id: "#overview", label: "Overview", shortLabel: "Overview" },
+  { id: "#inclusions", label: "Inclusions", shortLabel: "Include" },
+  { id: "#schedule", label: "Schedule", shortLabel: "Schedule" },
+  { id: "#accommodation", label: "Lodging", shortLabel: "Lodging" },
+  { id: "#pricing", label: "Packages", shortLabel: "Packages" },
+  { id: "#reviews", label: "Testimonials", shortLabel: "Reviews" },
+];
+
 /** Default online course sticky nav. */
 export const DEFAULT_ONLINE_NAV: StickyNavItem[] = [
   { id: "#overview", label: "Overview", shortLabel: "Overview" },
@@ -136,6 +146,16 @@ export const DEFAULT_VENUE_FLAGS: ModuleFlags = {
   showMap: true,
 };
 
+/** Default flags for retreat product pages — matches the live retreat layout. */
+export const DEFAULT_RETREAT_FLAGS: ModuleFlags = {
+  showExam: false,
+  showAccommodation: true,
+  showWhyNirvana: false,
+  showTravel: false,
+  showInstagram: false,
+  showMap: false,
+};
+
 /**
  * Create an empty module document scaffold for a new page.
  *
@@ -170,6 +190,12 @@ export function createEmptyPageModules(
               type: "page-minimal" as const,
               title: "",
               heroImage: "",
+              heroVideo: {
+                mobileSrc: "",
+                mobilePoster: "",
+                desktopSrc: "",
+                desktopPoster: "",
+              },
             };
 
   return {

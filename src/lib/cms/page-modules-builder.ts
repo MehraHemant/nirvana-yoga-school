@@ -8,6 +8,8 @@ import {
   DEFAULT_ONLINE_NAV,
   DEFAULT_RESIDENTIAL_FLAGS,
   DEFAULT_RESIDENTIAL_NAV,
+  DEFAULT_RETREAT_FLAGS,
+  DEFAULT_RETREAT_NAV,
   DEFAULT_SITE_FLAGS,
   DEFAULT_SITE_NAV,
   DEFAULT_VENUE_FLAGS,
@@ -391,7 +393,7 @@ export function buildModulesFromRetreat(
       duration: retreat.duration,
       heroImages,
     },
-    stickyNav: { items: [...DEFAULT_RESIDENTIAL_NAV] },
+    stickyNav: { items: [...DEFAULT_RETREAT_NAV] },
     overview: {
       eyebrow: retreat.eyebrow ?? "",
       title: retreat.title,
@@ -444,14 +446,7 @@ export function buildModulesFromRetreat(
         }
       : undefined,
     residentialLife: createEmptyResidentialLife(),
-    flags: {
-      showExam: false,
-      showAccommodation: true,
-      showWhyNirvana: true,
-      showTravel: true,
-      showInstagram: true,
-      showMap: true,
-    },
+    flags: { ...DEFAULT_RETREAT_FLAGS },
   };
 }
 
