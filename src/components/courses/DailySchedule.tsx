@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { useCallback, useRef, useState } from "react";
+import { type ReactNode, useCallback, useRef, useState } from "react";
 import { Container, SectionHeader, TabSwitcher } from "@/components/ui";
 import { BookOpen, Bowl, Clock, Lotus, Sunrise } from "@/icons";
 import { useStickyTabBar } from "@/lib/hooks/useStickyTabBar";
@@ -12,11 +12,50 @@ interface ScheduleItem {
   activity: string;
 }
 
+type ScheduleTab = { id: string; label: string };
+
+const COURSE_PERIOD_TABS: ScheduleTab[] = [
+  { id: "full", label: "Full Day" },
+  { id: "morning", label: "Morning Sadhanas" },
+  { id: "midday", label: "Midday Theory & Lunch" },
+  { id: "evening", label: "Evening Flow & Restoration" },
+];
+
+const DEFAULT_SCHEDULE_TITLE = (
+  <>
+    A Day in the <span className="text-primary">Yogic Life</span>
+  </>
+);
+
+const DEFAULT_FOOTER_NOTE = (
+  <>
+    ⚠️ <strong>Note:</strong> The schedule is subject to minor adjustments based
+    on seasonal weather conditions, excursion timings (Sundays), or special
+    ceremonies.
+  </>
+);
+
 interface DailyScheduleProps {
   description: string;
   schedule: ScheduleItem[];
   /** Public section HTML id (defaults to `schedule`) */
   htmlId?: string;
+  /** Section eyebrow. Defaults to course “Timetable”. */
+  eyebrow?: string;
+  /** Section title. Defaults to the course yogic-life heading. */
+  title?: ReactNode;
+  /** Footer panel copy. Defaults to the course weather/Sunday note. */
+  footerNote?: ReactNode;
+  /** When false, skip morning/midday/evening filtering (retreat day tabs). */
+  filterByTimeOfDay?: boolean;
+  /** Tab set. Defaults to course period tabs when filtering by time of day. */
+  tabs?: ScheduleTab[];
+  /** Controlled tab id when the parent owns tabs (retreat days). */
+  activeTabId?: string;
+  /** Controlled tab change. */
+  onTabChange?: (id: string) => void;
+  /** TabSwitcher layout id (defaults to `activeScheduleTab`). */
+  tabLayoutId?: string;
 }
 
 type ScheduleIconType = "morning" | "meal" | "study" | "yoga" | "default";
@@ -106,17 +145,38 @@ function ScheduleIcon({ type }: { type: ScheduleIconType }) {
 
 /**
  * Course daily timetable with sticky period tabs and a responsive timeline.
+ * Optional props let retreat pages reuse the same chrome with day tabs.
+ *
  * @param description Intro copy under the section header.
- * @param schedule Ordered time/activity rows from the course CMS.
+ * @param schedule Ordered time/activity rows from the course or retreat CMS.
  * @param htmlId Public section HTML id (defaults to `schedule`).
+ * @param eyebrow Optional header eyebrow (defaults to “Timetable”).
+ * @param title Optional header title (defaults to the course heading).
+ * @param footerNote Optional footer copy (defaults to the course note).
+ * @param filterByTimeOfDay When false, show every row (retreat days).
+ * @param tabs Optional tab set. Empty hides the tab bar.
+ * @param activeTabId Controlled tab id.
+ * @param onTabChange Controlled tab change handler.
+ * @param tabLayoutId TabSwitcher layout id.
  */
 export default function DailySchedule({
   description,
   schedule,
   htmlId = "schedule",
+  eyebrow = "Timetable",
+  title = DEFAULT_SCHEDULE_TITLE,
+  footerNote,
+  filterByTimeOfDay = true,
+  tabs: tabsProp,
+  activeTabId,
+  onTabChange,
+  tabLayoutId = "activeScheduleTab",
 }: DailyScheduleProps) {
   const prefersReduced = useReducedMotion() ?? false;
-  const [activeTab, setActiveTab] = useState<string>("full");
+  const tabs = tabsProp ?? (filterByTimeOfDay ? COURSE_PERIOD_TABS : []);
+  const showTabs = tabs.length > 0;
+  const [internalTab, setInternalTab] = useState(tabs[0]?.id ?? "full");
+  const activeTab = activeTabId ?? internalTab;
   const { sentinelRef, sectionEndRef, tabsRef, isPinned, tabsTop, tabsHeight } =
     useStickyTabBar();
   const feedRef = useRef<HTMLDivElement>(null);
@@ -125,7 +185,8 @@ export default function DailySchedule({
   // tab bar stays visually connected to its content after switching tabs.
   const handleTabChange = useCallback(
     (id: string) => {
-      setActiveTab(id);
+      if (activeTabId === undefined) setInternalTab(id);
+      onTabChange?.(id);
       requestAnimationFrame(() => {
         feedRef.current?.scrollIntoView({
           behavior: prefersReduced ? "auto" : "smooth",
@@ -133,7 +194,7 @@ export default function DailySchedule({
         });
       });
     },
-    [prefersReduced],
+    [activeTabId, onTabChange, prefersReduced],
   );
 
   // Determine icon type based on activity name or time
@@ -194,16 +255,9 @@ export default function DailySchedule({
     return true;
   };
 
-  const filteredSchedule = schedule.filter((item) =>
-    isItemInTab(item.time, activeTab),
-  );
-
-  const tabs = [
-    { id: "full", label: "Full Day" },
-    { id: "morning", label: "Morning Sadhanas" },
-    { id: "midday", label: "Midday Theory & Lunch" },
-    { id: "evening", label: "Evening Flow & Restoration" },
-  ];
+  const filteredSchedule = filterByTimeOfDay
+    ? schedule.filter((item) => isItemInTab(item.time, activeTab))
+    : schedule;
 
   return (
     <section
@@ -218,48 +272,48 @@ export default function DailySchedule({
           variants={fadeUp}
           className="text-center mb-12 sm:mb-16 max-w-2xl mx-auto"
         >
-          <SectionHeader
-            eyebrow="Timetable"
-            title={
-              <>
-                A Day in the <span className="text-primary">Yogic Life</span>
-              </>
-            }
-            align="center"
-          />
+          <SectionHeader eyebrow={eyebrow} title={title} align="center" />
           <p className="type-lead mx-auto mt-6 max-w-xl text-ink">
             {description}
           </p>
         </motion.div>
       </Container>
 
-      {/* Tab filters */}
-      <div ref={sentinelRef} className="h-px w-full" aria-hidden="true" />
+      {showTabs ? (
+        <>
+          <div ref={sentinelRef} className="h-px w-full" aria-hidden="true" />
 
-      {isPinned && (
-        <div
-          style={{ height: tabsHeight }}
-          className="w-full"
-          aria-hidden="true"
-        />
+          {isPinned && (
+            <div
+              style={{ height: tabsHeight }}
+              className="w-full"
+              aria-hidden="true"
+            />
+          )}
+
+          <div
+            ref={tabsRef}
+            style={isPinned ? { top: tabsTop } : undefined}
+            className={`z-30 bg-transparent ${isPinned ? "fixed inset-x-0" : "relative"}`}
+          >
+            <Container size="2xl" className="py-3">
+              <TabSwitcher
+                tabs={tabs}
+                activeId={activeTab}
+                onChange={handleTabChange}
+                layoutId={tabLayoutId}
+                className="mb-0 justify-start pb-0 lg:justify-center"
+                flush
+              />
+            </Container>
+          </div>
+        </>
+      ) : (
+        <>
+          <div ref={sentinelRef} className="hidden" aria-hidden="true" />
+          <div ref={tabsRef} className="hidden" aria-hidden="true" />
+        </>
       )}
-
-      <div
-        ref={tabsRef}
-        style={isPinned ? { top: tabsTop } : undefined}
-        className={`z-30 bg-transparent ${isPinned ? "fixed inset-x-0" : "relative"}`}
-      >
-        <Container size="2xl" className="py-3">
-          <TabSwitcher
-            tabs={tabs}
-            activeId={activeTab}
-            onChange={handleTabChange}
-            layoutId="activeScheduleTab"
-            className="mb-0 justify-start pb-0 lg:justify-center"
-            flush
-          />
-        </Container>
-      </div>
 
       <Container size="2xl" className="pt-8">
         {/* Dynamic Schedule Feed */}
@@ -283,7 +337,7 @@ export default function DailySchedule({
 
                 return (
                   <motion.div
-                    key={item.time}
+                    key={`${item.time}-${item.activity}`}
                     layout
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -338,11 +392,8 @@ export default function DailySchedule({
           </motion.div>
         </div>
 
-        {/* Footer Warning block */}
         <div className="surface-panel type-ui mx-auto mt-16 max-w-md rounded-2xl p-4 text-center text-ink shadow-xs">
-          ⚠️ <strong>Note:</strong> The schedule is subject to minor adjustments
-          based on seasonal weather conditions, excursion timings (Sundays), or
-          special ceremonies.
+          {footerNote ?? DEFAULT_FOOTER_NOTE}
         </div>
       </Container>
 

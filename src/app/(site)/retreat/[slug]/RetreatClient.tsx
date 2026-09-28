@@ -10,11 +10,11 @@ import {
 import { resolveOverviewStillFromModule } from "@/components/courses/overview-layouts/resolve";
 import { RetreatHighlightsBar } from "@/components/retreat";
 import { filterItemsWithPrice } from "@/content/mappers/residential-life-utils";
+import { filterRetreatNavItems } from "@/content/mappers/retreat-page";
 import {
-  filterRetreatNavItems,
-  retreatWhatsAppHref,
-} from "@/content/mappers/retreat-page";
-import { isSectionLive, shouldRenderSection } from "@/lib/cms/section-visibility";
+  isSectionLive,
+  shouldRenderSection,
+} from "@/lib/cms/section-visibility";
 import { resolveSectionHtmlId } from "@/lib/html-id";
 import type { RetreatPageData } from "./types";
 
@@ -43,8 +43,8 @@ const AccommodationFood = dynamic(
   () => import("@/components/courses/AccommodationFood"),
   { loading: () => <SectionSkeleton /> },
 );
-const UpcomingDates = dynamic(
-  () => import("@/components/courses/UpcomingDates"),
+const RetreatPackagesDates = dynamic(
+  () => import("@/components/retreat/RetreatPackagesDates"),
   { loading: () => <SectionSkeleton /> },
 );
 const TestimonialsSection = dynamic(
@@ -201,7 +201,7 @@ export default function RetreatClient({
         ) : null}
 
         {showPricing ? (
-          <UpcomingDates
+          <RetreatPackagesDates
             htmlId={resolveSectionHtmlId("pricing", modules?.pricing._id)}
             duration={modules?.pricing.duration ?? retreat.duration}
             pricing={publicPricing}
@@ -209,12 +209,7 @@ export default function RetreatClient({
               modules?.pricing.description ?? mapped.pricingDescription
             }
             batches={modules?.pricing.batches ?? mapped.batches}
-            lodgingTitle="Retreat packages"
-            datesTitle="Retreat dates"
-            programSlug={retreat.slug}
-            bookingType="retreat"
-            buildWhatsAppHref={retreatWhatsAppHref}
-            variant="retreat"
+            offer={retreat.offer}
           />
         ) : null}
 
