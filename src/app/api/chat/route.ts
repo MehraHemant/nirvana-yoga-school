@@ -40,7 +40,7 @@ function toPublicChatError(error: unknown): string {
     error instanceof Error ? error.message : "Failed to send chat message";
 
   if (/chat_conversations|chat_messages|does not exist/i.test(message)) {
-    return "Chat storage is not ready. Apply the chat DB migration (npm run db:migrate:chat).";
+    return "Chat storage is not ready.";
   }
   if (message === "Conversation not found") return message;
   if (
