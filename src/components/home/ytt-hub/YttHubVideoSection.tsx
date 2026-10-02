@@ -7,7 +7,7 @@ type YttHubVideoSectionProps = {
 };
 
 /**
- * Hub wrapper around the shared video band — spacing/rhythm via `ytt-hub-page.css`.
+ * Hub wrapper around the shared video band (white background via hub CSS).
  *
  * @param props - Home video section content
  */

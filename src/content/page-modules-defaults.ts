@@ -37,6 +37,16 @@ export const DEFAULT_ONLINE_HUB_NAV: StickyNavItem[] = [
   { id: "#faq", label: "FAQ", shortLabel: "FAQ" },
 ];
 
+/** Sticky nav for the in-person YTT courses hub (`global_settings.yttHub.nav`). */
+export const DEFAULT_YTT_HUB_NAV: StickyNavItem[] = [
+  { id: "#about", label: "Overview", shortLabel: "Overview" },
+  { id: "#courses", label: "Courses", shortLabel: "Courses" },
+  { id: "#exam", label: "Certification", shortLabel: "Cert" },
+  { id: "#teachers", label: "Teachers", shortLabel: "Teachers" },
+  { id: "#reviews", label: "Reviews", shortLabel: "Reviews" },
+  { id: "#faq", label: "FAQ", shortLabel: "FAQ" },
+];
+
 /** Default Why Online band for the online courses hub. */
 export const DEFAULT_ONLINE_HUB_WHY_ONLINE: WhyOnlineModule = {
   live: true,

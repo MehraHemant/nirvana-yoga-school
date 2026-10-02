@@ -150,7 +150,7 @@ export default function OnlineHubBenefits({
                   <motion.li
                     key={`${itemTitle}-${index}`}
                     variants={listItemVariants}
-                    className="online-why-item group relative grid grid-cols-[auto_minmax(0,1fr)] gap-5 py-8 sm:gap-7 sm:py-9"
+                    className="online-why-item group relative grid grid-cols-[auto_minmax(0,1fr)] gap-5 sm:gap-7"
                   >
                     <motion.span
                       className="online-why-index relative z-10 flex flex-col items-start gap-3 pt-0.5"

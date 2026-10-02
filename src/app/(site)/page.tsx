@@ -53,13 +53,9 @@ const FinalCTASection = dynamic(
   () => import("@/components/home/FinalCTASection"),
 );
 
-/** Lightweight placeholder so layout doesn’t jump while a section chunk loads. */
-function SectionSkeleton({
-  minHeight = "min-h-[40vh]",
-}: {
-  minHeight?: string;
-}) {
-  return <div className={`w-full ${minHeight}`} aria-hidden="true" />;
+/** Lightweight placeholder while a section chunk loads. */
+function SectionSkeleton() {
+  return <div className="w-full" aria-hidden="true" />;
 }
 
 /**
@@ -169,7 +165,7 @@ export default async function Home() {
         <WelcomeSection content={home.welcome} />
       ) : null}
       {shouldRenderHomeSection("video", home) ? (
-        <Suspense fallback={<SectionSkeleton minHeight="min-h-[50vh]" />}>
+        <Suspense fallback={<SectionSkeleton />}>
           <VideoSection content={home.video} />
         </Suspense>
       ) : null}
@@ -186,7 +182,7 @@ export default async function Home() {
         <YogaAllianceSection content={home.yogaAlliance} />
       ) : null}
       {shouldRenderHomeSection("whyRishikesh", home) ? (
-        <Suspense fallback={<SectionSkeleton minHeight="min-h-[50vh]" />}>
+        <Suspense fallback={<SectionSkeleton />}>
           <WhyRishikeshSection content={home.whyRishikesh} />
         </Suspense>
       ) : null}

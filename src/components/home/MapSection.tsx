@@ -38,12 +38,15 @@ export default function MapSection({
     );
 
   return (
-    <section id={sectionId} className={`w-full ${className}`}>
+    <section
+      id={sectionId}
+      className={`w-full section-padding-y ${className}`}
+    >
       <iframe
         title={map.iframeTitle}
         src={map.embedUrl}
         className="w-full border-0"
-        style={{ minHeight: 500, height: "50vh" }}
+        style={{ height: "50vh" }}
         loading="lazy"
         referrerPolicy="no-referrer-when-downgrade"
         allowFullScreen

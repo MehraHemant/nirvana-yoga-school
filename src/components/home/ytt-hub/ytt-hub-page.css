@@ -1,25 +1,16 @@
 /**
- * Hub-only section rhythm + shared-section polish.
+ * Hub-only polish (background, scroll anchors). Vertical rhythm uses
+ * `section-padding-y` / `section-white` on each band — not rules here.
  * Scoped under `.ytt-hub-page` so homepage / course pages are untouched.
  */
 
 /* Pure white bands below hero */
 .ytt-hub-page > section:not(.yoga-alliance-band),
-.ytt-hub-page .ytt-hub-shared > section:not(.yoga-alliance-band) {
+.ytt-hub-page .ytt-hub-shared > section:not(.yoga-alliance-band),
+.ytt-hub-page article > section:not(.yoga-alliance-band) {
   background-color: #fff;
   background-image: none;
   scroll-margin-top: 7rem;
-}
-
-/* Shared bands get hub rhythm; FAQ keeps course FAQSection padding */
-.ytt-hub-page .ytt-hub-shared > section {
-  padding-block: 5rem;
-}
-
-@media (min-width: 768px) {
-  .ytt-hub-page .ytt-hub-shared > section {
-    padding-block: 7rem;
-  }
 }
 
 /* Gallery category sticky bar uses bg-sand/90 on the homepage */

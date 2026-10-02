@@ -37,7 +37,7 @@ export function SectionCornerLeaf({ side }: { side: "left" | "right" }) {
 }
 
 /**
- * Pastel text card showing the full CMS highlight body.
+ * Text card showing the full CMS highlight body.
  * @param props.item CMS highlight title and body.
  * @param props.index Highlight index for flourish rotation.
  * @param props.slot Flat grid slot for repeating gradient pattern.
@@ -57,7 +57,7 @@ export function WhyNirvanaTextCard({
 
   return (
     <article
-      className={`why-nirvana-text-card shadow-lg! relative flex h-full min-h-66 flex-col overflow-hidden rounded-2xl ${wash.base} p-5 sm:min-h-72 sm:p-6`}
+      className={`why-nirvana-text-card shadow-lg! relative flex h-full flex-col overflow-hidden rounded-2xl ${wash.base} p-5 sm:p-6`}
     >
       <span
         className={`pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,var(--tw-gradient-stops))] ${wash.glow} via-transparent to-transparent`}
@@ -104,9 +104,9 @@ export function WhyNirvanaImageCard({
 
   return (
     <article
-      className={`relative h-full min-h-66 overflow-hidden rounded-2xl p-px shadow-lg! sm:min-h-72 ${wash.base}`}
+      className={`relative h-full overflow-hidden rounded-2xl p-px shadow-lg! ${wash.base}`}
     >
-      <div className="relative h-full min-h-[calc(16.5rem-2px)] overflow-hidden rounded-[calc(1rem-1px)] bg-white sm:min-h-[calc(18rem-2px)]">
+      <div className="relative aspect-[4/3] overflow-hidden rounded-[calc(1rem-1px)] bg-white">
         <Image
           src={src}
           alt={alt}

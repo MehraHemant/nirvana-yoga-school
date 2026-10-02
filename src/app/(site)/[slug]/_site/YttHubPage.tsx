@@ -1,4 +1,4 @@
-import { ExamCertification } from "@/components/courses";
+import { CourseStickyNav, ExamCertification } from "@/components/courses";
 import { MapSection } from "@/components/home";
 import {
   YttHubCoursesSection,
@@ -11,6 +11,7 @@ import {
   YttHubWhyRishikeshSection,
 } from "@/components/home/ytt-hub";
 import { FAQSection } from "@/components/ui";
+import { buildYttHubStickyNav } from "@/content/mappers/hub-sticky-nav";
 import { resolveYttHubCourses } from "@/content/mappers/resolve-ytt-hub-courses";
 import { getHomePageContent } from "@/content/repositories/dedicated-pages";
 import {
@@ -33,7 +34,7 @@ import "@/components/home/ytt-hub/ytt-hub-page.css";
  * YTT hub page — homepage-styled hero/overview/gallery plus hub CMS bands.
  * Public section order: Hero → Overview → Video → Gallery → Why Rishikesh →
  * Courses → Certification → Teachers → Reviews → Map → FAQ.
- * Sticky nav is not rendered on this page.
+ * Sticky nav links come from `hub.nav` in CMS (see YTT Hub admin).
  * Section HTML ids come from `hub.sectionIds` when set.
  * Videos/gallery/Why Rishikesh/reviews reuse homepage CMS (`pages.home`).
  * Certification reuses shared exam content (`global_settings.examCertification`).
@@ -98,6 +99,29 @@ export default async function YttHubPage() {
     home.testimonials.reviews?.length > 0
       ? { reviews: home.testimonials.reviews }
       : reviews;
+  const showFaqs = hub.faqs.length > 0;
+  const showStickyNav = flags.showStickyNav !== false;
+  const stickyNavItems = showStickyNav
+    ? buildYttHubStickyNav(
+        hub,
+        {
+          showVideos,
+          showGallery,
+          showWhyRishikesh,
+          showEligibility,
+          showTeachers,
+          showReviews,
+          showMap,
+          showFaqs,
+        },
+        {
+          video: home.video._id,
+          gallery: home.gallery._id,
+          testimonials: home.testimonials._id,
+          whyRishikesh: home.whyRishikesh._id,
+        },
+      )
+    : [];
 
   return (
     <div className="ytt-hub-page bg-white">
@@ -121,6 +145,9 @@ export default async function YttHubPage() {
       ) : null}
 
       <YttHubHeroSection hub={hub} />
+      {stickyNavItems.length > 0 ? (
+        <CourseStickyNav items={stickyNavItems} />
+      ) : null}
       <YttHubOverviewSection hub={hub} />
       {showVideos ? <YttHubVideoSection content={home.video} /> : null}
       {showGallery ? <YttHubGallerySection content={home.gallery} /> : null}

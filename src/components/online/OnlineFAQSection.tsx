@@ -73,7 +73,7 @@ export default function OnlineFAQSection({
     <OnlineSectionShell
       id={id}
       title="Frequently Asked Questions"
-      className="border-b-0 pb-20"
+      className="border-b-0"
     >
       <div className="space-y-8">
         {showCategoryTabs ? (

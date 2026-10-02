@@ -43,7 +43,7 @@ export default function OnlineHubCtaSection({
             <br />
             <span className="font-bold text-accent">teacher training</span>
           </Heading>
-          <p className="type-lead mx-auto mt-4 max-w-xl text-white/80">
+          <p className="type-body mx-auto mt-4 max-w-xl text-white/80">
             Enquire for guidance on the right course, Indian student pricing, or
             enrollment — we reply quickly on WhatsApp.
           </p>

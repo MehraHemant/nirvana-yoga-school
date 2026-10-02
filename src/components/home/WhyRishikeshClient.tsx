@@ -355,7 +355,7 @@ export default function WhyRishikeshClient({
       </div>
         {content.closingInvitation.trim() ? (
                 <blockquote className="mt-6 py-1.5 pl-5 sm:mt-8 sm:pl-6">
-                  <p className="type-lead font-quote text-pretty leading-[1.75] text-ink">
+                  <p className="type-body font-quote text-pretty leading-[1.75] text-ink">
                     {content.closingInvitation}
                   </p>
                 </blockquote>

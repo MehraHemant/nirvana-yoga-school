@@ -5,6 +5,7 @@ import {
   DEFAULT_ONLINE_NAV,
   DEFAULT_RESIDENTIAL_NAV,
   DEFAULT_SITE_NAV,
+  DEFAULT_YTT_HUB_NAV,
 } from "@/content/page-modules-defaults";
 import type { StickyNavItem } from "@/content/types";
 import { Plus } from "@/icons";
@@ -40,6 +41,7 @@ const NAV_PRESETS: { label: string; items: StickyNavItem[] }[] = [
   { label: "Site page", items: DEFAULT_SITE_NAV },
   { label: "Online course", items: DEFAULT_ONLINE_NAV },
   { label: "Online hub", items: DEFAULT_ONLINE_HUB_NAV },
+  { label: "YTT hub", items: DEFAULT_YTT_HUB_NAV },
 ];
 
 const EMPTY_ITEM: StickyNavItem = {

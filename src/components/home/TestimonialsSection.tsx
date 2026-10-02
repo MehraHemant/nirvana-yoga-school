@@ -39,7 +39,7 @@ export default function TestimonialsSection({
       className="relative w-full overflow-hidden bg-white section-padding-y"
     >
       <Container size="2xl" className="relative z-10 w-full">
-        <div className="mx-auto mb-16 w-full max-w-2xl text-center">
+        <div className="mx-auto mb-16 w-full text-center">
           <SectionHeader
             align="center"
             eyebrow={eyebrow}

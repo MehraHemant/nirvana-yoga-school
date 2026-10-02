@@ -12,26 +12,18 @@ import {
 import { resolveSectionHtmlId } from "@/lib/html-id";
 import type { OnlineCoursePageData } from "./types";
 
-/**
- * Lightweight placeholder so layout doesn’t jump while a section chunk loads.
- *
- * @param props - Optional min-height utility class
- */
-function SectionSkeleton({
-  minHeight = "min-h-[40vh]",
-}: {
-  minHeight?: string;
-}) {
-  return <div className={`w-full ${minHeight}`} aria-hidden="true" />;
+/** Lightweight placeholder while a section chunk loads. */
+function SectionSkeleton() {
+  return <div className="w-full" aria-hidden="true" />;
 }
 
 const OnlineOverviewSection = dynamic(
   () => import("@/components/online/OnlineOverviewSection"),
-  { loading: () => <SectionSkeleton minHeight="min-h-[30vh]" /> },
+  { loading: () => <SectionSkeleton /> },
 );
 const OnlineInclusionsSection = dynamic(
   () => import("@/components/online/OnlineInclusionsSection"),
-  { loading: () => <SectionSkeleton minHeight="min-h-[30vh]" /> },
+  { loading: () => <SectionSkeleton /> },
 );
 const OnlineCurriculumSection = dynamic(
   () => import("@/components/online/OnlineCurriculumSection"),
@@ -39,19 +31,19 @@ const OnlineCurriculumSection = dynamic(
 );
 const ExamCertification = dynamic(
   () => import("@/components/courses/ExamCertification"),
-  { loading: () => <SectionSkeleton minHeight="min-h-[30vh]" /> },
+  { loading: () => <SectionSkeleton /> },
 );
 const OnlineTeachersSection = dynamic(
   () => import("@/components/online/OnlineTeachersSection"),
-  { loading: () => <SectionSkeleton minHeight="min-h-[30vh]" /> },
+  { loading: () => <SectionSkeleton /> },
 );
 const OnlineTestimonialsSection = dynamic(
   () => import("@/components/online/OnlineTestimonialsSection"),
-  { loading: () => <SectionSkeleton minHeight="min-h-[30vh]" /> },
+  { loading: () => <SectionSkeleton /> },
 );
 const OnlineFAQSection = dynamic(
   () => import("@/components/online/OnlineFAQSection"),
-  { loading: () => <SectionSkeleton minHeight="min-h-[30vh]" /> },
+  { loading: () => <SectionSkeleton /> },
 );
 
 /**
@@ -195,7 +187,7 @@ export default function OnlineCourseClient({
             ) : null}
 
             {pricingCard && (
-              <div className="border-b border-secondary/10 py-8 lg:hidden">
+              <div className="border-b border-secondary/10 section-padding-y lg:hidden">
                 {pricingCard}
               </div>
             )}

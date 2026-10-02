@@ -22,17 +22,9 @@ import {
 import { resolveSectionHtmlId } from "@/lib/html-id";
 import type { CoursePageData } from "./types";
 
-/**
- * Lightweight placeholder so layout doesn’t jump while a section chunk loads.
- *
- * @param props - Optional min-height utility class
- */
-function SectionSkeleton({
-  minHeight = "min-h-[40vh]",
-}: {
-  minHeight?: string;
-}) {
-  return <div className={`w-full ${minHeight}`} aria-hidden="true" />;
+/** Lightweight placeholder while a section chunk loads. */
+function SectionSkeleton() {
+  return <div className="w-full" aria-hidden="true" />;
 }
 
 const WhatIsIncluded = dynamic(
@@ -41,7 +33,7 @@ const WhatIsIncluded = dynamic(
 );
 const CourseEligibility = dynamic(
   () => import("@/components/courses/CourseEligibility"),
-  { loading: () => <SectionSkeleton minHeight="min-h-[30vh]" /> },
+  { loading: () => <SectionSkeleton /> },
 );
 const CourseSyllabus = dynamic(
   () => import("@/components/courses/CourseSyllabus"),
@@ -49,11 +41,11 @@ const CourseSyllabus = dynamic(
 );
 const DailySchedule = dynamic(
   () => import("@/components/courses/DailySchedule"),
-  { loading: () => <SectionSkeleton minHeight="min-h-[30vh]" /> },
+  { loading: () => <SectionSkeleton /> },
 );
 const ExamCertification = dynamic(
   () => import("@/components/courses/ExamCertification"),
-  { loading: () => <SectionSkeleton minHeight="min-h-[30vh]" /> },
+  { loading: () => <SectionSkeleton /> },
 );
 const AccommodationFood = dynamic(
   () => import("@/components/courses/AccommodationFood"),
@@ -67,17 +59,17 @@ const WhyNirvana = dynamic(() => import("@/components/courses/WhyNirvana"), {
   loading: () => <SectionSkeleton />,
 });
 const TravelGuide = dynamic(() => import("@/components/courses/TravelGuide"), {
-  loading: () => <SectionSkeleton minHeight="min-h-[30vh]" />,
+  loading: () => <SectionSkeleton />,
 });
 const InstagramFeed = dynamic(
   () => import("@/components/courses/InstagramFeed"),
-  { loading: () => <SectionSkeleton minHeight="min-h-[30vh]" /> },
+  { loading: () => <SectionSkeleton /> },
 );
 const MapSection = dynamic(() => import("@/components/home/MapSection"), {
-  loading: () => <SectionSkeleton minHeight="min-h-[50vh]" />,
+  loading: () => <SectionSkeleton />,
 });
 const FAQSection = dynamic(() => import("@/components/ui/FAQSection"), {
-  loading: () => <SectionSkeleton minHeight="min-h-[30vh]" />,
+  loading: () => <SectionSkeleton />,
 });
 
 /**
@@ -238,7 +230,7 @@ export default function CourseClient({
         pricingAnchor={`#${resolveSectionHtmlId("pricing", m?.pricing._id)}`}
       />
 
-      <article className="min-h-screen max-w-full overflow-x-clip">
+      <article className="max-w-full overflow-x-clip">
         {showOverview ? (
           <CourseOverview
             htmlId={resolveSectionHtmlId("overview", m?.overview._id)}

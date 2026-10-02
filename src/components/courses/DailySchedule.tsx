@@ -273,7 +273,7 @@ export default function DailySchedule({
           className="text-center mb-12 sm:mb-16 max-w-2xl mx-auto"
         >
           <SectionHeader eyebrow={eyebrow} title={title} align="center" />
-          <p className="type-lead mx-auto mt-6 max-w-xl text-ink">
+          <p className="type-body mx-auto mt-6 max-w-xl text-ink">
             {description}
           </p>
         </motion.div>
@@ -296,7 +296,7 @@ export default function DailySchedule({
             style={isPinned ? { top: tabsTop } : undefined}
             className={`z-30 bg-transparent ${isPinned ? "fixed inset-x-0" : "relative"}`}
           >
-            <Container size="2xl" className="py-3">
+            <Container size="2xl">
               <TabSwitcher
                 tabs={tabs}
                 activeId={activeTab}
@@ -315,11 +315,11 @@ export default function DailySchedule({
         </>
       )}
 
-      <Container size="2xl" className="pt-8">
+      <Container size="2xl">
         {/* Dynamic Schedule Feed */}
         <div
           ref={feedRef}
-          className="relative mx-auto min-h-100 min-w-0 max-w-7xl items-center"
+          className="relative mx-auto min-w-0 max-w-7xl items-center"
           style={{ scrollMarginTop: tabsTop + tabsHeight + 16 }}
         >
           {/* Vertical timeline: left rail below lg, centered spine on desktop */}

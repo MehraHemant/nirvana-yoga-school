@@ -49,7 +49,7 @@ export default function SectionHeader({
       </Heading>
       {description && (
         <p
-          className={`type-lead mt-4 sm:mt-5 ${descriptionClassName ?? descColor}`}
+          className={`type-body mt-4 sm:mt-5 ${descriptionClassName ?? descColor}`}
         >
           {description}
         </p>

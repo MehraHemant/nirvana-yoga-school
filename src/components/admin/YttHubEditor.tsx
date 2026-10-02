@@ -6,18 +6,20 @@ import { AdminSaveBar } from "@/components/admin/AdminSaveBar";
 import { AdminSectionJumpNav } from "@/components/admin/AdminSectionJumpNav";
 import { CollapsiblePanel } from "@/components/admin/CollapsiblePanel";
 import { CoursesPicker } from "@/components/admin/CoursesPicker";
+import { FaqItemsEditor } from "@/components/admin/FaqItemsEditor";
 import { ImageField } from "@/components/admin/ImageField";
+import { StickyNavModuleEditor } from "@/components/admin/modules/StickyNavModuleEditor";
 import { PageSeoFields } from "@/components/admin/PageSeoFields";
 import { SectionIdField } from "@/components/admin/SectionIdField";
 import { SectionLiveField } from "@/components/admin/SectionLiveField";
 import { StringListField } from "@/components/admin/StringListField";
 import { toSectionDomId } from "@/components/admin/sectionDomId";
-import { FaqItemsEditor } from "@/components/admin/FaqItemsEditor";
 import { TextField } from "@/components/admin/TextField";
 import { useSectionScrollSpy } from "@/components/admin/useSectionScrollSpy";
 import { useStableListKeys } from "@/components/admin/useStableListKeys";
 import { VideoField } from "@/components/admin/VideoField";
 import { normalizeYttHubCourseRefs } from "@/content/mappers/ytt-hub-courses";
+import { DEFAULT_YTT_HUB_NAV } from "@/content/page-modules-defaults";
 import type { YttHubContent } from "@/content/types/shared-sections";
 
 type YttHubEditorProps = {
@@ -28,10 +30,11 @@ type YttHubEditorProps = {
   backLabel?: string;
 };
 
-/** Admin jump order matches public hub layout (no sticky nav). */
+/** Admin jump order matches public hub layout. */
 const YTT_HUB_JUMP_DEFS = [
   { slug: "meta", label: "Page metadata", key: "meta" as const },
   { slug: "hero", label: "Hero", key: "hero" as const },
+  { slug: "sticky-nav", label: "Sticky nav", key: "stickyNav" as const },
   { slug: "overview", label: "Overview", key: "overview" as const },
   { slug: "flags", label: "Section flags", key: "flags" as const },
   {
@@ -106,7 +109,7 @@ export function YttHubEditor({
       if (def.key === "meta") {
         return { id: toSectionDomId(def.slug, doc.meta), label: def.label };
       }
-      if (def.key === "flags") {
+      if (def.key === "flags" || def.key === "stickyNav") {
         return { id: toSectionDomId(def.slug), label: def.label };
       }
       return {
@@ -127,7 +130,7 @@ export function YttHubEditor({
     const def = YTT_HUB_JUMP_DEFS.find((d) => d.slug === slug);
     if (!def) return toSectionDomId(slug);
     if (def.key === "meta") return toSectionDomId(def.slug, doc.meta);
-    if (def.key === "flags") {
+    if (def.key === "flags" || def.key === "stickyNav") {
       return toSectionDomId(def.slug);
     }
     return toSectionDomId(def.slug, sectionIdRef(doc, def.key));
@@ -394,6 +397,17 @@ export function YttHubEditor({
             </div>
           </CollapsiblePanel>
 
+          <StickyNavModuleEditor
+            panelId={panelId("sticky-nav")}
+            items={doc.nav?.length ? doc.nav : [...DEFAULT_YTT_HUB_NAV]}
+            live={flags.showStickyNav !== false}
+            onLiveChange={(live) => patchFlag("showStickyNav", live)}
+            sectionId={doc.sectionIds?.stickyNav}
+            onSectionIdChange={(_id) => patchSectionId("stickyNav", _id)}
+            onChange={(nav) => setDoc({ ...doc, nav })}
+            description="Anchors must match public section ids (e.g. #about, #courses, #faq). Use the YTT hub preset to start."
+          />
+
           <CollapsiblePanel
             id={panelId("overview")}
             title="Overview"
@@ -541,6 +555,7 @@ export function YttHubEditor({
             <ul className="admin-flags-list">
               {(
                 [
+                  ["showStickyNav", "Sticky navigation"],
                   ["showVideos", "Videos"],
                   ["showGallery", "Photos"],
                   ["showWhyRishikesh", "Why Rishikesh"],

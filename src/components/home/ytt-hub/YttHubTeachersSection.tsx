@@ -7,7 +7,7 @@ type YttHubTeachersSectionProps = {
 };
 
 /**
- * Hub teachers band — homepage TeachersSection inside hub padding wrapper.
+ * Hub teachers band — homepage {@link TeachersSection} with hub white-band styling.
  * Section `id` stays `teachers` for sticky nav (TeachersSection default).
  *
  * @param props - Faculty profiles from `getTeachersPage`

@@ -151,7 +151,7 @@ export default function EnquireNowPageClient({
             <h1 className="type-h1 text-white">
               {content.hero.title}
             </h1>
-            <p className="type-lead max-w-xl pt-1 text-white/85">
+            <p className="type-body max-w-xl pt-1 text-white/85">
               {content.hero.lead}
             </p>
 

@@ -121,7 +121,7 @@ export default function KirtanClient({
         href={mapped.ctaPrimaryHref}
       />
 
-      <article className="min-h-screen max-w-full overflow-x-clip">
+      <article className="max-w-full overflow-x-clip">
         {showOverview ? (
           <CourseOverview
             htmlId={resolveSectionHtmlId("overview", modules?.overview._id)}

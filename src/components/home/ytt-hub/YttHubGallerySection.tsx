@@ -7,7 +7,7 @@ type YttHubGallerySectionProps = {
 };
 
 /**
- * Hub wrapper around the shared gallery band — spacing/rhythm via `ytt-hub-page.css`.
+ * Hub wrapper around the shared gallery band (white background via hub CSS).
  *
  * @param props - Home gallery section content
  */

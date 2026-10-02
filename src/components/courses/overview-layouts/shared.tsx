@@ -26,7 +26,7 @@ export function OverviewShell({
   return (
     <section
       id={htmlId}
-      className={`relative overflow-hidden section-padding-y ${className}`}
+      className={`relative scroll-mt-28 overflow-hidden section-padding-y ${className}`}
     >
       <Container size="2xl" className="w-full">
         {children}
@@ -110,7 +110,7 @@ export function OverviewCopy({
         <SanitizedHtml html={data.overviewHtml} className={leadClassName} />
       ) : null}
       {data.supporting ? (
-        <p className="type-lead text-ink">{data.supporting}</p>
+        <p className="type-body text-ink">{data.supporting}</p>
       ) : null}
     </div>
   );

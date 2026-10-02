@@ -11,6 +11,7 @@ import {
 import type { GalleryModule } from "@/content/types/page-modules";
 import type { SitePageGalleryImage } from "@/content/types/site-page";
 import { shouldRenderSection } from "@/lib/cms/section-visibility";
+import { useInfiniteList } from "@/lib/hooks/useInfiniteList";
 
 type VenueGalleryProps = {
   /** Gallery module from page_modules (copy and sections) */
@@ -80,6 +81,7 @@ function VenuePhotoCard({ item, alt, onOpen, variant }: VenuePhotoCardProps) {
 
 /**
  * Classic photo gallery for course/retreat venue pages.
+ * Photos load in pages as the user approaches the bottom of the grid.
  *
  * @param props - Gallery module metadata and DB images
  */
@@ -113,18 +115,28 @@ export default function VenueGallery({
     [images],
   );
 
-  const visibleItems = useMemo(() => {
-    if (activeSection === "all") return allItems;
-    return allItems.filter((item) => item.category === activeSection);
-  }, [activeSection, allItems]);
+  const displayQueue = useMemo(() => {
+    if (activeSection !== "all") {
+      return allItems.filter((item) => item.category === activeSection);
+    }
+    return sections.flatMap((section) =>
+      allItems.filter((item) => item.category === section.id),
+    );
+  }, [activeSection, allItems, sections]);
+
+  const { shownCount, hasMore, sentinelRef } = useInfiniteList({
+    itemCount: displayQueue.length,
+    resetKey: activeSection,
+  });
+  const displayedItems = displayQueue.slice(0, shownCount);
 
   const lightboxItems = useMemo(
     () =>
-      visibleItems.map((item) => ({
+      displayQueue.map((item) => ({
         type: "image" as const,
         url: item.url,
       })),
-    [visibleItems],
+    [displayQueue],
   );
 
   const showGalleryMedia = shouldRenderSection(
@@ -151,7 +163,7 @@ export default function VenueGallery({
    * @param item - Display item that was clicked
    */
   function openLightbox(item: DisplayItem) {
-    const index = visibleItems.findIndex((entry) => entry.key === item.key);
+    const index = displayQueue.findIndex((entry) => entry.key === item.key);
     setLightboxIndex(index >= 0 ? index : 0);
     setLightboxOpen(true);
   }
@@ -159,11 +171,9 @@ export default function VenueGallery({
   return (
     <section
       id="gallery"
-      className={
-        variant === "retreat"
-          ? "bg-white pb-16 pt-6 sm:pb-24 sm:pt-8"
-          : "bg-white pb-16 pt-2 mt-4 sm:pb-20"
-      }
+      data-infinite-shown={displayedItems.length}
+      data-infinite-total={displayQueue.length}
+      className="bg-white section-padding-y"
     >
       <Container size="2xl">
         {showGalleryMedia && images.length > 0 ? (
@@ -210,7 +220,7 @@ export default function VenueGallery({
                 {activeSection === "all" ? (
                   <div className="flex flex-col gap-12 sm:gap-14">
                     {sections.map((section) => {
-                      const sectionItems = allItems.filter(
+                      const sectionItems = displayedItems.filter(
                         (item) => item.category === section.id,
                       );
                       if (sectionItems.length === 0) return null;
@@ -260,7 +270,7 @@ export default function VenueGallery({
                         : "grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-4"
                     }
                   >
-                    {visibleItems.map((item, index) => (
+                    {displayedItems.map((item, index) => (
                       <li key={item.key}>
                         <VenuePhotoCard
                           item={item}
@@ -277,6 +287,16 @@ export default function VenueGallery({
                 )}
               </motion.div>
             </AnimatePresence>
+            {hasMore ? (
+              <div
+                ref={sentinelRef}
+                className="h-px w-full overflow-hidden"
+                aria-hidden="true"
+              />
+            ) : null}
+            <p className="sr-only" aria-live="polite">
+              Showing {displayedItems.length} of {displayQueue.length} photos
+            </p>
           </>
         ) : null}
       </Container>

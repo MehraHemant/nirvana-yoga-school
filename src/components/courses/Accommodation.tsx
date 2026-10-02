@@ -180,7 +180,7 @@ function AmenitiesSection({ facilities }: { facilities: SharedFacility[] }) {
   const hasBothGroups = included.length > 0 && addOns.length > 0;
 
   return (
-    <div className="space-y-7 border-t border-ink/5 pt-8 sm:space-y-8 sm:pt-10 lg:pt-12">
+    <div className="space-y-7 border-t border-ink/5 sm:space-y-8">
       <ResidentialSectionIntro
         eyebrow="Campus amenities"
         title="Everything for a comfortable ashram stay"

@@ -14,7 +14,7 @@ export default function CourseOverviewQuote({
   if (!text.trim()) return null;
 
   return (
-    <figure className="border-y border-ink/10 py-10 sm:py-12">
+    <figure className="border-y border-ink/10">
       <blockquote>
         <p className="font-quote italic text-pretty text-ink text-[clamp(1.125rem,1.05rem+0.35vw,1.3125rem)] leading-[1.75]">
           {text}

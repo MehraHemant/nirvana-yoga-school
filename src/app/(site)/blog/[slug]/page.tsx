@@ -81,7 +81,7 @@ export default async function BlogPostPage({ params }: PageProps) {
     <>
       <BlogPostHero post={post} />
 
-      <section className="relative bg-white">
+      <section className="relative bg-white section-padding-y">
         <div
           className="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-primary/25 to-transparent"
           aria-hidden="true"
@@ -93,7 +93,7 @@ export default async function BlogPostPage({ params }: PageProps) {
         >
           <article
             aria-label="Article"
-            className="blog-post-article bg-white px-5 py-12 sm:py-16 md:px-8 lg:px-12 lg:py-16 xl:px-20"
+            className="blog-post-article bg-white px-5 md:px-8 lg:px-12 xl:px-20"
           >
             <div className="mx-auto max-w-184">
               <BlogPostContent bodyHtml={bodyHtml} blocks={post.content} />
@@ -102,7 +102,7 @@ export default async function BlogPostPage({ params }: PageProps) {
 
           <aside
             aria-labelledby="blog-programs-heading"
-            className="border-t border-ink/10 bg-white px-5 py-10 sm:px-8 sm:py-12 lg:sticky lg:top-(--site-header-height) lg:flex lg:h-[calc(100svh-var(--site-header-height))] lg:flex-col lg:overflow-hidden lg:border-l lg:border-t-0 lg:px-6 lg:py-6 xl:px-8"
+            className="border-t border-ink/10 bg-white px-5 sm:px-8 lg:sticky lg:top-(--site-header-height) lg:flex lg:h-[calc(100svh-var(--site-header-height))] lg:flex-col lg:overflow-hidden lg:border-l lg:border-t-0 lg:px-6 xl:px-8"
           >
             <BlogCourseRail courses={courses} />
           </aside>

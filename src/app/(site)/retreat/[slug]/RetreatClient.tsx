@@ -18,17 +18,9 @@ import {
 import { resolveSectionHtmlId } from "@/lib/html-id";
 import type { RetreatPageData } from "./types";
 
-/**
- * Lightweight placeholder so layout doesn’t jump while a section chunk loads.
- *
- * @param props - Optional min-height utility class
- */
-function SectionSkeleton({
-  minHeight = "min-h-[40vh]",
-}: {
-  minHeight?: string;
-}) {
-  return <div className={`w-full ${minHeight}`} aria-hidden="true" />;
+/** Lightweight placeholder while a section chunk loads. */
+function SectionSkeleton() {
+  return <div className="w-full" aria-hidden="true" />;
 }
 
 const WhatIsIncluded = dynamic(
@@ -49,10 +41,10 @@ const RetreatPackagesDates = dynamic(
 );
 const TestimonialsSection = dynamic(
   () => import("@/components/home/TestimonialsSection"),
-  { loading: () => <SectionSkeleton minHeight="min-h-[30vh]" /> },
+  { loading: () => <SectionSkeleton /> },
 );
 const FAQSection = dynamic(() => import("@/components/ui/FAQSection"), {
-  loading: () => <SectionSkeleton minHeight="min-h-[30vh]" />,
+  loading: () => <SectionSkeleton />,
 });
 
 /**
@@ -153,7 +145,7 @@ export default function RetreatClient({
         href={`/retreat-booking?course=${encodeURIComponent(retreat.slug)}`}
       />
 
-      <article className="min-h-screen max-w-full overflow-x-clip bg-white">
+      <article className="max-w-full overflow-x-clip bg-white">
         {showOverview ? (
           <CourseOverview
             htmlId={resolveSectionHtmlId("overview", modules?.overview._id)}

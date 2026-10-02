@@ -282,7 +282,7 @@ function ProseBlock({
                 {title}
               </Heading>
             ) : null}
-            {lead ? <p className="type-lead mt-4 text-ink">{lead}</p> : null}
+            {lead ? <p className="type-body mt-4 text-ink">{lead}</p> : null}
             {body ? (
               <div className="mt-6">
                 <BlogHtmlContent html={body} className="prose-blog space-y-5" />
@@ -379,7 +379,7 @@ function ContactBlock({ data }: { data: Record<string, unknown> }) {
               {str(data, "headline") || "Get in touch"}
             </Heading>
             {str(data, "summary") ? (
-              <p className="type-lead mt-4 text-ink">{str(data, "summary")}</p>
+              <p className="type-body mt-4 text-ink">{str(data, "summary")}</p>
             ) : null}
             {str(data, "body") ? (
               <div className="mt-6">
@@ -592,7 +592,7 @@ function FeatureListBlock({ data }: { data: Record<string, unknown> }) {
             {title}
           </Heading>
         ) : null}
-        {intro ? <p className="type-lead mt-4 text-ink">{intro}</p> : null}
+        {intro ? <p className="type-body mt-4 text-ink">{intro}</p> : null}
         {items.length > 0 ? (
           <ul className="mt-8 grid gap-3 sm:grid-cols-2">
             {items.map((item, index) => (

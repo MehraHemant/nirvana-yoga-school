@@ -222,6 +222,12 @@ export const PAGE_LAYOUTS: Record<PageLayoutId, PageLayoutDefinition> = {
         settingsKey: "yttHub",
       },
       {
+        id: "sticky-nav",
+        label: "Sticky nav",
+        source: "globalSettings",
+        settingsKey: "yttHub",
+      },
+      {
         id: "overview",
         label: "Overview",
         source: "globalSettings",

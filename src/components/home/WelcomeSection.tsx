@@ -225,9 +225,9 @@ export default function WelcomeSection({
         duration: 0.6,
         ease: EASE_OUT,
       })}
-      className="bg-white section-padding-y relative overflow-hidden"
+      className="scroll-mt-28 bg-white section-padding-y relative overflow-hidden"
     >
-      <Container size="2xl" className="w-full lg:py-10">
+      <Container size="2xl" className="w-full">
         <div className="grid lg:grid-cols-[minmax(0,0.7fr)_minmax(0,1.1fr)] gap-10 lg:gap-10 xl:gap-14 2xl:gap-16 items-center">
           {/* Left Column — video player or 2x2 collage */}
           <motion.div
@@ -399,7 +399,7 @@ export default function WelcomeSection({
             whileInView="visible"
             viewport={VIEWPORT_ONCE}
             variants={rightColumnContainer}
-            className="order-1 lg:order-2 flex flex-col gap-6"
+            className="order-1 lg:order-2 flex flex-col gap-4"
           >
             <motion.div variants={rightColumnItem}>
               <Pill>{content.eyebrow}</Pill>
@@ -412,15 +412,15 @@ export default function WelcomeSection({
               <Heading as="h2" align="left" size="h2" className="text-balance font-semibold">
                 {content.title}
               </Heading>
-              <div
+              {/* <div
                 className="w-12 h-px bg-linear-to-r from-primary/80 via-accent/70 to-transparent"
                 aria-hidden="true"
-              />
+              /> */}
             </motion.div>
 
             {/* Lead Story Paragraph */}
             <motion.div variants={rightColumnItem}>
-              <p className="type-lead">
+              <p className="type-body-lg">
                 {content.lead}
               </p>
             </motion.div>
@@ -429,25 +429,25 @@ export default function WelcomeSection({
             {showVision || showPromise ? (
               <motion.div
                 variants={rightColumnItem}
-                className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2"
+                className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-1"
               >
                 {showVision ? (
-                  <div className="space-y-2 border-t border-ink/5 pt-4">
+                  <div className="space-y-2 border-t border-ink/5 pt-3">
                     <span className="text-primary font-medium text-sm uppercase tracking-wide block">
                       {content.vision.label}
                     </span>
-                    <p className="type-body">
+                    <p className="text-body">
                       {content.vision.body}
                     </p>
                   </div>
                 ) : null}
 
                 {showPromise ? (
-                  <div className="space-y-2 border-t border-ink/5 pt-4">
+                  <div className="space-y-2 border-t border-ink/5 pt-3">
                     <span className="text-primary font-medium text-sm uppercase tracking-wide block">
                       {content.promise.label}
                     </span>
-                    <p className="type-body">
+                    <p className="text-body">
                       {content.promise.body}
                     </p>
                   </div>
@@ -459,7 +459,7 @@ export default function WelcomeSection({
             {highlights.length > 0 ? (
               <motion.div
                 variants={rightColumnItem}
-                className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 pt-6 border-t border-ink/10"
+                className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 pt-6 border-t border-ink/10"
               >
                 {highlights.map((item) => (
                   <div
@@ -469,7 +469,7 @@ export default function WelcomeSection({
                     <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary mt-0.5">
                       <Check size={10} strokeWidth={3} />
                     </span>
-                    <span className="type-ui font-semibold text-ink">
+                    <span className="type-ui font-medium text-ink">
                       {item}
                     </span>
                   </div>
@@ -481,7 +481,7 @@ export default function WelcomeSection({
             {content.ctaLabel?.trim() ? (
               <motion.div
                 variants={rightColumnItem}
-                className="flex flex-wrap gap-2.5 sm:gap-3"
+                className="flex flex-wrap gap-2.5 mt-3 sm:gap-3"
               >
                 <Button
                   href={content.ctaHref}

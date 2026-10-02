@@ -23,7 +23,7 @@ function ParagraphText({
         .map((paragraph) => (
           <p
             key={paragraph.slice(0, 48)}
-            className={`leading-relaxed text-ink ${lead ? "type-lead" : "type-body"}`}
+            className={`leading-relaxed text-ink ${lead ? "type-body" : "type-body"}`}
           >
             {paragraph}
           </p>

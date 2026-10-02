@@ -21,21 +21,13 @@ import { shouldRenderSection } from "@/lib/cms/section-visibility";
 import { SiteFaq } from "../../_shared/site/shared";
 import type { SiteClientProps } from "../../_shared/site/types";
 
-/**
- * Lightweight placeholder so layout doesn’t jump while a section chunk loads.
- *
- * @param props - Optional min-height utility class
- */
-function SectionSkeleton({
-  minHeight = "min-h-[40vh]",
-}: {
-  minHeight?: string;
-}) {
-  return <div className={`w-full ${minHeight}`} aria-hidden="true" />;
+/** Lightweight placeholder while a section chunk loads. */
+function SectionSkeleton() {
+  return <div className="w-full" aria-hidden="true" />;
 }
 
 const MapSection = dynamic(() => import("@/components/home/MapSection"), {
-  loading: () => <SectionSkeleton minHeight="min-h-[50vh]" />,
+  loading: () => <SectionSkeleton />,
 });
 
 /**
@@ -130,8 +122,8 @@ export default function VenueClient({
       <article
         className={
           showHero
-            ? "min-h-screen max-w-full overflow-x-clip bg-white"
-            : "min-h-screen max-w-full overflow-x-clip bg-white pt-(--site-header-height)"
+            ? "max-w-full overflow-x-clip bg-white"
+            : "max-w-full overflow-x-clip bg-white pt-(--site-header-height)"
         }
       >
         <VenueGallery

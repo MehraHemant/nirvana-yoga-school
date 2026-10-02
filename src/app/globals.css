@@ -156,6 +156,12 @@ body {
   line-height: 1.65;
 }
 
+@utility type-body-lg {
+  font-size: clamp(1rem, 0.94rem + 0.3vw, 1.125rem);
+  font-weight: 400;
+  line-height: 1.7;
+}
+
 @utility type-lead {
   font-size: clamp(1.0625rem, 0.96rem + 0.5vw, 1.25rem);
   font-weight: 400;
@@ -166,8 +172,29 @@ body {
   font-family: var(--font-quote), Georgia, "Times New Roman", serif;
 }
 
+/* Equal vertical rhythm for every `section-padding-y` band */
+:root {
+  --section-padding-block: 3rem;
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --section-padding-block: 3.5rem;
+  }
+}
+
 @utility section-padding-y {
-  @apply py-12 sm:py-14 lg:py-[4.5rem] xl:py-20;
+  padding-block: var(--section-padding-block);
+}
+
+@utility section-padding-y-courses {
+  padding-top: var(--section-padding-block);
+  padding-bottom: calc(2 * var(--section-padding-block));
+}
+
+@utility section-padding-y-header {
+  padding-top: calc(var(--site-header-height, 4.75rem) + var(--section-padding-block));
+  padding-bottom: var(--section-padding-block);
 }
 
 @utility section-white {

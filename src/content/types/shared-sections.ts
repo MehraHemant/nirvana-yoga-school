@@ -372,7 +372,7 @@ export type YttHubContent = SharedSectionLiveFields & {
    */
   sectionIds?: {
     hero?: string;
-    /** @deprecated Unused — sticky nav is not rendered on the YTT hub */
+    /** Optional HTML id override for the sticky nav band (rare) */
     stickyNav?: string;
     overview?: string;
     /** Public HTML id override for the homepage Why Rishikesh band on this hub */
@@ -398,6 +398,8 @@ export type YttHubContent = SharedSectionLiveFields & {
     showTeachers?: boolean;
     showReviews?: boolean;
     showMap?: boolean;
+    /** When false, hides the in-page sticky nav band. Default true. */
+    showStickyNav?: boolean;
     /** @deprecated Unused on hub — kept for stored CMS JSON compatibility */
     showExam?: boolean;
     /** @deprecated Unused on hub — kept for stored CMS JSON compatibility */
@@ -474,7 +476,7 @@ export type YttHubContent = SharedSectionLiveFields & {
     title: string;
     paragraphs: string[];
   };
-  /** @deprecated Unused — sticky nav is not rendered on the YTT hub */
+  /** In-page sticky nav links for the YTT courses hub */
   nav: YttHubNavItem[];
   faqs: SharedFaq[];
 };

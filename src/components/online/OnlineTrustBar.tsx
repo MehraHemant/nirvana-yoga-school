@@ -16,8 +16,8 @@ const TRUST_FEATURES = [
 
 export default function OnlineTrustBar() {
   return (
-    <div className="border-b border-accent/15 bg-white">
-      <Container size="2xl" className="grid gap-4 py-6 md:grid-cols-2 md:py-8">
+    <section className="border-b border-accent/15 bg-white section-padding-y">
+      <Container size="2xl" className="grid gap-4 md:grid-cols-2">
         {TRUST_FEATURES.map(({ title, description, icon: Icon }) => (
           <div
             key={title}
@@ -33,6 +33,6 @@ export default function OnlineTrustBar() {
           </div>
         ))}
       </Container>
-    </div>
+    </section>
   );
 }

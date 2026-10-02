@@ -1,5 +1,13 @@
 const COMMON_ANCHORS = [
+  { id: "#about", label: "About / overview", shortLabel: "About" },
   { id: "#overview", label: "Overview", shortLabel: "Overview" },
+  { id: "#courses", label: "Courses", shortLabel: "Courses" },
+  { id: "#why-online", label: "Why online", shortLabel: "Why" },
+  { id: "#why-rishikesh", label: "Why Rishikesh", shortLabel: "Rishikesh" },
+  { id: "#video", label: "Videos", shortLabel: "Video" },
+  { id: "#gallery", label: "Gallery", shortLabel: "Gallery" },
+  { id: "#reviews", label: "Reviews", shortLabel: "Reviews" },
+  { id: "#location", label: "Map / location", shortLabel: "Map" },
   { id: "#inclusions", label: "Inclusions", shortLabel: "Include" },
   { id: "#eligibility", label: "Eligibility", shortLabel: "Eligible" },
   { id: "#syllabus", label: "Syllabus", shortLabel: "Syllabus" },

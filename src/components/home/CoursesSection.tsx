@@ -26,7 +26,7 @@ export default function CoursesSection({
   return (
     <section
       id={resolveSectionHtmlId("courses", content._id)}
-      className="scroll-mt-28 bg-white section-padding-y"
+      className="scroll-mt-28 bg-white section-padding-y-courses"
     >
       <Container size="2xl">
         <motion.div

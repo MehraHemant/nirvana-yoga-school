@@ -25,7 +25,7 @@ type OverviewImage = {
  */
 export default function OverviewImagePanel({
   images,
-  className = "relative aspect-[21/9] min-h-[220px] w-full overflow-hidden rounded-3xl border border-ink/5 bg-ink/10 shadow-card sm:min-h-[280px]",
+  className = "relative aspect-[21/9] w-full overflow-hidden rounded-3xl border border-ink/5 bg-ink/10 shadow-card",
 }: {
   images: OverviewImage[];
   className?: string;

@@ -53,7 +53,7 @@ export default function LegacyRetreatClient({
   return (
     <>
       <SiteHero page={page} mapped={mapped} modules={modules} />
-      <article className="min-h-screen max-w-full overflow-x-clip">
+      <article className="max-w-full overflow-x-clip">
         <SiteOverview page={page} mapped={mapped} modules={modules} />
         {mapped.inclusions.length > 0 && (
           <WhatIsIncluded inclusions={mapped.inclusions} />

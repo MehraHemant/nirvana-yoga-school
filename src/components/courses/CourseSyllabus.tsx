@@ -80,7 +80,7 @@ export default function CourseSyllabus({
             }
             align="center"
           />
-          <p className="type-lead mx-auto mt-6 max-w-2xl text-ink">
+          <p className="type-body mx-auto mt-6 max-w-2xl text-ink">
             {description}
           </p>
         </motion.div>

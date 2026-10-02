@@ -96,7 +96,7 @@ export default function YogaAllianceSection({
             ) : null}
             <h2 className="type-h2 text-ink">{content.title}</h2>
             {content.description ? (
-              <p className="type-lead mt-5 text-ink/70">{content.description}</p>
+              <p className="type-body mt-5 text-ink/70">{content.description}</p>
             ) : null}
           </div>
 

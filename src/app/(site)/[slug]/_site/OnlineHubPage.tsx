@@ -5,13 +5,17 @@ import {
   OnlineHubHeroSection,
   OnlineHubOverviewSection,
 } from "@/components/online";
+import { buildOnlineHubStickyNav } from "@/content/mappers/hub-sticky-nav";
 import {
   mapOnlineHubToHomeHero,
   onlineHubHeroHasData,
 } from "@/content/mappers/online-hub";
 import { resolveOnlineHubCourses } from "@/content/mappers/resolve-online-hub-courses";
 import type { PageMinimalHero, SitePageDocument } from "@/content/types";
-import { isSectionLive, shouldRenderSection } from "@/lib/cms/section-visibility";
+import {
+  isSectionLive,
+  shouldRenderSection,
+} from "@/lib/cms/section-visibility";
 import { resolveSectionHtmlId } from "@/lib/html-id";
 import { loadSitePageDataAsync } from "../../_shared/site/data.server";
 import { SiteFaq } from "../../_shared/site/shared";
@@ -55,14 +59,19 @@ export default async function OnlineHubPage({ page }: OnlineHubPageProps) {
       : false;
   const showStickyNav = modules ? isSectionLive(modules.stickyNav) : false;
   const heroVideo = heroContent?.video ?? null;
-  // Welcome-style overview uses `#about` (same as YTT hub); rewrite legacy anchors.
-  // Drop retired Certification / `#exam` anchors from older CMS sticky navs.
+  const showOverview = modules ? isSectionLive(modules.overview) : false;
+  const showWhyOnline =
+    modules?.whyOnline != null ? isSectionLive(modules.whyOnline) : true;
+  const faqItems = modules?.faqs.items ?? data.mapped.faqs;
+  const showFaqs = faqItems.length > 0;
   const stickyNavItems =
-    modules?.stickyNav.items
-      .map((item) =>
-        item.id === "#overview" ? { ...item, id: "#about" as const } : item,
-      )
-      .filter((item) => item.id !== "#exam") ?? [];
+    modules && showStickyNav
+      ? buildOnlineHubStickyNav(modules, {
+          showOverview,
+          showWhyOnline,
+          showFaqs,
+        })
+      : [];
 
   return (
     <div className="ytt-hub-page bg-white">
@@ -96,7 +105,7 @@ export default async function OnlineHubPage({ page }: OnlineHubPageProps) {
       {showStickyNav && stickyNavItems.length > 0 ? (
         <CourseStickyNav items={stickyNavItems} />
       ) : null}
-      <article className="min-h-screen max-w-full overflow-x-clip">
+      <article className="max-w-full overflow-x-clip">
         {modules && isSectionLive(modules.overview) ? (
           <OnlineHubOverviewSection overview={modules.overview} />
         ) : null}

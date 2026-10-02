@@ -7,19 +7,22 @@ export type WhyNirvanaCardWash = {
   glow: string;
 };
 
-/** Three pastel washes — one per checkerboard column (peach, sage, mint). */
+/**
+ * Three slot-aligned washes: two primary-tinted gradients and one sage green
+ * (see `getWhyNirvanaCardWashBySlot` — slot % 3 === 2 is green).
+ */
 export const WHY_NIRVANA_CARD_WASHES: WhyNirvanaCardWash[] = [
   {
-    base: "bg-linear-to-br from-[#f8e8e2] via-[#fdf6f3] to-white",
-    glow: "from-[#f0ddd6]/28",
+    base: "bg-linear-to-br from-primary/16 via-primary/7 to-white",
+    glow: "from-primary/18",
   },
   {
-    base: "bg-linear-to-br from-[#d8ece2] via-[#f2f9f5] to-white",
-    glow: "from-[#c5ddd0]/25",
+    base: "bg-linear-to-tl from-primary/14 via-primary/6 to-white",
+    glow: "from-primary/15",
   },
   {
-    base: "bg-linear-to-bl from-[#e8f3ec] via-[#f6fbf8] to-white",
-    glow: "from-[#d4e8dc]/25",
+    base: "bg-linear-to-bl from-[#d8ece2] via-[#f2f9f5] to-white",
+    glow: "from-[#c5ddd0]/28",
   },
 ];
 
@@ -64,8 +67,8 @@ export function getWhyNirvanaCardWash(
 }
 
 /**
- * Column-aligned wash — cycles the 3-color palette by grid slot so each
- * column keeps one gradient and the set never grows past three.
+ * Slot-aligned wash — primary maroon gradients on slots 0 and 1; sage green on
+ * every third cell (2, 5, 8, …).
  *
  * @param slot - Flat grid index in row-major order
  */

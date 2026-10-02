@@ -163,7 +163,7 @@ export default function TravelGuide({
         </div>
 
         <div className="mt-12 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_380px] lg:items-stretch">
-          <div className="h-[260px] sm:h-[340px] lg:min-h-[340px] lg:h-full">
+          <div className="h-[260px] sm:h-[340px] lg:h-full">
             <HeroBanner topic={active} />
           </div>
 

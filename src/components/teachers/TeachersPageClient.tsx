@@ -47,7 +47,7 @@ export default function TeachersPageClient({
   );
   const [openedSlug, setOpenedSlug] = useState<string | null>(null);
   const sectionClassName =
-    "bg-white pb-14 pt-[calc(var(--site-header-height)+3.5rem)] sm:pb-16 sm:pt-[calc(var(--site-header-height)+4rem)] lg:pb-20 lg:pt-[calc(var(--site-header-height)+5rem)]";
+    "scroll-mt-28 bg-white section-padding-y-header";
 
   const scrollToTeacher = useCallback(
     (slug: string, behavior?: ScrollBehavior) => {

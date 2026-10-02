@@ -17,7 +17,7 @@ export default function SiteClient({ page, mapped, modules }: SiteClientProps) {
   return (
     <>
       <SiteHero page={page} mapped={mapped} modules={modules} />
-      <article className="min-h-screen max-w-full overflow-x-clip">
+      <article className="max-w-full overflow-x-clip">
         <SiteOverview page={page} mapped={mapped} modules={modules} />
         {programs.length > 0 && <PageProgramsSection cards={programs} />}
         {showGallery && gallery.length > 0 && (
