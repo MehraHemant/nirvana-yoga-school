@@ -27,6 +27,8 @@ export type SharedAccommodationGallery = {
   id: string;
   label: string;
   description: string;
+  /** Bullet features from the shared rooms catalog when resolved from DB. */
+  features?: string[];
   images: SharedGalleryImage[];
   live: boolean;
   /** Small label above the room selector or gallery (e.g. "Choose your room"). */

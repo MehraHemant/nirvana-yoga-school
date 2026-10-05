@@ -25,6 +25,7 @@ function roomToGallery(room: RoomRecord) {
     id: room.id,
     label: roomDisplayTitle(room),
     description: room.description,
+    features: room.features ?? [],
     images: room.images,
     live: room.live !== false,
     eyebrow: room.eyebrow?.trim() || undefined,
@@ -427,11 +428,18 @@ export function mergeSharedResidentialLife(input: {
         page.accommodation.title?.trim() ||
         meta.title?.trim() ||
         "",
-      eyebrow: meta.eyebrow?.trim() || "",
+      eyebrow:
+        page.accommodation.eyebrow?.trim() ||
+        meta.eyebrow?.trim() ||
+        "",
       catalog: input.catalog,
       stay: {
-        title: meta.stay.title.trim(),
-        description: meta.stay.description.trim(),
+        title:
+          page.accommodation.stay.title?.trim() ||
+          meta.stay.title.trim(),
+        description:
+          page.accommodation.stay.description?.trim() ||
+          meta.stay.description.trim(),
       },
       galleries,
       extraRooms: extras,

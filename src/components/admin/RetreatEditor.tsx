@@ -6,6 +6,8 @@ import { AdminSaveBar } from "@/components/admin/AdminSaveBar";
 import { AdminSectionJumpNav } from "@/components/admin/AdminSectionJumpNav";
 import { CollapsiblePanel } from "@/components/admin/CollapsiblePanel";
 import { ImageField } from "@/components/admin/ImageField";
+import { ListRowActions } from "@/components/admin/ListRowActions";
+import { NestedItemCard } from "@/components/admin/NestedItemCard";
 import { ResidentialLifeFields } from "@/components/admin/LodgingFields";
 import { FaqModuleEditor } from "@/components/admin/modules/FaqModuleEditor";
 import { HeroModuleEditor } from "@/components/admin/modules/HeroModuleEditor";
@@ -24,13 +26,14 @@ import { TextField } from "@/components/admin/TextField";
 import { useAdminSectionAccordion } from "@/components/admin/useAdminSectionAccordion";
 import { useSectionScrollSpy } from "@/components/admin/useSectionScrollSpy";
 import { useStableListKeys } from "@/components/admin/useStableListKeys";
+import { roomDisplayTitle } from "@/content/lodging/room-catalog";
 import {
   roomFeesFromLinkedItems,
   upsertRetreatPackageForRoom,
 } from "@/content/mappers/page-room-fees";
-import { roomDisplayTitle } from "@/content/lodging/room-catalog";
 import { createEmptyPageModules } from "@/content/page-modules-defaults";
 import type { PageModulesDocument, RetreatDocument } from "@/content/types";
+import type { RetreatScheduleActivityKind } from "@/content/types/retreat-page";
 import { normalizeFaqCategory } from "@/content/types/faq-categories";
 import type { RoomRecord } from "@/content/types/shared-sections";
 import { sharedSectionLinksForLayout } from "@/lib/cms/page-layout-registry";
@@ -62,8 +65,22 @@ const RETREAT_JUMP_SECTIONS = [
   { slug: "flags", label: "Shared live" },
   { slug: "accommodation", label: "Lodging & food" },
   { slug: "packages", label: "Packages & dates" },
+  { slug: "testimonials", label: "Testimonials" },
   { slug: "faq", label: "FAQ" },
 ] as const;
+
+const RETREAT_ACTIVITY_KINDS: RetreatScheduleActivityKind[] = [
+  "wake",
+  "meditation",
+  "yoga",
+  "meal",
+  "workshop",
+  "rest",
+  "healing",
+  "community",
+  "sleep",
+  "excursion",
+];
 
 const RETREAT_PANEL_KEYS = RETREAT_JUMP_SECTIONS.map((section) => section.slug);
 
@@ -209,6 +226,9 @@ export function RetreatEditor({
   const dayKeys = useStableListKeys(retreat.schedule.length);
   const dateKeys = useStableListKeys(
     Math.max(retreat.dates.length, modules.pricing.batches?.length ?? 0),
+  );
+  const testimonialKeys = useStableListKeys(
+    modules.testimonials?.items?.length ?? 0,
   );
   const [catalogRooms, setCatalogRooms] = useState<RoomRecord[]>([]);
   const { openOnly, panelOpenProps } =
@@ -522,10 +542,77 @@ export function RetreatEditor({
               id={panelId("schedule")}
               step={7}
               title="Day schedule"
+              subtitle="Section copy in modules; days stored on the retreat product"
               {...panelOpenProps("schedule")}
             >
+              <TextField
+                label="Section eyebrow"
+                value={modules.schedule.eyebrow ?? ""}
+                onChange={(eyebrow) =>
+                  setModules({
+                    ...modules,
+                    schedule: { ...modules.schedule, eyebrow },
+                  })
+                }
+              />
+              <TextField
+                label="Section title"
+                value={modules.schedule.title ?? ""}
+                onChange={(title) =>
+                  setModules({
+                    ...modules,
+                    schedule: { ...modules.schedule, title },
+                  })
+                }
+              />
+              <TextField
+                label="Section description"
+                value={modules.schedule.description}
+                onChange={(description) =>
+                  setModules({
+                    ...modules,
+                    schedule: { ...modules.schedule, description },
+                  })
+                }
+                multiline
+              />
+              <div className="admin-field-header">
+                <span className="admin-label">Retreat days</span>
+                <button
+                  type="button"
+                  className="admin-btn-sm"
+                  onClick={() => {
+                    dayKeys.addKey();
+                    const nextDay =
+                      retreat.schedule.reduce(
+                        (max, d) => Math.max(max, d.day),
+                        0,
+                      ) + 1;
+                    setRetreat({
+                      ...retreat,
+                      schedule: [
+                        ...retreat.schedule,
+                        { day: nextDay, title: "", activities: [] },
+                      ],
+                    });
+                  }}
+                >
+                  Add day
+                </button>
+              </div>
               {retreat.schedule.map((day, index) => (
-                <div key={dayKeys.keys[index]} className="admin-nested-card">
+                <NestedItemCard
+                  key={dayKeys.keys[index]}
+                  title={day.title.trim() || `Day ${day.day}`}
+                  index={index}
+                  onRemove={() => {
+                    dayKeys.removeKey(index);
+                    setRetreat({
+                      ...retreat,
+                      schedule: retreat.schedule.filter((_, i) => i !== index),
+                    });
+                  }}
+                >
                   <TextField
                     label={`Day ${day.day} title`}
                     value={day.title}
@@ -544,25 +631,106 @@ export function RetreatEditor({
                       setRetreat({ ...retreat, schedule });
                     }}
                   />
-                  <StringListField
-                    label="Activities (time — activity)"
-                    items={day.activities.map(
-                      (a) => `${a.time} — ${a.activity}`,
-                    )}
-                    onChange={(lines) => {
-                      const activities = lines.map((line) => {
-                        const [time, ...rest] = line.split("—");
-                        return {
-                          time: (time ?? "").trim(),
-                          activity: rest.join("—").trim() || line.trim(),
-                        };
-                      });
+                  {day.activities.map((activity, activityIndex) => (
+                    <div key={`${dayKeys.keys[index]}-act-${activityIndex}`}>
+                      <div className="admin-field-header">
+                        <span className="admin-label">
+                          Activity {activityIndex + 1}
+                        </span>
+                        <ListRowActions
+                          onRemove={() => {
+                            const schedule = [...retreat.schedule];
+                            schedule[index] = {
+                              ...day,
+                              activities: day.activities.filter(
+                                (_, i) => i !== activityIndex,
+                              ),
+                            };
+                            setRetreat({ ...retreat, schedule });
+                          }}
+                        />
+                      </div>
+                      <div className="admin-grid-2">
+                      <TextField
+                        label="Time"
+                        value={activity.time}
+                        onChange={(time) => {
+                          const activities = [...day.activities];
+                          activities[activityIndex] = { ...activity, time };
+                          const schedule = [...retreat.schedule];
+                          schedule[index] = { ...day, activities };
+                          setRetreat({ ...retreat, schedule });
+                        }}
+                      />
+                      <TextField
+                        label="Activity"
+                        value={activity.activity}
+                        onChange={(activityLabel) => {
+                          const activities = [...day.activities];
+                          activities[activityIndex] = {
+                            ...activity,
+                            activity: activityLabel,
+                          };
+                          const schedule = [...retreat.schedule];
+                          schedule[index] = { ...day, activities };
+                          setRetreat({ ...retreat, schedule });
+                        }}
+                      />
+                      <TextField
+                        label="Detail"
+                        value={activity.detail ?? ""}
+                        onChange={(detail) => {
+                          const activities = [...day.activities];
+                          activities[activityIndex] = { ...activity, detail };
+                          const schedule = [...retreat.schedule];
+                          schedule[index] = { ...day, activities };
+                          setRetreat({ ...retreat, schedule });
+                        }}
+                        multiline
+                      />
+                      <label className="admin-field">
+                        <span className="admin-label">Kind</span>
+                        <select
+                          className="admin-input"
+                          value={activity.kind ?? "rest"}
+                          onChange={(event) => {
+                            const kind = event.target
+                              .value as RetreatScheduleActivityKind;
+                            const activities = [...day.activities];
+                            activities[activityIndex] = { ...activity, kind };
+                            const schedule = [...retreat.schedule];
+                            schedule[index] = { ...day, activities };
+                            setRetreat({ ...retreat, schedule });
+                          }}
+                        >
+                          {RETREAT_ACTIVITY_KINDS.map((kind) => (
+                            <option key={kind} value={kind}>
+                              {kind}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      </div>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    className="admin-btn-sm"
+                    onClick={() => {
                       const schedule = [...retreat.schedule];
-                      schedule[index] = { ...day, activities };
+                      schedule[index] = {
+                        ...day,
+                        activities: [
+                          ...day.activities,
+                          { time: "", activity: "", kind: "rest" },
+                        ],
+                      };
                       setRetreat({ ...retreat, schedule });
                     }}
-                  />
-                </div>
+                  >
+                    Add activity
+                  </button>
+                </NestedItemCard>
               ))}
             </CollapsiblePanel>
           </div>
@@ -589,7 +757,7 @@ export function RetreatEditor({
               step={9}
               title="Lodging & food"
               subtitle="Per-room Live and prices"
-              description="Lists shared Retreat accommodation rooms. Toggle Live and set prices here — source of truth for room fees. Edit room photos/names under Shared sections."
+              description="Lists shared Retreat accommodation rooms. Toggle Live and set prices here — source of truth for room fees. Override section eyebrow, title, and stay copy below (blank fields use shared Retreat accommodation). Edit room photos/names under Shared sections."
               {...panelOpenProps("accommodation")}
             >
               <ResidentialLifeFields
@@ -623,6 +791,26 @@ export function RetreatEditor({
               {...panelOpenProps("packages")}
             >
               <TextField
+                label="Section eyebrow"
+                value={modules.pricing.eyebrow ?? ""}
+                onChange={(eyebrow) =>
+                  setModules({
+                    ...modules,
+                    pricing: { ...modules.pricing, eyebrow },
+                  })
+                }
+              />
+              <TextField
+                label="Section title"
+                value={modules.pricing.title ?? ""}
+                onChange={(title) =>
+                  setModules({
+                    ...modules,
+                    pricing: { ...modules.pricing, title },
+                  })
+                }
+              />
+              <TextField
                 label="Pricing description"
                 value={modules.pricing.description}
                 onChange={(description) =>
@@ -632,7 +820,30 @@ export function RetreatEditor({
                   })
                 }
                 multiline
-                hint="Intro copy above packages on the public Dates & Fees section."
+                hint="Shown on the sticky offer card (promo note) and Dates & Fees section intro."
+              />
+              <TextField
+                label="Sticky promo headline"
+                value={modules.pricing.promoHeadline ?? ""}
+                onChange={(promoHeadline) =>
+                  setModules({
+                    ...modules,
+                    pricing: { ...modules.pricing, promoHeadline },
+                  })
+                }
+                placeholder="25% OFF"
+                hint="Primary banner on the sticky sidebar offer (defaults to 25% OFF)."
+              />
+              <TextField
+                label="Sticky promo subhead"
+                value={modules.pricing.promoSubhead ?? ""}
+                onChange={(promoSubhead) =>
+                  setModules({
+                    ...modules,
+                    pricing: { ...modules.pricing, promoSubhead },
+                  })
+                }
+                placeholder="Limited time offer"
               />
               <TextField
                 label="Duration label"
@@ -643,6 +854,29 @@ export function RetreatEditor({
                     pricing: { ...modules.pricing, duration },
                   })
                 }
+              />
+              <TextField
+                label="Starting fee (offer card)"
+                value={modules.pricing.startingFee ?? ""}
+                onChange={(startingFee) =>
+                  setModules({
+                    ...modules,
+                    pricing: { ...modules.pricing, startingFee },
+                  })
+                }
+                placeholder="$749"
+                hint="Fallback price on the sticky card before a package is selected."
+              />
+              <StringListField
+                label="Offer card bullets"
+                items={modules.pricing.offerBullets ?? []}
+                onChange={(offerBullets) =>
+                  setModules({
+                    ...modules,
+                    pricing: { ...modules.pricing, offerBullets },
+                  })
+                }
+                addLabel="Add bullet"
               />
               <p className="admin-hint">
                 Lists all rooms marked Live in Shared retreat accommodation.
@@ -736,51 +970,224 @@ export function RetreatEditor({
                 {(modules.pricing.batches ?? []).map((batch, index) => (
                   <div
                     key={dateKeys.keys[index] ?? index}
-                    className="admin-grid-2"
+                    className="admin-nested-card"
                   >
-                    <TextField
-                      label="Dates"
-                      value={batch.dates}
-                      onChange={(dates) => {
-                        const batches = [...(modules.pricing.batches ?? [])];
-                        batches[index] = { ...batch, dates };
-                        setModules({
-                          ...modules,
-                          pricing: { ...modules.pricing, batches },
-                        });
-                        const retreatDates = [...retreat.dates];
-                        if (retreatDates[index]) {
-                          retreatDates[index] = {
-                            ...retreatDates[index],
-                            range: dates,
-                          };
-                          setRetreat({ ...retreat, dates: retreatDates });
-                        }
-                      }}
-                    />
-                    <TextField
-                      label="Seats / availability"
-                      value={batch.spaces}
-                      onChange={(spaces) => {
-                        const batches = [...(modules.pricing.batches ?? [])];
-                        batches[index] = { ...batch, spaces };
-                        setModules({
-                          ...modules,
-                          pricing: { ...modules.pricing, batches },
-                        });
-                        const retreatDates = [...retreat.dates];
-                        if (retreatDates[index]) {
-                          retreatDates[index] = {
-                            ...retreatDates[index],
-                            availability: spaces,
-                          };
-                          setRetreat({ ...retreat, dates: retreatDates });
-                        }
-                      }}
-                    />
+                    <div className="admin-field-header">
+                      <span className="admin-label">
+                        {batch.dates.trim() || `Date batch ${index + 1}`}
+                      </span>
+                      <ListRowActions
+                        onRemove={() => {
+                          dateKeys.removeKey(index);
+                          setModules({
+                            ...modules,
+                            pricing: {
+                              ...modules.pricing,
+                              batches: (modules.pricing.batches ?? []).filter(
+                                (_, i) => i !== index,
+                              ),
+                            },
+                          });
+                          setRetreat({
+                            ...retreat,
+                            dates: retreat.dates.filter((_, i) => i !== index),
+                          });
+                        }}
+                      />
+                    </div>
+                    <div className="admin-grid-2">
+                      <TextField
+                        label="Dates"
+                        value={batch.dates}
+                        onChange={(dates) => {
+                          const batches = [...(modules.pricing.batches ?? [])];
+                          batches[index] = { ...batch, dates };
+                          setModules({
+                            ...modules,
+                            pricing: { ...modules.pricing, batches },
+                          });
+                          const retreatDates = [...retreat.dates];
+                          if (retreatDates[index]) {
+                            retreatDates[index] = {
+                              ...retreatDates[index],
+                              range: dates,
+                            };
+                            setRetreat({ ...retreat, dates: retreatDates });
+                          }
+                        }}
+                      />
+                      <TextField
+                        label="Seats / availability"
+                        value={batch.spaces}
+                        onChange={(spaces) => {
+                          const batches = [...(modules.pricing.batches ?? [])];
+                          batches[index] = { ...batch, spaces };
+                          setModules({
+                            ...modules,
+                            pricing: { ...modules.pricing, batches },
+                          });
+                          const retreatDates = [...retreat.dates];
+                          if (retreatDates[index]) {
+                            retreatDates[index] = {
+                              ...retreatDates[index],
+                              availability: spaces,
+                            };
+                            setRetreat({ ...retreat, dates: retreatDates });
+                          }
+                        }}
+                      />
+                    </div>
                   </div>
                 ))}
               </div>
+            </CollapsiblePanel>
+          </div>
+
+          <div className="admin-section-shell">
+            <CollapsiblePanel
+              id={panelId("testimonials")}
+              step={11}
+              title="Testimonials"
+              subtitle="Guest reviews on the retreat product page (#reviews)"
+              {...panelOpenProps("testimonials")}
+            >
+              <TextField
+                label="Eyebrow"
+                value={modules.testimonials?.eyebrow ?? ""}
+                onChange={(eyebrow) =>
+                  setModules({
+                    ...modules,
+                    testimonials: {
+                      items: modules.testimonials?.items ?? [],
+                      ...modules.testimonials,
+                      eyebrow,
+                    },
+                  })
+                }
+              />
+              <TextField
+                label="Title"
+                value={modules.testimonials?.title ?? ""}
+                onChange={(title) =>
+                  setModules({
+                    ...modules,
+                    testimonials: {
+                      items: modules.testimonials?.items ?? [],
+                      ...modules.testimonials,
+                      title,
+                    },
+                  })
+                }
+              />
+              <TextField
+                label="Description"
+                value={modules.testimonials?.description ?? ""}
+                onChange={(description) =>
+                  setModules({
+                    ...modules,
+                    testimonials: {
+                      items: modules.testimonials?.items ?? [],
+                      ...modules.testimonials,
+                      description,
+                    },
+                  })
+                }
+                multiline
+              />
+              <div className="admin-field-header">
+                <span className="admin-label">Reviews</span>
+                <button
+                  type="button"
+                  className="admin-btn-sm"
+                  onClick={() => {
+                    testimonialKeys.addKey();
+                    setModules({
+                      ...modules,
+                      testimonials: {
+                        items: [
+                          ...(modules.testimonials?.items ?? []),
+                          { name: "", quote: "", location: "", rating: 5 },
+                        ],
+                        ...modules.testimonials,
+                      },
+                    });
+                  }}
+                >
+                  Add review
+                </button>
+              </div>
+              {(modules.testimonials?.items ?? []).map((item, index) => (
+                <div
+                  key={testimonialKeys.keys[index]}
+                  className="admin-nested-card"
+                >
+                  <TextField
+                    label="Name"
+                    value={item.name}
+                    onChange={(name) => {
+                      const items = [...(modules.testimonials?.items ?? [])];
+                      items[index] = { ...item, name };
+                      setModules({
+                        ...modules,
+                        testimonials: {
+                          ...modules.testimonials,
+                          items,
+                        },
+                      });
+                    }}
+                  />
+                  <TextField
+                    label="Location"
+                    value={item.location ?? ""}
+                    onChange={(location) => {
+                      const items = [...(modules.testimonials?.items ?? [])];
+                      items[index] = { ...item, location };
+                      setModules({
+                        ...modules,
+                        testimonials: {
+                          ...modules.testimonials,
+                          items,
+                        },
+                      });
+                    }}
+                  />
+                  <TextField
+                    label="Quote"
+                    value={item.quote}
+                    onChange={(quote) => {
+                      const items = [...(modules.testimonials?.items ?? [])];
+                      items[index] = { ...item, quote };
+                      setModules({
+                        ...modules,
+                        testimonials: {
+                          ...modules.testimonials,
+                          items,
+                        },
+                      });
+                    }}
+                    multiline
+                  />
+                  <TextField
+                    label="Rating (1–5)"
+                    value={String(item.rating ?? 5)}
+                    onChange={(raw) => {
+                      const rating = Math.min(
+                        5,
+                        Math.max(1, Number.parseInt(raw, 10) || 5),
+                      );
+                      const items = [...(modules.testimonials?.items ?? [])];
+                      items[index] = { ...item, rating };
+                      setModules({
+                        ...modules,
+                        testimonials: {
+                          ...modules.testimonials,
+                          items,
+                        },
+                      });
+                    }}
+                  />
+                </div>
+              ))}
             </CollapsiblePanel>
           </div>
 
@@ -789,7 +1196,7 @@ export function RetreatEditor({
               faqs={modules.faqs ?? { items: [] }}
               onChange={(faqs) => setModules({ ...modules, faqs })}
               panelId={panelId("faq")}
-              step={11}
+              step={12}
               description="Questions and answers shown in the retreat FAQ accordion. Drag to reorder."
               {...panelOpenProps("faq")}
             />

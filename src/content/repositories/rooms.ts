@@ -349,6 +349,7 @@ export function roomToGallery(room: RoomRecord) {
     id: room.id,
     label: roomDisplayTitle(room),
     description: room.description,
+    features: room.features ?? [],
     images: room.images,
     eyebrow: room.eyebrow?.trim() || undefined,
   };

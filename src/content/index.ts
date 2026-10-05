@@ -3,6 +3,10 @@ export {
   mapRetreatPage,
   retreatWhatsAppHref,
 } from "@/content/mappers/retreat-page";
+export {
+  mapRetreatProductContent,
+  mapRetreatProductSections,
+} from "@/content/mappers/retreat-product";
 export type { MappedSitePage } from "@/content/mappers/site-page";
 export { mapSitePage } from "@/content/mappers/site-page";
 export {

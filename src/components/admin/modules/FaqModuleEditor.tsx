@@ -4,6 +4,7 @@ import type { FaqsModule } from "@/content/types";
 import { FaqItemsEditor } from "@/components/admin/FaqItemsEditor";
 import { CollapsiblePanel } from "../CollapsiblePanel";
 import { SectionIdField } from "../SectionIdField";
+import { TextField } from "../TextField";
 import { ModuleLiveField } from "./ModuleLiveField";
 import type { ModulePanelProps } from "./types";
 
@@ -56,6 +57,22 @@ export function FaqModuleEditor({
         fieldId={`${panelId}-section-id`}
         value={faqs._id}
         onChange={(_id) => onChange({ ...faqs, _id })}
+      />
+      <TextField
+        label="Eyebrow"
+        value={faqs.eyebrow ?? ""}
+        onChange={(eyebrow) => onChange({ ...faqs, eyebrow })}
+      />
+      <TextField
+        label="Title"
+        value={faqs.title ?? ""}
+        onChange={(title) => onChange({ ...faqs, title })}
+      />
+      <TextField
+        label="Description"
+        value={faqs.description ?? ""}
+        onChange={(description) => onChange({ ...faqs, description })}
+        multiline
       />
       <FaqItemsEditor
         items={faqs.items ?? []}

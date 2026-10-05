@@ -81,6 +81,8 @@ export default function UpcomingDates({
   selectedBatch: selectedBatchProp,
   onRoomSelect,
   onBatchSelect,
+  embedded = false,
+  sectionDescription,
 }: UpcomingDatesProps) {
   const batches = batchesProp?.length ? batchesProp : getBatchDates(duration);
   const [internalRoomType, setInternalRoomType] = useState("");
@@ -110,93 +112,121 @@ export default function UpcomingDates({
     }
   }
 
+  const header = (
+    <SectionHeader
+      eyebrow={embedded ? "Dates & Fees" : "Schedule & Fees"}
+      title={
+        embedded ? (
+          <>
+            Stay & <span className="text-primary">investment</span>
+          </>
+        ) : (
+          <>
+            Upcoming Batches & <span className="text-primary">Investment</span>
+          </>
+        )
+      }
+      description={embedded ? sectionDescription : undefined}
+      align="left"
+    />
+  );
+
+  const body = (
+    <div
+      className={`grid items-start gap-8 lg:grid-cols-2 lg:items-stretch lg:gap-8 ${embedded ? "" : "mt-10"}`}
+    >
+      {/* Dates column (left) — matches right column height; list scrolls */}
+      <div className="flex min-h-0 flex-col lg:h-0 lg:min-h-full lg:overflow-hidden">
+        <Heading as="h3" size="h4" className="mb-4 h-8 shrink-0">
+          {datesTitle}
+        </Heading>
+
+        <div className="scrollbar-thin-primary min-h-0 flex-1 overflow-y-auto overscroll-y-contain touch-pan-y pr-1">
+          <ol className="space-y-2.5">
+            {batches.map((batch) => {
+              const selected = selectedBatch === batch.dates;
+              return (
+                <li key={batch.dates}>
+                  <button
+                    type="button"
+                    onClick={() => handleBatchSelect(batch.dates)}
+                    aria-pressed={selected}
+                    className={`flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 ${selected ? CARD_SELECTED : CARD_IDLE}`}
+                  >
+                    {selected ? (
+                      <span
+                        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,var(--tw-gradient-stops))] from-primary/20 via-primary/6 to-transparent"
+                        aria-hidden
+                      />
+                    ) : null}
+                    <span className="relative min-w-0 flex-1">
+                      <span className="type-body block font-semibold text-ink">
+                        {batch.dates}
+                      </span>
+                      <span className="type-ui mt-0.5 block text-ink/55">
+                        {batch.spaces}
+                      </span>
+                    </span>
+                    <span
+                      className={`relative type-eyebrow shrink-0 rounded-full border px-2 py-0.5 ${batch.statusColor}`}
+                    >
+                      {batch.status}
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ol>
+        </div>
+      </div>
+
+      {/* Pricing column (right) — sets row height on desktop */}
+      <div className="flex flex-col">
+        <Heading as="h3" size="h4" className="mb-4 h-8">
+          {lodgingTitle}
+        </Heading>
+        <div className="grid auto-rows-fr grid-cols-1 gap-3 sm:grid-cols-2">
+          {pricing.map((option, idx) => {
+            const noRoom = option.roomType.toLowerCase().includes("without");
+            const wide =
+              !noRoom && idx === pricing.length - 1 && pricing.length % 2 === 1;
+            return (
+              <RoomCard
+                key={option.roomType}
+                option={option}
+                wide={wide}
+                selected={selectedRoomType === option.roomType}
+                onSelect={() => handleRoomSelect(option.roomType)}
+              />
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+
+  if (embedded) {
+    return (
+      <section
+        id={htmlId}
+        className="scroll-mt-28 border-b border-ink/8 section-padding-y bg-white"
+      >
+        <div className="space-y-8">
+          <div className="space-y-4">
+            {header}
+            <hr className="border-ink/8" />
+          </div>
+          {body}
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section id={htmlId} className="section-padding-y bg-white">
       <Container size="2xl">
-        <SectionHeader
-          eyebrow="Schedule & Fees"
-          title={
-            <>
-              Upcoming Batches &{" "}
-              <span className="text-primary">Investment</span>
-            </>
-          }
-          align="left"
-        />
-
-        <div className="mt-10 grid items-start gap-8 lg:grid-cols-2 lg:items-stretch lg:gap-8">
-          {/* Dates column (left) — matches right column height; list scrolls */}
-          <div className="flex min-h-0 flex-col lg:h-0 lg:min-h-full lg:overflow-hidden">
-            <Heading as="h3" size="h4" className="mb-4 h-8 shrink-0">
-              {datesTitle}
-            </Heading>
-
-            <div className="scrollbar-thin-primary min-h-0 flex-1 overflow-y-auto overscroll-y-contain touch-pan-y pr-1">
-              <ol className="space-y-2.5">
-                {batches.map((batch) => {
-                  const selected = selectedBatch === batch.dates;
-                  return (
-                    <li key={batch.dates}>
-                      <button
-                        type="button"
-                        onClick={() => handleBatchSelect(batch.dates)}
-                        aria-pressed={selected}
-                        className={`flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 ${selected ? CARD_SELECTED : CARD_IDLE}`}
-                      >
-                        {selected ? (
-                          <span
-                            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,var(--tw-gradient-stops))] from-primary/20 via-primary/6 to-transparent"
-                            aria-hidden
-                          />
-                        ) : null}
-                        <span className="relative min-w-0 flex-1">
-                          <span className="type-body block font-semibold text-ink">
-                            {batch.dates}
-                          </span>
-                          <span className="type-ui mt-0.5 block text-ink/55">
-                            {batch.spaces}
-                          </span>
-                        </span>
-                        <span
-                          className={`relative type-eyebrow shrink-0 rounded-full border px-2 py-0.5 ${batch.statusColor}`}
-                        >
-                          {batch.status}
-                        </span>
-                      </button>
-                    </li>
-                  );
-                })}
-              </ol>
-            </div>
-          </div>
-
-          {/* Pricing column (right) — sets row height on desktop */}
-          <div className="flex flex-col">
-            <Heading as="h3" size="h4" className="mb-4 h-8">
-              {lodgingTitle}
-            </Heading>
-            <div className="grid auto-rows-fr grid-cols-1 gap-3 sm:grid-cols-2">
-              {pricing.map((option, idx) => {
-                const noRoom = option.roomType
-                  .toLowerCase()
-                  .includes("without");
-                const wide =
-                  !noRoom &&
-                  idx === pricing.length - 1 &&
-                  pricing.length % 2 === 1;
-                return (
-                  <RoomCard
-                    key={option.roomType}
-                    option={option}
-                    wide={wide}
-                    selected={selectedRoomType === option.roomType}
-                    onSelect={() => handleRoomSelect(option.roomType)}
-                  />
-                );
-              })}
-            </div>
-          </div>
-        </div>
+        {header}
+        {body}
       </Container>
     </section>
   );

@@ -37,6 +37,10 @@ export type UpcomingDatesProps = {
   selectedBatch?: string;
   onRoomSelect?: (roomType: string) => void;
   onBatchSelect?: (batch: string) => void;
+  /** When true, omits outer Container for product two-column layouts */
+  embedded?: boolean;
+  /** Optional intro copy below the section header (embedded retreat layout) */
+  sectionDescription?: string;
 };
 
 export type BatchItem = {

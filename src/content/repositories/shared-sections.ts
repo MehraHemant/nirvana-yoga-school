@@ -302,6 +302,7 @@ export async function resolveProductResidentialLife(
             _id: pageOverrides?.accommodation?._id,
             live: accommodationLive,
             title: pageOverrides?.accommodation?.title,
+            eyebrow: pageOverrides?.accommodation?.eyebrow,
             catalog,
             stay: pageOverrides?.accommodation?.stay ?? {
               title: "",
