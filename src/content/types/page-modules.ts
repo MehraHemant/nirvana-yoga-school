@@ -163,6 +163,8 @@ export type OverviewModule = ModuleLiveFields & {
   ctaLabel?: string;
   /** Primary CTA href for welcome-style overview */
   ctaHref?: string;
+  /** Optional subhead + body blocks (retreat product overview layout) */
+  blocks?: Array<{ heading: string; body: string }>;
 };
 
 export type InclusionsModule = ModuleLiveFields & {
@@ -213,6 +215,8 @@ export type SyllabusModule = ModuleLiveFields & {
 };
 
 export type ScheduleModule = ModuleLiveFields & {
+  eyebrow?: string;
+  title?: string;
   description: string;
   items: CourseScheduleItem[];
 };
@@ -230,10 +234,40 @@ export type PricingModule = ModuleLiveFields & {
   duration?: string;
   options: CoursePricingOption[];
   batches?: PricingBatch[];
+  /** Section eyebrow for retreat Dates & Fees (`#pricing`) */
+  eyebrow?: string;
+  /** Section title for retreat Dates & Fees */
+  title?: string;
+  /** Sticky sidebar headline (retreat pages), e.g. `25% OFF` */
+  promoHeadline?: string;
+  /** Subhead under the promo headline on the retreat sticky card */
+  promoSubhead?: string;
+  /** Bullet list on the sticky offer card (retreat product layout) */
+  offerBullets?: string[];
+  /** Fallback “from” price on the offer card when no package is selected */
+  startingFee?: string;
 };
 
 export type FaqsModule = ModuleLiveFields & {
+  eyebrow?: string;
+  title?: string;
+  description?: string;
   items: FAQ[];
+};
+
+export type PageTestimonial = {
+  name: string;
+  location?: string;
+  quote: string;
+  rating?: number;
+};
+
+/** Guest reviews band on retreat (and other) product pages */
+export type TestimonialsModule = ModuleLiveFields & {
+  eyebrow?: string;
+  title?: string;
+  description?: string;
+  items: PageTestimonial[];
 };
 
 /**
@@ -346,6 +380,8 @@ export type PageModulesDocument = {
   /** Optional playlist band for layouts that opt in — not used on venue */
   videos?: VideosModule;
   programs?: ProgramsModule;
+  /** Guest testimonials (`#reviews`) — retreat product layout */
+  testimonials?: TestimonialsModule;
   /** Why-online benefits band (online courses hub) */
   whyOnline?: WhyOnlineModule;
   /**

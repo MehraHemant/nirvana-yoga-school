@@ -9,6 +9,7 @@ import { SectionLiveField } from "@/components/admin/SectionLiveField";
 import { TextField } from "@/components/admin/TextField";
 import type { PageRoomFee } from "@/content/mappers/page-room-fees";
 import {
+  coerceSharedAccommodationMeta,
   normalizeResidentialLife,
   normalizeSharedFood,
 } from "@/content/mappers/residential-life";
@@ -61,6 +62,10 @@ export function ResidentialLifeFields({
   const [rooms, setRooms] = useState<RoomRecord[]>([]);
   const [roomsError, setRoomsError] = useState("");
   const [sharedFoodTitle, setSharedFoodTitle] = useState("");
+  const [sharedAccEyebrow, setSharedAccEyebrow] = useState("");
+  const [sharedAccTitle, setSharedAccTitle] = useState("");
+  const [sharedStayTitle, setSharedStayTitle] = useState("");
+  const [sharedStayDescription, setSharedStayDescription] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -74,6 +79,33 @@ export function ResidentialLifeFields({
         if (!cancelled) {
           setRooms([]);
           setRoomsError("Could not load shared rooms.");
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [catalog]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const metaKey =
+      catalog === "retreat" ? "retreatAccommodation" : "residentialLife";
+    fetch(`/api/admin/settings/${metaKey}`)
+      .then((res) => parseApiJson<{ settings: unknown }>(res))
+      .then((metaBody) => {
+        if (cancelled) return;
+        const meta = coerceSharedAccommodationMeta(metaBody.settings);
+        setSharedAccEyebrow(meta.eyebrow?.trim() ?? "");
+        setSharedAccTitle(meta.title?.trim() ?? "");
+        setSharedStayTitle(meta.stay.title.trim());
+        setSharedStayDescription(meta.stay.description.trim());
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setSharedAccEyebrow("");
+          setSharedAccTitle("");
+          setSharedStayTitle("");
+          setSharedStayDescription("");
         }
       });
     return () => {
@@ -210,6 +242,82 @@ export function ResidentialLifeFields({
                 ...safeDoc.accommodation,
                 catalog,
                 _id,
+              },
+            })
+          }
+        />
+        <TextField
+          label="Section eyebrow"
+          hint={
+            sharedAccEyebrow
+              ? `Leave blank to use shared default: “${sharedAccEyebrow}”.`
+              : "Leave blank to use the shared default eyebrow on the public page."
+          }
+          value={safeDoc.accommodation.eyebrow ?? ""}
+          onChange={(eyebrow) =>
+            onChange({
+              ...safeDoc,
+              accommodation: {
+                ...safeDoc.accommodation,
+                catalog,
+                eyebrow,
+              },
+            })
+          }
+        />
+        <TextField
+          label="Section title"
+          hint={
+            sharedAccTitle
+              ? `Leave blank to use shared default: “${sharedAccTitle}”.`
+              : "Leave blank to use the shared default heading on the public page."
+          }
+          value={safeDoc.accommodation.title ?? ""}
+          onChange={(title) =>
+            onChange({
+              ...safeDoc,
+              accommodation: {
+                ...safeDoc.accommodation,
+                catalog,
+                title,
+              },
+            })
+          }
+        />
+        <TextField
+          label="Stay intro title"
+          hint={
+            sharedStayTitle
+              ? `Leave blank to use shared default: “${sharedStayTitle}”.`
+              : "Leave blank to use the shared stay heading on the public page."
+          }
+          value={safeDoc.accommodation.stay.title}
+          onChange={(title) =>
+            onChange({
+              ...safeDoc,
+              accommodation: {
+                ...safeDoc.accommodation,
+                catalog,
+                stay: { ...safeDoc.accommodation.stay, title },
+              },
+            })
+          }
+        />
+        <TextField
+          label="Stay description"
+          hint={
+            sharedStayDescription
+              ? "Leave blank to use the shared stay description on the public page."
+              : "Intro copy shown under the accommodation heading."
+          }
+          value={safeDoc.accommodation.stay.description}
+          onChange={(description) =>
+            onChange({
+              ...safeDoc,
+              accommodation: {
+                ...safeDoc.accommodation,
+                catalog,
+                stay: { ...safeDoc.accommodation.stay, description },
               },
             })
           }

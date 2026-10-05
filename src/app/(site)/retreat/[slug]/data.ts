@@ -1,20 +1,16 @@
 import { coerceToResidentialLife } from "@/content/mappers/residential-life";
+import { mapRetreatProductSections } from "@/content/mappers/retreat-product";
 import { mapRetreatPage } from "@/content/mappers/retreat-page";
+import { hydratePageModulesFaqs } from "@/content/repositories/faqs";
 import {
   getPageIdBySlug,
   getPageRoomOffers,
 } from "@/content/repositories/lodging";
-import { hydrateModulesFromPageTables } from "@/content/repositories/page-modules-sync";
 import { offersToRetreatPackages } from "@/content/repositories/lodging-sync";
-import { hydratePageModulesFaqs } from "@/content/repositories/faqs";
 import { getPageModules } from "@/content/repositories/page-modules";
+import { hydrateModulesFromPageTables } from "@/content/repositories/page-modules-sync";
 import {
-  getExamCertification,
-  getInstagramFeed,
   getReviews,
-  getSiteMap,
-  getTravelGuide,
-  getWhyNirvana,
   resolveProductResidentialLife,
 } from "@/content/repositories/shared-sections";
 import type { RetreatDocument } from "@/content/types/retreat-page";
@@ -28,29 +24,15 @@ import type { RetreatPageData } from "./types";
 export async function loadRetreatPageData(
   retreat: RetreatDocument,
 ): Promise<RetreatPageData> {
-  const [
-    modulesResult,
-    whyNirvana,
-    reviews,
-    siteMap,
-    instagram,
-    travel,
-    examCertificationResult,
-  ] = await Promise.all([
+  const [modulesResult, reviews] = await Promise.all([
     getPageModules(retreat.slug),
-    getWhyNirvana().catch(() => null),
     getReviews().catch(() => null),
-    getSiteMap().catch(() => null),
-    getInstagramFeed().catch(() => null),
-    getTravelGuide().catch(() => null),
-    getExamCertification().catch(() => null),
   ]);
 
   const modules =
-    (await hydrateModulesFromPageTables(
-      retreat.slug,
-      modulesResult.data,
-    ).catch(() => modulesResult.data)) ?? modulesResult.data;
+    (await hydrateModulesFromPageTables(retreat.slug, modulesResult.data).catch(
+      () => modulesResult.data,
+    )) ?? modulesResult.data;
 
   const hydratedModules = modules
     ? ((await hydratePageModulesFaqs(retreat.slug, modules).catch(
@@ -88,16 +70,17 @@ export async function loadRetreatPageData(
     }
   }
 
+  const mapped = mapRetreatPage(retreatDoc, residentialLife);
+
   return {
     retreat: retreatDoc,
-    mapped: mapRetreatPage(retreatDoc, residentialLife),
+    product: mapRetreatProductSections({
+      retreat: retreatDoc,
+      mapped,
+      modules: hydratedModules,
+      residentialLife,
+      reviews: reviews?.data ?? null,
+    }),
     modules: hydratedModules,
-    residentialLife,
-    whyNirvana: whyNirvana?.data ?? null,
-    reviews: reviews?.data ?? null,
-    siteMap: siteMap?.data ?? null,
-    instagram: instagram?.data ?? null,
-    travel: travel?.data ?? null,
-    examCertification: examCertificationResult?.data ?? null,
   };
 }

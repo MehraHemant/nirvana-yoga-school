@@ -50,6 +50,7 @@ export function OverviewModuleEditor({
 }: OverviewModuleEditorProps) {
   const mediaKeys = useStableListKeys(overview.media.items.length);
   const glanceKeys = useStableListKeys(overview.glance.length);
+  const blockKeys = useStableListKeys(overview.blocks?.length ?? 0);
   const videoItemIndex = overview.media.items.findIndex(
     (item) => item.type === "video",
   );
@@ -94,6 +95,14 @@ export function OverviewModuleEditor({
     onChange({
       ...overview,
       glance: [...overview.glance, { label: "", value: "", hint: "" }],
+    });
+  }
+
+  function addBlock() {
+    blockKeys.addKey();
+    onChange({
+      ...overview,
+      blocks: [...(overview.blocks ?? []), { heading: "", body: "" }],
     });
   }
 
@@ -153,6 +162,77 @@ export function OverviewModuleEditor({
         placeholder="Full overview body…"
         hint="Full overview body — no length limit. Bold, italic, and underline supported."
       />
+      {!welcomeStyle ? (
+        <div className="admin-field">
+          <div className="admin-field-header">
+            <div>
+              <span className="admin-label">Overview blocks</span>
+              <p className="admin-hint admin-hint--tight">
+                Optional subheadings and body copy below the lead (retreat
+                product layout).
+              </p>
+            </div>
+            <button type="button" className="admin-btn-sm" onClick={addBlock}>
+              Add block
+            </button>
+          </div>
+          {(overview.blocks ?? []).length === 0 ? (
+            <div className="admin-empty-card">
+              <p>No blocks yet.</p>
+              <button
+                type="button"
+                className="admin-btn-sm"
+                onClick={addBlock}
+              >
+                Add first block
+              </button>
+            </div>
+          ) : (
+            (overview.blocks ?? []).map((block, index) => (
+              <div
+                key={blockKeys.keys[index]}
+                className="admin-nested-card"
+              >
+                <TextField
+                  label="Heading"
+                  value={block.heading}
+                  onChange={(heading) => {
+                    const blocks = [...(overview.blocks ?? [])];
+                    blocks[index] = { ...block, heading };
+                    onChange({ ...overview, blocks });
+                  }}
+                />
+                <TextField
+                  label="Body"
+                  value={block.body}
+                  onChange={(body) => {
+                    const blocks = [...(overview.blocks ?? [])];
+                    blocks[index] = { ...block, body };
+                    onChange({ ...overview, blocks });
+                  }}
+                  multiline
+                  rows={4}
+                />
+                <button
+                  type="button"
+                  className="admin-btn-sm admin-btn-sm--ghost"
+                  onClick={() => {
+                    blockKeys.removeKey(index);
+                    onChange({
+                      ...overview,
+                      blocks: (overview.blocks ?? []).filter(
+                        (_, i) => i !== index,
+                      ),
+                    });
+                  }}
+                >
+                  Remove block
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+      ) : null}
       <div className="admin-field-group">
         <p className="admin-field-group-label">Saying / quote</p>
         <TextField

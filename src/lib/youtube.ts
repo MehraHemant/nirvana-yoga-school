@@ -44,6 +44,22 @@ export function youTubeWatchUrl(videoId: string) {
   return `https://www.youtube.com/watch?v=${videoId}`;
 }
 
+/**
+ * Builds a privacy-friendly YouTube embed URL for iframe players.
+ *
+ * @param videoId - YouTube video id
+ * @param autoplay - Whether to start playback immediately
+ */
+export function buildYouTubeEmbedUrl(videoId: string, autoplay = false) {
+  const params = new URLSearchParams({
+    rel: "0",
+    modestbranding: "1",
+    playsinline: "1",
+  });
+  if (autoplay) params.set("autoplay", "1");
+  return `https://www.youtube.com/embed/${videoId}?${params.toString()}`;
+}
+
 /** YouTube static thumbnail quality ladder (maxres/sd may 404; hq is reliable). */
 export type YouTubeThumbQuality = "maxres" | "sd" | "hq";
 

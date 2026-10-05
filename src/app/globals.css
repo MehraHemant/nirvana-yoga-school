@@ -193,7 +193,10 @@ body {
 }
 
 @utility section-padding-y-header {
-  padding-top: calc(var(--site-header-height, 4.75rem) + var(--section-padding-block));
+  padding-top: calc(
+    var(--site-header-height, 4.75rem) +
+    var(--section-padding-block)
+  );
   padding-bottom: var(--section-padding-block);
 }
 
@@ -1391,26 +1394,53 @@ details[open] .accordion-icon {
 @media (min-width: 1024px) {
   .retreat-product-layout {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 360px;
-    gap: 2.5rem;
+    grid-template-columns: minmax(0, 1fr) 380px;
+    gap: 3rem;
     align-items: start;
   }
 
   .retreat-product-sidebar {
     position: sticky;
     top: var(--retreat-sticky-top);
-    padding-top: 1.5rem;
+    padding-top: 0.5rem;
   }
+}
+
+.retreat-product-mobile-offer {
+  filter: drop-shadow(0 12px 28px rgb(14 73 86 / 0.12));
 }
 
 .retreat-product-theme .retreat-product-main {
   min-width: 0;
 }
 
+/* Stay / food galleries — contain glow within full-width bands */
+.retreat-product-theme .retreat-product-media {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.retreat-product-theme .retreat-product-main > section,
+.retreat-product-theme .retreat-product-main > div > section {
+  scroll-margin-top: var(--retreat-sticky-top);
+}
+
 .retreat-product-theme .retreat-pricing-card {
   box-shadow:
     0 2px 8px -2px rgb(14 73 86 / 0.08),
     0 16px 40px -12px rgb(14 73 86 / 0.16);
+  transition:
+    box-shadow 0.3s ease,
+    transform 0.3s ease;
+}
+
+@media (min-width: 1024px) {
+  .retreat-product-theme .retreat-product-sidebar .retreat-pricing-card:hover {
+    box-shadow:
+      0 4px 12px -2px rgb(14 73 86 / 0.1),
+      0 20px 48px -12px rgb(14 73 86 / 0.2);
+  }
 }
 
 .retreat-product-theme .retreat-hero {

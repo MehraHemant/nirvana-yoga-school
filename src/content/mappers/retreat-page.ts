@@ -1,6 +1,5 @@
 import type { StickyNavItem } from "@/components/courses/CourseStickyNav";
 import type { PricingOption } from "@/components/courses/upcomingDatesShared";
-import { DEFAULT_RETREAT_NAV } from "@/content/page-modules-defaults";
 import type { RetreatDocument } from "@/content/types/retreat-page";
 import type { ResidentialLifeContent } from "@/content/types/shared-sections";
 
@@ -51,14 +50,6 @@ export function filterRetreatNavItems(
   }
 
   return filtered;
-}
-
-function lowestFee(packages: RetreatDocument["packages"]): string {
-  const prices = packages
-    .map((pkg) => Number.parseFloat(pkg.price.replace(/[^0-9.]/g, "")))
-    .filter((value) => !Number.isNaN(value));
-  if (prices.length === 0) return "From 299 USD";
-  return `From ${Math.min(...prices)} USD`;
 }
 
 function mapPricing(packages: RetreatDocument["packages"]): PricingOption[] {
@@ -160,8 +151,6 @@ export function buildRetreatHeroImages(
 }
 
 export type MappedRetreatPage = {
-  navItems: StickyNavItem[];
-  fee: string;
   heroImage: string;
   heroImages: string[];
   pricing: PricingOption[];
@@ -182,8 +171,6 @@ export function mapRetreatPage(
   const heroImages = buildRetreatHeroImages(retreat, residentialLife);
 
   return {
-    navItems: DEFAULT_RETREAT_NAV,
-    fee: lowestFee(retreat.packages),
     heroImage: heroImages[0] ?? retreat.heroImage,
     heroImages,
     pricing: filterRetreatLodgingPricing(mapPricing(retreat.packages)),

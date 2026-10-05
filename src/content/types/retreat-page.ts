@@ -1,8 +1,24 @@
 import type { FAQ } from "@/content/types/shared";
 
+/** Activity icon/category on retreat product day schedule (optional in CMS). */
+export type RetreatScheduleActivityKind =
+  | "wake"
+  | "meditation"
+  | "yoga"
+  | "meal"
+  | "workshop"
+  | "rest"
+  | "healing"
+  | "community"
+  | "sleep"
+  | "excursion";
+
 export type RetreatScheduleActivity = {
   time: string;
+  /** Shown as the activity title on the public retreat schedule */
   activity: string;
+  detail?: string;
+  kind?: RetreatScheduleActivityKind;
 };
 
 export type RetreatScheduleDay = {
@@ -36,12 +52,6 @@ export type RetreatHighlight = {
   image: string;
 };
 
-export type RetreatOffer = {
-  label: string;
-  note: string;
-  items: string[];
-};
-
 export type RetreatAccommodation = {
   body: string;
   images: string[];
@@ -67,7 +77,6 @@ export type RetreatDocument = {
   highlights: RetreatHighlight[];
   gallery: string[];
   faqs: FAQ[];
-  offer?: RetreatOffer;
   ctaLabel: string;
   ctaHref: string;
 };

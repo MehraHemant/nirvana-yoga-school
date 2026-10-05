@@ -69,6 +69,16 @@ export function ScheduleModuleEditor({
         onChange={(_id) => onChange({ ...schedule, _id })}
       />
       <TextField
+        label="Eyebrow"
+        value={schedule.eyebrow ?? ""}
+        onChange={(eyebrow) => onChange({ ...schedule, eyebrow })}
+      />
+      <TextField
+        label="Title"
+        value={schedule.title ?? ""}
+        onChange={(title) => onChange({ ...schedule, title })}
+      />
+      <TextField
         label="Description"
         value={schedule.description}
         onChange={(description) => onChange({ ...schedule, description })}
