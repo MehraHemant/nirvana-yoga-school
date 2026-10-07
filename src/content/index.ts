@@ -1,8 +1,5 @@
 export type { MappedRetreatPage } from "@/content/mappers/retreat-page";
-export {
-  mapRetreatPage,
-  retreatWhatsAppHref,
-} from "@/content/mappers/retreat-page";
+export { mapRetreatPage } from "@/content/mappers/retreat-page";
 export {
   mapRetreatProductContent,
   mapRetreatProductSections,

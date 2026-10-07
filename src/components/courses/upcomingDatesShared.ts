@@ -90,17 +90,6 @@ export function getBatchDates(_durationStr: string): BatchItem[] {
   });
 }
 
-export function whatsAppHref(
-  duration: string,
-  roomType: string,
-  batch: string,
-) {
-  const text = encodeURIComponent(
-    `Hi Nirvana Yoga School, I would like to register for the ${duration} ${roomType} YTT batch starting on ${batch}.`,
-  );
-  return `https://wa.me/919876543210?text=${text}`;
-}
-
 /**
  * Build a book-now URL with program, room, and date pre-filled.
  *

@@ -178,14 +178,3 @@ export function mapRetreatPage(
     batches: mapBatches(retreat.dates),
   };
 }
-
-export function retreatWhatsAppHref(
-  duration: string,
-  roomType: string,
-  batch: string,
-) {
-  const text = encodeURIComponent(
-    `Hi Nirvana Yoga School, I would like to book the ${duration} retreat (${roomType}) for ${batch}.`,
-  );
-  return `https://wa.me/918218564835?text=${text}`;
-}
