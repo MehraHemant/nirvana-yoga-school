@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import { Suspense } from "react";
-import { HeroSection, JsonLd, WelcomeSection } from "@/components";
+import HeroSection from "@/components/home/HeroSection";
+import WelcomeSection from "@/components/home/WelcomeSection";
+import JsonLd from "@/components/ui/JsonLd";
 import { resolveHomeCourses } from "@/content/mappers/resolve-home-courses";
 import { getHomePageContent } from "@/content/repositories/dedicated-pages";
 import { getSiteMap } from "@/content/repositories/shared-sections";

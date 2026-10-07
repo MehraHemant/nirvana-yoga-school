@@ -1,8 +1,7 @@
-import DOMPurify from "isomorphic-dompurify";
 import { resolveInlineRichTextHtml } from "@/lib/cms/blog-html";
+import { sanitizeInlineRichHtml } from "@/lib/html-sanitize";
 
 const DEFAULT_INLINE_TAGS = ["p", "br", "strong", "b", "em", "i", "u"];
-const DEFAULT_LINK_ATTRS = ["href", "target", "rel"];
 
 type SanitizedHtmlProps = {
   html: string;
@@ -24,10 +23,9 @@ export function SanitizedHtml({
   allowLinks = false,
 }: SanitizedHtmlProps) {
   const resolved = resolveInlineRichTextHtml(html);
-  const tags = allowLinks ? [...allowedTags, "a"] : allowedTags;
-  const sanitized = DOMPurify.sanitize(resolved, {
-    ALLOWED_TAGS: tags,
-    ALLOWED_ATTR: allowLinks ? DEFAULT_LINK_ATTRS : [],
+  const sanitized = sanitizeInlineRichHtml(resolved, {
+    allowedTags,
+    allowLinks,
   });
 
   if (!sanitized.trim()) return null;
@@ -39,7 +37,7 @@ export function SanitizedHtml({
   return (
     <div
       className={mergedClassName}
-      // biome-ignore lint/security/noDangerouslySetInnerHtml: sanitized via DOMPurify
+      // biome-ignore lint/security/noDangerouslySetInnerHtml: sanitized via html-sanitize
       dangerouslySetInnerHTML={{ __html: sanitized }}
     />
   );

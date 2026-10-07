@@ -1,4 +1,4 @@
-import DOMPurify from "isomorphic-dompurify";
+import { sanitizeBlogBodyHtml } from "@/lib/html-sanitize";
 
 type BlogHtmlContentProps = {
   html: string;
@@ -11,31 +11,14 @@ type BlogHtmlContentProps = {
  * @param props - HTML string and optional wrapper class
  */
 export function BlogHtmlContent({ html, className }: BlogHtmlContentProps) {
-  const sanitized = DOMPurify.sanitize(html, {
-    ALLOWED_TAGS: [
-      "p",
-      "h2",
-      "h3",
-      "h4",
-      "ul",
-      "ol",
-      "li",
-      "strong",
-      "em",
-      "a",
-      "blockquote",
-      "br",
-      "img",
-    ],
-    ALLOWED_ATTR: ["href", "target", "rel", "src", "alt", "loading", "class"],
-  });
+  const sanitized = sanitizeBlogBodyHtml(html);
 
   if (!sanitized.trim()) return null;
 
   return (
     <div
       className={className ?? "prose-blog space-y-5"}
-      // biome-ignore lint/security/noDangerouslySetInnerHtml: sanitized via DOMPurify
+      // biome-ignore lint/security/noDangerouslySetInnerHtml: sanitized via html-sanitize
       dangerouslySetInnerHTML={{ __html: sanitized }}
     />
   );
