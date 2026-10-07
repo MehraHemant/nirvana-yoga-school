@@ -29,6 +29,13 @@ const SLOT_ASPECTS = [
   "aspect-[16/10]",
 ] as const;
 
+/** Fallback eyebrows used when the CMS sends no gallery category list. */
+const DEFAULT_CATEGORY_LABELS: Record<string, string> = {
+  practice: "Yoga Practice",
+  campus: "Campus Life",
+  life: "Excursion",
+};
+
 type GallerySectionProps = {
   /** Full CMS gallery section */
   content?: HomeGallerySectionContent;
@@ -53,6 +60,11 @@ export default function GallerySection({
 
   const [selectedCategory, setSelectedCategory] = useState("all");
   const prefersReduced = useReducedMotion() ?? false;
+
+  /** CMS category id → label, falling back to the built-in eyebrows. */
+  const categoryLabels = new Map(categories.map((c) => [c.id, c.label]));
+  const labelForCategory = (id: string) =>
+    categoryLabels.get(id) ?? DEFAULT_CATEGORY_LABELS[id] ?? id;
 
   const items: GalleryItem[] = useMemo(
     () => sourceItems.map((item, index) => ({ ...item, id: index + 1 })),
@@ -239,11 +251,7 @@ export default function GallerySection({
 
                     <div className="mt-1 px-2">
                       <span className="type-eyebrow text-primary">
-                        {item.category === "practice"
-                          ? "Yoga Practice"
-                          : item.category === "campus"
-                            ? "Campus Life"
-                            : "Excursion"}
+                        {labelForCategory(item.category)}
                       </span>
                       <h4 className="type-ui truncate text-ink transition-colors duration-300">
                         {item.title}
