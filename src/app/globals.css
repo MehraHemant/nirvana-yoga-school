@@ -114,6 +114,19 @@ html.site-inner-page {
   overflow-anchor: none;
 }
 
+/* Immersive quiz: lock document scroll; step panels scroll internally if needed */
+html.site-quiz-page {
+  overflow: hidden;
+  height: 100svh;
+}
+
+html.site-quiz-page body {
+  height: 100svh;
+  min-height: 100svh;
+  overflow: hidden;
+  background: var(--color-surface);
+}
+
 body {
   font-family: var(--font-sans);
   font-size: clamp(1rem, 0.95rem + 0.22vw, 1.0625rem);
@@ -1866,3 +1879,4 @@ details[open] .accordion-icon {
   min-width: 0;
   min-height: 0;
 }
+

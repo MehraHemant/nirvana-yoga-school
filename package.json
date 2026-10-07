@@ -15,6 +15,7 @@
     "db:seed:course-batches": "tsx --env-file=.env scripts/seed-residential-course-batches.ts",
     "db:dedupe:faqs": "tsx --env-file=.env scripts/dedupe-faqs.ts",
     "db:index:chat": "tsx --env-file=.env scripts/index-chat-qdrant.ts",
+    "db:seed:quiz": "tsx --env-file=.env scripts/seed-quiz.ts",
     "db:import:online-courses": "tsx --env-file=.env scripts/import-online-courses-from-live.ts"
   },
   "dependencies": {

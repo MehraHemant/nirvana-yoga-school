@@ -6983,3 +6983,47 @@
       minmax(6rem, 0.8fr) minmax(6.5rem, 0.7fr) 5rem;
   }
 }
+
+/* Quiz editor — answer grid */
+.admin-quiz-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: 0.75rem;
+  margin: 0.5rem 0 0.75rem;
+}
+
+.admin-quiz-option {
+  background: #fff;
+  border: 1px solid rgb(26 20 16 / 8%);
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+}
+
+.admin-quiz-option--correct {
+  border-color: rgb(31 107 74 / 45%);
+  box-shadow: 0 0 0 3px rgb(31 107 74 / 10%);
+}
+
+.admin-quiz-option-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.admin-quiz-correct {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.admin-quiz-option--correct .admin-quiz-correct {
+  color: #1f6b4a;
+}
+
+.admin-quiz-option .admin-field:last-child {
+  margin-bottom: 0;
+}

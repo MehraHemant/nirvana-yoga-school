@@ -12,7 +12,8 @@ const poppins = Poppins({
 
 const lora = Lora({
   subsets: ["latin"],
-  weight: ["400"],
+  weight: ["400", "500"],
+  style: ["normal", "italic"],
   variable: "--font-quote",
   display: "swap",
 });

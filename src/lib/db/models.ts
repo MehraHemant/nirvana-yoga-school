@@ -16,6 +16,8 @@ export type ModelName =
   | "navigationGroup"
   | "navigationItem"
   | "adminUser"
+  | "siteUser"
+  | "quizAttempt"
   | "courseDocument"
   | "pageSection"
   | "pagePackage"
@@ -366,6 +368,22 @@ export const MODELS: Record<ModelName, ModelMeta> = {
       defaultCreate: { role: "editor" },
     },
   ),
+
+  siteUser: meta("site_users", {
+    id: "id",
+    name: "name",
+    email: "email",
+    passwordHash: "password_hash",
+    createdAt: "created_at",
+    emailVerifiedAt: "email_verified_at",
+  }),
+
+  quizAttempt: meta("quiz_attempts", {
+    id: "id",
+    userId: "user_id",
+    completedAt: "completed_at",
+    score: "score",
+  }),
 
   courseDocument: meta(
     "course_documents",

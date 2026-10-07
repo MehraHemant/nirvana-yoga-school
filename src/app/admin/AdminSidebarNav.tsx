@@ -88,6 +88,8 @@ const NAV_SECTIONS: NavSection[] = [
         href: "/admin/bookings/addons",
         Icon: Layers,
       },
+      { label: "Quiz", href: "/admin/quiz", Icon: Lotus },
+      { label: "Quiz results", href: "/admin/quiz/results", Icon: Certificate },
     ],
   },
   {

@@ -4,9 +4,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Fragment, useEffect, useId, useLayoutEffect, useState } from "react";
+import HeaderAuth, {
+  type HeaderSiteUser,
+  initialsOf,
+} from "@/components/auth/HeaderAuth";
 import { type NavItem, navItemHref, navLinkHref } from "@/constants/navigation";
 import type { GlobalHeader, HeaderCta } from "@/content/types/global-settings";
-import { ArrowRight, ChevronDown, MenuIcon } from "@/icons";
+import { ArrowRight, ChevronDown, MenuIcon, User } from "@/icons";
 import { normalizeHeaderCtas } from "@/lib/cms/header-fields";
 import Button from "./Button";
 
@@ -190,7 +194,9 @@ function DesktopDropdown({
         <div className="nav-dropdown-menu min-w-[360px] max-w-[420px] max-h-[72vh] overflow-hidden rounded-3xl">
           <span className="nav-dropdown-caret" aria-hidden="true" />
           <div className="px-6 pt-6 pb-4 border-b border-ink/5">
-            <p className="text-xl font-medium text-ink leading-tight">{item.label}</p>
+            <p className="text-xl font-medium text-ink leading-tight">
+              {item.label}
+            </p>
             <p className="text-sm text-ink mt-1.5 tracking-wide">
               Programs in Rishikesh, India
             </p>
@@ -317,6 +323,8 @@ function MobileNavItem({
 type HeaderProps = {
   /** Server-loaded header settings from the site layout */
   initialData?: HeaderData | null;
+  /** Signed-in public account, when a site session cookie is present. */
+  siteUser?: HeaderSiteUser | null;
 };
 
 /**
@@ -324,7 +332,10 @@ type HeaderProps = {
  *
  * @param props - Server-provided header settings (no client API fetch)
  */
-export default function Header({ initialData = null }: HeaderProps) {
+export default function Header({
+  initialData = null,
+  siteUser = null,
+}: HeaderProps) {
   const pathname = usePathname();
 
   const [scrolled, setScrolled] = useState(false);
@@ -391,8 +402,10 @@ export default function Header({ initialData = null }: HeaderProps) {
   }, [mobileOpen]);
 
   // Clear overlay at rest; solid bar after scroll or when the mobile menu is open.
+  // The quiz page does not scroll, so its header stays solid white from the start.
   // White nav only over dark/media heroes — light pages keep dark nav for contrast.
-  const solid = scrolled || mobileOpen;
+  const quizPage = pathname === "/quiz";
+  const solid = scrolled || mobileOpen || quizPage;
   const lightNav = hasTransparentHero && !solid;
   const innerHeightClass = scrolled
     ? "h-[4.5rem] md:h-[5rem]"
@@ -483,7 +496,11 @@ export default function Header({ initialData = null }: HeaderProps) {
                   {item.label}
                 </Link>
               ) : (
-                <DesktopDropdown key={item.label} item={item} lightNav={lightNav} />
+                <DesktopDropdown
+                  key={item.label}
+                  item={item}
+                  lightNav={lightNav}
+                />
               ),
             )}
           </nav>
@@ -506,7 +523,32 @@ export default function Header({ initialData = null }: HeaderProps) {
                 </Fragment>
               );
             })}
+            {ctas.length > 0 ? (
+              <span
+                className={`h-4 w-px transition-colors duration-500 ${lightNav ? "bg-white/20" : "bg-ink/10"}`}
+                aria-hidden="true"
+              />
+            ) : null}
+            <HeaderAuth
+              layout="desktop"
+              lightNav={lightNav}
+              siteUser={siteUser}
+            />
           </div>
+
+          <Link
+            href={siteUser ? "/account" : "/login"}
+            aria-label={siteUser ? "My profile" : "Log in"}
+            className={`xl:hidden ml-auto -mr-2 flex h-10 w-10 items-center justify-center rounded-full transition-colors duration-300 ${lightNav ? "text-white hover:bg-white/10" : "text-ink hover:bg-ink/5"}`}
+          >
+            {siteUser ? (
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-linear-to-br from-primary to-primary-dark text-xs font-semibold text-white">
+                {initialsOf(siteUser)}
+              </span>
+            ) : (
+              <User size={20} />
+            )}
+          </Link>
 
           <button
             type="button"
@@ -571,6 +613,12 @@ export default function Header({ initialData = null }: HeaderProps) {
                   </div>
                 ),
               )}
+              <HeaderAuth
+                layout="mobile"
+                lightNav={false}
+                siteUser={siteUser}
+                onNavigate={() => setMobileOpen(false)}
+              />
               <div
                 className="mobile-nav-item mt-6 flex flex-col gap-3 pb-10 px-1"
                 style={{

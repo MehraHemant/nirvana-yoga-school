@@ -1,14 +1,20 @@
-import Footer from "@/components/layout/Footer";
+import QuizLauncher from "@/components/quiz/QuizLauncher";
 import DeferredChatWidget from "@/components/ui/DeferredChatWidget";
 import Header from "@/components/ui/Header";
-import MobileStickyBar from "@/components/ui/MobileStickyBar";
 import WhatsAppFab from "@/components/ui/WhatsAppFab";
 import {
   getGlobalFooter,
   getGlobalHeader,
   getSiteConfig,
 } from "@/content/repositories/global-settings";
+import { getSiteServerSession } from "@/lib/auth/site-session";
+import { getQuizEligibility, type QuizEligibility } from "@/lib/quiz/attempts";
+import { listQuizQuestions } from "@/lib/quiz/questions";
+import { getQuizSettings } from "@/lib/quiz/settings";
+import HideOnImmersive from "./HideOnImmersive";
+import SiteFooterGate from "./SiteFooterGate";
 import SiteMain from "./SiteMain";
+import SiteMobileStickyBarGate from "./SiteMobileStickyBarGate";
 
 const FALLBACK_WHATSAPP = "919876543210";
 
@@ -45,16 +51,56 @@ async function loadSiteChrome() {
 export default async function SiteLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const { header, footer, whatsappNumber } = await loadSiteChrome();
+  const [{ header, footer, whatsappNumber }, siteSession, quizSettings] =
+    await Promise.all([
+      loadSiteChrome(),
+      getSiteServerSession().catch(() => null),
+      getQuizSettings(),
+    ]);
+  const quizOpen =
+    quizSettings.live &&
+    (await listQuizQuestions({ activeOnly: true })
+      .then((questions) => questions.length > 0)
+      .catch(() => false));
+  const quizEligibility: QuizEligibility | null =
+    quizOpen && siteSession
+      ? await getQuizEligibility(
+          siteSession.userId,
+          quizSettings.monthlyLimit,
+        ).catch(() => ({
+          remaining: quizSettings.monthlyLimit,
+          nextAvailableAt: null,
+        }))
+      : null;
 
   return (
     <>
-      <Header initialData={header} />
+      <Header
+        initialData={header}
+        siteUser={
+          siteSession
+            ? { name: siteSession.name, email: siteSession.email }
+            : null
+        }
+      />
       <SiteMain>{children}</SiteMain>
-      <Footer initialData={footer} />
-      <WhatsAppFab phone={whatsappNumber} />
-      <DeferredChatWidget />
-      <MobileStickyBar />
+      <SiteFooterGate initialData={footer} />
+      <HideOnImmersive>
+        <WhatsAppFab phone={whatsappNumber} />
+        <DeferredChatWidget />
+      </HideOnImmersive>
+      {quizOpen ? (
+        <QuizLauncher
+          name={siteSession?.name}
+          remainingChances={quizEligibility?.remaining ?? null}
+          nextAvailableAt={quizEligibility?.nextAvailableAt ?? null}
+          monthlyLimit={quizSettings.monthlyLimit}
+          label={quizSettings.launcherLabel}
+          tagline={quizSettings.launcherTagline}
+          promptTitle={`${quizSettings.introTitle} ${quizSettings.introHighlight}`.trim()}
+        />
+      ) : null}
+      <SiteMobileStickyBarGate />
     </>
   );
 }
