@@ -12,6 +12,7 @@ import {
   SearchableSelect,
 } from "@/components/ui";
 import type { ContactPageContent } from "@/content/types/dedicated-pages";
+import type { SiteConfig } from "@/content/types/global-settings";
 import type { SiteMapContent } from "@/content/types/shared-sections";
 import { Check, Compass, Send, WhatsApp } from "@/icons";
 import { shouldRenderSection } from "@/lib/cms/section-visibility";
@@ -25,14 +26,15 @@ import {
   formatFullPhone,
   getPhoneCountry,
 } from "@/lib/phone-countries";
-
-const CONTACT_EMAIL = "hello@nirvanayogaschoolindia.com";
+import { resolveContactEmail, whatsAppLink } from "@/lib/site-contact";
 
 type ContactPageClientProps = {
   /** CMS content_data for /contact */
   content?: ContactPageContent;
   /** Shared site map embed from CMS */
   siteMap?: SiteMapContent | null;
+  /** Site config (contact email, WhatsApp number) from CMS */
+  siteConfig?: SiteConfig | null;
 };
 
 /**
@@ -43,8 +45,11 @@ type ContactPageClientProps = {
 export default function ContactPageClient({
   content = createEmptyContactPageContent(),
   siteMap = null,
+  siteConfig = null,
 }: ContactPageClientProps) {
   const prefersReduced = useReducedMotion() ?? false;
+  const contactEmail = resolveContactEmail(siteConfig);
+  const whatsAppHref = whatsAppLink(siteConfig);
   const [formState, setFormState] = useState<
     "idle" | "submitting" | "success" | "error"
   >("idle");
@@ -104,7 +109,7 @@ export default function ContactPageClient({
       });
 
       if (!result.stored) {
-        openMailtoFallback({ to: CONTACT_EMAIL, subject, body });
+        openMailtoFallback({ to: contactEmail, subject, body });
       }
 
       setFormState("success");
@@ -165,7 +170,7 @@ export default function ContactPageClient({
                 Send a Message
               </Button>
               <Button
-                href="https://wa.me/918218564835"
+                href={whatsAppHref}
                 variant="outline-light"
                 size="md"
                 target="_blank"
@@ -450,10 +455,10 @@ export default function ContactPageClient({
                             Something went wrong opening your email app. Please
                             email us directly at{" "}
                             <a
-                              href={`mailto:${CONTACT_EMAIL}`}
+                              href={`mailto:${contactEmail}`}
                               className="font-semibold underline"
                             >
-                              {CONTACT_EMAIL}
+                              {contactEmail}
                             </a>
                             .
                           </p>

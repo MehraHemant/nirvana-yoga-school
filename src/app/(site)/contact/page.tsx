@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getContactPageContent } from "@/content/repositories/dedicated-pages";
+import { getSiteConfig } from "@/content/repositories/global-settings";
 import { getSiteMap } from "@/content/repositories/shared-sections";
 import { metadataForSlug } from "../_shared/metadata";
 import ContactPageClient from "./ContactPageClient";
@@ -16,15 +17,17 @@ export async function generateMetadata(): Promise<Metadata> {
  * Contact page — loads CMS content_data and shared map for the location band.
  */
 export default async function ContactPage() {
-  const [result, siteMapResult] = await Promise.all([
+  const [result, siteMapResult, siteConfigResult] = await Promise.all([
     getContactPageContent().catch(() => null),
     getSiteMap().catch(() => null),
+    getSiteConfig().catch(() => null),
   ]);
 
   return (
     <ContactPageClient
       content={result?.data}
       siteMap={siteMapResult?.data ?? null}
+      siteConfig={siteConfigResult?.data ?? null}
     />
   );
 }

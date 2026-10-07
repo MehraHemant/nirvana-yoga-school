@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getEnquirePageContent } from "@/content/repositories/dedicated-pages";
+import { getSiteConfig } from "@/content/repositories/global-settings";
 import { getSiteMap } from "@/content/repositories/shared-sections";
 import { buildEnquireProgramOptions } from "@/lib/enquire-programs.server";
 import { metadataForSlug } from "../_shared/metadata";
@@ -27,11 +28,13 @@ export default async function EnquireNowPage({
   searchParams,
 }: EnquireNowPageProps) {
   const params = await searchParams;
-  const [result, siteMapResult, programOptions] = await Promise.all([
-    getEnquirePageContent().catch(() => null),
-    getSiteMap().catch(() => null),
-    buildEnquireProgramOptions(),
-  ]);
+  const [result, siteMapResult, programOptions, siteConfigResult] =
+    await Promise.all([
+      getEnquirePageContent().catch(() => null),
+      getSiteMap().catch(() => null),
+      buildEnquireProgramOptions(),
+      getSiteConfig().catch(() => null),
+    ]);
 
   return (
     <EnquireNowPageClient
@@ -40,6 +43,7 @@ export default async function EnquireNowPage({
       content={result?.data}
       siteMap={siteMapResult?.data ?? null}
       programOptions={programOptions}
+      siteConfig={siteConfigResult?.data ?? null}
     />
   );
 }

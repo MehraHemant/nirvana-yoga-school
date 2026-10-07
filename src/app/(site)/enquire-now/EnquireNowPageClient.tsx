@@ -12,6 +12,7 @@ import {
   SearchableSelect,
 } from "@/components/ui";
 import type { EnquirePageContent } from "@/content/types/dedicated-pages";
+import type { SiteConfig } from "@/content/types/global-settings";
 import type { SiteMapContent } from "@/content/types/shared-sections";
 import { Check, Compass, Send, WhatsApp } from "@/icons";
 import { shouldRenderSection } from "@/lib/cms/section-visibility";
@@ -25,8 +26,12 @@ import {
   formatFullPhone,
   getPhoneCountry,
 } from "@/lib/phone-countries";
-
-const CONTACT_EMAIL = "hello@nirvanayogaschoolindia.com";
+import {
+  mapsLink,
+  resolveAddress,
+  resolveContactEmail,
+  whatsAppLink,
+} from "@/lib/site-contact";
 
 type EnquireNowPageClientProps = {
   /** Pre-filled program from `?program=` query string */
@@ -39,6 +44,8 @@ type EnquireNowPageClientProps = {
   siteMap?: SiteMapContent | null;
   /** Program dropdown options loaded from Postgres on the server */
   programOptions: SearchableSelectOption[];
+  /** Site config (contact email, WhatsApp number, address) from CMS */
+  siteConfig?: SiteConfig | null;
 };
 
 /**
@@ -52,8 +59,13 @@ export default function EnquireNowPageClient({
   content = createEmptyEnquirePageContent(),
   siteMap = null,
   programOptions,
+  siteConfig = null,
 }: EnquireNowPageClientProps) {
   const prefersReduced = useReducedMotion() ?? false;
+  const contactEmail = resolveContactEmail(siteConfig);
+  const whatsAppHref = whatsAppLink(siteConfig);
+  const mapsHref = mapsLink(siteConfig);
+  const address = resolveAddress(siteConfig);
   const [formState, setFormState] = useState<
     "idle" | "submitting" | "success" | "error"
   >("idle");
@@ -119,7 +131,7 @@ export default function EnquireNowPageClient({
       });
 
       if (!result.stored) {
-        openMailtoFallback({ to: CONTACT_EMAIL, subject, body });
+        openMailtoFallback({ to: contactEmail, subject, body });
       }
 
       setFormState("success");
@@ -175,7 +187,7 @@ export default function EnquireNowPageClient({
                 Submit Enquiry
               </Button>
               <Button
-                href="https://wa.me/918218564835"
+                href={whatsAppHref}
                 variant="outline-light"
                 size="md"
                 target="_blank"
@@ -229,7 +241,7 @@ export default function EnquireNowPageClient({
                 </ol>
 
                 <a
-                  href="https://maps.google.com/?q=Nirvana+Yoga+School+Rishikesh"
+                  href={mapsHref}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group surface-panel mt-6 flex items-center gap-4 rounded-2xl p-4 transition-all duration-300 hover:border-secondary/25 hover:shadow-soft sm:p-5"
@@ -241,9 +253,7 @@ export default function EnquireNowPageClient({
                     <h3 className="type-ui font-semibold text-ink">
                       Ashram in Tapovan
                     </h3>
-                    <p className="text-sm text-ink">
-                      Upper Tapovan, Rishikesh · Uttarakhand, India
-                    </p>
+                    <p className="text-sm text-ink">{address}</p>
                     <span className="inline-block pt-1 text-[11px] font-medium leading-[1.4] text-secondary">
                       View on Google Maps →
                     </span>
@@ -486,10 +496,10 @@ export default function EnquireNowPageClient({
                             Something went wrong opening your email app. Please
                             email us directly at{" "}
                             <a
-                              href={`mailto:${CONTACT_EMAIL}`}
+                              href={`mailto:${contactEmail}`}
                               className="font-semibold underline"
                             >
-                              {CONTACT_EMAIL}
+                              {contactEmail}
                             </a>
                             .
                           </p>
@@ -516,7 +526,7 @@ export default function EnquireNowPageClient({
                         <p className="text-center text-xs leading-relaxed text-ink">
                           Prefer WhatsApp?{" "}
                           <a
-                            href="https://wa.me/918218564835"
+                            href={whatsAppHref}
                             className="font-semibold text-secondary hover:text-secondary-dark"
                             target="_blank"
                             rel="noopener noreferrer"
