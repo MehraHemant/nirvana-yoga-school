@@ -90,6 +90,7 @@ const NAV_SECTIONS: NavSection[] = [
       },
       { label: "Quiz", href: "/admin/quiz", Icon: Lotus },
       { label: "Quiz results", href: "/admin/quiz/results", Icon: Certificate },
+      { label: "Users", href: "/admin/users", Icon: Users },
     ],
   },
   {

@@ -9,11 +9,13 @@ import type {
   AdminLeadsListResponse,
   AdminLoginInput,
   AdminLoginResponse,
-  AdminMeResponse,
   AdminMediaItemResponse,
   AdminMediaListResponse,
   AdminMediaUploadResponse,
+  AdminMeResponse,
   AdminPageEditorDocument,
+  AdminUserDetailResponse,
+  AdminUsersListResponse,
 } from "@/lib/types/admin-api";
 import type { ApiMutationResponse } from "@/lib/types/api";
 import { parseApiJson } from "@/lib/types/api";
@@ -554,4 +556,22 @@ export async function saveAdminGlobalSettings(
     throw new Error(error.error || `Failed to save ${key}`);
   }
   return response.json();
+}
+
+/**
+ * List all site users for the admin CMS.
+ */
+export async function fetchAdminUsers(): Promise<AdminUsersListResponse> {
+  return adminFetch<AdminUsersListResponse>("/api/admin/users");
+}
+
+/**
+ * Load one site user with their quiz attempts, leads, and bookings.
+ */
+export async function fetchAdminUser(
+  id: string,
+): Promise<AdminUserDetailResponse> {
+  return adminFetch<AdminUserDetailResponse>(
+    `/api/admin/users/${encodeURIComponent(id)}`,
+  );
 }

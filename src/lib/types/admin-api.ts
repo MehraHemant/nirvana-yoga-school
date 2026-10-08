@@ -11,6 +11,7 @@ import type {
   HeroLayoutConfig,
   PageLayoutId,
 } from "@/lib/cms/page-layout-registry";
+import type { SiteUserDetail, SiteUserRecord } from "@/lib/cms/users";
 import type {
   ApiEntityBody,
   ApiListBody,
@@ -150,6 +151,14 @@ export type AdminMeResponse = ApiEntityBody<"user", AdminSession>;
 
 /** POST /api/admin/auth/logout */
 export type AdminLogoutResponse = ApiMutationResponse;
+
+/** GET /api/admin/users */
+export type AdminUsersListResponse = DbEnabledListBody<"users", SiteUserRecord>;
+
+/** GET /api/admin/users/[id] */
+export type AdminUserDetailResponse =
+  | { dbEnabled: false; user: null }
+  | { dbEnabled: true; user: SiteUserDetail };
 
 /** POST /api/admin/auth/change-password */
 export type AdminChangePasswordInput = {
