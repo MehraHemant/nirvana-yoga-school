@@ -49,7 +49,7 @@ export default function AccountBookings({
           <span className="font-medium text-ink">{email}</span> will appear
           here.
         </p>
-        <Button href="/" variant="primary" size="md" className="mt-6">
+        <Button href="/yoga-teacher-training-in-rishikesh-india" variant="primary" size="md" className="mt-6">
           Explore programs
         </Button>
       </div>

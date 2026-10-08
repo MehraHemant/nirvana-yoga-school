@@ -119,7 +119,7 @@ export function createDefaultQuizSettings(): QuizSettings {
     giftBody:
       "Visit the ashram in Tapovan, Rishikesh, and collect it in person.",
     giftCtaLabel: "Plan your visit",
-    giftCtaHref: "/enquire-now",
+    giftCtaHref: "/booking",
   };
 }
 
