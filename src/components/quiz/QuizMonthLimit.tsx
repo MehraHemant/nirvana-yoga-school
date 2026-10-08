@@ -5,7 +5,6 @@ import {
   QuizCenteredMessage,
   QuizImmersiveLayout,
 } from "./QuizImmersiveLayout";
-import { QUIZ_EYEBROW_CLASS, QUIZ_SERIF_CLASS } from "./quiz-panel";
 
 type QuizMonthLimitProps = {
   /** Signed-in name for the greeting. */
@@ -31,22 +30,20 @@ export function QuizMonthLimit({
   return (
     <QuizImmersiveLayout>
       <QuizCenteredMessage>
-        <p className={`${QUIZ_EYEBROW_CLASS} text-primary`}>
+        <p className="type-eyebrow text-primary">
           {first ? `Thank you, ${first}` : "Thank you"}
         </p>
-        <h1
-          className={`${QUIZ_SERIF_CLASS} mt-5 text-balance text-4xl leading-[1.1] text-ink`}
-        >
+        <h1 className="type-h3 mt-3 text-balance text-ink">
           {monthlyLimit === 1
             ? "You have taken this month’s quiz"
             : `You have taken all ${monthlyLimit} quizzes this month`}
         </h1>
-        <ul className="mt-8 flex justify-center gap-5">
+        <ul className="mt-6 flex flex-wrap justify-center gap-2">
           {Array.from({ length: monthlyLimit }, (_, index) => (
             <li
               // biome-ignore lint/suspicious/noArrayIndexKey: fixed-length chance markers
               key={index}
-              className="flex items-center gap-2 text-xs text-ink/55"
+              className="flex items-center gap-2 rounded-full bg-ink/4 px-3 py-1.5 text-xs font-medium text-ink/65"
             >
               <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary text-white">
                 <Check size={9} strokeWidth={3} />
@@ -55,15 +52,15 @@ export function QuizMonthLimit({
             </li>
           ))}
         </ul>
-        <div className="mx-auto mt-10 max-w-xs border-y border-ink/8 py-6">
-          <p className={`${QUIZ_EYEBROW_CLASS} text-ink/45`}>Next quiz opens</p>
-          <p className={`${QUIZ_SERIF_CLASS} mt-2 text-2xl text-ink`}>
+        <div className="mx-auto mt-8 max-w-xs rounded-2xl bg-primary/5 px-6 py-5">
+          <p className="type-eyebrow text-ink/50">Next quiz opens</p>
+          <p className="type-h4 mt-1.5 text-primary">
             {nextAvailableAt
               ? formatQuizNextDate(nextAvailableAt)
               : "Next month"}
           </p>
         </div>
-        <Button href="/" variant="primary" size="md" className="mt-10">
+        <Button href="/" variant="primary" size="md" className="mt-8">
           Back to the school
         </Button>
       </QuizCenteredMessage>

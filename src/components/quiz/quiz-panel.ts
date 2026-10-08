@@ -1,12 +1,7 @@
-/** Horizontal padding for full-bleed quiz screens. */
-export const QUIZ_GUTTER_CLASS = "px-6 sm:px-10 lg:px-16 xl:px-24";
+/** White card surface shared by quiz screens (same as the account cards). */
+export const QUIZ_CARD_CLASS =
+  "rounded-[1.5rem] border border-ink/6 bg-white shadow-[0_1px_2px_rgb(26_20_16/0.04),0_24px_60px_-40px_rgb(163_36_50/0.35)]";
 
-/** Small spaced caps label. */
-export const QUIZ_EYEBROW_CLASS =
-  "text-[0.6875rem] font-medium uppercase tracking-[0.22em]";
-
-/** Serif display type for headings, numerals, and option letters. */
-export const QUIZ_SERIF_CLASS = "font-quote tracking-[-0.01em]";
-
-/** Hairline used for dividers on the ivory canvas. */
-export const QUIZ_RULE_CLASS = "border-ink/[0.08]";
+/** Small rounded fact tile, e.g. question count on the intro. */
+export const QUIZ_TILE_CLASS =
+  "rounded-2xl border border-ink/6 bg-white px-4 py-3.5";

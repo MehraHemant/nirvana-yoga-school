@@ -70,7 +70,7 @@ async function submitAttempt(
 }
 
 /**
- * Client quiz flow: intro, timed questions, server grading, and results.
+ * Client quiz flow: intro, questions, server grading, and results.
  *
  * @param props - Visitor name, remaining chances, CMS settings, and questions
  */
@@ -90,18 +90,21 @@ export default function QuizPageClient({
   });
   const [attemptNumber, setAttemptNumber] = useState(0);
   const questionShownAtRef = useRef(Date.now());
+  const recordedCountRef = useRef(0);
   const submittingRef = useRef(false);
 
   const total = questions.length;
   const question = questions[currentIndex];
 
-  // currentIndex is intentional: each question restarts the timer and clears the pick.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: question index restarts the timer
+  // Leaving mid-quiz loses the answers, so ask first.
   useEffect(() => {
     if (phase !== "questions") return;
-    questionShownAtRef.current = Date.now();
-    setSelectedIndex(null);
-  }, [phase, currentIndex]);
+    const onBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+    };
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [phase]);
 
   const submit = useCallback(async (finalAnswers: RecordedAnswer[]) => {
     if (submittingRef.current) return;
@@ -115,13 +118,19 @@ export default function QuizPageClient({
   function handleStart() {
     setPhase("questions");
     setCurrentIndex(0);
+    setSelectedIndex(null);
     setAnswers([]);
     setAttempt({ state: "saving" });
     setAttemptNumber((value) => value + 1);
+    recordedCountRef.current = 0;
+    questionShownAtRef.current = Date.now();
   }
 
   function recordAndAdvance(selection: number | null) {
-    if (!question) return;
+    // Ignore a second click or Enter for a question already recorded.
+    if (!question || recordedCountRef.current > currentIndex) return;
+    recordedCountRef.current = currentIndex + 1;
+
     const nextAnswers = [
       ...answers,
       {
@@ -131,6 +140,8 @@ export default function QuizPageClient({
       },
     ];
     setAnswers(nextAnswers);
+    setSelectedIndex(null);
+    questionShownAtRef.current = Date.now();
 
     if (currentIndex >= total - 1) {
       setPhase("results");
@@ -165,7 +176,11 @@ export default function QuizPageClient({
 
       {phase === "questions" && question ? (
         <QuizQuestionCard
+          key={`${attemptNumber}-${question.id}`}
           question={question}
+          history={answers.map((answer) =>
+            answer.selectedIndex === null ? "skipped" : "answered",
+          )}
           questionNumber={currentIndex + 1}
           totalQuestions={total}
           selectedIndex={selectedIndex}

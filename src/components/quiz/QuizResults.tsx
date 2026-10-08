@@ -2,7 +2,7 @@
 
 import { animate, motion, useReducedMotion } from "framer-motion";
 import { type ComponentType, useEffect, useState } from "react";
-import { Button } from "@/components/ui";
+import { Button, Container } from "@/components/ui";
 import {
   fillQuizName,
   type PublicQuizQuestion,
@@ -19,15 +19,10 @@ import {
   Users,
 } from "@/icons";
 import { EASE_OUT, reducedTransition } from "@/lib/motion";
-import { formatDurationMs } from "@/lib/quiz/format-duration";
 import { formatQuizNextDate } from "@/lib/quiz/format-next-date";
 import { scorePercent } from "@/lib/quiz/scoring";
 import { QuizCenteredMessage } from "./QuizImmersiveLayout";
-import {
-  QUIZ_EYEBROW_CLASS,
-  QUIZ_GUTTER_CLASS,
-  QUIZ_SERIF_CLASS,
-} from "./quiz-panel";
+import { QUIZ_CARD_CLASS } from "./quiz-panel";
 
 /** Grading state after the answers are submitted. */
 export type QuizAttemptStatus =
@@ -118,7 +113,7 @@ function getScoreTier(percent: number): ScoreTier {
 }
 
 /**
- * End-of-quiz summary: score and stats beside the ashram gift panel.
+ * End-of-quiz summary: score and stats beside the ashram gift card.
  *
  * @param props - Grading state, questions, CMS settings, and handlers
  */
@@ -148,19 +143,17 @@ export function QuizResults({
     <QuizCenteredMessage>
       <div aria-live="polite">
         <BreathingMark active={attempt.state === "saving"} />
-        <h1 className={`${QUIZ_SERIF_CLASS} mt-10 text-3xl text-ink`}>
+        <h1 className="type-h3 mt-8 text-ink">
           {attempt.state === "saving"
-            ? "Evaluating your answers…"
+            ? "Checking your answers…"
             : "Something went wrong"}
         </h1>
         {attempt.state === "saving" ? (
-          <p className="mt-3 text-sm text-ink/45">Take a slow breath.</p>
+          <p className="type-body mt-2 text-ink/55">Take a slow breath.</p>
         ) : (
           <>
-            <p className="mt-3 text-[0.9375rem] text-ink/55">
-              {attempt.message}
-            </p>
-            <div className="mt-8 flex justify-center gap-3">
+            <p className="type-body mt-2 text-ink/60">{attempt.message}</p>
+            <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
               {attempt.retryable ? (
                 <Button
                   type="button"
@@ -192,7 +185,7 @@ function BreathingMark({ active }: { active: boolean }) {
   const breathe = active && !reduced;
 
   return (
-    <span className="relative mx-auto flex h-24 w-24 items-center justify-center">
+    <span className="relative mx-auto flex h-20 w-20 items-center justify-center">
       {[0, 1].map((ring) => (
         <motion.span
           key={ring}
@@ -207,8 +200,8 @@ function BreathingMark({ active }: { active: boolean }) {
           aria-hidden="true"
         />
       ))}
-      <span className="flex h-24 w-24 items-center justify-center rounded-full bg-white text-primary shadow-[0_20px_40px_-24px_rgb(163_36_50/0.5)]">
-        <Lotus size={30} strokeWidth={1.4} />
+      <span className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 text-primary">
+        <Lotus size={28} strokeWidth={1.4} />
       </span>
     </span>
   );
@@ -257,41 +250,31 @@ function SavedResults({
   }, [percent, reduced]);
 
   const totalQuestions = questions.length || 1;
-  const avgSeconds = Math.max(
-    1,
-    Math.round(result.totalTimeMs / 1000 / totalQuestions),
-  );
-
   const stats = [
     {
       label: "Correct",
       value: result.correct,
-      note: `${Math.round((result.correct / totalQuestions) * 100)}% accuracy`,
+      tone: "bg-emerald-50 text-emerald-700",
     },
     {
       label: "Incorrect",
       value: result.incorrect,
-      note: result.incorrect === 0 ? "Flawless" : `${result.incorrect} missed`,
+      tone: "bg-primary/6 text-primary",
     },
     {
       label: "Skipped",
       value: result.skipped,
-      note: result.skipped === 0 ? "None skipped" : `${result.skipped} passed`,
-    },
-    {
-      label: "Time",
-      value: formatDurationMs(result.totalTimeMs),
-      note: `~${avgSeconds}s per question`,
+      tone: "bg-ink/4 text-ink/70",
     },
   ];
 
   /** Staggered rise for each block. */
   const rise = (step: number) => ({
-    initial: reduced ? false : { opacity: 0, y: 16 },
+    initial: reduced ? false : { opacity: 0, y: 14 },
     animate: { opacity: 1, y: 0 },
     transition: reducedTransition(reduced, {
-      duration: 0.7,
-      delay: 0.1 * step,
+      duration: 0.6,
+      delay: 0.08 * step,
       ease: EASE_OUT,
     }),
   });
@@ -324,24 +307,22 @@ function SavedResults({
   };
 
   return (
-    <div className="grid flex-1 lg:grid-cols-12" aria-live="polite">
+    <Container
+      size="xl"
+      className="grid flex-1 content-center gap-5 py-8 sm:py-12 lg:grid-cols-12 lg:gap-6"
+    >
       {/* Score */}
-      <div
-        className={`${QUIZ_GUTTER_CLASS} flex flex-col justify-center py-12 lg:col-span-7 lg:py-14`}
+      <motion.div
+        {...rise(0)}
+        className={`${QUIZ_CARD_CLASS} p-6 sm:p-8 lg:col-span-7 lg:p-10`}
+        aria-live="polite"
       >
-        <motion.p
-          {...rise(0)}
-          className={`${QUIZ_EYEBROW_CLASS} flex items-center gap-3 text-primary`}
-        >
-          <span className="h-px w-10 bg-primary/40" aria-hidden="true" />
+        <p className="type-eyebrow text-primary">
           {firstName ? `${firstName}, your result` : "Your result"}
-        </motion.p>
+        </p>
 
-        <div className="mt-8 flex flex-col gap-8 sm:flex-row sm:items-center sm:gap-12">
-          <motion.div
-            {...rise(1)}
-            className="relative flex h-48 w-48 shrink-0 items-center justify-center xl:h-56 xl:w-56"
-          >
+        <div className="mt-6 flex flex-col items-center gap-6 text-center sm:flex-row sm:items-center sm:gap-10 sm:text-left">
+          <div className="relative flex h-40 w-40 shrink-0 items-center justify-center sm:h-44 sm:w-44">
             <svg
               className="absolute inset-0 h-full w-full -rotate-90"
               viewBox="0 0 120 120"
@@ -353,7 +334,7 @@ function SavedResults({
                 r={RING_RADIUS}
                 fill="none"
                 stroke="rgb(0 0 0 / 0.06)"
-                strokeWidth="1.5"
+                strokeWidth="6"
               />
               <motion.circle
                 cx="60"
@@ -361,7 +342,7 @@ function SavedResults({
                 r={RING_RADIUS}
                 fill="none"
                 stroke="var(--color-primary)"
-                strokeWidth="2.5"
+                strokeWidth="6"
                 strokeLinecap="round"
                 strokeDasharray={RING_CIRCUMFERENCE}
                 initial={{
@@ -380,179 +361,144 @@ function SavedResults({
               />
             </svg>
             <div className="flex flex-col items-center">
-              <span
-                className={`${QUIZ_SERIF_CLASS} text-6xl text-ink xl:text-7xl`}
-              >
+              <span className="text-4xl font-semibold tabular-nums text-ink sm:text-5xl">
                 {shownPercent}
-                <span className="text-3xl text-ink/30">%</span>
+                <span className="text-2xl text-ink/35">%</span>
               </span>
-              <span
-                className={`${QUIZ_EYEBROW_CLASS} mt-2 tabular-nums text-ink/45`}
-              >
+              <span className="mt-1 text-xs font-medium tabular-nums text-ink/50">
                 {result.score} / {result.maxScore} pts
               </span>
             </div>
-          </motion.div>
+          </div>
 
-          <motion.div {...rise(2)} className="min-w-0">
-            <p className={`${QUIZ_SERIF_CLASS} text-xl italic text-primary`}>
+          <div className="min-w-0">
+            <span className="type-eyebrow inline-flex rounded-full bg-primary/10 px-3 py-1.5 text-primary">
               {tier.title}
-            </p>
-            <h1
-              className={`${QUIZ_SERIF_CLASS} mt-2 text-balance text-4xl leading-[1.08] text-ink sm:text-5xl`}
-            >
+            </span>
+            <h1 className="type-h2 mt-3 text-balance text-ink">
               {tier.headline}
             </h1>
-            <p className="mt-4 max-w-md text-pretty text-[0.9375rem] leading-relaxed text-ink/55">
+            <p className="type-body mt-3 max-w-md text-pretty text-ink/60">
               {tier.message}
             </p>
-          </motion.div>
+          </div>
         </div>
 
-        <motion.dl
-          {...rise(3)}
-          className="mt-12 grid grid-cols-2 border-y border-ink/8 sm:grid-cols-4"
-        >
-          {stats.map((stat, index) => (
+        <dl className="mt-8 grid grid-cols-3 gap-3">
+          {stats.map((stat) => (
             <div
               key={stat.label}
-              className={`flex flex-col-reverse py-5 ${index % 2 ? "border-l border-ink/8 pl-5" : ""} ${index === 2 ? "border-t border-ink/8 sm:border-t-0 sm:border-l sm:pl-5" : ""} ${index === 3 ? "border-t border-ink/8 sm:border-t-0" : ""}`}
+              className={`flex flex-col rounded-2xl px-4 py-3.5 ${stat.tone}`}
             >
-              <dt className="mt-1">
-                <span className={`${QUIZ_EYEBROW_CLASS} block text-ink/45`}>
-                  {stat.label}
-                </span>
-                <span className="mt-1 block text-xs text-ink/35">
-                  {stat.note}
-                </span>
+              <dt className="order-last text-xs font-medium opacity-80">
+                {stat.label}
               </dt>
-              <dd className={`${QUIZ_SERIF_CLASS} text-3xl text-ink`}>
+              <dd className="text-2xl font-semibold tabular-nums">
                 {stat.value}
+                <span className="text-sm font-medium opacity-50">
+                  /{totalQuestions}
+                </span>
               </dd>
             </div>
           ))}
-        </motion.dl>
+        </dl>
 
-        <motion.div
-          {...rise(4)}
-          className="mt-10 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between"
-        >
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-ink/45">
-            <span className="flex items-center gap-3">
-              <span className="flex gap-1.5" aria-hidden="true">
-                {Array.from({ length: settings.monthlyLimit }, (_, index) => (
-                  <span
-                    // biome-ignore lint/suspicious/noArrayIndexKey: chance dots
-                    key={index}
-                    className={`h-1.5 w-1.5 rounded-full ${
-                      index < settings.monthlyLimit - result.remaining
-                        ? "bg-ink/15"
-                        : "bg-primary"
-                    }`}
-                  />
-                ))}
-              </span>
-              {canRetake
-                ? `${result.remaining} of ${settings.monthlyLimit} attempts left this month`
-                : result.nextAvailableAt
-                  ? `Next attempt opens ${formatQuizNextDate(result.nextAvailableAt)}`
-                  : "Next attempt opens next month"}
-            </span>
-            <button
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          {canRetake ? (
+            <Button
               type="button"
-              onClick={handleShare}
-              className="inline-flex items-center gap-1.5 text-ink/55 underline-offset-4 transition hover:text-primary hover:underline"
+              variant="primary"
+              size="md"
+              onClick={onRetake}
             >
-              {copied ? <Check size={12} /> : <Copy size={12} />}
-              {copied ? "Copied" : "Share score"}
-            </button>
-          </div>
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <Button href="/courses" variant="outline" size="md">
-              Explore courses
+              Take it again
             </Button>
-            {canRetake ? (
-              <Button
-                type="button"
-                variant="primary"
-                size="md"
-                onClick={onRetake}
-              >
-                Take it again
-              </Button>
-            ) : null}
-          </div>
-        </motion.div>
-      </div>
+          ) : null}
+          <Button href="/yoga-teacher-training-in-rishikesh-india" variant="outline" size="md">
+            Explore courses
+          </Button>
+        </div>
+
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-x-5 gap-y-3 border-t border-ink/6 pt-5 text-sm text-ink/55">
+          <span className="flex items-center gap-2.5">
+            <span className="flex gap-1" aria-hidden="true">
+              {Array.from({ length: settings.monthlyLimit }, (_, index) => (
+                <span
+                  // biome-ignore lint/suspicious/noArrayIndexKey: chance dots
+                  key={index}
+                  className={`h-2 w-2 rounded-full ${
+                    index < settings.monthlyLimit - result.remaining
+                      ? "bg-ink/15"
+                      : "bg-primary"
+                  }`}
+                />
+              ))}
+            </span>
+            {canRetake
+              ? `${result.remaining} of ${settings.monthlyLimit} attempts left this month`
+              : result.nextAvailableAt
+                ? `Next attempt opens ${formatQuizNextDate(result.nextAvailableAt)}`
+                : "Next attempt opens next month"}
+          </span>
+          <button
+            type="button"
+            onClick={handleShare}
+            className="inline-flex items-center gap-1.5 font-medium text-ink/70 transition hover:text-primary"
+          >
+            {copied ? <Check size={14} /> : <Copy size={14} />}
+            {copied ? "Copied" : "Share score"}
+          </button>
+        </div>
+      </motion.div>
 
       {/* Gift */}
       <motion.div
-        initial={reduced ? false : { opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={reducedTransition(reduced, {
-          duration: 0.9,
-          delay: 0.2,
-          ease: EASE_OUT,
-        })}
-        className="relative flex flex-col overflow-hidden bg-[#6e1621] px-6 py-12 text-white sm:px-10 lg:col-span-5 lg:px-14 lg:py-14 xl:px-16"
+        {...rise(1)}
+        className="relative flex flex-col overflow-hidden rounded-[1.5rem] bg-primary p-6 text-white shadow-[0_24px_60px_-36px_rgb(163_36_50/0.8)] sm:p-8 lg:col-span-5 lg:p-10"
       >
         <div
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_80%_at_0%_0%,rgb(163_36_50/0.9),transparent_60%)]"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_80%_at_100%_0%,rgb(255_255_255/0.14),transparent_60%)]"
           aria-hidden="true"
         />
         <Lotus
-          size={420}
-          strokeWidth={0.25}
-          className="pointer-events-none absolute -right-28 -bottom-28 text-white/8"
+          size={320}
+          strokeWidth={0.3}
+          className="pointer-events-none absolute -right-20 -bottom-24 text-white/10"
         />
 
-        <div className="relative flex flex-1 flex-col justify-center">
-          <div className="flex items-center justify-between gap-4">
-            <p className={`${QUIZ_EYEBROW_CLASS} text-amber-200/90`}>
-              {settings.giftEyebrow}
-            </p>
-            <p className={`${QUIZ_EYEBROW_CLASS} text-white/45`}>
-              Tapovan · Rishikesh
-            </p>
-          </div>
-
-          <h2
-            className={`${QUIZ_SERIF_CLASS} mt-8 text-balance text-3xl leading-[1.15] sm:text-4xl`}
-          >
+        <div className="relative flex flex-1 flex-col">
+          <p className="type-eyebrow text-white/75">{settings.giftEyebrow}</p>
+          <h2 className="type-h3 mt-3 text-balance">
             {fillQuizName(settings.giftTitle, firstName)}
           </h2>
           {settings.giftBody ? (
-            <p className="mt-4 max-w-md text-[0.9375rem] leading-relaxed text-white/70">
-              {settings.giftBody}
-            </p>
+            <p className="type-body mt-3 text-white/80">{settings.giftBody}</p>
           ) : null}
 
-          <ul className="mt-10 border-t border-white/12">
+          <ul className="mt-6 space-y-2.5">
             {GIFT_PERKS.map(({ icon: PerkIcon, title, desc }) => (
               <li
                 key={title}
-                className="flex items-center gap-4 border-b border-white/12 py-4"
+                className="flex items-center gap-3.5 rounded-2xl bg-white/10 px-4 py-3"
               >
-                <PerkIcon
-                  size={18}
-                  strokeWidth={1.5}
-                  className="shrink-0 text-amber-200/90"
-                />
-                <span className="flex-1">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/15">
+                  <PerkIcon size={17} strokeWidth={1.6} />
+                </span>
+                <span className="min-w-0">
                   <span className="block text-sm font-medium">{title}</span>
-                  <span className="block text-xs text-white/55">{desc}</span>
+                  <span className="block text-xs text-white/70">{desc}</span>
                 </span>
               </li>
             ))}
           </ul>
 
-          <div className="mt-10 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="mt-auto pt-8">
             {settings.giftCtaLabel && settings.giftCtaHref ? (
               <Button
                 href={settings.giftCtaHref}
                 variant="outline-light"
                 size="md"
-                className="group self-start"
+                className="group w-full sm:w-auto"
               >
                 {settings.giftCtaLabel}
                 <ArrowRight
@@ -561,13 +507,13 @@ function SavedResults({
                 />
               </Button>
             ) : null}
-            <p className="max-w-56 text-xs leading-relaxed text-white/50">
+            <p className="mt-4 text-xs leading-relaxed text-white/70">
               Show this result or your registered email at our reception in
-              Tapovan.
+              Tapovan, Rishikesh.
             </p>
           </div>
         </div>
       </motion.div>
-    </div>
+    </Container>
   );
 }
