@@ -14,11 +14,6 @@ import {
   normalizeCmsImage,
 } from "@/content/types/cms-image";
 import {
-  CLOUDINARY_HERO_MAIN_WIDTH,
-  cloudinaryHeroUrl,
-  cloudinarySizedUrl,
-} from "@/lib/cdn/cloudinary-thumb-url";
-import {
   parseYouTubeId,
   YOUTUBE_METADATA_REGISTRY,
   youTubeThumbnailUrl,
@@ -54,30 +49,6 @@ export type HeroPhoto = CmsInteractiveImage & {
   tag?: string;
   pictured?: string;
 };
-
-/** Cloudinary width for the 16:10 main stage (covers ~1100px CSS at 2x). */
-export const HERO_MAIN_WIDTH = CLOUDINARY_HERO_MAIN_WIDTH;
-/** Cloudinary width for large side-stack tiles (200–400px CSS at 2x). */
-export const HERO_SIDE_WIDTH = 800;
-/** Cloudinary width for filmstrip thumbnails. */
-export const HERO_THUMB_WIDTH = 320;
-/** Next/Image quality for hero photos (default is 75). */
-export const HERO_IMAGE_QUALITY = 85;
-
-/**
- * Prefetches main-stage hero URLs into the browser cache.
- *
- * @param urls - Absolute Cloudinary (or other) image URLs to warm
- */
-export function prefetchHeroUrls(urls: readonly string[]): void {
-  if (typeof window === "undefined") return;
-  for (const url of urls) {
-    if (!url) continue;
-    const img = new window.Image();
-    img.decoding = "async";
-    img.src = url;
-  }
-}
 
 /**
  * Keeps the last decoded hero URL painted until the next photo is ready.
@@ -299,32 +270,6 @@ export function useHeroGallery({
     handleCmsImageClick(photo, () => openLightbox(index));
   };
 
-  /** Main-stage source for a photo. */
-  const photoSrc = (photo: HeroPhoto) =>
-    cloudinaryHeroUrl(photo.url, HERO_MAIN_WIDTH);
-
-  /** Side-stack source — larger than filmstrip thumbs. */
-  const sideSrc = (photo: HeroPhoto) =>
-    cloudinaryHeroUrl(photo.url, HERO_SIDE_WIDTH);
-
-  /** Filmstrip thumbnail source for a photo. */
-  const thumbSrc = (photo: HeroPhoto) =>
-    cloudinarySizedUrl(photo.url, HERO_THUMB_WIDTH);
-
-  /**
-   * Warms the next and previous main-stage URLs so autoplay / wrap can paint
-   * from cache instead of waiting on a network fetch.
-   */
-  useEffect(() => {
-    if (photos.length <= 1) return;
-    const next = photos[(photoIdx + 1) % photos.length];
-    const prev = photos[(photoIdx - 1 + photos.length) % photos.length];
-    prefetchHeroUrls([
-      next ? cloudinaryHeroUrl(next.url, HERO_MAIN_WIDTH) : "",
-      prev ? cloudinaryHeroUrl(prev.url, HERO_MAIN_WIDTH) : "",
-    ]);
-  }, [photoIdx, photos]);
-
   /**
    * Auto-advances the main-stage photo every 5s. Pauses for reduced motion,
    * a single photo, an inline video, an open lightbox, a hidden tab, or an
@@ -399,9 +344,6 @@ export function useHeroGallery({
     clearVideo,
     openLightbox,
     activatePhoto,
-    photoSrc,
-    sideSrc,
-    thumbSrc,
     lightboxProps: {
       isOpen: lightboxOpen,
       onClose: () => setLightboxOpen(false),

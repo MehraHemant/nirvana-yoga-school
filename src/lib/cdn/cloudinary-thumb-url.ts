@@ -1,3 +1,5 @@
+import type { ImageLoaderProps } from "next/image";
+
 /**
  * Builds a width-limited Cloudinary delivery URL.
  * Non-Cloudinary URLs are returned unchanged.
@@ -42,13 +44,35 @@ export function cloudinarySizedUrl(
 /** @deprecated Use {@link cloudinarySizedUrl} */
 export const cloudinaryThumbUrl = cloudinarySizedUrl;
 
-/** Main-stage Cloudinary width — keep in sync with hero `HERO_MAIN_WIDTH`. */
+/** Largest width the Cloudinary loader requests (retina hero main stage). */
 export const CLOUDINARY_HERO_MAIN_WIDTH = 2400;
 
-/** Hero photos — retina-wide `c_limit` with `q_auto:good` instead of default `q_auto`. */
-export function cloudinaryHeroUrl(
-  url: string,
-  width = CLOUDINARY_HERO_MAIN_WIDTH,
-): string {
-  return cloudinarySizedUrl(url, width, "auto:good");
+/**
+ * True when `url` is an untransformed Cloudinary image that can be resized per width.
+ *
+ * @param url - Original media URL
+ */
+export function isResizableCloudinaryImage(url: string): boolean {
+  const marker = "/image/upload/";
+  const idx = url.indexOf(marker);
+  if (idx === -1) return false;
+  return !/^(c_|w_|h_|f_|q_|fl_)/.test(url.slice(idx + marker.length));
+}
+
+/**
+ * `next/image` loader that lets Cloudinary resize directly (no Vercel re-encode).
+ * Widths are capped at the hero main width; quality ≥ 85 maps to `q_auto:good`.
+ *
+ * @param props - Loader props from `next/image`
+ */
+export function cloudinaryImageLoader({
+  src,
+  width,
+  quality,
+}: ImageLoaderProps): string {
+  return cloudinarySizedUrl(
+    src,
+    Math.min(width, CLOUDINARY_HERO_MAIN_WIDTH),
+    quality != null && quality >= 85 ? "auto:good" : "auto",
+  );
 }

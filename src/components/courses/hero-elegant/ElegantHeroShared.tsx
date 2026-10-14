@@ -1,18 +1,22 @@
 "use client";
 
 import Image from "next/image";
-import { type ReactNode, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { MediaLightbox, YouTubeThumbImage } from "@/components/ui";
 import { cmsImageCursorClass } from "@/content/types/cms-image";
 import { Play } from "@/icons";
 import {
   type CourseHeroProps,
-  HERO_IMAGE_QUALITY,
   useHeldHeroSrc,
   type useHeroGallery,
   ytThumb,
   ytTitle,
 } from "../hero-variants/shared";
+import {
+  HERO_IMAGE_QUALITY,
+  heroImageLoader,
+  heroStageImageProps,
+} from "./hero-image";
 
 export type ElegantGallery = ReturnType<typeof useHeroGallery>;
 export type ElegantHeroProps = CourseHeroProps;
@@ -104,8 +108,27 @@ export function HeroStage({
   children?: ReactNode;
 }) {
   const g = gallery;
-  const targetSrc = g.activePhoto ? g.photoSrc(g.activePhoto) : undefined;
+  const targetSrc = g.activePhoto?.url;
   const { readySrc, incomingSrc, onIncomingLoad } = useHeldHeroSrc(targetSrc);
+
+  // Warm next/previous with the same srcset candidate the stage will pick, so
+  // autoplay and arrows paint from cache.
+  useEffect(() => {
+    if (g.photos.length <= 1) return;
+    const neighbours = [
+      g.photos[(g.photoIdx + 1) % g.photos.length],
+      g.photos[(g.photoIdx - 1 + g.photos.length) % g.photos.length],
+    ];
+    for (const photo of neighbours) {
+      if (!photo?.url) continue;
+      const props = heroStageImageProps(photo.url, sizes);
+      const img = new window.Image();
+      img.decoding = "async";
+      if (props.sizes) img.sizes = props.sizes;
+      if (props.srcSet) img.srcset = props.srcSet;
+      img.src = props.src;
+    }
+  }, [g.photoIdx, g.photos, sizes]);
 
   return (
     <div
@@ -143,7 +166,7 @@ export function HeroStage({
               decoding="sync"
               quality={HERO_IMAGE_QUALITY}
               sizes={sizes}
-              unoptimized
+              loader={heroImageLoader(readySrc)}
               className={imageClassName}
             />
           ) : null}
@@ -158,7 +181,7 @@ export function HeroStage({
               fetchPriority="high"
               quality={HERO_IMAGE_QUALITY}
               sizes={sizes}
-              unoptimized
+              loader={heroImageLoader(incomingSrc)}
               onLoad={onIncomingLoad}
               className={`${imageClassName} opacity-0`}
               aria-hidden
@@ -226,12 +249,12 @@ export function MediaRail({
             aria-current={isActive}
           >
             <Image
-              src={g.thumbSrc(photo)}
+              src={photo.url}
               alt=""
               fill
               loading="lazy"
-              quality={HERO_IMAGE_QUALITY}
               sizes="180px"
+              loader={heroImageLoader(photo.url)}
               className="object-cover"
             />
           </button>

@@ -2339,6 +2339,13 @@
   margin-bottom: 0.75rem;
 }
 
+.admin-media-picker-tags,
+.admin-media-picker-usage {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
 .admin-media-picker-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
@@ -4774,6 +4781,32 @@
   flex-direction: column;
   max-height: min(88vh, 52rem);
   overflow: hidden;
+}
+
+/* Media pickers — wider modal, larger tiles, grid fills the remaining height. */
+.admin-modal--picker {
+  max-width: min(76rem, 96vw);
+  max-height: min(92vh, 64rem);
+}
+
+.admin-modal--picker .admin-media-picker-grid {
+  grid-template-columns: repeat(auto-fill, minmax(176px, 1fr));
+  gap: 0.75rem;
+  flex: 1 1 auto;
+  min-height: 12rem;
+  max-height: none;
+}
+
+.admin-modal--picker .admin-media-pick-label {
+  font-size: 0.75rem;
+}
+
+.admin-media-picker-usage {
+  margin-bottom: 0.75rem;
+}
+
+.admin-media-picker-toolbar .admin-media-picker-usage {
+  margin-bottom: 0;
 }
 
 .admin-modal--library .admin-modal-footer {

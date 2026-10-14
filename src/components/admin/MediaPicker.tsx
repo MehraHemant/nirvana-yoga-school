@@ -2,6 +2,11 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { AdminSearchField } from "@/components/admin/AdminSearchField";
+import {
+  type MediaUsageFilter,
+  MediaUsageFilterChips,
+  mediaUsageQuery,
+} from "@/components/admin/MediaUsageFilterChips";
 import { fetchAdminMedia } from "@/lib/api/admin-client";
 import { cloudinaryThumbUrl } from "@/lib/cdn/cloudinary-thumb-url";
 import type { AdminMediaAsset } from "@/lib/types/admin-api";
@@ -18,6 +23,8 @@ type MediaPickerProps = {
 };
 
 const PAGE_SIZE = 48;
+/** Thumbnail width for the larger picker tiles (~200px CSS at 2x). */
+const THUMB_WIDTH = 400;
 
 /**
  * Builds searchable text from a media asset row.
@@ -56,6 +63,7 @@ export function MediaPicker({
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
+  const [usage, setUsage] = useState<MediaUsageFilter>("all");
   const title = kind === "video" ? "Choose video" : "Choose image";
   const emptyHint =
     kind === "video"
@@ -68,6 +76,7 @@ export function MediaPicker({
     setAssets([]);
     setTotalPages(1);
     setSearch("");
+    setUsage("all");
   }, [open]);
 
   useEffect(() => {
@@ -82,6 +91,7 @@ export function MediaPicker({
       page,
       limit: PAGE_SIZE,
       kind,
+      usage: mediaUsageQuery(usage),
     })
       .then((body) => {
         if (cancelled) return;
@@ -101,7 +111,7 @@ export function MediaPicker({
     return () => {
       cancelled = true;
     };
-  }, [open, tagFilter, kind, page]);
+  }, [open, tagFilter, kind, page, usage]);
 
   const visibleAssets = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -120,7 +130,7 @@ export function MediaPicker({
         aria-label="Close media library"
       />
       <div
-        className="admin-modal admin-modal--library"
+        className="admin-modal admin-modal--library admin-modal--picker"
         role="dialog"
         aria-modal="true"
         aria-label="Media library"
@@ -145,6 +155,14 @@ export function MediaPicker({
             ariaLabel="Search media"
             className="admin-media-picker-search"
           />
+          <MediaUsageFilterChips
+            value={usage}
+            onChange={(next) => {
+              setPage(1);
+              setAssets([]);
+              setUsage(next);
+            }}
+          />
         </div>
 
         {loading ? <p className="admin-hint">Loading…</p> : null}
@@ -167,7 +185,7 @@ export function MediaPicker({
                 ) : (
                   // biome-ignore lint/performance/noImgElement: admin preview
                   <img
-                    src={asset.thumbUrl || cloudinaryThumbUrl(asset.url, 240)}
+                    src={cloudinaryThumbUrl(asset.url, THUMB_WIDTH)}
                     alt={asset.caption ?? asset.alt ?? "Media asset"}
                     loading="lazy"
                     decoding="async"
@@ -204,7 +222,11 @@ export function MediaPicker({
             <p>
               {search.trim()
                 ? "No media matches your search."
-                : emptyHint}
+                : usage === "unused"
+                  ? "No unused media — everything in the library is in use."
+                  : usage === "inUse"
+                    ? "No media is in use yet."
+                    : emptyHint}
             </p>
             {search.trim() ? (
               <button

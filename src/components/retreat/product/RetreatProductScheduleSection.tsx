@@ -201,7 +201,7 @@ function ScheduleActivityRow({ activity, isLast }: ScheduleActivityRowProps) {
 
       <time
         dateTime={activity.time}
-        className="type-eyebrow z-10 w-[3rem] shrink-0 pt-2.5 text-right tabular-nums text-ink/70 sm:w-[3.25rem]"
+        className="type-eyebrow z-10 w-40 shrink-0 pt-2.5 text-right tabular-nums text-ink/70 sm:w-[3.25rem]"
       >
         {activity.time}
       </time>

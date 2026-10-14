@@ -3,10 +3,7 @@
 import Image from "next/image";
 import { HeroFrame } from "@/components/hero";
 import { Container } from "@/components/ui";
-import {
-  HERO_IMAGE_QUALITY,
-  useHeroGallery,
-} from "../hero-variants/shared";
+import { useHeroGallery } from "../hero-variants/shared";
 import {
   ELEGANT_HERO_FRAME,
   type ElegantHeroProps,
@@ -16,6 +13,11 @@ import {
   MediaRail,
   pickSidePhotos,
 } from "./ElegantHeroShared";
+import {
+  HERO_IMAGE_QUALITY,
+  HERO_STAGE_SIZES,
+  heroImageLoader,
+} from "./hero-image";
 
 /**
  * Gallery Feature — one dominant image, three supporting photos, and a film row.
@@ -63,7 +65,7 @@ export default function CourseHeroGalleryFeature(props: ElegantHeroProps) {
           >
             <HeroStage
               gallery={gallery}
-              sizes="(max-width: 768px) 100vw, min(75vw, 1100px)"
+              sizes={HERO_STAGE_SIZES}
               className="aspect-16/10 h-full min-h-48 w-full md:aspect-auto"
             />
             {showSideColumn ? (
@@ -84,12 +86,13 @@ export default function CourseHeroGalleryFeature(props: ElegantHeroProps) {
                     aria-label={`Show photo ${index + 1}`}
                   >
                     <Image
-                      src={gallery.sideSrc(photo)}
+                      src={photo.url}
                       alt=""
                       fill
                       loading="lazy"
                       quality={HERO_IMAGE_QUALITY}
                       sizes="(max-width: 768px) 33vw, 400px"
+                      loader={heroImageLoader(photo.url)}
                       className="object-cover transition-transform duration-500 hover:scale-[1.02]"
                     />
                   </button>

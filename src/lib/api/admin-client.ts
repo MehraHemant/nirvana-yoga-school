@@ -296,6 +296,8 @@ export async function fetchAdminMedia(
         limit?: number;
         includeUsage?: boolean;
         kind?: "image" | "video";
+        /** Filter the whole library by CMS usage before paginating */
+        usage?: "unused" | "inUse";
       },
 ): Promise<AdminMediaListResponse> {
   const options =
@@ -308,6 +310,7 @@ export async function fetchAdminMedia(
   if (options.limit != null) params.set("limit", String(options.limit));
   if (options.includeUsage) params.set("includeUsage", "1");
   if (options.kind) params.set("kind", options.kind);
+  if (options.usage) params.set("usage", options.usage);
   const query = params.toString();
   return adminFetch<AdminMediaListResponse>(
     `/api/admin/media${query ? `?${query}` : ""}`,

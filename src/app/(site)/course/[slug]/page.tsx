@@ -1,12 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { heroStageImageProps } from "@/components/courses/hero-elegant/hero-image";
 import { getResidentialCourse, getResidentialCourseSlugs } from "@/content";
 import { getPageModules } from "@/content/repositories/page-modules";
 import { cmsImageUrl } from "@/content/types/cms-image";
-import {
-  CLOUDINARY_HERO_MAIN_WIDTH,
-  cloudinaryHeroUrl,
-} from "@/lib/cdn/cloudinary-thumb-url";
 import { isSectionLive } from "@/lib/cms/section-visibility";
 import { metadataFromPageSeo } from "../../_shared/metadata";
 import CourseClient from "./CourseClient";
@@ -42,12 +39,14 @@ export async function generateMetadata({
 }
 
 /**
- * First gallery-hero Cloudinary URL for document-head LCP preload.
- * Must match `photoSrc` / `HERO_MAIN_WIDTH` on the main stage (`unoptimized`).
+ * First gallery-hero image for document-head LCP preload. Uses the same
+ * loader + `sizes` as the main stage so the browser picks one candidate.
  *
  * @param data - Server-loaded course page data
  */
-function courseHeroLcpUrl(data: CoursePageData): string | undefined {
+function courseHeroLcpImage(
+  data: CoursePageData,
+): ReturnType<typeof heroStageImageProps> | undefined {
   if (data.modules && !isSectionLive(data.modules.hero)) return undefined;
 
   const hero = data.modules?.hero;
@@ -59,7 +58,7 @@ function courseHeroLcpUrl(data: CoursePageData): string | undefined {
         : data.course.heroImages?.[0];
   const raw = cmsImageUrl(first ?? "");
   if (!raw) return undefined;
-  return cloudinaryHeroUrl(raw, CLOUDINARY_HERO_MAIN_WIDTH);
+  return heroStageImageProps(raw);
 }
 
 export default async function Page({ params }: PageProps) {
@@ -68,15 +67,17 @@ export default async function Page({ params }: PageProps) {
   if (!result.data) notFound();
 
   const data = await loadCoursePageData(slug, result.data);
-  const heroLcpUrl = courseHeroLcpUrl(data);
+  const heroLcp = courseHeroLcpImage(data);
 
   return (
     <>
-      {heroLcpUrl ? (
+      {heroLcp ? (
         <link
           rel="preload"
           as="image"
-          href={heroLcpUrl}
+          href={heroLcp.src}
+          imageSrcSet={heroLcp.srcSet}
+          imageSizes={heroLcp.sizes}
           fetchPriority="high"
         />
       ) : null}

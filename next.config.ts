@@ -61,6 +61,12 @@ const nextConfig: NextConfig = {
         hostname: "onlinecourses.nirvanayogaschoolindia.com",
       },
       {
+        // Live site serves some images (e.g. teacher photos) from ImageKit.
+        protocol: "https",
+        hostname: "ik.imagekit.io",
+        // pathname: "/nirvanayogaschool/**",
+      },
+      {
         protocol: "https",
         hostname: "images.unsplash.com",
       },

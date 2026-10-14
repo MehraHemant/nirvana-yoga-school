@@ -193,7 +193,7 @@ export default function TeacherProfileCard({
       </Heading>
       <p className="type-eyebrow mt-2 text-ink">{teacher.experienceSummary}</p>
       <p
-        className={`type-body text-ink ${compactMedia ? "mt-3" : "mt-5"} ${bioClampClass}`}
+        className={`type-body whitespace-pre-line text-ink ${compactMedia ? "mt-3" : "mt-5"} ${bioClampClass}`}
       >
         {teacher.bio}
       </p>

@@ -3,6 +3,11 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import {
+  type MediaUsageFilter,
+  MediaUsageFilterChips,
+  mediaUsageQuery,
+} from "@/components/admin/MediaUsageFilterChips";
+import {
   galleryCategoryFromTag,
   galleryMediaTagOptions,
 } from "@/content/mappers/gallery-module";
@@ -50,6 +55,8 @@ type MediaMultiPickerProps = {
 };
 
 const PAGE_SIZE = 48;
+/** Thumbnail width for the larger picker tiles (~200px CSS at 2x). */
+const THUMB_WIDTH = 400;
 
 /**
  * Modal multi-select media library picker with tag filtering and search.
@@ -72,6 +79,7 @@ export function MediaMultiPicker({
   const [totalPages, setTotalPages] = useState(1);
   const [tag, setTag] = useState(initialTag);
   const [search, setSearch] = useState("");
+  const [usage, setUsage] = useState<MediaUsageFilter>("all");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [emptyTagHint, setEmptyTagHint] = useState("");
   const [didTagFallback, setDidTagFallback] = useState(false);
@@ -82,6 +90,7 @@ export function MediaMultiPicker({
     if (!open) return;
     setTag(initialTag);
     setSearch("");
+    setUsage("all");
     setSelectedIds([]);
     setEmptyTagHint("");
     setDidTagFallback(false);
@@ -110,7 +119,7 @@ export function MediaMultiPicker({
               (image): PickerAsset => ({
                 id: image.id,
                 url: image.url,
-                thumbUrl: image.thumbUrl || cloudinaryThumbUrl(image.url, 240),
+                thumbUrl: cloudinaryThumbUrl(image.url, THUMB_WIDTH),
                 label:
                   image.title ||
                   image.alt ||
@@ -129,13 +138,13 @@ export function MediaMultiPicker({
             page,
             limit: PAGE_SIZE,
             kind: "image",
+            usage: mediaUsageQuery(usage),
           }).then((body) => ({
             images: body.assets.map(
                 (asset): PickerAsset => ({
                   id: asset.id,
                   url: asset.url,
-                  thumbUrl:
-                    asset.thumbUrl || cloudinaryThumbUrl(asset.url, 240),
+                  thumbUrl: cloudinaryThumbUrl(asset.url, THUMB_WIDTH),
                   label:
                     asset.caption ||
                     asset.alt ||
@@ -154,7 +163,13 @@ export function MediaMultiPicker({
         if (cancelled) return;
         setTotalPages(nextTotalPages);
         setAssets((prev) => (page === 1 ? images : [...prev, ...images]));
-        if (tag && images.length === 0 && page === 1 && !didTagFallback) {
+        if (
+          tag &&
+          usage === "all" &&
+          images.length === 0 &&
+          page === 1 &&
+          !didTagFallback
+        ) {
           setDidTagFallback(true);
           setEmptyTagHint(tag);
           setPage(1);
@@ -179,7 +194,7 @@ export function MediaMultiPicker({
     return () => {
       cancelled = true;
     };
-  }, [open, tag, didTagFallback, source, page]);
+  }, [open, tag, didTagFallback, source, page, usage]);
 
   const visibleAssets = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -257,7 +272,7 @@ export function MediaMultiPicker({
         aria-label="Close media library"
       />
       <div
-        className="admin-modal admin-modal--library"
+        className="admin-modal admin-modal--library admin-modal--picker"
         role="dialog"
         aria-modal="true"
         aria-label={title}
@@ -339,6 +354,18 @@ export function MediaMultiPicker({
           ))}
         </div>
 
+        {source === "assets" ? (
+          <MediaUsageFilterChips
+            value={usage}
+            onChange={(next) => {
+              setEmptyTagHint("");
+              setPage(1);
+              setAssets([]);
+              setUsage(next);
+            }}
+          />
+        ) : null}
+
         {emptyTagHint ? (
           <p className="admin-tip-banner admin-tip-banner--inline">
             No library images tagged “{emptyTagHint}”. Showing all media — pick
@@ -411,11 +438,13 @@ export function MediaMultiPicker({
             <p>
               {error
                 ? "Could not load the library."
-                : tag
-                  ? `No media matches “${tag}”.`
-                  : search.trim()
-                    ? "No media matches your search."
-                    : "No media in the library yet."}
+                : usage !== "all"
+                  ? `No ${usage === "unused" ? "unused" : "in-use"} media${tag ? ` tagged “${tag}”` : ""}.`
+                  : tag
+                    ? `No media matches “${tag}”.`
+                    : search.trim()
+                      ? "No media matches your search."
+                      : "No media in the library yet."}
             </p>
             <div className="admin-empty-card-actions">
               {tag ? (
@@ -456,6 +485,11 @@ export function MediaMultiPicker({
             {selectedIds.length} selected
             {visibleAssets.length > 0 ? ` · ${visibleAssets.length} shown` : ""}
             {tag ? ` · ${tag}` : ""}
+            {usage === "unused"
+              ? " · unused"
+              : usage === "inUse"
+                ? " · in use"
+                : ""}
           </p>
           <div className="admin-actions">
             <button type="button" className="admin-btn-ghost" onClick={onClose}>
