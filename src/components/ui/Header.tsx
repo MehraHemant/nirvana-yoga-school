@@ -2,11 +2,86 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useId, useState } from "react";
-import { logo, logo_white } from "@/assets";
-import { type NavItem, PRIMARY_NAV, SIGN_IN_URL } from "@/constants/navigation";
-import { ArrowRight, ChevronDown, MenuIcon } from "@/icons";
+import { usePathname } from "next/navigation";
+import { Fragment, useEffect, useId, useLayoutEffect, useState } from "react";
+import HeaderAuth, {
+  type HeaderSiteUser,
+  initialsOf,
+} from "@/components/auth/HeaderAuth";
+import { type NavItem, navItemHref, navLinkHref } from "@/constants/navigation";
+import type { GlobalHeader, HeaderCta } from "@/content/types/global-settings";
+import { ArrowRight, ChevronDown, MenuIcon, User } from "@/icons";
+import { normalizeHeaderCtas } from "@/lib/cms/header-fields";
 import Button from "./Button";
+
+const DEFAULT_LOGO_LIGHT = "/logo.png";
+const DEFAULT_LOGO_DARK = "/logo_white.png";
+const LEGACY_TRANSPARENT_HERO_PATHS = new Set(["/", "/enquire-now"]);
+
+type HeaderData = Partial<GlobalHeader> & {
+  navigation?: NavItem[];
+  logo?: Partial<GlobalHeader["logo"]>;
+};
+
+/**
+ * Whether a CTA should open in a new tab.
+ *
+ * @param cta - Header CTA row
+ */
+function ctaIsExternal(cta: HeaderCta): boolean {
+  if (typeof cta.external === "boolean") return cta.external;
+  return /^https?:\/\//i.test(cta.href);
+}
+
+/**
+ * Renders one header CTA as a text link or button.
+ *
+ * @param props - CTA row, overlay-nav state, and optional click handler
+ */
+function HeaderCtaControl({
+  cta,
+  lightNav,
+  onNavigate,
+  className = "",
+  size = "sm",
+}: {
+  cta: HeaderCta;
+  lightNav: boolean;
+  onNavigate?: () => void;
+  className?: string;
+  size?: "sm" | "md";
+}) {
+  const props = {
+    ...linkProps(cta.href, ctaIsExternal(cta)),
+    onClick: onNavigate,
+  };
+
+  if (cta.variant === "link") {
+    return (
+      <Link
+        {...props}
+        className={`nav-link text-sm xl:text-[0.9375rem] 2xl:text-base font-medium tracking-wide px-2 py-1.5 transition-colors hover:text-primary  ${lightNav ? "text-white/85" : "text-ink"} ${className}`.trim()}
+      >
+        {cta.label}
+      </Link>
+    );
+  }
+
+  return (
+    <Button
+      href={cta.href}
+      variant={cta.variant}
+      size={size}
+      className={`shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30 transition-shadow duration-300 ${className}`.trim()}
+      onClick={onNavigate}
+      {...(ctaIsExternal(cta)
+        ? { target: "_blank", rel: "noopener noreferrer" }
+        : {})}
+    >
+      {cta.label}
+    </Button>
+  );
+}
 
 function linkProps(href: string, external?: boolean) {
   if (external || href.startsWith("http")) {
@@ -19,28 +94,53 @@ function linkProps(href: string, external?: boolean) {
   return { href };
 }
 
+/**
+ * Returns a safe internal or HTTP(S) destination for the header logo.
+ *
+ * @param value - Configured logo destination
+ */
+function safeLogoHref(value: unknown): string {
+  if (typeof value !== "string") return "/";
+  const href = value.trim();
+  if (href.startsWith("/") || /^https?:\/\//i.test(href)) return href;
+  return "/";
+}
+
+/**
+ * Checks whether the current page needs a transparent header.
+ *
+ * @param pathname - Current client pathname
+ */
+function hasTransparentHeader(pathname: string | null): boolean {
+  return (
+    document.querySelector('[data-transparent-header="true"]') !== null ||
+    (pathname !== null && LEGACY_TRANSPARENT_HERO_PATHS.has(pathname))
+  );
+}
+
 function NavText({
-  solid,
+  lightNav,
   className = "",
 }: {
-  solid: boolean;
+  lightNav: boolean;
   className?: string;
 }) {
-  return solid ? `text-ink/90 ${className}` : `text-white/90 ${className}`;
+  return lightNav ? `text-white/90 ${className}` : `text-ink ${className}`;
 }
 
 function DesktopDropdown({
   item,
-  solid,
+  lightNav,
 }: {
   item: Extract<NavItem, { type: "dropdown" }>;
-  solid: boolean;
+  lightNav: boolean;
 }) {
   const menuId = useId();
+  const [forceClosed, setForceClosed] = useState(false);
   const textClass = NavText({
-    solid,
+    lightNav,
     className:
-      "nav-link nav-dropdown-trigger text-sm font-medium tracking-wide flex items-center gap-1.5 py-1.5 font-sans",
+      "nav-link nav-dropdown-trigger text-sm xl:text-[0.9375rem] 2xl:text-base font-medium tracking-wide flex items-center gap-1.5 py-1.5 ",
   });
 
   const regularItems = item.items.filter(
@@ -49,18 +149,30 @@ function DesktopDropdown({
   const seeAllItem = item.items.find((sub) =>
     sub.label.toLowerCase().includes("see all"),
   );
+  const dropdownHref = navItemHref(item);
+
+  const reopenDropdown = () => setForceClosed(false);
+
+  const closeDropdown = () => {
+    setForceClosed(true);
+    if (document.activeElement instanceof HTMLElement)
+      document.activeElement.blur();
+  };
 
   return (
-    <div className="nav-dropdown relative">
-      {item.href ? (
+    <div
+      className={`nav-dropdown relative${forceClosed ? " nav-dropdown--closed" : ""}`}
+    >
+      {dropdownHref ? (
         <Link
-          {...linkProps(item.href, item.external)}
+          {...linkProps(dropdownHref, item.external)}
           className={textClass}
           aria-haspopup="true"
           aria-controls={menuId}
+          onMouseEnter={reopenDropdown}
+          onFocus={reopenDropdown}
         >
-          {item.label}
-          <ChevronDown className="nav-chevron opacity-70" />
+          {item.label} <ChevronDown className="nav-chevron opacity-70" />
         </Link>
       ) : (
         <button
@@ -68,9 +180,10 @@ function DesktopDropdown({
           className={textClass}
           aria-haspopup="true"
           aria-controls={menuId}
+          onMouseEnter={reopenDropdown}
+          onFocus={reopenDropdown}
         >
-          {item.label}
-          <ChevronDown className="nav-chevron opacity-70" />
+          {item.label} <ChevronDown className="nav-chevron opacity-70" />
         </button>
       )}
 
@@ -80,22 +193,24 @@ function DesktopDropdown({
       >
         <div className="nav-dropdown-menu min-w-[360px] max-w-[420px] max-h-[72vh] overflow-hidden rounded-3xl">
           <span className="nav-dropdown-caret" aria-hidden="true" />
-
           <div className="px-6 pt-6 pb-4 border-b border-ink/5">
-            <p className="font-serif text-xl text-ink leading-tight">
+            <p className="text-xl font-medium text-ink leading-tight">
               {item.label}
             </p>
-            <p className="text-xs text-muted mt-1.5 font-sans tracking-wide">
+            <p className="text-sm text-ink mt-1.5 tracking-wide">
               Programs in Rishikesh, India
             </p>
           </div>
-
           <div className="overflow-y-auto max-h-[52vh] py-2 px-2">
             {regularItems.map((sub) => (
               <Link
-                key={sub.href}
-                {...linkProps(sub.href, sub.external)}
-                className="nav-dropdown-item group/item flex items-start gap-3 rounded-xl px-4 py-3 text-sm text-ink/80 hover:text-primary leading-snug font-sans"
+                key={navLinkHref(sub)}
+                {...linkProps(
+                  navLinkHref(sub),
+                  "external" in sub ? sub.external : undefined,
+                )}
+                onClick={closeDropdown}
+                className="nav-dropdown-item group/item flex items-start gap-3 rounded-xl px-4 py-3 text-base text-ink hover:text-primary leading-snug"
               >
                 <span
                   className="mt-2 w-1 h-1 rounded-full bg-accent shrink-0 group-hover/item:bg-primary transition-colors"
@@ -105,15 +220,17 @@ function DesktopDropdown({
               </Link>
             ))}
           </div>
-
           {seeAllItem && (
             <div className="px-4 pb-4 pt-2 border-t border-ink/5">
               <Link
-                {...linkProps(seeAllItem.href, seeAllItem.external)}
-                className="nav-dropdown-cta flex items-center justify-between rounded-2xl bg-primary/5 hover:bg-primary/10 px-4 py-3 text-sm font-semibold text-primary transition-colors font-sans"
+                {...linkProps(
+                  navLinkHref(seeAllItem),
+                  "external" in seeAllItem ? seeAllItem.external : undefined,
+                )}
+                onClick={closeDropdown}
+                className="nav-dropdown-cta flex items-center justify-between rounded-2xl bg-primary/5 hover:bg-primary/10 px-4 py-3 text-base font-medium text-primary transition-colors"
               >
-                {seeAllItem.label}
-                <ArrowRight size={16} />
+                {seeAllItem.label} <ArrowRight size={16} />
               </Link>
             </div>
           )}
@@ -137,12 +254,14 @@ function MobileNavItem({
   const style = { animationDelay: `${0.05 + index * 0.04}s` };
 
   if (item.type === "link") {
+    const href = navItemHref(item);
+    if (!href) return null;
     return (
       <Link
-        {...linkProps(item.href, item.external)}
+        {...linkProps(href, item.external)}
         onClick={onNavigate}
         style={style}
-        className="mobile-nav-item py-3.5 px-3 text-base font-medium text-ink/90 hover:text-primary border-b border-ink/5 font-sans tracking-wide"
+        className="mobile-nav-item py-3.5 px-3 text-lg font-medium text-ink hover:text-primary border-b border-ink/5 tracking-wide"
       >
         {item.label}
       </Link>
@@ -156,9 +275,9 @@ function MobileNavItem({
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         aria-controls={panelId}
-        className="w-full py-3.5 px-3 flex items-center justify-between text-base font-medium text-ink/90 hover:text-primary font-sans tracking-wide"
+        className="w-full py-3.5 px-3 flex items-center justify-between text-lg font-medium text-ink hover:text-primary tracking-wide"
       >
-        {item.label}
+        {item.label}{" "}
         <ChevronDown
           className={`nav-chevron opacity-70 ${open ? "rotate-180" : ""}`}
         />
@@ -169,21 +288,27 @@ function MobileNavItem({
       >
         <div className="mobile-accordion-inner">
           <div className="pb-3 pl-4 pr-2 flex flex-col gap-0.5">
-            {item.href && (
+            {(item.href || item.page) && (
               <Link
-                {...linkProps(item.href, item.external)}
+                {...linkProps(navItemHref(item) ?? "#", item.external)}
                 onClick={onNavigate}
-                className="py-2 px-2 text-sm font-semibold text-primary tracking-wide"
+                className="py-2 px-2 text-base font-medium text-primary tracking-wide"
               >
                 View all {item.label.toLowerCase()}
               </Link>
             )}
             {item.items.map((sub) => (
               <Link
-                key={sub.href}
-                {...linkProps(sub.href, sub.external)}
-                onClick={onNavigate}
-                className="py-2 px-2 text-sm text-ink/75 hover:text-primary leading-snug font-sans"
+                key={navLinkHref(sub)}
+                {...linkProps(
+                  navLinkHref(sub),
+                  "external" in sub ? sub.external : undefined,
+                )}
+                onClick={() => {
+                  setOpen(false);
+                  onNavigate();
+                }}
+                className="py-2 px-2 text-base text-ink hover:text-primary leading-snug"
               >
                 {sub.label}
               </Link>
@@ -195,9 +320,51 @@ function MobileNavItem({
   );
 }
 
-export default function Header() {
+type HeaderProps = {
+  /** Server-loaded header settings from the site layout */
+  initialData?: HeaderData | null;
+  /** Signed-in public account, when a site session cookie is present. */
+  siteUser?: HeaderSiteUser | null;
+};
+
+/**
+ * Site header with a clear overlay at rest and a solid bar after scroll.
+ *
+ * @param props - Server-provided header settings (no client API fetch)
+ */
+export default function Header({
+  initialData = null,
+  siteUser = null,
+}: HeaderProps) {
+  const pathname = usePathname();
+
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [hasTransparentHero, setHasTransparentHero] = useState(
+    () => pathname !== null && LEGACY_TRANSPARENT_HERO_PATHS.has(pathname),
+  );
+  const headerData = initialData;
+
+  useLayoutEffect(() => {
+    const syncTransparentHero = () => {
+      const nextHasTransparentHero = hasTransparentHeader(pathname);
+      setHasTransparentHero((currentHasTransparentHero) =>
+        currentHasTransparentHero === nextHasTransparentHero
+          ? currentHasTransparentHero
+          : nextHasTransparentHero,
+      );
+    };
+
+    syncTransparentHero();
+    const observer = new MutationObserver(syncTransparentHero);
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["data-transparent-header"],
+    });
+    return () => observer.disconnect();
+  }, [pathname]);
 
   useEffect(() => {
     let ticking = false;
@@ -205,7 +372,7 @@ export default function Header() {
       if (ticking) return;
       ticking = true;
       requestAnimationFrame(() => {
-        setScrolled(window.scrollY > 48);
+        setScrolled(window.scrollY > 16);
         ticking = false;
       });
     };
@@ -213,6 +380,10 @@ export default function Header() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useEffect(() => {
+    setScrolled(pathname ? window.scrollY > 16 : false);
+  }, [pathname]);
 
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? "hidden" : "";
@@ -230,117 +401,167 @@ export default function Header() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [mobileOpen]);
 
-  const solid = scrolled || mobileOpen;
+  // Clear overlay at rest; solid bar after scroll or when the mobile menu is open.
+  // The quiz page does not scroll, so its header stays solid white from the start.
+  // White nav only over dark/media heroes — light pages keep dark nav for contrast.
+  const quizPage = pathname === "/quiz";
+  const solid = scrolled || mobileOpen || quizPage;
+  const lightNav = hasTransparentHero && !solid;
+  const innerHeightClass = scrolled
+    ? "h-[4.5rem] md:h-[5rem]"
+    : "h-[4.75rem] md:h-[5.5rem]";
   const headerTop = scrolled
     ? "top-[4.5rem] md:top-[5rem]"
     : "top-[4.75rem] md:top-[5.5rem]";
   const linkClass = NavText({
-    solid,
-    className: "nav-link text-sm font-medium tracking-wide py-1.5 font-sans",
+    lightNav,
+    className:
+      "nav-link text-sm xl:text-[0.9375rem] 2xl:text-base font-medium tracking-wide py-1.5 ",
   });
+
+  useLayoutEffect(() => {
+    const header = document.querySelector("header");
+    if (!header) return;
+    const syncHeaderHeight = () => {
+      const height = Math.ceil(header.getBoundingClientRect().height);
+      document.documentElement.style.setProperty(
+        "--site-header-height",
+        `${height}px`,
+      );
+    };
+    syncHeaderHeight();
+    const observer = new ResizeObserver(syncHeaderHeight);
+    observer.observe(header);
+    window.addEventListener("resize", syncHeaderHeight);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", syncHeaderHeight);
+    };
+  }, []);
+
+  const navigation = headerData?.navigation ?? [];
+  const logoLight = headerData?.logo?.light ?? DEFAULT_LOGO_LIGHT;
+  const logoDark = headerData?.logo?.dark ?? DEFAULT_LOGO_DARK;
+  const logoLightAlt =
+    headerData?.logo?.lightAlt?.trim() || "Nirvana Yoga School";
+  const logoDarkAlt =
+    headerData?.logo?.darkAlt?.trim() || "Nirvana Yoga School";
+  const logoHref = safeLogoHref(headerData?.logo?.href);
+  const ctas = normalizeHeaderCtas(headerData);
 
   return (
     <>
       <header
-        className={`header-shell fixed top-0 z-50 w-full ${
-          solid ? "header-shell--solid" : "bg-transparent"
-        }`}
+        className={`header-shell fixed top-0 z-50 w-full ${solid ? "header-shell--solid" : "header-shell--overlay"}${lightNav ? " header-shell--light-nav" : ""}`}
       >
         <div
-          className={`header-inner mx-auto max-w-[92rem] px-5 md:px-8 flex items-center justify-between gap-4 ${
-            scrolled ? "h-[4.5rem] md:h-[5rem]" : "h-[4.75rem] md:h-[5.5rem]"
-          }`}
+          className={`header-inner w-full px-4 md:px-6 lg:px-8 flex items-center justify-between gap-4 ${innerHeightClass}`}
         >
           <Link
-            href="/"
+            {...linkProps(logoHref)}
             className="flex items-center shrink-0 group"
-            aria-label="Nirvana Yoga School home"
+            aria-label={logoLightAlt}
           >
-            <div className="relative h-16 md:h-20 w-[168px] md:w-[196px]">
+            <div className="header-logo-mark relative h-14 md:h-16 xl:h-[4.25rem] 2xl:h-20 w-[148px] md:w-[168px] xl:w-[180px] 2xl:w-[196px]">
               <Image
-                src={logo_white}
-                alt=""
+                src={logoDark}
+                alt={logoDarkAlt}
                 width={196}
                 height={78}
                 priority
-                className={`absolute inset-0 h-full w-auto object-contain object-left transition-all duration-500 ease-out ${
-                  solid
-                    ? "opacity-0 scale-95"
-                    : "opacity-100 scale-100 group-hover:scale-[1.02]"
-                }`}
+                className={`absolute inset-0 h-full w-auto object-contain object-left transition-all duration-500 ease-out ${lightNav ? "opacity-100 scale-100 group-hover:scale-[1.02]" : "opacity-0 scale-95"}`}
               />
               <Image
-                src={logo}
-                alt="Nirvana Yoga School"
+                src={logoLight}
+                alt={logoLightAlt}
                 width={196}
                 height={78}
                 priority
-                className={`absolute inset-0 h-full w-auto object-contain object-left transition-all duration-500 ease-out ${
-                  solid
-                    ? "opacity-100 scale-100 group-hover:scale-[1.02]"
-                    : "opacity-0 scale-95"
-                }`}
+                className={`absolute inset-0 h-full w-auto object-contain object-left transition-all duration-500 ease-out ${lightNav ? "opacity-0 scale-95" : "opacity-100 scale-100 group-hover:scale-[1.02]"}`}
               />
             </div>
           </Link>
 
           <nav
-            className="hidden xl:flex items-center gap-4 2xl:gap-6"
+            className="hidden xl:flex items-center gap-2.5 2xl:gap-5"
             aria-label="Primary"
           >
-            {PRIMARY_NAV.map((item) =>
+            {navigation.map((item) =>
               item.type === "link" ? (
                 <Link
                   key={item.label}
-                  {...linkProps(item.href, item.external)}
+                  {...linkProps(navItemHref(item) ?? "#", item.external)}
                   className={linkClass}
                 >
                   {item.label}
                 </Link>
               ) : (
-                <DesktopDropdown key={item.label} item={item} solid={solid} />
+                <DesktopDropdown
+                  key={item.label}
+                  item={item}
+                  lightNav={lightNav}
+                />
               ),
             )}
           </nav>
 
-          <div className="hidden xl:flex items-center gap-3 shrink-0">
-            <Link
-              href={SIGN_IN_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`nav-link text-sm font-semibold tracking-wide px-2 py-1.5 transition-colors hover:text-primary font-sans ${solid ? "text-ink/80" : "text-white/85"}`}
-            >
-              Sign in
-            </Link>
-            <span
-              className={`h-4 w-px transition-colors duration-500 ${solid ? "bg-ink/10" : "bg-white/20"}`}
-              aria-hidden="true"
+          <div className="hidden xl:flex items-center gap-2 2xl:gap-3 shrink-0">
+            {ctas.map((cta, index) => {
+              const prev = index > 0 ? ctas[index - 1] : null;
+              const showDivider =
+                prev != null &&
+                (prev.variant === "link") !== (cta.variant === "link");
+              return (
+                <Fragment key={`${cta.label}-${cta.href}-${index}`}>
+                  {showDivider ? (
+                    <span
+                      className={`h-4 w-px transition-colors duration-500 ${lightNav ? "bg-white/20" : "bg-ink/10"}`}
+                      aria-hidden="true"
+                    />
+                  ) : null}
+                  <HeaderCtaControl cta={cta} lightNav={lightNav} />
+                </Fragment>
+              );
+            })}
+            {ctas.length > 0 ? (
+              <span
+                className={`h-4 w-px transition-colors duration-500 ${lightNav ? "bg-white/20" : "bg-ink/10"}`}
+                aria-hidden="true"
+              />
+            ) : null}
+            <HeaderAuth
+              layout="desktop"
+              lightNav={lightNav}
+              siteUser={siteUser}
             />
-            <Button
-              href="#courses"
-              variant="primary"
-              size="sm"
-              className="shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30 transition-shadow duration-300"
-            >
-              Enquire Now
-            </Button>
           </div>
+
+          <Link
+            href={siteUser ? "/account" : "/login"}
+            aria-label={siteUser ? "My profile" : "Log in"}
+            className={`xl:hidden ml-auto -mr-2 flex h-10 w-10 items-center justify-center rounded-full transition-colors duration-300 ${lightNav ? "text-white hover:bg-white/10" : "text-ink hover:bg-ink/5"}`}
+          >
+            {siteUser ? (
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-linear-to-br from-primary to-primary-dark text-xs font-semibold text-white">
+                {initialsOf(siteUser)}
+              </span>
+            ) : (
+              <User size={20} />
+            )}
+          </Link>
 
           <button
             type="button"
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileOpen}
             onClick={() => setMobileOpen((o) => !o)}
-            className={`xl:hidden p-2.5 rounded-full transition-colors duration-300 ${
-              solid ? "text-ink hover:bg-ink/5" : "text-white hover:bg-white/10"
-            }`}
+            className={`header-menu-btn xl:hidden p-2.5 rounded-full transition-colors duration-300 ${lightNav ? "text-white hover:bg-white/10" : "text-ink hover:bg-ink/5"}`}
           >
             <MenuIcon open={mobileOpen} />
           </button>
         </div>
       </header>
 
-      {/* Mobile overlay + panel — mount only when open (avoids blocking clicks / inspect) */}
       {mobileOpen && (
         <>
           <button
@@ -349,16 +570,15 @@ export default function Header() {
             className="xl:hidden mobile-menu-backdrop mobile-menu-backdrop--open fixed inset-0 z-40 border-0 bg-ink/40 backdrop-blur-[2px] p-0 cursor-default"
             onClick={() => setMobileOpen(false)}
           />
-
           <div
-            className={`xl:hidden mobile-menu-panel mobile-menu-panel--open fixed inset-x-0 ${headerTop} bottom-0 z-40 bg-sand/97 backdrop-blur-xl border-t border-ink/5 overflow-y-auto`}
+            className={`xl:hidden mobile-menu-panel mobile-menu-panel--open fixed inset-x-0 ${headerTop} bottom-0 z-40 bg-white border-t border-ink/5 overflow-y-auto`}
             aria-hidden={false}
           >
             <nav
-              className="mx-auto max-w-7xl px-4 py-5 flex flex-col"
+              className="w-full px-4 md:px-6 lg:px-8 py-5 flex flex-col"
               aria-label="Mobile"
             >
-              {PRIMARY_NAV.map((item, i) => (
+              {navigation.map((item, i) => (
                 <MobileNavItem
                   key={item.label}
                   item={item}
@@ -366,24 +586,43 @@ export default function Header() {
                   onNavigate={() => setMobileOpen(false)}
                 />
               ))}
-
-              <Link
-                href={SIGN_IN_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => setMobileOpen(false)}
-                style={{
-                  animationDelay: `${0.05 + PRIMARY_NAV.length * 0.04}s`,
-                }}
-                className="mobile-nav-item py-3.5 px-3 text-base font-semibold text-ink/90 hover:text-primary border-b border-ink/5 tracking-wide"
-              >
-                Sign in
-              </Link>
-
+              {ctas.map((cta, index) =>
+                cta.variant === "link" ? (
+                  <HeaderCtaControl
+                    key={`mobile-cta-${cta.label}-${cta.href}-${index}`}
+                    cta={cta}
+                    lightNav={false}
+                    onNavigate={() => setMobileOpen(false)}
+                    className="mobile-nav-item mobile-nav-item--block py-3.5 px-3 text-lg font-medium text-ink hover:text-primary border-b border-ink/5 tracking-wide"
+                  />
+                ) : (
+                  <div
+                    key={`mobile-cta-${cta.label}-${cta.href}-${index}`}
+                    className="mobile-nav-item px-1 pt-3"
+                    style={{
+                      animationDelay: `${0.05 + (navigation.length + index) * 0.04}s`,
+                    }}
+                  >
+                    <HeaderCtaControl
+                      cta={cta}
+                      lightNav={false}
+                      size="md"
+                      onNavigate={() => setMobileOpen(false)}
+                      className="w-full"
+                    />
+                  </div>
+                ),
+              )}
+              <HeaderAuth
+                layout="mobile"
+                lightNav={false}
+                siteUser={siteUser}
+                onNavigate={() => setMobileOpen(false)}
+              />
               <div
-                className="mobile-nav-item mt-8 flex flex-col gap-3 pb-10 px-1"
+                className="mobile-nav-item mt-6 flex flex-col gap-3 pb-10 px-1"
                 style={{
-                  animationDelay: `${0.05 + (PRIMARY_NAV.length + 1) * 0.04}s`,
+                  animationDelay: `${0.05 + (navigation.length + ctas.length) * 0.04}s`,
                 }}
               >
                 <Button
@@ -393,14 +632,6 @@ export default function Header() {
                   onClick={() => setMobileOpen(false)}
                 >
                   Contact
-                </Button>
-                <Button
-                  href="#courses"
-                  variant="primary"
-                  size="md"
-                  onClick={() => setMobileOpen(false)}
-                >
-                  Enquire Now
                 </Button>
               </div>
             </nav>

@@ -1,0 +1,720 @@
+"use client";
+
+import type { OverviewMediaItem, OverviewModule } from "@/content/types";
+import { CollapsiblePanel } from "../CollapsiblePanel";
+import { ImageField } from "../ImageField";
+import { ListRowActions } from "../ListRowActions";
+import { RichTextEditor } from "../RichTextEditor";
+import { SectionIdField } from "../SectionIdField";
+import {
+  reorderItems,
+  SortableList,
+  SortableRow,
+  withSortField,
+} from "../SortableList";
+import { StringListField } from "../StringListField";
+import { TextField } from "../TextField";
+import { useStableListKeys } from "../useStableListKeys";
+import { ModuleLiveField } from "./ModuleLiveField";
+import type { ModulePanelProps } from "./types";
+
+type OverviewModuleEditorProps = ModulePanelProps & {
+  overview: OverviewModule;
+  onChange: (overview: OverviewModule) => void;
+  /**
+   * When true, shows YTT/welcome-style fields (vision, promise, highlights,
+   * CTA) and emphasizes overview video URL + poster.
+   */
+  welcomeStyle?: boolean;
+  /** When true, hides the optional supporting copy field (residential courses). */
+  hideSupportingCopy?: boolean;
+};
+
+const EMPTY_MEDIA: OverviewMediaItem = { type: "image", url: "", alt: "" };
+
+/**
+ * Overview module editor — lead copy, media table, and glance grid.
+ *
+ * @param props - Overview config and change handler
+ */
+export function OverviewModuleEditor({
+  overview,
+  onChange,
+  panelId = "module-overview",
+  step = 3,
+  description,
+  open,
+  onOpenChange,
+  welcomeStyle = false,
+  hideSupportingCopy = false,
+}: OverviewModuleEditorProps) {
+  const mediaKeys = useStableListKeys(overview.media.items.length);
+  const glanceKeys = useStableListKeys(overview.glance.length);
+  const blockKeys = useStableListKeys(overview.blocks?.length ?? 0);
+  const videoItemIndex = overview.media.items.findIndex(
+    (item) => item.type === "video",
+  );
+  const primaryVideo =
+    videoItemIndex >= 0 ? overview.media.items[videoItemIndex] : null;
+
+  function updateMedia(index: number, patch: Partial<OverviewMediaItem>) {
+    const items = [...overview.media.items];
+    items[index] = { ...items[index], ...patch };
+    onChange({ ...overview, media: { ...overview.media, items } });
+  }
+
+  function handleMediaReorder(fromIndex: number, toIndex: number) {
+    mediaKeys.reorderKeys(fromIndex, toIndex);
+    const items = withSortField(
+      reorderItems(overview.media.items, fromIndex, toIndex),
+    ) as typeof overview.media.items;
+    onChange({ ...overview, media: { ...overview.media, items } });
+  }
+
+  function addMedia() {
+    mediaKeys.addKey();
+    onChange({
+      ...overview,
+      media: {
+        ...overview.media,
+        items: [...overview.media.items, { ...EMPTY_MEDIA }],
+      },
+    });
+  }
+
+  function handleGlanceReorder(fromIndex: number, toIndex: number) {
+    glanceKeys.reorderKeys(fromIndex, toIndex);
+    const glance = withSortField(
+      reorderItems(overview.glance, fromIndex, toIndex),
+    ) as typeof overview.glance;
+    onChange({ ...overview, glance });
+  }
+
+  function addGlance() {
+    glanceKeys.addKey();
+    onChange({
+      ...overview,
+      glance: [...overview.glance, { label: "", value: "", hint: "" }],
+    });
+  }
+
+  function addBlock() {
+    blockKeys.addKey();
+    onChange({
+      ...overview,
+      blocks: [...(overview.blocks ?? []), { heading: "", body: "" }],
+    });
+  }
+
+  return (
+    <CollapsiblePanel
+      id={panelId}
+      step={step}
+      title="Overview"
+      subtitle={`${overview.media.items.length} media · ${overview.glance.length} glance`}
+      description={description}
+      open={open}
+      onOpenChange={onOpenChange}
+      actions={
+        <ModuleLiveField
+          id={`${panelId}-live`}
+          value={overview.live}
+          onChange={(live) => onChange({ ...overview, live })}
+        />
+      }
+    >
+      <SectionIdField
+        fieldId={`${panelId}-section-id`}
+        value={overview._id}
+        onChange={(_id) => onChange({ ...overview, _id })}
+      />
+      <div className="admin-grid-2">
+        <TextField
+          label="Eyebrow"
+          value={overview.eyebrow}
+          onChange={(eyebrow) => onChange({ ...overview, eyebrow })}
+        />
+        <TextField
+          label="Title"
+          value={overview.title}
+          onChange={(title) => onChange({ ...overview, title })}
+        />
+      </div>
+      <TextField
+        label="Description"
+        value={overview.description ?? ""}
+        onChange={(description) => onChange({ ...overview, description })}
+        multiline
+        rows={2}
+        hint="Short intro under the section title on the public page."
+      />
+      <TextField
+        label="Heading"
+        value={overview.heading ?? ""}
+        onChange={(heading) => onChange({ ...overview, heading })}
+        hint="Optional subheading above the lead body."
+      />
+      <RichTextEditor
+        label="Lead description"
+        value={overview.lead}
+        onChange={(lead) => onChange({ ...overview, lead })}
+        minimal
+        placeholder="Full overview body…"
+        hint="Full overview body — no length limit. Bold, italic, and underline supported."
+      />
+      {!welcomeStyle ? (
+        <div className="admin-field">
+          <div className="admin-field-header">
+            <div>
+              <span className="admin-label">Overview blocks</span>
+              <p className="admin-hint admin-hint--tight">
+                Optional subheadings and body copy below the lead (retreat
+                product layout).
+              </p>
+            </div>
+            <button type="button" className="admin-btn-sm" onClick={addBlock}>
+              Add block
+            </button>
+          </div>
+          {(overview.blocks ?? []).length === 0 ? (
+            <div className="admin-empty-card">
+              <p>No blocks yet.</p>
+              <button
+                type="button"
+                className="admin-btn-sm"
+                onClick={addBlock}
+              >
+                Add first block
+              </button>
+            </div>
+          ) : (
+            (overview.blocks ?? []).map((block, index) => (
+              <div
+                key={blockKeys.keys[index]}
+                className="admin-nested-card"
+              >
+                <TextField
+                  label="Heading"
+                  value={block.heading}
+                  onChange={(heading) => {
+                    const blocks = [...(overview.blocks ?? [])];
+                    blocks[index] = { ...block, heading };
+                    onChange({ ...overview, blocks });
+                  }}
+                />
+                <TextField
+                  label="Body"
+                  value={block.body}
+                  onChange={(body) => {
+                    const blocks = [...(overview.blocks ?? [])];
+                    blocks[index] = { ...block, body };
+                    onChange({ ...overview, blocks });
+                  }}
+                  multiline
+                  rows={4}
+                />
+                <button
+                  type="button"
+                  className="admin-btn-sm admin-btn-sm--ghost"
+                  onClick={() => {
+                    blockKeys.removeKey(index);
+                    onChange({
+                      ...overview,
+                      blocks: (overview.blocks ?? []).filter(
+                        (_, i) => i !== index,
+                      ),
+                    });
+                  }}
+                >
+                  Remove block
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+      ) : null}
+      <div className="admin-field-group">
+        <p className="admin-field-group-label">Saying / quote</p>
+        <TextField
+          label="Saying"
+          value={overview.saying?.text ?? ""}
+          onChange={(text) =>
+            onChange({
+              ...overview,
+              saying: {
+                text,
+                author: overview.saying?.author ?? "",
+              },
+            })
+          }
+          multiline
+          rows={3}
+          hint="Optional quote shown in the overview body."
+        />
+        <TextField
+          label="Author"
+          value={overview.saying?.author ?? ""}
+          onChange={(author) =>
+            onChange({
+              ...overview,
+              saying: {
+                text: overview.saying?.text ?? "",
+                author,
+              },
+            })
+          }
+          hint="Attribution line, e.g. Swami Sivananda"
+        />
+      </div>
+      {!hideSupportingCopy ? (
+        <TextField
+          label="Supporting copy"
+          value={overview.supportingCopy ?? ""}
+          onChange={(supportingCopy) => onChange({ ...overview, supportingCopy })}
+          multiline
+          rows={8}
+          hint={
+            welcomeStyle
+              ? "Fallback for Promise body when Promise body is empty."
+              : "Optional second paragraph — no length limit."
+          }
+        />
+      ) : null}
+      <ImageField
+        label="Overview still image"
+        value={overview.overviewImage ?? ""}
+        onChange={(overviewImage) => onChange({ ...overview, overviewImage })}
+        hint="Optional. One still beside glance on the public overview. Leave empty to let glance fill that column."
+      />
+
+      {welcomeStyle ? (
+        <>
+          <div className="admin-grid-2">
+            <TextField
+              label="Vision label"
+              value={overview.vision?.label ?? ""}
+              onChange={(label) =>
+                onChange({
+                  ...overview,
+                  vision: { label, body: overview.vision?.body ?? "" },
+                })
+              }
+            />
+            <TextField
+              label="Vision body"
+              value={overview.vision?.body ?? ""}
+              onChange={(body) =>
+                onChange({
+                  ...overview,
+                  vision: { label: overview.vision?.label ?? "", body },
+                })
+              }
+              multiline
+            />
+            <TextField
+              label="Promise label"
+              value={overview.promise?.label ?? ""}
+              onChange={(label) =>
+                onChange({
+                  ...overview,
+                  promise: { label, body: overview.promise?.body ?? "" },
+                })
+              }
+            />
+            <TextField
+              label="Promise body"
+              value={overview.promise?.body ?? ""}
+              onChange={(body) =>
+                onChange({
+                  ...overview,
+                  promise: { label: overview.promise?.label ?? "", body },
+                })
+              }
+              multiline
+            />
+          </div>
+          <StringListField
+            label="Highlights"
+            items={overview.highlights ?? []}
+            onChange={(highlights) => onChange({ ...overview, highlights })}
+          />
+          <div className="admin-grid-2">
+            <TextField
+              label="CTA label"
+              value={overview.ctaLabel ?? ""}
+              onChange={(ctaLabel) => onChange({ ...overview, ctaLabel })}
+            />
+            <TextField
+              label="CTA href"
+              value={overview.ctaHref ?? ""}
+              onChange={(ctaHref) => onChange({ ...overview, ctaHref })}
+              hint="e.g. #courses"
+            />
+          </div>
+          <div className="admin-field">
+            <div className="admin-field-header">
+              <div>
+                <span className="admin-label">Overview video</span>
+                <p className="admin-hint admin-hint--tight">
+                  Single content video beside the overview copy (YouTube URL or
+                  MP4). Matches YTT overview images, but one video instead.
+                </p>
+              </div>
+            </div>
+            <TextField
+              label="Video URL"
+              value={primaryVideo?.url ?? ""}
+              onChange={(url) => {
+                if (videoItemIndex >= 0) {
+                  updateMedia(videoItemIndex, { type: "video", url });
+                  return;
+                }
+                onChange({
+                  ...overview,
+                  media: {
+                    mode: "video",
+                    items: [
+                      {
+                        type: "video",
+                        url,
+                        poster: "",
+                        title: "Overview video",
+                      },
+                      ...overview.media.items,
+                    ],
+                  },
+                });
+              }}
+              hint="YouTube watch/embed URL, video id, or MP4 path"
+            />
+            <ImageField
+              label="Video poster (optional)"
+              value={primaryVideo?.poster ?? ""}
+              onChange={(poster) => {
+                if (videoItemIndex >= 0) {
+                  updateMedia(videoItemIndex, { type: "video", poster });
+                  return;
+                }
+                onChange({
+                  ...overview,
+                  media: {
+                    mode: "video",
+                    items: [
+                      {
+                        type: "video",
+                        url: "",
+                        poster,
+                        title: "Overview video",
+                      },
+                      ...overview.media.items,
+                    ],
+                  },
+                });
+              }}
+              hint="Shown before play; YouTube thumbnail is used when empty."
+            />
+          </div>
+        </>
+      ) : null}
+
+      <div className="admin-field">
+        <div className="admin-field-header">
+          <div>
+            <span className="admin-label">
+              {welcomeStyle ? "Media (advanced)" : "Media"}
+            </span>
+            <p className="admin-hint admin-hint--tight">
+              {welcomeStyle
+                ? "Optional extra media rows. The first video item drives the overview player above."
+                : "Right-side image, video, or carousel for the overview section."}
+            </p>
+          </div>
+          <button type="button" className="admin-btn-sm" onClick={addMedia}>
+            Add media
+          </button>
+        </div>
+
+        <label className="admin-label" htmlFor="media-mode">
+          Display mode
+        </label>
+        <select
+          id="media-mode"
+          className="admin-input admin-input--compact admin-input--inline"
+          value={overview.media.mode}
+          onChange={(e) =>
+            onChange({
+              ...overview,
+              media: {
+                ...overview.media,
+                mode: e.target.value as OverviewModule["media"]["mode"],
+              },
+            })
+          }
+        >
+          <option value="image">Single image</option>
+          <option value="video">Video</option>
+          <option value="carousel">Image carousel</option>
+        </select>
+
+        {overview.media.items.length === 0 ? (
+          <div className="admin-empty-card">
+            <p>No media yet.</p>
+            <button type="button" className="admin-btn-sm" onClick={addMedia}>
+              Add first media
+            </button>
+          </div>
+        ) : (
+          <div className="admin-compact-table-scroll">
+            <div className="admin-compact-table admin-compact-table--form admin-compact-table--overview-media">
+              <div className="admin-compact-table-head admin-compact-table-row">
+                <span className="admin-compact-col admin-compact-col--num">
+                  #
+                </span>
+                <span className="admin-compact-col admin-compact-col--type">
+                  Type
+                </span>
+                <span className="admin-compact-col admin-compact-col--image">
+                  Media
+                </span>
+                <span className="admin-compact-col admin-compact-col--alt">
+                  Alt text
+                </span>
+                <span className="admin-compact-col admin-compact-col--actions">
+                  <span className="sr-only">Actions</span>
+                </span>
+              </div>
+              <SortableList ids={mediaKeys.keys} onReorder={handleMediaReorder}>
+                {overview.media.items.map((item, index) => (
+                  <SortableRow
+                    key={mediaKeys.keys[index]}
+                    id={mediaKeys.keys[index]}
+                  >
+                    {({ dragHandleProps }) => (
+                      <div className="admin-compact-table-row admin-compact-table-row--tall">
+                        <span className="admin-compact-col admin-compact-col--num">
+                          {index + 1}
+                        </span>
+                        <span className="admin-compact-col admin-compact-col--type">
+                          <select
+                            className="admin-input admin-input--compact"
+                            value={item.type}
+                            aria-label={`Media type ${index + 1}`}
+                            onChange={(e) =>
+                              updateMedia(index, {
+                                type: e.target.value as "image" | "video",
+                              })
+                            }
+                          >
+                            <option value="image">Image</option>
+                            <option value="video">Video</option>
+                          </select>
+                        </span>
+                        <span className="admin-compact-col admin-compact-col--image">
+                          {item.type === "image" ? (
+                            <div className="admin-image-cell">
+                              <ImageField
+                                label={`Overview media ${index + 1}`}
+                                value={item.url}
+                                hideLabel
+                                compact
+                                onChange={(url) => updateMedia(index, { url })}
+                              />
+                            </div>
+                          ) : (
+                            <div className="admin-stack">
+                              <input
+                                className="admin-input admin-input--compact"
+                                value={item.url}
+                                placeholder="YouTube URL or video ID"
+                                aria-label={`Video URL ${index + 1}`}
+                                onChange={(e) =>
+                                  updateMedia(index, { url: e.target.value })
+                                }
+                              />
+                              <ImageField
+                                label={`Video poster ${index + 1}`}
+                                value={item.poster ?? ""}
+                                hideLabel
+                                compact
+                                onChange={(poster) =>
+                                  updateMedia(index, { poster })
+                                }
+                              />
+                            </div>
+                          )}
+                        </span>
+                        <span className="admin-compact-col admin-compact-col--alt">
+                          {item.type === "image" ? (
+                            <input
+                              className="admin-input admin-input--compact"
+                              value={item.alt ?? ""}
+                              placeholder="Describe the image"
+                              aria-label={`Alt text ${index + 1}`}
+                              onChange={(e) =>
+                                updateMedia(index, { alt: e.target.value })
+                              }
+                            />
+                          ) : (
+                            <input
+                              className="admin-input admin-input--compact"
+                              value={item.title ?? ""}
+                              placeholder="Video title"
+                              aria-label={`Video title ${index + 1}`}
+                              onChange={(e) =>
+                                updateMedia(index, { title: e.target.value })
+                              }
+                            />
+                          )}
+                        </span>
+                        <span className="admin-compact-col admin-compact-col--actions">
+                          <ListRowActions
+                            dragHandleProps={dragHandleProps}
+                            onRemove={() => {
+                              mediaKeys.removeKey(index);
+                              onChange({
+                                ...overview,
+                                media: {
+                                  ...overview.media,
+                                  items: overview.media.items.filter(
+                                    (_, i) => i !== index,
+                                  ),
+                                },
+                              });
+                            }}
+                          />
+                        </span>
+                      </div>
+                    )}
+                  </SortableRow>
+                ))}
+              </SortableList>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="admin-field">
+        <div className="admin-field-header">
+          <div>
+            <span className="admin-label">Course at a glance</span>
+            <p className="admin-hint admin-hint--tight">
+              Spec chips under the overview (level, duration, fee, etc.).
+            </p>
+          </div>
+          <button type="button" className="admin-btn-sm" onClick={addGlance}>
+            Add row
+          </button>
+        </div>
+
+        {overview.glance.length === 0 ? (
+          <div className="admin-empty-card">
+            <p>No glance items yet.</p>
+            <button type="button" className="admin-btn-sm" onClick={addGlance}>
+              Add first row
+            </button>
+          </div>
+        ) : (
+          <div className="admin-compact-table-scroll">
+            <div className="admin-compact-table admin-compact-table--form admin-compact-table--glance">
+              <div className="admin-compact-table-head admin-compact-table-row">
+                <span className="admin-compact-col admin-compact-col--num">
+                  #
+                </span>
+                <span className="admin-compact-col admin-compact-col--label">
+                  Label
+                </span>
+                <span className="admin-compact-col admin-compact-col--value">
+                  Value
+                </span>
+                <span className="admin-compact-col admin-compact-col--hint">
+                  Hint
+                </span>
+                <span className="admin-compact-col admin-compact-col--actions">
+                  <span className="sr-only">Actions</span>
+                </span>
+              </div>
+              <SortableList
+                ids={glanceKeys.keys}
+                onReorder={handleGlanceReorder}
+              >
+                {overview.glance.map((item, index) => (
+                  <SortableRow
+                    key={glanceKeys.keys[index]}
+                    id={glanceKeys.keys[index]}
+                  >
+                    {({ dragHandleProps }) => (
+                      <div className="admin-compact-table-row">
+                        <span className="admin-compact-col admin-compact-col--num">
+                          {index + 1}
+                        </span>
+                        <span className="admin-compact-col admin-compact-col--label">
+                          <input
+                            className="admin-input admin-input--compact"
+                            value={item.label}
+                            placeholder="Focus Level"
+                            aria-label={`Glance label ${index + 1}`}
+                            onChange={(e) => {
+                              const glance = [...overview.glance];
+                              glance[index] = {
+                                ...item,
+                                label: e.target.value,
+                              };
+                              onChange({ ...overview, glance });
+                            }}
+                          />
+                        </span>
+                        <span className="admin-compact-col admin-compact-col--value">
+                          <input
+                            className="admin-input admin-input--compact"
+                            value={item.value}
+                            placeholder="Beginner+"
+                            aria-label={`Glance value ${index + 1}`}
+                            onChange={(e) => {
+                              const glance = [...overview.glance];
+                              glance[index] = {
+                                ...item,
+                                value: e.target.value,
+                              };
+                              onChange({ ...overview, glance });
+                            }}
+                          />
+                        </span>
+                        <span className="admin-compact-col admin-compact-col--hint">
+                          <input
+                            className="admin-input admin-input--compact"
+                            value={item.hint ?? ""}
+                            placeholder="Optional hint"
+                            aria-label={`Glance hint ${index + 1}`}
+                            onChange={(e) => {
+                              const glance = [...overview.glance];
+                              glance[index] = { ...item, hint: e.target.value };
+                              onChange({ ...overview, glance });
+                            }}
+                          />
+                        </span>
+                        <span className="admin-compact-col admin-compact-col--actions">
+                          <ListRowActions
+                            dragHandleProps={dragHandleProps}
+                            onRemove={() => {
+                              glanceKeys.removeKey(index);
+                              onChange({
+                                ...overview,
+                                glance: overview.glance.filter(
+                                  (_, i) => i !== index,
+                                ),
+                              });
+                            }}
+                          />
+                        </span>
+                      </div>
+                    )}
+                  </SortableRow>
+                ))}
+              </SortableList>
+            </div>
+          </div>
+        )}
+      </div>
+    </CollapsiblePanel>
+  );
+}

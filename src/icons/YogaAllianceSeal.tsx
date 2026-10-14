@@ -53,7 +53,7 @@ export default function YogaAllianceSeal({
       />
       {/* Inner text path definition */}
       <path id="sealTextPath" d="M 50 18 A 32 32 0 1 1 49.9 18" fill="none" />
-      <text className="text-[6.5px] font-sans font-bold tracking-widest uppercase fill-current">
+      <text className="text-[6.5px] font-bold tracking-widest uppercase fill-current">
         <textPath href="#sealTextPath" startOffset="0%">
           • REGISTERED YOGA SCHOOL • YOGA ALLIANCE USA
         </textPath>

@@ -1,187 +1,147 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Button, Container, Pill } from "@/components/ui";
+import Link from "next/link";
+import { Container, Pill } from "@/components/ui";
+import type {
+  HomeYogaAllianceCertification,
+  HomeYogaAllianceContent,
+} from "@/content/types/dedicated-pages";
 import { ArrowRight, YogaAllianceSeal } from "@/icons";
+import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
+import { optionalSectionHtmlId } from "@/lib/html-id";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 
-const CERTIFICATIONS = [
-  {
-    hours: "200",
-    title: "RYS 200 Certification",
-    level: "Foundational Path",
-    description:
-      "Ideal for students who are new to yoga or wish to expand their knowledge of the discipline. The principles of yoga philosophy, anatomy, asana, pranayama, meditation, and teaching methodology are covered. Build a safe, effective, and confidence-driven teaching foundation.",
-    href: "https://www.nirvanayogaschoolindia.com/200-hour-yoga-teacher-training-in-rishikesh-india",
-  },
-  {
-    hours: "300",
-    title: "RYS 300 Certification",
-    level: "Advanced Training",
-    description:
-      "For yogis who have already completed an RYS 200 course and wish to deepen their teaching skills. This curriculum delves into advanced yoga sequencing, adjustments, therapeutic applications, and alignment, enabling you to teach with deep authority and experience.",
-    href: "https://www.nirvanayogaschoolindia.com/300-hour-yoga-teacher-training-in-rishikesh-india",
-  },
-  {
-    hours: "500",
-    title: "RYS 500 Certification",
-    level: "Master Teacher Path",
-    description:
-      "A comprehensive combination of RYS 200 and RYS 300 courses. This course offers extensive study and practice covering beginner to advanced levels. Graduate with the highest level of yoga teacher credentials possible and be fully prepared to teach globally.",
-    href: "https://www.nirvanayogaschoolindia.com/500-hour-yoga-teacher-training-in-rishikesh-india",
-  },
-];
+type YogaAllianceSectionProps = {
+  /** Full CMS Yoga Alliance section */
+  content?: HomeYogaAllianceContent;
+};
 
-const containerVariants = {
-  hidden: {},
-  visible: {
-    transition: {
-      staggerChildren: 0.15,
-    },
-  },
-} as const;
+/**
+ * First sentence only — keeps pathway copy from ending mid-clause.
+ *
+ * @param text - CMS pathway description
+ */
+function firstSentence(text: string): string {
+  const trimmed = text.trim();
+  const match = trimmed.match(/^[^.!?]+[.!?]/);
+  return match ? match[0].trim() : trimmed;
+}
 
-const cardVariants = {
-  hidden: { opacity: 0, y: 25 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      type: "spring",
-      stiffness: 150,
-      damping: 20,
-    },
-  },
-} as const;
-
-export default function YogaAllianceSection() {
+/**
+ * Open pathway column with a primary left rule.
+ *
+ * @param cert - CMS certification
+ */
+function PathwayColumn({ cert }: { cert: HomeYogaAllianceCertification }) {
   return (
-    <section className="relative w-full overflow-hidden bg-linear-to-br from-primary to-primary-dark py-12 sm:py-14 lg:py-16 text-white">
-      {/* Background Soft Glow / Radial highlights */}
-      <div
-        className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-accent/8 blur-[130px] rounded-full pointer-events-none"
-        aria-hidden="true"
-      />
-      <div
-        className="absolute -bottom-40 -right-40 w-[500px] h-[500px] bg-white/5 blur-[120px] rounded-full pointer-events-none"
-        aria-hidden="true"
-      />
+    <Link
+      href={cert.href}
+      aria-label={`${cert.title} — course details`}
+      className="group block border-l-2 border-primary/70 py-1 pl-6 transition-[border-color,padding] duration-300 hover:border-primary hover:pl-7"
+    >
+      <p className="text-5xl font-semibold tracking-tight text-primary tabular-nums lg:text-6xl">
+        {cert.hours}
+      </p>
+      <p className="type-eyebrow mt-1 text-primary/70">Hours</p>
+      <p className="type-eyebrow mt-6 text-primary">{cert.level}</p>
+      <h3 className="type-h3 mt-2 text-ink">{cert.title}</h3>
+      {cert.description ? (
+        <p className="type-body mt-3 max-w-sm text-ink/55">
+          {firstSentence(cert.description)}
+        </p>
+      ) : null}
+      <span className="type-ui mt-6 inline-flex items-center gap-2 text-primary underline-offset-4 group-hover:underline">
+        Course Details
+        <ArrowRight
+          size={14}
+          className="transition-transform duration-300 group-hover:translate-x-1"
+        />
+      </span>
+    </Link>
+  );
+}
 
-      <Container size="2xl" className="relative z-10 w-full">
-        {/* Header split layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] gap-6 lg:gap-16 items-end border-b border-white/10 pb-8 mb-10 lg:mb-12">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={VIEWPORT_ONCE}
-            variants={fadeUp}
-            className="space-y-4"
-          >
-            <div className="flex flex-wrap items-center gap-3">
-              <Pill
-                invert
-                className="!bg-white/10 !text-accent !border-white/10"
-              >
-                Yoga Alliance USA
-              </Pill>
-              <span className="type-eyebrow text-accent tracking-widest text-[10px] sm:text-xs">
-                Globally Accredited RYS
-              </span>
-            </div>
-            <h2 className="font-serif text-2xl sm:text-4xl lg:text-5xl font-medium leading-[1.1] text-sand">
-              Yoga Alliance Certification – Globally Recognized Yoga Training
-            </h2>
-            <div className="flex items-center gap-4 pt-1">
-              <YogaAllianceSeal size={56} className="text-accent shrink-0" />
-              <div>
-                <p className="type-eyebrow text-accent tracking-wider mb-0.5 text-[9px] sm:text-[10px]">
-                  Certified Standards
-                </p>
-                <p className="type-ui text-sand font-medium text-xs sm:text-sm">
-                  RYS 200 · RYS 300 · RYS 500
-                </p>
-              </div>
-            </div>
-          </motion.div>
+/**
+ * Homepage Yoga Alliance band — open columns with a primary left rule.
+ *
+ * @param props - Optional CMS Yoga Alliance section
+ */
+export default function YogaAllianceSection({
+  content = createEmptyHomePageContent().yogaAlliance,
+}: YogaAllianceSectionProps = {}) {
+  const certifications =
+    content.certifications?.length > 0
+      ? content.certifications
+      : createEmptyHomePageContent().yogaAlliance.certifications;
+  const showSeal = Boolean(content.sealTitle?.trim());
+  const kicker = content.eyebrow || content.badgeLabel;
 
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={VIEWPORT_ONCE}
-            custom={0.12}
-            variants={fadeUp}
-            className="space-y-3"
-          >
-            <p className="type-lead text-sand font-light leading-relaxed text-sm sm:text-base md:text-lg">
-              Nirvana Yoga School is a registered yoga school (RYS 200, 300,
-              500) situated in Rishikesh, certified by Yoga Alliance USA.
-            </p>
-            <p className="type-body text-sand/90 leading-relaxed text-xs sm:text-sm">
-              Our credentials allow you to teach yoga with confidence anywhere
-              in the world. Each curriculum is designed carefully with proper
-              traditional knowledge, safety standards, and personal
-              transformation. Here, certification is more than just paper—you
-              truly live and become a yogi.
-            </p>
-          </motion.div>
-        </div>
-
-        {/* Certification Cards Grid */}
+  return (
+    <section
+      id={optionalSectionHtmlId(content._id) ?? "yoga-alliance"}
+      className="yoga-alliance-band relative w-full bg-white section-padding-y"
+    >
+      <Container size="2xl" className="w-full">
         <motion.div
-          variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={VIEWPORT_ONCE}
-          className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8"
+          variants={fadeUp}
+          className="grid items-start gap-10 lg:grid-cols-[minmax(0,1.25fr)_minmax(16rem,0.75fr)] lg:gap-20"
         >
-          {CERTIFICATIONS.map((cert) => (
-            <motion.div
-              key={cert.hours}
-              variants={cardVariants}
-              className="group relative overflow-hidden rounded-3xl bg-white/5 border border-white/8 p-6 lg:p-8 flex flex-col justify-between hover:bg-white/10 hover:border-white/15 transition-all duration-500 hover:shadow-soft"
-            >
-              {/* Card top border active color strip */}
-              <div className="absolute top-0 inset-x-0 h-1 bg-linear-to-r from-accent/50 to-white/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="max-w-2xl">
+            {kicker ? (
+              <p className="type-eyebrow mb-4 text-primary">{kicker}</p>
+            ) : null}
+            <h2 className="type-h2 text-ink">{content.title}</h2>
+            {content.description ? (
+              <p className="type-body mt-5 text-ink/70">{content.description}</p>
+            ) : null}
+          </div>
 
+          {showSeal || content.badgeLabel || content.lead ? (
+            <div className="flex gap-4 lg:pt-1">
+              {showSeal ? (
+                <YogaAllianceSeal className="mt-0.5 shrink-0 text-primary" size={72} />
+              ) : null}
               <div>
-                <div className="flex items-baseline justify-between mb-4 lg:mb-6">
-                  <span className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-accent/40 group-hover:text-accent/65 transition-colors duration-500">
-                    {cert.hours}
-                  </span>
-                  <span className="type-eyebrow text-accent bg-white/5 px-2.5 py-0.5 rounded-full border border-white/5 text-[9px]">
-                    {cert.level}
-                  </span>
-                </div>
-
-                <h3 className="font-serif text-lg sm:text-xl lg:text-2xl text-sand font-medium mb-2 lg:mb-3">
-                  {cert.title}
-                </h3>
-
-                <p className="type-body text-sand/90 leading-relaxed mb-6 lg:mb-8 text-xs sm:text-sm">
-                  {cert.description}
-                </p>
+                {content.badgeLabel ? <Pill>{content.badgeLabel}</Pill> : null}
+                {showSeal ? (
+                  <p
+                    className={`type-ui text-ink ${content.badgeLabel ? "mt-2" : ""}`}
+                  >
+                    {content.sealTitle}
+                  </p>
+                ) : null}
+                {content.lead ? (
+                  <p className="type-body mt-3 text-ink/55">{content.lead}</p>
+                ) : null}
               </div>
-
-              <div>
-                <Button
-                  href={cert.href}
-                  variant="outline-light"
-                  size="md"
-                  responsive
-                  className="w-full justify-between group/btn"
-                >
-                  <span className="flex items-center gap-2">
-                    Course Details
-                  </span>
-                  <ArrowRight
-                    size={14}
-                    className="transition-transform duration-300 group-hover/btn:translate-x-1"
-                  />
-                </Button>
-              </div>
-            </motion.div>
-          ))}
+            </div>
+          ) : null}
         </motion.div>
+
+        {certifications.length > 0 ? (
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={VIEWPORT_ONCE}
+            custom={0.08}
+            variants={fadeUp}
+            className="mt-14 lg:mt-16"
+          >
+            <div className="flex items-center gap-3" aria-hidden>
+              <span className="h-px w-12 bg-primary" />
+              <span className="h-px flex-1 bg-ink/10" />
+            </div>
+            <div className="mt-10 grid grid-cols-1 gap-12 md:grid-cols-3 md:gap-10 lg:mt-12 lg:gap-14">
+              {certifications.map((cert) => (
+                <PathwayColumn key={`${cert.hours}-${cert.title}`} cert={cert} />
+              ))}
+            </div>
+          </motion.div>
+        ) : null}
       </Container>
     </section>
   );

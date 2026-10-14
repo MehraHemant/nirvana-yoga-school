@@ -1,0 +1,30 @@
+---
+description: React and TypeScript standards
+globs:
+  - "**/*.tsx"
+  - "**/*.ts"
+---
+
+# TypeScript
+
+- Use TypeScript only.
+- Never create JavaScript files.
+- Avoid any unless unavoidable.
+- Prefer explicit types for props and public APIs.
+
+# React
+
+- Use functional components.
+- Use hooks.
+- Prefer const.
+- Never use var.
+- Avoid unnecessary:
+  - useEffect
+  - useMemo
+  - useCallback
+
+# Components
+
+- One component should have one responsibility.
+- Keep components under ~250 lines.
+- Extract reusable UI into components/ui.

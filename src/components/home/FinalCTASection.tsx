@@ -1,16 +1,44 @@
 import Image from "next/image";
-import { Button, Container, Pill } from "@/components/ui";
+import { Button, Container, Heading, Pill } from "@/components/ui";
+import type { HomeFinalCtaContent } from "@/content/types/dedicated-pages";
 import { ArrowRight, WhatsApp } from "@/icons";
+import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
+import { resolveSectionHtmlId } from "@/lib/html-id";
 
-export default function FinalCTASection() {
+type FinalCTASectionProps = {
+  /** Optional CMS final CTA content */
+  content?: HomeFinalCtaContent;
+};
+
+/**
+ * Homepage bottom conversion band with primary and WhatsApp CTAs.
+ *
+ * @param props - Optional CMS final CTA fields
+ */
+export default function FinalCTASection({
+  content = createEmptyHomePageContent().finalCta,
+}: FinalCTASectionProps) {
+  const {
+    pill,
+    title,
+    titleAccent,
+    lead,
+    primaryLabel,
+    primaryHref,
+    secondaryLabel,
+    secondaryHref,
+    image,
+    imageAlt = "Sunrise yoga practice on the banks of the Ganges",
+  } = content;
+
   return (
     <section
-      id="contact"
-      className="relative py-16 sm:py-20 md:py-28 lg:py-32 overflow-hidden"
+      id={resolveSectionHtmlId("contact", content._id)}
+      className="relative section-padding-y overflow-hidden"
     >
       <Image
-        src="https://images.unsplash.com/photo-1593811167562-9cef47bfc4d7?w=2000&auto=format&fit=crop&q=80"
-        alt="Sunrise yoga practice on the banks of the Ganges"
+        src={image}
+        alt={imageAlt}
         fill
         sizes="100vw"
         className="object-cover"
@@ -20,38 +48,29 @@ export default function FinalCTASection() {
         aria-hidden="true"
       />
 
-      <Container size="md" className="relative z-10 text-center">
+      <Container size="2xl" className="relative z-10 text-center">
         <Pill invert className="mb-4 sm:mb-6 mx-auto">
-          Limited spots · 25% early-bird saving
+          {pill}
         </Pill>
-        <h2 className="font-serif text-white text-[1.75rem] leading-[1.08] sm:text-3xl md:text-4xl lg:text-6xl sm:leading-[1.05] tracking-tight">
-          Your journey begins
+        <Heading as="h2" align="center" size="h2" invert>
+          {title}
           <br />
-          <span className="italic text-accent">when you arrive.</span>
-        </h2>
-        <p className="type-lead mt-4 sm:mt-6 text-white/85 max-w-2xl mx-auto">
-          Reach out today &mdash; we&apos;ll answer every question and help you
-          choose the path that&apos;s right for you. No pressure, only presence.
+          <span className="font-semibold text-accent">{titleAccent}</span>
+        </Heading>
+        <p className="type-body mt-4 sm:mt-6 text-white/85 max-w-2xl mx-auto">
+          {lead}
         </p>
 
-        <div className="mt-6 sm:mt-8 md:mt-10 flex flex-wrap justify-center gap-2 sm:gap-3">
-          <Button href="#courses" variant="primary" responsive>
-            Apply Now
-            <ArrowRight size={16} className="sm:w-[18px] sm:h-[18px]" />
+        <div className="mt-6 sm:mt-8 md:mt-10 flex flex-wrap items-center justify-center gap-2.5 sm:gap-3">
+          <Button href={primaryHref} variant="primary" size="md">
+            {primaryLabel}
+            <ArrowRight size={16} />
           </Button>
-          <Button
-            href="https://wa.me/919876543210"
-            variant="outline-light"
-            responsive
-          >
-            <WhatsApp size={16} className="sm:w-[18px] sm:h-[18px]" />
-            Chat on WhatsApp
+          <Button href={secondaryHref} variant="outline-light" size="md">
+            <WhatsApp size={16} />
+            {secondaryLabel}
           </Button>
         </div>
-
-        <p className="mt-6 sm:mt-8 text-white/60 text-[0.65rem] sm:text-xs uppercase tracking-widest">
-          Save 25% when you book by 25 July 2026
-        </p>
       </Container>
     </section>
   );

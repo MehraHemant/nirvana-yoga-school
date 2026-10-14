@@ -2,10 +2,15 @@
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
-import { useEffect, useState } from "react";
-import { Button, Container, SectionHeader } from "@/components/ui";
+import { useRef, useState } from "react";
+import TeacherProfileCard, {
+  HOMEPAGE_TEACHER_PREVIEW,
+} from "@/components/teachers/TeacherProfileCard";
+import { Container, SectionHeader } from "@/components/ui";
+import { teacherPageHref, teacherSlug } from "@/content/teachers-slug";
+import { resolveSectionHtmlId } from "@/lib/html-id";
 
-type Teacher = {
+export type TeacherProfile = {
   name: string;
   experienceSummary: string;
   image: string;
@@ -15,644 +20,230 @@ type Teacher = {
   expertise: string[];
 };
 
-const TEACHERS: Teacher[] = [
-  {
-    name: "Jitendra Singh Bhandari",
-    experienceSummary: "20+ Years Experience",
-    image:
-      "https://images.unsplash.com/photo-1614283233556-f35b0c801ef1?w=600&auto=format&fit=crop&q=80",
-    bio: "Born in the Uttarakhand Himalayas, Jitendra Singh Bhandari started his yoga journey with Sivananda Ashram, Rishikesh, in 2000. After practicing in the ashram, he completed the Yoga and Vedanta Course there, and later obtained a Master's degree in Yogic Science.",
-    education: [
-      "Yoga & Vedanta Course from Sivananda Ashram, Rishikesh",
-      "Master's Degree in Yogic Science from Jain Vishwa Bharti University, Rajasthan",
-    ],
-    detailedExperience: [
-      "20+ years of teaching experience in Rishikesh",
-      "Taught Yoga in Zhengzhou, China",
-    ],
-    expertise: ["Traditional Hatha Yoga", "Pranayama", "Meditation & Vedanta"],
-  },
-  {
-    name: "Jeet Thapliyal",
-    experienceSummary: "9 Years Experience",
-    image:
-      "https://images.unsplash.com/photo-1619380061814-58f03707f082?w=600&auto=format&fit=crop&q=80",
-    bio: "At the tender age of twelve, Jeet began his journey into the depths of Yoga, seeking solace for his partially deaf ears and hyper-acidic body. Through dedicated practice, his hearing mended, and his body found balance once more, marking a transformative progress in his life. Now, with over a decade of personal practice and formal teaching, Jeet teaches students Vinyasa Flow, Hatha Yoga, and Mantra Chanting.",
-    education: [
-      "Masters in English Literature",
-      "Gold Medalist in Masters in Yoga",
-      "Certified 500 Hrs Yoga Teacher from Yoga Alliance",
-    ],
-    detailedExperience: [
-      "9 years of overall teaching experience",
-      "6 years of teaching experience in Rishikesh",
-      "2 years of teaching experience in Delhi NCR",
-      "1 year of experience in Umaid Bhawan Palace Jodhpur",
-    ],
-    expertise: [
-      "Hatha Yoga",
-      "Vinyasa Yoga",
-      "Ashtanga Vinyasa",
-      "Mantra Yoga",
-      "Bhakti Yoga Kirtan",
-    ],
-  },
-  {
-    name: "Bhawana Bulatia",
-    experienceSummary: "12+ Years Experience",
-    image:
-      "https://images.unsplash.com/photo-1589156280159-27698a70f29e?w=600&auto=format&fit=crop&q=80",
-    bio: "Bhawana was born and brought up in Nainital (Uttarakhand), and was associated with the yogic lifestyle from childhood due to family beliefs. She has lived and worked all around the world, experiencing that the true meaning of life lies in having a spiritual connection and growth.",
-    education: [
-      "Bachelor of Science",
-      "Masters from IIM",
-      "Certified 500-RYT Kundalini & 500-RYT Multi-style",
-      "Certified Pre & Post Natal Teacher",
-    ],
-    detailedExperience: [
-      "12+ years of Corporate Trainer & Yoga Instructor experience",
-      "3+ years of Teaching Experience in Rishikesh",
-    ],
-    expertise: [
-      "Kundalini Kriya",
-      "Pranayama",
-      "Meditation",
-      "Sound Healing & Reiki Healing",
-    ],
-  },
-  {
-    name: "Amit Rana",
-    experienceSummary: "12+ Years Experience",
-    image:
-      "https://images.unsplash.com/photo-1513956589380-bad6acb9b9d4?w=600&auto=format&fit=crop&q=80",
-    bio: "An individual who has a great passion for spreading positivity and wellness through the art of yoga. With a warm and charming personality, he creates a nurturing space where students feel not just heard, but truly understood. For him, it's about empowering individuals to cultivate a deeper connection between mind, body, and soul.",
-    education: [
-      "Masters in Yoga from University of Sanskrit Vishwa Vidyalaya, Haridwar",
-      "Certified 500-RYT from Yoga Padma School, Rishikesh",
-      "CCY (Certification Course Yoga) from Kaivalyadhama",
-      "Practiced Iyengar Yoga under gurus like Usha Mata, Swami Rudra Deva for 7 years",
-    ],
-    detailedExperience: [
-      "12+ years of overall teaching experience",
-      "7+ years of teaching experience in Rishikesh",
-      "4 years of teaching experience in Hong Kong, China",
-    ],
-    expertise: [
-      "Hatha Yoga",
-      "Alignment & Adjustment",
-      "Iyengar Yoga",
-      "Pranayama",
-    ],
-  },
-  {
-    name: "Kanna",
-    experienceSummary: "10+ Years Experience",
-    image:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&auto=format&fit=crop&q=80",
-    bio: "Kanna is a devoted teacher, a certified Alternative Medicine Practitioner, a trained Homeopath, a licensed Acupuncturist, a skilled Marma Therapist, and an Ayurvedic Lifestyle Consultant. He is also trained in the ancient South Indian martial art of Kalaripayattu and Mudgar training.",
-    education: [
-      "E. Homeopath",
-      "Diploma in Indian Acupuncture",
-      "Diploma in Ayurveda",
-    ],
-    detailedExperience: [
-      "10+ years of overall teaching experience",
-      "5+ years of teaching experience in Rishikesh",
-      "5 years of teaching experience in South India",
-    ],
-    expertise: [
-      "Ayurveda & Homeopathy",
-      "Acupuncture",
-      "Traditional Marma & Kalaripayattu Practice",
-    ],
-  },
-  {
-    name: "Om Prakash",
-    experienceSummary: "10+ Years Experience",
-    image:
-      "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=600&auto=format&fit=crop&q=80",
-    bio: "Om Prakash is a yoga educator born and raised in Rishikesh, India. With over 10 years of teaching experience, he specializes in Applied Yoga Anatomy, Biomechanics, and Functional Movement, helping practitioners and teachers understand the mechanics of the body within yoga practice.",
-    education: [
-      "500-Hour Yoga Teacher Training",
-      "Spinal Synergy Training",
-      "Advanced Fundamentals of Yoga",
-      "Biomechanics of Asana",
-      "Ongoing self-study in Applied Anatomy & Movement Science",
-    ],
-    detailedExperience: [
-      "10+ years of teaching experience",
-      "Teaching Yoga Anatomy to yoga practitioners and trainees",
-      "Functional movement education",
-    ],
-    expertise: [
-      "Applied Yoga Anatomy",
-      "Biomechanics of Asana",
-      "Functional Movement",
-      "Yoga Therapy",
-      "Spinal Mechanics & Spinal Health",
-    ],
-  },
-  {
-    name: "Naveen Mingwal",
-    experienceSummary: "8+ Years Experience",
-    image:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600&auto=format&fit=crop&q=80",
-    bio: "Dedicated and passionate Yoga Teacher Trainer with a wealth of experience in the field. With a strong background in yogic science, he has been actively involved in teaching yoga teachers since 2015. He has trained over 1,000 teachers in India and abroad, with a significant expertise in Ashtanga and Hatha Yoga.",
-    education: [
-      "500-RYT Certified Yoga Teacher",
-      "Certified Prenatal & Postnatal Yoga Teacher",
-    ],
-    detailedExperience: [
-      "8+ years of teaching experience in Rishikesh",
-      "Taught internationally in countries like Vietnam and China",
-    ],
-    expertise: [
-      "Ashtanga Yoga & Vinyasa Flow",
-      "Hatha Yoga",
-      "Prenatal & Postnatal Yoga",
-    ],
-  },
-  {
-    name: "Yogi Mahesh ji",
-    experienceSummary: "12+ Years Experience",
-    image:
-      "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=600&auto=format&fit=crop&q=80",
-    bio: "Yogi Mahesh ji is a very calm and humble yoga practitioner who is always ready to help others in whatever way he can, be it guiding or counseling, teaching the techniques of pranayama and meditation or teaching the therapeutic effects of Yoga. His main intention is to share with others the real essence of Yoga by which we can make the best use of this human form of life.",
-    education: [
-      "E-RYT 500 registered with Yoga Alliance, USA",
-      "Masters in Yoga - M.Sc. (Yoga) from SVYASA, Bangalore",
-    ],
-    detailedExperience: [
-      "12+ years of teaching experience in Rishikesh conducting workshops for teachers and children",
-    ],
-    expertise: [
-      "Pranayama & Meditation",
-      "Chakra & Kundalini Meditation",
-      "Yoga Philosophy",
-      "Yoga Therapy",
-      "Yoga Nidra",
-      "Mantra Chanting & Kirtan",
-    ],
-  },
-  {
-    name: "Dr. Akshay Vashisht",
-    experienceSummary: "7+ Years Experience",
-    image:
-      "https://images.unsplash.com/photo-1566753323558-f4e0952af115?w=600&auto=format&fit=crop&q=80",
-    bio: "Dr. Akshay Vashisht is a young and dynamic teacher. After continuously experiencing, practicing, and gaining Yogic knowledge from his Guru, he finally started his teaching in yoga in 2016. He loves teaching and sharing the deeper aspects he has gone through in his life in subjects such as Pranayama, Meditation, Yoga Philosophy, and Yoga Therapy.",
-    education: [
-      "PhD from the University of Patanjali",
-      "Master of Science (M.Sc.) in Yoga Education from SVYASA",
-      "Yoga Instructor Certificate (YIC) from SVYASA",
-      "Certified Yoga Professional by the Ministry of AYUSH",
-      "Registered Yoga Teacher (RYT-500) with Yoga Alliance, USA",
-      "Certification in Music from the Berklee College of Music",
-    ],
-    detailedExperience: [
-      "7+ years of teaching experience in Rishikesh",
-      "Performed Kirtan Yoga in many colleges and institutions globally",
-    ],
-    expertise: [
-      "Pranayama & Meditation",
-      "Yoga Philosophy",
-      "Yoga Therapy & Anatomy",
-      "Mantra Music & Kirtan Instruments",
-    ],
-  },
-  {
-    name: "Meghna Banerjee",
-    experienceSummary: "7+ Years Experience",
-    image:
-      "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&auto=format&fit=crop&q=80",
-    bio: "Meghna Banerjee is a yoga teacher, habit coach, and psychologist. Over the years she has gained 6+ years of experience in the health and well-being field. She has worked on psychiatric cases in rehabilitation centers and has conducted corporate yoga, meditation, and mental health sessions.",
-    education: [
-      "B.A. Applied Psychology from Amity University",
-      "M.Sc. in Clinical Psychology from NSHM Knowledge Campus",
-      "500-RYT Certification in Hatha and Ashtanga from Yoga Alliance, USA",
-      "500-RYT in Kundalini Yoga from Yoga Alliance, USA",
-      "Existential Well-being Counselling Certification from KULeuven, Belgium",
-    ],
-    detailedExperience: [
-      "Mental Health professional for 4 years",
-      "Yoga Teaching experience of 3 years",
-      "Corporate Yoga & Mindfulness training for 2 years",
-    ],
-    expertise: [
-      "Clinical Psychology & Therapy",
-      "Meditation & Mindfulness",
-      "Yoga Anatomy & Physiology",
-      "Pranayama & Hatha Yoga",
-    ],
-  },
-  {
-    name: "Shubham Tadiyal",
-    experienceSummary: "7+ Years Experience",
-    image:
-      "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=600&auto=format&fit=crop&q=80",
-    bio: "As a highly qualified and energetic teacher with a keen eye for detail, he has extensive experience working with individuals of all ages. He takes great care in planning his classes, incorporating intention, asana, pranayama, and meditation to ensure participants feel reconnected with their inner energy.",
-    education: [
-      "Certified as a Panchakarma Technician",
-      "Masters in Yoga from Himalayan Garhwal University",
-      "500-RYT Certified Yoga Teacher (World Peace Yoga School)",
-      "Yoga Certification Course from Uttarakhand Sanskrit University",
-    ],
-    detailedExperience: [
-      "7+ years of overall teaching experience",
-      "5+ years of teaching experience in Rishikesh",
-      "2 years of teaching experience in China",
-    ],
-    expertise: [
-      "Hatha Yoga & Vinyasa Flow",
-      "Ashtanga Vinyasa Flow",
-      "Power Yoga & Aerial Yoga",
-      "Pranayama",
-    ],
-  },
-  {
-    name: "Ajay Pandey",
-    experienceSummary: "8+ Years Experience",
-    image:
-      "https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=600&auto=format&fit=crop&q=80",
-    bio: "Ajay Pandey is a dedicated and experienced yoga teacher with over 8 years of continuous teaching experience, deeply rooted in traditional yogic practices and modern alignment-based methodologies. He emphasizes correct alignment, safe adjustments, and intelligent use of props.",
-    education: [
-      "Master’s Degree in Yogic Science",
-      "200-Hour Yoga Teacher Training Certificate (YTTC)",
-      "300-Hour Advanced Yoga Teacher Training Certificate (YTTC)",
-      "Registered Yoga Teacher (RYT) with Yoga Alliance",
-    ],
-    detailedExperience: [
-      "8+ years of overall teaching experience in Rishikesh",
-      "5+ years of online yoga teaching experience",
-    ],
-    expertise: [
-      "Traditional Hatha Yoga",
-      "Ashtanga Vinyasa Yoga",
-      "Adjustment & Alignment Techniques",
-      "Props-Based Teaching",
-    ],
-  },
-];
+type TeachersSectionProps = {
+  /** Faculty profiles from MySQL (`page_people` on the teacher page) */
+  teachers?: TeacherProfile[];
+  /** Homepage section eyebrow */
+  eyebrow?: string;
+  /** Homepage section title (plain; accent span stays in markup when default) */
+  title?: React.ReactNode;
+  /** Homepage section description */
+  description?: string;
+  /** Optional CMS section `_id` (falls back to `teachers`) */
+  sectionId?: string;
+};
 
-export default function TeachersSection() {
+/**
+ * Scrolls `item` into view inside `container` only — never the window.
+ * Prefer this over `scrollIntoView`, which scrolls every ancestor scrollport.
+ *
+ * @param container - Scrollable faculty directory / chip row
+ * @param item - Selected control
+ */
+function scrollChildIntoContainer(
+  container: HTMLElement,
+  item: HTMLElement,
+): void {
+  const cRect = container.getBoundingClientRect();
+  const iRect = item.getBoundingClientRect();
+
+  if (iRect.top < cRect.top) {
+    container.scrollTop -= cRect.top - iRect.top;
+  } else if (iRect.bottom > cRect.bottom) {
+    container.scrollTop += iRect.bottom - cRect.bottom;
+  }
+
+  if (iRect.left < cRect.left) {
+    container.scrollLeft -= cRect.left - iRect.left;
+  } else if (iRect.right > cRect.right) {
+    container.scrollLeft += iRect.right - cRect.right;
+  }
+}
+
+/**
+ * Homepage / hub teachers strip — profiles must be passed from a server loader.
+ * Directory selection is click-only (no auto-rotate) to keep page scroll stable.
+ * Show more links to `/teacher#slug`.
+ *
+ * @param props - Teachers list and optional section header from CMS
+ */
+export default function TeachersSection({
+  teachers: teachersProp = [],
+  eyebrow = "Our Spiritual Indian Gurus",
+  title,
+  description = "Meet our experienced, traditional yoga teachers and spiritual guides carrying decades of combined practice directly from traditional Vedic lineages in Rishikesh.",
+  sectionId,
+}: TeachersSectionProps) {
+  const teachers = teachersProp;
   const [selectedIdx, setSelectedIdx] = useState(0);
-  const [isHovered, setIsHovered] = useState(false);
-  const prefersReducedMotion = useReducedMotion();
+  const prefersReducedMotion = useReducedMotion() ?? false;
+  const directoryNavRef = useRef<HTMLElement>(null);
 
-  const springTransition = prefersReducedMotion
-    ? { duration: 0 }
-    : ({ type: "spring", stiffness: 350, damping: 30 } as const);
+  const resolvedTitle = title ?? (
+    <>
+      Lineage Teachers,{" "}
+      <span className="font-semibold text-primary">Guided by Compassion</span>
+    </>
+  );
 
-  useEffect(() => {
-    if (isHovered) return;
+  if (teachers.length === 0) return null;
 
-    const timer = setInterval(() => {
-      if (typeof window !== "undefined" && window.innerWidth >= 1024) {
-        setSelectedIdx((prev) => (prev + 1) % TEACHERS.length);
-      }
-    }, 6000);
+  const selected = teachers[selectedIdx] ?? teachers[0];
+  const selectedSlug = teacherSlug(selected.name);
 
-    return () => clearInterval(timer);
-  }, [isHovered]);
+  /**
+   * Manual directory selection — updates the card and keeps the row visible
+   * inside the directory scroller without moving the page.
+   *
+   * @param index - Teacher index in `teachers`
+   * @param button - Clicked directory button
+   */
+  const selectTeacher = (index: number, button: HTMLButtonElement) => {
+    setSelectedIdx(index);
+    button.focus({ preventScroll: true });
+    const nav = directoryNavRef.current;
+    if (nav) scrollChildIntoContainer(nav, button);
+  };
 
   return (
     <section
-      id="teachers"
-      className="relative overflow-x-hidden bg-light-gray py-12 sm:py-14 lg:py-16 w-full"
+      id={resolveSectionHtmlId("teachers", sectionId)}
+      className="relative overflow-x-hidden bg-white section-padding-y w-full [overflow-anchor:none]"
     >
-      {/* Decorative background glows */}
-      <div
-        className="absolute -top-32 right-1/4 w-[500px] h-[500px] bg-primary/3 blur-[120px] rounded-full pointer-events-none"
-        aria-hidden="true"
-      />
-      <div
-        className="absolute bottom-0 left-1/4 w-[400px] h-[400px] bg-secondary/3 blur-[100px] rounded-full pointer-events-none"
-        aria-hidden="true"
-      />
-
       <Container size="2xl" className="w-full relative z-10">
-        {/* Section Header */}
         <div className="w-full text-center mb-12 sm:mb-16 lg:mb-10">
           <SectionHeader
-            eyebrow="Our Spiritual Indian Gurus"
-            title={
-              <>
-                Lineage Teachers,{" "}
-                <span className="italic font-normal text-accent font-serif">
-                  Guided by Compassion
-                </span>
-              </>
-            }
-            description="Meet our twelve experienced, traditional yoga teachers and spiritual guides carrying decades of combined practice directly from traditional Vedic lineages in Rishikesh."
+            eyebrow={eyebrow}
+            title={resolvedTitle}
+            description={description}
             align="center"
-            className="mx-auto max-w-3xl"
+            className="mx-auto max-w-6xl"
           />
         </div>
 
-        {/* 1. Desktop Layout (lg and above): Split Selector Directory + Detail Spotlight Card */}
-        {/* biome-ignore lint/a11y/noStaticElementInteractions: Hover trigger to pause directory auto-rotation */}
-        <div
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-          className="hidden lg:grid grid-cols-[1fr_2.2fr] gap-8 items-start lg:min-h-[480px]"
-        >
-          {/* List Selector (Left) */}
-          <div className="flex flex-col gap-2.5 bg-white/50 p-3.5 pr-2.5 rounded-2xl border border-ink/5 lg:h-[480px] overflow-y-auto scrollbar-thin-primary shrink-0 w-full lg:max-w-md">
-            <span className="type-eyebrow text-muted text-left mb-2 px-2">
+        {/* Desktop: directory + single selected profile card (click-only; no auto-rotate) */}
+        <div className="hidden lg:grid h-[min(560px,calc(100svh-var(--site-header-height,4.75rem)-3rem))] grid-cols-[minmax(240px,0.9fr)_minmax(0,2.2fr)] items-stretch gap-8">
+          <aside className="surface-bordered flex h-full min-h-0 w-full shrink-0 flex-col overflow-hidden">
+            <p className="type-eyebrow shrink-0 border-b border-ink/6 px-4 pb-2.5 pt-3.5 text-left text-ink">
               Faculty Directory
-            </span>
-            {TEACHERS.map((teacher, index) => {
+            </p>
+            <nav
+              ref={directoryNavRef}
+              aria-label="Faculty directory"
+              className="scrollbar-thin-primary min-h-0 flex-1 space-y-0.5 overflow-y-auto overscroll-y-contain p-2 pr-1.5 [overflow-anchor:none]"
+            >
+              {teachers.map((teacher, index) => {
+                const isSelected = selectedIdx === index;
+                return (
+                  <button
+                    key={`spotlight-btn-${index}-${teacher.name}`}
+                    onClick={(event) =>
+                      selectTeacher(index, event.currentTarget)
+                    }
+                    type="button"
+                    aria-current={isSelected ? "true" : undefined}
+                    className={`relative flex w-full cursor-pointer items-center gap-3 rounded-r-xl py-2.5 pr-3 pl-3 text-left transition-colors duration-200 ${isSelected ? "bg-primary/8 text-ink" : "text-ink hover:bg-ink/3"}`}
+                  >
+                    {isSelected ? (
+                      <span
+                        className="absolute top-2.5 bottom-2.5 left-0 w-0.5 rounded-full bg-primary"
+                        aria-hidden
+                      />
+                    ) : null}
+                    <div
+                      className={`relative z-10 h-10 w-10 shrink-0 overflow-hidden rounded-full border shadow-2xs ${isSelected ? "border-primary/30 ring-2 ring-primary/12" : "border-ink/10"}`}
+                    >
+                      <Image
+                        src={teacher.image}
+                        alt=""
+                        fill
+                        sizes="40px"
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="relative z-10 min-w-0">
+                      <h4
+                        className={`type-ui truncate ${isSelected ? "font-medium text-primary" : "font-medium text-ink"}`}
+                      >
+                        {teacher.name}
+                      </h4>
+                      <p className="type-eyebrow mt-0.5 truncate text-muted">
+                        {teacher.experienceSummary}
+                      </p>
+                    </div>
+                  </button>
+                );
+              })}
+            </nav>
+          </aside>
+
+          {/* overflow-visible so Show more is not clipped; card manages its own clip. */}
+          <div className="flex h-full min-h-0 min-w-0 flex-col overflow-visible">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={selectedSlug}
+                initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={prefersReducedMotion ? undefined : { opacity: 0, y: -8 }}
+                transition={{ duration: 0.28, ease: "easeOut" }}
+                className="flex h-full min-h-0 flex-col"
+              >
+                <TeacherProfileCard
+                  teacher={selected}
+                  index={0}
+                  prefersReducedMotion={prefersReducedMotion}
+                  preview={HOMEPAGE_TEACHER_PREVIEW}
+                  showMoreMode="link"
+                  showMoreHref={teacherPageHref(selected.name)}
+                  id="home-teacher-profile"
+                />
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </div>
+
+        {/* Mobile / tablet: chip directory + single selected card */}
+        <div className="flex flex-col gap-5 lg:hidden w-full">
+          <div className="no-scrollbar flex gap-2 overflow-x-auto pb-1 [overflow-anchor:none]">
+            {teachers.map((teacher, index) => {
               const isSelected = selectedIdx === index;
               return (
                 <button
-                  key={`spotlight-btn-${teacher.name}`}
-                  onClick={() => setSelectedIdx(index)}
+                  key={`mobile-chip-${index}-${teacher.name}`}
                   type="button"
-                  className={`relative w-full p-4 rounded-xl flex items-center gap-4.5 transition-all duration-300 border text-left cursor-pointer ${
-                    isSelected
-                      ? "text-white border-secondary shadow-sm scale-102"
-                      : "bg-white text-ink border-ink/5 hover:border-secondary/20 hover:scale-[1.01]"
-                  }`}
-                  style={{
-                    transform:
-                      isSelected && !prefersReducedMotion
-                        ? "scale(1.02)"
-                        : "none",
+                  onClick={(event) => {
+                    setSelectedIdx(index);
+                    event.currentTarget.focus({ preventScroll: true });
+                    const row = event.currentTarget.parentElement;
+                    if (row) scrollChildIntoContainer(row, event.currentTarget);
                   }}
+                  className={`type-ui shrink-0 rounded-full border px-3.5 py-2 font-medium transition-colors ${isSelected ? "border-primary bg-primary text-white" : "surface-panel border-ink/8 text-ink"}`}
                 >
-                  {isSelected && (
-                    <motion.div
-                      layoutId="activeTeacherBg"
-                      className="absolute inset-0 bg-secondary rounded-xl z-0"
-                      transition={springTransition}
-                    />
-                  )}
-                  <div className="relative z-10 w-12 h-12 rounded-full overflow-hidden shrink-0 border border-ink/10 shadow-2xs">
-                    <Image
-                      src={teacher.image}
-                      alt={teacher.name}
-                      fill
-                      sizes="48px"
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="min-w-0 relative z-10">
-                    <h4 className="font-serif text-sm sm:text-base md:text-lg font-bold leading-tight truncate">
-                      {teacher.name}
-                    </h4>
-                    <p
-                      className={`text-[10px] sm:text-[11px] font-sans uppercase font-extrabold tracking-wider mt-1.5 truncate ${
-                        isSelected ? "text-white/80" : "text-secondary"
-                      }`}
-                    >
-                      {teacher.experienceSummary}
-                    </p>
-                  </div>
+                  {teacher.name.replace(/^Dr\.\s/, "").split(" ")[0]}
                 </button>
               );
             })}
           </div>
 
-          {/* Tabular Spotlight Details Card (Right) */}
-          <div className="bg-white rounded-3xl p-6 md:p-8 shadow-card border border-ink/5 hover:border-primary/10 transition-colors duration-500 w-full min-w-0 lg:min-h-[480px] flex flex-col lg:flex-row gap-6 md:gap-8">
-            {/* Left side inside details card: Image */}
-            <div className="relative w-full lg:w-[220px] aspect-[4/5] rounded-2xl overflow-hidden bg-sand border border-ink/5 shrink-0 shadow-2xs">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={selectedIdx}
-                  initial={{ opacity: 0, scale: 0.96 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.96 }}
-                  transition={{ duration: 0.35, ease: "easeOut" }}
-                  className="absolute inset-0"
-                >
-                  <Image
-                    src={TEACHERS[selectedIdx].image}
-                    alt={TEACHERS[selectedIdx].name}
-                    fill
-                    sizes="(max-width: 1024px) 350px, 220px"
-                    className="object-cover"
-                    priority
-                  />
-                </motion.div>
-              </AnimatePresence>
-            </div>
-
-            {/* Right side inside details card: Details & Biography */}
-            <div className="flex-1 min-w-0">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={selectedIdx}
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -15 }}
-                  transition={{ duration: 0.3, ease: "easeOut" }}
-                  className="w-full h-full flex flex-col justify-between text-left"
-                >
-                  <div>
-                    <h3 className="font-serif text-xl md:text-2xl font-bold text-ink leading-tight">
-                      {TEACHERS[selectedIdx].name}
-                    </h3>
-                    <p className="text-[10px] font-sans uppercase font-extrabold tracking-wider text-secondary mt-1 mb-2.5">
-                      {TEACHERS[selectedIdx].experienceSummary}
-                    </p>
-
-                    {/* Credentials Table */}
-                    <div className="border border-ink/5 rounded-2xl overflow-hidden bg-sand/20">
-                      <div className="flex flex-col border-b border-ink/5 p-2 md:p-2.5">
-                        <span className="text-[9px] uppercase tracking-wider text-muted font-bold mb-0.5">
-                          Education
-                        </span>
-                        <ul className="grid grid-cols-2 gap-x-6 gap-y-0.5 list-disc pl-4 text-[10px] md:text-[11px] text-ink font-medium">
-                          {TEACHERS[selectedIdx].education.map((edu) => (
-                            <li key={edu}>{edu}</li>
-                          ))}
-                        </ul>
-                      </div>
-                      <div className="flex flex-col border-b border-ink/5 p-2 md:p-2.5">
-                        <span className="text-[9px] uppercase tracking-wider text-muted font-bold mb-0.5">
-                          Experience Details
-                        </span>
-                        <ul className="list-disc pl-4 text-[10px] md:text-[11px] text-ink font-medium space-y-0.5">
-                          {TEACHERS[selectedIdx].detailedExperience.map(
-                            (exp) => (
-                              <li key={exp}>{exp}</li>
-                            ),
-                          )}
-                        </ul>
-                      </div>
-                      <div className="flex flex-col p-2 md:p-2.5">
-                        <span className="text-[9px] uppercase tracking-wider text-muted font-bold mb-1">
-                          Area of Expertise
-                        </span>
-                        <div className="flex flex-wrap gap-1">
-                          {TEACHERS[selectedIdx].expertise.map((exp) => (
-                            <span
-                              key={exp}
-                              className="bg-primary/5 text-primary text-[8px] uppercase font-bold tracking-widest px-2.5 py-0.5 rounded-full border border-primary/10"
-                            >
-                              {exp}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="border-t border-ink/5 mt-2.5 pt-1">
-                      <span className="text-[9px] uppercase tracking-wider text-muted font-bold block mb-1">
-                        Biography
-                      </span>
-                      <p className="text-xs text-muted leading-relaxed line-clamp-3">
-                        {TEACHERS[selectedIdx].bio}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Biography */}
-                </motion.div>
-              </AnimatePresence>
-            </div>
-          </div>
-        </div>
-
-        {/* 2. Mobile/Tablet Accordion Layout (lg-hidden): In-place Expanding Details */}
-        <div className="flex flex-col gap-4 lg:hidden w-full">
-          {TEACHERS.map((teacher, index) => {
-            const isOpen = selectedIdx === index;
-            return (
-              <div
-                key={`mobile-accordion-${teacher.name}`}
-                className="bg-white rounded-2xl border border-ink/5 overflow-hidden transition-all duration-300 shadow-sm"
-              >
-                {/* Accordion Trigger Header */}
-                <button
-                  onClick={() => setSelectedIdx(isOpen ? -1 : index)}
-                  type="button"
-                  className={`w-full p-4 flex items-center justify-between text-left cursor-pointer transition-colors duration-300 ${
-                    isOpen
-                      ? "bg-secondary text-white border-b border-ink/5"
-                      : "bg-white text-ink"
-                  }`}
-                >
-                  <div className="flex items-center gap-4.5">
-                    <div className="relative w-12 h-12 rounded-full overflow-hidden shrink-0 border border-ink/10 shadow-2xs">
-                      <Image
-                        src={teacher.image}
-                        alt={teacher.name}
-                        fill
-                        sizes="48px"
-                        className="object-cover"
-                      />
-                    </div>
-                    <div className="min-w-0">
-                      <h4
-                        className={`font-serif text-base font-bold leading-tight truncate ${isOpen ? "text-white" : "text-ink"}`}
-                      >
-                        {teacher.name}
-                      </h4>
-                      <p
-                        className={`text-[10px] sm:text-[11px] font-sans uppercase font-extrabold tracking-wider mt-1.5 truncate ${
-                          isOpen ? "text-white/80" : "text-secondary"
-                        }`}
-                      >
-                        {teacher.experienceSummary}
-                      </p>
-                    </div>
-                  </div>
-                  {/* Custom Chevron Indicator */}
-                  <span
-                    className={`text-xs transition-transform duration-300 font-bold ${isOpen ? "rotate-180" : ""}`}
-                  >
-                    ▼
-                  </span>
-                </button>
-
-                {/* Collapsible Content */}
-                <div
-                  className={`transition-all duration-500 ease-in-out overflow-hidden ${
-                    isOpen
-                      ? " opacity-100 p-5 border-t border-ink /5"
-                      : "max-h-0 opacity-0 pointer-events-none"
-                  }`}
-                >
-                  <div className="flex flex-col gap-6">
-                    {/* Portrait */}
-                    <div className="relative w-full aspect-[4/5] rounded-xl overflow-hidden bg-sand border border-ink/5 shadow-2xs">
-                      <Image
-                        src={teacher.image}
-                        alt={teacher.name}
-                        fill
-                        sizes="350px"
-                        className="object-cover"
-                      />
-                    </div>
-
-                    <div className="flex flex-col gap-4">
-                      {/* Credentials Table */}
-                      <div className="border border-ink/5 rounded-2xl overflow-hidden bg-sand/20 text-left">
-                        <div className="flex flex-col border-b border-ink/5 p-3.5">
-                          <span className="text-[10px] uppercase tracking-wider text-muted font-bold mb-1.5">
-                            Education
-                          </span>
-                          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 list-disc pl-4 text-xs text-ink font-medium">
-                            {teacher.education.map((edu) => (
-                              <li key={edu}>{edu}</li>
-                            ))}
-                          </ul>
-                        </div>
-                        <div className="flex flex-col border-b border-ink/5 p-3.5">
-                          <span className="text-[10px] uppercase tracking-wider text-muted font-bold mb-1.5">
-                            Experience Details
-                          </span>
-                          <ul className="list-disc pl-4 text-xs text-ink font-medium space-y-1">
-                            {teacher.detailedExperience.map((exp) => (
-                              <li key={exp}>{exp}</li>
-                            ))}
-                          </ul>
-                        </div>
-                        <div className="flex flex-col p-3.5">
-                          <span className="text-[10px] uppercase tracking-wider text-muted font-bold mb-2">
-                            Area of Expertise
-                          </span>
-                          <div className="flex flex-wrap gap-1.5">
-                            {teacher.expertise.map((exp) => (
-                              <span
-                                key={exp}
-                                className="bg-primary/5 text-primary text-[9px] uppercase font-bold tracking-widest px-2.5 py-1 rounded-full border border-primary/10"
-                              >
-                                {exp}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Bio */}
-                      <div className="pt-2 text-left">
-                        <span className="text-[10px] uppercase tracking-wider text-muted font-bold block mb-1.5">
-                          Biography
-                        </span>
-                        <p className="text-xs sm:text-sm text-muted leading-relaxed">
-                          {teacher.bio}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Global Footer Button */}
-        <div className="mt-16 lg:mt-8 flex justify-center w-full select-none">
-          <Button
-            href="https://www.nirvanayogaschoolindia.com/teacher"
-            variant="secondary"
-            size="md"
-            responsive
-            className="cursor-pointer"
-          >
-            Meet All Gurus
-          </Button>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={`mobile-${selectedSlug}`}
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={prefersReducedMotion ? undefined : { opacity: 0, y: -6 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+            >
+              <TeacherProfileCard
+                teacher={selected}
+                index={0}
+                prefersReducedMotion={prefersReducedMotion}
+                preview={HOMEPAGE_TEACHER_PREVIEW}
+                showMoreMode="link"
+                showMoreHref={teacherPageHref(selected.name)}
+                id="home-m-teacher-profile"
+              />
+            </motion.div>
+          </AnimatePresence>
         </div>
       </Container>
     </section>

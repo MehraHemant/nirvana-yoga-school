@@ -1,0 +1,30 @@
+---
+description: Backend API and database rules
+globs:
+  - "app/api/**/*"
+  - "lib/**/*"
+---
+
+# Backend
+
+Use:
+
+- Neon Postgres adapter for CMS data access
+- JWT cookies
+- Route handlers
+
+Rules:
+
+- Validate inputs.
+- Handle errors properly.
+- Keep business logic reusable.
+- Do not expose secrets.
+
+# API
+
+Always handle:
+
+- loading states
+- errors
+- empty responses
+- success states

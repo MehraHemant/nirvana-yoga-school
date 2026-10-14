@@ -1,121 +1,33 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Link from "next/link";
 import { Container, CourseCard, SectionHeader } from "@/components/ui";
-import type { CourseCardProps } from "@/components/ui/CourseCard";
+import type { HomeCoursesSectionContent } from "@/content/types/dedicated-pages";
+import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
+import { resolveSectionHtmlId } from "@/lib/html-id";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 
-const SITE = "https://www.nirvanayogaschoolindia.com";
+type CoursesSectionProps = {
+  /** Full CMS courses section (header + cards) */
+  content?: HomeCoursesSectionContent;
+};
 
-const COURSES: (CourseCardProps & { highlights: string[] })[] = [
-  {
-    title: "200 Hour Hatha, Ashtanga & Vinyasa Yoga Teacher Training",
-    duration: "25 Days",
-    level: "Beginner to Intermediate",
-    certification: "RYT-200, Yoga Alliance",
-    fee: "From 649 USD",
-    image:
-      "https://images.unsplash.com/photo-1599447421416-3414500d18a5?w=800&auto=format&fit=crop&q=80",
-    certBadge: `${SITE}/img/ryt200.webp`,
-    href: `${SITE}/200-hour-yoga-teacher-training-in-rishikesh-india`,
-    highlights: [
-      "Ashtanga Primary Series",
-      "Traditional Hatha",
-      "Adjustment & Alignment",
-      "Pranayama & Bandhas",
-    ],
-  },
-  {
-    title: "200 Hour Ayurveda & Hatha Yoga Teacher Training",
-    duration: "25 Days",
-    level: "Beginner to Intermediate",
-    certification: "RYT-200, Yoga Alliance",
-    fee: "From 649 USD",
-    image:
-      "https://images.unsplash.com/photo-1612817288484-6f916006741a?w=800&auto=format&fit=crop&q=80",
-    certBadge: `${SITE}/img/ryt200.webp`,
-    href: `${SITE}/200-hour-ayurveda-yoga-teacher-training-in-rishikesh-india`,
-    highlights: [
-      "Ayurvedic Constitution (Prakriti)",
-      "Panchakarma Basics",
-      "Ayurvedic Nutrition",
-      "Therapeutic Hatha Yoga",
-    ],
-  },
-  {
-    title: "200 Hour Meditation, Yoga Nidra & Hatha Yoga Teacher Training",
-    duration: "25 Days",
-    level: "Beginner to Intermediate",
-    certification: "RYT-200, Yoga Alliance",
-    fee: "From 649 USD",
-    image:
-      "https://images.unsplash.com/photo-1528319725582-ddc096101511?w=800&auto=format&fit=crop&q=80",
-    certBadge: `${SITE}/img/ryt200.webp`,
-    href: `${SITE}/200-hour-meditation-teacher-training-in-rishikesh-india`,
-    highlights: [
-      "Meditation Techniques",
-      "Yoga Nidra Scripting",
-      "Chakra & Kundalini Theory",
-      "Shatkarma Cleansings",
-    ],
-  },
-  {
-    title: "200 Hour Kundalini & Hatha Yoga Teacher Training",
-    duration: "25 Days",
-    level: "Beginner to Intermediate",
-    certification: "RYT-200, Yoga Alliance",
-    fee: "From 649 USD",
-    image:
-      "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800&auto=format&fit=crop&q=80",
-    certBadge: `${SITE}/img/ryt200.webp`,
-    href: `${SITE}/200-hour-kundalini-yoga-teacher-training-in-rishikesh-india`,
-    highlights: [
-      "Kriya & Energy Channels",
-      "Chakra Activation",
-      "Mantra & Sound Healing",
-      "Kundalini Tantra Philosophy",
-    ],
-  },
-  {
-    title: "300 Hour Hatha, Ashtanga, Vinyasa & Ayurveda Teacher Training",
-    duration: "29 Days",
-    level: "Intermediate to Advanced",
-    certification: "RYT-300, Yoga Alliance",
-    fee: "From 899 USD",
-    image:
-      "https://images.unsplash.com/photo-1575052814086-f385e2e2ad1b?w=800&auto=format&fit=crop&q=80",
-    certBadge: `${SITE}/img/ryt300.webp`,
-    href: `${SITE}/300-hour-yoga-teacher-training-in-rishikesh-india`,
-    highlights: [
-      "Advanced Asanas & Adjustments",
-      "Advanced Ayurveda Therapy",
-      "Yoga Sutra Deep Dive",
-      "Teaching Methodology",
-    ],
-  },
-  {
-    title: "500 Hour Comprehensive Hatha, Ashtanga & Ayurveda Teacher Training",
-    duration: "59 Days",
-    level: "Beginner to Advanced",
-    certification: "RYT-500, Yoga Alliance",
-    fee: "From 1449 USD",
-    image:
-      "https://images.unsplash.com/photo-1508672019048-805c876b67e2?w=800&auto=format&fit=crop&q=80",
-    certBadge: `${SITE}/img/ryt500.webp`,
-    href: `${SITE}/500-hour-yoga-teacher-training-in-rishikesh-india`,
-    highlights: [
-      "Master Class Pedagogy",
-      "Complete Sanskrit Studies",
-      "Clinical Ayurveda Application",
-      "Intensive Meditation Retreat",
-    ],
-  },
-];
+/**
+ * Homepage residential course cards grid driven by CMS content.
+ *
+ * @param props - Optional CMS courses section
+ */
+export default function CoursesSection({
+  content = createEmptyHomePageContent().courses,
+}: CoursesSectionProps = {}) {
+  const cards = content.cards?.length ? content.cards : [];
+  if (cards.length === 0) return null;
 
-export default function CoursesSection() {
   return (
-    <section id="courses" className="bg-paper py-12 sm:py-14 lg:py-16 mb-14">
+    <section
+      id={resolveSectionHtmlId("courses", content._id)}
+      className="scroll-mt-28 bg-white section-padding-y-courses"
+    >
       <Container size="2xl">
         <motion.div
           className="mb-8 flex flex-col gap-4 sm:mb-10 md:mb-14 lg:flex-row lg:items-end lg:justify-between"
@@ -125,38 +37,21 @@ export default function CoursesSection() {
           variants={fadeUp}
         >
           <SectionHeader
-            eyebrow="Residential YTT in Rishikesh, India"
-            title={
-              <>
-                Yoga Teacher Training in{" "}
-                <span className="text-primary italic animate-glow-primary">
-                  Rishikesh.
-                </span>
-              </>
-            }
-            description="Beyond mere certifications — life-changing journeys into the heart of yoga. Yoga Alliance-accredited programs blending ancient wisdom with holistic guidance."
+            eyebrow={content.eyebrow}
+            align="center"
+            title={content.title}
+            description={content.description}
+            descriptionClassName="text-ink"
           />
-          <Link
-            href={`${SITE}/yoga-teacher-training-in-rishikesh-india`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group inline-flex items-center gap-2 whitespace-nowrap text-xs sm:text-sm font-semibold text-primary transition-colors hover:text-primary-dark"
-          >
-            View all courses
-            <motion.span aria-hidden="true" whileHover={{ x: 4 }}>
-              →
-            </motion.span>
-          </Link>
         </motion.div>
 
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-7 items-start">
-          {COURSES.map((course, index) => {
-            // Editorial vertical column stagger: Left column aligns to top, Middle column translates down, Right column has moderate offset
+        <div className="grid gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 lg:gap-6 xl:gap-7 items-start">
+          {cards.map((course, index) => {
             const staggerClass =
               index % 3 === 1
-                ? "lg:translate-y-12"
+                ? "lg:translate-y-10 xl:translate-y-8 2xl:translate-y-12"
                 : index % 3 === 2
-                  ? "lg:translate-y-6"
+                  ? "lg:translate-y-5 xl:translate-y-4 2xl:translate-y-6"
                   : "";
 
             return (

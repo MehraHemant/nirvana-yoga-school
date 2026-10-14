@@ -1,253 +1,304 @@
 import Image from "next/image";
 import Link from "next/link";
-import { logo_white } from "@/assets";
+import type { ComponentType } from "react";
 import { Container } from "@/components/ui";
-import { Facebook, Instagram, YouTube } from "@/icons";
+import { Facebook, Instagram, WhatsApp, YouTube } from "@/icons";
 
-const SITE = "https://www.nirvanayogaschoolindia.com";
+interface FooterData {
+  brand: { logo: string; tagline: string; credentials: string };
+  social: Array<{
+    label: string;
+    href: string;
+    icon: "instagram" | "youtube" | "facebook" | "whatsapp";
+  }>;
+  columns: Array<{
+    heading: string;
+    links: Array<{ label: string; href: string; external?: boolean }>;
+  }>;
+  contact: { address: string; email: string; phone: string };
+  legal: Array<{ label: string; href: string }>;
+}
 
-const SOCIAL_LINKS = [
-  {
-    label: "Instagram",
-    href: "https://www.instagram.com/nirvanayogaschool",
-    Icon: Instagram,
-  },
-  {
-    label: "YouTube",
-    href: "https://www.youtube.com/@nirvanayogaschool",
-    Icon: YouTube,
-  },
-  {
-    label: "Facebook",
-    href: "https://www.facebook.com/nirvanayogaschool",
-    Icon: Facebook,
-  },
-] as const;
+const ICON_MAP: Record<
+  "instagram" | "youtube" | "facebook" | "whatsapp",
+  ComponentType<{ size?: number }>
+> = {
+  instagram: Instagram,
+  youtube: YouTube,
+  facebook: Facebook,
+  whatsapp: WhatsApp,
+};
 
-const COURSE_LINKS = [
-  {
-    href: `${SITE}/200-hour-yoga-teacher-training-in-rishikesh-india`,
-    label: "200hr Yoga Teacher Training",
-  },
-  {
-    href: `${SITE}/300-hour-yoga-teacher-training-in-rishikesh-india`,
-    label: "300hr Advanced YTT",
-  },
-  {
-    href: `${SITE}/500-hour-yoga-teacher-training-in-rishikesh-india`,
-    label: "500hr Master's YTT",
-  },
-  {
-    href: `${SITE}/200-hour-kundalini-yoga-teacher-training-in-rishikesh-india`,
-    label: "Kundalini YTT",
-  },
-  {
-    href: `${SITE}/online-yoga-teacher-training-courses`,
-    label: "Online Courses",
-  },
-  {
-    href: `${SITE}/3-day-yoga-retreat-in-rishikesh-india`,
-    label: "Retreats",
-  },
-];
+/**
+ * Whether a footer link should open in a new tab.
+ *
+ * @param href - Link destination
+ * @param external - Explicit external flag from CMS
+ */
+function isExternalLink(href: string, external?: boolean): boolean {
+  if (typeof external === "boolean") return external;
+  return /^https?:\/\//i.test(href);
+}
 
-const SCHOOL_LINKS = [
-  { href: "#about", label: "About Us" },
-  { href: "#teachers", label: "Teachers" },
-  { href: "#reviews", label: "Reviews" },
-  { href: "#faq", label: "FAQ" },
-  { href: `${SITE}/blog`, label: "Blog" },
-  { href: "#contact", label: "Contact Us" },
-];
+/**
+ * Builds a WhatsApp chat URL from a phone string when digits are present.
+ *
+ * @param phone - Display phone number from CMS
+ */
+function whatsappHrefFromPhone(phone: string): string | null {
+  const digits = phone.replace(/\D/g, "");
+  return digits ? `https://wa.me/${digits}` : null;
+}
 
-export default function Footer() {
+/**
+ * Compact column heading for dense footer grids.
+ *
+ * @param props - Heading text
+ */
+function ColHeading({ children }: { children: string }) {
   return (
-    <footer className="bg-dark text-white pt-10 pb-5 relative overflow-hidden border-t border-white/10">
-      {/* Background Soft Glow / Radial highlights */}
+    <p className="type-eyebrow mb-2.5 text-primary">
+      {children}
+    </p>
+  );
+}
+
+/**
+ * Renders a CMS footer link list.
+ *
+ * @param props - Link rows for one column
+ */
+function NavLinks({
+  links,
+}: {
+  links: Array<{ href: string; label: string; external?: boolean }>;
+}) {
+  return (
+    <ul className="space-y-0">
+      {links.map((l) => {
+        const external = isExternalLink(l.href, l.external);
+        return (
+          <li key={`${l.label}-${l.href}`}>
+            <Link
+              href={l.href}
+              target={external ? "_blank" : undefined}
+              rel={external ? "noopener noreferrer" : undefined}
+              className="footer-nav-link text-sm font-medium leading-snug text-ink"
+            >
+              {l.label}
+            </Link>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+/**
+ * Contact block from CMS address / email / phone fields.
+ *
+ * @param props - Footer contact fields and optional WhatsApp social URL
+ */
+function ContactLines({
+  contact,
+  whatsappHref,
+}: {
+  contact: FooterData["contact"];
+  whatsappHref: string | null;
+}) {
+  const phoneHref =
+    whatsappHref ?? whatsappHrefFromPhone(contact.phone) ?? undefined;
+
+  return (
+    <address className="space-y-1.5 text-sm leading-relaxed not-italic text-ink">
+      {contact.address ? (
+        <p className="max-w-[16rem] whitespace-pre-line">{contact.address}</p>
+      ) : null}
+      {contact.email ? (
+        <a
+          href={`mailto:${contact.email}`}
+          className="footer-nav-link block text-ink"
+        >
+          {contact.email}
+        </a>
+      ) : null}
+      {contact.phone && phoneHref ? (
+        <a
+          href={phoneHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="footer-nav-link block text-ink"
+        >
+          {contact.phone}
+        </a>
+      ) : contact.phone ? (
+        <p>{contact.phone}</p>
+      ) : null}
+    </address>
+  );
+}
+
+/**
+ * Brand logo linking home.
+ *
+ * @param props - Logo image path from CMS
+ */
+function BrandLogo({ logo }: { logo: string }) {
+  return (
+    <Link
+      href="/"
+      aria-label="Nirvana Yoga School home"
+      className="inline-block transition-opacity duration-300 hover:opacity-85"
+    >
+      <Image
+        src={logo}
+        alt="Nirvana Yoga School"
+        width={112}
+        height={45}
+        className="h-auto object-contain"
+        style={{ maxWidth: 112 }}
+      />
+    </Link>
+  );
+}
+
+/**
+ * Compact social icon row from CMS.
+ *
+ * @param props - Social link rows
+ */
+function SocialIcons({ social }: { social: FooterData["social"] }) {
+  if (social.length === 0) return null;
+
+  return (
+    <div className="mt-3.5 flex items-center gap-1.5">
+      {social.map(({ label, href, icon }) => {
+        const Icon = ICON_MAP[icon];
+        return (
+          <a
+            key={label}
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={label}
+            className="flex size-7 items-center justify-center rounded-full border border-ink/10 text-ink/70 transition-colors duration-200 hover:border-primary/30 hover:text-primary"
+          >
+            <Icon size={14} />
+          </a>
+        );
+      })}
+    </div>
+  );
+}
+
+type FooterProps = {
+  /** Server-loaded footer settings from the site layout */
+  initialData?: FooterData | null;
+};
+
+/**
+ * Compact site footer: brand, link columns, contact, social, and legal.
+ *
+ * @param props - Server-provided footer settings (no client API fetch)
+ */
+export default function Footer({ initialData = null }: FooterProps) {
+  const footerData = initialData;
+  if (!footerData) return null;
+
+  const hasContact = Boolean(
+    footerData.contact.address ||
+      footerData.contact.email ||
+      footerData.contact.phone,
+  );
+  const whatsappHref =
+    footerData.social.find((s) => s.icon === "whatsapp")?.href ?? null;
+
+  const linkColumns = footerData.columns.filter((col) => {
+    if (!col.links.some((l) => l.label)) return false;
+    // Contact details render from `contact`; skip legacy Contact link columns.
+    if (hasContact && col.heading.toLowerCase() === "contact") return false;
+    return true;
+  });
+
+  /** Brand + link columns + optional contact column */
+  const desktopCols = 1 + linkColumns.length + (hasContact ? 1 : 0);
+  const desktopGridClass =
+    desktopCols >= 5
+      ? "lg:grid-cols-[minmax(0,1.2fr)_repeat(4,minmax(0,0.9fr))]"
+      : desktopCols === 4
+        ? "lg:grid-cols-[minmax(0,1.25fr)_repeat(3,minmax(0,1fr))]"
+        : desktopCols === 3
+          ? "lg:grid-cols-[minmax(0,1.3fr)_repeat(2,minmax(0,1fr))]"
+          : "lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]";
+
+  return (
+    <footer className="relative border-t border-secondary/10 bg-surface text-ink">
       <div
-        className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-white/5 blur-[120px] rounded-full pointer-events-none"
+        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-primary/20 to-transparent"
         aria-hidden="true"
       />
-      <div
-        className="absolute -top-40 -left-40 w-[300px] h-[300px] bg-accent/8 blur-[100px] rounded-full pointer-events-none"
-        aria-hidden="true"
-      />
 
-      <Container size="2xl" className="relative z-10">
-        <div className="grid lg:grid-cols-12 gap-6 lg:gap-8">
-          {/* Brand + newsletter */}
-          <div className="lg:col-span-5 flex flex-col gap-4">
-            <div>
-              <Link
-                href="/"
-                aria-label="Nirvana Yoga School home"
-                className="inline-block group"
-              >
-                <Image
-                  src={logo_white}
-                  alt="Nirvana Yoga School"
-                  width={160}
-                  height={64}
-                  className="h-20 w-auto object-contain transition-transform duration-500 group-hover:scale-[1.02]"
-                />
-              </Link>
-              <p className="font-serif italic text-accent font-light text-[11px] mt-1 tracking-wide">
-                Lineage, Tradition, and Tapasya since 2012
+      <Container size="2xl" className="relative pt-8 pb-5 md:pt-9 md:pb-6">
+        <div
+          className={`grid gap-x-6 gap-y-7 sm:grid-cols-2 ${desktopGridClass}`}
+        >
+          <div className="sm:col-span-2 lg:col-span-1">
+            <BrandLogo logo={footerData.brand.logo} />
+            {footerData.brand.credentials ? (
+              <p className="type-eyebrow mt-2.5 text-[11px] tracking-[0.14em] text-ink">
+                {footerData.brand.credentials}
               </p>
-              <p className="mt-2 text-white/80 max-w-sm leading-relaxed text-sm/snug">
-                An authentic, Yoga Alliance certified school on the banks of the
-                Ganga in Rishikesh. Providing traditional education, ayurvedic
-                nutrition, and modern alignment tools.
+            ) : null}
+            {footerData.brand.tagline ? (
+              <p className="mt-2.5 max-w-xs text-sm leading-relaxed text-ink line-clamp-2">
+                {footerData.brand.tagline}
               </p>
-            </div>
-
-            {/* <div className="mt-1">
-              <h4 className="font-serif text-xs text-white font-medium mb-1">
-                Subscribe to the Nirvana Journal
-              </h4>
-              <p className="text-[10px] text-white/60 leading-relaxed max-w-sm mb-2 font-sans">
-                Monthly notes on classical practice, seasonal retreats, and
-                wisdom from Rishikesh. No spam.
-              </p>
-              <form className="flex flex-col sm:flex-row gap-2 max-w-md">
-                <label htmlFor="newsletter" className="sr-only">
-                  Your email
-                </label>
-                <input
-                  id="newsletter"
-                  type="email"
-                  required
-                  placeholder="your@email.com"
-                  className="flex-1 px-4 py-1.5 rounded-full bg-white/10 border border-white/15 text-white placeholder-white/45 focus:outline-none focus:border-white hover:border-white/30 transition-all duration-300 font-sans text-[11px]"
-                />
-                <button
-                  type="submit"
-                  className="px-4 py-1.5 rounded-full bg-white hover:bg-sand text-secondary font-semibold transition-all duration-300 font-sans text-[11px] shadow-md shrink-0 cursor-pointer"
-                >
-                  Subscribe
-                </button>
-              </form>
-            </div> */}
+            ) : null}
+            <SocialIcons social={footerData.social} />
           </div>
 
-          {/* Links */}
-          <div className="lg:col-span-7 grid sm:grid-cols-3 gap-6">
-            <div>
-              <h3 className="type-eyebrow text-[9px] tracking-widest text-accent font-bold mb-2.5">
-                Courses
-              </h3>
-              <ul className="space-y-1.5">
-                {COURSE_LINKS.map((l) => (
-                  <li key={l.label}>
-                    <Link
-                      href={l.href}
-                      target={l.href.startsWith("http") ? "_blank" : undefined}
-                      rel={
-                        l.href.startsWith("http")
-                          ? "noopener noreferrer"
-                          : undefined
-                      }
-                      className="text-white/75 hover:text-accent text-xs font-medium transition-colors duration-300 font-sans"
-                    >
-                      {l.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+          {linkColumns.map((col) => (
+            <div key={col.heading}>
+              <ColHeading>{col.heading}</ColHeading>
+              <NavLinks links={col.links} />
             </div>
+          ))}
 
+          {hasContact ? (
             <div>
-              <h3 className="type-eyebrow text-[9px] tracking-widest text-accent font-bold mb-2.5">
-                School
-              </h3>
-              <ul className="space-y-1.5">
-                {SCHOOL_LINKS.map((l) => (
-                  <li key={l.label}>
-                    <Link
-                      href={l.href}
-                      target={l.href.startsWith("http") ? "_blank" : undefined}
-                      rel={
-                        l.href.startsWith("http")
-                          ? "noopener noreferrer"
-                          : undefined
-                      }
-                      className="text-white/75 hover:text-accent text-xs font-medium transition-colors duration-300 font-sans"
-                    >
-                      {l.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+              <ColHeading>Contact</ColHeading>
+              <ContactLines
+                contact={footerData.contact}
+                whatsappHref={whatsappHref}
+              />
             </div>
-
-            <div>
-              <h3 className="type-eyebrow text-[9px] tracking-widest text-accent font-bold mb-2.5">
-                Visit Us
-              </h3>
-              <address className="not-italic text-white/75 text-xs leading-relaxed space-y-1.5 font-sans">
-                <p className="font-semibold text-white/90">Course Campus</p>
-                <p className="text-white/70 -mt-1">
-                  Tapovan, Rishikesh, Uttarakhand 249192, India
-                </p>
-                <div className="pt-1.5 space-y-1">
-                  <p className="flex flex-wrap items-center gap-1.5">
-                    <span className="text-[9px] text-accent font-bold uppercase tracking-wider">
-                      Email:
-                    </span>
-                    <a
-                      href="mailto:hello@nirvanayogaschoolindia.com"
-                      className="text-white/90 hover:text-accent transition-colors duration-300"
-                    >
-                      hello@nirvanayogaschoolindia.com
-                    </a>
-                  </p>
-                  <p className="flex flex-wrap items-center gap-1.5">
-                    <span className="text-[9px] text-accent font-bold uppercase tracking-wider">
-                      Phone:
-                    </span>
-                    <a
-                      href="https://wa.me/919876543210"
-                      className="text-white/90 hover:text-accent transition-colors duration-300"
-                    >
-                      +91 98765 43210
-                    </a>
-                  </p>
-                </div>
-              </address>
-
-              <div className="mt-4 flex gap-2.5">
-                {SOCIAL_LINKS.map(({ label, href, Icon }) => (
-                  <a
-                    key={label}
-                    href={href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-7.5 h-7.5 rounded-full bg-white/10 border border-white/10 hover:border-white hover:bg-white hover:text-secondary flex items-center justify-center transition-all duration-300 text-white/80"
-                  >
-                    <span className="sr-only">{label}</span>
-                    <Icon size={13} />
-                  </a>
-                ))}
-              </div>
-            </div>
-          </div>
+          ) : null}
         </div>
 
-        <div className="mt-8 pt-4 border-t border-white/10 flex flex-col md:flex-row md:items-center md:justify-between gap-3 text-[10px] text-white/45 font-sans">
-          <p>
-            © {new Date().getFullYear()} Nirvana Yoga School India. All rights
-            reserved.
-          </p>
-          <div className="flex gap-4">
-            <Link href="#" className="hover:text-white transition-colors">
-              Privacy Policy
-            </Link>
-            <Link href="#" className="hover:text-white transition-colors">
-              Terms of Service
-            </Link>
-            <Link href="#" className="hover:text-white transition-colors">
-              Sitemap
-            </Link>
+        <div className="mt-7 border-t border-ink/8 pt-3.5 md:mt-8">
+          <div className="flex flex-col gap-2 text-xs tracking-wide text-ink sm:flex-row sm:items-center sm:justify-between">
+            <p>© {new Date().getFullYear()} Nirvana Yoga School India</p>
+            {footerData.legal.length > 0 ? (
+              <nav
+                aria-label="Legal"
+                className="flex flex-wrap gap-x-4 gap-y-1"
+              >
+                {footerData.legal.map((l) => {
+                  const external = isExternalLink(l.href);
+                  return (
+                    <Link
+                      key={`${l.label}-${l.href}`}
+                      href={l.href}
+                      target={external ? "_blank" : undefined}
+                      rel={external ? "noopener noreferrer" : undefined}
+                      className="footer-nav-link text-ink hover:text-primary"
+                    >
+                      {l.label}
+                    </Link>
+                  );
+                })}
+              </nav>
+            ) : null}
           </div>
         </div>
       </Container>

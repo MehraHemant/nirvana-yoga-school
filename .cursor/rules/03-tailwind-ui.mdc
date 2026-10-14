@@ -1,0 +1,46 @@
+---
+description: UI and Tailwind rules
+globs:
+  - "components/**/*"
+  - "app/**/*"
+---
+
+# Styling
+
+- Use Tailwind CSS.
+- Mobile-first approach.
+- Avoid new CSS files unless necessary.
+- Use twMerge for dynamic classes.
+
+Preferred:
+
+- flex
+- grid
+- gap
+- max-w
+- mx-auto
+- min-h-screen
+
+
+Class order:
+
+Layout
+Display
+Flex/Grid
+Spacing
+Sizing
+Typography
+Background
+Border
+Effects
+Animation
+
+
+# Accessibility
+
+Always include:
+
+- alt text for images
+- aria-label where required
+- button type
+- semantic HTML
