@@ -23,8 +23,8 @@ type MediaPickerProps = {
 };
 
 const PAGE_SIZE = 48;
-/** Thumbnail width for the larger picker tiles (~200px CSS at 2x). */
-const THUMB_WIDTH = 400;
+/** Thumbnail width for the picker tiles (up to ~300px CSS at 2x). */
+const THUMB_WIDTH = 640;
 
 /**
  * Builds searchable text from a media asset row.

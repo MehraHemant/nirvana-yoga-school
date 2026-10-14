@@ -4790,15 +4790,65 @@
 }
 
 .admin-modal--picker .admin-media-picker-grid {
-  grid-template-columns: repeat(auto-fill, minmax(176px, 1fr));
-  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  /* Rows must not shrink: tiles clip overflow, so `auto` rows collapse to strips. */
+  grid-auto-rows: max-content;
+  align-content: start;
+  gap: 0.9rem;
   flex: 1 1 auto;
   min-height: 12rem;
   max-height: none;
+  padding: 0.25rem;
+}
+
+.admin-modal--picker .admin-media-pick {
+  border: 1px solid rgb(26 20 16 / 10%);
+  box-shadow: 0 1px 2px rgb(26 20 16 / 6%);
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
+}
+
+.admin-modal--picker .admin-media-pick:hover {
+  border-color: #a32432;
+  box-shadow: 0 6px 18px rgb(26 20 16 / 12%);
+  transform: translateY(-1px);
+}
+
+.admin-modal--picker .admin-media-pick img,
+.admin-modal--picker .admin-media-pick video {
+  aspect-ratio: 4 / 3;
+}
+
+.admin-modal--picker .admin-media-picker-grid .admin-media-skeleton {
+  aspect-ratio: 4 / 3;
+}
+
+.admin-modal--picker .admin-media-pick--selected {
+  border-color: #a32432;
+  box-shadow: 0 0 0 3px rgb(163 36 50 / 35%);
+}
+
+.admin-modal--picker .admin-media-pick--selected img,
+.admin-modal--picker .admin-media-pick--selected video {
+  opacity: 0.85;
+}
+
+.admin-modal--picker .admin-media-pick-check {
+  width: 1.75rem;
+  height: 1.75rem;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 25%);
 }
 
 .admin-modal--picker .admin-media-pick-label {
-  font-size: 0.75rem;
+  font-size: 0.78rem;
+  padding: 0.45rem 0.55rem 0.1rem;
+}
+
+.admin-modal--picker .admin-media-pick-tags {
+  color: #78716c;
+  padding: 0 0.55rem 0.5rem;
 }
 
 .admin-media-picker-usage {
