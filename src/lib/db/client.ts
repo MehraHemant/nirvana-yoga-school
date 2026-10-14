@@ -398,28 +398,31 @@ async function loadIncludes(
     return;
   }
   if (modelName === "pageSection") {
-    if (include.subsections) {
-      await loadHasMany(
-        rows,
-        "id",
-        "sectionId",
-        "subsections",
-        "sectionSubsection",
-        include.subsections,
-        { sortOrder: "asc" },
-      );
-    }
-    if (include.items) {
-      await loadHasMany(
-        rows,
-        "id",
-        "sectionId",
-        "items",
-        "sectionItem",
-        include.items,
-        { sortOrder: "asc" },
-      );
-    }
+    // Independent relations — load in parallel to save DB round trips.
+    await Promise.all([
+      include.subsections
+        ? loadHasMany(
+            rows,
+            "id",
+            "sectionId",
+            "subsections",
+            "sectionSubsection",
+            include.subsections,
+            { sortOrder: "asc" },
+          )
+        : null,
+      include.items
+        ? loadHasMany(
+            rows,
+            "id",
+            "sectionId",
+            "items",
+            "sectionItem",
+            include.items,
+            { sortOrder: "asc" },
+          )
+        : null,
+    ]);
     return;
   }
   if (modelName === "sectionSubsection" && include.items) {
@@ -439,17 +442,6 @@ async function loadPageIncludes(
   pages: Record<string, unknown>[],
   include: IncludeInput,
 ): Promise<void> {
-  if (include.courseDoc) {
-    await loadHasOne(
-      pages,
-      "id",
-      "pageId",
-      "courseDoc",
-      "courseDocument",
-      include.courseDoc,
-    );
-  }
-
   const childSpecs: Array<{
     key: string;
     model: ModelName;
@@ -494,18 +486,32 @@ async function loadPageIncludes(
     },
   ];
 
-  for (const spec of childSpecs) {
-    if (!include[spec.key]) continue;
-    await loadHasMany(
-      pages,
-      "id",
-      spec.fk,
-      spec.key,
-      spec.model,
-      include[spec.key],
-      spec.defaultOrder,
-    );
-  }
+  // Each relation writes its own key, so they can load in parallel.
+  await Promise.all([
+    include.courseDoc
+      ? loadHasOne(
+          pages,
+          "id",
+          "pageId",
+          "courseDoc",
+          "courseDocument",
+          include.courseDoc,
+        )
+      : null,
+    ...childSpecs
+      .filter((spec) => include[spec.key])
+      .map((spec) =>
+        loadHasMany(
+          pages,
+          "id",
+          spec.fk,
+          spec.key,
+          spec.model,
+          include[spec.key],
+          spec.defaultOrder,
+        ),
+      ),
+  ]);
 }
 
 function includeArgs(includeVal: unknown): {

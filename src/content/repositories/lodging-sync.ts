@@ -139,13 +139,15 @@ export function dateBatchesToPricingBatches(
  *
  * @param slug - Page slug
  * @param modules - Modules loaded from page_modules
+ * @param knownPageId - Page id when the caller already has it (skips a lookup)
  */
 export async function hydrateModulesFromLodgingTables(
   slug: string,
   modules: PageModulesDocument | null,
+  knownPageId?: string,
 ): Promise<PageModulesDocument | null> {
   if (!modules) return null;
-  const pageId = await getPageIdBySlug(slug);
+  const pageId = knownPageId ?? (await getPageIdBySlug(slug));
   if (!pageId) return modules;
 
   const [offersResult, batchesResult, flagsResult] = await Promise.all([

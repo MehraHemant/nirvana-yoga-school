@@ -92,18 +92,19 @@ export async function GET(
     await ensureOnlineHubPage().catch(() => null);
   }
 
-  const page = await db.page.findUnique({
-    where: { slug },
-    include: { ...pageWithRelations, courseDoc: true },
-  });
+  // SEO only needs the slug, so fetch it alongside the page.
+  const [page, pageSeo] = await Promise.all([
+    db.page.findUnique({
+      where: { slug },
+      include: { ...pageWithRelations, courseDoc: true },
+    }),
+    getPageSeo(slug).catch(() => null),
+  ]);
 
   if (!page) {
     return jsonNotFound();
   }
 
-  const content = isDedicatedPageSlug(slug)
-    ? await loadDedicatedPageContent(slug)
-    : null;
   const product =
     page.courseDoc?.document &&
     (page.type === "online" || page.type === "retreat")
@@ -125,30 +126,19 @@ export async function GET(
     }),
   );
 
-  const pageSeo = await getPageSeo(slug).catch(() => null);
-  let modules =
-    (await hydrateModulesFromPageTables(
-      slug,
-      resolvePageModulesForEditor(
-        page.pageModules,
-        page.title,
-        galleryRows,
-        slug,
-      ),
-    ).catch(() =>
-      resolvePageModulesForEditor(
-        page.pageModules,
-        page.title,
-        galleryRows,
-        slug,
-      ),
-    )) ??
-    resolvePageModulesForEditor(
-      page.pageModules,
-      page.title,
-      galleryRows,
-      slug,
-    );
+  const baseModules = resolvePageModulesForEditor(
+    page.pageModules,
+    page.title,
+    galleryRows,
+    slug,
+  );
+  const [content, hydratedModules] = await Promise.all([
+    isDedicatedPageSlug(slug) ? loadDedicatedPageContent(slug) : null,
+    hydrateModulesFromPageTables(slug, baseModules, page.id).catch(
+      () => baseModules,
+    ),
+  ]);
+  let modules = hydratedModules ?? baseModules;
 
   if (pageSeo) {
     if (modules) {

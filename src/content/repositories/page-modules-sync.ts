@@ -10,12 +10,14 @@ import {
  *
  * @param slug - Page slug
  * @param modules - Modules loaded from page_modules
+ * @param pageId - Page id when the caller already has it (skips a lookup)
  */
 export async function hydrateModulesFromPageTables(
   slug: string,
   modules: PageModulesDocument | null,
+  pageId?: string,
 ): Promise<PageModulesDocument | null> {
-  return hydrateModulesFromLodgingTables(slug, modules);
+  return hydrateModulesFromLodgingTables(slug, modules, pageId);
 }
 
 /**
