@@ -12,11 +12,7 @@ import {
   ytThumb,
   ytTitle,
 } from "../hero-variants/shared";
-import {
-  HERO_IMAGE_QUALITY,
-  heroImageLoader,
-  heroStageImageProps,
-} from "./hero-image";
+import { HERO_IMAGE_QUALITY, heroStageImageProps } from "./hero-image";
 
 export type ElegantGallery = ReturnType<typeof useHeroGallery>;
 export type ElegantHeroProps = CourseHeroProps;
@@ -166,7 +162,6 @@ export function HeroStage({
               decoding="sync"
               quality={HERO_IMAGE_QUALITY}
               sizes={sizes}
-              loader={heroImageLoader(readySrc)}
               className={imageClassName}
             />
           ) : null}
@@ -181,7 +176,6 @@ export function HeroStage({
               fetchPriority="high"
               quality={HERO_IMAGE_QUALITY}
               sizes={sizes}
-              loader={heroImageLoader(incomingSrc)}
               onLoad={onIncomingLoad}
               className={`${imageClassName} opacity-0`}
               aria-hidden
@@ -254,7 +248,6 @@ export function MediaRail({
               fill
               loading="lazy"
               sizes="180px"
-              loader={heroImageLoader(photo.url)}
               className="object-cover"
             />
           </button>

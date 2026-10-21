@@ -1,7 +1,14 @@
 import Image from "next/image";
-import { Button, Container, Heading, Pill } from "@/components/ui";
+import {
+  Button,
+  Container,
+  Heading,
+  Pill,
+  PrefetchWhenNear,
+} from "@/components/ui";
 import type { HomeFinalCtaContent } from "@/content/types/dedicated-pages";
 import { ArrowRight, WhatsApp } from "@/icons";
+import { PHOTO_IMAGE_QUALITY } from "@/lib/cdn/responsive-image";
 import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 import { resolveSectionHtmlId } from "@/lib/html-id";
 
@@ -36,11 +43,24 @@ export default function FinalCTASection({
       id={resolveSectionHtmlId("contact", content._id)}
       className="relative section-padding-y overflow-hidden"
     >
+      {image?.trim() ? (
+        <PrefetchWhenNear
+          limit={1}
+          images={[
+            {
+              src: image,
+              sizes: "100vw",
+              quality: PHOTO_IMAGE_QUALITY,
+            },
+          ]}
+        />
+      ) : null}
       <Image
         src={image}
         alt={imageAlt}
         fill
         sizes="100vw"
+        quality={PHOTO_IMAGE_QUALITY}
         className="object-cover"
       />
       <div

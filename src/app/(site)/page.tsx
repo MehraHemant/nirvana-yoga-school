@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import { Suspense } from "react";
+import { HeroPosterPreloads } from "@/components/hero/ResponsiveImagePreload";
 import HeroSection from "@/components/home/HeroSection";
 import WelcomeSection from "@/components/home/WelcomeSection";
 import JsonLd from "@/components/ui/JsonLd";
@@ -144,20 +145,10 @@ export default async function Home() {
 
   return (
     <>
-      {/* Hero LCP — poster only; video loads after paint */}
-      <link
-        rel="preload"
-        as="image"
-        href={heroVideo.mobilePoster}
-        media="(max-width: 767px)"
-        fetchPriority="high"
-      />
-      <link
-        rel="preload"
-        as="image"
-        href={heroVideo.desktopPoster}
-        media="(min-width: 768px)"
-        fetchPriority="high"
+      {/* Hero LCP — responsive poster only; video loads after paint */}
+      <HeroPosterPreloads
+        mobileSrc={heroVideo.mobilePoster || heroVideo.desktopPoster}
+        desktopSrc={heroVideo.desktopPoster || heroVideo.mobilePoster}
       />
       <JsonLd data={jsonLd} />
       {shouldRenderHomeSection("hero", home) ? (

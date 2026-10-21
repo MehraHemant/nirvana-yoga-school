@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useSiteSession } from "@/components/auth/SiteSessionProvider";
 import { Heading } from "@/components/ui";
 import { ArrowRight, Lotus } from "@/icons";
 import AuthFields from "./AuthFields";
@@ -22,7 +23,7 @@ const COPY = {
     switchPrompt: "New to Nirvana?",
     switchLabel: "Create an account",
     switchPath: "/signup",
-    image: "/images/yoga-auth-bg.jpg",
+    image: "/images/yoga-auth-bg.webp",
     imageAlt: "Yoga practice at sunrise above the Himalayan foothills",
     imageLine: "Return to your practice.",
   },
@@ -33,7 +34,7 @@ const COPY = {
     switchPrompt: "Already have an account?",
     switchLabel: "Log in",
     switchPath: "/login",
-    image: "/images/yoga-auth-mandala.jpg",
+    image: "/images/yoga-auth-mandala.webp",
     imageAlt: "Flower mandala lit by oil lamps",
     imageLine: "Every practice begins with a single breath.",
   },
@@ -47,6 +48,7 @@ const COPY = {
  */
 export default function AuthForm({ mode, nextPath }: AuthFormProps) {
   const router = useRouter();
+  const { refresh: refreshSession } = useSiteSession();
   const copy = COPY[mode];
   const next = encodeURIComponent(nextPath);
 
@@ -96,6 +98,7 @@ export default function AuthForm({ mode, nextPath }: AuthFormProps) {
             <AuthFields
               mode={mode}
               onSuccess={() => {
+                void refreshSession();
                 router.push(nextPath);
                 router.refresh();
               }}

@@ -5,16 +5,18 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { ImageGalleryPanel } from "@/components/courses/AccommodationGalleryPanel";
 import { facilityIcon } from "@/components/courses/facility-icons";
-import {
-  ResidentialSectionIntro,
-} from "@/components/courses/ResidentialSectionHeader";
+import { ResidentialSectionIntro } from "@/components/courses/ResidentialSectionHeader";
 import RetreatSectionShell from "@/components/retreat/RetreatSectionShell";
-import { MediaLightbox } from "@/components/ui";
+import { MediaLightbox, PrefetchWhenNear } from "@/components/ui";
 import type {
   SharedFacility,
   SharedGalleryImage,
 } from "@/content/types/shared-sections";
 import { Check } from "@/icons";
+import {
+  ACCOMMODATION_STAGE_SIZES,
+  PHOTO_IMAGE_QUALITY,
+} from "@/lib/cdn/responsive-image";
 import { EASE_OUT, reducedTransition } from "@/lib/motion";
 import type { RetreatProductAccommodationContent } from "./retreatProductTypes";
 
@@ -82,7 +84,6 @@ function RoomTypeSelector({
                       alt={room.label}
                       fill
                       sizes="50px"
-                      unoptimized
                       className={`object-cover transition-transform duration-500 ${isActive ? "scale-105" : "group-hover:scale-105"}`}
                     />
                   ) : null}
@@ -143,7 +144,11 @@ function AmenityGroup({
  *
  * @param facilities - CMS facility rows
  */
-function CampusFacilitiesBand({ facilities }: { facilities: SharedFacility[] }) {
+function CampusFacilitiesBand({
+  facilities,
+}: {
+  facilities: SharedFacility[];
+}) {
   const included = facilities.filter((facility) => !facility.note);
   const addOns = facilities.filter((facility) => Boolean(facility.note));
   const hasBothGroups = included.length > 0 && addOns.length > 0;
@@ -270,11 +275,9 @@ export default function RetreatProductAccommodationSection({
   const stayDescription = content.stayDescription.trim();
   const showStayIntro = Boolean(stayTitle || stayDescription);
   const facilities = content.facilities.filter((f) => f.label?.trim());
-  const showFacilities =
-    activeFeatures.length === 0 && facilities.length > 0;
+  const showFacilities = activeFeatures.length === 0 && facilities.length > 0;
   const showRoomDescription =
-    Boolean(activeRoomDescription) &&
-    activeRoomDescription !== stayDescription;
+    Boolean(activeRoomDescription) && activeRoomDescription !== stayDescription;
 
   const introTitle = stayTitle ? (
     stayTitle
@@ -291,81 +294,85 @@ export default function RetreatProductAccommodationSection({
       eyebrow={content.eyebrow.trim() || undefined}
       title={content.title}
     >
-      <div className="hidden" aria-hidden="true">
-        {galleries.map((room) => {
-          const thumb = room.images.find((image) => image.url?.trim())?.url;
-          return thumb ? (
-            /* biome-ignore lint/performance/noImgElement: preloader */
-            <img key={`preload-${room.id}`} src={thumb} alt="" />
-          ) : null;
-        })}
+      <div className="relative">
+        <PrefetchWhenNear
+          limit={8}
+          images={galleries.flatMap((room) =>
+            room.images
+              .filter((image) => image.url?.trim())
+              .slice(0, room.id === roomTab ? 4 : 1)
+              .map((image) => ({
+                src: image.url,
+                sizes: ACCOMMODATION_STAGE_SIZES,
+                quality: PHOTO_IMAGE_QUALITY,
+              })),
+          )}
+        />
+
+        <div className="grid items-start gap-6 lg:grid-cols-12 lg:gap-8 xl:gap-10">
+          <div className="min-w-0 space-y-4 sm:space-y-5 lg:col-span-5">
+            {showStayIntro ? (
+              <ResidentialSectionIntro
+                eyebrow={content.eyebrow.trim() || "Residential Life"}
+                title={introTitle}
+                description={stayDescription}
+              />
+            ) : null}
+
+            {galleries.length > 0 ? (
+              <RoomTypeSelector
+                galleries={galleries}
+                activeId={roomTab}
+                onChange={setRoomTab}
+              />
+            ) : null}
+
+            {showRoomDescription ? (
+              <p className="type-body text-sm leading-relaxed text-ink/80 sm:text-base">
+                {activeRoomDescription}
+              </p>
+            ) : null}
+
+            {activeFeatures.length > 0 ? (
+              <RoomFeaturesList items={activeFeatures} />
+            ) : null}
+          </div>
+
+          <div className="retreat-product-media min-w-0 lg:col-span-7">
+            {activeImages.length > 0 ? (
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={`gallery-${roomTab}`}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={reducedTransition(prefersReduced, {
+                    duration: 0.32,
+                    ease: EASE_OUT,
+                  })}
+                  className="lg:sticky lg:top-[var(--retreat-sticky-top,7rem)]"
+                >
+                  <ImageGalleryPanel
+                    key={roomTab}
+                    images={activeImages}
+                    label={activeRoom?.label ?? "Accommodation"}
+                    accent="primary"
+                    onOpenLightbox={(index) =>
+                      setLightbox({
+                        items: activeImages,
+                        index,
+                        title: activeRoom?.label ?? "Accommodation",
+                      })
+                    }
+                  />
+                </motion.div>
+              </AnimatePresence>
+            ) : null}
+          </div>
+        </div>
       </div>
 
-      <div className="grid items-start gap-6 lg:grid-cols-12 lg:gap-8 xl:gap-10">
-        <div className="min-w-0 space-y-4 sm:space-y-5 lg:col-span-5">
-          {showStayIntro ? (
-            <ResidentialSectionIntro
-              eyebrow={content.eyebrow.trim() || "Residential Life"}
-              title={introTitle}
-              description={stayDescription}
-            />
-          ) : null}
-
-          {galleries.length > 0 ? (
-            <RoomTypeSelector
-              galleries={galleries}
-              activeId={roomTab}
-              onChange={setRoomTab}
-            />
-          ) : null}
-
-          {showRoomDescription ? (
-            <p className="type-body text-sm leading-relaxed text-ink/80 sm:text-base">
-              {activeRoomDescription}
-            </p>
-          ) : null}
-
-          {activeFeatures.length > 0 ? (
-            <RoomFeaturesList items={activeFeatures} />
-          ) : null}
-        </div>
-
-        <div className="retreat-product-media min-w-0 lg:col-span-7">
-          {activeImages.length > 0 ? (
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={`gallery-${roomTab}`}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={reducedTransition(prefersReduced, {
-                  duration: 0.32,
-                  ease: EASE_OUT,
-                })}
-                className="lg:sticky lg:top-[var(--retreat-sticky-top,7rem)]"
-              >
-                <ImageGalleryPanel
-                  key={roomTab}
-                  images={activeImages}
-                  label={activeRoom?.label ?? "Accommodation"}
-                  accent="primary"
-                  onOpenLightbox={(index) =>
-                    setLightbox({
-                      items: activeImages,
-                      index,
-                      title: activeRoom?.label ?? "Accommodation",
-                    })
-                  }
-                />
-              </motion.div>
-            </AnimatePresence>
-          ) : null}
-        </div>
-      </div>
-
-      {showFacilities ? (
-        <CampusFacilitiesBand facilities={facilities} />
-      ) : null}
+      {showFacilities ? <CampusFacilitiesBand facilities={facilities} /> : null}
 
       <MediaLightbox
         isOpen={lightbox !== null}

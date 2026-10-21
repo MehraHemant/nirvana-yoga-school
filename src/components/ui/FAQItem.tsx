@@ -51,7 +51,6 @@ export default function FAQItem({
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
             className={`object-cover transition-all duration-700 ease-out ${isActive ? "scale-105 opacity-45 grayscale-0" : "scale-100 opacity-25 grayscale group-hover:scale-102 group-hover:opacity-40 group-hover:grayscale-0"}`}
-            priority={index === 0}
           />
           <div
             className={`absolute inset-0 transition-colors duration-500 ${isActive ? "bg-linear-to-r from-primary/90 via-primary/75 to-transparent" : "bg-linear-to-r from-primary/80 via-primary/60 to-transparent group-hover:from-primary/70 group-hover:via-primary/50"}`}

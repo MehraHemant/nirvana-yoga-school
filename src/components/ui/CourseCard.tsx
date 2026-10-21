@@ -13,6 +13,7 @@ import Link from "next/link";
 import type React from "react";
 import { type ReactNode, useEffect, useState } from "react";
 import { ArrowRight, Check } from "@/icons";
+import { PHOTO_IMAGE_QUALITY } from "@/lib/cdn/responsive-image";
 
 export type CourseCardProps = {
   title: string;
@@ -141,14 +142,16 @@ function FocusList({ highlights }: { highlights: string[] }) {
           <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-primary/10">
             <Check size={11} strokeWidth={3} className="text-primary" />
           </span>
-          <span className="text-sm leading-[1.6] text-ink">
-            {item}
-          </span>
+          <span className="text-sm leading-[1.6] text-ink">{item}</span>
         </li>
       ))}
     </ul>
   );
 }
+
+/** Rendered width of a course-card photo in the 1 / 2 / 3 column grids. */
+export const COURSE_CARD_IMAGE_SIZES =
+  "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw";
 
 /**
  * Course card media. Stacked uses full-bleed 16:10 with a stronger veil;
@@ -163,7 +166,6 @@ function CourseCardImage({
   certification,
   fee,
   hours,
-  revealDelay,
   prefersReduced,
   editorial,
   hub,
@@ -174,7 +176,6 @@ function CourseCardImage({
   certification: string;
   fee: string;
   hours: string | null;
-  revealDelay: number;
   prefersReduced: boolean;
   editorial: boolean;
   hub: boolean;
@@ -227,12 +228,10 @@ function CourseCardImage({
             sizes={
               editorial
                 ? "(max-width: 768px) 100vw, 40vw"
-                : hub
-                  ? "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                : COURSE_CARD_IMAGE_SIZES
             }
+            quality={PHOTO_IMAGE_QUALITY}
             className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-[1.05]"
-            priority={revealDelay === 0}
           />
           <div
             className={
@@ -607,7 +606,6 @@ export default function CourseCard({
   certBadge,
   href,
   description,
-  revealDelay = 0,
   className = "",
   highlights = [],
   index,
@@ -657,7 +655,6 @@ export default function CourseCard({
             certification={certification}
             fee={fee}
             hours={hours}
-            revealDelay={revealDelay}
             prefersReduced={!enableParallax}
             editorial={editorial}
             hub={hub}

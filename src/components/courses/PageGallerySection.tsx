@@ -3,8 +3,17 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
-import { Container, MediaLightbox, SectionHeader } from "@/components/ui";
+import {
+  Container,
+  MediaLightbox,
+  PrefetchWhenNear,
+  SectionHeader,
+} from "@/components/ui";
 import type { SitePageGalleryImage } from "@/content/types";
+import {
+  MASONRY_TILE_SIZES,
+  PHOTO_IMAGE_QUALITY,
+} from "@/lib/cdn/responsive-image";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -191,6 +200,14 @@ export default function PageGallerySection({
   return (
     <section id="gallery" className="section-white">
       <Container size="2xl" className="relative">
+        <PrefetchWhenNear
+          limit={12}
+          images={visibleItems.map((item) => ({
+            src: item.src,
+            sizes: MASONRY_TILE_SIZES,
+            quality: PHOTO_IMAGE_QUALITY,
+          }))}
+        />
         <motion.div
           initial="hidden"
           whileInView="visible"
@@ -289,8 +306,8 @@ export default function PageGallerySection({
                             src={item.src}
                             alt={item.alt}
                             fill
-                            unoptimized
-                            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                            sizes={MASONRY_TILE_SIZES}
+                            quality={PHOTO_IMAGE_QUALITY}
                             draggable={false}
                             className="pointer-events-none object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                           />

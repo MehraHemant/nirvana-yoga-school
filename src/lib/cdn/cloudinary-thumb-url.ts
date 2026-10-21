@@ -1,12 +1,29 @@
 import type { ImageLoaderProps } from "next/image";
 
 /**
+ * Cloudinary `q_` token. Large deliveries and explicit high Next/Image quality
+ * stay on `auto:best` so photography remains sharp. Small thumbnails use
+ * `auto:good` so they do not dominate the page weight.
+ *
+ * @param width - Requested delivery width in pixels
+ * @param quality - Next/Image quality (1–100), when the caller set one
+ */
+export function cloudinaryQualityToken(
+  width: number,
+  quality: number | undefined,
+): string {
+  if (quality != null && quality < 60) return "auto:eco";
+  if (width >= 640 || (quality != null && quality >= 85)) return "auto:best";
+  return "auto:good";
+}
+
+/**
  * Builds a width-limited Cloudinary delivery URL.
  * Non-Cloudinary URLs are returned unchanged.
  *
  * @param url - Original media URL
  * @param width - Max width in pixels (default 320)
- * @param quality - Cloudinary `q_` value (default `auto`)
+ * @param quality - Cloudinary `q_` value (default `auto`, i.e. `auto:good`). Commas in the transform are encoded as `%2C` so `srcset` stays one URL.
  */
 export function cloudinarySizedUrl(
   url: string,
@@ -23,7 +40,15 @@ export function cloudinarySizedUrl(
     // Avoid double-transforming an already-transformed URL.
     const after = trimmed.slice(insertAt);
     if (/^(c_|w_|h_|f_|q_|fl_)/.test(after)) return trimmed;
-    return `${trimmed.slice(0, insertAt)}c_limit,w_${width},f_auto,q_${quality}/${after}`;
+    // Commas must be %2C or HTML srcset splits the URL and the browser
+    // falls back to the largest `src`. Encoded commas also stop `f_auto`
+    // from negotiating, so the format is fixed to AVIF (what `f_auto`
+    // selects in current browsers) and stays sharp at `q_auto:best`.
+    const transform = `c_limit,w_${width},f_avif,q_${quality}`.replaceAll(
+      ",",
+      "%2C",
+    );
+    return `${trimmed.slice(0, insertAt)}${transform}/${after}`;
   }
 
   const videoMarker = "/video/upload/";
@@ -32,7 +57,11 @@ export function cloudinarySizedUrl(
     const insertAt = videoIdx + videoMarker.length;
     const after = trimmed.slice(insertAt);
     if (/^(so_|c_|w_|h_|f_|q_)/.test(after)) return trimmed;
-    return `${trimmed.slice(0, insertAt)}so_0,c_limit,w_${width},f_jpg,q_${quality}/${after}`.replace(
+    const transform = `so_0,c_limit,w_${width},f_jpg,q_${quality}`.replaceAll(
+      ",",
+      "%2C",
+    );
+    return `${trimmed.slice(0, insertAt)}${transform}/${after}`.replace(
       /\.[^.]+$/i,
       ".jpg",
     );
@@ -61,7 +90,9 @@ export function isResizableCloudinaryImage(url: string): boolean {
 
 /**
  * `next/image` loader that lets Cloudinary resize directly (no Vercel re-encode).
- * Widths are capped at the hero main width; quality ≥ 85 maps to `q_auto:good`.
+ * Widths are capped at the hero main width. Delivery is AVIF so `srcset`
+ * can encode commas without losing `f_auto` negotiation.
+ * {@link cloudinaryQualityToken} picks `q_auto:best` or `q_auto:good`.
  *
  * @param props - Loader props from `next/image`
  */
@@ -70,9 +101,10 @@ export function cloudinaryImageLoader({
   width,
   quality,
 }: ImageLoaderProps): string {
+  const capped = Math.min(width, CLOUDINARY_HERO_MAIN_WIDTH);
   return cloudinarySizedUrl(
     src,
-    Math.min(width, CLOUDINARY_HERO_MAIN_WIDTH),
-    quality != null && quality >= 85 ? "auto:good" : "auto",
+    capped,
+    cloudinaryQualityToken(capped, quality),
   );
 }

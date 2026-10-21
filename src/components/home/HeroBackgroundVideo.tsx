@@ -2,6 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { HomeHeroVideoContent } from "@/content/types/dedicated-pages";
+import {
+  HERO_POSTER_MOBILE_MEDIA,
+  HERO_POSTER_SIZES,
+  responsiveImageAttrs,
+} from "@/lib/cdn/responsive-image";
 import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 
 type HeroBackgroundVideoProps = {
@@ -26,6 +31,12 @@ export default function HeroBackgroundVideo({
   const hasMp4 = Boolean(mobileSrc || desktopSrc);
   const mobilePoster = video.mobilePoster?.trim() || "";
   const desktopPoster = video.desktopPoster?.trim() || mobilePoster;
+  const mobileAttrs = mobilePoster
+    ? responsiveImageAttrs(mobilePoster, HERO_POSTER_SIZES)
+    : null;
+  const desktopAttrs = desktopPoster
+    ? responsiveImageAttrs(desktopPoster, HERO_POSTER_SIZES)
+    : null;
 
   // Re-bind when CMS sources change so play/pause observers track the new element.
   // biome-ignore lint/correctness/useExhaustiveDependencies: mobileSrc/desktopSrc intentionally re-run the effect
@@ -74,12 +85,17 @@ export default function HeroBackgroundVideo({
         <picture
           className={`absolute inset-0 transition-opacity duration-500 ${playing ? "opacity-0" : "opacity-100"}`}
         >
-          {mobilePoster ? (
-            <source media="(max-width: 768px)" srcSet={mobilePoster} />
+          {mobileAttrs ? (
+            <source
+              media={HERO_POSTER_MOBILE_MEDIA}
+              srcSet={mobileAttrs.srcSet || mobileAttrs.src}
+              sizes={mobileAttrs.sizes}
+            />
           ) : null}
           <img
-            src={desktopPoster}
-            sizes="100vw"
+            src={desktopAttrs?.src || desktopPoster}
+            srcSet={desktopAttrs?.srcSet}
+            sizes={desktopAttrs?.sizes || HERO_POSTER_SIZES}
             alt=""
             fetchPriority="high"
             decoding="async"

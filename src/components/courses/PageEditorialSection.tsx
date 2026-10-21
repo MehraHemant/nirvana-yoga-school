@@ -125,7 +125,6 @@ export default function PageEditorialSection({
                     src={url}
                     alt={section.title}
                     fill
-                    unoptimized
                     sizes="(max-width: 1024px) 50vw, 25vw"
                     className="object-cover"
                   />

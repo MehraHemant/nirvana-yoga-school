@@ -250,7 +250,6 @@ export default function VideoPlaylistPlayer({
                     fill
                     sizes="(max-width: 1024px) 100vw, 66vw"
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    priority
                   />
                   <span
                     className="absolute inset-0 bg-ink/30 transition-colors group-hover:bg-ink/40"

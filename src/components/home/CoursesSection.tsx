@@ -1,8 +1,15 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Container, CourseCard, SectionHeader } from "@/components/ui";
+import {
+  COURSE_CARD_IMAGE_SIZES,
+  Container,
+  CourseCard,
+  PrefetchWhenNear,
+  SectionHeader,
+} from "@/components/ui";
 import type { HomeCoursesSectionContent } from "@/content/types/dedicated-pages";
+import { PHOTO_IMAGE_QUALITY } from "@/lib/cdn/responsive-image";
 import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 import { resolveSectionHtmlId } from "@/lib/html-id";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
@@ -26,8 +33,16 @@ export default function CoursesSection({
   return (
     <section
       id={resolveSectionHtmlId("courses", content._id)}
-      className="scroll-mt-28 bg-white section-padding-y-courses"
+      className="relative scroll-mt-28 bg-white section-padding-y-courses"
     >
+      <PrefetchWhenNear
+        limit={6}
+        images={cards.map((course) => ({
+          src: course.image,
+          sizes: COURSE_CARD_IMAGE_SIZES,
+          quality: PHOTO_IMAGE_QUALITY,
+        }))}
+      />
       <Container size="2xl">
         <motion.div
           className="mb-8 flex flex-col gap-4 sm:mb-10 md:mb-14 lg:flex-row lg:items-end lg:justify-between"

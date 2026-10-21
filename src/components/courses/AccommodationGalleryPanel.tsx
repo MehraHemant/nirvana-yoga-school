@@ -16,6 +16,11 @@ import {
 } from "@/content/types/cms-image";
 import type { SharedGalleryImage } from "@/content/types/shared-sections";
 import { ChevronLeft, ChevronRight } from "@/icons";
+import { prefetchResponsiveImage } from "@/lib/cdn/prefetch-image";
+import {
+  ACCOMMODATION_STAGE_SIZES,
+  PHOTO_IMAGE_QUALITY,
+} from "@/lib/cdn/responsive-image";
 import { EASE_OUT } from "@/lib/motion";
 
 type ImageGalleryPanelProps = {
@@ -70,6 +75,23 @@ export function ImageGalleryPanel({
   const goNext = useCallback(() => {
     setActiveIndex((i) => (i + 1) % images.length);
   }, [images.length]);
+
+  // Warm the photos the arrows and autoplay will show next, at the stage size.
+  useEffect(() => {
+    if (images.length < 2) return;
+    const upcoming = [
+      images[(activeIndex + 1) % images.length],
+      images[(activeIndex - 1 + images.length) % images.length],
+    ];
+    for (const image of upcoming) {
+      if (!image?.url) continue;
+      prefetchResponsiveImage(
+        image.url,
+        ACCOMMODATION_STAGE_SIZES,
+        PHOTO_IMAGE_QUALITY,
+      );
+    }
+  }, [activeIndex, images]);
 
   // Auto-advance the gallery — only while in view; pauses on hover/focus and
   // respects reduced motion.
@@ -147,9 +169,8 @@ export function ImageGalleryPanel({
                 src={active.url}
                 alt={activeAlt}
                 fill
-                priority={activeIndex === 0}
-                unoptimized
-                sizes="(max-width: 1024px) 100vw, 45vw"
+                sizes={ACCOMMODATION_STAGE_SIZES}
+                quality={PHOTO_IMAGE_QUALITY}
                 className="object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-[1.03]"
               />
             </motion.button>
@@ -237,7 +258,6 @@ export function ImageGalleryPanel({
                       alt={item.alt || item.title}
                       fill
                       sizes="96px"
-                      unoptimized
                       className="object-cover"
                     />
                   </button>

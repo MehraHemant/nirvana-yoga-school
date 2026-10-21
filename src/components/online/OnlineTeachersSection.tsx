@@ -55,12 +55,8 @@ export default function OnlineTeachersSection({
         variants={listVariants}
         className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6 lg:grid-cols-3"
       >
-        {teachers.map((teacher, index) => (
-          <OnlineTeacherCard
-            key={teacher.name}
-            teacher={teacher}
-            priority={index === 0}
-          />
+        {teachers.map((teacher) => (
+          <OnlineTeacherCard key={teacher.name} teacher={teacher} />
         ))}
       </motion.div>
     </OnlineSectionShell>

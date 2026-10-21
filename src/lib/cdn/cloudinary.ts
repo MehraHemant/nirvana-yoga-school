@@ -48,7 +48,7 @@ function ensureCloudinary() {
 }
 
 /**
- * Maximum allowed image upload size in bytes (1MB).
+ * Maximum allowed image upload size in bytes (4MB).
  */
 export function maxUploadBytes(): number {
   return MAX_UPLOAD_BYTES;

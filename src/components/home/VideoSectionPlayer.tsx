@@ -321,7 +321,6 @@ export default function VideoSectionPlayer({
                           fill
                           sizes="(max-width: 1024px) 100vw, 66vw"
                           className="object-cover transition-transform duration-500 group-hover:scale-105"
-                          priority
                         />
                       ) : (
                         <Image
@@ -330,7 +329,6 @@ export default function VideoSectionPlayer({
                           fill
                           sizes="(max-width: 1024px) 100vw, 66vw"
                           className="object-cover transition-transform duration-500 group-hover:scale-105"
-                          priority
                         />
                       )}
                       <span

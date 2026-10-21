@@ -1,3 +1,4 @@
+import { SiteSessionProvider } from "@/components/auth/SiteSessionProvider";
 import QuizLauncher from "@/components/quiz/QuizLauncher";
 import DeferredChatWidget from "@/components/ui/DeferredChatWidget";
 import Header from "@/components/ui/Header";
@@ -7,9 +8,7 @@ import {
   getGlobalHeader,
   getSiteConfig,
 } from "@/content/repositories/global-settings";
-import { getSiteServerSession } from "@/lib/auth/site-session";
-import { getQuizEligibility, type QuizEligibility } from "@/lib/quiz/attempts";
-import { listQuizQuestions } from "@/lib/quiz/questions";
+import { hasActiveQuizQuestions } from "@/lib/quiz/questions";
 import { getQuizSettings } from "@/lib/quiz/settings";
 import HideOnImmersive from "./HideOnImmersive";
 import SiteFooterGate from "./SiteFooterGate";
@@ -44,45 +43,25 @@ async function loadSiteChrome() {
 }
 
 /**
- * Public site shell — server-passed chrome + global FABs.
+ * Public site shell — server-passed chrome + global FABs. Reads no cookies, so
+ * pages below it can be statically cached; the signed-in account loads in the
+ * browser via {@link SiteSessionProvider}.
  *
  * @param props - Nested page content
  */
 export default async function SiteLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const [{ header, footer, whatsappNumber }, siteSession, quizSettings] =
-    await Promise.all([
-      loadSiteChrome(),
-      getSiteServerSession().catch(() => null),
-      getQuizSettings(),
-    ]);
+  const [{ header, footer, whatsappNumber }, quizSettings] = await Promise.all([
+    loadSiteChrome(),
+    getQuizSettings(),
+  ]);
   const quizOpen =
-    quizSettings.live &&
-    (await listQuizQuestions({ activeOnly: true })
-      .then((questions) => questions.length > 0)
-      .catch(() => false));
-  const quizEligibility: QuizEligibility | null =
-    quizOpen && siteSession
-      ? await getQuizEligibility(
-          siteSession.userId,
-          quizSettings.monthlyLimit,
-        ).catch(() => ({
-          remaining: quizSettings.monthlyLimit,
-          nextAvailableAt: null,
-        }))
-      : null;
+    quizSettings.live && (await hasActiveQuizQuestions().catch(() => false));
 
   return (
-    <>
-      <Header
-        initialData={header}
-        siteUser={
-          siteSession
-            ? { name: siteSession.name, email: siteSession.email }
-            : null
-        }
-      />
+    <SiteSessionProvider>
+      <Header initialData={header} />
       <SiteMain>{children}</SiteMain>
       <SiteFooterGate initialData={footer} />
       <HideOnImmersive>
@@ -91,9 +70,6 @@ export default async function SiteLayout({
       </HideOnImmersive>
       {quizOpen ? (
         <QuizLauncher
-          name={siteSession?.name}
-          remainingChances={quizEligibility?.remaining ?? null}
-          nextAvailableAt={quizEligibility?.nextAvailableAt ?? null}
           monthlyLimit={quizSettings.monthlyLimit}
           label={quizSettings.launcherLabel}
           tagline={quizSettings.launcherTagline}
@@ -101,6 +77,6 @@ export default async function SiteLayout({
         />
       ) : null}
       <SiteMobileStickyBarGate />
-    </>
+    </SiteSessionProvider>
   );
 }

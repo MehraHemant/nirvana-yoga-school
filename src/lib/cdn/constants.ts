@@ -1,8 +1,8 @@
-/** Maximum image upload size in bytes (1MB). */
-export const MAX_UPLOAD_BYTES = 1_048_576;
+/** Maximum image upload size in bytes (4MB). */
+export const MAX_UPLOAD_BYTES = 4_194_304;
 
 /** Human-readable upload limit label for admin UI and errors. */
-export const MAX_UPLOAD_LABEL = "1MB";
+export const MAX_UPLOAD_LABEL = "4MB";
 
 /** Maximum video upload size in bytes (100MB). */
 export const MAX_VIDEO_UPLOAD_BYTES = 104_857_600;

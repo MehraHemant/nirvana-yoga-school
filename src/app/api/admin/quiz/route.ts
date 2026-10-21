@@ -12,7 +12,11 @@ import {
 import { getServerSession } from "@/lib/cms/auth";
 import { invalidateGlobalSettingsCache } from "@/lib/cms/cache";
 import { db } from "@/lib/db";
-import { listQuizQuestions, replaceQuizQuestions } from "@/lib/quiz/questions";
+import {
+  invalidateQuizQuestionsCache,
+  listQuizQuestions,
+  replaceQuizQuestions,
+} from "@/lib/quiz/questions";
 import { getQuizSettings, QUIZ_SETTINGS_KEY } from "@/lib/quiz/settings";
 
 /**
@@ -67,6 +71,7 @@ export async function PUT(request: Request) {
 
   try {
     const saved = await replaceQuizQuestions(questions);
+    invalidateQuizQuestionsCache();
     await db.globalSettings.upsert({
       where: { key: QUIZ_SETTINGS_KEY },
       update: { value: settings },

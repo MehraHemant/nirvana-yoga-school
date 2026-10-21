@@ -1,3 +1,4 @@
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import type { Metadata } from "next";
 import { Lora, Poppins } from "next/font/google";
 import { getSiteConfig } from "@/content/repositories/global-settings";

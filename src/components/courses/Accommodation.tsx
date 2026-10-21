@@ -3,13 +3,17 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { Container, MediaLightbox } from "@/components/ui";
+import { Container, MediaLightbox, PrefetchWhenNear } from "@/components/ui";
 import type {
   ResidentialLifeContent,
   SharedAccommodationGallery,
   SharedFacility,
   SharedGalleryImage,
 } from "@/content/types/shared-sections";
+import {
+  ACCOMMODATION_STAGE_SIZES,
+  PHOTO_IMAGE_QUALITY,
+} from "@/lib/cdn/responsive-image";
 import { shouldRenderSection } from "@/lib/cms/section-visibility";
 import { resolveSectionHtmlId } from "@/lib/html-id";
 import { EASE_OUT, reducedTransition } from "@/lib/motion";
@@ -78,7 +82,6 @@ function RoomTypeSelector({
                       alt={room.label}
                       fill
                       sizes="50px"
-                      unoptimized
                       className={`object-cover transition-transform duration-500 ${isActive ? "scale-105" : "group-hover:scale-105"}`}
                     />
                   )}
@@ -254,15 +257,19 @@ export default function Accommodation({
         aria-hidden="true"
       />
 
-      {/* Hidden preloader for room tab cover photos */}
-      <div className="hidden" aria-hidden="true">
-        {galleries.map((room) =>
-          room.images[0]?.url ? (
-            /* biome-ignore lint/performance/noImgElement: preloader */
-            <img key={`preload-${room.id}`} src={room.images[0].url} alt="" />
-          ) : null,
+      <PrefetchWhenNear
+        limit={8}
+        images={galleries.flatMap((room) =>
+          room.images
+            .filter((image) => image.url.trim())
+            .slice(0, room.id === roomTab ? 4 : 1)
+            .map((image) => ({
+              src: image.url,
+              sizes: ACCOMMODATION_STAGE_SIZES,
+              quality: PHOTO_IMAGE_QUALITY,
+            })),
         )}
-      </div>
+      />
 
       <Container size="2xl" className="relative w-full">
         <div className="grid items-start gap-6 lg:grid-cols-12 lg:gap-8 xl:gap-10">

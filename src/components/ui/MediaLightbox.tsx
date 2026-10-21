@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useCallback, useEffect, useRef } from "react";
 import YouTubeThumbImage from "@/components/ui/YouTubeThumbImage";
 import { ChevronLeft, ChevronRight, Close, Play } from "@/icons";
+import { PHOTO_IMAGE_QUALITY } from "@/lib/cdn/responsive-image";
 import { EASE_OUT } from "@/lib/motion";
 
 interface MediaItem {
@@ -182,7 +183,8 @@ export default function MediaLightbox({
                 src={activeItem.url}
                 alt={`${title} - Item ${activeIndex + 1}`}
                 fill
-                sizes="(max-width: 1200px) 100vw, 1024px"
+                sizes="(max-width: 1200px) 100vw, min(100vw, 1600px)"
+                quality={PHOTO_IMAGE_QUALITY}
                 className="object-contain pointer-events-none"
                 priority
               />

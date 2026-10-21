@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useSiteSession } from "@/components/auth/SiteSessionProvider";
 import { Button } from "@/components/ui";
 import { LogOut } from "@/icons";
 import { ACCOUNT_CARD_CLASS } from "./format";
@@ -70,6 +71,7 @@ export default function AccountSettings({
   onNameSaved,
 }: AccountSettingsProps) {
   const router = useRouter();
+  const { refresh: refreshSession } = useSiteSession();
   const [draftName, setDraftName] = useState(name);
   const [nameState, setNameState] = useState<FormState>({ kind: "idle" });
   const [currentPassword, setCurrentPassword] = useState("");
@@ -120,6 +122,7 @@ export default function AccountSettings({
   async function logout() {
     setLoggingOut(true);
     await fetch("/api/auth/logout", { method: "POST" }).catch(() => null);
+    await refreshSession();
     router.push("/");
     router.refresh();
   }

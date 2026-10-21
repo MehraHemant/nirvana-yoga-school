@@ -1,4 +1,5 @@
 import { CourseStickyNav } from "@/components/courses";
+import { HeroPosterPreloads } from "@/components/hero/ResponsiveImagePreload";
 import { YttHubCoursesSection } from "@/components/home/ytt-hub";
 import {
   OnlineHubBenefits,
@@ -77,28 +78,10 @@ export default async function OnlineHubPage({ page }: OnlineHubPageProps) {
     <div className="ytt-hub-page bg-white">
       {showHero && heroModule && heroVideo ? (
         <>
-          {heroVideo.mobilePoster || heroVideo.desktopPoster ? (
-            <>
-              {heroVideo.mobilePoster ? (
-                <link
-                  rel="preload"
-                  as="image"
-                  href={heroVideo.mobilePoster}
-                  media="(max-width: 767px)"
-                  fetchPriority="high"
-                />
-              ) : null}
-              {heroVideo.desktopPoster ? (
-                <link
-                  rel="preload"
-                  as="image"
-                  href={heroVideo.desktopPoster}
-                  media="(min-width: 768px)"
-                  fetchPriority="high"
-                />
-              ) : null}
-            </>
-          ) : null}
+          <HeroPosterPreloads
+            mobileSrc={heroVideo.mobilePoster || heroVideo.desktopPoster}
+            desktopSrc={heroVideo.desktopPoster || heroVideo.mobilePoster}
+          />
           <OnlineHubHeroSection hero={heroModule} />
         </>
       ) : null}
