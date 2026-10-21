@@ -1,7 +1,8 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import Image, { type StaticImageData } from "next/image";
+import type { StaticImageData } from "next/image";
+import Image from "@/components/ui/CdnImage";
 import { Plus } from "@/icons";
 import { EASE_OUT } from "@/lib/motion";
 
@@ -51,7 +52,6 @@ export default function FAQItem({
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
             className={`object-cover transition-all duration-700 ease-out ${isActive ? "scale-105 opacity-45 grayscale-0" : "scale-100 opacity-25 grayscale group-hover:scale-102 group-hover:opacity-40 group-hover:grayscale-0"}`}
-            priority={index === 0}
           />
           <div
             className={`absolute inset-0 transition-colors duration-500 ${isActive ? "bg-linear-to-r from-primary/90 via-primary/75 to-transparent" : "bg-linear-to-r from-primary/80 via-primary/60 to-transparent group-hover:from-primary/70 group-hover:via-primary/50"}`}
@@ -66,9 +66,7 @@ export default function FAQItem({
         onClick={onToggle}
         className={`relative z-10 flex w-full cursor-pointer items-center justify-between gap-4 p-5 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 sm:p-6 ${hasImage ? "md:p-7" : ""}`}
       >
-        <span
-          className={`type-h4 ${hasImage ? "text-white" : "text-ink"}`}
-        >
+        <span className={`type-h4 ${hasImage ? "text-white" : "text-ink"}`}>
           {question}
         </span>
         <span

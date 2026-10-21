@@ -1,13 +1,22 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
-import { Container, MediaLightbox, SectionHeader } from "@/components/ui";
+import {
+  Container,
+  MediaLightbox,
+  PrefetchWhenNear,
+  SectionHeader,
+} from "@/components/ui";
+import Image from "@/components/ui/CdnImage";
 import type {
   HomeGalleryItem,
   HomeGallerySectionContent,
 } from "@/content/types/dedicated-pages";
+import {
+  MASONRY_TILE_SIZES,
+  PHOTO_IMAGE_QUALITY,
+} from "@/lib/cdn/responsive-image";
 import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 import { resolveSectionHtmlId } from "@/lib/html-id";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
@@ -148,6 +157,14 @@ export default function GallerySection({
       className="section-white"
     >
       <Container size="2xl" className="relative">
+        <PrefetchWhenNear
+          limit={12}
+          images={visibleItems.map((item) => ({
+            src: item.src,
+            sizes: MASONRY_TILE_SIZES,
+            quality: PHOTO_IMAGE_QUALITY,
+          }))}
+        />
         <motion.div
           initial="hidden"
           whileInView="visible"
@@ -231,7 +248,7 @@ export default function GallerySection({
                       <AnimatePresence mode="popLayout">
                         <motion.div
                           key={item.id}
-                          initial={{ opacity: 0 }}
+                          initial={{ opacity: 1 }}
                           animate={{ opacity: 1 }}
                           exit={{ opacity: 0 }}
                           transition={{ duration: 0.8, ease: "easeInOut" }}
@@ -241,7 +258,8 @@ export default function GallerySection({
                             src={item.src}
                             alt={item.alt}
                             fill
-                            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                            sizes={MASONRY_TILE_SIZES}
+                            quality={PHOTO_IMAGE_QUALITY}
                             draggable={false}
                             className="object-cover transition-transform duration-700 ease-out group-hover:scale-105 pointer-events-none"
                           />

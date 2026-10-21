@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Image from "@/components/ui/CdnImage";
 import { stripHtml } from "@/lib/cms/blog-html";
 import {
   FLOURISH_PATHS,

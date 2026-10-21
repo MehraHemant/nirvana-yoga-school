@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Image from "next/image";
+import Image from "@/components/ui/CdnImage";
 import SectionBlocksRenderer from "@/components/courses/SectionBlocksRenderer";
 import { Container, SectionHeader } from "@/components/ui";
 import type { SitePageSection } from "@/content/types";
@@ -125,7 +125,6 @@ export default function PageEditorialSection({
                     src={url}
                     alt={section.title}
                     fill
-                    unoptimized
                     sizes="(max-width: 1024px) 50vw, 25vw"
                     className="object-cover"
                   />

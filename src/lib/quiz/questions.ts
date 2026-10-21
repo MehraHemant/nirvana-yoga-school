@@ -1,4 +1,5 @@
 import "server-only";
+import { revalidateTag, unstable_cache } from "next/cache";
 import type {
   PublicQuizQuestion,
   QuizOption,
@@ -101,6 +102,29 @@ export async function listQuizQuestions(
       ORDER BY "sort_order" ASC, "created_at" ASC`,
   );
   return rows.map(toQuestion);
+}
+
+/** Cache tag for the public "is the quiz open" check. */
+const QUIZ_QUESTIONS_TAG = "quiz-questions";
+
+/**
+ * Whether at least one active question exists — cached for the site shell so
+ * public pages stay static. Busted by {@link invalidateQuizQuestionsCache}.
+ */
+export const hasActiveQuizQuestions = unstable_cache(
+  async (): Promise<boolean> => {
+    const questions = await listQuizQuestions({ activeOnly: true });
+    return questions.length > 0;
+  },
+  ["quiz-has-active-questions"],
+  { tags: [QUIZ_QUESTIONS_TAG], revalidate: 3600 },
+);
+
+/**
+ * Invalidates cached quiz-question lookups after admin edits.
+ */
+export function invalidateQuizQuestionsCache(): void {
+  revalidateTag(QUIZ_QUESTIONS_TAG, "max");
 }
 
 /**

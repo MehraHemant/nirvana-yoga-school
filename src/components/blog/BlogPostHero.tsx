@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "@/components/ui/CdnImage";
 import Link from "next/link";
 import { HeroFrame } from "@/components/hero";
 import { Container } from "@/components/ui";

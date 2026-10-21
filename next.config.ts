@@ -41,16 +41,23 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     optimizePackageImports: ["framer-motion"],
-    // Allow CMS Cloudinary video uploads through the admin proxy (images stay ≤1MB).
+    // Allow CMS Cloudinary video uploads through the admin proxy (images stay ≤4MB).
     proxyClientMaxBodySize: "100mb",
     serverActions: {
       bodySizeLimit: "100mb",
     },
   },
   images: {
-    formats: ["image/avif", "image/webp"],
+    // Resize on the image's own CDN (mostly Cloudinary) instead of the Vercel
+    // optimizer — see `src/lib/cdn/image-loader.ts`. Custom loader disables
+    // `/_next/image`, so Cloudinary bytes are not fetched and re-encoded by Vercel.
+    loader: "custom",
+    loaderFile: "./src/lib/cdn/image-loader.ts",
+    // Cap the srcset at the hero width. The default 3840 slot made full-bleed
+    // photos request a larger file than the layout can show.
+    deviceSizes: [640, 750, 828, 1080, 1200, 1536, 1920, 2048, 2400],
+    imageSizes: [32, 48, 64, 96, 128, 256, 384, 512],
     qualities: [75, 85],
-    minimumCacheTTL: 60 * 60 * 24 * 30,
     remotePatterns: [
       {
         protocol: "https",

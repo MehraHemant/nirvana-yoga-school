@@ -1,3 +1,5 @@
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
 import { Lora, Poppins } from "next/font/google";
 import { getSiteConfig } from "@/content/repositories/global-settings";
@@ -110,6 +112,8 @@ export default function RootLayout({
     >
       <body className="flex min-h-full flex-col bg-white text-ink">
         {children}
+        <SpeedInsights />
+        <Analytics />
       </body>
     </html>
   );

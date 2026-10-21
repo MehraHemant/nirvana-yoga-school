@@ -55,7 +55,7 @@ function parseTagsFromForm(raw: FormDataEntryValue | null): string[] {
 }
 
 /**
- * Upload an image (max 1MB) or video (max 100MB) to Cloudinary with optional
+ * Upload an image (max 4MB) or video (max 100MB) to Cloudinary with optional
  * caption/title, description/alt, and tags. Images are also upserted into
  * lodging `media_images` for room/food galleries.
  */

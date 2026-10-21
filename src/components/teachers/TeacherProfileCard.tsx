@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import Image from "next/image";
+import Image from "@/components/ui/CdnImage";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { TeacherProfile } from "@/components/home/TeachersSection";

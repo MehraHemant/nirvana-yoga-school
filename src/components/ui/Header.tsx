@@ -1,13 +1,11 @@
 "use client";
 
-import Image from "next/image";
+import Image from "@/components/ui/CdnImage";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Fragment, useEffect, useId, useLayoutEffect, useState } from "react";
-import HeaderAuth, {
-  type HeaderSiteUser,
-  initialsOf,
-} from "@/components/auth/HeaderAuth";
+import HeaderAuth, { initialsOf } from "@/components/auth/HeaderAuth";
+import { useSiteSession } from "@/components/auth/SiteSessionProvider";
 import { type NavItem, navItemHref, navLinkHref } from "@/constants/navigation";
 import type { GlobalHeader, HeaderCta } from "@/content/types/global-settings";
 import { ArrowRight, ChevronDown, MenuIcon, User } from "@/icons";
@@ -323,8 +321,6 @@ function MobileNavItem({
 type HeaderProps = {
   /** Server-loaded header settings from the site layout */
   initialData?: HeaderData | null;
-  /** Signed-in public account, when a site session cookie is present. */
-  siteUser?: HeaderSiteUser | null;
 };
 
 /**
@@ -332,11 +328,9 @@ type HeaderProps = {
  *
  * @param props - Server-provided header settings (no client API fetch)
  */
-export default function Header({
-  initialData = null,
-  siteUser = null,
-}: HeaderProps) {
+export default function Header({ initialData = null }: HeaderProps) {
   const pathname = usePathname();
+  const { ready: sessionReady, user: siteUser } = useSiteSession();
 
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -529,11 +523,15 @@ export default function Header({
                 aria-hidden="true"
               />
             ) : null}
-            <HeaderAuth
-              layout="desktop"
-              lightNav={lightNav}
-              siteUser={siteUser}
-            />
+            {/* Hidden (not removed) until the session loads, so the bar
+                doesn't flash "Log in" for signed-in visitors or shift. */}
+            <div className={`contents ${sessionReady ? "" : "invisible"}`}>
+              <HeaderAuth
+                layout="desktop"
+                lightNav={lightNav}
+                siteUser={siteUser}
+              />
+            </div>
           </div>
 
           <Link

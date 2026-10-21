@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { HeroPosterPreloads } from "@/components/hero/ResponsiveImagePreload";
 import { getSitePage } from "@/content";
 import { normalizeVenueHero } from "@/content/mappers/venue-hero";
 import {
@@ -63,27 +64,11 @@ export default async function Page({ params }: PageProps) {
 
   return (
     <>
-      {showHero && (heroVideo.mobilePoster || heroVideo.desktopPoster) ? (
-        <>
-          {heroVideo.mobilePoster ? (
-            <link
-              rel="preload"
-              as="image"
-              href={heroVideo.mobilePoster}
-              media="(max-width: 767px)"
-              fetchPriority="high"
-            />
-          ) : null}
-          {heroVideo.desktopPoster ? (
-            <link
-              rel="preload"
-              as="image"
-              href={heroVideo.desktopPoster}
-              media="(min-width: 768px)"
-              fetchPriority="high"
-            />
-          ) : null}
-        </>
+      {showHero ? (
+        <HeroPosterPreloads
+          mobileSrc={heroVideo.mobilePoster || heroVideo.desktopPoster}
+          desktopSrc={heroVideo.desktopPoster || heroVideo.mobilePoster}
+        />
       ) : null}
       <VenueClient
         page={data.page}

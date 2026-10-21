@@ -1,4 +1,5 @@
 import { CourseStickyNav, ExamCertification } from "@/components/courses";
+import { HeroPosterPreloads } from "@/components/hero/ResponsiveImagePreload";
 import { MapSection } from "@/components/home";
 import {
   YttHubCoursesSection,
@@ -126,22 +127,10 @@ export default async function YttHubPage() {
   return (
     <div className="ytt-hub-page bg-white">
       {heroVideo?.mobilePoster || hub.heroImage ? (
-        <>
-          <link
-            rel="preload"
-            as="image"
-            href={heroVideo?.mobilePoster?.trim() || hub.heroImage}
-            media="(max-width: 767px)"
-            fetchPriority="high"
-          />
-          <link
-            rel="preload"
-            as="image"
-            href={heroVideo?.desktopPoster?.trim() || hub.heroImage}
-            media="(min-width: 768px)"
-            fetchPriority="high"
-          />
-        </>
+        <HeroPosterPreloads
+          mobileSrc={heroVideo?.mobilePoster?.trim() || hub.heroImage}
+          desktopSrc={heroVideo?.desktopPoster?.trim() || hub.heroImage}
+        />
       ) : null}
 
       <YttHubHeroSection hub={hub} />

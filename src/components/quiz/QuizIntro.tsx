@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import Image from "next/image";
+import Image from "@/components/ui/CdnImage";
 import { Button, Container } from "@/components/ui";
 import type { QuizSettings } from "@/content/types/quiz";
 import { ArrowRight, BookOpen, Clock, Star } from "@/icons";
@@ -148,7 +148,7 @@ export function QuizIntro({
         className="relative order-first aspect-16/10 overflow-hidden rounded-[1.5rem] shadow-[0_24px_60px_-36px_rgb(26_20_16/0.45)] lg:order-none lg:aspect-4/5 lg:max-h-[calc(100svh-var(--site-header-height)-7rem)] lg:w-full"
       >
         <Image
-          src="/images/yoga-auth-bg.jpg"
+          src="/images/yoga-auth-bg.webp"
           alt="Yoga practice at sunrise above the Himalayan foothills"
           fill
           priority

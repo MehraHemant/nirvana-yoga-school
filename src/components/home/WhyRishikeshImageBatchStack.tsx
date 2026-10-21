@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, type Variants } from "framer-motion";
-import Image from "next/image";
+import Image from "@/components/ui/CdnImage";
 import type { HomeWhyRishikeshTrustLogo } from "@/content/types/dedicated-pages";
 import { VIEWPORT_ONCE } from "@/lib/motion";
 

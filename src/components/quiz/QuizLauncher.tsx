@@ -4,18 +4,13 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
 import AuthFields, { type AuthMode } from "@/components/auth/AuthFields";
+import { useSiteSession } from "@/components/auth/SiteSessionProvider";
 import { Button } from "@/components/ui";
 import { Check, Close, Lotus } from "@/icons";
 import { EASE_OUT, reducedTransition } from "@/lib/motion";
 import { formatQuizNextDate } from "@/lib/quiz/format-next-date";
 
 type QuizLauncherProps = {
-  /** Signed-in account name. Absent when the visitor is not logged in. */
-  name?: string;
-  /** Attempts left this month. Null while logged out. */
-  remainingChances?: number | null;
-  /** ISO instant the next chance opens, once both are used. */
-  nextAvailableAt?: string | null;
   /** Monthly attempt allowance, shown on the limit notice. */
   monthlyLimit: number;
   /** Button title from the CMS. */
@@ -66,9 +61,6 @@ function firstName(name: string): string {
  * @param props - Session name, monthly chances, and the next open date
  */
 export default function QuizLauncher({
-  name,
-  remainingChances = null,
-  nextAvailableAt = null,
   monthlyLimit,
   label,
   tagline,
@@ -77,6 +69,10 @@ export default function QuizLauncher({
   const pathname = usePathname();
   const router = useRouter();
   const reduced = useReducedMotion() ?? false;
+  const session = useSiteSession();
+  const name = session.user?.name;
+  const remainingChances = session.quiz?.remaining ?? null;
+  const nextAvailableAt = session.quiz?.nextAvailableAt ?? null;
   const titleId = useId();
   const [view, setView] = useState<ModalView | null>(null);
   const [authMode, setAuthMode] = useState<AuthMode>("signup");
@@ -144,6 +140,7 @@ export default function QuizLauncher({
 
   function onAuthSuccess() {
     setView(null);
+    void session.refresh();
     router.push(QUIZ_PATH);
     router.refresh();
   }

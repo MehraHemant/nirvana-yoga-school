@@ -1,11 +1,9 @@
 "use client";
 
-import Image, { type ImageProps } from "next/image";
+import type { ImageProps } from "next/image";
 import { useState } from "react";
-import {
-  nextYouTubeThumbnailUrl,
-  youTubeThumbnailUrl,
-} from "@/lib/youtube";
+import Image from "@/components/ui/CdnImage";
+import { nextYouTubeThumbnailUrl, youTubeThumbnailUrl } from "@/lib/youtube";
 
 type YouTubeThumbImageProps = Omit<ImageProps, "src" | "onError"> & {
   /** YouTube video ID used to build the thumbnail URL when `src` is unset */
@@ -28,6 +26,11 @@ export default function YouTubeThumbImage({
 }: YouTubeThumbImageProps) {
   const initial = src?.trim() || youTubeThumbnailUrl(videoId);
   const [currentSrc, setCurrentSrc] = useState(initial);
+  const [seenSrc, setSeenSrc] = useState(initial);
+  if (seenSrc !== initial) {
+    setSeenSrc(initial);
+    setCurrentSrc(initial);
+  }
 
   return (
     <Image

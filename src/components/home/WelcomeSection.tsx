@@ -6,11 +6,19 @@ import {
   useReducedMotion,
   type Variants,
 } from "framer-motion";
-import Image from "next/image";
 import { useEffect, useState } from "react";
-import { Button, Container, Heading, Pill, YouTubeThumbImage } from "@/components/ui";
+import {
+  Button,
+  Container,
+  Heading,
+  Pill,
+  YouTubeThumbImage,
+} from "@/components/ui";
+import Image from "@/components/ui/CdnImage";
+import PosterVideo from "@/components/ui/PosterVideo";
 import type { HomeWelcomeContent } from "@/content/types/dedicated-pages";
 import { Check, Play } from "@/icons";
+import { PHOTO_IMAGE_QUALITY } from "@/lib/cdn/responsive-image";
 import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 import { resolveSectionHtmlId } from "@/lib/html-id";
 import { EASE_OUT, reducedTransition, VIEWPORT_ONCE } from "@/lib/motion";
@@ -102,8 +110,7 @@ function WelcomeVideoPlayer({
   const youtubeId = parseYouTubeId(url);
   const isMp4 = /\.mp4($|\?)/i.test(url);
   const posterSrc =
-    poster?.trim() ||
-    (youtubeId ? youTubeThumbnailUrl(youtubeId) : "");
+    poster?.trim() || (youtubeId ? youTubeThumbnailUrl(youtubeId) : "");
 
   if (playing && youtubeId) {
     return (
@@ -122,13 +129,15 @@ function WelcomeVideoPlayer({
   if (playing && isMp4) {
     return (
       <div className="relative aspect-video w-full overflow-hidden rounded-3xl border border-ink/5 bg-ink shadow-card">
-        {/* biome-ignore lint/a11y/useMediaCaption: CMS overview promo clip */}
-        <video
+        <PosterVideo
           src={url}
-          poster={posterSrc || undefined}
+          poster={posterSrc}
           controls
           autoPlay
           playsInline
+          preload="auto"
+          aria-label={title}
+          sizes="(max-width: 1024px) 100vw, 480px"
           className="absolute inset-0 h-full w-full object-cover"
         />
       </div>
@@ -152,8 +161,10 @@ function WelcomeVideoPlayer({
             alt=""
             fill
             sizes="(max-width: 1024px) 100vw, 480px"
+            quality={PHOTO_IMAGE_QUALITY}
+            loading="eager"
+            fetchPriority="low"
             className="object-cover transition-transform duration-700 group-hover:scale-105"
-            priority
           />
         ) : (
           <Image
@@ -161,8 +172,10 @@ function WelcomeVideoPlayer({
             alt=""
             fill
             sizes="(max-width: 1024px) 100vw, 480px"
+            quality={PHOTO_IMAGE_QUALITY}
+            loading="eager"
+            fetchPriority="low"
             className="object-cover transition-transform duration-700 group-hover:scale-105"
-            priority
           />
         )
       ) : (
@@ -314,8 +327,10 @@ export default function WelcomeSection({
                       alt={imageA.alt}
                       fill
                       sizes="(max-width: 1024px) 50vw, 320px"
+                      quality={PHOTO_IMAGE_QUALITY}
+                      loading="eager"
+                      fetchPriority="low"
                       className="object-cover transition-transform duration-700 group-hover:scale-105"
-                      priority
                     />
                   </motion.div>
                 </motion.div>
@@ -350,6 +365,9 @@ export default function WelcomeSection({
                       alt={imageB.alt}
                       fill
                       sizes="(max-width: 1024px) 50vw, 320px"
+                      quality={PHOTO_IMAGE_QUALITY}
+                      loading="eager"
+                      fetchPriority="low"
                       className="object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                   </motion.div>
@@ -385,6 +403,9 @@ export default function WelcomeSection({
                       alt={imageC.alt}
                       fill
                       sizes="(max-width: 1024px) 50vw, 320px"
+                      quality={PHOTO_IMAGE_QUALITY}
+                      loading="eager"
+                      fetchPriority="low"
                       className="object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                   </motion.div>
@@ -409,7 +430,12 @@ export default function WelcomeSection({
               variants={rightColumnItem}
               className="space-y-3 sm:space-y-4"
             >
-              <Heading as="h2" align="left" size="h2" className="text-balance font-semibold">
+              <Heading
+                as="h2"
+                align="left"
+                size="h2"
+                className="text-balance font-semibold"
+              >
                 {content.title}
               </Heading>
               {/* <div
@@ -420,9 +446,7 @@ export default function WelcomeSection({
 
             {/* Lead Story Paragraph */}
             <motion.div variants={rightColumnItem}>
-              <p className="type-body-lg">
-                {content.lead}
-              </p>
+              <p className="type-body-lg">{content.lead}</p>
             </motion.div>
 
             {/* Split Grid for Vision and Promise */}
@@ -436,9 +460,7 @@ export default function WelcomeSection({
                     <span className="text-primary font-medium text-sm uppercase tracking-wide block">
                       {content.vision.label}
                     </span>
-                    <p className="text-body">
-                      {content.vision.body}
-                    </p>
+                    <p className="text-body">{content.vision.body}</p>
                   </div>
                 ) : null}
 
@@ -447,9 +469,7 @@ export default function WelcomeSection({
                     <span className="text-primary font-medium text-sm uppercase tracking-wide block">
                       {content.promise.label}
                     </span>
-                    <p className="text-body">
-                      {content.promise.body}
-                    </p>
+                    <p className="text-body">{content.promise.body}</p>
                   </div>
                 ) : null}
               </motion.div>
@@ -469,9 +489,7 @@ export default function WelcomeSection({
                     <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary mt-0.5">
                       <Check size={10} strokeWidth={3} />
                     </span>
-                    <span className="type-ui font-medium text-ink">
-                      {item}
-                    </span>
+                    <span className="type-ui font-medium text-ink">{item}</span>
                   </div>
                 ))}
               </motion.div>

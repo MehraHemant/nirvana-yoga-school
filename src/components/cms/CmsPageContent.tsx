@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "@/components/ui/CdnImage";
 import Link from "next/link";
 import { BlogHtmlContent } from "@/components/blog/BlogHtmlContent";
 import { Button, Container, Heading } from "@/components/ui";

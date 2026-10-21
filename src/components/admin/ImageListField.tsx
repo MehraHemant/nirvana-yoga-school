@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Image from "@/components/ui/CdnImage";
 import { useRef, useState } from "react";
 import {
   type CmsInteractiveImage,

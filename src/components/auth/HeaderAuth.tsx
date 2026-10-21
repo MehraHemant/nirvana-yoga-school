@@ -4,6 +4,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
+import { useSiteSession } from "@/components/auth/SiteSessionProvider";
 import Button from "@/components/ui/Button";
 import { ChevronDown, LogOut, Lotus, Receipt, Settings, User } from "@/icons";
 import { EASE_OUT, reducedTransition } from "@/lib/motion";
@@ -91,6 +92,7 @@ export default function HeaderAuth({
   layout,
 }: HeaderAuthProps) {
   const router = useRouter();
+  const { refresh: refreshSession } = useSiteSession();
   const pathname = usePathname();
   const reduced = useReducedMotion() ?? false;
   const menuId = useId();
@@ -124,6 +126,7 @@ export default function HeaderAuth({
     setLoggingOut(true);
     try {
       await fetch("/api/auth/logout", { method: "POST" });
+      await refreshSession();
       setOpen(false);
       onNavigate?.();
       if (pathname?.startsWith("/account")) router.push("/");

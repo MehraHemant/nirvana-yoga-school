@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import Image from "next/image";
+import Image from "@/components/ui/CdnImage";
 import { useMemo, useState } from "react";
 import { Container, MediaLightbox } from "@/components/ui";
 import {
@@ -10,6 +10,7 @@ import {
 } from "@/content/mappers/gallery-module";
 import type { GalleryModule } from "@/content/types/page-modules";
 import type { SitePageGalleryImage } from "@/content/types/site-page";
+import { PHOTO_IMAGE_QUALITY } from "@/lib/cdn/responsive-image";
 import { shouldRenderSection } from "@/lib/cms/section-visibility";
 import { useInfiniteList } from "@/lib/hooks/useInfiniteList";
 
@@ -59,8 +60,8 @@ function VenuePhotoCard({ item, alt, onOpen, variant }: VenuePhotoCardProps) {
         src={item.url}
         alt={alt}
         fill
-        unoptimized
         sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+        quality={PHOTO_IMAGE_QUALITY}
         className={
           isRetreat
             ? "object-cover transition-transform duration-500 group-hover:scale-105"
@@ -127,6 +128,7 @@ export default function VenueGallery({
   const { shownCount, hasMore, sentinelRef } = useInfiniteList({
     itemCount: displayQueue.length,
     resetKey: activeSection,
+    rootMargin: "800px 0px",
   });
   const displayedItems = displayQueue.slice(0, shownCount);
 

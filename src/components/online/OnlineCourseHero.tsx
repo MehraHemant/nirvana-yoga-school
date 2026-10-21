@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import Image from "next/image";
+import Image from "@/components/ui/CdnImage";
 import { HeroFrame } from "@/components/hero";
 import { Button, Container, Heading, Pill, YouTubeThumbImage } from "@/components/ui";
 import { ArrowRight, Play } from "@/icons";

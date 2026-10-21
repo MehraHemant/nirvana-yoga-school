@@ -1,6 +1,7 @@
 "use client";
 
-import Image from "next/image";
+import Image from "@/components/ui/CdnImage";
+import { useEffect } from "react";
 import { HeroFrame } from "@/components/hero";
 import { Container } from "@/components/ui";
 import { useHeroGallery } from "../hero-variants/shared";
@@ -16,8 +17,11 @@ import {
 import {
   HERO_IMAGE_QUALITY,
   HERO_STAGE_SIZES,
-  heroImageLoader,
+  heroStageImageProps,
 } from "./hero-image";
+
+/** `sizes` for the supporting side photos. */
+const SIDE_PHOTO_SIZES = "(max-width: 768px) 33vw, 400px";
 
 /**
  * Gallery Feature — one dominant image, three supporting photos, and a film row.
@@ -27,11 +31,27 @@ import {
 export default function CourseHeroGalleryFeature(props: ElegantHeroProps) {
   const gallery = useHeroGallery(props);
   const cornerVideoId = gallery.videoIds[0];
+  const sideCount = cornerVideoId ? 2 : 3;
   const sidePhotos = pickSidePhotos(
     gallery.photos,
     gallery.photoIdx,
-    cornerVideoId ? 2 : 3,
+    sideCount,
   );
+
+  // Autoplay shifts the side column by one photo; warm the one that enters
+  // next so the last tile paints from cache instead of loading grey.
+  const { photos, photoIdx } = gallery;
+  useEffect(() => {
+    if (photos.length <= sideCount + 1) return;
+    const incoming = photos[(photoIdx + sideCount + 1) % photos.length];
+    if (!incoming?.url) return;
+    const props = heroStageImageProps(incoming.url, SIDE_PHOTO_SIZES);
+    const img = new window.Image();
+    img.decoding = "async";
+    if (props.sizes) img.sizes = props.sizes;
+    if (props.srcSet) img.srcset = props.srcSet;
+    img.src = props.src;
+  }, [photos, photoIdx, sideCount]);
   const showSideColumn = Boolean(cornerVideoId) || sidePhotos.length > 0;
   const railItemCount =
     gallery.photos.length +
@@ -89,10 +109,11 @@ export default function CourseHeroGalleryFeature(props: ElegantHeroProps) {
                       src={photo.url}
                       alt=""
                       fill
-                      loading="lazy"
+                      // Above the fold — lazy loading only delays these tiles.
+                      loading="eager"
+                      fetchPriority="low"
                       quality={HERO_IMAGE_QUALITY}
-                      sizes="(max-width: 768px) 33vw, 400px"
-                      loader={heroImageLoader(photo.url)}
+                      sizes={SIDE_PHOTO_SIZES}
                       className="object-cover transition-transform duration-500 hover:scale-[1.02]"
                     />
                   </button>

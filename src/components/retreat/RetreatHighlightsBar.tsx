@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "@/components/ui/CdnImage";
 import { Container } from "@/components/ui";
 import type { RetreatHighlight } from "@/content/types/retreat-page";
 

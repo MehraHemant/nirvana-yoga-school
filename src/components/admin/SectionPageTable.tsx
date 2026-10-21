@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Image from "@/components/ui/CdnImage";
 import NextLink from "next/link";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";

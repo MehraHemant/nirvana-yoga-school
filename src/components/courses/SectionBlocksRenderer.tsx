@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import Image from "next/image";
+import Image from "@/components/ui/CdnImage";
 import { useState } from "react";
 import { Button } from "@/components/ui";
 import type { SectionContentBlock } from "@/content/types/site-page";
@@ -186,7 +186,6 @@ function SubsectionCard({
             src={block.imageUrl}
             alt={block.title}
             fill
-            unoptimized
             sizes="(max-width: 768px) 100vw, 50vw"
             className="object-cover"
           />
@@ -220,7 +219,6 @@ function GalleryGrid({
             src={url}
             alt=""
             fill
-            unoptimized
             sizes="(max-width: 768px) 50vw, 25vw"
             className="object-cover"
           />
@@ -250,7 +248,6 @@ function BlockRenderer({ block }: { block: SectionContentBlock }) {
               src={block.url}
               alt={block.alt ?? ""}
               fill
-              unoptimized
               sizes="(max-width: 768px) 100vw, 50vw"
               className="object-cover"
             />

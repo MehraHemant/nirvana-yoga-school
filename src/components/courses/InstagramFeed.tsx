@@ -1,9 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Container } from "@/components/ui";
+import Image from "@/components/ui/CdnImage";
+import PosterVideo from "@/components/ui/PosterVideo";
 import type { InstagramFeedContent } from "@/content/types/shared-sections";
 import {
   Bookmark,
@@ -214,17 +215,6 @@ function PostVideo({
   caption?: string;
 }) {
   const [isPlaying, setIsPlaying] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  const handlePlay = async () => {
-    setIsPlaying(true);
-    await new Promise((resolve) => requestAnimationFrame(resolve));
-    try {
-      await videoRef.current?.play();
-    } catch {
-      /* autoplay blocked — controls remain available */
-    }
-  };
 
   return (
     <div className="relative aspect-square bg-black">
@@ -240,7 +230,7 @@ function PostVideo({
           />
           <button
             type="button"
-            onClick={handlePlay}
+            onClick={() => setIsPlaying(true)}
             className="absolute inset-0 flex items-center justify-center bg-black/10 transition-colors hover:bg-black/20"
             aria-label="Play video"
           >
@@ -250,16 +240,17 @@ function PostVideo({
           </button>
         </>
       ) : (
-        // biome-ignore lint/a11y/useMediaCaption: short social clip, no captions provided
-        <video
-          ref={videoRef}
+        <PosterVideo
           src={videoUrl}
           poster={poster}
+          autoPlay
           controls
           playsInline
-          preload="metadata"
-          className="absolute inset-0 h-full w-full object-cover"
+          preload="auto"
+          unoptimized
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
           aria-label={caption || "Instagram video"}
+          className="absolute inset-0 h-full w-full object-cover"
         />
       )}
     </div>
