@@ -1,8 +1,9 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import Image from "next/image";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import Image from "@/components/ui/CdnImage";
+import PosterVideo from "@/components/ui/PosterVideo";
 import YouTubeThumbImage from "@/components/ui/YouTubeThumbImage";
 import { ChevronLeft, ChevronRight, Close, Play } from "@/icons";
 import { PHOTO_IMAGE_QUALITY } from "@/lib/cdn/responsive-image";
@@ -34,6 +35,12 @@ export default function MediaLightbox({
 }: MediaLightboxProps) {
   const prefersReduced = useReducedMotion() ?? false;
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [embedReady, setEmbedReady] = useState(false);
+  const [seenIndex, setSeenIndex] = useState(activeIndex);
+  if (seenIndex !== activeIndex) {
+    setSeenIndex(activeIndex);
+    setEmbedReady(false);
+  }
 
   const activeItem = items[activeIndex];
 
@@ -193,22 +200,42 @@ export default function MediaLightbox({
                 const isYouTube =
                   !activeItem.url.includes("/") && activeItem.url.length <= 12;
                 return isYouTube ? (
-                  <iframe
-                    src={`https://www.youtube.com/embed/${activeItem.url}?autoplay=1&rel=0`}
-                    title="Course Video"
-                    className="w-full aspect-video max-w-4xl border-0 shadow-2xl rounded-2xl overflow-hidden"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
+                  <div className="relative aspect-video w-full max-w-4xl overflow-hidden rounded-2xl bg-ink shadow-2xl">
+                    <span
+                      className={`absolute inset-0 transition-opacity duration-500 motion-reduce:transition-none ${embedReady ? "pointer-events-none opacity-0" : "opacity-100"}`}
+                    >
+                      <YouTubeThumbImage
+                        videoId={activeItem.url}
+                        src={activeItem.thumbnailUrl}
+                        alt=""
+                        fill
+                        sizes="(max-width: 1200px) 100vw, 896px"
+                        className="object-cover"
+                      />
+                    </span>
+                    <iframe
+                      src={`https://www.youtube.com/embed/${activeItem.url}?autoplay=1&rel=0`}
+                      title="Course Video"
+                      onLoad={() => setEmbedReady(true)}
+                      className={`absolute inset-0 h-full w-full border-0 transition-opacity duration-500 motion-reduce:transition-none ${embedReady ? "opacity-100" : "opacity-0"}`}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
                 ) : (
-                  // biome-ignore lint/a11y/useMediaCaption: custom fullscreen preview video
-                  <video
-                    src={activeItem.url}
-                    className="w-full aspect-video max-w-4xl object-contain shadow-2xl rounded-2xl overflow-hidden bg-black"
-                    controls
-                    autoPlay
-                    playsInline
-                  />
+                  <div className="relative aspect-video w-full max-w-4xl overflow-hidden rounded-2xl bg-ink shadow-2xl">
+                    <PosterVideo
+                      src={activeItem.url}
+                      poster={activeItem.thumbnailUrl}
+                      controls
+                      autoPlay
+                      playsInline
+                      preload="auto"
+                      posterClassName="object-contain"
+                      sizes="(max-width: 1200px) 100vw, min(100vw, 1600px)"
+                      className="absolute inset-0 h-full w-full object-contain"
+                    />
+                  </div>
                 );
               })()
             )}

@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Image from "@/components/ui/CdnImage";
 import { type ReactNode, useEffect, useState } from "react";
 import { MediaLightbox, YouTubeThumbImage } from "@/components/ui";
 import { cmsImageCursorClass } from "@/content/types/cms-image";

@@ -1,7 +1,6 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import {
   Container,
@@ -9,6 +8,7 @@ import {
   PrefetchWhenNear,
   SectionHeader,
 } from "@/components/ui";
+import Image from "@/components/ui/CdnImage";
 import type {
   HomeGalleryItem,
   HomeGallerySectionContent,
@@ -248,7 +248,7 @@ export default function GallerySection({
                       <AnimatePresence mode="popLayout">
                         <motion.div
                           key={item.id}
-                          initial={{ opacity: 0 }}
+                          initial={{ opacity: 1 }}
                           animate={{ opacity: 1 }}
                           exit={{ opacity: 0 }}
                           transition={{ duration: 0.8, ease: "easeInOut" }}

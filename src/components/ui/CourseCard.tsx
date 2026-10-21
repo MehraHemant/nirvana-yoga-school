@@ -8,7 +8,7 @@ import {
   useSpring,
   useTransform,
 } from "framer-motion";
-import Image from "next/image";
+import Image from "@/components/ui/CdnImage";
 import Link from "next/link";
 import type React from "react";
 import { type ReactNode, useEffect, useState } from "react";

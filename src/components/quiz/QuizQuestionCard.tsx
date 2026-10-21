@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import Image from "next/image";
+import Image from "@/components/ui/CdnImage";
 import { useEffect, useRef } from "react";
 import { Button, Container } from "@/components/ui";
 import type { PublicQuizQuestion, QuizOption } from "@/content/types/quiz";

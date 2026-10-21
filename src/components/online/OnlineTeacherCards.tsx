@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, type Variants } from "framer-motion";
-import Image from "next/image";
+import Image from "@/components/ui/CdnImage";
 import Link from "next/link";
 import type { TeacherProfile } from "@/components/home/TeachersSection";
 import { Heading } from "@/components/ui";

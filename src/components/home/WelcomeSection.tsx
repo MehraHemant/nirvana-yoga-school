@@ -6,7 +6,6 @@ import {
   useReducedMotion,
   type Variants,
 } from "framer-motion";
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import {
   Button,
@@ -15,6 +14,8 @@ import {
   Pill,
   YouTubeThumbImage,
 } from "@/components/ui";
+import Image from "@/components/ui/CdnImage";
+import PosterVideo from "@/components/ui/PosterVideo";
 import type { HomeWelcomeContent } from "@/content/types/dedicated-pages";
 import { Check, Play } from "@/icons";
 import { PHOTO_IMAGE_QUALITY } from "@/lib/cdn/responsive-image";
@@ -128,13 +129,15 @@ function WelcomeVideoPlayer({
   if (playing && isMp4) {
     return (
       <div className="relative aspect-video w-full overflow-hidden rounded-3xl border border-ink/5 bg-ink shadow-card">
-        {/* biome-ignore lint/a11y/useMediaCaption: CMS overview promo clip */}
-        <video
+        <PosterVideo
           src={url}
-          poster={posterSrc || undefined}
+          poster={posterSrc}
           controls
           autoPlay
           playsInline
+          preload="auto"
+          aria-label={title}
+          sizes="(max-width: 1024px) 100vw, 480px"
           className="absolute inset-0 h-full w-full object-cover"
         />
       </div>

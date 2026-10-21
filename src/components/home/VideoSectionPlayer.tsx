@@ -1,10 +1,11 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import Image from "next/image";
 import { useRef, useState } from "react";
 import { Container, SectionHeader, YouTubeThumbImage } from "@/components/ui";
+import Image from "@/components/ui/CdnImage";
 import { Play } from "@/icons";
+import { cloudinaryVideoPlaybackUrl } from "@/lib/cdn/cloudinary-video-url";
 import { resolveSectionHtmlId } from "@/lib/html-id";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 import type { PlaylistVideo } from "@/lib/playlist-video";
@@ -180,9 +181,16 @@ export default function VideoSectionPlayer({
   const [playerKey, setPlayerKey] = useState(0);
   const [started, setStarted] = useState(false);
   const [autoplay, setAutoplay] = useState(false);
+  const [frameReady, setFrameReady] = useState(false);
   const prefersReduced = useReducedMotion() ?? false;
 
   const active = videos.find((v) => v.id === activeId) ?? videos[0];
+  const clipKey = `${activeId}:${playerKey}`;
+  const [seenClip, setSeenClip] = useState(clipKey);
+  if (seenClip !== clipKey) {
+    setSeenClip(clipKey);
+    setFrameReady(false);
+  }
 
   useViewportMutedAutoplay({
     rootRef: playerRef,
@@ -270,82 +278,87 @@ export default function VideoSectionPlayer({
                   ref={playerRef}
                   className="relative aspect-video w-full bg-ink"
                 >
-                  {started ? (
-                    active.source === "cloudinary" && active.playbackUrl ? (
-                      <video
-                        key={playerKey}
-                        ref={videoRef}
-                        src={active.playbackUrl}
-                        poster={
-                          active.thumbnailUrl !== active.playbackUrl
-                            ? active.thumbnailUrl
-                            : undefined
-                        }
-                        controls
-                        playsInline
-                        autoPlay={autoplay}
-                        muted={autoplay}
-                        className="absolute inset-0 h-full w-full object-contain"
+                  <div
+                    className={`absolute inset-0 transition-opacity duration-500 motion-reduce:transition-none ${started && frameReady ? "pointer-events-none opacity-0" : "opacity-100"}`}
+                  >
+                    {active.source === "youtube" ? (
+                      <YouTubeThumbImage
+                        videoId={active.id}
+                        src={active.thumbnailUrl}
+                        alt=""
+                        fill
+                        sizes="(max-width: 1024px) 100vw, 66vw"
+                        className="object-cover"
                       />
                     ) : (
-                      <iframe
-                        key={playerKey}
-                        ref={iframeRef}
-                        src={buildEmbedUrl(activeId, autoplay)}
-                        title={`${active.title} — ${active.channel}`}
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        referrerPolicy="strict-origin-when-cross-origin"
-                        allowFullScreen
-                        className="absolute inset-0 h-full w-full border-0"
+                      <Image
+                        src={active.thumbnailUrl}
+                        alt=""
+                        fill
+                        sizes="(max-width: 1024px) 100vw, 66vw"
+                        className="object-cover"
                       />
-                    )
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() =>
-                        startPlayback(
-                          setStarted,
-                          setAutoplay,
-                          setPlayerKey,
-                          prefersReduced,
-                        )
-                      }
-                      className="group absolute inset-0 h-full w-full text-left"
-                      aria-label={`Play ${active.title}`}
-                    >
-                      {active.source === "youtube" ? (
-                        <YouTubeThumbImage
-                          videoId={active.id}
-                          src={active.thumbnailUrl}
-                          alt=""
-                          fill
-                          sizes="(max-width: 1024px) 100vw, 66vw"
-                          className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    )}
+                    {!started ? (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          startPlayback(
+                            setStarted,
+                            setAutoplay,
+                            setPlayerKey,
+                            prefersReduced,
+                          )
+                        }
+                        className="group absolute inset-0 h-full w-full text-left"
+                        aria-label={`Play ${active.title}`}
+                      >
+                        <span
+                          className="absolute inset-0 bg-ink/30 transition-colors group-hover:bg-ink/40"
+                          aria-hidden="true"
                         />
-                      ) : (
-                        <Image
-                          src={active.thumbnailUrl}
-                          alt=""
-                          fill
-                          sizes="(max-width: 1024px) 100vw, 66vw"
-                          className="object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
-                      )}
-                      <span
-                        className="absolute inset-0 bg-ink/30 transition-colors group-hover:bg-ink/40"
-                        aria-hidden="true"
-                      />
-                      <span className="absolute inset-0 flex items-center justify-center">
-                        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white text-primary shadow-lg transition-transform group-hover:scale-105 sm:h-16 sm:w-16">
-                          <Play
-                            size={22}
-                            className="ml-0.5"
-                            aria-hidden="true"
-                          />
+                        <span className="absolute inset-0 flex items-center justify-center">
+                          <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white text-primary shadow-lg transition-transform group-hover:scale-105 sm:h-16 sm:w-16">
+                            <Play
+                              size={22}
+                              className="ml-0.5"
+                              aria-hidden="true"
+                            />
+                          </span>
                         </span>
-                      </span>
-                    </button>
-                  )}
+                      </button>
+                    ) : null}
+                  </div>
+                  {started &&
+                  active.source === "cloudinary" &&
+                  active.playbackUrl ? (
+                    <video
+                      key={playerKey}
+                      ref={videoRef}
+                      src={cloudinaryVideoPlaybackUrl(active.playbackUrl)}
+                      controls
+                      playsInline
+                      autoPlay={autoplay}
+                      muted={autoplay}
+                      preload="auto"
+                      onPlaying={() => setFrameReady(true)}
+                      className={`absolute inset-0 z-20 h-full w-full object-contain transition-opacity duration-500 motion-reduce:transition-none ${frameReady ? "opacity-100" : "opacity-0"}`}
+                    />
+                  ) : null}
+                  {started &&
+                  !(active.source === "cloudinary" && active.playbackUrl) ? (
+                    <iframe
+                      key={playerKey}
+                      ref={iframeRef}
+                      src={buildEmbedUrl(activeId, autoplay)}
+                      title={`${active.title} — ${active.channel}`}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      referrerPolicy="strict-origin-when-cross-origin"
+                      allowFullScreen
+                      onLoad={() => setFrameReady(true)}
+                      className={`absolute inset-0 z-20 h-full w-full border-0 transition-opacity duration-500 motion-reduce:transition-none ${frameReady ? "opacity-100" : "opacity-0"}`}
+                    />
+                  ) : null}
                 </div>
               </div>
             </div>

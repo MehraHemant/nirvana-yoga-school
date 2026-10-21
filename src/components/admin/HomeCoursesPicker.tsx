@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Image from "@/components/ui/CdnImage";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import type { HomeCourseRef } from "@/content/types/dedicated-pages";

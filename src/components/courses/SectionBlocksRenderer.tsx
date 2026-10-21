@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import Image from "next/image";
+import Image from "@/components/ui/CdnImage";
 import { useState } from "react";
 import { Button } from "@/components/ui";
 import type { SectionContentBlock } from "@/content/types/site-page";

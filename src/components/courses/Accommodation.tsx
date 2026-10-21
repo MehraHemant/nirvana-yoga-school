@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import Image from "next/image";
+import Image from "@/components/ui/CdnImage";
 import { useEffect, useState } from "react";
 import { Container, MediaLightbox, PrefetchWhenNear } from "@/components/ui";
 import type {

@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "@/components/ui/CdnImage";
 import Link from "next/link";
 import type { BlogPostDocument } from "@/content/types";
 import { formatBlogPublishedDate } from "./blog-date";

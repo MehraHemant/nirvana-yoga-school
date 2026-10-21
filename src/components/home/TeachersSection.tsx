@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import Image from "next/image";
+import Image from "@/components/ui/CdnImage";
 import { useRef, useState } from "react";
 import TeacherProfileCard, {
   HOMEPAGE_TEACHER_PREVIEW,

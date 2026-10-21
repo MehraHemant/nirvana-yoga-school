@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import Image from "next/image";
+import Image from "@/components/ui/CdnImage";
 import { useEffect, useId, useState } from "react";
 import type {
   ReviewsContent,

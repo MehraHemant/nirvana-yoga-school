@@ -6,7 +6,7 @@ import {
   useInView,
   useReducedMotion,
 } from "framer-motion";
-import Image from "next/image";
+import Image from "@/components/ui/CdnImage";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   cmsImageAlt,

@@ -1,7 +1,8 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import Image, { type StaticImageData } from "next/image";
+import type { StaticImageData } from "next/image";
+import Image from "@/components/ui/CdnImage";
 import { Plus } from "@/icons";
 import { EASE_OUT } from "@/lib/motion";
 
@@ -65,9 +66,7 @@ export default function FAQItem({
         onClick={onToggle}
         className={`relative z-10 flex w-full cursor-pointer items-center justify-between gap-4 p-5 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 sm:p-6 ${hasImage ? "md:p-7" : ""}`}
       >
-        <span
-          className={`type-h4 ${hasImage ? "text-white" : "text-ink"}`}
-        >
+        <span className={`type-h4 ${hasImage ? "text-white" : "text-ink"}`}>
           {question}
         </span>
         <span

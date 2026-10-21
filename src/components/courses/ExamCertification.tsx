@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Image from "@/components/ui/CdnImage";
 import { useState } from "react";
 import { Container, MediaLightbox, SectionHeader } from "@/components/ui";
 import type { ExamCertificationContent } from "@/content/types/shared-sections";

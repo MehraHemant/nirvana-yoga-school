@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Image from "@/components/ui/CdnImage";
 import { useRef, useState } from "react";
 import { uploadAdminMedia } from "@/lib/api/admin-client";
 import { MAX_UPLOAD_BYTES, MAX_UPLOAD_LABEL } from "@/lib/cdn/constants";

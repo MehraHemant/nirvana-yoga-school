@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import Image from "next/image";
+import Image from "@/components/ui/CdnImage";
 import { useEffect, useState } from "react";
 import { ImageGalleryPanel } from "@/components/courses/AccommodationGalleryPanel";
 import { facilityIcon } from "@/components/courses/facility-icons";

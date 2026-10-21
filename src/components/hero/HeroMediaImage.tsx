@@ -1,4 +1,5 @@
-import Image, { type ImageProps } from "next/image";
+import type { ImageProps } from "next/image";
+import Image from "@/components/ui/CdnImage";
 
 type HeroMediaImageProps = Omit<ImageProps, "fill">;
 

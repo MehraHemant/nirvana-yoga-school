@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Image from "next/image";
+import Image from "@/components/ui/CdnImage";
 import { Container, SectionHeader } from "@/components/ui";
 import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 

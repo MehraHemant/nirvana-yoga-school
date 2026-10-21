@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "@/components/ui/CdnImage";
 import { HeroFrame } from "@/components/hero";
 import { Button, Container } from "@/components/ui";
 import { ArrowRight } from "@/icons";

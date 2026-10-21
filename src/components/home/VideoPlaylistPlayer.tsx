@@ -182,6 +182,14 @@ export default function VideoPlaylistPlayer({
     onPause: () => postYouTubeCommand(iframeRef.current, "pauseVideo"),
   });
 
+  const [frameReady, setFrameReady] = useState(false);
+  const clipKey = `${activeId}:${playerKey}`;
+  const [seenClip, setSeenClip] = useState(clipKey);
+  if (seenClip !== clipKey) {
+    setSeenClip(clipKey);
+    setFrameReady(false);
+  }
+
   /**
    * Selects a playlist item and mounts the iframe if needed.
    *
@@ -218,6 +226,43 @@ export default function VideoPlaylistPlayer({
               ref={playerRef}
               className="relative aspect-video w-full bg-ink"
             >
+              <div
+                className={`absolute inset-0 transition-opacity duration-500 motion-reduce:transition-none ${started && frameReady ? "pointer-events-none opacity-0" : "opacity-100"}`}
+              >
+                <YouTubeThumbImage
+                  videoId={active.id}
+                  src={active.thumbnailUrl}
+                  alt=""
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 66vw"
+                  className="object-cover"
+                />
+                {!started ? (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      startPlayback(
+                        setStarted,
+                        setAutoplay,
+                        setPlayerKey,
+                        prefersReduced,
+                      )
+                    }
+                    className="group absolute inset-0 h-full w-full text-left"
+                    aria-label={`Play ${active.title}`}
+                  >
+                    <span
+                      className="absolute inset-0 bg-ink/30 transition-colors group-hover:bg-ink/40"
+                      aria-hidden="true"
+                    />
+                    <span className="absolute inset-0 flex items-center justify-center">
+                      <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white text-primary shadow-lg transition-transform group-hover:scale-105 sm:h-16 sm:w-16">
+                        <Play size={22} className="ml-0.5" aria-hidden="true" />
+                      </span>
+                    </span>
+                  </button>
+                ) : null}
+              </div>
               {started ? (
                 <iframe
                   key={playerKey}
@@ -227,41 +272,10 @@ export default function VideoPlaylistPlayer({
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   referrerPolicy="strict-origin-when-cross-origin"
                   allowFullScreen
-                  className="absolute inset-0 h-full w-full border-0"
+                  onLoad={() => setFrameReady(true)}
+                  className={`absolute inset-0 z-20 h-full w-full border-0 transition-opacity duration-500 motion-reduce:transition-none ${frameReady ? "opacity-100" : "opacity-0"}`}
                 />
-              ) : (
-                <button
-                  type="button"
-                  onClick={() =>
-                    startPlayback(
-                      setStarted,
-                      setAutoplay,
-                      setPlayerKey,
-                      prefersReduced,
-                    )
-                  }
-                  className="group absolute inset-0 h-full w-full text-left"
-                  aria-label={`Play ${active.title}`}
-                >
-                  <YouTubeThumbImage
-                    videoId={active.id}
-                    src={active.thumbnailUrl}
-                    alt=""
-                    fill
-                    sizes="(max-width: 1024px) 100vw, 66vw"
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                  <span
-                    className="absolute inset-0 bg-ink/30 transition-colors group-hover:bg-ink/40"
-                    aria-hidden="true"
-                  />
-                  <span className="absolute inset-0 flex items-center justify-center">
-                    <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white text-primary shadow-lg transition-transform group-hover:scale-105 sm:h-16 sm:w-16">
-                      <Play size={22} className="ml-0.5" aria-hidden="true" />
-                    </span>
-                  </span>
-                </button>
-              )}
+              ) : null}
             </div>
           </div>
         </div>

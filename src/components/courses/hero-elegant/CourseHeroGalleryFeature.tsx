@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Image from "@/components/ui/CdnImage";
 import { useEffect } from "react";
 import { HeroFrame } from "@/components/hero";
 import { Container } from "@/components/ui";

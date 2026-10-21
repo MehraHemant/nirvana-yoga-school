@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import Image from "next/image";
+import Image from "@/components/ui/CdnImage";
 import { Button, Container } from "@/components/ui";
 import type { QuizSettings } from "@/content/types/quiz";
 import { ArrowRight, BookOpen, Clock, Star } from "@/icons";

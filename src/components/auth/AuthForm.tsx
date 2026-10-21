@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Image from "@/components/ui/CdnImage";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSiteSession } from "@/components/auth/SiteSessionProvider";
