@@ -3,7 +3,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AdminIconButton } from "@/components/admin/AdminIconAction";
 import { MediaEditPanel } from "@/components/admin/MediaEditPanel";
-import { MediaUploadPanel, type MediaUploadPanelHandle } from "@/components/admin/MediaUploadPanel";
+import {
+  MediaUploadPanel,
+  type MediaUploadPanelHandle,
+} from "@/components/admin/MediaUploadPanel";
 import { Copy, ExternalLink, Layers, Pencil, Trash } from "@/icons";
 import {
   deleteAdminMedia,
@@ -62,11 +65,19 @@ export default function AdminMediaPage() {
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
+  const [libraryTotal, setLibraryTotal] = useState(0);
+  const [usageSummary, setUsageSummary] = useState<{
+    inUse: number;
+    unused: number;
+  } | null>(null);
   const [totalPages, setTotalPages] = useState(1);
+  const loadRequest = useRef(0);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
-  const [editingAsset, setEditingAsset] = useState<AdminMediaAsset | null>(null);
+  const [editingAsset, setEditingAsset] = useState<AdminMediaAsset | null>(
+    null,
+  );
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState("");
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -74,8 +85,10 @@ export default function AdminMediaPage() {
   const [bulkDeleting, setBulkDeleting] = useState(false);
 
   const loadAssets = useCallback(async () => {
+    const requestId = ++loadRequest.current;
     setLoading(true);
     setError("");
+    const usageParam = usageFilter === "all" ? undefined : usageFilter;
 
     try {
       const body = await fetchAdminMedia({
@@ -83,20 +96,49 @@ export default function AdminMediaPage() {
         page,
         limit: PAGE_SIZE,
         kind: libraryKind,
-        includeUsage: true,
+        usage: usageParam,
+        includeUsage: usageParam != null,
       });
+      if (requestId !== loadRequest.current) return;
       setAssets(body.assets);
       setTotal(body.total);
+      setLibraryTotal(body.libraryTotal ?? body.total);
+      setUsageSummary(body.usageSummary ?? null);
       setTotalPages(body.totalPages);
+      setLoading(false);
+
+      if (usageParam == null) {
+        try {
+          const usageBody = await fetchAdminMedia({
+            tag: tagFilter || undefined,
+            page,
+            limit: PAGE_SIZE,
+            kind: libraryKind,
+            includeUsage: true,
+          });
+          if (requestId !== loadRequest.current) return;
+          setAssets(usageBody.assets);
+          setTotal(usageBody.total);
+          setLibraryTotal(usageBody.libraryTotal ?? usageBody.total);
+          setUsageSummary(usageBody.usageSummary ?? null);
+          setTotalPages(usageBody.totalPages);
+        } catch (err) {
+          if (requestId !== loadRequest.current) return;
+          setError(err instanceof Error ? err.message : "Failed to load usage");
+        }
+      }
     } catch (err) {
+      if (requestId !== loadRequest.current) return;
       setError(err instanceof Error ? err.message : "Failed to load media");
       setAssets([]);
       setTotal(0);
+      setLibraryTotal(0);
+      setUsageSummary(null);
       setTotalPages(1);
     } finally {
-      setLoading(false);
+      if (requestId === loadRequest.current) setLoading(false);
     }
-  }, [tagFilter, page, libraryKind]);
+  }, [tagFilter, page, libraryKind, usageFilter]);
 
   useEffect(() => {
     loadAssets();
@@ -105,8 +147,6 @@ export default function AdminMediaPage() {
   const filteredAssets = useMemo(() => {
     const normalizedQuery = searchQuery.trim().toLocaleLowerCase();
     return assets.filter((asset) => {
-      if (usageFilter === "inUse" && !asset.usage?.inUse) return false;
-      if (usageFilter === "unused" && asset.usage?.inUse) return false;
       if (!normalizedQuery) return true;
       const haystack = [
         asset.caption,
@@ -120,18 +160,28 @@ export default function AdminMediaPage() {
         .toLocaleLowerCase();
       return haystack.includes(normalizedQuery);
     });
-  }, [assets, searchQuery, usageFilter]);
+  }, [assets, searchQuery]);
 
-  const pageInUseCount = assets.filter((asset) => asset.usage?.inUse).length;
-  const pageUnusedCount = assets.length - pageInUseCount;
   const unusedOnPage = useMemo(
-    () => filteredAssets.filter((asset) => !asset.usage?.inUse),
+    () => filteredAssets.filter((asset) => asset.usage && !asset.usage.inUse),
     [filteredAssets],
   );
   const selectedCount = selectedIds.length;
   const allUnusedSelected =
     unusedOnPage.length > 0 &&
     unusedOnPage.every((asset) => selectedIds.includes(asset.id));
+
+  /**
+   * Filters the whole library by usage and returns to the first page.
+   *
+   * @param next - Usage filter to apply
+   */
+  function applyUsageFilter(next: UsageFilter) {
+    setUsageFilter(next);
+    setPage(1);
+    setEditingAsset(null);
+    setSelectedIds([]);
+  }
 
   /**
    * Applies a tag chip filter and resets to the first page.
@@ -211,7 +261,8 @@ export default function AdminMediaPage() {
    * @param asset - Media asset to delete
    */
   async function deleteAsset(asset: AdminMediaAsset) {
-    if (!window.confirm(`Delete this ${libraryKind} from the library and CDN?`)) return;
+    if (!window.confirm(`Delete this ${libraryKind} from the library and CDN?`))
+      return;
 
     try {
       await deleteAdminMedia(asset.id);
@@ -258,7 +309,8 @@ export default function AdminMediaPage() {
    */
   async function deleteSelected() {
     const toDelete = assets.filter(
-      (asset) => selectedIds.includes(asset.id) && !asset.usage?.inUse,
+      (asset) =>
+        selectedIds.includes(asset.id) && asset.usage && !asset.usage.inUse,
     );
     if (toDelete.length === 0) return;
 
@@ -291,7 +343,9 @@ export default function AdminMediaPage() {
         const label = asset?.caption || asset?.id || "Asset";
         const err = result.reason;
         if (err instanceof ApiClientError && err.references?.length) {
-          failed.push(`${label}: ${err.message} (${err.references.join(", ")})`);
+          failed.push(
+            `${label}: ${err.message} (${err.references.join(", ")})`,
+          );
         } else {
           failed.push(
             `${label}: ${err instanceof Error ? err.message : "Delete failed"}`,
@@ -379,7 +433,7 @@ export default function AdminMediaPage() {
         >
           <ExternalLink size={15} />
         </a>
-        {!asset.usage?.inUse ? (
+        {asset.usage && !asset.usage.inUse ? (
           <AdminIconButton
             label={`Delete ${assetNoun}`}
             variant="danger"
@@ -401,17 +455,21 @@ export default function AdminMediaPage() {
     const previewUrl = asset.thumbUrl || cloudinaryThumbUrl(asset.url, 360);
     const title = asset.caption || `Untitled ${assetNoun}`;
     const altText = asset.alt || asset.caption || "Media asset";
+    const usageKnown = asset.usage != null;
     const inUse = asset.usage?.inUse ?? false;
+    const canDelete = usageKnown && !inUse;
     const selected = selectedIds.includes(asset.id);
 
     return (
       <article
         key={asset.id}
         className={`admin-media-library__card${
-          editingAsset?.id === asset.id ? " admin-media-library__card--active" : ""
+          editingAsset?.id === asset.id
+            ? " admin-media-library__card--active"
+            : ""
         }${selected ? " admin-media-library__card--selected" : ""}`}
       >
-        {!inUse ? (
+        {canDelete ? (
           <label className="admin-media-library__select">
             <input
               type="checkbox"
@@ -450,10 +508,14 @@ export default function AdminMediaPage() {
             )}
             <span
               className={`admin-status-chip admin-media-library__card-badge${
-                inUse ? " admin-status-chip--warn" : " admin-status-chip--ok"
+                !usageKnown
+                  ? ""
+                  : inUse
+                    ? " admin-status-chip--warn"
+                    : " admin-status-chip--ok"
               }`}
             >
-              {inUse ? "In use" : "Unused"}
+              {!usageKnown ? "Checking" : inUse ? "In use" : "Unused"}
             </span>
           </div>
         </button>
@@ -489,7 +551,9 @@ export default function AdminMediaPage() {
           </p>
         </div>
 
-        <div className="admin-media-library__card-actions">{renderAssetActions(asset)}</div>
+        <div className="admin-media-library__card-actions">
+          {renderAssetActions(asset)}
+        </div>
       </article>
     );
   }
@@ -502,18 +566,22 @@ export default function AdminMediaPage() {
   function renderListRow(asset: AdminMediaAsset) {
     const previewUrl = asset.thumbUrl || cloudinaryThumbUrl(asset.url, 120);
     const title = asset.caption || `Untitled ${assetNoun}`;
+    const usageKnown = asset.usage != null;
     const inUse = asset.usage?.inUse ?? false;
+    const canDelete = usageKnown && !inUse;
     const selected = selectedIds.includes(asset.id);
 
     return (
       <article
         key={asset.id}
         className={`admin-media-library__row${
-          editingAsset?.id === asset.id ? " admin-media-library__row--active" : ""
+          editingAsset?.id === asset.id
+            ? " admin-media-library__row--active"
+            : ""
         }${selected ? " admin-media-library__row--selected" : ""}`}
       >
         <div className="admin-media-library__row-select">
-          {!inUse ? (
+          {canDelete ? (
             <input
               type="checkbox"
               checked={selected}
@@ -566,13 +634,19 @@ export default function AdminMediaPage() {
 
         <span
           className={`admin-status-chip${
-            inUse ? " admin-status-chip--warn" : " admin-status-chip--ok"
+            !usageKnown
+              ? ""
+              : inUse
+                ? " admin-status-chip--warn"
+                : " admin-status-chip--ok"
           }`}
         >
-          {inUse ? "In use" : "Unused"}
+          {!usageKnown ? "Checking" : inUse ? "In use" : "Unused"}
         </span>
 
-        <div className="admin-media-library__row-actions">{renderAssetActions(asset)}</div>
+        <div className="admin-media-library__row-actions">
+          {renderAssetActions(asset)}
+        </div>
       </article>
     );
   }
@@ -583,13 +657,17 @@ export default function AdminMediaPage() {
         <h1 className="admin-title">Media library</h1>
         <p className="admin-subtitle">
           Upload {assetNounPlural} for pages, courses, and room galleries (JPEG,
-          PNG, WebP · max {MAX_UPLOAD_LABEL} each). Deletion is only allowed when
-          an asset is not referenced anywhere — in-use {assetNounPlural} show where
-          they appear so you can remove them first.
+          PNG, WebP · max {MAX_UPLOAD_LABEL} each). Deletion is only allowed
+          when an asset is not referenced anywhere — in-use {assetNounPlural}{" "}
+          show where they appear so you can remove them first.
         </p>
       </header>
 
-      <div className="admin-media-library__tabs" role="tablist" aria-label="Media type">
+      <div
+        className="admin-media-library__tabs"
+        role="tablist"
+        aria-label="Media type"
+      >
         {(
           [
             ["image", "Images"],
@@ -646,7 +724,7 @@ export default function AdminMediaPage() {
         <div className="admin-media-library__stats admin-stat-grid admin-media-library__stats-grid">
           <div className="admin-stat-card admin-stat-card--primary">
             <p className="admin-stat-label">Total assets</p>
-            <p className="admin-stat-value">{total}</p>
+            <p className="admin-stat-value">{libraryTotal || total}</p>
             <p className="admin-stat-hint">
               {tagFilter ? `Tagged “${tagFilter}”` : "Entire library"}
             </p>
@@ -655,18 +733,24 @@ export default function AdminMediaPage() {
             <p className="admin-stat-label">This page</p>
             <p className="admin-stat-value">{filteredAssets.length}</p>
             <p className="admin-stat-hint">
-              {hasActiveFilters ? "After filters" : `Showing ${rangeStart}–${rangeEnd}`}
+              {hasActiveFilters
+                ? "After filters"
+                : `Showing ${rangeStart}–${rangeEnd}`}
             </p>
           </div>
           <div className="admin-stat-card admin-stat-card--secondary">
             <p className="admin-stat-label">In use</p>
-            <p className="admin-stat-value">{pageInUseCount}</p>
-            <p className="admin-stat-hint">On current page</p>
+            <p className="admin-stat-value">
+              {usageSummary ? usageSummary.inUse : "—"}
+            </p>
+            <p className="admin-stat-hint">In this library</p>
           </div>
           <div className="admin-stat-card">
             <p className="admin-stat-label">Unused</p>
-            <p className="admin-stat-value">{pageUnusedCount}</p>
-            <p className="admin-stat-hint">Safe to delete</p>
+            <p className="admin-stat-value">
+              {usageSummary ? usageSummary.unused : "—"}
+            </p>
+            <p className="admin-stat-hint">Not referenced</p>
           </div>
         </div>
       )}
@@ -688,7 +772,9 @@ export default function AdminMediaPage() {
             <button
               type="button"
               className="admin-btn-sm admin-btn-sm--ghost"
-              disabled={unusedOnPage.length === 0 || allUnusedSelected || bulkDeleting}
+              disabled={
+                unusedOnPage.length === 0 || allUnusedSelected || bulkDeleting
+              }
               onClick={selectUnusedOnPage}
             >
               Select unused
@@ -711,11 +797,17 @@ export default function AdminMediaPage() {
             </button>
           </div>
         ) : null}
-        <div className="admin-media-library__view-toggle" role="group" aria-label="View mode">
+        <div
+          className="admin-media-library__view-toggle"
+          role="group"
+          aria-label="View mode"
+        >
           <button
             type="button"
             className={`admin-media-library__view-btn${
-              viewMode === "grid" ? " admin-media-library__view-btn--active" : ""
+              viewMode === "grid"
+                ? " admin-media-library__view-btn--active"
+                : ""
             }`}
             onClick={() => setViewMode("grid")}
             aria-pressed={viewMode === "grid"}
@@ -727,7 +819,9 @@ export default function AdminMediaPage() {
           <button
             type="button"
             className={`admin-media-library__view-btn${
-              viewMode === "list" ? " admin-media-library__view-btn--active" : ""
+              viewMode === "list"
+                ? " admin-media-library__view-btn--active"
+                : ""
             }`}
             onClick={() => setViewMode("list")}
             aria-pressed={viewMode === "list"}
@@ -775,7 +869,7 @@ export default function AdminMediaPage() {
                 key={key}
                 type="button"
                 className={`admin-chip ${usageFilter === key ? "admin-chip--active" : ""}`}
-                onClick={() => setUsageFilter(key)}
+                onClick={() => applyUsageFilter(key)}
               >
                 {label}
               </button>
@@ -878,7 +972,28 @@ export default function AdminMediaPage() {
         </div>
       ) : null}
 
-      {!loading && !error && assets.length === 0 ? (
+      {!loading && !error && assets.length === 0 && usageFilter !== "all" ? (
+        <div className="admin-empty-state admin-media-library__empty">
+          <p className="admin-empty-state-title">
+            No {usageFilter === "unused" ? "unused" : "in-use"}{" "}
+            {assetNounPlural}
+          </p>
+          <p className="admin-hint">
+            {usageFilter === "unused"
+              ? `Every ${assetNoun} in this library is referenced.`
+              : `No ${assetNounPlural} are referenced yet.`}
+          </p>
+          <button
+            type="button"
+            className="admin-btn-sm admin-btn-sm--ghost"
+            onClick={() => applyUsageFilter("all")}
+          >
+            Show all
+          </button>
+        </div>
+      ) : null}
+
+      {!loading && !error && assets.length === 0 && usageFilter === "all" ? (
         <div className="admin-empty-state admin-media-library__empty">
           {tagFilter ? (
             <>
@@ -898,7 +1013,9 @@ export default function AdminMediaPage() {
             </>
           ) : (
             <>
-              <p className="admin-empty-state-title">No {assetNounPlural} yet</p>
+              <p className="admin-empty-state-title">
+                No {assetNounPlural} yet
+              </p>
               <p className="admin-hint">
                 {isVideoLibrary
                   ? "Upload videos from page editors or video fields — they will appear here."
@@ -941,9 +1058,13 @@ export default function AdminMediaPage() {
 
       {!loading && filteredAssets.length > 0 ? (
         viewMode === "grid" ? (
-          <div className="admin-media-library__grid">{filteredAssets.map(renderGridCard)}</div>
+          <div className="admin-media-library__grid">
+            {filteredAssets.map(renderGridCard)}
+          </div>
         ) : (
-          <div className="admin-media-library__list">{filteredAssets.map(renderListRow)}</div>
+          <div className="admin-media-library__list">
+            {filteredAssets.map(renderListRow)}
+          </div>
         )
       ) : null}
 
