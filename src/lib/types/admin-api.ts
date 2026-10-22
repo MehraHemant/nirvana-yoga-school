@@ -35,14 +35,20 @@ export type AdminMediaAsset = {
   description: string | null;
   tags: string[];
   createdAt: string;
-  usage: { inUse: boolean; references: string[] };
+  /** Omitted until the usage snapshot is loaded. Missing is not the same as unused. */
+  usage?: { inUse: boolean; references: string[] };
 };
 
 export type AdminMediaListResponse = ApiListBody<"assets", AdminMediaAsset> & {
   page: number;
   pageSize: number;
+  /** Row count after the usage filter, used for pagination */
   total: number;
+  /** Kind/tag library size before the usage filter */
+  libraryTotal: number;
   totalPages: number;
+  /** Library-wide used/unused counts for the current kind and tag */
+  usageSummary?: { inUse: number; unused: number };
 };
 
 /** GET/PUT /api/admin/media/[id] */

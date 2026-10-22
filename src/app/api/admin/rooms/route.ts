@@ -1,9 +1,10 @@
 import { revalidatePath } from "next/cache";
-import { revalidateProductHubLayouts } from "@/lib/cms/cache";
 import { createRoom, getRooms } from "@/content/repositories/rooms";
 import type { RoomCatalog } from "@/content/types/shared-sections";
 import { jsonError, jsonForbidden, jsonOk } from "@/lib/cms/api-response";
 import { getServerSession } from "@/lib/cms/auth";
+import { revalidateProductHubLayouts } from "@/lib/cms/cache";
+import { invalidateMediaUsageCache } from "@/lib/cms/media-usage-tag";
 
 /**
  * Lists shared rooms for a catalog (admin).
@@ -66,6 +67,7 @@ export async function POST(request: Request) {
 
     revalidateProductHubLayouts();
     revalidatePath("/admin/sections/shared");
+    invalidateMediaUsageCache();
     return jsonOk({ room });
   } catch (error) {
     return jsonError(

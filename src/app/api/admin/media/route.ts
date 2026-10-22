@@ -2,10 +2,8 @@ import { cloudinaryThumbUrl } from "@/lib/cdn/cloudinary-thumb-url";
 import { parseMediaTagsFromDb } from "@/lib/cdn/media-tags";
 import { jsonOk, jsonUnauthorized } from "@/lib/cms/api-response";
 import { getSessionFromRequest } from "@/lib/cms/auth";
-import {
-  getMediaAssetsUsage,
-  type MediaUsageResult,
-} from "@/lib/cms/media-usage";
+import type { MediaUsageResult } from "@/lib/cms/media-usage";
+import { getCachedMediaUsageEntries } from "@/lib/cms/media-usage-cache";
 import { db } from "@/lib/db";
 
 const DEFAULT_PAGE_SIZE = 48;
@@ -40,6 +38,24 @@ function mimePrefixForKind(kind: string | null): string | null {
 }
 
 /**
+ * Counts referenced and unreferenced assets in a library slice.
+ * Ids missing from the snapshot are unused (new uploads).
+ *
+ * @param assetIds - Asset ids in the current kind/tag slice
+ * @param usageMap - Cached usage keyed by asset id
+ */
+function summarizeMediaUsage(
+  assetIds: string[],
+  usageMap: Map<string, MediaUsageResult>,
+): { inUse: number; unused: number } {
+  let inUse = 0;
+  for (const id of assetIds) {
+    if (usageMap.get(id)?.inUse) inUse += 1;
+  }
+  return { inUse, unused: assetIds.length - inUse };
+}
+
+/**
  * Maps a raw `media_assets` SQL row to the camelCase list shape.
  *
  * @param row - Raw SQL row
@@ -69,6 +85,7 @@ function toMediaAssetListItem(row: MediaAssetListRow) {
  *
  * `usage` filters the whole library by CMS usage before paginating (implies
  * `includeUsage`), so "Load more" keeps returning matching assets.
+ * Usage comes from a short-lived library snapshot, not a fresh JSON scan.
  */
 export async function GET(request: Request) {
   const session = await getSessionFromRequest(request);
@@ -113,22 +130,57 @@ export async function GET(request: Request) {
      ORDER BY "created_at" DESC`;
 
   let total: number;
+  let libraryTotal: number;
   let rows: ReturnType<typeof toMediaAssetListItem>[];
   let usageMap: Map<string, MediaUsageResult> | null = null;
+  let usageSummary: { inUse: number; unused: number } | undefined;
 
   if (usageFilter) {
-    // Usage is resolved in memory, so filter the full set, then paginate.
-    const allRows = (
-      await db.$queryRawUnsafe<MediaAssetListRow[]>(selectSql, ...params)
-    ).map(toMediaAssetListItem);
-    const allUsage = await getMediaAssetsUsage(allRows);
+    // Filter the kind/tag slice, then paginate, so unused files are not stuck
+    // on later pages of the unfiltered library.
+    const [cached, rawRows] = await Promise.all([
+      getCachedMediaUsageEntries(),
+      db.$queryRawUnsafe<MediaAssetListRow[]>(selectSql, ...params),
+    ]);
+    usageMap = new Map(cached.entries);
+    const allRows = rawRows.map(toMediaAssetListItem);
+    libraryTotal = allRows.length;
+    usageSummary = summarizeMediaUsage(
+      allRows.map((asset) => asset.id),
+      usageMap,
+    );
     const wantInUse = usageFilter === "inUse";
     const matching = allRows.filter(
-      (asset) => (allUsage.get(asset.id)?.inUse ?? false) === wantInUse,
+      (asset) => (usageMap?.get(asset.id)?.inUse ?? false) === wantInUse,
     );
     total = matching.length;
     rows = matching.slice(skip, skip + pageSize);
-    usageMap = allUsage;
+  } else if (includeUsage) {
+    const [cached, countRows, rawRows, idRows] = await Promise.all([
+      getCachedMediaUsageEntries(),
+      db.$queryRawUnsafe<Array<{ count: string | number }>>(
+        `SELECT COUNT(*)::int AS count FROM "media_assets" ${whereClause}`,
+        ...params,
+      ),
+      db.$queryRawUnsafe<MediaAssetListRow[]>(
+        `${selectSql} LIMIT ? OFFSET ?`,
+        ...params,
+        pageSize,
+        skip,
+      ),
+      db.$queryRawUnsafe<Array<{ id: string }>>(
+        `SELECT "id" FROM "media_assets" ${whereClause}`,
+        ...params,
+      ),
+    ]);
+    usageMap = new Map(cached.entries);
+    total = Number(countRows[0]?.count ?? 0);
+    libraryTotal = total;
+    rows = rawRows.map(toMediaAssetListItem);
+    usageSummary = summarizeMediaUsage(
+      idRows.map((row) => String(row.id)),
+      usageMap,
+    );
   } else {
     const [countRows, rawRows] = await Promise.all([
       db.$queryRawUnsafe<Array<{ count: string | number }>>(
@@ -143,8 +195,8 @@ export async function GET(request: Request) {
       ),
     ]);
     total = Number(countRows[0]?.count ?? 0);
+    libraryTotal = total;
     rows = rawRows.map(toMediaAssetListItem);
-    if (includeUsage) usageMap = await getMediaAssetsUsage(rows);
   }
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
@@ -161,11 +213,20 @@ export async function GET(request: Request) {
       description: asset.description,
       tags: parseMediaTagsFromDb(asset.tags),
       createdAt: asset.createdAt.toISOString(),
-      usage: usageMap?.get(asset.id) ?? { inUse: false, references: [] },
+      ...(usageMap
+        ? {
+            usage: usageMap.get(asset.id) ?? {
+              inUse: false,
+              references: [],
+            },
+          }
+        : {}),
     })),
     page,
     pageSize,
     total,
+    libraryTotal,
     totalPages,
+    ...(usageSummary ? { usageSummary } : {}),
   });
 }
