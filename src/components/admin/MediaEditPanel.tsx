@@ -53,6 +53,7 @@ export function MediaEditPanel({
 
   const previewUrl = asset.thumbUrl || cloudinaryThumbUrl(asset.url, 480);
   const isVideo = asset.mime.startsWith("video/");
+  const usageKnown = asset.usage != null;
   const inUse = asset.usage?.inUse ?? false;
   const references = asset.usage?.references ?? [];
 
@@ -102,11 +103,21 @@ export function MediaEditPanel({
 
           <div className="admin-media-library__drawer-usage">
             <span
-              className={`admin-status-chip${inUse ? " admin-status-chip--warn" : " admin-status-chip--ok"}`}
+              className={`admin-status-chip${
+                !usageKnown
+                  ? ""
+                  : inUse
+                    ? " admin-status-chip--warn"
+                    : " admin-status-chip--ok"
+              }`}
             >
-              {inUse ? "In use" : "Unused"}
+              {!usageKnown ? "Checking" : inUse ? "In use" : "Unused"}
             </span>
-            {inUse ? (
+            {!usageKnown ? (
+              <p className="admin-hint admin-hint--tight">
+                Checking where this file is used…
+              </p>
+            ) : inUse ? (
               <div className="admin-media-library__references">
                 <p className="admin-media-library__references-label">
                   Used on {references.length} page
@@ -155,7 +166,7 @@ export function MediaEditPanel({
             >
               Cancel
             </button>
-            {!inUse ? (
+            {usageKnown && !inUse ? (
               <button
                 type="button"
                 className="admin-btn-sm admin-btn-sm--danger"

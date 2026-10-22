@@ -111,9 +111,7 @@ function lodgingJsonImageToAssetMatchSql(
  *
  * @param assets - Assets on the current page/batch
  */
-function buildUrlToAssetIds(
-  assets: MediaAssetRef[],
-): Map<string, string[]> {
+function buildUrlToAssetIds(assets: MediaAssetRef[]): Map<string, string[]> {
   const urlToAssetIds = new Map<string, string[]>();
   for (const asset of assets) {
     if (!asset.url) continue;
@@ -153,7 +151,9 @@ function sharedRoomGalleryLabel(catalog: string, roomName: string): string {
 async function loadLodgingMediaImagesForAssets(
   assets: MediaAssetRef[],
 ): Promise<LodgingMediaImageRow[]> {
-  const assetIds = [...new Set(assets.map((asset) => asset.id).filter(Boolean))];
+  const assetIds = [
+    ...new Set(assets.map((asset) => asset.id).filter(Boolean)),
+  ];
   if (assetIds.length === 0) return [];
 
   const placeholders = assetIds.map(() => "?").join(", ");
@@ -213,7 +213,9 @@ async function applyLodgingAccommodationUsage(
   assets: MediaAssetRef[],
   map: Map<string, MediaUsageResult>,
 ): Promise<void> {
-  const assetIds = [...new Set(assets.map((asset) => asset.id).filter(Boolean))];
+  const assetIds = [
+    ...new Set(assets.map((asset) => asset.id).filter(Boolean)),
+  ];
   if (assetIds.length === 0) return;
 
   const placeholders = assetIds.map(() => "?").join(", ");
@@ -270,11 +272,9 @@ async function applyLodgingAccommodationUsage(
          GROUP BY ma."id", fm."catalog"`,
         ...assetIds,
       ),
-      fetchDirectUrlCounts(
-        "media_videos",
-        "url",
-        [...new Set(assets.map((asset) => asset.url).filter(Boolean))],
-      ),
+      fetchDirectUrlCounts("media_videos", "url", [
+        ...new Set(assets.map((asset) => asset.url).filter(Boolean)),
+      ]),
     ]);
 
   for (const row of [...roomRows, ...roomJsonRows]) {
@@ -407,133 +407,204 @@ async function fetchDirectUrlCounts(
   return counts;
 }
 
+type CorpusRow = {
+  kind: string;
+  label: string;
+  text: string | null;
+};
+
 /**
- * Loads JSON/text blobs from CMS tables for substring matching.
+ * Human-readable scan label for one preloaded CMS text blob.
+ *
+ * @param kind - Corpus source kind
+ * @param label - Slug, settings key, or room catalog and name
+ */
+function corpusSourceLabel(kind: string, label: string): string | null {
+  const raw = label.trim();
+  if (kind === "page-modules") return `${raw || "page"} → page modules`;
+  if (kind === "page-life") return `${raw || "page"} → lodging & food`;
+  if (kind === "page-content") return `${raw || "page"} → page content`;
+  if (kind === "setting") {
+    if (raw === "residentialLife" || raw === "retreatAccommodation") {
+      return `${lodgingCatalogLabel(raw === "retreatAccommodation" ? "retreat" : "course")} accommodation → shared meta`;
+    }
+    if (raw === "courseFood" || raw === "retreatFood") {
+      return `${lodgingCatalogLabel(raw === "retreatFood" ? "retreat" : "course")} accommodation → Food gallery`;
+    }
+    return "global settings JSON";
+  }
+  if (kind === "room-images" || kind === "room-videos") {
+    const [catalog = "course", roomName = ""] = raw.split("\u001f");
+    if (kind === "room-images")
+      return sharedRoomGalleryLabel(catalog, roomName);
+    const name = roomName.trim() || "Room";
+    return `${lodgingCatalogLabel(catalog)} accommodation → ${name} → video`;
+  }
+  if (kind === "course-doc") return "course document JSON";
+  if (kind === "blog-content") return `${raw || "blog post"} → blog content`;
+  if (kind === "blog-body") return `${raw || "blog post"} → blog body`;
+  if (kind === "section-images") return "section gallery JSON";
+  if (kind === "section-blocks") return "section blocks JSON";
+  if (kind === "hero") return `${raw || "page"} → page hero`;
+  if (kind === "section-image") return "page section image(s)";
+  if (kind === "subsection") return "subsection image(s)";
+  if (kind === "package") return "package image(s)";
+  if (kind === "person") return "teacher/people image(s)";
+  if (kind === "highlight") return "highlight image(s)";
+  if (kind === "blog-image") return "blog post image(s)";
+  if (kind === "seo") return "SEO og image(s)";
+  if (kind === "gallery") return "gallery row(s)";
+  return null;
+}
+
+/**
+ * Loads CMS JSON/text once as text, without parsing and re-stringifying each row.
  */
 async function loadJsonScanSources(): Promise<JsonScanSource[]> {
-  const [
-    pages,
-    globalSettings,
-    rooms,
-    courseDocuments,
-    blogPosts,
-    pageSections,
-  ] = await Promise.all([
-    db.page.findMany({
-      select: { slug: true, pageModules: true, contentData: true },
-    }),
-    db.globalSettings.findMany({ select: { key: true, value: true } }),
-    db.room.findMany({
-      select: { catalog: true, name: true, images: true, videos: true },
-    }),
-    db.courseDocument.findMany({ select: { document: true } }),
-    db.blogPost.findMany({ select: { slug: true, content: true, bodyHtml: true } }),
-    db.pageSection.findMany({ select: { images: true, blocks: true } }),
-  ]);
+  const rows = await db.$queryRawUnsafe<CorpusRow[]>(
+    `SELECT kind, label, txt AS text
+     FROM (
+       SELECT 'page-life' AS kind,
+              COALESCE(NULLIF(btrim(slug), ''), 'page') AS label,
+              (page_modules->'residentialLife')::text AS txt
+       FROM pages
+       WHERE page_modules IS NOT NULL
+         AND jsonb_typeof(page_modules->'residentialLife') IS NOT NULL
+         AND jsonb_typeof(page_modules->'residentialLife') <> 'null'
+       UNION ALL
+       SELECT 'page-modules',
+              COALESCE(NULLIF(btrim(slug), ''), 'page'),
+              page_modules::text
+       FROM pages
+       WHERE page_modules IS NOT NULL
+       UNION ALL
+       SELECT 'page-content',
+              COALESCE(NULLIF(btrim(slug), ''), 'page'),
+              content_data::text
+       FROM pages
+       WHERE content_data IS NOT NULL
+       UNION ALL
+       SELECT 'setting', key, value::text
+       FROM global_settings
+       WHERE value IS NOT NULL
+       UNION ALL
+       SELECT 'room-images',
+              COALESCE(catalog, 'course') || chr(31) || COALESCE(name, ''),
+              images::text
+       FROM rooms
+       WHERE images IS NOT NULL
+       UNION ALL
+       SELECT 'room-videos',
+              COALESCE(catalog, 'course') || chr(31) || COALESCE(name, ''),
+              videos::text
+       FROM rooms
+       WHERE videos IS NOT NULL
+       UNION ALL
+       SELECT 'course-doc', 'course document JSON', document::text
+       FROM course_documents
+       WHERE document IS NOT NULL
+       UNION ALL
+       SELECT 'blog-content',
+              COALESCE(NULLIF(btrim(slug), ''), 'blog post'),
+              content::text
+       FROM blog_posts
+       WHERE content IS NOT NULL
+       UNION ALL
+       SELECT 'blog-body',
+              COALESCE(NULLIF(btrim(slug), ''), 'blog post'),
+              body_html
+       FROM blog_posts
+       WHERE body_html IS NOT NULL AND btrim(body_html) <> ''
+       UNION ALL
+       SELECT 'section-images', 'section gallery JSON', images::text
+       FROM page_sections
+       WHERE images IS NOT NULL
+       UNION ALL
+       SELECT 'section-blocks', 'section blocks JSON', blocks::text
+       FROM page_sections
+       WHERE blocks IS NOT NULL
+       UNION ALL
+       SELECT 'hero',
+              COALESCE(NULLIF(btrim(slug), ''), 'page'),
+              image
+       FROM pages
+       WHERE image IS NOT NULL AND btrim(image) <> ''
+       UNION ALL
+       SELECT 'section-image', 'page section image(s)', image
+       FROM page_sections
+       WHERE image IS NOT NULL AND btrim(image) <> ''
+       UNION ALL
+       SELECT 'subsection', 'subsection image(s)', image
+       FROM section_subsections
+       WHERE image IS NOT NULL AND btrim(image) <> ''
+       UNION ALL
+       SELECT 'package', 'package image(s)', image
+       FROM page_packages
+       WHERE image IS NOT NULL AND btrim(image) <> ''
+       UNION ALL
+       SELECT 'person', 'teacher/people image(s)', image
+       FROM page_people
+       WHERE image IS NOT NULL AND btrim(image) <> ''
+       UNION ALL
+       SELECT 'highlight', 'highlight image(s)', image
+       FROM page_highlights
+       WHERE image IS NOT NULL AND btrim(image) <> ''
+       UNION ALL
+       SELECT 'blog-image', 'blog post image(s)', image
+       FROM blog_posts
+       WHERE image IS NOT NULL AND btrim(image) <> ''
+       UNION ALL
+       SELECT 'seo', 'SEO og image(s)', og_image
+       FROM page_seo
+       WHERE og_image IS NOT NULL AND btrim(og_image) <> ''
+       UNION ALL
+       SELECT 'gallery',
+              'gallery row(s)',
+              COALESCE(url, '') || ' ' || COALESCE(media_asset_id, '')
+       FROM page_gallery_images
+       WHERE COALESCE(url, '') <> '' OR COALESCE(media_asset_id, '') <> ''
+     ) src
+     WHERE txt IS NOT NULL AND length(txt) > 2`,
+  );
 
   const sources: JsonScanSource[] = [];
-
-  for (const page of pages) {
-    const slug = String(page.slug ?? "").trim() || "page";
-    const residentialLife = (
-      page.pageModules as { residentialLife?: unknown } | null | undefined
-    )?.residentialLife;
-    if (residentialLife != null) {
-      sources.push({
-        label: `${slug} → lodging & food`,
-        text: JSON.stringify(residentialLife),
-      });
-    }
-    if (page.pageModules != null) {
-      sources.push({
-        label: `${slug} → page modules`,
-        text: JSON.stringify(page.pageModules),
-      });
-    }
-    if (page.contentData != null) {
-      sources.push({
-        label: `${slug} → page content`,
-        text: JSON.stringify(page.contentData),
-      });
-    }
+  for (const row of rows) {
+    const text = String(row.text ?? "");
+    if (text.length <= 2) continue;
+    const label = corpusSourceLabel(
+      String(row.kind ?? ""),
+      String(row.label ?? ""),
+    );
+    if (!label) continue;
+    sources.push({ label, text });
   }
-
-  for (const row of globalSettings) {
-    if (row.value == null) continue;
-    const key = String(row.key ?? "").trim();
-    if (key === "residentialLife" || key === "retreatAccommodation") {
-      sources.push({
-        label: `${lodgingCatalogLabel(key === "retreatAccommodation" ? "retreat" : "course")} accommodation → shared meta`,
-        text: JSON.stringify(row.value),
-      });
-    } else if (key === "courseFood" || key === "retreatFood") {
-      sources.push({
-        label: `${lodgingCatalogLabel(key === "retreatFood" ? "retreat" : "course")} accommodation → Food gallery`,
-        text: JSON.stringify(row.value),
-      });
-    } else {
-      sources.push({
-        label: "global settings JSON",
-        text: JSON.stringify(row.value),
-      });
-    }
-  }
-
-  for (const room of rooms) {
-    const catalog = String(room.catalog ?? "course");
-    const roomName = String(room.name ?? "").trim();
-    if (room.images != null) {
-      sources.push({
-        label: sharedRoomGalleryLabel(catalog, roomName),
-        text: JSON.stringify(room.images),
-      });
-    }
-    if (room.videos != null) {
-      sources.push({
-        label: `${lodgingCatalogLabel(catalog)} accommodation → ${roomName || "Room"} → video`,
-        text: JSON.stringify(room.videos),
-      });
-    }
-  }
-
-  for (const doc of courseDocuments) {
-    if (doc.document != null) {
-      sources.push({
-        label: "course document JSON",
-        text: JSON.stringify(doc.document),
-      });
-    }
-  }
-
-  for (const post of blogPosts) {
-    const slug = String(post.slug ?? "blog post").trim() || "blog post";
-    if (post.content != null) {
-      sources.push({
-        label: `${slug} → blog content`,
-        text: JSON.stringify(post.content),
-      });
-    }
-    if (post.bodyHtml) {
-      sources.push({ label: `${slug} → blog body`, text: post.bodyHtml });
-    }
-  }
-
-  for (const section of pageSections) {
-    if (section.images != null) {
-      sources.push({
-        label: "section gallery JSON",
-        text: JSON.stringify(section.images),
-      });
-    }
-    if (section.blocks != null) {
-      sources.push({
-        label: "section blocks JSON",
-        text: JSON.stringify(section.blocks),
-      });
-    }
-  }
-
   return sources;
+}
+
+/**
+ * Escapes a literal string for use inside a regular expression.
+ *
+ * @param value - Raw token
+ */
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/**
+ * Records one labeled hit for an asset.
+ *
+ * @param counts - Label → asset id → hit count
+ * @param label - Reference label
+ * @param assetId - Media asset id
+ */
+function bumpScanHit(
+  counts: Map<string, Map<string, number>>,
+  label: string,
+  assetId: string,
+): void {
+  const hits = counts.get(label) ?? new Map<string, number>();
+  hits.set(assetId, (hits.get(assetId) ?? 0) + 1);
+  counts.set(label, hits);
 }
 
 /**
@@ -542,6 +613,7 @@ async function loadJsonScanSources(): Promise<JsonScanSource[]> {
  * @param assets - Assets to check
  * @param sources - JSON/text sources
  * @param map - Usage map to update
+ * @param lodgingMediaImageIdsByAssetId - Lodging image ids linked to each asset
  */
 function applyJsonScanHits(
   assets: MediaAssetRef[],
@@ -550,30 +622,73 @@ function applyJsonScanHits(
   lodgingMediaImageIdsByAssetId: Map<string, string[]>,
 ): void {
   const sourceHitCounts = new Map<string, Map<string, number>>();
+  const tokensByAssetId = new Map<string, string[]>();
+  const tokenOwners = new Map<string, string[]>();
+  const tokens: string[] = [];
 
-  for (const source of sources) {
-    if (!source.text) continue;
-    const hits = sourceHitCounts.get(source.label) ?? new Map<string, number>();
-
-    for (const asset of assets) {
-      const tokens = assetMatchTokens(
-        asset,
-        lodgingMediaImageIdsByAssetId.get(asset.id) ?? [],
-      );
-      if (tokens.some((token) => source.text.includes(token))) {
-        hits.set(asset.id, (hits.get(asset.id) ?? 0) + 1);
+  for (const asset of assets) {
+    const assetTokens = assetMatchTokens(
+      asset,
+      lodgingMediaImageIdsByAssetId.get(asset.id) ?? [],
+    ).filter((token) => token.length > 0);
+    tokensByAssetId.set(asset.id, assetTokens);
+    for (const token of assetTokens) {
+      const owners = tokenOwners.get(token);
+      if (owners) {
+        if (!owners.includes(asset.id)) owners.push(asset.id);
+      } else {
+        tokenOwners.set(token, [asset.id]);
+        tokens.push(token);
       }
     }
+  }
 
-    sourceHitCounts.set(source.label, hits);
+  const activeSources = sources.filter((source) => source.text.length > 2);
+  tokens.sort((left, right) => right.length - left.length);
+  const patternSource = tokens.map(escapeRegExp).join("|");
+  const usePattern = tokens.length > 0 && patternSource.length <= 250_000;
+  const pattern = usePattern ? new RegExp(patternSource, "g") : null;
+
+  if (pattern) {
+    for (const source of activeSources) {
+      pattern.lastIndex = 0;
+      const seen = new Set<string>();
+      for (const match of source.text.matchAll(pattern)) {
+        for (const assetId of tokenOwners.get(match[0]) ?? []) {
+          seen.add(assetId);
+        }
+      }
+      for (const assetId of seen) {
+        bumpScanHit(sourceHitCounts, source.label, assetId);
+      }
+    }
+  }
+
+  // Longest-first alternation can swallow a shorter token that is a prefix of
+  // a longer one. Confirm anything still unused with a direct substring check.
+  const unmatched = assets.filter((asset) => {
+    if (!pattern) return true;
+    for (const hits of sourceHitCounts.values()) {
+      if ((hits.get(asset.id) ?? 0) > 0) return false;
+    }
+    return true;
+  });
+
+  if (unmatched.length > 0) {
+    for (const source of activeSources) {
+      for (const asset of unmatched) {
+        const assetTokens = tokensByAssetId.get(asset.id) ?? [];
+        if (assetTokens.some((token) => source.text.includes(token))) {
+          bumpScanHit(sourceHitCounts, source.label, asset.id);
+        }
+      }
+    }
   }
 
   for (const [label, hits] of sourceHitCounts) {
     for (const [assetId, count] of hits) {
       if (count > 0) {
-        const reference = label.includes("→")
-          ? label
-          : `${count} ${label}`;
+        const reference = label.includes("→") ? label : `${count} ${label}`;
         addReference(map, assetId, reference);
       }
     }
@@ -650,30 +765,12 @@ export async function getMediaAssetsUsage(
   if (assets.length === 0) return new Map();
 
   const map = emptyUsageMap(assets);
-  const urls = [...new Set(assets.map((asset) => asset.url).filter(Boolean))];
 
-  const [
-    jsonSources,
-    lodgingRows,
-    pageHeroCounts,
-    sectionImageCounts,
-    subsectionCounts,
-    packageCounts,
-    peopleCounts,
-    highlightCounts,
-    blogImageCounts,
-    seoImageCounts,
-  ] = await Promise.all([
+  const [jsonSources, lodgingRows] = await Promise.all([
     loadJsonScanSources(),
     loadLodgingMediaImagesForAssets(assets),
-    fetchDirectUrlCounts("pages", "image", urls),
-    fetchDirectUrlCounts("page_sections", "image", urls),
-    fetchDirectUrlCounts("section_subsections", "image", urls),
-    fetchDirectUrlCounts("page_packages", "image", urls),
-    fetchDirectUrlCounts("page_people", "image", urls),
-    fetchDirectUrlCounts("page_highlights", "image", urls),
-    fetchDirectUrlCounts("blog_posts", "image", urls),
-    fetchDirectUrlCounts("page_seo", "og_image", urls),
+    applyGalleryUsage(assets, map),
+    applyLodgingAccommodationUsage(assets, map),
   ]);
 
   const lodgingMediaImageIdsByAssetId = buildLodgingMediaImageIdsByAssetId(
@@ -681,19 +778,6 @@ export async function getMediaAssetsUsage(
     lodgingRows,
   );
 
-  await Promise.all([
-    applyGalleryUsage(assets, map),
-    applyLodgingAccommodationUsage(assets, map),
-  ]);
-
-  applyDirectUrlHits(assets, pageHeroCounts, "page hero image(s)", map);
-  applyDirectUrlHits(assets, sectionImageCounts, "page section image(s)", map);
-  applyDirectUrlHits(assets, subsectionCounts, "subsection image(s)", map);
-  applyDirectUrlHits(assets, packageCounts, "package image(s)", map);
-  applyDirectUrlHits(assets, peopleCounts, "teacher/people image(s)", map);
-  applyDirectUrlHits(assets, highlightCounts, "highlight image(s)", map);
-  applyDirectUrlHits(assets, blogImageCounts, "blog post image(s)", map);
-  applyDirectUrlHits(assets, seoImageCounts, "SEO og image(s)", map);
   applyJsonScanHits(assets, jsonSources, map, lodgingMediaImageIdsByAssetId);
 
   return map;

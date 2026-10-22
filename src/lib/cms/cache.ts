@@ -16,6 +16,7 @@ import {
   mapPageToSitePageDocument,
   pageWithRelations,
 } from "@/lib/cms/db-to-document";
+import { invalidateMediaUsageCache } from "@/lib/cms/media-usage-tag";
 import { db } from "@/lib/db";
 
 /**
@@ -49,6 +50,7 @@ export function invalidateContentCache(
   if (pageType) {
     revalidateTag(`pages:type:${pageType}`, "max");
   }
+  invalidateMediaUsageCache();
 }
 
 /** YTT hub site page slug (shared FAQs + hub content). */
@@ -299,6 +301,7 @@ export function invalidateAndRevalidatePage(
  */
 export function invalidateGlobalSettingsCache(key: string): void {
   revalidateTag(`global-settings:${key}`, "max");
+  invalidateMediaUsageCache();
 }
 
 /**
