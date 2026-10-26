@@ -1,4 +1,8 @@
-import { purgeOrphanMediaImages } from "@/content/repositories/lodging";
+import { after } from "next/server";
+import {
+  purgeOrphanMediaImages,
+  upsertMediaImage,
+} from "@/content/repositories/lodging";
 import {
   deleteFromCloudinary,
   resourceTypeFromMime,
@@ -16,7 +20,7 @@ import {
   jsonUnauthorized,
 } from "@/lib/cms/api-response";
 import { getSessionFromRequest } from "@/lib/cms/auth";
-import { getMediaAssetUsage } from "@/lib/cms/media-usage";
+import { lookupCachedMediaUsage } from "@/lib/cms/media-usage-cache";
 import { db } from "@/lib/db";
 import type { ApiRouteParams } from "@/lib/types/api";
 
@@ -45,11 +49,7 @@ export async function GET(
     return jsonNotFound();
   }
 
-  const usage = await getMediaAssetUsage({
-    id: asset.id,
-    url: asset.url,
-    cdnKey: asset.cdnKey,
-  });
+  const usage = await lookupCachedMediaUsage(asset.id);
 
   return jsonOk({
     asset: {
@@ -92,18 +92,28 @@ export async function PUT(
     },
   });
 
-  const usage = await getMediaAssetUsage({
-    id: asset.id,
-    url: asset.url,
-    cdnKey: asset.cdnKey,
-  });
+  if (body.tags !== undefined && asset.mime.startsWith("image/")) {
+    const tags = parseMediaTagsFromDb(asset.tags);
+    const lodgingImage = {
+      url: asset.url,
+      tag: tags[0] ?? "",
+      title: asset.caption?.trim() || asset.alt?.trim() || "Untitled",
+      alt: asset.alt?.trim() || asset.caption?.trim() || "Untitled",
+    };
+    after(async () => {
+      try {
+        await upsertMediaImage(lodgingImage);
+      } catch {
+        // Lodging dual-write is best-effort; CMS asset still succeeds.
+      }
+    });
+  }
 
   return jsonOk({
     asset: {
       ...asset,
       tags: parseMediaTagsFromDb(asset.tags),
       createdAt: asset.createdAt.toISOString(),
-      usage,
     },
   });
 }
@@ -126,11 +136,7 @@ export async function DELETE(
     return jsonNotFound();
   }
 
-  const usage = await getMediaAssetUsage({
-    id: asset.id,
-    url: asset.url,
-    cdnKey: asset.cdnKey,
-  });
+  const usage = await lookupCachedMediaUsage(asset.id);
   if (usage.inUse) {
     return jsonConflict(
       "Image is in use and cannot be deleted",

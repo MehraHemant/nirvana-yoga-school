@@ -3,9 +3,13 @@
 import { useMemo, useState } from "react";
 import { uploadAdminMedia } from "@/lib/api/admin-client";
 import { MAX_UPLOAD_BYTES, MAX_UPLOAD_LABEL } from "@/lib/cdn/constants";
-import { formatMediaUploadSize, MEDIA_TAG_PRESETS } from "@/lib/cdn/media-tags";
+import {
+  formatMediaUploadSize,
+  mergeMediaTagOptions,
+} from "@/lib/cdn/media-tags";
 import type { AdminMediaUploadResponse } from "@/lib/types/admin-api";
 import { TextField } from "./TextField";
+import { useMediaLibraryTags } from "./useMediaLibraryTags";
 
 export type BulkUploadDraft = {
   /** Stable key for list rendering */
@@ -59,6 +63,12 @@ export function BulkMediaUploadModal({
 }: BulkMediaUploadModalProps) {
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [customTag, setCustomTag] = useState("");
+  const libraryTags = useMediaLibraryTags(open);
+  const tagOptions = useMemo(
+    () => mergeMediaTagOptions(libraryTags, tags),
+    [libraryTags, tags],
+  );
 
   const totalBytes = useMemo(
     () => drafts.reduce((sum, draft) => sum + draft.file.size, 0),
@@ -76,6 +86,16 @@ export function BulkMediaUploadModal({
    */
   function selectTag(tag: string) {
     onTagsChange(selectedTag === tag ? [] : [tag]);
+  }
+
+  /**
+   * Saves a new tag and selects it for this upload batch.
+   */
+  function addCustomTag() {
+    const trimmed = customTag.trim().replace(/\s+/g, " ").toLowerCase();
+    if (!trimmed) return;
+    onTagsChange([trimmed]);
+    setCustomTag("");
   }
 
   async function handleUpload() {
@@ -198,7 +218,7 @@ export function BulkMediaUploadModal({
             </p>
             <fieldset className="admin-bulk-tag-grid">
               <legend className="sr-only">Media category tags</legend>
-              {MEDIA_TAG_PRESETS.map((tag) => {
+              {tagOptions.map((tag) => {
                 const active = selectedTag === tag;
                 return (
                   <button
@@ -218,6 +238,27 @@ export function BulkMediaUploadModal({
                 );
               })}
             </fieldset>
+            <div className="admin-tag-custom-row">
+              <input
+                className="admin-input admin-input--compact"
+                value={customTag}
+                placeholder="New tag…"
+                onChange={(event) => setCustomTag(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    event.preventDefault();
+                    addCustomTag();
+                  }
+                }}
+              />
+              <button
+                type="button"
+                className="admin-btn-sm admin-btn-sm--ghost"
+                onClick={addCustomTag}
+              >
+                Add tag
+              </button>
+            </div>
           </section>
 
           <section className="admin-bulk-upload-section admin-bulk-upload-section--files">

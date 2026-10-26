@@ -49,10 +49,18 @@ export type AdminMediaListResponse = ApiListBody<"assets", AdminMediaAsset> & {
   totalPages: number;
   /** Library-wide used/unused counts for the current kind and tag */
   usageSummary?: { inUse: number; unused: number };
+  /** Every tag stored on media, including custom tags */
+  availableTags?: string[];
 };
 
 /** GET/PUT /api/admin/media/[id] */
 export type AdminMediaItemResponse = ApiEntityBody<"asset", AdminMediaAsset>;
+
+/** GET /api/admin/media?usageOnly=1 */
+export type AdminMediaUsageResponse = {
+  usage: Record<string, NonNullable<AdminMediaAsset["usage"]>>;
+  usageSummary: { inUse: number; unused: number };
+};
 
 /** GET /api/admin/pages/[slug] | courses/[slug] */
 export type AdminPageDocumentResponse = {

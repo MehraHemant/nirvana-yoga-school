@@ -582,6 +582,35 @@ async function loadJsonScanSources(): Promise<JsonScanSource[]> {
 }
 
 /**
+ * Builds chunked alternations so a large library still matches in one pass
+ * per blob instead of a substring scan per unused asset.
+ *
+ * @param tokens - Match tokens, longest first
+ */
+function compileUsagePatterns(tokens: string[]): RegExp[] {
+  const patterns: RegExp[] = [];
+  let chunk: string[] = [];
+  let chunkLength = 0;
+
+  for (const token of tokens) {
+    const escaped = escapeRegExp(token);
+    const extra = chunk.length > 0 ? escaped.length + 1 : escaped.length;
+    if (chunk.length > 0 && chunkLength + extra > 200_000) {
+      patterns.push(new RegExp(chunk.join("|"), "g"));
+      chunk = [];
+      chunkLength = 0;
+    }
+    chunk.push(escaped);
+    chunkLength += chunk.length === 1 ? escaped.length : escaped.length + 1;
+  }
+
+  if (chunk.length > 0) {
+    patterns.push(new RegExp(chunk.join("|"), "g"));
+  }
+  return patterns;
+}
+
+/**
  * Escapes a literal string for use inside a regular expression.
  *
  * @param value - Raw token
@@ -645,39 +674,51 @@ function applyJsonScanHits(
 
   const activeSources = sources.filter((source) => source.text.length > 2);
   tokens.sort((left, right) => right.length - left.length);
-  const patternSource = tokens.map(escapeRegExp).join("|");
-  const usePattern = tokens.length > 0 && patternSource.length <= 250_000;
-  const pattern = usePattern ? new RegExp(patternSource, "g") : null;
 
-  if (pattern) {
-    for (const source of activeSources) {
+  // A shorter token is invisible to one alternation only when a longer token
+  // starts with it. Everything else is decided by the regex pass.
+  const shadowed = new Set<string>();
+  for (let index = 0; index < tokens.length; index++) {
+    const longer = tokens[index];
+    for (let later = index + 1; later < tokens.length; later++) {
+      const shorter = tokens[later];
+      if (shorter.length < longer.length && longer.startsWith(shorter)) {
+        shadowed.add(shorter);
+      }
+    }
+  }
+
+  const patterns = compileUsagePatterns(tokens);
+  for (const source of activeSources) {
+    const seen = new Set<string>();
+    for (const pattern of patterns) {
       pattern.lastIndex = 0;
-      const seen = new Set<string>();
       for (const match of source.text.matchAll(pattern)) {
         for (const assetId of tokenOwners.get(match[0]) ?? []) {
           seen.add(assetId);
         }
       }
-      for (const assetId of seen) {
-        bumpScanHit(sourceHitCounts, source.label, assetId);
-      }
+    }
+    for (const assetId of seen) {
+      bumpScanHit(sourceHitCounts, source.label, assetId);
     }
   }
 
-  // Longest-first alternation can swallow a shorter token that is a prefix of
-  // a longer one. Confirm anything still unused with a direct substring check.
-  const unmatched = assets.filter((asset) => {
-    if (!pattern) return true;
+  const needConfirm = assets.filter((asset) => {
+    const assetTokens = tokensByAssetId.get(asset.id) ?? [];
+    if (!assetTokens.some((token) => shadowed.has(token))) return false;
     for (const hits of sourceHitCounts.values()) {
       if ((hits.get(asset.id) ?? 0) > 0) return false;
     }
     return true;
   });
 
-  if (unmatched.length > 0) {
+  if (needConfirm.length > 0) {
     for (const source of activeSources) {
-      for (const asset of unmatched) {
-        const assetTokens = tokensByAssetId.get(asset.id) ?? [];
+      for (const asset of needConfirm) {
+        const assetTokens = (tokensByAssetId.get(asset.id) ?? []).filter(
+          (token) => shadowed.has(token),
+        );
         if (assetTokens.some((token) => source.text.includes(token))) {
           bumpScanHit(sourceHitCounts, source.label, asset.id);
         }

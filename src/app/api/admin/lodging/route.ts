@@ -1,4 +1,3 @@
-import { revalidatePageBySlug, revalidateProductHubLayouts } from "@/lib/cms/cache";
 import {
   getMediaImages,
   getMediaVideos,
@@ -20,6 +19,11 @@ import {
   jsonUnauthorized,
 } from "@/lib/cms/api-response";
 import { getSessionFromRequest } from "@/lib/cms/auth";
+import {
+  revalidatePageBySlug,
+  revalidateProductHubLayouts,
+} from "@/lib/cms/cache";
+import { listStoredMediaTags } from "@/lib/cms/media-library-tags";
 
 /**
  * Lists lodging media, or page offers/dates/flags when `pageSlug` is set.
@@ -64,8 +68,10 @@ export async function GET(request: Request) {
       const videos = await getMediaVideos(tag || undefined);
       return jsonOk({ videos: videos.data ?? [] });
     }
+    const storedTagsPromise = listStoredMediaTags();
     const result = await getMediaImages(tag || undefined, { page, limit });
     const list = result.data;
+    const availableTags = await storedTagsPromise;
     return jsonOk({
       images: (list?.images ?? []).map((image) => ({
         ...image,
@@ -77,6 +83,7 @@ export async function GET(request: Request) {
       totalPages: list?.totalPages ?? 1,
       synced: list?.synced ?? 0,
       purged: list?.purged ?? 0,
+      availableTags,
     });
   } catch (error) {
     return jsonError(

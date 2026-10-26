@@ -109,16 +109,25 @@ export function normalizeMediaTagKey(tag: string): string {
 }
 
 /**
- * Maps any stored or UI tag to the canonical preset list.
+ * Trims a free-form tag and lowercases it so filters match what was saved.
+ *
+ * @param tag - Raw custom tag
+ */
+function cleanCustomMediaTag(tag: string): string {
+  return tag.trim().replace(/\s+/g, " ").toLowerCase();
+}
+
+/**
+ * Maps a known label to a preset, and keeps any other tag as its own filter.
  *
  * @param tag - Raw tag from DB, upload form, or room name
  */
-export function canonicalizeMediaTag(tag: string): MediaTagPreset {
+export function canonicalizeMediaTag(tag: string): string {
   const trimmed = tag.trim();
   if (!trimmed) return DEFAULT_MEDIA_TAG;
 
   if ((MEDIA_TAG_PRESETS as readonly string[]).includes(trimmed)) {
-    return trimmed as MediaTagPreset;
+    return trimmed;
   }
 
   const direct = LEGACY_MEDIA_TAG_MAP[trimmed];
@@ -135,7 +144,7 @@ export function canonicalizeMediaTag(tag: string): MediaTagPreset {
     if (normalizeMediaTagKey(roomName) === key) return canonical;
   }
 
-  return DEFAULT_MEDIA_TAG;
+  return cleanCustomMediaTag(trimmed);
 }
 
 /**
@@ -143,14 +152,37 @@ export function canonicalizeMediaTag(tag: string): MediaTagPreset {
  *
  * @param tags - Raw tag list
  */
-export function canonicalizeMediaTags(tags: string[]): MediaTagPreset[] {
-  const seen = new Set<MediaTagPreset>();
-  const result: MediaTagPreset[] = [];
+export function canonicalizeMediaTags(tags: string[]): string[] {
+  const seen = new Set<string>();
+  const result: string[] = [];
   for (const tag of tags) {
     const canonical = canonicalizeMediaTag(tag);
-    if (seen.has(canonical)) continue;
-    seen.add(canonical);
+    const key = canonical.toLowerCase();
+    if (!canonical || seen.has(key)) continue;
+    seen.add(key);
     result.push(canonical);
+  }
+  return result;
+}
+
+/**
+ * Preset chips first, then any custom tags already stored or just typed.
+ *
+ * @param stored - Tags found on media rows
+ * @param extra - Tags selected in the current form, not yet saved
+ */
+export function mergeMediaTagOptions(
+  stored: string[] = [],
+  extra: string[] = [],
+): string[] {
+  const seen = new Set<string>();
+  const result: string[] = [];
+  for (const tag of [...MEDIA_TAG_PRESETS, ...stored, ...extra]) {
+    const cleaned = tag.trim().replace(/\s+/g, " ");
+    const key = cleaned.toLowerCase();
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    result.push(cleaned);
   }
   return result;
 }

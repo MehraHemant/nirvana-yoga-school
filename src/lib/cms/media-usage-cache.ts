@@ -37,3 +37,19 @@ export const getCachedMediaUsageEntries = unstable_cache(
     tags: [MEDIA_USAGE_CACHE_TAG],
   },
 );
+
+/**
+ * Reads one asset from the library usage snapshot.
+ * Ids missing from the snapshot are unused (uploaded after it was built).
+ *
+ * @param assetId - Media asset id
+ */
+export async function lookupCachedMediaUsage(
+  assetId: string,
+): Promise<MediaUsageResult> {
+  const cached = await getCachedMediaUsageEntries();
+  for (const [id, usage] of cached.entries) {
+    if (id === assetId) return usage;
+  }
+  return { inUse: false, references: [] };
+}

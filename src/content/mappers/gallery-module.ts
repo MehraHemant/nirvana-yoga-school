@@ -3,7 +3,6 @@ import type {
   GallerySectionMeta,
 } from "@/content/types/page-modules";
 import type { SitePageGalleryImage } from "@/content/types/site-page";
-import { MEDIA_TAG_PRESETS } from "@/lib/cdn/media-tags";
 
 /** Human labels for known venue gallery category ids. */
 export const GALLERY_CATEGORY_LABELS: Record<string, string> = {
@@ -66,13 +65,6 @@ export function galleryCategoryLabel(category: string): string {
 export function galleryCategoryFromTag(tag: string | undefined): string {
   if (!tag) return "campus";
   return MEDIA_TAG_TO_GALLERY_CATEGORY[tag] ?? tag.toLowerCase().trim();
-}
-
-/**
- * Tags useful when filtering the media library for venue galleries.
- */
-export function galleryMediaTagOptions(): string[] {
-  return [...MEDIA_TAG_PRESETS];
 }
 
 /**

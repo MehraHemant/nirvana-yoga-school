@@ -4,14 +4,19 @@ import { useEffect, useState } from "react";
 import { AdminIconButton } from "@/components/admin/AdminIconAction";
 import { MediaMetadataFields } from "@/components/admin/MediaMetadataFields";
 import { Close, Trash } from "@/icons";
-import { cloudinaryThumbUrl } from "@/lib/cdn/cloudinary-thumb-url";
+import { cloudinarySizedUrl } from "@/lib/cdn/cloudinary-thumb-url";
 import type { AdminMediaAsset } from "@/lib/types/admin-api";
+
+/** Drawer is 28rem × 20rem; 1200px stays sharp at 2× with `c_limit` (no crop). */
+const EDITOR_PREVIEW_WIDTH = 1200;
 
 type MediaEditPanelProps = {
   asset: AdminMediaAsset | null;
   open: boolean;
   saving: boolean;
   saveMessage: string;
+  /** Tag chips already loaded with the library */
+  tagOptions?: string[];
   onClose: () => void;
   onSave: (patch: {
     caption: string;
@@ -32,6 +37,7 @@ export function MediaEditPanel({
   open,
   saving,
   saveMessage,
+  tagOptions,
   onClose,
   onSave,
   onDelete,
@@ -41,17 +47,40 @@ export function MediaEditPanel({
   const [alt, setAlt] = useState("");
   const [tags, setTags] = useState<string[]>([]);
 
+  const assetId = asset?.id;
+
+  /** Hide the page scrollbar while this editor is open. */
+  useEffect(() => {
+    if (!open) return;
+    const root = document.documentElement;
+    const previousBody = document.body.style.overflow;
+    const previousRoot = root.style.overflow;
+    document.body.style.overflow = "hidden";
+    root.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousBody;
+      root.style.overflow = previousRoot;
+    };
+  }, [open]);
+
+  // Reset only when a different asset is opened. Usage arriving later must
+  // not wipe fields the editor is already typing.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: keyed by asset id
   useEffect(() => {
     if (!asset) return;
     setCaption(asset.caption ?? "");
     setDescription(asset.description ?? "");
     setAlt(asset.alt ?? "");
     setTags(asset.tags ?? []);
-  }, [asset]);
+  }, [assetId]);
 
   if (!open || !asset) return null;
 
-  const previewUrl = asset.thumbUrl || cloudinaryThumbUrl(asset.url, 480);
+  const previewUrl = cloudinarySizedUrl(
+    asset.url,
+    EDITOR_PREVIEW_WIDTH,
+    "auto:best",
+  );
   const isVideo = asset.mime.startsWith("video/");
   const usageKnown = asset.usage != null;
   const inUse = asset.usage?.inUse ?? false;
@@ -144,6 +173,7 @@ export function MediaEditPanel({
             description={description}
             alt={alt}
             tags={tags}
+            tagOptions={tagOptions}
             onCaptionChange={setCaption}
             onDescriptionChange={setDescription}
             onAltChange={setAlt}

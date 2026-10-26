@@ -1,13 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { MEDIA_TAG_PRESETS } from "@/lib/cdn/media-tags";
+import { mergeMediaTagOptions } from "@/lib/cdn/media-tags";
 import { TextField } from "./TextField";
+import { useMediaLibraryTags } from "./useMediaLibraryTags";
 
 type MediaMetadataFieldsProps = {
   caption: string;
   description: string;
   tags: string[];
+  /** Tags already loaded by the parent. Skips another media-library request. */
+  tagOptions?: string[];
   /** Optional alt text (shown when editing existing assets) */
   alt?: string;
   onCaptionChange: (value: string) => void;
@@ -25,6 +28,7 @@ export function MediaMetadataFields({
   caption,
   description,
   tags,
+  tagOptions,
   alt = "",
   onCaptionChange,
   onDescriptionChange,
@@ -32,6 +36,11 @@ export function MediaMetadataFields({
   onAltChange,
 }: MediaMetadataFieldsProps) {
   const [customTag, setCustomTag] = useState("");
+  const libraryTags = useMediaLibraryTags(tagOptions == null);
+  const resolvedTagOptions = mergeMediaTagOptions(
+    tagOptions ?? libraryTags,
+    tags,
+  );
 
   function toggleTag(tag: string) {
     if (tags.includes(tag)) {
@@ -42,8 +51,8 @@ export function MediaMetadataFields({
   }
 
   function addCustomTag() {
-    const trimmed = customTag.trim();
-    if (!trimmed || tags.includes(trimmed)) return;
+    const trimmed = customTag.trim().replace(/\s+/g, " ").toLowerCase();
+    if (!trimmed || tags.some((tag) => tag.toLowerCase() === trimmed)) return;
     onTagsChange([...tags, trimmed]);
     setCustomTag("");
   }
@@ -78,7 +87,7 @@ export function MediaMetadataFields({
           Pick a category — helps filter the library.
         </p>
         <div className="admin-quick-add-chips">
-          {MEDIA_TAG_PRESETS.map((tag) => (
+          {resolvedTagOptions.map((tag) => (
             <button
               key={tag}
               type="button"

@@ -2,6 +2,7 @@ import { cloudinaryThumbUrl } from "@/lib/cdn/cloudinary-thumb-url";
 import { parseMediaTagsFromDb } from "@/lib/cdn/media-tags";
 import { jsonOk, jsonUnauthorized } from "@/lib/cms/api-response";
 import { getSessionFromRequest } from "@/lib/cms/auth";
+import { listStoredMediaTags } from "@/lib/cms/media-library-tags";
 import type { MediaUsageResult } from "@/lib/cms/media-usage";
 import { getCachedMediaUsageEntries } from "@/lib/cms/media-usage-cache";
 import { db } from "@/lib/db";
@@ -82,6 +83,7 @@ function toMediaAssetListItem(row: MediaAssetListRow) {
  * List media assets for the admin media library (paginated thumbnails).
  *
  * Query: `?tag=&page=1&limit=48&includeUsage=1&kind=image|video&usage=unused|inUse`
+ * Usage-only: `?usageOnly=1&ids=&kind=&tag=` returns badges without asset rows.
  *
  * `usage` filters the whole library by CMS usage before paginating (implies
  * `includeUsage`), so "Load more" keeps returning matching assets.
@@ -111,6 +113,7 @@ export async function GET(request: Request) {
     kindParam === "video" ? "video" : kindParam === "image" ? "image" : null;
   const mimePrefix = mimePrefixForKind(kind);
   const skip = (page - 1) * pageSize;
+  const usageOnly = url.searchParams.get("usageOnly") === "1";
 
   const filters: string[] = [];
   const params: unknown[] = [];
@@ -124,6 +127,35 @@ export async function GET(request: Request) {
   }
   const whereClause =
     filters.length > 0 ? `WHERE ${filters.join(" AND ")}` : "";
+
+  if (usageOnly) {
+    const ids = (url.searchParams.get("ids") ?? "")
+      .split(",")
+      .map((id) => id.trim())
+      .filter(Boolean)
+      .slice(0, MAX_PAGE_SIZE);
+    const [cached, idRows] = await Promise.all([
+      getCachedMediaUsageEntries(),
+      db.$queryRawUnsafe<Array<{ id: string }>>(
+        `SELECT "id" FROM "media_assets" ${whereClause}`,
+        ...params,
+      ),
+    ]);
+    const usageMap = new Map(cached.entries);
+    const usage: Record<string, MediaUsageResult> = {};
+    for (const id of ids) {
+      usage[id] = usageMap.get(id) ?? { inUse: false, references: [] };
+    }
+    return jsonOk({
+      usage,
+      usageSummary: summarizeMediaUsage(
+        idRows.map((row) => String(row.id)),
+        usageMap,
+      ),
+    });
+  }
+
+  const storedTagsPromise = listStoredMediaTags();
   const selectSql = `SELECT "id", "url", "cdn_key", "mime", "size_bytes", "alt", "caption", "description", "tags", "created_at"
      FROM "media_assets"
      ${whereClause}
@@ -200,6 +232,7 @@ export async function GET(request: Request) {
   }
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const availableTags = await storedTagsPromise;
 
   return jsonOk({
     assets: rows.map((asset) => ({
@@ -228,5 +261,6 @@ export async function GET(request: Request) {
     libraryTotal,
     totalPages,
     ...(usageSummary ? { usageSummary } : {}),
+    availableTags,
   });
 }

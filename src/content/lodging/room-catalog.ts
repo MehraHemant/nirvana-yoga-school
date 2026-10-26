@@ -1,4 +1,8 @@
-import { canonicalizeMediaTag } from "@/lib/cdn/media-tags";
+import {
+  canonicalizeMediaTag,
+  DEFAULT_MEDIA_TAG,
+  MEDIA_TAG_PRESETS,
+} from "@/lib/cdn/media-tags";
 
 /**
  * Public-facing room label — prefers title, falls back to name then slug.
@@ -32,5 +36,7 @@ export const COURSE_PACKAGE_LABELS = [
  * @param name - Room display name
  */
 export function roomMediaTag(name: string): string {
-  return canonicalizeMediaTag(name);
+  const tag = canonicalizeMediaTag(name);
+  if ((MEDIA_TAG_PRESETS as readonly string[]).includes(tag)) return tag;
+  return DEFAULT_MEDIA_TAG;
 }

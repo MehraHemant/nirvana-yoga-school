@@ -7,15 +7,13 @@ import {
   MediaUsageFilterChips,
   mediaUsageQuery,
 } from "@/components/admin/MediaUsageFilterChips";
-import {
-  galleryCategoryFromTag,
-  galleryMediaTagOptions,
-} from "@/content/mappers/gallery-module";
+import { galleryCategoryFromTag } from "@/content/mappers/gallery-module";
 import {
   fetchAdminMedia,
   fetchLodgingMediaImages,
 } from "@/lib/api/admin-client";
 import { cloudinaryThumbUrl } from "@/lib/cdn/cloudinary-thumb-url";
+import { mergeMediaTagOptions } from "@/lib/cdn/media-tags";
 
 export type MediaMultiPickResult = {
   url: string;
@@ -83,8 +81,12 @@ export function MediaMultiPicker({
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [emptyTagHint, setEmptyTagHint] = useState("");
   const [didTagFallback, setDidTagFallback] = useState(false);
+  const [storedTags, setStoredTags] = useState<string[]>([]);
 
-  const tagOptions = useMemo(() => galleryMediaTagOptions(), []);
+  const tagOptions = useMemo(
+    () => mergeMediaTagOptions(storedTags, initialTag ? [initialTag] : []),
+    [storedTags, initialTag],
+  );
 
   useEffect(() => {
     if (!open) return;
@@ -115,6 +117,7 @@ export function MediaMultiPicker({
             page,
             limit: PAGE_SIZE,
           }).then((body) => ({
+            availableTags: body.availableTags ?? [],
             images: (body.images ?? []).map(
               (image): PickerAsset => ({
                 id: image.id,
@@ -140,27 +143,29 @@ export function MediaMultiPicker({
             kind: "image",
             usage: mediaUsageQuery(usage),
           }).then((body) => ({
+            availableTags: body.availableTags ?? [],
             images: body.assets.map(
-                (asset): PickerAsset => ({
-                  id: asset.id,
-                  url: asset.url,
-                  thumbUrl: cloudinaryThumbUrl(asset.url, THUMB_WIDTH),
-                  label:
-                    asset.caption ||
-                    asset.alt ||
-                    asset.url.split("/").pop() ||
-                    "Untitled",
-                  alt: asset.alt ?? asset.caption ?? undefined,
-                  title: asset.caption ?? undefined,
-                  tags: asset.tags,
-                }),
-              ),
+              (asset): PickerAsset => ({
+                id: asset.id,
+                url: asset.url,
+                thumbUrl: cloudinaryThumbUrl(asset.url, THUMB_WIDTH),
+                label:
+                  asset.caption ||
+                  asset.alt ||
+                  asset.url.split("/").pop() ||
+                  "Untitled",
+                alt: asset.alt ?? asset.caption ?? undefined,
+                title: asset.caption ?? undefined,
+                tags: asset.tags,
+              }),
+            ),
             totalPages: body.totalPages,
           }));
 
     load
-      .then(({ images, totalPages: nextTotalPages }) => {
+      .then(({ images, totalPages: nextTotalPages, availableTags }) => {
         if (cancelled) return;
+        setStoredTags(availableTags);
         setTotalPages(nextTotalPages);
         setAssets((prev) => (page === 1 ? images : [...prev, ...images]));
         if (

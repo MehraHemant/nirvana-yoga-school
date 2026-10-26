@@ -12,6 +12,7 @@ import type {
   AdminMediaItemResponse,
   AdminMediaListResponse,
   AdminMediaUploadResponse,
+  AdminMediaUsageResponse,
   AdminMeResponse,
   AdminPageEditorDocument,
   AdminUserDetailResponse,
@@ -318,7 +319,27 @@ export async function fetchAdminMedia(
 }
 
 /**
- * Load one media asset with fresh usage info (edit panel / delete guard).
+ * Used/unused badges for the current page, without reloading asset rows.
+ *
+ * @param options - Kind, tag, and the asset ids already on screen
+ */
+export async function fetchAdminMediaUsage(options: {
+  tag?: string;
+  kind?: "image" | "video";
+  ids: string[];
+}): Promise<AdminMediaUsageResponse> {
+  const params = new URLSearchParams();
+  params.set("usageOnly", "1");
+  if (options.tag) params.set("tag", options.tag);
+  if (options.kind) params.set("kind", options.kind);
+  if (options.ids.length > 0) params.set("ids", options.ids.join(","));
+  return adminFetch<AdminMediaUsageResponse>(
+    `/api/admin/media?${params.toString()}`,
+  );
+}
+
+/**
+ * Load one media asset with usage from the library snapshot.
  *
  * @param id - Media asset id
  */
@@ -346,6 +367,8 @@ export type AdminLodgingMediaListResponse = {
   total: number;
   totalPages: number;
   synced?: number;
+  /** Every tag stored on media, including custom tags */
+  availableTags?: string[];
 };
 
 /**

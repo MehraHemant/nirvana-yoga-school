@@ -11,12 +11,12 @@ import { Copy, ExternalLink, Layers, Pencil, Trash } from "@/icons";
 import {
   deleteAdminMedia,
   fetchAdminMedia,
-  fetchAdminMediaAsset,
+  fetchAdminMediaUsage,
   updateAdminMedia,
 } from "@/lib/api/admin-client";
 import { cloudinaryThumbUrl } from "@/lib/cdn/cloudinary-thumb-url";
 import { MAX_UPLOAD_LABEL } from "@/lib/cdn/constants";
-import { MEDIA_TAG_PRESETS } from "@/lib/cdn/media-tags";
+import { mergeMediaTagOptions } from "@/lib/cdn/media-tags";
 import type { AdminMediaAsset } from "@/lib/types/admin-api";
 import { ApiClientError } from "@/lib/types/api";
 
@@ -70,6 +70,7 @@ export default function AdminMediaPage() {
     inUse: number;
     unused: number;
   } | null>(null);
+  const [storedTags, setStoredTags] = useState<string[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   const loadRequest = useRef(0);
   const [error, setError] = useState("");
@@ -104,24 +105,30 @@ export default function AdminMediaPage() {
       setTotal(body.total);
       setLibraryTotal(body.libraryTotal ?? body.total);
       setUsageSummary(body.usageSummary ?? null);
+      setStoredTags(body.availableTags ?? []);
       setTotalPages(body.totalPages);
       setLoading(false);
 
       if (usageParam == null) {
         try {
-          const usageBody = await fetchAdminMedia({
+          const usageBody = await fetchAdminMediaUsage({
             tag: tagFilter || undefined,
-            page,
-            limit: PAGE_SIZE,
             kind: libraryKind,
-            includeUsage: true,
+            ids: body.assets.map((asset) => asset.id),
           });
           if (requestId !== loadRequest.current) return;
-          setAssets(usageBody.assets);
-          setTotal(usageBody.total);
-          setLibraryTotal(usageBody.libraryTotal ?? usageBody.total);
-          setUsageSummary(usageBody.usageSummary ?? null);
-          setTotalPages(usageBody.totalPages);
+          setUsageSummary(usageBody.usageSummary);
+          setAssets((prev) =>
+            prev.map((item) => {
+              const usage = usageBody.usage[item.id];
+              return usage ? { ...item, usage } : item;
+            }),
+          );
+          setEditingAsset((current) => {
+            if (!current) return current;
+            const usage = usageBody.usage[current.id];
+            return usage ? { ...current, usage } : current;
+          });
         } catch (err) {
           if (requestId !== loadRequest.current) return;
           setError(err instanceof Error ? err.message : "Failed to load usage");
@@ -139,6 +146,11 @@ export default function AdminMediaPage() {
       if (requestId === loadRequest.current) setLoading(false);
     }
   }, [tagFilter, page, libraryKind, usageFilter]);
+
+  const tagOptions = useMemo(
+    () => mergeMediaTagOptions(storedTags),
+    [storedTags],
+  );
 
   useEffect(() => {
     loadAssets();
@@ -196,21 +208,13 @@ export default function AdminMediaPage() {
   }
 
   /**
-   * Opens the side panel editor and loads fresh usage for the asset.
+   * Opens the editor with the asset already on screen.
    *
    * @param asset - Media asset to edit
    */
   function openEditor(asset: AdminMediaAsset) {
     setEditingAsset(asset);
     setSaveMessage("");
-    void fetchAdminMediaAsset(asset.id)
-      .then((body) => {
-        setEditingAsset(body.asset);
-        setAssets((prev) =>
-          prev.map((item) => (item.id === body.asset.id ? body.asset : item)),
-        );
-      })
-      .catch(() => undefined);
   }
 
   /**
@@ -243,11 +247,35 @@ export default function AdminMediaPage() {
     setSaveMessage("");
 
     try {
-      const body = await updateAdminMedia(editingAsset.id, patch);
-      setEditingAsset(body.asset);
+      const saved = (await updateAdminMedia(editingAsset.id, patch)).asset;
+      const details = {
+        caption: saved.caption,
+        description: saved.description,
+        alt: saved.alt,
+        tags: saved.tags,
+      };
+      setEditingAsset((current) =>
+        current && current.id === saved.id
+          ? { ...current, ...details }
+          : current,
+      );
+      setAssets((prev) =>
+        prev.map((item) =>
+          item.id === saved.id ? { ...item, ...details } : item,
+        ),
+      );
+      setStoredTags((prev) => {
+        const seen = new Set(prev.map((tag) => tag.toLowerCase()));
+        const next = [...prev];
+        for (const tag of saved.tags ?? []) {
+          if (seen.has(tag.toLowerCase())) continue;
+          seen.add(tag.toLowerCase());
+          next.push(tag);
+        }
+        return next;
+      });
       setSaveMessage("Changes saved");
       setMessage("Image details saved");
-      await loadAssets();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Save failed");
     } finally {
@@ -843,7 +871,7 @@ export default function AdminMediaPage() {
             >
               All
             </button>
-            {MEDIA_TAG_PRESETS.map((tag) => (
+            {tagOptions.map((tag) => (
               <button
                 key={tag}
                 type="button"
@@ -1105,6 +1133,7 @@ export default function AdminMediaPage() {
         open={Boolean(editingAsset)}
         saving={saving}
         saveMessage={saveMessage}
+        tagOptions={tagOptions}
         onClose={() => setEditingAsset(null)}
         onSave={saveEdit}
         onDelete={deleteAsset}

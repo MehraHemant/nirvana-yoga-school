@@ -9,6 +9,7 @@ import {
 } from "@/components/admin/MediaUsageFilterChips";
 import { fetchAdminMedia } from "@/lib/api/admin-client";
 import { cloudinaryThumbUrl } from "@/lib/cdn/cloudinary-thumb-url";
+import { mergeMediaTagOptions } from "@/lib/cdn/media-tags";
 import type { AdminMediaAsset } from "@/lib/types/admin-api";
 
 type MediaPickerKind = "image" | "video";
@@ -33,13 +34,7 @@ const THUMB_WIDTH = 640;
  */
 function mediaAssetHaystack(asset: AdminMediaAsset): string {
   const filename = asset.url.split("/").pop() ?? "";
-  return [
-    asset.caption,
-    asset.alt,
-    asset.description,
-    filename,
-    ...asset.tags,
-  ]
+  return [asset.caption, asset.alt, asset.description, filename, ...asset.tags]
     .filter(Boolean)
     .join(" ")
     .toLowerCase();
@@ -64,6 +59,12 @@ export function MediaPicker({
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState("");
   const [usage, setUsage] = useState<MediaUsageFilter>("all");
+  const [tag, setTag] = useState(tagFilter ?? "");
+  const [storedTags, setStoredTags] = useState<string[]>([]);
+  const tagOptions = useMemo(
+    () => mergeMediaTagOptions(storedTags, tagFilter ? [tagFilter] : []),
+    [storedTags, tagFilter],
+  );
   const title = kind === "video" ? "Choose video" : "Choose image";
   const emptyHint =
     kind === "video"
@@ -77,7 +78,8 @@ export function MediaPicker({
     setTotalPages(1);
     setSearch("");
     setUsage("all");
-  }, [open]);
+    setTag(tagFilter ?? "");
+  }, [open, tagFilter]);
 
   useEffect(() => {
     if (!open) return;
@@ -87,7 +89,7 @@ export function MediaPicker({
     else setLoadingMore(true);
 
     fetchAdminMedia({
-      tag: tagFilter,
+      tag: tag || undefined,
       page,
       limit: PAGE_SIZE,
       kind,
@@ -95,8 +97,11 @@ export function MediaPicker({
     })
       .then((body) => {
         if (cancelled) return;
+        setStoredTags(body.availableTags ?? []);
         setTotalPages(body.totalPages);
-        setAssets((prev) => (page === 1 ? body.assets : [...prev, ...body.assets]));
+        setAssets((prev) =>
+          page === 1 ? body.assets : [...prev, ...body.assets],
+        );
       })
       .catch(() => {
         if (!cancelled && page === 1) setAssets([]);
@@ -111,7 +116,7 @@ export function MediaPicker({
     return () => {
       cancelled = true;
     };
-  }, [open, tagFilter, kind, page, usage]);
+  }, [open, tag, kind, page, usage]);
 
   const visibleAssets = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -163,6 +168,34 @@ export function MediaPicker({
               setUsage(next);
             }}
           />
+        </div>
+
+        <div className="admin-chip-row admin-media-picker-tags">
+          <button
+            type="button"
+            className={`admin-chip ${tag === "" ? "admin-chip--active" : ""}`}
+            onClick={() => {
+              setPage(1);
+              setAssets([]);
+              setTag("");
+            }}
+          >
+            All
+          </button>
+          {tagOptions.map((option) => (
+            <button
+              key={option}
+              type="button"
+              className={`admin-chip ${tag === option ? "admin-chip--active" : ""}`}
+              onClick={() => {
+                setPage(1);
+                setAssets([]);
+                setTag(option);
+              }}
+            >
+              {option}
+            </button>
+          ))}
         </div>
 
         {loading ? <p className="admin-hint">Loading…</p> : null}
