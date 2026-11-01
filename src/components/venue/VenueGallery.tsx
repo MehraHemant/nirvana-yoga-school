@@ -21,7 +21,7 @@ type VenueGalleryProps = {
   images: SitePageGalleryImage[];
   /** Page title for lightbox */
   lightboxTitle?: string;
-  /** Retreat venue uses photographic cards; course venue stays letterboxed */
+  /** Retreat cards are rounded; both variants crop photos to the same frame */
   variant?: "default" | "retreat";
 };
 
@@ -35,8 +35,7 @@ type VenuePhotoCardProps = {
 };
 
 /**
- * Venue photo tile. Course venue keeps the full image visible; retreat venue
- * uses a photographic crop to match the live retreat gallery.
+ * Venue photo tile. Portrait and landscape photos both fill the frame.
  *
  * @param props.item - Gallery image to open in the lightbox
  * @param props.alt - Accessible image label
@@ -65,9 +64,8 @@ function VenuePhotoCard({ item, alt, onOpen, variant }: VenuePhotoCardProps) {
         className={
           isRetreat
             ? "object-cover transition-transform duration-500 group-hover:scale-105"
-            : "object-contain"
+            : "object-cover"
         }
-        style={isRetreat ? undefined : { objectFit: "contain" }}
       />
       <span
         className={
@@ -170,6 +168,11 @@ export default function VenueGallery({
     setLightboxOpen(true);
   }
 
+  const gridClass =
+    variant === "retreat"
+      ? "grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3.5 lg:grid-cols-4"
+      : "grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-4";
+
   return (
     <section
       id="gallery"
@@ -226,34 +229,24 @@ export default function VenueGallery({
                         (item) => item.category === section.id,
                       );
                       if (sectionItems.length === 0) return null;
+                      const sectionLabel =
+                        section.label || galleryCategoryLabel(section.id);
                       return (
                         <div key={section.id} id={`gallery-${section.id}`}>
                           <header className="mb-5 border-b border-ink/10 pb-3">
-                            <h2 className="type-h3 text-ink">
-                              {section.label ||
-                                galleryCategoryLabel(section.id)}
-                            </h2>
+                            <h2 className="type-h3 text-ink">{sectionLabel}</h2>
                             {section.description ? (
                               <p className="mt-1 max-w-2xl text-sm text-ink/70">
                                 {section.description}
                               </p>
                             ) : null}
                           </header>
-                          <ul
-                            className={
-                              variant === "retreat"
-                                ? "grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3.5 lg:grid-cols-4"
-                                : "grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-4"
-                            }
-                          >
+                          <ul className={gridClass}>
                             {sectionItems.map((item, index) => (
                               <li key={item.key}>
                                 <VenuePhotoCard
                                   item={item}
-                                  alt={
-                                    item.alt ??
-                                    `${section.label || galleryCategoryLabel(section.id)} ${index + 1}`
-                                  }
+                                  alt={item.alt ?? `${sectionLabel} ${index + 1}`}
                                   onOpen={openLightbox}
                                   variant={variant}
                                 />
@@ -265,13 +258,7 @@ export default function VenueGallery({
                     })}
                   </div>
                 ) : (
-                  <ul
-                    className={
-                      variant === "retreat"
-                        ? "grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3.5 lg:grid-cols-4"
-                        : "grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-4"
-                    }
-                  >
+                  <ul className={gridClass}>
                     {displayedItems.map((item, index) => (
                       <li key={item.key}>
                         <VenuePhotoCard

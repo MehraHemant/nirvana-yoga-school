@@ -197,15 +197,14 @@ export default function AdminMediaPage() {
   }
 
   /**
-   * Applies a tag chip filter and resets to the first page.
+   * Applies a tag chip filter and returns to the first page.
+   * Photos already checked stay selected.
    *
    * @param nextTag - Tag to filter by, or empty for all
    */
   function applyTagFilter(nextTag: string) {
     setTagFilter(nextTag);
     setPage(1);
-    setEditingAsset(null);
-    setSelectedIds([]);
   }
 
   /**
@@ -320,10 +319,15 @@ export default function AdminMediaPage() {
   }
 
   /**
-   * Selects every unused asset on the current filtered page.
+   * Adds every unused asset on the current filtered page.
+   * Photos already selected under another tag stay selected.
    */
   function selectUnusedOnPage() {
-    setSelectedIds(unusedOnPage.map((asset) => asset.id));
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      for (const asset of unusedOnPage) next.add(asset.id);
+      return [...next];
+    });
   }
 
   /**
@@ -337,10 +341,12 @@ export default function AdminMediaPage() {
    * Deletes every selected unused asset via the existing single-delete API.
    */
   async function deleteSelected() {
-    const toDelete = assets.filter(
-      (asset) =>
-        selectedIds.includes(asset.id) && asset.usage && !asset.usage.inUse,
-    );
+    const onPage = new Map(assets.map((asset) => [asset.id, asset]));
+    const toDelete = selectedIds.flatMap((id) => {
+      const asset = onPage.get(id);
+      if (asset && !(asset.usage && !asset.usage.inUse)) return [];
+      return [{ id, label: asset?.caption || id }];
+    });
     if (toDelete.length === 0) return;
 
     const noun = toDelete.length === 1 ? assetNoun : assetNounPlural;
@@ -369,7 +375,7 @@ export default function AdminMediaPage() {
           return;
         }
         const asset = toDelete[index];
-        const label = asset?.caption || asset?.id || "Asset";
+        const label = asset?.label || "Asset";
         const err = result.reason;
         if (err instanceof ApiClientError && err.references?.length) {
           failed.push(

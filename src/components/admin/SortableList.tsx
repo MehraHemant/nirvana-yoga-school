@@ -125,6 +125,13 @@ type SortableRowProps = {
   id: string;
   className?: string;
   style?: CSSProperties;
+  /** Marks the row so a shuffle can measure where it started */
+  shuffleKey?: string;
+  /**
+   * When false, a list reorder does not leave a transform on the row.
+   * The parent can then animate the move itself.
+   */
+  animateLayoutChanges?: boolean;
   children: (args: SortableRowRenderArgs) => ReactNode;
 };
 
@@ -137,6 +144,8 @@ export function SortableRow({
   id,
   className,
   style,
+  shuffleKey,
+  animateLayoutChanges = true,
   children,
 }: SortableRowProps) {
   const {
@@ -146,7 +155,11 @@ export function SortableRow({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id });
+  } = useSortable(
+    animateLayoutChanges
+      ? { id }
+      : { id, animateLayoutChanges: () => false },
+  );
 
   const mergedStyle: CSSProperties = {
     ...style,
@@ -158,7 +171,12 @@ export function SortableRow({
   };
 
   return (
-    <div ref={setNodeRef} className={className} style={mergedStyle}>
+    <div
+      ref={setNodeRef}
+      className={className}
+      style={mergedStyle}
+      data-shuffle-key={shuffleKey}
+    >
       {children({
         dragHandleProps: { ...attributes, ...listeners },
         isDragging,

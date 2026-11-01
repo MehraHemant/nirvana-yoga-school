@@ -3738,6 +3738,9 @@
   font-weight: 600;
   line-height: 1.2;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   border: 1px solid transparent;
   background: #a32432;
   color: #fff;
