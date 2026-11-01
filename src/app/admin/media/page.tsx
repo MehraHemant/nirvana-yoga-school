@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AdminIconButton } from "@/components/admin/AdminIconAction";
+import { ImageFrameBadge } from "@/components/admin/ImageFrameBadge";
 import { MediaEditPanel } from "@/components/admin/MediaEditPanel";
 import {
   MediaUploadPanel,
@@ -574,6 +575,9 @@ export default function AdminMediaPage() {
               ) : null}
             </div>
           ) : null}
+          {isVideoLibrary ? null : (
+            <ImageFrameBadge width={asset.width} height={asset.height} />
+          )}
           <p className="admin-media-library__card-meta">
             {formatCreatedDate(asset.createdAt)} · {formatSize(asset.sizeBytes)}
           </p>
@@ -655,6 +659,9 @@ export default function AdminMediaPage() {
               ))}
             </div>
           ) : null}
+          {isVideoLibrary ? null : (
+            <ImageFrameBadge width={asset.width} height={asset.height} />
+          )}
           <span className="admin-media-library__row-meta">
             {formatCreatedDate(asset.createdAt)} · {formatSize(asset.sizeBytes)}
           </span>

@@ -23,7 +23,16 @@ import {
   type QuizQuestion,
   type QuizSettings,
 } from "@/content/types/quiz";
+import {
+  DEFAULT_QUIZ_CATEGORY,
+  normalizeQuizCategory,
+  QUIZ_CATEGORIES,
+  QUIZ_CATEGORY_LABELS,
+  type QuizCategoryFilter,
+  type QuizCategoryId,
+} from "@/content/types/quiz-categories";
 import { Trash } from "@/icons";
+import { dedupedFetch } from "@/lib/api/deduped-fetch";
 import { parseApiJson } from "@/lib/types/api";
 
 type QuizDoc = {
@@ -36,14 +45,24 @@ const OPTION_TYPE_CHOICES: { value: QuizOptionType; label: string }[] = [
   { value: "image", label: "Image answers" },
 ];
 
+const CATEGORY_CHOICES = QUIZ_CATEGORIES.map((category) => ({
+  value: category.id,
+  label: category.label,
+}));
+
 /**
  * Blank question of the given answer type.
  *
  * @param optionType - Text or image answers
+ * @param category - Category the question belongs to
  */
-function createQuestion(optionType: QuizOptionType): QuizQuestion {
+function createQuestion(
+  optionType: QuizOptionType,
+  category: QuizCategoryId = DEFAULT_QUIZ_CATEGORY,
+): QuizQuestion {
   return {
     id: "",
+    category,
     prompt: "",
     promptImageUrl: "",
     optionType,
@@ -99,12 +118,14 @@ export function QuizEditor() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
+  const [categoryFilter, setCategoryFilter] =
+    useState<QuizCategoryFilter>("all");
   const questions = doc?.questions ?? [];
   const keys = useStableListKeys(questions.length);
 
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/admin/quiz")
+    dedupedFetch("/api/admin/quiz")
       .then((res) => parseApiJson<QuizDoc>(res))
       .then((body) => {
         if (cancelled) return;
@@ -138,6 +159,21 @@ export function QuizEditor() {
     [doc, baseline],
   );
   const activeCount = questions.filter((question) => question.active).length;
+  const categoryCounts = useMemo(() => {
+    const counts = Object.fromEntries(
+      QUIZ_CATEGORIES.map((category) => [category.id, 0]),
+    ) as Record<QuizCategoryId, number>;
+    for (const question of questions) {
+      counts[normalizeQuizCategory(question.category)] += 1;
+    }
+    return counts;
+  }, [questions]);
+  const visibleIndexes = questions.flatMap((question, index) =>
+    categoryFilter === "all" ||
+    normalizeQuizCategory(question.category) === categoryFilter
+      ? [index]
+      : [],
+  );
 
   function patchSettings(patch: Partial<QuizSettings>) {
     if (!doc) return;
@@ -157,7 +193,12 @@ export function QuizEditor() {
   function addQuestion(optionType: QuizOptionType) {
     if (!doc) return;
     keys.addKey();
-    setDoc({ ...doc, questions: [...questions, createQuestion(optionType)] });
+    const category =
+      categoryFilter === "all" ? DEFAULT_QUIZ_CATEGORY : categoryFilter;
+    setDoc({
+      ...doc,
+      questions: [...questions, createQuestion(optionType, category)],
+    });
   }
 
   function removeQuestion(index: number) {
@@ -178,7 +219,7 @@ export function QuizEditor() {
     setSaved(false);
     setError("");
     try {
-      const res = await fetch("/api/admin/quiz", {
+      const res = await dedupedFetch("/api/admin/quiz", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(doc),
@@ -404,6 +445,37 @@ export function QuizEditor() {
             description="Drag to reorder. Switched-off questions stay here but are never shown."
             defaultOpen
           >
+            {questions.length > 0 ? (
+              <div className="admin-faq-editor__toolbar">
+                <span className="admin-label admin-faq-editor__filter-label">
+                  Filter by category
+                </span>
+                <div className="admin-faq-editor__filters">
+                  <button
+                    type="button"
+                    className={`admin-chip ${categoryFilter === "all" ? "admin-chip--active" : ""}`}
+                    onClick={() => setCategoryFilter("all")}
+                  >
+                    All
+                    <span className="admin-chip-count">{questions.length}</span>
+                  </button>
+                  {QUIZ_CATEGORIES.map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      className={`admin-chip ${categoryFilter === item.id ? "admin-chip--active" : ""}`}
+                      onClick={() => setCategoryFilter(item.id)}
+                    >
+                      {item.label}
+                      <span className="admin-chip-count">
+                        {categoryCounts[item.id]}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
             <div className="admin-field-header">
               <span className="admin-label">Question bank</span>
               <div className="admin-actions">
@@ -444,25 +516,39 @@ export function QuizEditor() {
                   </button>
                 </div>
               </div>
+            ) : visibleIndexes.length === 0 ? (
+              <div className="admin-empty-card">
+                <p>No questions in this category.</p>
+                <button
+                  type="button"
+                  className="admin-btn-sm"
+                  onClick={() => setCategoryFilter("all")}
+                >
+                  Show all categories
+                </button>
+              </div>
             ) : (
               <SortableList
                 ids={keys.keys}
                 onReorder={reorder}
                 className="admin-stack"
               >
-                {questions.map((question, index) => (
-                  <SortableRow key={keys.keys[index]} id={keys.keys[index]}>
-                    {({ dragHandleProps }) => (
-                      <QuestionCard
-                        question={question}
-                        index={index}
-                        dragHandleProps={dragHandleProps}
-                        onChange={(patch) => updateQuestion(index, patch)}
-                        onRemove={() => removeQuestion(index)}
-                      />
-                    )}
-                  </SortableRow>
-                ))}
+                {questions.map((question, index) => {
+                  if (!visibleIndexes.includes(index)) return null;
+                  return (
+                    <SortableRow key={keys.keys[index]} id={keys.keys[index]}>
+                      {({ dragHandleProps }) => (
+                        <QuestionCard
+                          question={question}
+                          index={index}
+                          dragHandleProps={dragHandleProps}
+                          onChange={(patch) => updateQuestion(index, patch)}
+                          onRemove={() => removeQuestion(index)}
+                        />
+                      )}
+                    </SortableRow>
+                  );
+                })}
               </SortableList>
             )}
           </CollapsiblePanel>
@@ -508,6 +594,7 @@ function QuestionCard({
   const issue = questionIssue(question);
   const imageOptions = question.optionType === "image";
   const fieldPrefix = `quiz-q${index}`;
+  const category = normalizeQuizCategory(question.category);
 
   function updateOption(optionIndex: number, patch: Partial<QuizOption>) {
     onChange({
@@ -530,7 +617,7 @@ function QuestionCard({
       title={question.prompt.trim() || "New question"}
       subtitle={
         issue ??
-        `${imageOptions ? "Image" : "Text"} answers · correct: ${String.fromCharCode(65 + question.correctIndex)}`
+        `${QUIZ_CATEGORY_LABELS[category]} · ${imageOptions ? "Image" : "Text"} answers · correct: ${String.fromCharCode(65 + question.correctIndex)}`
       }
       index={index}
       collapsible
@@ -538,15 +625,29 @@ function QuestionCard({
       dragHandleProps={dragHandleProps}
       onRemove={onRemove}
       headerActions={
-        <SectionLiveField
-          id={`${fieldPrefix}-active`}
-          value={question.active}
-          onChange={(active) => onChange({ active })}
-          liveLabel="On"
-          hiddenLabel="Off"
-        />
+        <>
+          <span className="admin-faq-category-badge">
+            {QUIZ_CATEGORY_LABELS[category]}
+          </span>
+          <SectionLiveField
+            id={`${fieldPrefix}-active`}
+            value={question.active}
+            onChange={(active) => onChange({ active })}
+            liveLabel="On"
+            hiddenLabel="Off"
+          />
+        </>
       }
     >
+      <SelectField
+        id={`${fieldPrefix}-category`}
+        label="Category"
+        value={category}
+        options={CATEGORY_CHOICES}
+        onChange={(value) =>
+          onChange({ category: normalizeQuizCategory(value) })
+        }
+      />
       <TextField
         id={`${fieldPrefix}-prompt`}
         label="Question"

@@ -5,10 +5,15 @@ import type {
   QuizOption,
   QuizOptionType,
   QuizQuestion,
-  QuizSettings,
 } from "@/content/types/quiz";
+import { normalizeQuizCategory } from "@/content/types/quiz-categories";
 import { db, isDbEnabled } from "@/lib/db";
 import { createId } from "@/lib/db/ids";
+
+export {
+  pickQuestionsForAttempt,
+  questionsPerAttempt,
+} from "./pick-questions";
 
 let questionsReady: Promise<void> | null = null;
 
@@ -21,6 +26,7 @@ export function ensureQuizQuestionsTable(): Promise<void> {
       await db.$executeRawUnsafe(`
         CREATE TABLE IF NOT EXISTS "quiz_questions" (
           "id" TEXT PRIMARY KEY,
+          "category" TEXT NOT NULL DEFAULT 'yoga-basics',
           "prompt" TEXT NOT NULL,
           "prompt_image_url" TEXT NOT NULL DEFAULT '',
           "option_type" TEXT NOT NULL DEFAULT 'text',
@@ -32,6 +38,10 @@ export function ensureQuizQuestionsTable(): Promise<void> {
           "created_at" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
           "updated_at" TIMESTAMPTZ NOT NULL DEFAULT NOW()
         )
+      `);
+      await db.$executeRawUnsafe(`
+        ALTER TABLE "quiz_questions"
+          ADD COLUMN IF NOT EXISTS "category" TEXT NOT NULL DEFAULT 'yoga-basics'
       `);
       await db.$executeRawUnsafe(`
         CREATE INDEX IF NOT EXISTS "quiz_questions_sort_idx"
@@ -47,6 +57,7 @@ export function ensureQuizQuestionsTable(): Promise<void> {
 
 type QuestionRow = {
   id: string;
+  category: string | null;
   prompt: string;
   prompt_image_url: string;
   option_type: string;
@@ -72,6 +83,7 @@ function toQuestion(row: QuestionRow): QuizQuestion {
     }));
   return {
     id: row.id,
+    category: normalizeQuizCategory(row.category),
     prompt: row.prompt,
     promptImageUrl: row.prompt_image_url ?? "",
     optionType: (row.option_type === "image"
@@ -95,7 +107,7 @@ export async function listQuizQuestions(
   if (!isDbEnabled()) return [];
   await ensureQuizQuestionsTable();
   const rows = await db.$queryRawUnsafe<QuestionRow[]>(
-    `SELECT "id", "prompt", "prompt_image_url", "option_type", "options",
+    `SELECT "id", "category", "prompt", "prompt_image_url", "option_type", "options",
             "correct_index", "explanation", "active"
        FROM "quiz_questions"
       ${options.activeOnly ? `WHERE "active" = TRUE` : ""}
@@ -155,10 +167,11 @@ export async function replaceQuizQuestions(
     for (const [index, question] of withIds.entries()) {
       await db.$executeRawUnsafe(
         `INSERT INTO "quiz_questions"
-           ("id", "prompt", "prompt_image_url", "option_type", "options",
+           ("id", "category", "prompt", "prompt_image_url", "option_type", "options",
             "correct_index", "explanation", "active", "sort_order")
-         VALUES (?, ?, ?, ?, ?::jsonb, ?, ?, ?, ?)
+         VALUES (?, ?, ?, ?, ?, ?::jsonb, ?, ?, ?, ?)
          ON CONFLICT ("id") DO UPDATE SET
+           "category" = EXCLUDED."category",
            "prompt" = EXCLUDED."prompt",
            "prompt_image_url" = EXCLUDED."prompt_image_url",
            "option_type" = EXCLUDED."option_type",
@@ -169,6 +182,7 @@ export async function replaceQuizQuestions(
            "sort_order" = EXCLUDED."sort_order",
            "updated_at" = NOW()`,
         question.id,
+        question.category,
         question.prompt,
         question.promptImageUrl,
         question.optionType,
@@ -192,52 +206,10 @@ export async function replaceQuizQuestions(
 export function toPublicQuestion(question: QuizQuestion): PublicQuizQuestion {
   return {
     id: question.id,
+    category: question.category,
     prompt: question.prompt,
     promptImageUrl: question.promptImageUrl,
     optionType: question.optionType,
     options: question.options,
   };
-}
-
-/**
- * Number of questions one attempt contains.
- *
- * @param settings - Quiz settings
- * @param available - Active questions in the bank
- */
-export function questionsPerAttempt(
-  settings: QuizSettings,
-  available: number,
-): number {
-  return settings.questionsPerAttempt > 0
-    ? Math.min(settings.questionsPerAttempt, available)
-    : available;
-}
-
-/**
- * Picks the questions for a new attempt: a random subset when the CMS caps the
- * count, shuffled when the CMS asks for it.
- *
- * @param questions - Active questions in CMS order
- * @param settings - Quiz settings
- */
-export function pickQuestionsForAttempt(
-  questions: QuizQuestion[],
-  settings: QuizSettings,
-): QuizQuestion[] {
-  const count = questionsPerAttempt(settings, questions.length);
-  const pool = [...questions];
-  if (settings.shuffleQuestions || count < questions.length) {
-    for (let index = pool.length - 1; index > 0; index -= 1) {
-      const swap = Math.floor(Math.random() * (index + 1));
-      [pool[index], pool[swap]] = [pool[swap], pool[index]];
-    }
-  }
-  const picked = pool.slice(0, count);
-  if (settings.shuffleQuestions) return picked;
-  // Keep CMS order for a capped, unshuffled quiz.
-  const order = new Map(
-    questions.map((question, index) => [question.id, index]),
-  );
-  return picked.sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
 }

@@ -37,6 +37,7 @@ import type {
   WhyNirvanaContent,
 } from "@/content/types/shared-sections";
 import { GLOBAL_SHARED_SECTION_KEYS } from "@/content/types/shared-sections";
+import { dedupedFetch } from "@/lib/api/deduped-fetch";
 import { hasExamCertificationContent } from "@/lib/cms/section-visibility";
 import {
   createEmptySharedFood,
@@ -241,7 +242,7 @@ export function SharedSectionsEditor() {
     setError("");
     setSaved(false);
     setRoomsDirty(false);
-    fetch(`/api/admin/settings/${active}`)
+    dedupedFetch(`/api/admin/settings/${active}`)
       .then((res) => parseApiJson<{ settings: SharedValue }>(res))
       .then((body) => {
         if (cancelled) return;
@@ -290,7 +291,7 @@ export function SharedSectionsEditor() {
       }
       const saves: Promise<unknown>[] = [
         parseApiJson(
-          await fetch(`/api/admin/settings/${active}`, {
+          await dedupedFetch(`/api/admin/settings/${active}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ value: payload }),

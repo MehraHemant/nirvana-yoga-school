@@ -1,3 +1,4 @@
+import { after } from "next/server";
 import { dropOrphanPricingOptions } from "@/content/mappers/page-room-fees";
 import type { PageRoomOfferRecord } from "@/content/types/lodging";
 import type {
@@ -22,7 +23,9 @@ import {
 
 /**
  * Builds pricing options from page room offers.
- * Name / description / features / image come from the shared room join.
+ * Name, description, and features come from the shared room.
+ * Cover photos are not copied: fee cards do not render them, and a hidden
+ * URL in page modules blocks deleting the asset from the media library.
  *
  * @param offers - Offers with joined room fields
  * @param liveOnly - When true (default), exclude non-Live offers
@@ -42,7 +45,6 @@ export function offersToPricingOptions(
         : undefined,
       description: offer.roomDescription ?? "",
       features: offer.roomFeatures ?? [],
-      image: offer.roomImages?.[0]?.url,
     }));
 }
 
@@ -204,14 +206,16 @@ export async function hydrateModulesFromLodgingTables(
   } else {
     const jsonBatches = next.pricing?.batches ?? [];
     if (jsonBatches.length > 0) {
-      await replacePageDateBatches(
-        pageId,
-        pricingBatchesToDateBatchRows(jsonBatches),
-      ).catch((error) => {
-        console.error(
-          "[hydrateModulesFromLodgingTables] batch backfill failed",
-          error,
-        );
+      const batchRows = pricingBatchesToDateBatchRows(jsonBatches);
+      // The response already uses the JSON batches. Persist them after the
+      // response so opening an editor does not wait on this write.
+      after(() => {
+        void replacePageDateBatches(pageId, batchRows).catch((error) => {
+          console.error(
+            "[hydrateModulesFromLodgingTables] batch backfill failed",
+            error,
+          );
+        });
       });
     }
   }

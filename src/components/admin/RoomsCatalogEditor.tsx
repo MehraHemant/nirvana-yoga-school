@@ -23,6 +23,7 @@ import type {
   RoomVideo,
   SharedGalleryImage,
 } from "@/content/types/shared-sections";
+import { dedupedFetch } from "@/lib/api/deduped-fetch";
 import { parseApiJson } from "@/lib/types/api";
 
 /**
@@ -80,9 +81,7 @@ function slugify(value: string): string {
  * @param rooms - Room list
  */
 function serializeRoomsForCompare(rooms: RoomRecord[]): string {
-  return JSON.stringify(
-    rooms.map(({ createdAt, updatedAt, ...room }) => room),
-  );
+  return JSON.stringify(rooms.map(({ createdAt, updatedAt, ...room }) => room));
 }
 
 /**
@@ -170,7 +169,7 @@ export const RoomsCatalogEditor = forwardRef<
     let cancelled = false;
     setLoading(true);
     setError("");
-    fetch(`/api/admin/rooms?catalog=${catalog}`)
+    dedupedFetch(`/api/admin/rooms?catalog=${catalog}`)
       .then((res) => parseApiJson<{ rooms: RoomRecord[] }>(res))
       .then((body) => {
         if (cancelled) return;
@@ -204,7 +203,7 @@ export const RoomsCatalogEditor = forwardRef<
     const payload = buildRoomPayload(catalog, room);
     if (isNew) {
       const body = await parseApiJson<{ room: RoomRecord }>(
-        await fetch("/api/admin/rooms", {
+        await dedupedFetch("/api/admin/rooms", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -213,7 +212,7 @@ export const RoomsCatalogEditor = forwardRef<
       return body.room;
     }
     const body = await parseApiJson<{ room: RoomRecord }>(
-      await fetch(`/api/admin/rooms/${room.id}`, {
+      await dedupedFetch(`/api/admin/rooms/${room.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -229,11 +228,7 @@ export const RoomsCatalogEditor = forwardRef<
    * @param isNew - Whether to POST a new room
    * @param rethrow - When true, propagate errors (used by saveAll)
    */
-  async function saveRoom(
-    room: RoomRecord,
-    isNew: boolean,
-    rethrow = false,
-  ) {
+  async function saveRoom(room: RoomRecord, isNew: boolean, rethrow = false) {
     setSavingId(room.id);
     setError("");
     try {
@@ -303,7 +298,7 @@ export const RoomsCatalogEditor = forwardRef<
     setError("");
     try {
       await parseApiJson(
-        await fetch(`/api/admin/rooms/${id}`, { method: "DELETE" }),
+        await dedupedFetch(`/api/admin/rooms/${id}`, { method: "DELETE" }),
       );
       keys.removeKey(index);
       commitRooms((prev) => prev.filter((room) => room.id !== id));
@@ -360,8 +355,8 @@ export const RoomsCatalogEditor = forwardRef<
 
         <div className="admin-rooms-catalog__toolbar">
           <p className="admin-rooms-catalog__hint">
-            Shared catalog for product pages · save on each card or the page Save
-            bar
+            Shared catalog for product pages · save on each card or the page
+            Save bar
           </p>
           <button type="button" className="admin-btn-sm" onClick={addRoom}>
             Add room

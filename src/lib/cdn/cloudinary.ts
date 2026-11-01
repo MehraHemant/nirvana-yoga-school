@@ -10,6 +10,7 @@ import {
   MAX_VIDEO_UPLOAD_BYTES,
   MAX_VIDEO_UPLOAD_LABEL,
 } from "@/lib/cdn/constants";
+import { toImagePixel } from "@/lib/cdn/image-frame";
 
 export type CdnResourceType = "image" | "video" | "raw";
 
@@ -21,6 +22,10 @@ export type CdnUploadResult = {
   resourceType: CdnResourceType;
   /** Present for video uploads when Cloudinary reports duration */
   durationSeconds?: number;
+  /** Original pixel width when Cloudinary reports it */
+  width?: number;
+  /** Original pixel height when Cloudinary reports it */
+  height?: number;
 };
 
 function cloudinaryConfig() {
@@ -247,7 +252,41 @@ export async function uploadToCloudinary(
     sizeBytes: result.bytes,
     resourceType,
     durationSeconds: duration,
+    width: toImagePixel(result.width) ?? undefined,
+    height: toImagePixel(result.height) ?? undefined,
   };
+}
+
+/**
+ * Looks up original pixel size for Cloudinary image public ids.
+ *
+ * @param publicIds - `media_assets.cdn_key` values
+ */
+export async function lookupCloudinaryImageDimensions(
+  publicIds: string[],
+): Promise<Map<string, { width: number; height: number }>> {
+  const found = new Map<string, { width: number; height: number }>();
+  const ids = [...new Set(publicIds.map((id) => id.trim()).filter(Boolean))];
+  if (ids.length === 0 || !ensureCloudinary()) return found;
+
+  const result = (await cloudinary.api.resources_by_ids(ids, {
+    resource_type: "image",
+  })) as {
+    resources?: Array<{
+      public_id?: string;
+      width?: number;
+      height?: number;
+    }>;
+  };
+
+  for (const resource of result.resources ?? []) {
+    const width = toImagePixel(resource.width);
+    const height = toImagePixel(resource.height);
+    if (!resource.public_id || width == null || height == null) continue;
+    found.set(resource.public_id, { width, height });
+  }
+
+  return found;
 }
 
 /**

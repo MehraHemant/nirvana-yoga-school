@@ -2,9 +2,9 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AdminSearchField } from "@/components/admin/AdminSearchField";
-import { FaqUsageIndicator } from "@/components/admin/FaqUsageIndicator";
 import { FaqAdminTagFilterChips } from "@/components/admin/FaqAdminTagFilterChips";
 import { FaqCategorySelect } from "@/components/admin/FaqCategorySelect";
+import { FaqUsageIndicator } from "@/components/admin/FaqUsageIndicator";
 import { NestedItemCard } from "@/components/admin/NestedItemCard";
 import {
   reorderItems,
@@ -14,23 +14,21 @@ import {
 import { TextField } from "@/components/admin/TextField";
 import { useStableListKeys } from "@/components/admin/useStableListKeys";
 import {
+  DEFAULT_FAQ_CATEGORY,
   FAQ_CATEGORIES,
   FAQ_CATEGORY_IDS,
   FAQ_CATEGORY_LABELS,
-  DEFAULT_FAQ_CATEGORY,
   type FaqCategoryId,
 } from "@/content/types/faq-categories";
 import type {
+  FaqAdminTagFilter,
   FaqAssignmentExtras,
   FaqContextType,
   FaqRecordWithUsage,
-  FaqAdminTagFilter,
   ResolvedFaq,
 } from "@/content/types/faqs";
-import {
-  faqAdminTagLabel,
-  isFaqAdminTagId,
-} from "@/content/types/faqs";
+import { faqAdminTagLabel, isFaqAdminTagId } from "@/content/types/faqs";
+import { dedupedFetch } from "@/lib/api/deduped-fetch";
 import {
   countFaqsByAdminTag,
   faqAnswerPreview,
@@ -124,10 +122,10 @@ export function PageFaqAssignmentsEditor({
     setError("");
     try {
       const [assignmentsRes, catalogRes] = await Promise.all([
-        fetch(
+        dedupedFetch(
           `/api/admin/faq-assignments?contextType=${encodeURIComponent(contextType)}&contextKey=${encodeURIComponent(contextKey)}`,
         ),
-        fetch("/api/admin/faqs"),
+        dedupedFetch("/api/admin/faqs"),
       ]);
       const assignmentsBody = await parseApiJson<{ faqs: ResolvedFaq[] }>(
         assignmentsRes,
@@ -250,7 +248,7 @@ export function PageFaqAssignmentsEditor({
     try {
       for (const row of nextAssigned.filter((item) => item.dirty)) {
         await parseApiJson(
-          await fetch(`/api/admin/faqs/${encodeURIComponent(row.id)}`, {
+          await dedupedFetch(`/api/admin/faqs/${encodeURIComponent(row.id)}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -271,7 +269,7 @@ export function PageFaqAssignmentsEditor({
       }
 
       const body = await parseApiJson<{ faqs: ResolvedFaq[] }>(
-        await fetch("/api/admin/faq-assignments", {
+        await dedupedFetch("/api/admin/faq-assignments", {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -285,7 +283,9 @@ export function PageFaqAssignmentsEditor({
       setAssigned(body.faqs ?? []);
       onSaved?.();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save assignments");
+      setError(
+        err instanceof Error ? err.message : "Failed to save assignments",
+      );
       throw err;
     } finally {
       setSaving(false);
@@ -416,7 +416,7 @@ export function PageFaqAssignmentsEditor({
       if (!faq) {
         try {
           const body = await parseApiJson<{ faq: FaqRecordWithUsage }>(
-            await fetch("/api/admin/faqs", {
+            await dedupedFetch("/api/admin/faqs", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
@@ -429,15 +429,14 @@ export function PageFaqAssignmentsEditor({
           );
           faq = {
             ...body.faq,
-            usage:
-              body.faq.usage ?? { inUse: false, references: [] },
+            usage: body.faq.usage ?? { inUse: false, references: [] },
           };
           setCatalog((prev) => [...prev, faq!]);
         } catch (err) {
           if (err instanceof ApiClientError && err.code === "CONFLICT") {
-            const catalogBody = await parseApiJson<{ faqs: FaqRecordWithUsage[] }>(
-              await fetch("/api/admin/faqs"),
-            );
+            const catalogBody = await parseApiJson<{
+              faqs: FaqRecordWithUsage[];
+            }>(await dedupedFetch("/api/admin/faqs"));
             const refreshed = catalogBody.faqs ?? [];
             setCatalog(refreshed);
             faq = refreshed.find(
@@ -465,7 +464,7 @@ export function PageFaqAssignmentsEditor({
       await persistAssignments(next);
 
       const catalogBody = await parseApiJson<{ faqs: FaqRecordWithUsage[] }>(
-        await fetch("/api/admin/faqs"),
+        await dedupedFetch("/api/admin/faqs"),
       );
       setCatalog(catalogBody.faqs ?? []);
 
@@ -521,7 +520,10 @@ export function PageFaqAssignmentsEditor({
         </p>
       ) : null}
 
-      <section className="admin-faq-section" aria-labelledby={`${idPrefix}-assigned-heading`}>
+      <section
+        className="admin-faq-section"
+        aria-labelledby={`${idPrefix}-assigned-heading`}
+      >
         <header className="admin-faq-section__header">
           <div className="admin-faq-section__heading">
             <h3
@@ -593,7 +595,9 @@ export function PageFaqAssignmentsEditor({
             <span className="admin-label admin-faq-quick-add__label">
               Add by category
             </span>
-            <div className="admin-faq-editor__filters">{categoryQuickAddChips}</div>
+            <div className="admin-faq-editor__filters">
+              {categoryQuickAddChips}
+            </div>
           </div>
         ) : null}
 
@@ -627,7 +631,9 @@ export function PageFaqAssignmentsEditor({
               <TextField
                 label="Admin tag"
                 value={draft.adminTag}
-                onChange={(nextTag) => setDraft({ ...draft, adminTag: nextTag })}
+                onChange={(nextTag) =>
+                  setDraft({ ...draft, adminTag: nextTag })
+                }
                 hint="Internal label for editors only."
               />
             ) : (
@@ -705,8 +711,8 @@ export function PageFaqAssignmentsEditor({
                   disabled={saving}
                   onClick={handleAddAllFromCatalog}
                 >
-                  Add all {bulkCatalogFaqs.length}{" "}
-                  {faqAdminTagLabel(adminTag)} FAQs
+                  Add all {bulkCatalogFaqs.length} {faqAdminTagLabel(adminTag)}{" "}
+                  FAQs
                 </button>
               ) : null}
               <button
@@ -961,7 +967,10 @@ export function PageFaqAssignmentsEditor({
                           <strong>{faqQuestionPreview(faq.question)}</strong>
                           <span>{faqAnswerPreview(faq.answer, "", 96)}</span>
                           {faq.usage?.inUse ? (
-                            <FaqUsageIndicator usage={faq.usage} variant="hint" />
+                            <FaqUsageIndicator
+                              usage={faq.usage}
+                              variant="hint"
+                            />
                           ) : null}
                           {faq.adminTag && faq.adminTag !== adminTag ? (
                             <span className="admin-faq-admin-tag">

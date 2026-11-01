@@ -3,6 +3,12 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import {
+  type MediaShapeFilter,
+  MediaShapeFilterChips,
+  matchesMediaShape,
+  mediaShapeQuery,
+} from "@/components/admin/MediaShapeFilterChips";
+import {
   type MediaUsageFilter,
   MediaUsageFilterChips,
   mediaUsageQuery,
@@ -36,6 +42,8 @@ type PickerAsset = {
   title?: string;
   tags: string[];
   mediaImageId?: string;
+  width: number | null;
+  height: number | null;
 };
 
 type MediaMultiPickerProps = {
@@ -57,7 +65,7 @@ const PAGE_SIZE = 48;
 const THUMB_WIDTH = 640;
 
 /**
- * Modal multi-select media library picker with tag filtering and search.
+ * Modal multi-select media library picker with tag, usage, shape, and search filters.
  *
  * @param props - Open state, confirm/close handlers, optional initial tag
  */
@@ -78,6 +86,7 @@ export function MediaMultiPicker({
   const [tag, setTag] = useState(initialTag);
   const [search, setSearch] = useState("");
   const [usage, setUsage] = useState<MediaUsageFilter>("all");
+  const [shape, setShape] = useState<MediaShapeFilter>("all");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [emptyTagHint, setEmptyTagHint] = useState("");
   const [didTagFallback, setDidTagFallback] = useState(false);
@@ -93,6 +102,7 @@ export function MediaMultiPicker({
     setTag(initialTag);
     setSearch("");
     setUsage("all");
+    setShape("all");
     setSelectedIds([]);
     setEmptyTagHint("");
     setDidTagFallback(false);
@@ -132,6 +142,8 @@ export function MediaMultiPicker({
                 title: image.title,
                 tags: image.tag ? [image.tag] : [],
                 mediaImageId: image.id,
+                width: null,
+                height: null,
               }),
             ),
             totalPages: body.totalPages ?? 1,
@@ -142,6 +154,7 @@ export function MediaMultiPicker({
             limit: PAGE_SIZE,
             kind: "image",
             usage: mediaUsageQuery(usage),
+            orientation: mediaShapeQuery(shape),
           }).then((body) => ({
             availableTags: body.availableTags ?? [],
             images: body.assets.map(
@@ -157,6 +170,8 @@ export function MediaMultiPicker({
                 alt: asset.alt ?? asset.caption ?? undefined,
                 title: asset.caption ?? undefined,
                 tags: asset.tags,
+                width: asset.width ?? null,
+                height: asset.height ?? null,
               }),
             ),
             totalPages: body.totalPages,
@@ -171,6 +186,7 @@ export function MediaMultiPicker({
         if (
           tag &&
           usage === "all" &&
+          shape === "all" &&
           images.length === 0 &&
           page === 1 &&
           !didTagFallback
@@ -199,12 +215,13 @@ export function MediaMultiPicker({
     return () => {
       cancelled = true;
     };
-  }, [open, tag, didTagFallback, source, page, usage]);
+  }, [open, tag, didTagFallback, source, page, usage, shape]);
 
   const visibleAssets = useMemo(() => {
     const query = search.trim().toLowerCase();
-    if (!query) return assets;
     return assets.filter((asset) => {
+      if (!matchesMediaShape(asset.width, asset.height, shape)) return false;
+      if (!query) return true;
       const haystack = [
         asset.label,
         asset.alt,
@@ -217,7 +234,7 @@ export function MediaMultiPicker({
         .toLowerCase();
       return haystack.includes(query);
     });
-  }, [assets, search]);
+  }, [assets, search, shape]);
 
   if (!open) return null;
 
@@ -371,6 +388,16 @@ export function MediaMultiPicker({
           />
         ) : null}
 
+        <MediaShapeFilterChips
+          value={shape}
+          onChange={(next) => {
+            setEmptyTagHint("");
+            setPage(1);
+            setAssets([]);
+            setShape(next);
+          }}
+        />
+
         {emptyTagHint ? (
           <p className="admin-tip-banner admin-tip-banner--inline">
             No library images tagged “{emptyTagHint}”. Showing all media — pick
@@ -443,8 +470,19 @@ export function MediaMultiPicker({
             <p>
               {error
                 ? "Could not load the library."
-                : usage !== "all"
-                  ? `No ${usage === "unused" ? "unused" : "in-use"} media${tag ? ` tagged “${tag}”` : ""}.`
+                : shape !== "all" || usage !== "all"
+                  ? `No ${[
+                      shape !== "all" ? shape : "",
+                      usage === "unused"
+                        ? "unused"
+                        : usage === "inUse"
+                          ? "in-use"
+                          : "",
+                    ]
+                      .filter(Boolean)
+                      .join(" ")} media${tag ? ` tagged “${tag}”` : ""}${
+                      search.trim() ? " matching your search" : ""
+                    }.`
                   : tag
                     ? `No media matches “${tag}”.`
                     : search.trim()
@@ -464,6 +502,19 @@ export function MediaMultiPicker({
                   }}
                 >
                   Show all media
+                </button>
+              ) : null}
+              {shape !== "all" ? (
+                <button
+                  type="button"
+                  className="admin-btn-sm admin-btn-sm--ghost"
+                  onClick={() => {
+                    setPage(1);
+                    setAssets([]);
+                    setShape("all");
+                  }}
+                >
+                  Show all shapes
                 </button>
               ) : null}
               {search.trim() ? (
@@ -495,6 +546,7 @@ export function MediaMultiPicker({
               : usage === "inUse"
                 ? " · in use"
                 : ""}
+            {shape !== "all" ? ` · ${shape}` : ""}
           </p>
           <div className="admin-actions">
             <button type="button" className="admin-btn-ghost" onClick={onClose}>

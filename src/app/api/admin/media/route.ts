@@ -1,7 +1,9 @@
 import { cloudinaryThumbUrl } from "@/lib/cdn/cloudinary-thumb-url";
+import { type ImageOrientation, toImagePixel } from "@/lib/cdn/image-frame";
 import { parseMediaTagsFromDb } from "@/lib/cdn/media-tags";
 import { jsonOk, jsonUnauthorized } from "@/lib/cms/api-response";
 import { getSessionFromRequest } from "@/lib/cms/auth";
+import { scheduleMissingImageDimensionFill } from "@/lib/cms/media-dimensions";
 import { listStoredMediaTags } from "@/lib/cms/media-library-tags";
 import type { MediaUsageResult } from "@/lib/cms/media-usage";
 import { getCachedMediaUsageEntries } from "@/lib/cms/media-usage-cache";
@@ -14,12 +16,31 @@ type MediaKind = "image" | "video";
 
 type MediaUsageFilter = "unused" | "inUse";
 
+/**
+ * SQL predicate matching `imageOrientation`: square is exact pixel equality,
+ * portrait is taller, landscape is wider. Missing or non-positive sizes never match.
+ *
+ * @param orientation - Requested frame
+ */
+function orientationWhere(orientation: ImageOrientation): string {
+  const known = `"width" > 0 AND "height" > 0`;
+  if (orientation === "square") {
+    return `(${known} AND "width" = "height")`;
+  }
+  if (orientation === "portrait") {
+    return `(${known} AND "height" > "width")`;
+  }
+  return `(${known} AND "width" > "height")`;
+}
+
 type MediaAssetListRow = {
   id: string;
   url: string;
   cdn_key: string;
   mime: string;
   size_bytes: number | string;
+  width: number | string | null;
+  height: number | string | null;
   alt: string | null;
   caption: string | null;
   description: string | null;
@@ -68,6 +89,8 @@ function toMediaAssetListItem(row: MediaAssetListRow) {
     cdnKey: row.cdn_key,
     mime: row.mime,
     sizeBytes: Number(row.size_bytes ?? 0),
+    width: toImagePixel(row.width),
+    height: toImagePixel(row.height),
     alt: row.alt,
     caption: row.caption,
     description: row.description,
@@ -82,7 +105,7 @@ function toMediaAssetListItem(row: MediaAssetListRow) {
 /**
  * List media assets for the admin media library (paginated thumbnails).
  *
- * Query: `?tag=&page=1&limit=48&includeUsage=1&kind=image|video&usage=unused|inUse`
+ * Query: `?tag=&page=1&limit=48&includeUsage=1&kind=image|video&usage=unused|inUse&orientation=portrait|landscape|square`
  * Usage-only: `?usageOnly=1&ids=&kind=&tag=` returns badges without asset rows.
  *
  * `usage` filters the whole library by CMS usage before paginating (implies
@@ -112,6 +135,13 @@ export async function GET(request: Request) {
   const kind: MediaKind | null =
     kindParam === "video" ? "video" : kindParam === "image" ? "image" : null;
   const mimePrefix = mimePrefixForKind(kind);
+  const orientationParam = url.searchParams.get("orientation");
+  const orientationFilter: ImageOrientation | null =
+    orientationParam === "portrait" ||
+    orientationParam === "landscape" ||
+    orientationParam === "square"
+      ? orientationParam
+      : null;
   const skip = (page - 1) * pageSize;
   const usageOnly = url.searchParams.get("usageOnly") === "1";
 
@@ -124,6 +154,9 @@ export async function GET(request: Request) {
   if (mimePrefix) {
     filters.push(`"mime" LIKE ?`);
     params.push(`${mimePrefix}%`);
+  }
+  if (orientationFilter) {
+    filters.push(orientationWhere(orientationFilter));
   }
   const whereClause =
     filters.length > 0 ? `WHERE ${filters.join(" AND ")}` : "";
@@ -156,7 +189,7 @@ export async function GET(request: Request) {
   }
 
   const storedTagsPromise = listStoredMediaTags();
-  const selectSql = `SELECT "id", "url", "cdn_key", "mime", "size_bytes", "alt", "caption", "description", "tags", "created_at"
+  const selectSql = `SELECT "id", "url", "cdn_key", "mime", "size_bytes", "width", "height", "alt", "caption", "description", "tags", "created_at"
      FROM "media_assets"
      ${whereClause}
      ORDER BY "created_at" DESC`;
@@ -233,6 +266,7 @@ export async function GET(request: Request) {
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const availableTags = await storedTagsPromise;
+  scheduleMissingImageDimensionFill(rows);
 
   return jsonOk({
     assets: rows.map((asset) => ({
@@ -241,6 +275,8 @@ export async function GET(request: Request) {
       thumbUrl: cloudinaryThumbUrl(String(asset.url), 240),
       mime: asset.mime,
       sizeBytes: asset.sizeBytes,
+      width: asset.width,
+      height: asset.height,
       alt: asset.alt,
       caption: asset.caption,
       description: asset.description,

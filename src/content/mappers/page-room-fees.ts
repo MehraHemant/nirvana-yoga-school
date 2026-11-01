@@ -73,9 +73,22 @@ function roomCatalogFields(room: RoomRecord): {
 }
 
 /**
+ * Drops a copied room-cover URL from a pricing option.
+ * The dates & pricing editor has no image control, and public fee cards
+ * do not render `image`.
+ *
+ * @param option - Pricing option that may still carry a cover URL
+ */
+function withoutPricingImage(option: CoursePricingOption): CoursePricingOption {
+  const next = { ...option };
+  delete next.image;
+  return next;
+}
+
+/**
  * Upserts a course pricing option linked to a shared room.
- * Name / description / features / image come from the shared room;
- * price fields come from the page offer.
+ * Name, description, and features come from the shared room.
+ * Price fields come from the page offer. Cover image is not stored here.
  *
  * @param options - Current pricing.options
  * @param room - Shared room being priced
@@ -87,27 +100,24 @@ export function upsertCoursePricingForRoom(
   fee: PageRoomFee,
 ): CoursePricingOption[] {
   const catalog = roomCatalogFields(room);
+  const priced = withoutPricingImage({
+    roomId: room.id,
+    roomType: catalog.roomType,
+    description: catalog.description,
+    features: catalog.features,
+    price: fee.price,
+    originalPrice: fee.originalPrice?.trim() ? fee.originalPrice : undefined,
+  });
   const index = options.findIndex((option) => option.roomId === room.id);
   if (index >= 0) {
     const next = [...options];
-    next[index] = {
+    next[index] = withoutPricingImage({
       ...next[index],
-      ...catalog,
-      roomId: room.id,
-      price: fee.price,
-      originalPrice: fee.originalPrice?.trim() ? fee.originalPrice : undefined,
-    };
+      ...priced,
+    });
     return next;
   }
-  return [
-    ...options,
-    {
-      roomId: room.id,
-      ...catalog,
-      price: fee.price,
-      originalPrice: fee.originalPrice?.trim() ? fee.originalPrice : undefined,
-    },
-  ];
+  return [...options, priced];
 }
 
 /**

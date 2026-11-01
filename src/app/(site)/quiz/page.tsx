@@ -4,11 +4,7 @@ import { QuizClosed } from "@/components/quiz/QuizClosed";
 import { QuizMonthLimit } from "@/components/quiz/QuizMonthLimit";
 import { getSiteServerSession } from "@/lib/auth/site-session";
 import { getQuizEligibility } from "@/lib/quiz/attempts";
-import {
-  listQuizQuestions,
-  pickQuestionsForAttempt,
-  toPublicQuestion,
-} from "@/lib/quiz/questions";
+import { listQuizQuestions, toPublicQuestion } from "@/lib/quiz/questions";
 import { getQuizSettings } from "@/lib/quiz/settings";
 import { metadataForSlug } from "../_shared/metadata";
 import QuizPageClient from "./QuizPageClient";
@@ -54,9 +50,7 @@ export default async function QuizPage() {
       userName={session.name}
       remainingChances={remaining}
       settings={settings}
-      questions={pickQuestionsForAttempt(questions, settings).map(
-        toPublicQuestion,
-      )}
+      questions={questions.map(toPublicQuestion)}
     />
   );
 }

@@ -116,8 +116,7 @@ function parseAdditionalGuests(value: unknown): BookingAdditionalGuest[] {
     .map((entry) => {
       if (!entry || typeof entry !== "object") return null;
       const record = entry as Record<string, unknown>;
-      const name =
-        typeof record.name === "string" ? record.name.trim() : "";
+      const name = typeof record.name === "string" ? record.name.trim() : "";
       const gender =
         typeof record.gender === "string" ? record.gender.trim() : "";
       if (!name || !gender) return null;
@@ -248,25 +247,28 @@ export async function listBookings(deleted = false) {
  * Get booking stats for the admin dashboard.
  */
 export async function getBookingStats() {
-  const [confirmed, pending, deleted, recent] = await Promise.all([
-    db.booking.count({
-      where: { status: "confirmed", ...ACTIVE_BOOKING_FILTER },
-    }),
-    db.booking.count({
-      where: { status: "pending_payment", ...ACTIVE_BOOKING_FILTER },
-    }),
-    db.booking.count({ where: { deletedAt: { not: null } } }),
+  const [countRows, recent] = await Promise.all([
+    db.$queryRawUnsafe<
+      Array<{ confirmed: number; pending: number; deleted: number }>
+    >(
+      `SELECT
+         COUNT(*) FILTER (WHERE "status" = 'confirmed' AND "deleted_at" IS NULL)::int AS confirmed,
+         COUNT(*) FILTER (WHERE "status" = 'pending_payment' AND "deleted_at" IS NULL)::int AS pending,
+         COUNT(*) FILTER (WHERE "deleted_at" IS NOT NULL)::int AS deleted
+       FROM "bookings"`,
+    ),
     db.booking.findMany({
       where: ACTIVE_BOOKING_FILTER,
       orderBy: { createdAt: "desc" },
       take: 6,
     }),
   ]);
+  const counts = countRows[0];
 
   return {
-    confirmed,
-    pending,
-    deleted,
+    confirmed: Number(counts?.confirmed ?? 0),
+    pending: Number(counts?.pending ?? 0),
+    deleted: Number(counts?.deleted ?? 0),
     recent: recent.map(toBookingRecord),
   };
 }

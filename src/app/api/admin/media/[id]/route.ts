@@ -20,6 +20,7 @@ import {
   jsonUnauthorized,
 } from "@/lib/cms/api-response";
 import { getSessionFromRequest } from "@/lib/cms/auth";
+import { invalidateStoredMediaTags } from "@/lib/cms/media-library-tags";
 import { lookupCachedMediaUsage } from "@/lib/cms/media-usage-cache";
 import { db } from "@/lib/db";
 import type { ApiRouteParams } from "@/lib/types/api";
@@ -92,6 +93,8 @@ export async function PUT(
     },
   });
 
+  if (body.tags !== undefined) invalidateStoredMediaTags();
+
   if (body.tags !== undefined && asset.mime.startsWith("image/")) {
     const tags = parseMediaTagsFromDb(asset.tags);
     const lodgingImage = {
@@ -149,6 +152,7 @@ export async function DELETE(
     resourceTypeFromMime(asset.mime) ?? "image",
   );
   await db.mediaAsset.delete({ where: { id } });
+  invalidateStoredMediaTags();
   await purgeOrphanMediaImages().catch(() => {
     // Best-effort cleanup of lodging copies left without a CMS asset.
   });

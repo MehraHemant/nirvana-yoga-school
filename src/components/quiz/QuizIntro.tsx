@@ -1,9 +1,14 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import Image from "@/components/ui/CdnImage";
+import { QuizCategoryPicker } from "@/components/quiz/QuizCategoryPicker";
 import { Button, Container } from "@/components/ui";
+import Image from "@/components/ui/CdnImage";
 import type { QuizSettings } from "@/content/types/quiz";
+import type {
+  QuizCategoryFilter,
+  QuizCategoryId,
+} from "@/content/types/quiz-categories";
 import { ArrowRight, BookOpen, Clock, Star } from "@/icons";
 import { EASE_OUT, reducedTransition } from "@/lib/motion";
 import { QUIZ_TILE_CLASS } from "./quiz-panel";
@@ -11,12 +16,18 @@ import { QUIZ_TILE_CLASS } from "./quiz-panel";
 type QuizIntroProps = {
   /** Copy, points, and allowance from the CMS. */
   settings: QuizSettings;
-  /** Questions in this attempt. */
+  /** Questions in this attempt, after the category filter and CMS cap. */
   questionCount: number;
+  /** Categories that currently have questions. */
+  categories: QuizCategoryId[];
+  /** Selected category, or `all`. */
+  category: QuizCategoryFilter;
   /** Signed-in name for the greeting. */
   userName?: string | null;
   /** Attempts left this month, including the one about to start. */
   remainingChances: number;
+  /** Narrows the attempt to one category. */
+  onCategoryChange: (category: QuizCategoryFilter) => void;
   /** Starts the question flow. */
   onStart: () => void;
 };
@@ -29,8 +40,11 @@ type QuizIntroProps = {
 export function QuizIntro({
   settings,
   questionCount,
+  categories,
+  category,
   userName = null,
   remainingChances,
+  onCategoryChange,
   onStart,
 }: QuizIntroProps) {
   const reduced = useReducedMotion() ?? false;
@@ -86,8 +100,18 @@ export function QuizIntro({
           {settings.introBody}
         </motion.p>
 
+        {categories.length > 0 ? (
+          <motion.div {...rise(3)} className="mt-8 max-w-lg">
+            <QuizCategoryPicker
+              categories={categories}
+              value={category}
+              onChange={onCategoryChange}
+            />
+          </motion.div>
+        ) : null}
+
         <motion.dl
-          {...rise(3)}
+          {...rise(4)}
           className="mt-8 grid max-w-lg grid-cols-3 gap-3"
         >
           {facts.map(({ icon: FactIcon, value, label }) => (
@@ -102,7 +126,7 @@ export function QuizIntro({
         </motion.dl>
 
         <motion.div
-          {...rise(4)}
+          {...rise(5)}
           className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6"
         >
           <Button
@@ -110,6 +134,7 @@ export function QuizIntro({
             variant="primary"
             size="lg"
             className="group w-full sm:w-auto"
+            disabled={questionCount === 0}
             onClick={onStart}
           >
             Start the quiz

@@ -7,6 +7,7 @@ import {
   uploadToCloudinary,
   validateMediaUpload,
 } from "@/lib/cdn/cloudinary";
+import { toImagePixel } from "@/lib/cdn/image-frame";
 import {
   canonicalizeMediaTags,
   normalizeMediaTags,
@@ -20,6 +21,7 @@ import {
   jsonUnavailable,
 } from "@/lib/cms/api-response";
 import { getSessionFromRequest } from "@/lib/cms/auth";
+import { invalidateStoredMediaTags } from "@/lib/cms/media-library-tags";
 import { db } from "@/lib/db";
 import { HTTP } from "@/lib/types/api";
 
@@ -111,6 +113,8 @@ export async function POST(request: Request) {
       cdnKey: uploaded.cdnKey,
       mime: uploaded.mime,
       sizeBytes: uploaded.sizeBytes,
+      width: uploaded.width ?? null,
+      height: uploaded.height ?? null,
       alt,
       caption: title ?? caption,
       description,
@@ -135,6 +139,8 @@ export async function POST(request: Request) {
     }
   }
 
+  invalidateStoredMediaTags();
+
   return jsonOk(
     {
       id: asset.id,
@@ -146,6 +152,8 @@ export async function POST(request: Request) {
       description: asset.description,
       alt: asset.alt,
       tags: parseMediaTagsFromDb(asset.tags),
+      width: toImagePixel(asset.width),
+      height: toImagePixel(asset.height),
       durationSeconds: uploaded.durationSeconds ?? null,
       mediaImageId,
     },

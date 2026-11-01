@@ -30,6 +30,10 @@ export type AdminMediaAsset = {
   thumbUrl?: string;
   mime: string;
   sizeBytes: number;
+  /** Original pixel width. Null until dimensions are known. */
+  width?: number | null;
+  /** Original pixel height. Null until dimensions are known. */
+  height?: number | null;
   alt: string | null;
   caption: string | null;
   description: string | null;
@@ -139,7 +143,15 @@ export type AdminBlogPostGetResponse = ApiEntityBody<
 /** POST /api/admin/media/upload */
 export type AdminMediaUploadResponse = Pick<
   AdminMediaAsset,
-  "id" | "url" | "sizeBytes" | "mime" | "caption" | "description" | "tags"
+  | "id"
+  | "url"
+  | "sizeBytes"
+  | "mime"
+  | "caption"
+  | "description"
+  | "tags"
+  | "width"
+  | "height"
 > & {
   /** Cloudinary public_id (`media_assets.cdn_key`) */
   cdnKey: string;

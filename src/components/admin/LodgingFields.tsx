@@ -1,12 +1,12 @@
 "use client";
 
-import { roomDisplayTitle } from "@/content/lodging/room-catalog";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { CollapsiblePanel } from "@/components/admin/CollapsiblePanel";
 import { SectionIdField } from "@/components/admin/SectionIdField";
 import { SectionLiveField } from "@/components/admin/SectionLiveField";
 import { TextField } from "@/components/admin/TextField";
+import { roomDisplayTitle } from "@/content/lodging/room-catalog";
 import type { PageRoomFee } from "@/content/mappers/page-room-fees";
 import {
   coerceSharedAccommodationMeta,
@@ -22,6 +22,7 @@ import type {
   RoomCatalog,
   RoomRecord,
 } from "@/content/types/shared-sections";
+import { dedupedFetch } from "@/lib/api/deduped-fetch";
 import { parseApiJson } from "@/lib/types/api";
 
 type ResidentialLifeFieldsProps = {
@@ -70,7 +71,7 @@ export function ResidentialLifeFields({
   useEffect(() => {
     let cancelled = false;
     setRoomsError("");
-    fetch(`/api/admin/rooms?catalog=${catalog}`)
+    dedupedFetch(`/api/admin/rooms?catalog=${catalog}`)
       .then((res) => parseApiJson<{ rooms: RoomRecord[] }>(res))
       .then((body) => {
         if (!cancelled) setRooms(body.rooms ?? []);
@@ -90,7 +91,7 @@ export function ResidentialLifeFields({
     let cancelled = false;
     const metaKey =
       catalog === "retreat" ? "retreatAccommodation" : "residentialLife";
-    fetch(`/api/admin/settings/${metaKey}`)
+    dedupedFetch(`/api/admin/settings/${metaKey}`)
       .then((res) => parseApiJson<{ settings: unknown }>(res))
       .then((metaBody) => {
         if (cancelled) return;
@@ -116,7 +117,7 @@ export function ResidentialLifeFields({
   useEffect(() => {
     let cancelled = false;
     const foodKey = catalog === "retreat" ? "retreatFood" : "courseFood";
-    fetch(`/api/admin/settings/${foodKey}`)
+    dedupedFetch(`/api/admin/settings/${foodKey}`)
       .then((res) => parseApiJson<{ settings: unknown }>(res))
       .then((foodBody) => {
         if (cancelled) return;

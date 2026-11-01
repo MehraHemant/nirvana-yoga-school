@@ -1,5 +1,6 @@
 import type { BlogPostDocument } from "@/content/types/blog-post";
 import type { LeadStatus } from "@/content/types/lead";
+import { dedupedFetch } from "@/lib/api/deduped-fetch";
 import type {
   AdminBlogCreateResponse,
   AdminBlogPostGetResponse,
@@ -49,7 +50,7 @@ async function adminFetch<TBody>(
   input: RequestInfo | URL,
   init?: RequestInit,
 ): Promise<TBody> {
-  const response = await fetch(input, init);
+  const response = await dedupedFetch(input, init);
   return parseApiJson<TBody>(response);
 }
 
@@ -299,6 +300,8 @@ export async function fetchAdminMedia(
         kind?: "image" | "video";
         /** Filter the whole library by CMS usage before paginating */
         usage?: "unused" | "inUse";
+        /** Filter by stored pixel orientation before paginating */
+        orientation?: "portrait" | "landscape" | "square";
       },
 ): Promise<AdminMediaListResponse> {
   const options =
@@ -312,6 +315,7 @@ export async function fetchAdminMedia(
   if (options.includeUsage) params.set("includeUsage", "1");
   if (options.kind) params.set("kind", options.kind);
   if (options.usage) params.set("usage", options.usage);
+  if (options.orientation) params.set("orientation", options.orientation);
   const query = params.toString();
   return adminFetch<AdminMediaListResponse>(
     `/api/admin/media${query ? `?${query}` : ""}`,
@@ -552,7 +556,7 @@ export async function deleteAdminChatPdf(
  * @param key - Settings key
  */
 export async function fetchAdminGlobalSettings(key: AdminGlobalSettingsKey) {
-  const response = await fetch(`/api/admin/settings/${key}`, {
+  const response = await dedupedFetch(`/api/admin/settings/${key}`, {
     headers: { "Content-Type": "application/json" },
   });
   if (!response.ok) {

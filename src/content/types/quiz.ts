@@ -1,5 +1,10 @@
 /** Quiz content types shared by the CMS editor, API, and public quiz. */
 
+import {
+  parseQuizCategory,
+  type QuizCategoryId,
+} from "@/content/types/quiz-categories";
+
 /** How a question's answers are shown. */
 export type QuizOptionType = "text" | "image";
 
@@ -14,12 +19,14 @@ export type QuizOption = {
 /** Full question as stored and edited in the CMS. */
 export type QuizQuestion = {
   id: string;
+  /** Fixed category used to filter and label the question. */
+  category: QuizCategoryId;
   prompt: string;
   /** Optional image above the question, e.g. a pose photo to name. */
   promptImageUrl: string;
   optionType: QuizOptionType;
   options: QuizOption[];
-  /** Zero-based index of the right option. */
+  /** Zero-based index of the right option. Display order is not shuffled. */
   correctIndex: number;
   /** Optional note shown in the answer review. */
   explanation: string;
@@ -30,7 +37,7 @@ export type QuizQuestion = {
 /** Question as sent to the browser — no correct answer or explanation. */
 export type PublicQuizQuestion = Pick<
   QuizQuestion,
-  "id" | "prompt" | "promptImageUrl" | "optionType" | "options"
+  "id" | "category" | "prompt" | "promptImageUrl" | "optionType" | "options"
 >;
 
 /** Quiz configuration stored in `global_settings.quiz`. */
@@ -210,6 +217,8 @@ export function validateQuizQuestion(
   const input =
     raw && typeof raw === "object" ? (raw as Partial<QuizQuestion>) : {};
   const label = `Question ${position}`;
+  const category = parseQuizCategory(input.category);
+  if (!category) return { ok: false, error: `${label}: choose a category.` };
   const optionType: QuizOptionType =
     input.optionType === "image" ? "image" : "text";
   const prompt = text(input.prompt, "");
@@ -253,6 +262,7 @@ export function validateQuizQuestion(
     ok: true,
     question: {
       id: text(input.id, ""),
+      category,
       prompt,
       promptImageUrl: text(input.promptImageUrl, ""),
       optionType,

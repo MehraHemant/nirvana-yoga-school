@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { roomDisplayTitle } from "@/content/lodging/room-catalog";
 import type { PageRoomFee } from "@/content/mappers/page-room-fees";
 import type { PricingBatch, PricingModule } from "@/content/types/page-modules";
-import { roomDisplayTitle } from "@/content/lodging/room-catalog";
 import type { RoomCatalog, RoomRecord } from "@/content/types/shared-sections";
+import { dedupedFetch } from "@/lib/api/deduped-fetch";
 import { parseApiJson } from "@/lib/types/api";
 import { CollapsiblePanel } from "../CollapsiblePanel";
 import { ListRowActions } from "../ListRowActions";
@@ -94,7 +95,7 @@ export function PricingModuleEditor({
 
   useEffect(() => {
     let cancelled = false;
-    fetch(`/api/admin/rooms?catalog=${roomCatalog}`)
+    dedupedFetch(`/api/admin/rooms?catalog=${roomCatalog}`)
       .then((res) => parseApiJson<{ rooms: RoomRecord[] }>(res))
       .then((body) => {
         if (!cancelled) setRooms(body.rooms ?? []);

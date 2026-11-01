@@ -1900,6 +1900,26 @@
   align-self: center;
 }
 
+.admin-media-frame {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.admin-media-frame__ratio {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #1c1917;
+}
+
+.admin-media-library__card-body .admin-media-frame .admin-status-chip,
+.admin-media-library__row-copy .admin-media-frame .admin-status-chip {
+  padding: 0.12rem 0.45rem;
+  font-size: 0.65rem;
+}
+
 .admin-media-library__card-meta {
   margin: 0.15rem 0 0;
   font-size: 0.68rem;
@@ -2348,7 +2368,8 @@
 }
 
 .admin-media-picker-tags,
-.admin-media-picker-usage {
+.admin-media-picker-usage,
+.admin-media-picker-shape {
   display: flex;
   flex-wrap: wrap;
   gap: 0.35rem;
@@ -4859,7 +4880,8 @@
   padding: 0 0.55rem 0.5rem;
 }
 
-.admin-media-picker-usage {
+.admin-media-picker-usage,
+.admin-media-picker-shape {
   margin-bottom: 0.75rem;
 }
 

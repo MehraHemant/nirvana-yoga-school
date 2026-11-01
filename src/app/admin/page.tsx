@@ -150,8 +150,9 @@ export default async function AdminDashboardPage() {
   if (!session) redirect("/admin/login");
 
   const dbEnabled = isDbEnabled();
-  const stats = dbEnabled ? await getLeadStats() : null;
-  const bookingStats = dbEnabled ? await getBookingStats() : null;
+  const [stats, bookingStats] = dbEnabled
+    ? await Promise.all([getLeadStats(), getBookingStats()])
+    : [null, null];
 
   return (
     <div>

@@ -1,3 +1,4 @@
+import { describePageModuleHitsByAsset } from "@/lib/cms/media-usage-labels";
 import { db } from "@/lib/db";
 
 export type MediaUsageResult = {
@@ -14,6 +15,9 @@ type MediaAssetRef = {
 type JsonScanSource = {
   label: string;
   text: string;
+  kind: string;
+  /** Page slug when this blob is one page's modules. */
+  pageSlug?: string;
 };
 
 type LodgingMediaImageRow = {
@@ -571,12 +575,16 @@ async function loadJsonScanSources(): Promise<JsonScanSource[]> {
   for (const row of rows) {
     const text = String(row.text ?? "");
     if (text.length <= 2) continue;
-    const label = corpusSourceLabel(
-      String(row.kind ?? ""),
-      String(row.label ?? ""),
-    );
+    const kind = String(row.kind ?? "");
+    const rawLabel = String(row.label ?? "");
+    const label = corpusSourceLabel(kind, rawLabel);
     if (!label) continue;
-    sources.push({ label, text });
+    sources.push({
+      label,
+      text,
+      kind,
+      pageSlug: kind === "page-modules" ? rawLabel.trim() || "page" : undefined,
+    });
   }
   return sources;
 }
@@ -726,6 +734,8 @@ function applyJsonScanHits(
     }
   }
 
+  refinePageModuleHits(sourceHitCounts, activeSources, tokensByAssetId);
+
   for (const [label, hits] of sourceHitCounts) {
     for (const [assetId, count] of hits) {
       if (count > 0) {
@@ -733,6 +743,49 @@ function applyJsonScanHits(
         addReference(map, assetId, reference);
       }
     }
+  }
+}
+
+/**
+ * Replaces a generic "page modules" hit with the module and field that matched.
+ *
+ * @param counts - Label → asset id → hit count
+ * @param sources - Preloaded JSON/text blobs
+ * @param tokensByAssetId - Match tokens for each asset
+ */
+function refinePageModuleHits(
+  counts: Map<string, Map<string, number>>,
+  sources: JsonScanSource[],
+  tokensByAssetId: Map<string, string[]>,
+): void {
+  for (const source of sources) {
+    if (source.kind !== "page-modules" || !source.pageSlug) continue;
+    const hits = counts.get(source.label);
+    if (!hits || hits.size === 0) continue;
+
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(source.text);
+    } catch {
+      continue;
+    }
+
+    const tokensForHits = new Map<string, string[]>();
+    for (const assetId of hits.keys()) {
+      tokensForHits.set(assetId, tokensByAssetId.get(assetId) ?? []);
+    }
+    const detailsByAsset = describePageModuleHitsByAsset(parsed, tokensForHits);
+
+    for (const assetId of [...hits.keys()]) {
+      const details = detailsByAsset.get(assetId) ?? [];
+      if (details.length === 0) continue;
+      hits.delete(assetId);
+      for (const detail of details) {
+        bumpScanHit(counts, `${source.pageSlug} → ${detail}`, assetId);
+      }
+    }
+
+    if (hits.size === 0) counts.delete(source.label);
   }
 }
 

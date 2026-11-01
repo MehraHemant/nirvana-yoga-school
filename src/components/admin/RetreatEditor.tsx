@@ -7,7 +7,6 @@ import { AdminSectionJumpNav } from "@/components/admin/AdminSectionJumpNav";
 import { CollapsiblePanel } from "@/components/admin/CollapsiblePanel";
 import { ImageField } from "@/components/admin/ImageField";
 import { ListRowActions } from "@/components/admin/ListRowActions";
-import { NestedItemCard } from "@/components/admin/NestedItemCard";
 import { ResidentialLifeFields } from "@/components/admin/LodgingFields";
 import { FaqModuleEditor } from "@/components/admin/modules/FaqModuleEditor";
 import { HeroModuleEditor } from "@/components/admin/modules/HeroModuleEditor";
@@ -15,6 +14,7 @@ import { InclusionsModuleEditor } from "@/components/admin/modules/InclusionsMod
 import { ModuleFlagsPanel } from "@/components/admin/modules/ModuleFlagsPanel";
 import { OverviewModuleEditor } from "@/components/admin/modules/OverviewModuleEditor";
 import { StickyNavModuleEditor } from "@/components/admin/modules/StickyNavModuleEditor";
+import { NestedItemCard } from "@/components/admin/NestedItemCard";
 import { PageSeoFields } from "@/components/admin/PageSeoFields";
 import { SharedSectionLinks } from "@/components/admin/SharedSectionLinks";
 import { StringListField } from "@/components/admin/StringListField";
@@ -33,9 +33,10 @@ import {
 } from "@/content/mappers/page-room-fees";
 import { createEmptyPageModules } from "@/content/page-modules-defaults";
 import type { PageModulesDocument, RetreatDocument } from "@/content/types";
-import type { RetreatScheduleActivityKind } from "@/content/types/retreat-page";
 import { normalizeFaqCategory } from "@/content/types/faq-categories";
+import type { RetreatScheduleActivityKind } from "@/content/types/retreat-page";
 import type { RoomRecord } from "@/content/types/shared-sections";
+import { dedupedFetch } from "@/lib/api/deduped-fetch";
 import { sharedSectionLinksForLayout } from "@/lib/cms/page-layout-registry";
 import { createEmptyResidentialLife } from "@/lib/cms/structural-defaults";
 import { parseApiJson } from "@/lib/types/api";
@@ -246,7 +247,7 @@ export function RetreatEditor({
 
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/admin/rooms?catalog=retreat")
+    dedupedFetch("/api/admin/rooms?catalog=retreat")
       .then((res) => parseApiJson<{ rooms: RoomRecord[] }>(res))
       .then((body) => {
         if (!cancelled) setCatalogRooms(body.rooms ?? []);
@@ -651,65 +652,65 @@ export function RetreatEditor({
                         />
                       </div>
                       <div className="admin-grid-2">
-                      <TextField
-                        label="Time"
-                        value={activity.time}
-                        onChange={(time) => {
-                          const activities = [...day.activities];
-                          activities[activityIndex] = { ...activity, time };
-                          const schedule = [...retreat.schedule];
-                          schedule[index] = { ...day, activities };
-                          setRetreat({ ...retreat, schedule });
-                        }}
-                      />
-                      <TextField
-                        label="Activity"
-                        value={activity.activity}
-                        onChange={(activityLabel) => {
-                          const activities = [...day.activities];
-                          activities[activityIndex] = {
-                            ...activity,
-                            activity: activityLabel,
-                          };
-                          const schedule = [...retreat.schedule];
-                          schedule[index] = { ...day, activities };
-                          setRetreat({ ...retreat, schedule });
-                        }}
-                      />
-                      <TextField
-                        label="Detail"
-                        value={activity.detail ?? ""}
-                        onChange={(detail) => {
-                          const activities = [...day.activities];
-                          activities[activityIndex] = { ...activity, detail };
-                          const schedule = [...retreat.schedule];
-                          schedule[index] = { ...day, activities };
-                          setRetreat({ ...retreat, schedule });
-                        }}
-                        multiline
-                      />
-                      <label className="admin-field">
-                        <span className="admin-label">Kind</span>
-                        <select
-                          className="admin-input"
-                          value={activity.kind ?? "rest"}
-                          onChange={(event) => {
-                            const kind = event.target
-                              .value as RetreatScheduleActivityKind;
+                        <TextField
+                          label="Time"
+                          value={activity.time}
+                          onChange={(time) => {
                             const activities = [...day.activities];
-                            activities[activityIndex] = { ...activity, kind };
+                            activities[activityIndex] = { ...activity, time };
                             const schedule = [...retreat.schedule];
                             schedule[index] = { ...day, activities };
                             setRetreat({ ...retreat, schedule });
                           }}
-                        >
-                          {RETREAT_ACTIVITY_KINDS.map((kind) => (
-                            <option key={kind} value={kind}>
-                              {kind}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
+                        />
+                        <TextField
+                          label="Activity"
+                          value={activity.activity}
+                          onChange={(activityLabel) => {
+                            const activities = [...day.activities];
+                            activities[activityIndex] = {
+                              ...activity,
+                              activity: activityLabel,
+                            };
+                            const schedule = [...retreat.schedule];
+                            schedule[index] = { ...day, activities };
+                            setRetreat({ ...retreat, schedule });
+                          }}
+                        />
+                        <TextField
+                          label="Detail"
+                          value={activity.detail ?? ""}
+                          onChange={(detail) => {
+                            const activities = [...day.activities];
+                            activities[activityIndex] = { ...activity, detail };
+                            const schedule = [...retreat.schedule];
+                            schedule[index] = { ...day, activities };
+                            setRetreat({ ...retreat, schedule });
+                          }}
+                          multiline
+                        />
+                        <label className="admin-field">
+                          <span className="admin-label">Kind</span>
+                          <select
+                            className="admin-input"
+                            value={activity.kind ?? "rest"}
+                            onChange={(event) => {
+                              const kind = event.target
+                                .value as RetreatScheduleActivityKind;
+                              const activities = [...day.activities];
+                              activities[activityIndex] = { ...activity, kind };
+                              const schedule = [...retreat.schedule];
+                              schedule[index] = { ...day, activities };
+                              setRetreat({ ...retreat, schedule });
+                            }}
+                          >
+                            {RETREAT_ACTIVITY_KINDS.map((kind) => (
+                              <option key={kind} value={kind}>
+                                {kind}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
                       </div>
                     </div>
                   ))}

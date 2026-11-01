@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { TeachersFacultyEditor } from "@/components/admin/TeachersFacultyEditor";
 import type { SitePageDocument } from "@/content/types";
+import { dedupedFetch } from "@/lib/api/deduped-fetch";
 import { parseApiJson } from "@/lib/types/api";
 
 type TeachersAdminClientProps = {
@@ -24,14 +25,14 @@ export default function TeachersAdminClient({
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch("/api/admin/pages/teacher")
+    dedupedFetch("/api/admin/pages/teacher")
       .then((res) => parseApiJson<{ page: SitePageDocument }>(res))
       .then((body) => setDoc(body.page))
       .catch((err: Error) => setError(err.message));
   }, []);
 
   async function onSave(next: SitePageDocument) {
-    const res = await fetch("/api/admin/pages/teacher", {
+    const res = await dedupedFetch("/api/admin/pages/teacher", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(next),

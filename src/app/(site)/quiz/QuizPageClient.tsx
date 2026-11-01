@@ -14,6 +14,15 @@ import type {
   QuizAttemptResult,
   QuizSettings,
 } from "@/content/types/quiz";
+import {
+  QUIZ_CATEGORIES,
+  type QuizCategoryFilter,
+} from "@/content/types/quiz-categories";
+import {
+  filterQuizQuestions,
+  pickQuestionsForAttempt,
+  questionsPerAttempt,
+} from "@/lib/quiz/pick-questions";
 
 type QuizPhase = "intro" | "questions" | "results";
 
@@ -38,15 +47,17 @@ type QuizPageClientProps = {
  * Sends the answers for server-side grading. Call once per finish.
  *
  * @param answers - Answers in the order they were shown
+ * @param category - Category this attempt was limited to, or `all`
  */
 async function submitAttempt(
   answers: RecordedAnswer[],
+  category: QuizCategoryFilter,
 ): Promise<QuizAttemptStatus> {
   try {
     const response = await fetch("/api/quiz/attempts", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ answers }),
+      body: JSON.stringify({ answers, category }),
     });
     const data = (await response.json().catch(() => ({}))) as {
       result?: QuizAttemptResult;
@@ -82,6 +93,10 @@ export default function QuizPageClient({
 }: QuizPageClientProps) {
   const router = useRouter();
   const [phase, setPhase] = useState<QuizPhase>("intro");
+  const [category, setCategory] = useState<QuizCategoryFilter>("all");
+  const [attemptQuestions, setAttemptQuestions] = useState<
+    PublicQuizQuestion[]
+  >([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [answers, setAnswers] = useState<RecordedAnswer[]>([]);
@@ -92,9 +107,17 @@ export default function QuizPageClient({
   const questionShownAtRef = useRef(Date.now());
   const recordedCountRef = useRef(0);
   const submittingRef = useRef(false);
+  const categoryRef = useRef<QuizCategoryFilter>("all");
 
-  const total = questions.length;
-  const question = questions[currentIndex];
+  const categories = QUIZ_CATEGORIES.filter((item) =>
+    questions.some((question) => question.category === item.id),
+  ).map((item) => item.id);
+  const introCount = questionsPerAttempt(
+    settings,
+    filterQuizQuestions(questions, category).length,
+  );
+  const total = attemptQuestions.length;
+  const question = attemptQuestions[currentIndex];
 
   // Leaving mid-quiz loses the answers, so ask first.
   useEffect(() => {
@@ -110,12 +133,19 @@ export default function QuizPageClient({
     if (submittingRef.current) return;
     submittingRef.current = true;
     setAttempt({ state: "saving" });
-    const status = await submitAttempt(finalAnswers);
+    const status = await submitAttempt(finalAnswers, categoryRef.current);
     setAttempt(status);
     submittingRef.current = false;
   }, []);
 
   function handleStart() {
+    const picked = pickQuestionsForAttempt(
+      filterQuizQuestions(questions, category),
+      settings,
+    );
+    if (picked.length === 0) return;
+    categoryRef.current = category;
+    setAttemptQuestions(picked);
     setPhase("questions");
     setCurrentIndex(0);
     setSelectedIndex(null);
@@ -167,9 +197,12 @@ export default function QuizPageClient({
       {phase === "intro" ? (
         <QuizIntro
           settings={settings}
-          questionCount={total}
+          questionCount={introCount}
+          categories={categories}
+          category={category}
           userName={userName}
           remainingChances={remaining}
+          onCategoryChange={setCategory}
           onStart={handleStart}
         />
       ) : null}
@@ -196,7 +229,7 @@ export default function QuizPageClient({
       {phase === "results" ? (
         <QuizResults
           attempt={attempt}
-          questions={questions}
+          questions={attemptQuestions}
           settings={settings}
           userName={userName}
           onRetake={handleRetake}

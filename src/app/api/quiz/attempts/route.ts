@@ -1,4 +1,8 @@
 import type { QuizAttemptResult } from "@/content/types/quiz";
+import {
+  parseQuizCategory,
+  type QuizCategoryFilter,
+} from "@/content/types/quiz-categories";
 import { getSiteServerSession } from "@/lib/auth/site-session";
 import {
   jsonBadRequest,
@@ -14,6 +18,7 @@ import {
   recordQuizAttempt,
   type SubmittedAnswer,
 } from "@/lib/quiz/attempts";
+import { filterQuizQuestions } from "@/lib/quiz/pick-questions";
 import { listQuizQuestions, questionsPerAttempt } from "@/lib/quiz/questions";
 import { getQuizSettings } from "@/lib/quiz/settings";
 
@@ -49,6 +54,16 @@ function parseAnswers(value: unknown): SubmittedAnswer[] | null {
 }
 
 /**
+ * Category for this attempt. Missing or `all` grades the full bank.
+ *
+ * @param value - Raw `category` from the request body
+ */
+function parseAttemptCategory(value: unknown): QuizCategoryFilter | null {
+  if (value == null || value === "all") return "all";
+  return parseQuizCategory(value);
+}
+
+/**
  * Chances left this month for the signed-in account, and when the next opens.
  */
 export async function GET() {
@@ -79,9 +94,12 @@ export async function POST(request: Request) {
 
   const body = (await request.json().catch(() => null)) as {
     answers?: unknown;
+    category?: unknown;
   } | null;
   const answers = parseAnswers(body?.answers);
   if (!answers) return jsonBadRequest("Answers are required");
+  const category = parseAttemptCategory(body?.category);
+  if (!category) return jsonBadRequest("Choose a quiz category.");
 
   const [settings, questions] = await Promise.all([
     getQuizSettings(),
@@ -89,11 +107,12 @@ export async function POST(request: Request) {
   ]);
   if (!settings.live) return jsonConflict("The quiz is not open right now");
 
+  const pool = filterQuizQuestions(questions, category);
   const grading = gradeQuizAttempt(
     answers,
-    questions,
+    pool,
     settings,
-    questionsPerAttempt(settings, questions.length),
+    questionsPerAttempt(settings, pool.length),
   );
   if (!grading.ok) return jsonConflict(grading.error);
 

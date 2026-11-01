@@ -95,57 +95,36 @@ export async function getLeadStats(): Promise<LeadStats> {
   const monthAgo = new Date(now);
   monthAgo.setDate(monthAgo.getDate() - 30);
 
-  const [
-    totalEnquiries,
-    totalContact,
-    newCount,
-    deletedCount,
-    enquiriesThisWeek,
-    contactThisWeek,
-    enquiriesThisMonth,
-    contactThisMonth,
-    recentRows,
-  ] = await Promise.all([
-    db.leadSubmission.count({
-      where: { type: "enquiry", ...ACTIVE_LEAD_FILTER },
-    }),
-    db.leadSubmission.count({
-      where: { type: "contact", ...ACTIVE_LEAD_FILTER },
-    }),
-    db.leadSubmission.count({
-      where: { status: "new", ...ACTIVE_LEAD_FILTER },
-    }),
-    db.leadSubmission.count({
-      where: { deletedAt: { not: null } },
-    }),
-    db.leadSubmission.count({
-      where: {
-        type: "enquiry",
-        createdAt: { gte: weekAgo },
-        ...ACTIVE_LEAD_FILTER,
-      },
-    }),
-    db.leadSubmission.count({
-      where: {
-        type: "contact",
-        createdAt: { gte: weekAgo },
-        ...ACTIVE_LEAD_FILTER,
-      },
-    }),
-    db.leadSubmission.count({
-      where: {
-        type: "enquiry",
-        createdAt: { gte: monthAgo },
-        ...ACTIVE_LEAD_FILTER,
-      },
-    }),
-    db.leadSubmission.count({
-      where: {
-        type: "contact",
-        createdAt: { gte: monthAgo },
-        ...ACTIVE_LEAD_FILTER,
-      },
-    }),
+  // One grouped scan plus the recent rows. Nine separate counts each paid a
+  // full database round trip and made the dashboard wait about a second.
+  const [countRows, recentRows] = await Promise.all([
+    db.$queryRawUnsafe<
+      Array<{
+        total_enquiries: number;
+        total_contact: number;
+        new_count: number;
+        deleted_count: number;
+        enquiries_week: number;
+        contact_week: number;
+        enquiries_month: number;
+        contact_month: number;
+      }>
+    >(
+      `SELECT
+         COUNT(*) FILTER (WHERE "type" = 'enquiry' AND "deleted_at" IS NULL)::int AS total_enquiries,
+         COUNT(*) FILTER (WHERE "type" = 'contact' AND "deleted_at" IS NULL)::int AS total_contact,
+         COUNT(*) FILTER (WHERE "status" = 'new' AND "deleted_at" IS NULL)::int AS new_count,
+         COUNT(*) FILTER (WHERE "deleted_at" IS NOT NULL)::int AS deleted_count,
+         COUNT(*) FILTER (WHERE "type" = 'enquiry' AND "deleted_at" IS NULL AND "created_at" >= ?)::int AS enquiries_week,
+         COUNT(*) FILTER (WHERE "type" = 'contact' AND "deleted_at" IS NULL AND "created_at" >= ?)::int AS contact_week,
+         COUNT(*) FILTER (WHERE "type" = 'enquiry' AND "deleted_at" IS NULL AND "created_at" >= ?)::int AS enquiries_month,
+         COUNT(*) FILTER (WHERE "type" = 'contact' AND "deleted_at" IS NULL AND "created_at" >= ?)::int AS contact_month
+       FROM "lead_submissions"`,
+      weekAgo,
+      weekAgo,
+      monthAgo,
+      monthAgo,
+    ),
     db.leadSubmission.findMany({
       where: ACTIVE_LEAD_FILTER,
       orderBy: { createdAt: "desc" },
@@ -153,15 +132,16 @@ export async function getLeadStats(): Promise<LeadStats> {
     }),
   ]);
 
+  const counts = countRows[0];
   return {
-    totalEnquiries,
-    totalContact,
-    newCount,
-    deletedCount,
-    enquiriesThisWeek,
-    contactThisWeek,
-    enquiriesThisMonth,
-    contactThisMonth,
+    totalEnquiries: Number(counts?.total_enquiries ?? 0),
+    totalContact: Number(counts?.total_contact ?? 0),
+    newCount: Number(counts?.new_count ?? 0),
+    deletedCount: Number(counts?.deleted_count ?? 0),
+    enquiriesThisWeek: Number(counts?.enquiries_week ?? 0),
+    contactThisWeek: Number(counts?.contact_week ?? 0),
+    enquiriesThisMonth: Number(counts?.enquiries_month ?? 0),
+    contactThisMonth: Number(counts?.contact_month ?? 0),
     recent: recentRows.map(toLeadRecord),
   };
 }

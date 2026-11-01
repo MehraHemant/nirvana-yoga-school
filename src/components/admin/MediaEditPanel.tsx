@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { AdminIconButton } from "@/components/admin/AdminIconAction";
+import { ImageFrameBadge } from "@/components/admin/ImageFrameBadge";
 import { MediaMetadataFields } from "@/components/admin/MediaMetadataFields";
 import { Close, Trash } from "@/icons";
 import { cloudinarySizedUrl } from "@/lib/cdn/cloudinary-thumb-url";
+import { usageReferenceHref } from "@/lib/cms/media-usage-labels";
 import type { AdminMediaAsset } from "@/lib/types/admin-api";
 
 /** Drawer is 28rem × 20rem; 1200px stays sharp at 2× with `c_limit` (no crop). */
@@ -130,6 +132,14 @@ export function MediaEditPanel({
             )}
           </div>
 
+          {isVideo ? null : (
+            <ImageFrameBadge
+              width={asset.width}
+              height={asset.height}
+              showDimensions
+            />
+          )}
+
           <div className="admin-media-library__drawer-usage">
             <span
               className={`admin-status-chip${
@@ -149,13 +159,24 @@ export function MediaEditPanel({
             ) : inUse ? (
               <div className="admin-media-library__references">
                 <p className="admin-media-library__references-label">
-                  Used on {references.length} page
+                  Used in {references.length} place
                   {references.length === 1 ? "" : "s"}
                 </p>
                 <ul className="admin-media-library__references-list">
-                  {references.map((ref) => (
-                    <li key={ref}>{ref}</li>
-                  ))}
+                  {references.map((ref) => {
+                    const href = usageReferenceHref(ref);
+                    return (
+                      <li key={ref}>
+                        {href ? (
+                          <a href={href} className="admin-link">
+                            {ref}
+                          </a>
+                        ) : (
+                          ref
+                        )}
+                      </li>
+                    );
+                  })}
                 </ul>
                 <p className="admin-hint admin-hint--tight">
                   Remove references before deleting this asset.

@@ -1,10 +1,11 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import Image from "@/components/ui/CdnImage";
 import { useEffect, useRef } from "react";
 import { Button, Container } from "@/components/ui";
+import Image from "@/components/ui/CdnImage";
 import type { PublicQuizQuestion, QuizOption } from "@/content/types/quiz";
+import { QUIZ_CATEGORY_LABELS } from "@/content/types/quiz-categories";
 import { ArrowRight, Check } from "@/icons";
 import { EASE_OUT, reducedTransition } from "@/lib/motion";
 import { QUIZ_CARD_CLASS } from "./quiz-panel";
@@ -189,10 +190,13 @@ export function QuizQuestionCard({
               ease: EASE_OUT,
             })}
           >
+            <p className="type-eyebrow text-primary">
+              {QUIZ_CATEGORY_LABELS[question.category]}
+            </p>
             <h2
               ref={headingRef}
               tabIndex={-1}
-              className="type-h3 text-pretty text-ink outline-none"
+              className="type-h3 mt-3 text-pretty text-ink outline-none"
             >
               {question.prompt}
             </h2>
