@@ -69,6 +69,14 @@ export function useStableListKeys(length: number) {
       setKeys((prev) => reorderItems(prev, fromIndex, toIndex));
     },
     /**
+     * Replaces the whole key list when every row moves at once.
+     *
+     * @param next - Keys in the new order, still one per row
+     */
+    replaceKeys(next: string[]) {
+      setKeys(next);
+    },
+    /**
      * Swap keys with an adjacent row when reordering.
      *
      * @param index - Row being moved

@@ -335,6 +335,7 @@ export function HeroSectionEditor({
             label="Hero gallery images"
             librarySource="assets"
             layout="gallery"
+            canShuffle
             items={hero.heroImages ?? []}
             onChange={(heroImages) => onChange({ ...hero, heroImages })}
             hint="Library multi-select or upload — drag to reorder slides."

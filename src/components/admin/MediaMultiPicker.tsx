@@ -46,6 +46,13 @@ type PickerAsset = {
   height: number | null;
 };
 
+/** A photo kept selected while the tag, usage, or shape filter changes. */
+type SelectedPick = {
+  asset: PickerAsset;
+  /** Gallery category from the tag filter active when this photo was picked. */
+  category: string;
+};
+
 type MediaMultiPickerProps = {
   open: boolean;
   onClose: () => void;
@@ -87,7 +94,7 @@ export function MediaMultiPicker({
   const [search, setSearch] = useState("");
   const [usage, setUsage] = useState<MediaUsageFilter>("all");
   const [shape, setShape] = useState<MediaShapeFilter>("all");
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [selected, setSelected] = useState<SelectedPick[]>([]);
   const [emptyTagHint, setEmptyTagHint] = useState("");
   const [didTagFallback, setDidTagFallback] = useState(false);
   const [storedTags, setStoredTags] = useState<string[]>([]);
@@ -103,7 +110,7 @@ export function MediaMultiPicker({
     setSearch("");
     setUsage("all");
     setShape("all");
-    setSelectedIds([]);
+    setSelected([]);
     setEmptyTagHint("");
     setDidTagFallback(false);
     setPage(1);
@@ -236,49 +243,70 @@ export function MediaMultiPicker({
     });
   }, [assets, search, shape]);
 
+  const selectedIds = useMemo(
+    () => new Set(selected.map((item) => item.asset.id)),
+    [selected],
+  );
+
   if (!open) return null;
 
   /**
-   * Toggles one asset in the multi-select set.
-   *
-   * @param id - Media asset id
+   * Gallery category for the tag filter that is on screen.
    */
-  function toggle(id: string) {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
+  function categoryForActiveTag(): string {
+    return galleryCategoryFromTag(tag || initialTag || undefined);
+  }
+
+  /**
+   * Toggles one asset in the multi-select set.
+   * The asset stays selected after the tag filter changes.
+   *
+   * @param asset - Media asset shown in the grid
+   */
+  function toggle(asset: PickerAsset) {
+    setSelected((prev) =>
+      prev.some((item) => item.asset.id === asset.id)
+        ? prev.filter((item) => item.asset.id !== asset.id)
+        : [...prev, { asset, category: categoryForActiveTag() }],
     );
   }
 
+  /**
+   * Adds every photo currently on screen without dropping earlier picks.
+   */
   function selectVisible() {
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      for (const asset of visibleAssets) next.add(asset.id);
-      return [...next];
+    setSelected((prev) => {
+      const seen = new Set(prev.map((item) => item.asset.id));
+      const category = categoryForActiveTag();
+      const next = [...prev];
+      for (const asset of visibleAssets) {
+        if (seen.has(asset.id)) continue;
+        next.push({ asset, category });
+      }
+      return next;
     });
   }
 
+  /**
+   * Clears every selected photo, including ones from other tags.
+   */
   function clearSelection() {
-    setSelectedIds([]);
+    setSelected([]);
   }
 
+  /**
+   * Confirms every selected photo, including ones hidden by the current tag.
+   */
   function handleConfirm() {
-    const byId = new Map(assets.map((asset) => [asset.id, asset]));
-    const category = galleryCategoryFromTag(tag || initialTag || undefined);
-    const items = selectedIds.flatMap((id) => {
-      const asset = byId.get(id);
-      if (!asset) return [];
-      return [
-        {
-          url: asset.url,
-          mediaAssetId: asset.id,
-          mediaImageId:
-            asset.mediaImageId ?? (source === "lodging" ? asset.id : undefined),
-          alt: asset.alt,
-          title: asset.title,
-          category,
-        } satisfies MediaMultiPickResult,
-      ];
-    });
+    const items = selected.map(({ asset, category }) => ({
+      url: asset.url,
+      mediaAssetId: asset.id,
+      mediaImageId:
+        asset.mediaImageId ?? (source === "lodging" ? asset.id : undefined),
+      alt: asset.alt,
+      title: asset.title,
+      category,
+    }));
     onConfirm(items);
     onClose();
   }
@@ -338,7 +366,7 @@ export function MediaMultiPicker({
               type="button"
               className="admin-btn-sm admin-btn-sm--ghost"
               onClick={clearSelection}
-              disabled={selectedIds.length === 0}
+              disabled={selected.length === 0}
             >
               Clear
             </button>
@@ -419,13 +447,13 @@ export function MediaMultiPicker({
         {!loading && visibleAssets.length > 0 ? (
           <div className="admin-media-picker-grid">
             {visibleAssets.map((asset) => {
-              const selected = selectedIds.includes(asset.id);
+              const selected = selectedIds.has(asset.id);
               return (
                 <button
                   key={asset.id}
                   type="button"
                   className={`admin-media-pick ${selected ? "admin-media-pick--selected" : ""}`}
-                  onClick={() => toggle(asset.id)}
+                  onClick={() => toggle(asset)}
                   aria-pressed={selected}
                 >
                   {/* biome-ignore lint/performance/noImgElement: admin preview */}
@@ -538,7 +566,7 @@ export function MediaMultiPicker({
 
         <div className="admin-modal-footer">
           <p className="admin-hint" style={{ margin: 0 }}>
-            {selectedIds.length} selected
+            {selected.length} selected
             {visibleAssets.length > 0 ? ` · ${visibleAssets.length} shown` : ""}
             {tag ? ` · ${tag}` : ""}
             {usage === "unused"
@@ -556,9 +584,9 @@ export function MediaMultiPicker({
               type="button"
               className="admin-btn"
               onClick={handleConfirm}
-              disabled={selectedIds.length === 0}
+              disabled={selected.length === 0}
             >
-              Add {selectedIds.length > 0 ? selectedIds.length : ""} selected
+              Add {selected.length > 0 ? selected.length : ""} selected
             </button>
           </div>
         </div>

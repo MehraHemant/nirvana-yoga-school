@@ -45,6 +45,7 @@ export { default as Send } from "./Send";
 export { default as Settings } from "./Settings";
 export { default as Shield } from "./Shield";
 export { default as Shower } from "./Shower";
+export { default as Shuffle } from "./Shuffle";
 export { default as Star } from "./Star";
 export { default as Sunrise } from "./Sunrise";
 export { default as Terrace } from "./Terrace";

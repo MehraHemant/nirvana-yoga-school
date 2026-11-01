@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "@/components/ui/CdnImage";
-import { useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import {
   type CmsInteractiveImage,
   normalizeCmsImage,
@@ -14,7 +14,7 @@ import {
   buildBulkUploadDrafts,
   revokeBulkUploadPreviews,
 } from "./BulkMediaUploadModal";
-import { Trash } from "@/icons";
+import { Shuffle, Trash } from "@/icons";
 import { ListRowActions } from "./ListRowActions";
 import { MediaMultiPicker } from "./MediaMultiPicker";
 import {
@@ -41,6 +41,8 @@ type ImageListFieldProps = {
   defaultTags?: string[];
   /** Table rows (default), compact thumb grid, or card slide rows */
   layout?: "table" | "gallery" | "slides";
+  /** Shows a Random button that moves every tile to a new place */
+  canShuffle?: boolean;
 };
 
 /**
@@ -57,11 +59,13 @@ export function ImageListField({
   libraryTag = "",
   defaultTags,
   layout = "table",
+  canShuffle = false,
 }: ImageListFieldProps) {
   const normalized = items.map(normalizeCmsImage);
-  const { keys, addKey, removeKey, reorderKeys } = useStableListKeys(
-    normalized.length,
-  );
+  const { keys, addKey, removeKey, reorderKeys, replaceKeys } =
+    useStableListKeys(normalized.length);
+  const galleryRef = useRef<HTMLDivElement>(null);
+  const shuffleFromRef = useRef<Map<string, DOMRect> | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const [libraryOpen, setLibraryOpen] = useState(false);
   const [uploadOpen, setUploadOpen] = useState(false);
@@ -87,6 +91,79 @@ export function ImageListField({
     reorderKeys(fromIndex, toIndex);
     onChange(reorderItems(normalized, fromIndex, toIndex));
   }
+
+  /**
+   * Records each tile, then puts the gallery in a new order so the tiles can travel.
+   */
+  function shuffleGallery() {
+    const root = galleryRef.current;
+    if (!root || normalized.length < 2) return;
+
+    const reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    if (!reduceMotion) {
+      const positions = new Map<string, DOMRect>();
+      root.querySelectorAll<HTMLElement>("[data-shuffle-key]").forEach((node) => {
+        const key = node.dataset.shuffleKey;
+        if (key) positions.set(key, node.getBoundingClientRect());
+      });
+      shuffleFromRef.current = positions;
+    }
+
+    const paired = keys.map((key, index) => ({
+      key,
+      item: normalized[index],
+    }));
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      for (let index = paired.length - 1; index > 0; index -= 1) {
+        const swapIndex = Math.floor(Math.random() * (index + 1));
+        const current = paired[index];
+        paired[index] = paired[swapIndex] as (typeof paired)[number];
+        paired[swapIndex] = current as (typeof paired)[number];
+      }
+      if (paired.some((entry, index) => entry.key !== keys[index])) break;
+    }
+
+    replaceKeys(paired.map((entry) => entry.key));
+    onChange(
+      paired.map((entry) => entry.item).filter((item) => item != null),
+    );
+  }
+
+  useLayoutEffect(() => {
+    const positions = shuffleFromRef.current;
+    const root = galleryRef.current;
+    if (!positions || !root) return;
+    shuffleFromRef.current = null;
+
+    root.querySelectorAll<HTMLElement>("[data-shuffle-key]").forEach((node) => {
+      const key = node.dataset.shuffleKey;
+      const first = key ? positions.get(key) : undefined;
+      if (!first) return;
+      const last = node.getBoundingClientRect();
+      const dx = first.left - last.left;
+      const dy = first.top - last.top;
+      if (Math.abs(dx) < 1 && Math.abs(dy) < 1) return;
+      node.style.zIndex = "3";
+      node.style.position = "relative";
+      const animation = node.animate(
+        [
+          { transform: `translate(${dx}px, ${dy}px)` },
+          { transform: "translate(0px, 0px)" },
+        ],
+        {
+          duration: 700,
+          easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+          fill: "both",
+        },
+      );
+      animation.onfinish = () => {
+        node.style.zIndex = "";
+        node.style.position = "";
+      };
+    });
+  });
 
   /**
    * Appends newly picked or uploaded images, skipping duplicate URLs.
@@ -170,6 +247,16 @@ export function ImageListField({
 
   const actionButtons = (
     <div className="admin-image-actions">
+      {canShuffle && normalized.length > 1 ? (
+        <button
+          type="button"
+          className="admin-btn-sm admin-btn-sm--ghost"
+          onClick={shuffleGallery}
+        >
+          <Shuffle size={14} />
+          Random
+        </button>
+      ) : null}
       <button
         type="button"
         className="admin-btn-sm"
@@ -306,6 +393,7 @@ export function ImageListField({
           })}
         </SortableList>
       ) : layout === "gallery" ? (
+        <div ref={galleryRef}>
         <SortableList
           ids={keys}
           onReorder={handleReorder}
@@ -318,6 +406,8 @@ export function ImageListField({
               <SortableRow
                 key={rowKey}
                 id={rowKey}
+                shuffleKey={rowKey}
+                animateLayoutChanges={false}
                 className="admin-image-gallery__tile"
               >
                 {({ dragHandleProps }) => (
@@ -365,6 +455,7 @@ export function ImageListField({
             );
           })}
         </SortableList>
+        </div>
       ) : (
         <div className="admin-compact-table-scroll">
           <div className="admin-compact-table admin-compact-table--form admin-compact-table--images">
