@@ -301,9 +301,9 @@
   width: 12%;
 }
 
-/* 5 icon buttons (View, Edit, Copy, Publish, Delete) + gaps + cell padding */
+/* 4 icon buttons (View, Edit, Copy, Publish) + gaps + cell padding */
 .admin-table-col-actions {
-  width: 13.5rem;
+  width: 11.25rem;
 }
 
 .admin-table-col--actions,
@@ -312,7 +312,7 @@
      cell so its row border lines up with the rest of the row. */
   display: table-cell;
   text-align: right;
-  width: 13.5rem;
+  width: 11.25rem;
   white-space: nowrap;
   overflow: visible;
 }
