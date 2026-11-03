@@ -127,9 +127,39 @@ html.site-quiz-page body {
   background: var(--color-surface);
 }
 
+/*
+ * Type scale steps down one notch below 1400px (same breakpoint as the
+ * wide container). 1400px and up keeps the previous larger clamps.
+ */
+:root {
+  --type-body-size: 1rem;
+  --type-copy-size: 0.9375rem;
+  --type-copy-lg-size: 1rem;
+  --type-lead-size: clamp(1.0625rem, 0.96rem + 0.3vw, 1.125rem);
+  --type-display-sm-size: clamp(1.0625rem, 0.98rem + 0.2vw, 1.125rem);
+  --type-h1-size: clamp(2rem, 1.6rem + 1.67vw, 3.5rem);
+  --type-h2-size: clamp(1.75rem, 1.45rem + 0.94vw, 2.75rem);
+  --type-h3-size: clamp(1.25rem, 1.05rem + 0.68vw, 1.875rem);
+  --type-h4-size: clamp(1.0625rem, 0.95rem + 0.22vw, 1.125rem);
+}
+
+@media (min-width: 1400px) {
+  :root {
+    --type-body-size: clamp(1rem, 0.95rem + 0.22vw, 1.0625rem);
+    --type-copy-size: clamp(0.9375rem, 0.91rem + 0.14vw, 1.0625rem);
+    --type-copy-lg-size: clamp(1rem, 0.94rem + 0.3vw, 1.125rem);
+    --type-lead-size: clamp(1.0625rem, 0.96rem + 0.5vw, 1.25rem);
+    --type-display-sm-size: clamp(1.0625rem, 1rem + 0.3vw, 1.25rem);
+    --type-h1-size: clamp(2rem, 1.6rem + 2vw, 3.5rem);
+    --type-h2-size: clamp(1.75rem, 1.45rem + 1.25vw, 2.75rem);
+    --type-h3-size: clamp(1.25rem, 1.05rem + 0.9vw, 1.875rem);
+    --type-h4-size: clamp(1.0625rem, 0.98rem + 0.35vw, 1.25rem);
+  }
+}
+
 body {
   font-family: var(--font-sans);
-  font-size: clamp(1rem, 0.95rem + 0.22vw, 1.0625rem);
+  font-size: var(--type-body-size);
   font-weight: 400;
   line-height: 1.65;
   color: var(--color-ink);
@@ -164,19 +194,19 @@ body {
 }
 
 @utility type-body {
-  font-size: clamp(0.9375rem, 0.91rem + 0.14vw, 1.0625rem);
+  font-size: var(--type-copy-size);
   font-weight: 400;
   line-height: 1.65;
 }
 
 @utility type-body-lg {
-  font-size: clamp(1rem, 0.94rem + 0.3vw, 1.125rem);
+  font-size: var(--type-copy-lg-size);
   font-weight: 400;
   line-height: 1.7;
 }
 
 @utility type-lead {
-  font-size: clamp(1.0625rem, 0.96rem + 0.5vw, 1.25rem);
+  font-size: var(--type-lead-size);
   font-weight: 400;
   line-height: 1.6;
 }
@@ -304,34 +334,34 @@ body {
 }
 
 .type-display-sm {
-  font-size: clamp(1.0625rem, 1rem + 0.3vw, 1.25rem);
+  font-size: var(--type-display-sm-size);
   font-weight: 600;
   line-height: 1.35;
 }
 
 /* Centralized Heading Scales */
 .type-h1 {
-  font-size: clamp(2rem, 1.6rem + 2vw, 3.5rem);
+  font-size: var(--type-h1-size);
   font-weight: 600;
   line-height: 1.1;
   letter-spacing: -0.015em;
 }
 
 .type-h2 {
-  font-size: clamp(1.75rem, 1.45rem + 1.25vw, 2.75rem);
+  font-size: var(--type-h2-size);
   font-weight: 600;
   line-height: 1.18;
   letter-spacing: -0.012em;
 }
 
 .type-h3 {
-  font-size: clamp(1.25rem, 1.05rem + 0.9vw, 1.875rem);
+  font-size: var(--type-h3-size);
   font-weight: 600;
   line-height: 1.22;
 }
 
 .type-h4 {
-  font-size: clamp(1.0625rem, 0.98rem + 0.35vw, 1.25rem);
+  font-size: var(--type-h4-size);
   font-weight: 500;
   line-height: 1.3;
 }

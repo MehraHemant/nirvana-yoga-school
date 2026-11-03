@@ -14,7 +14,7 @@ const sizes = {
   md: "max-w-5xl",
   lg: "max-w-6xl",
   xl: "max-w-7xl",
-  "2xl": "max-w-[92rem]",
+  "2xl": "max-w-7xl min-[1400px]:max-w-[92rem]",
 };
 
 export default function Container({
