@@ -1,12 +1,18 @@
 "use client";
 
-import Image from "@/components/ui/CdnImage";
 import NextLink from "next/link";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
-import { duplicatePageAction } from "@/app/admin/sections/actions";
-import { Copy, Link as LinkIcon, Pencil } from "@/icons";
-import { publicViewHref } from "@/lib/cms/page-layout-registry";
+import {
+  deletePageAction,
+  duplicatePageAction,
+} from "@/app/admin/sections/actions";
+import Image from "@/components/ui/CdnImage";
+import { Copy, Link as LinkIcon, Pencil, Trash } from "@/icons";
+import {
+  PROTECTED_PAGE_SLUGS,
+  publicViewHref,
+} from "@/lib/cms/page-layout-registry";
 import { AdminPublishToggle } from "./AdminPublishToggle";
 
 type SectionPageItem = {
@@ -26,7 +32,7 @@ type SectionPageTableProps = {
 };
 
 /**
- * Admin table listing pages of a section type with icon View, Edit, Copy, Publish.
+ * Admin table listing pages of a section type with icon View, Edit, Copy, Publish, Delete.
  *
  * @param props - Pages array and section label
  */
@@ -110,6 +116,9 @@ export function SectionPageTable({
                         pageId={page.id}
                         published={page.published}
                       />
+                      {PROTECTED_PAGE_SLUGS.has(page.slug) ? null : (
+                        <DeletePageButton pageId={page.id} title={page.title} />
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -187,6 +196,54 @@ function CopyPageButton({ pageId }: CopyPageButtonProps) {
     >
       <Copy size={16} />
       <span className="sr-only">Copy</span>
+    </button>
+  );
+}
+
+type DeletePageButtonProps = {
+  pageId: string;
+  title: string;
+};
+
+/**
+ * Icon control that permanently deletes a section page after confirmation.
+ *
+ * @param props - Page id and title (for the confirm prompt)
+ */
+function DeletePageButton({ pageId, title }: DeletePageButtonProps) {
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
+
+  return (
+    <button
+      type="button"
+      className="admin-icon-btn admin-icon-btn--danger"
+      disabled={pending}
+      aria-busy={pending}
+      aria-label={`Delete ${title}`}
+      title="Delete"
+      onClick={() => {
+        if (
+          !window.confirm(
+            `Delete "${title}" permanently?\n\nIts content, dates, room offers and SEO settings will be removed. Existing bookings are kept. This can't be undone.`,
+          )
+        ) {
+          return;
+        }
+        const formData = new FormData();
+        formData.set("id", pageId);
+        startTransition(async () => {
+          const result = await deletePageAction(formData);
+          if (!result.ok) {
+            window.alert(result.error);
+            return;
+          }
+          router.refresh();
+        });
+      }}
+    >
+      <Trash size={16} />
+      <span className="sr-only">Delete</span>
     </button>
   );
 }

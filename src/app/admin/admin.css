@@ -301,14 +301,18 @@
   width: 12%;
 }
 
+/* 5 icon buttons (View, Edit, Copy, Publish, Delete) + gaps + cell padding */
 .admin-table-col-actions {
-  width: 10.5rem;
+  width: 13.5rem;
 }
 
 .admin-table-col--actions,
 .admin-table--section td.admin-row-actions {
+  /* `.admin-row-actions` is inline-flex for non-table rows; keep the td a real
+     cell so its row border lines up with the rest of the row. */
+  display: table-cell;
   text-align: right;
-  width: 10.5rem;
+  width: 13.5rem;
   white-space: nowrap;
   overflow: visible;
 }

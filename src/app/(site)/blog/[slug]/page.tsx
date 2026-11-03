@@ -89,11 +89,11 @@ export default async function BlogPostPage({ params }: PageProps) {
 
         <Container
           size="2xl"
-          className="grid px-0 md:px-0 lg:grid-cols-[minmax(0,1fr)_minmax(22rem,28rem)] lg:items-start"
+          className="grid grid-cols-1 px-0 md:px-0 lg:grid-cols-[minmax(0,1fr)_minmax(22rem,28rem)] lg:items-start"
         >
           <article
             aria-label="Article"
-            className="blog-post-article bg-white px-5 md:px-8 lg:px-12 xl:px-20"
+            className="blog-post-article min-w-0 bg-white px-5 md:px-8 lg:px-12 xl:px-20"
           >
             <div className="mx-auto max-w-184">
               <BlogPostContent bodyHtml={bodyHtml} blocks={post.content} />
@@ -102,7 +102,7 @@ export default async function BlogPostPage({ params }: PageProps) {
 
           <aside
             aria-labelledby="blog-programs-heading"
-            className="border-t border-ink/10 bg-white px-5 sm:px-8 lg:sticky lg:top-(--site-header-height) lg:flex lg:h-[calc(100svh-var(--site-header-height))] lg:flex-col lg:overflow-hidden lg:border-l lg:border-t-0 lg:px-6 xl:px-8"
+            className="min-w-0 border-t border-ink/10 bg-white px-5 sm:px-8 lg:sticky lg:top-(--site-header-height) lg:flex lg:h-[calc(100svh-var(--site-header-height))] lg:flex-col lg:overflow-hidden lg:border-l lg:border-t-0 lg:px-6 xl:px-8"
           >
             <BlogCourseRail courses={courses} />
           </aside>

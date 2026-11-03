@@ -70,7 +70,7 @@ export default function YttHubCoursesSection({
         </motion.div>
 
         {courses.length > 0 ? (
-          <div className="grid items-start gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 lg:gap-6 xl:gap-7">
+          <div className="grid items-start gap-5 sm:grid-cols-2 sm:gap-6 xl:grid-cols-3 xl:gap-7">
             {courses.map((course, index) => {
               const staggerClass =
                 index % 3 === 1

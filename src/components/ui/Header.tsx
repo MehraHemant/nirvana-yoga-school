@@ -58,7 +58,7 @@ function HeaderCtaControl({
     return (
       <Link
         {...props}
-        className={`nav-link text-sm xl:text-[0.9375rem] 2xl:text-base font-medium tracking-wide px-2 py-1.5 transition-colors hover:text-primary  ${lightNav ? "text-white/85" : "text-ink"} ${className}`.trim()}
+        className={`nav-link whitespace-nowrap text-sm 2xl:text-base font-medium tracking-wide px-2 py-1.5 transition-colors hover:text-primary  ${lightNav ? "text-white/85" : "text-ink"} ${className}`.trim()}
       >
         {cta.label}
       </Link>
@@ -105,15 +105,13 @@ function safeLogoHref(value: unknown): string {
 }
 
 /**
- * Checks whether the current page needs a transparent header.
- *
- * @param pathname - Current client pathname
+ * Checks whether the current page renders a hero that wants the transparent
+ * header. Uses only the DOM marker so a page whose hero is hidden in the CMS
+ * falls back to the solid header instead of white text on a white page.
+ * (`LEGACY_TRANSPARENT_HERO_PATHS` only seeds the server-rendered first paint.)
  */
-function hasTransparentHeader(pathname: string | null): boolean {
-  return (
-    document.querySelector('[data-transparent-header="true"]') !== null ||
-    (pathname !== null && LEGACY_TRANSPARENT_HERO_PATHS.has(pathname))
-  );
+function hasTransparentHeader(): boolean {
+  return document.querySelector('[data-transparent-header="true"]') !== null;
 }
 
 function NavText({
@@ -138,7 +136,7 @@ function DesktopDropdown({
   const textClass = NavText({
     lightNav,
     className:
-      "nav-link nav-dropdown-trigger text-sm xl:text-[0.9375rem] 2xl:text-base font-medium tracking-wide flex items-center gap-1.5 py-1.5 ",
+      "nav-link nav-dropdown-trigger whitespace-nowrap text-sm 2xl:text-base font-medium tracking-wide flex items-center gap-1 py-1.5 ",
   });
 
   const regularItems = item.items.filter(
@@ -339,9 +337,10 @@ export default function Header({ initialData = null }: HeaderProps) {
   );
   const headerData = initialData;
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: re-check the hero marker on every route change
   useLayoutEffect(() => {
     const syncTransparentHero = () => {
-      const nextHasTransparentHero = hasTransparentHeader(pathname);
+      const nextHasTransparentHero = hasTransparentHeader();
       setHasTransparentHero((currentHasTransparentHero) =>
         currentHasTransparentHero === nextHasTransparentHero
           ? currentHasTransparentHero
@@ -410,7 +409,7 @@ export default function Header({ initialData = null }: HeaderProps) {
   const linkClass = NavText({
     lightNav,
     className:
-      "nav-link text-sm xl:text-[0.9375rem] 2xl:text-base font-medium tracking-wide py-1.5 ",
+      "nav-link whitespace-nowrap text-sm 2xl:text-base font-medium tracking-wide py-1.5 ",
   });
 
   useLayoutEffect(() => {
@@ -456,7 +455,7 @@ export default function Header({ initialData = null }: HeaderProps) {
             className="flex items-center shrink-0 group"
             aria-label={logoLightAlt}
           >
-            <div className="header-logo-mark relative h-14 md:h-16 xl:h-[4.25rem] 2xl:h-20 w-[148px] md:w-[168px] xl:w-[180px] 2xl:w-[196px]">
+            <div className="header-logo-mark relative h-14 md:h-16 xl:h-[4.25rem] 2xl:h-20 w-[148px] md:w-[168px] xl:w-[120px] 2xl:w-[196px]">
               <Image
                 src={logoDark}
                 alt={logoDarkAlt}
@@ -477,7 +476,7 @@ export default function Header({ initialData = null }: HeaderProps) {
           </Link>
 
           <nav
-            className="hidden xl:flex items-center gap-2.5 2xl:gap-5"
+            className="hidden xl:flex min-w-0 items-center gap-3 2xl:gap-5"
             aria-label="Primary"
           >
             {navigation.map((item) =>

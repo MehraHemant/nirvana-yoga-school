@@ -13,7 +13,6 @@ import { getQuizSettings } from "@/lib/quiz/settings";
 import HideOnImmersive from "./HideOnImmersive";
 import SiteFooterGate from "./SiteFooterGate";
 import SiteMain from "./SiteMain";
-import SiteMobileStickyBarGate from "./SiteMobileStickyBarGate";
 
 const FALLBACK_WHATSAPP = "919876543210";
 
@@ -76,7 +75,6 @@ export default async function SiteLayout({
           promptTitle={`${quizSettings.introTitle} ${quizSettings.introHighlight}`.trim()}
         />
       ) : null}
-      <SiteMobileStickyBarGate />
     </SiteSessionProvider>
   );
 }

@@ -83,6 +83,9 @@ export default function UpcomingDates({
   onBatchSelect,
   embedded = false,
   sectionDescription,
+  programSlug,
+  bookingType,
+  buildReserveHref,
 }: UpcomingDatesProps) {
   const batches = batchesProp?.length ? batchesProp : getBatchDates(duration);
   const [internalRoomType, setInternalRoomType] = useState("");
@@ -111,6 +114,23 @@ export default function UpcomingDates({
       setInternalBatch(batch);
     }
   }
+
+  /** Mention Book Now only where the page offers a booking flow. */
+  const canBook = Boolean(buildReserveHref || (programSlug && bookingType));
+
+  const selectionNote = (
+    <p className="type-body mt-4 flex items-start gap-2.5 rounded-xl border border-primary/15 bg-primary/5 px-4 py-3 text-ink">
+      <span
+        className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-primary"
+        aria-hidden="true"
+      />
+      <span>
+        <strong className="font-semibold">Note:</strong> Please select your
+        preferred training date and a lodging package to see your price
+        {canBook ? ", then tap Book Now to reserve your spot." : "."}
+      </span>
+    </p>
+  );
 
   const header = (
     <SectionHeader
@@ -214,6 +234,7 @@ export default function UpcomingDates({
         <div className="space-y-8">
           <div className="space-y-4">
             {header}
+            {selectionNote}
             <hr className="border-ink/8" />
           </div>
           {body}
@@ -226,6 +247,7 @@ export default function UpcomingDates({
     <section id={htmlId} className="section-padding-y bg-white">
       <Container size="2xl">
         {header}
+        {selectionNote}
         {body}
       </Container>
     </section>

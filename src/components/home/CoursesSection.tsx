@@ -60,7 +60,7 @@ export default function CoursesSection({
           />
         </motion.div>
 
-        <div className="grid gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 lg:gap-6 xl:gap-7 items-start">
+        <div className="grid gap-5 sm:grid-cols-2 sm:gap-6 xl:grid-cols-3 xl:gap-7 items-start">
           {cards.map((course, index) => {
             const staggerClass =
               index % 3 === 1

@@ -53,7 +53,7 @@ function TestimonialCard({ review }: { review: Testimonial }) {
   } = useLineClampReadMore(review.message);
 
   return (
-    <div className="flex h-full flex-col items-stretch gap-4 pr-3 md:flex-row md:gap-6">
+    <div className="flex h-full flex-col items-stretch gap-4 pr-1 sm:pr-3 md:flex-row md:gap-6">
       <div className="relative h-[220px] w-full shrink-0 overflow-hidden rounded-2xl md:h-60 md:w-1/3">
         <Image
           src={review.image}
@@ -157,12 +157,12 @@ function TestimonialSlider({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="flex h-full w-full items-stretch gap-2 sm:gap-3">
+      <div className="flex h-full w-full items-stretch gap-1.5 sm:gap-3">
         {reviews.length > 1 ? (
           <button
             type="button"
             onClick={() => paginate(-1)}
-            className="z-20 flex shrink-0 cursor-pointer items-center justify-center self-center rounded-full border border-ink/5 bg-white p-2.5 text-ink/75 shadow-soft transition-all hover:bg-primary hover:text-white"
+            className="z-20 flex shrink-0 cursor-pointer items-center justify-center self-center rounded-full border border-ink/5 bg-white p-2 sm:p-2.5 text-ink/75 shadow-soft transition-all hover:bg-primary hover:text-white"
             aria-label="Previous review"
           >
             <ChevronLeft size={16} />
@@ -189,7 +189,7 @@ function TestimonialSlider({
           <button
             type="button"
             onClick={() => paginate(1)}
-            className="z-20 flex shrink-0 cursor-pointer items-center justify-center self-center rounded-full border border-ink/5 bg-white p-2.5 text-ink/75 shadow-soft transition-all hover:bg-primary hover:text-white"
+            className="z-20 flex shrink-0 cursor-pointer items-center justify-center self-center rounded-full border border-ink/5 bg-white p-2 sm:p-2.5 text-ink/75 shadow-soft transition-all hover:bg-primary hover:text-white"
             aria-label="Next review"
           >
             <ChevronRight size={16} />
@@ -305,7 +305,7 @@ export default function PlatformReviewsRows({
 
   return (
     <div className={`w-full space-y-8 md:space-y-10 ${className}`}>
-      <div className="grid w-full grid-cols-1 items-stretch gap-4 rounded-3xl px-5 py-4 md:px-6 md:py-4 lg:grid-cols-4 lg:gap-6">
+      <div className="grid w-full grid-cols-1 items-stretch gap-4 rounded-3xl px-0 py-4 sm:px-5 md:px-6 md:py-4 lg:grid-cols-4 lg:gap-6">
         <div className="flex h-full flex-col lg:col-span-1">
           <RatingCard
             platform="Google"
@@ -320,7 +320,7 @@ export default function PlatformReviewsRows({
         </div>
       </div>
 
-      <div className="grid w-full grid-cols-1 items-stretch gap-4 rounded-3xl px-5 py-4 md:px-6 md:py-4 lg:grid-cols-4 lg:gap-6">
+      <div className="grid w-full grid-cols-1 items-stretch gap-4 rounded-3xl px-0 py-4 sm:px-5 md:px-6 md:py-4 lg:grid-cols-4 lg:gap-6">
         <div className="flex h-full flex-col lg:col-span-1">
           <RatingCard
             platform="Tripadvisor"
@@ -338,7 +338,7 @@ export default function PlatformReviewsRows({
         </div>
       </div>
 
-      <div className="grid w-full grid-cols-1 items-stretch gap-4 rounded-3xl px-5 py-4 md:px-6 md:py-4 lg:grid-cols-4 lg:gap-6">
+      <div className="grid w-full grid-cols-1 items-stretch gap-4 rounded-3xl px-0 py-4 sm:px-5 md:px-6 md:py-4 lg:grid-cols-4 lg:gap-6">
         <div className="flex h-full flex-col lg:col-span-1">
           <RatingCard
             platform="Trustpilot"

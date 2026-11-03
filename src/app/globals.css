@@ -159,6 +159,8 @@ html.site-quiz-page body {
 
 body {
   font-family: var(--font-sans);
+  /* Room for the mobile sticky Book Now bar (set by CourseBookingFab; 0 elsewhere). */
+  padding-bottom: var(--mobile-cta-height, 0px);
   font-size: var(--type-body-size);
   font-weight: 400;
   line-height: 1.65;

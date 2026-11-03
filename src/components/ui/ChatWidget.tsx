@@ -333,8 +333,8 @@ export default function ChatWidget() {
   }
 
   return (
-    /* Sit above mobile sticky bar; on md+ sit above the Book Now FAB (bottom-5). */
-    <div className="chat-fab-dock fixed bottom-24 right-5 z-50 flex flex-col items-end gap-3 md:bottom-23 md:right-5">
+    /* Desktop/tablet only (hidden below md); sits above the Book Now FAB (bottom-5). */
+    <div className="chat-fab-dock fixed right-5 z-50 hidden flex-col items-end gap-3 md:bottom-23 md:flex">
       {open ? (
         <section
           id={panelId}

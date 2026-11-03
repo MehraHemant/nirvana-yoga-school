@@ -559,6 +559,15 @@ export function publicViewHref(type: string, slug: string): string {
   return `/${slug}`;
 }
 
+/** Core singleton pages the site routes depend on — never deletable from admin lists. */
+export const PROTECTED_PAGE_SLUGS: ReadonlySet<string> = new Set([
+  "home",
+  "contact",
+  "enquire-now",
+  "booking",
+  "teacher",
+]);
+
 /** Slugs that have dedicated sidebar section entries (excluded from Other). */
 export const DEDICATED_SITE_SECTION_SLUGS = [
   "home",

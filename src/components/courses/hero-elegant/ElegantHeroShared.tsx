@@ -18,7 +18,7 @@ export type ElegantGallery = ReturnType<typeof useHeroGallery>;
 export type ElegantHeroProps = CourseHeroProps;
 
 export const ELEGANT_HERO_FRAME =
-  "relative flex min-h-svh w-full min-w-0 flex-col overflow-hidden pt-(--site-header-height)";
+  "relative flex w-full min-w-0 flex-col overflow-hidden pt-(--site-header-height) lg:min-h-svh";
 
 /**
  * Picks up to `count` photos after the active index, wrapping and skipping the lead.

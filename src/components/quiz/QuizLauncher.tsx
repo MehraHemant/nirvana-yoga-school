@@ -159,7 +159,7 @@ export default function QuizLauncher({
           delay: 0.6,
           ease: EASE_OUT,
         })}
-        className="group fixed bottom-[10.5rem] right-5 z-[45] flex items-center gap-2.5 rounded-full border border-white/15 bg-linear-to-br from-primary to-primary-dark py-1.5 pl-1.5 pr-4 text-white shadow-[0_18px_40px_-14px_rgb(163_36_50/0.75)] transition-[transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:shadow-[0_22px_48px_-14px_rgb(163_36_50/0.85)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 md:bottom-40"
+        className="group fixed bottom-[calc(1.25rem+var(--mobile-cta-height,0px))] right-5 z-[45] flex items-center gap-2.5 rounded-full border border-white/15 bg-linear-to-br from-primary to-primary-dark py-1.5 pl-1.5 pr-4 text-white shadow-[0_18px_40px_-14px_rgb(163_36_50/0.75)] transition-[transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:shadow-[0_22px_48px_-14px_rgb(163_36_50/0.85)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 md:bottom-40"
         aria-haspopup={signedIn && !limitReached ? undefined : "dialog"}
       >
         <span className="relative flex h-9 w-9 items-center justify-center rounded-full bg-white text-primary">

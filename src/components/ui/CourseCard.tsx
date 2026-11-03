@@ -151,7 +151,7 @@ function FocusList({ highlights }: { highlights: string[] }) {
 
 /** Rendered width of a course-card photo in the 1 / 2 / 3 column grids. */
 export const COURSE_CARD_IMAGE_SIZES =
-  "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw";
+  "(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw";
 
 /**
  * Course card media. Stacked uses full-bleed 16:10 with a stronger veil;
@@ -378,12 +378,12 @@ function CourseCardBody({
           <MetaPills duration={duration} level={level} fee={fee} />
         </div>
       ) : (
-        <div className="mt-3 grid grid-cols-[0.9fr_1fr_1.15fr] border-y border-ink/10">
+        <div className="mt-3 grid grid-cols-[minmax(0,0.85fr)_minmax(0,1.25fr)_minmax(0,1fr)] border-y border-ink/10">
           <div className="min-w-0 py-2.5 pr-2">
             <p className="text-[10px] font-semibold uppercase leading-[1.4] tracking-[0.14em] text-ink">
               Duration
             </p>
-            <p className="mt-1 truncate text-[12px] font-semibold leading-none text-ink">
+            <p className="mt-1 text-[12px] font-semibold leading-tight text-ink hyphens-auto wrap-break-word">
               {duration}
             </p>
           </div>
@@ -391,7 +391,7 @@ function CourseCardBody({
             <p className="text-[10px] font-semibold uppercase leading-[1.4] tracking-[0.14em] text-ink">
               Level
             </p>
-            <p className="mt-1 truncate text-[12px] font-semibold leading-none text-ink">
+            <p className="mt-1 text-[12px] font-semibold leading-tight text-ink hyphens-auto wrap-break-word">
               {level}
             </p>
           </div>
@@ -399,8 +399,8 @@ function CourseCardBody({
             <p className="text-[10px] font-semibold uppercase leading-[1.4] tracking-[0.14em] text-ink">
               From
             </p>
-            <p className="mt-0.5 truncate text-[1.15rem] font-semibold leading-none tracking-tight text-primary">
-              {fee}
+            <p className="mt-0.5 text-[1.05rem] font-semibold leading-tight tracking-tight text-primary wrap-break-word sm:text-[1.15rem]">
+              {fee.replace(/^\s*from\s+/i, "")}
             </p>
           </div>
         </div>

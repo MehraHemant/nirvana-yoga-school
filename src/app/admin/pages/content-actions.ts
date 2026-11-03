@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getServerSession, requireAdmin } from "@/lib/cms/auth";
 import { invalidateAndRevalidatePage } from "@/lib/cms/cache";
 import { db } from "@/lib/db";
 
@@ -10,6 +11,8 @@ import { db } from "@/lib/db";
  * @param formData - Must include `id` and `published` (`true` | `false`)
  */
 export async function setPagePublishedAction(formData: FormData) {
+  requireAdmin(await getServerSession());
+
   const id = String(formData.get("id") ?? "");
   const published = String(formData.get("published") ?? "") === "true";
   if (!id) return;

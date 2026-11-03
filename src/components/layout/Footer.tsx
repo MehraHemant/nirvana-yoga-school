@@ -110,14 +110,14 @@ function ContactLines({
     whatsappHref ?? whatsappHrefFromPhone(contact.phone) ?? undefined;
 
   return (
-    <address className="space-y-1.5 text-sm leading-relaxed not-italic text-ink">
+    <address className="min-w-0 space-y-1.5 text-sm leading-relaxed not-italic text-ink">
       {contact.address ? (
         <p className="max-w-[16rem] whitespace-pre-line">{contact.address}</p>
       ) : null}
       {contact.email ? (
         <a
           href={`mailto:${contact.email}`}
-          className="footer-nav-link block text-ink"
+          className="footer-nav-link block break-all text-ink"
         >
           {contact.email}
         </a>
@@ -265,7 +265,7 @@ export default function Footer({ initialData = null }: FooterProps) {
           ))}
 
           {hasContact ? (
-            <div>
+            <div className="min-w-0">
               <ColHeading>Contact</ColHeading>
               <ContactLines
                 contact={footerData.contact}

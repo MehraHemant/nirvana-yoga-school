@@ -61,7 +61,7 @@ export default function CourseHeroGalleryFeature(props: ElegantHeroProps) {
     <HeroFrame className={`${ELEGANT_HERO_FRAME} bg-white text-secondary`}>
       <Container
         size="2xl"
-        className="flex min-h-0 flex-1 flex-col py-4 md:py-5"
+        className="flex min-h-0 flex-col py-4 md:py-5 lg:flex-1"
       >
         <header className="mb-3 shrink-0">
           <h1 className="w-full text-center text-2xl leading-[1.1] font-medium tracking-[-0.035em] text-balance sm:text-3xl lg:text-[2.55rem]">
@@ -70,31 +70,31 @@ export default function CourseHeroGalleryFeature(props: ElegantHeroProps) {
         </header>
 
         <div
-          className="flex min-h-0 flex-1 flex-col"
+          className="flex min-h-0 flex-col lg:flex-1"
           onPointerDown={() => gallery.setInteracting(true)}
           onPointerUp={() => gallery.setInteracting(false)}
           onPointerCancel={() => gallery.setInteracting(false)}
           onPointerLeave={() => gallery.setInteracting(false)}
         >
           <div
-            className={`grid min-h-0 flex-1 gap-2 md:items-stretch ${
+            className={`grid min-h-0 content-start gap-2 lg:items-stretch lg:flex-1 lg:content-stretch ${
               showSideColumn
-                ? "md:grid-cols-[minmax(0,3fr)_minmax(9rem,1fr)]"
+                ? "lg:grid-cols-[minmax(0,3fr)_minmax(9rem,1fr)]"
                 : ""
             }`}
           >
             <HeroStage
               gallery={gallery}
               sizes={HERO_STAGE_SIZES}
-              className="aspect-16/10 h-full min-h-48 w-full md:aspect-auto"
+              className="aspect-16/10 h-full min-h-48 w-full lg:aspect-auto"
             />
             {showSideColumn ? (
-              <div className="grid min-h-0 grid-cols-3 gap-2 md:grid-cols-1 md:grid-rows-3">
+              <div className="grid min-h-0 grid-cols-3 gap-2 lg:grid-cols-1 lg:grid-rows-3">
                 {cornerVideoId ? (
                   <HeroSideVideo
                     videoId={cornerVideoId}
                     index={0}
-                    className="aspect-16/10 min-h-0 md:aspect-auto"
+                    className="aspect-16/10 min-h-0 lg:aspect-auto"
                   />
                 ) : null}
                 {sidePhotos.map(({ photo, index }) => (
@@ -102,7 +102,7 @@ export default function CourseHeroGalleryFeature(props: ElegantHeroProps) {
                     key={photo.url}
                     type="button"
                     onClick={() => gallery.showPhoto(index)}
-                    className="relative aspect-16/10 min-h-0 overflow-hidden rounded-xl bg-neutral-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary md:aspect-auto"
+                    className="relative aspect-16/10 min-h-0 overflow-hidden rounded-xl bg-neutral-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary lg:aspect-auto"
                     aria-label={`Show photo ${index + 1}`}
                   >
                     <Image

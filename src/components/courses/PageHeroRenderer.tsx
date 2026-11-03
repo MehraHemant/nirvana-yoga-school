@@ -54,7 +54,7 @@ export default function PageHeroRenderer({ modules }: PageHeroRendererProps) {
     return (
       <HeroFrame
         transparentHeader
-        className="relative h-[60svh] min-h-[420px] overflow-hidden"
+        className="relative h-[60svh] min-h-[420px] overflow-hidden bg-ink"
       >
         <HeroMediaImage
           src={hero.backgroundImage}

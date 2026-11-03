@@ -33,7 +33,6 @@ export default function HeroSection({
     secondaryCtaLabel,
     secondaryCtaHref,
     marqueeItems,
-    mobileTrust,
     video,
   } = content;
   const badgeText = badge.trim();
@@ -59,7 +58,7 @@ export default function HeroSection({
       className={
         isOnline
           ? "online-hub-hero relative min-h-[85svh] w-full overflow-hidden bg-surface pt-(--site-header-height) text-ink"
-          : "relative min-h-svh w-full overflow-hidden bg-transparent"
+          : "relative min-h-svh w-full overflow-hidden bg-dark"
       }
     >
       {isOnline ? (
@@ -93,7 +92,7 @@ export default function HeroSection({
       />
 
       <div
-        className={`relative z-10 flex items-end ${isOnline ? "min-h-[calc(85svh-var(--site-header-height))] pb-28 sm:pb-32 md:pb-36" : "min-h-svh pb-36 sm:pb-[4.5rem] md:pb-[5rem]"}`}
+        className={`relative z-10 flex items-end ${isOnline ? "min-h-[calc(85svh-var(--site-header-height))] pb-28 sm:pb-32 md:pb-36" : "min-h-svh pb-28 md:pb-36"}`}
       >
         <Container size="2xl" className="w-full">
           <div className="grid lg:grid-cols-12 gap-10 items-end">
@@ -199,27 +198,6 @@ export default function HeroSection({
                 </div>
               ) : null}
 
-              {mobileTrust.length > 0 ? (
-                <div className="animate-fade-up fade-delay-600 lg:hidden mt-5 sm:mt-8 flex gap-2 sm:gap-3 overflow-x-auto pb-1">
-                  {mobileTrust.map((item) => (
-                    <div
-                      key={item.label}
-                      className={`shrink-0 rounded-xl sm:rounded-2xl px-3 py-2 sm:px-4 sm:py-3 min-w-[76px] sm:min-w-[88px] text-center ${isOnline ? "border border-ink/8 bg-surface-muted" : "hero-glass"}`}
-                    >
-                      <div
-                        className={`type-display-sm font-semibold leading-none ${isOnline ? "text-ink" : "text-white"}`}
-                      >
-                        {item.value}
-                      </div>
-                      <div
-                        className={`type-eyebrow mt-1 ${isOnline ? "text-muted" : "text-white/60"}`}
-                      >
-                        {item.label}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : null}
             </div>
           </div>
         </Container>
