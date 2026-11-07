@@ -5,12 +5,13 @@ import { useCallback, useState } from "react";
 import { AdminSaveBar } from "@/components/admin/AdminSaveBar";
 import { AdminSectionJumpNav } from "@/components/admin/AdminSectionJumpNav";
 import { CollapsiblePanel } from "@/components/admin/CollapsiblePanel";
+import { FaqItemsEditor } from "@/components/admin/FaqItemsEditor";
 import { HomeCoursesPicker } from "@/components/admin/HomeCoursesPicker";
+import { HomeGalleryItemsEditor } from "@/components/admin/HomeGalleryItemsEditor";
 import { ImageField } from "@/components/admin/ImageField";
 import { PageSeoFields } from "@/components/admin/PageSeoFields";
 import { SectionIdField } from "@/components/admin/SectionIdField";
 import { SectionLiveField } from "@/components/admin/SectionLiveField";
-import { FaqItemsEditor } from "@/components/admin/FaqItemsEditor";
 import { SelectField } from "@/components/admin/SelectField";
 import {
   DragHandle,
@@ -24,23 +25,19 @@ import { TextField } from "@/components/admin/TextField";
 import { useAdminSectionJump } from "@/components/admin/useAdminSectionJump";
 import { useStableListKeys } from "@/components/admin/useStableListKeys";
 import { VideoField } from "@/components/admin/VideoField";
+import {
+  homeCoursesSectionForSave,
+  normalizeHomeCourseRefs,
+} from "@/content/mappers/home-courses";
 import type {
   HomeAuthenticYogaVideo,
-  HomeGalleryItem,
   HomePageContent,
   HomeWelcomeImage,
   HomeWhyRishikeshSutra,
   HomeWhyRishikeshTrustLogo,
   HomeYogaAllianceCertification,
 } from "@/content/types/dedicated-pages";
-import {
-  homeCoursesSectionForSave,
-  normalizeHomeCourseRefs,
-} from "@/content/mappers/home-courses";
-import type {
-  HomeFaqsContent,
-  SharedReview,
-} from "@/content/types/shared-sections";
+import type { SharedReview } from "@/content/types/shared-sections";
 import { REVIEW_SOURCE_OPTIONS } from "@/content/types/shared-sections";
 
 const DEFAULT_GALLERY_CATEGORY_OPTIONS = [
@@ -138,7 +135,6 @@ export function HomeSectionsEditor({
   const statKeys = useStableListKeys(doc.welcome.rotatingStats.length);
   const welcomeImageKeys = useStableListKeys(doc.welcome.images.length);
   const reviewKeys = useStableListKeys(doc.testimonials.reviews.length);
-  const galleryKeys = useStableListKeys(doc.gallery.items.length);
   const homeCoursePlacements = normalizeHomeCourseRefs(doc.courses);
   const certKeys = useStableListKeys(doc.yogaAlliance.certifications.length);
   const sutraKeys = useStableListKeys(doc.whyRishikesh.sutras.length);
@@ -155,6 +151,31 @@ export function HomeSectionsEditor({
           label: category.label,
         }))
       : DEFAULT_GALLERY_CATEGORY_OPTIONS;
+
+  /**
+   * Renames one gallery filter. Writes the full list when names were still defaults.
+   *
+   * @param id - Category id stored on each image
+   * @param label - Name shown in the filter and this editor
+   */
+  function renameGalleryCategory(id: string, label: string) {
+    const stored =
+      doc.gallery.categories && doc.gallery.categories.length > 0
+        ? doc.gallery.categories
+        : DEFAULT_GALLERY_CATEGORY_OPTIONS.map((category) => ({
+            id: category.value,
+            label: category.label,
+          }));
+    const next = stored.some((category) => category.id === id)
+      ? stored.map((category) =>
+          category.id === id ? { ...category, label } : category,
+        )
+      : [...stored, { id, label }];
+    setDoc({
+      ...doc,
+      gallery: { ...doc.gallery, categories: next },
+    });
+  }
 
   const getSection = useCallback(
     (slug: string) => {
@@ -813,96 +834,14 @@ export function HomeSectionsEditor({
                 setDoc({ ...doc, gallery: { ...doc.gallery, lightboxTitle } })
               }
             />
-            {doc.gallery.items.map((item, index) => (
-              <div key={galleryKeys.keys[index]} className="admin-nested-card">
-                <div className="admin-nested-card-head">
-                  <strong>Item {index + 1}</strong>
-                  <button
-                    type="button"
-                    className="admin-btn-sm admin-btn-sm--danger"
-                    onClick={() => {
-                      galleryKeys.removeKey(index);
-                      setDoc({
-                        ...doc,
-                        gallery: {
-                          ...doc.gallery,
-                          items: doc.gallery.items.filter(
-                            (_, i) => i !== index,
-                          ),
-                        },
-                      });
-                    }}
-                  >
-                    Remove
-                  </button>
-                </div>
-                <ImageField
-                  label="Image"
-                  value={item.src}
-                  compact
-                  onChange={(src) => {
-                    const items = [...doc.gallery.items];
-                    items[index] = { ...item, src };
-                    setDoc({ ...doc, gallery: { ...doc.gallery, items } });
-                  }}
-                />
-                <div className="admin-grid-3">
-                  <TextField
-                    label="Alt"
-                    value={item.alt}
-                    onChange={(alt) => {
-                      const items = [...doc.gallery.items];
-                      items[index] = { ...item, alt };
-                      setDoc({ ...doc, gallery: { ...doc.gallery, items } });
-                    }}
-                  />
-                  <TextField
-                    label="Title"
-                    value={item.title}
-                    onChange={(title) => {
-                      const items = [...doc.gallery.items];
-                      items[index] = { ...item, title };
-                      setDoc({ ...doc, gallery: { ...doc.gallery, items } });
-                    }}
-                  />
-                  <SelectField
-                    label="Category"
-                    value={item.category}
-                    options={galleryCategoryOptions}
-                    onChange={(category) => {
-                      const items = [...doc.gallery.items];
-                      items[index] = {
-                        ...item,
-                        category: category as HomeGalleryItem["category"],
-                      };
-                      setDoc({ ...doc, gallery: { ...doc.gallery, items } });
-                    }}
-                  />
-                </div>
-              </div>
-            ))}
-            <button
-              type="button"
-              className="admin-btn-sm"
-              onClick={() => {
-                galleryKeys.addKey();
-                const blank: HomeGalleryItem = {
-                  src: "",
-                  alt: "",
-                  title: "",
-                  category: "practice",
-                };
-                setDoc({
-                  ...doc,
-                  gallery: {
-                    ...doc.gallery,
-                    items: [...doc.gallery.items, blank],
-                  },
-                });
-              }}
-            >
-              Add gallery item
-            </button>
+            <HomeGalleryItemsEditor
+              items={doc.gallery.items}
+              categories={galleryCategoryOptions}
+              onChange={(items) =>
+                setDoc({ ...doc, gallery: { ...doc.gallery, items } })
+              }
+              onCategoryLabelChange={renameGalleryCategory}
+            />
           </CollapsiblePanel>
 
           <CollapsiblePanel
@@ -2090,7 +2029,9 @@ export function HomeSectionsEditor({
             </div>
             <FaqItemsEditor
               items={doc.faqs.faqs}
-              onChange={(faqs) => setDoc({ ...doc, faqs: { ...doc.faqs, faqs } })}
+              onChange={(faqs) =>
+                setDoc({ ...doc, faqs: { ...doc.faqs, faqs } })
+              }
               idPrefix="home-faq"
               renderExtraFields={(faq, _index, update) => (
                 <>

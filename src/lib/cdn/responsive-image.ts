@@ -1,4 +1,4 @@
-import { getImageProps } from "next/image";
+import { getImageProps, type ImageLoader } from "next/image";
 
 /** Next/Image quality for photography. The loader maps this to `q_auto:best`. */
 export const PHOTO_IMAGE_QUALITY = 85;
@@ -32,6 +32,8 @@ export type ResponsiveImageRequest = {
   sizes: string;
   /** Next/Image quality. Omit to use {@link PHOTO_IMAGE_QUALITY}. */
   quality?: number;
+  /** Overrides the site loader so prefetch hits the same crop as the tile */
+  loader?: ImageLoader;
 };
 
 /**
@@ -41,11 +43,13 @@ export type ResponsiveImageRequest = {
  * @param src - Original image URL
  * @param sizes - CSS `sizes` matching the rendered box
  * @param quality - Next/Image quality (default {@link PHOTO_IMAGE_QUALITY})
+ * @param loader - Optional per-image loader (gallery crops)
  */
 export function responsiveImageAttrs(
   src: string,
   sizes = HERO_POSTER_SIZES,
   quality = PHOTO_IMAGE_QUALITY,
+  loader?: ImageLoader,
 ): ResponsiveImageAttrs | null {
   const trimmed = src.trim();
   if (!trimmed) return null;
@@ -56,6 +60,7 @@ export function responsiveImageAttrs(
     fill: true,
     sizes,
     quality,
+    ...(loader ? { loader } : {}),
   });
 
   return {

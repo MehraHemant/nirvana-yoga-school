@@ -73,6 +73,90 @@ export function cloudinarySizedUrl(
 /** @deprecated Use {@link cloudinarySizedUrl} */
 export const cloudinaryThumbUrl = cloudinarySizedUrl;
 
+const coverLoaders = new Map<string, (props: ImageLoaderProps) => string>();
+
+/** Longest edge for a gallery tile. Covers a retina 20vw slot without a hero-sized file. */
+const GALLERY_COVER_MAX_EDGE = 1280;
+
+/**
+ * Caps a slot crop so the longer side stays within {@link GALLERY_COVER_MAX_EDGE}.
+ *
+ * @param width - Width Next.js asked for
+ * @param aspectWidth - Slot aspect width
+ * @param aspectHeight - Slot aspect height
+ */
+function cappedCoverSize(
+  width: number,
+  aspectWidth: number,
+  aspectHeight: number,
+): { w: number; h: number } {
+  let w = Math.max(1, Math.round(width));
+  let h = Math.max(1, Math.round((w * aspectHeight) / aspectWidth));
+  const edge = Math.max(w, h);
+  if (edge <= GALLERY_COVER_MAX_EDGE) return { w, h };
+  const scale = GALLERY_COVER_MAX_EDGE / edge;
+  w = Math.max(1, Math.round(w * scale));
+  h = Math.max(1, Math.round(h * scale));
+  return { w, h };
+}
+
+/**
+ * Delivery URL for the crop a tile actually shows.
+ * Center `c_fill` returns that region at the requested size. `q_auto:good`
+ * and no `g_auto` keep the first derivative fast; the pixel size is what
+ * keeps the crop sharp.
+ *
+ * @param url - Original media URL
+ * @param width - Crop width in pixels
+ * @param height - Crop height in pixels
+ * @param quality - Next/Image quality. Below 60 uses `auto:eco`; otherwise `auto:good`
+ */
+export function cloudinaryCoverUrl(
+  url: string,
+  width: number,
+  height: number,
+  quality?: number,
+): string {
+  const trimmed = url.trim();
+  if (!trimmed) return trimmed;
+
+  const imageMarker = "/image/upload/";
+  const imageIdx = trimmed.indexOf(imageMarker);
+  if (imageIdx === -1) return trimmed;
+
+  const insertAt = imageIdx + imageMarker.length;
+  const after = trimmed.slice(insertAt);
+  if (/^(c_|w_|h_|f_|q_|fl_)/.test(after)) return trimmed;
+
+  const w = Math.max(1, Math.round(width));
+  const h = Math.max(1, Math.round(height));
+  const q = quality != null && quality < 60 ? "auto:eco" : "auto:good";
+  const transform = `c_fill,w_${w},h_${h},f_avif,q_${q}`.replaceAll(",", "%2C");
+  return `${trimmed.slice(0, insertAt)}${transform}/${after}`;
+}
+
+/**
+ * `next/image` loader that fills a fixed aspect instead of limiting width only.
+ *
+ * @param aspectWidth - Slot aspect width
+ * @param aspectHeight - Slot aspect height
+ */
+export function cloudinaryCoverLoader(
+  aspectWidth: number,
+  aspectHeight: number,
+): (props: ImageLoaderProps) => string {
+  const key = `${aspectWidth}x${aspectHeight}`;
+  const cached = coverLoaders.get(key);
+  if (cached) return cached;
+
+  const loader = ({ src, width, quality }: ImageLoaderProps) => {
+    const size = cappedCoverSize(width, aspectWidth, aspectHeight);
+    return cloudinaryCoverUrl(src, size.w, size.h, quality);
+  };
+  coverLoaders.set(key, loader);
+  return loader;
+}
+
 /** Largest width the Cloudinary loader requests (retina hero main stage). */
 export const CLOUDINARY_HERO_MAIN_WIDTH = 2400;
 

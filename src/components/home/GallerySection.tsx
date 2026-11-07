@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Container,
   MediaLightbox,
@@ -13,6 +13,8 @@ import type {
   HomeGalleryItem,
   HomeGallerySectionContent,
 } from "@/content/types/dedicated-pages";
+import { cloudinaryCoverLoader } from "@/lib/cdn/cloudinary-thumb-url";
+import { preloadResponsiveImage } from "@/lib/cdn/prefetch-image";
 import {
   MASONRY_TILE_SIZES,
   PHOTO_IMAGE_QUALITY,
@@ -24,19 +26,26 @@ import { fadeUp, VIEWPORT_ONCE } from "@/lib/motion";
 type GalleryItem = HomeGalleryItem & { id: number };
 
 const SLOT_ASPECTS = [
-  "aspect-[2/3]",
-  "aspect-[16/10]",
-  "aspect-square",
-  "aspect-[3/4]",
-  "aspect-[4/5]",
-  "aspect-[16/9]",
-  "aspect-[2/3]",
-  "aspect-square",
-  "aspect-[4/3]",
-  "aspect-[3/4]",
-  "aspect-[2/3]",
-  "aspect-[16/10]",
+  { className: "aspect-[2/3]", w: 2, h: 3 },
+  { className: "aspect-[16/10]", w: 16, h: 10 },
+  { className: "aspect-square", w: 1, h: 1 },
+  { className: "aspect-[3/4]", w: 3, h: 4 },
+  { className: "aspect-[4/5]", w: 4, h: 5 },
+  { className: "aspect-[16/9]", w: 16, h: 9 },
+  { className: "aspect-[2/3]", w: 2, h: 3 },
+  { className: "aspect-square", w: 1, h: 1 },
+  { className: "aspect-[4/3]", w: 4, h: 3 },
+  { className: "aspect-[3/4]", w: 3, h: 4 },
+  { className: "aspect-[2/3]", w: 2, h: 3 },
+  { className: "aspect-[16/10]", w: 16, h: 10 },
 ] as const;
+
+/** Photos shown for every filter. Extra photos rotate into these slots. */
+const GALLERY_VISIBLE_COUNT = 20;
+/** How often a few tiles swap for photos that are already loaded. */
+const ROTATE_INTERVAL_MS = 2000;
+/** Tiles replaced on each rotation. */
+const ROTATE_SLOT_COUNT = 3;
 
 /** Fallback eyebrows used when the CMS sends no gallery category list. */
 const DEFAULT_CATEGORY_LABELS: Record<string, string> = {
@@ -88,6 +97,8 @@ export default function GallerySection({
   }, [items, selectedCategory]);
 
   const [visibleItems, setVisibleItems] = useState<GalleryItem[]>([]);
+  const visibleRef = useRef(visibleItems);
+  visibleRef.current = visibleItems;
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
@@ -99,57 +110,63 @@ export default function GallerySection({
   }, [visibleItems]);
 
   useEffect(() => {
-    let slotsCount = 15;
-    if (selectedCategory === "practice") {
-      slotsCount = 12;
-    } else if (selectedCategory === "life") {
-      slotsCount = 7;
-    } else if (selectedCategory === "campus") {
-      slotsCount = 7;
-    }
-    slotsCount = Math.min(slotsCount, filteredItems.length);
-    setVisibleItems(filteredItems.slice(0, slotsCount));
-  }, [selectedCategory, filteredItems]);
+    const slotsCount = Math.min(GALLERY_VISIBLE_COUNT, filteredItems.length);
+    const initial = filteredItems.slice(0, slotsCount);
+    visibleRef.current = initial;
+    setVisibleItems(initial);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: visibleItems is evaluated dynamically in the functional state updater to avoid resetting the interval
-  useEffect(() => {
     if (prefersReduced) return;
+    let cancelled = false;
+    let timer = 0;
 
-    const pool = filteredItems.filter(
-      (item) => !visibleItems.some((vis) => vis.id === item.id),
-    );
+    const arm = () => {
+      const plan = planRotation(visibleRef.current, filteredItems);
+      if (!plan || cancelled) return;
+      const ready = Promise.all(
+        plan.incoming.map((tile) =>
+          preloadTile(tile.src, tile.slotIndex, "high"),
+        ),
+      );
+      timer = window.setTimeout(() => {
+        void ready.then(() => {
+          if (cancelled) return;
+          visibleRef.current = plan.items;
+          setVisibleItems(plan.items);
+          arm();
+        });
+      }, ROTATE_INTERVAL_MS);
+    };
 
-    if (pool.length === 0 || visibleItems.length === 0) return;
+    arm();
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [filteredItems, prefersReduced]);
 
-    const interval = setInterval(() => {
-      setVisibleItems((currentVisible) => {
-        const currentPool = filteredItems.filter(
-          (item) => !currentVisible.some((vis) => vis.id === item.id),
-        );
-        if (currentPool.length === 0) return currentVisible;
+  useEffect(() => {
+    let cancelled = false;
+    const queue = tilesForGroups(items, categories);
+    let cursor = 0;
 
-        const slotCount = Math.min(
-          3,
-          currentVisible.length,
-          currentPool.length,
-        );
-        const slotIndices = new Set<number>();
-        while (slotIndices.size < slotCount) {
-          slotIndices.add(Math.floor(Math.random() * currentVisible.length));
-        }
+    const worker = async () => {
+      while (!cancelled && cursor < queue.length) {
+        const tile = queue[cursor];
+        cursor += 1;
+        await preloadTile(tile.src, tile.slotIndex);
+      }
+    };
 
-        const shuffledPool = [...currentPool].sort(() => Math.random() - 0.5);
-        const nextVisible = [...currentVisible];
-        let poolIdx = 0;
-        for (const slotIndex of slotIndices) {
-          nextVisible[slotIndex] = shuffledPool[poolIdx++];
-        }
-        return nextVisible;
-      });
-    }, 2000);
+    const start = () => {
+      void Promise.all([worker(), worker()]);
+    };
+    const idleId = window.setTimeout(start, 1500);
 
-    return () => clearInterval(interval);
-  }, [filteredItems, visibleItems.length, prefersReduced]);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(idleId);
+    };
+  }, [items, categories]);
 
   return (
     <section
@@ -159,11 +176,15 @@ export default function GallerySection({
       <Container size="2xl" className="relative">
         <PrefetchWhenNear
           limit={12}
-          images={visibleItems.map((item) => ({
-            src: item.src,
-            sizes: MASONRY_TILE_SIZES,
-            quality: PHOTO_IMAGE_QUALITY,
-          }))}
+          images={visibleItems.map((item, index) => {
+            const aspect = SLOT_ASPECTS[index % SLOT_ASPECTS.length];
+            return {
+              src: item.src,
+              sizes: MASONRY_TILE_SIZES,
+              quality: PHOTO_IMAGE_QUALITY,
+              loader: cloudinaryCoverLoader(aspect.w, aspect.h),
+            };
+          })}
         />
         <motion.div
           initial="hidden"
@@ -199,6 +220,8 @@ export default function GallerySection({
                   key={category.id}
                   type="button"
                   onClick={() => setSelectedCategory(category.id)}
+                  onPointerEnter={() => warmCategory(items, category.id)}
+                  onFocus={() => warmCategory(items, category.id)}
                   className={`type-ui text-lg relative px-4 py-2 transition-colors duration-300 focus-visible:outline-none ${isActive ? "text-primary" : "text-ink"}`}
                 >
                   {category.label}
@@ -220,66 +243,62 @@ export default function GallerySection({
         </motion.div>
 
         <div className="relative w-full">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={selectedCategory}
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
-              transition={{ duration: 0.4, ease: "easeInOut" }}
-              className="columns-2 sm:columns-4 lg:columns-5 gap-5"
-            >
-              {visibleItems.map((item, index) => {
-                const aspect = SLOT_ASPECTS[index % SLOT_ASPECTS.length];
+          <div
+            key={selectedCategory}
+            className="columns-2 sm:columns-4 lg:columns-5 gap-5"
+          >
+            {visibleItems.map((item, index) => {
+              const aspect = SLOT_ASPECTS[index % SLOT_ASPECTS.length];
+              const coverLoader = cloudinaryCoverLoader(aspect.w, aspect.h);
 
-                return (
-                  <div
-                    key={item.id}
-                    className="w-full text-left break-inside-avoid mb-6 group block rounded-3xl"
+              return (
+                <div
+                  key={item.id}
+                  className="w-full text-left break-inside-avoid mb-6 group block rounded-3xl"
+                >
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveImageIndex(index);
+                      setIsLightboxOpen(true);
+                    }}
+                    className={`relative w-full ${aspect.className} overflow-hidden rounded-3xl bg-ink/5 border border-ink/5 group-hover:border-primary/15 shadow-card hover:shadow-soft transition-all duration-300 cursor-zoom-in block`}
                   >
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setActiveImageIndex(index);
-                        setIsLightboxOpen(true);
-                      }}
-                      className={`relative w-full ${aspect} overflow-hidden rounded-3xl bg-ink/5 border border-ink/5 group-hover:border-primary/15 shadow-card hover:shadow-soft transition-all duration-300 cursor-zoom-in block`}
-                    >
-                      <AnimatePresence mode="popLayout">
-                        <motion.div
-                          key={item.id}
-                          initial={{ opacity: 1 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          transition={{ duration: 0.8, ease: "easeInOut" }}
-                          className="absolute inset-0 w-full h-full"
-                        >
-                          <Image
-                            src={item.src}
-                            alt={item.alt}
-                            fill
-                            sizes={MASONRY_TILE_SIZES}
-                            quality={PHOTO_IMAGE_QUALITY}
-                            draggable={false}
-                            className="object-cover transition-transform duration-700 ease-out group-hover:scale-105 pointer-events-none"
-                          />
-                        </motion.div>
-                      </AnimatePresence>
-                    </button>
+                    <AnimatePresence mode="popLayout">
+                      <motion.div
+                        key={item.id}
+                        initial={{ opacity: 1 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.35, ease: "easeInOut" }}
+                        className="absolute inset-0 w-full h-full"
+                      >
+                        <Image
+                          src={item.src}
+                          alt={item.alt}
+                          fill
+                          sizes={MASONRY_TILE_SIZES}
+                          quality={PHOTO_IMAGE_QUALITY}
+                          loader={coverLoader}
+                          draggable={false}
+                          className="object-cover transition-transform duration-700 ease-out group-hover:scale-105 pointer-events-none"
+                        />
+                      </motion.div>
+                    </AnimatePresence>
+                  </button>
 
-                    <div className="mt-1 px-2">
-                      <span className="type-eyebrow text-primary">
-                        {labelForCategory(item.category)}
-                      </span>
-                      <h4 className="type-ui truncate text-ink transition-colors duration-300">
-                        {item.title}
-                      </h4>
-                    </div>
+                  <div className="mt-1 px-2">
+                    <span className="type-eyebrow text-primary">
+                      {labelForCategory(item.category)}
+                    </span>
+                    <h4 className="type-ui truncate text-ink transition-colors duration-300">
+                      {item.title}
+                    </h4>
                   </div>
-                );
-              })}
-            </motion.div>
-          </AnimatePresence>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </Container>
 
@@ -293,4 +312,118 @@ export default function GallerySection({
       />
     </section>
   );
+}
+
+type GalleryTileRequest = {
+  src: string;
+  slotIndex: number;
+};
+
+/**
+ * Loads the cropped file for one masonry slot.
+ *
+ * @param src - Original photo URL
+ * @param slotIndex - Slot whose aspect the crop must match
+ * @param priority - `high` for the next swap; `low` for filters not on screen
+ */
+function preloadTile(
+  src: string,
+  slotIndex: number,
+  priority: "high" | "low" = "low",
+): Promise<void> {
+  const aspect = SLOT_ASPECTS[slotIndex % SLOT_ASPECTS.length];
+  return preloadResponsiveImage(
+    src,
+    MASONRY_TILE_SIZES,
+    PHOTO_IMAGE_QUALITY,
+    cloudinaryCoverLoader(aspect.w, aspect.h),
+    priority,
+  );
+}
+
+/**
+ * Picks the next photos and the slots they will fill.
+ *
+ * @param current - Photos on screen
+ * @param poolSource - Photos in the active filter
+ */
+function planRotation(
+  current: GalleryItem[],
+  poolSource: GalleryItem[],
+): { items: GalleryItem[]; incoming: GalleryTileRequest[] } | null {
+  const pool = poolSource.filter(
+    (item) => !current.some((visible) => visible.id === item.id),
+  );
+  if (pool.length === 0 || current.length === 0) return null;
+
+  const slotCount = Math.min(ROTATE_SLOT_COUNT, current.length, pool.length);
+  const slotIndices: number[] = [];
+  const used = new Set<number>();
+  while (slotIndices.length < slotCount) {
+    const index = Math.floor(Math.random() * current.length);
+    if (used.has(index)) continue;
+    used.add(index);
+    slotIndices.push(index);
+  }
+
+  const incomingItems = [...pool]
+    .sort(() => Math.random() - 0.5)
+    .slice(0, slotCount);
+  const next = [...current];
+  const incoming = incomingItems.map((item, index) => {
+    const slotIndex = slotIndices[index] ?? 0;
+    next[slotIndex] = item;
+    return { src: item.src, slotIndex };
+  });
+  return { items: next, incoming };
+}
+
+/**
+ * First screen of each category filter. The All view is already on screen.
+ *
+ * @param source - Every gallery photo
+ * @param groups - Category filters
+ */
+function tilesForGroups(
+  source: GalleryItem[],
+  groups: Array<{ id: string }>,
+): GalleryTileRequest[] {
+  const queue: GalleryTileRequest[] = [];
+  const seen = new Set<string>();
+  const lists = groups
+    .filter((group) => group.id !== "all")
+    .map((group) => source.filter((item) => item.category === group.id));
+
+  for (const list of lists) {
+    const count = Math.min(GALLERY_VISIBLE_COUNT, list.length);
+    for (let index = 0; index < count; index += 1) {
+      const src = list[index]?.src;
+      if (!src) continue;
+      const aspect = SLOT_ASPECTS[index % SLOT_ASPECTS.length];
+      const key = `${src}|${aspect.w}x${aspect.h}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      queue.push({ src, slotIndex: index });
+    }
+  }
+
+  return queue;
+}
+
+/**
+ * Starts loading one category's first screen.
+ *
+ * @param source - Every gallery photo
+ * @param categoryId - Filter id, or `all`
+ */
+function warmCategory(source: GalleryItem[], categoryId: string) {
+  const group =
+    categoryId === "all"
+      ? source
+      : source.filter((item) => item.category === categoryId);
+  const count = Math.min(GALLERY_VISIBLE_COUNT, group.length);
+  for (let index = 0; index < count; index += 1) {
+    const src = group[index]?.src;
+    if (src) void preloadTile(src, index, "high");
+  }
 }
