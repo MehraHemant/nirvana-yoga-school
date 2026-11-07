@@ -3628,6 +3628,30 @@
   border-left: 3px solid rgb(163 36 50 / 25%);
 }
 
+/* One-line upcoming date: dates, seats, delete. */
+.admin-date-batch-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.admin-date-batch-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr) auto;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+@media (max-width: 640px) {
+  .admin-date-batch-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .admin-date-batch-row .admin-input:first-child {
+    grid-column: 1 / -1;
+  }
+}
+
 /* Nested cards inside panels */
 .admin-nested-card {
   background: #faf7f2;

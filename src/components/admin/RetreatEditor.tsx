@@ -968,15 +968,58 @@ export function RetreatEditor({
                     Add date
                   </button>
                 </div>
-                {(modules.pricing.batches ?? []).map((batch, index) => (
-                  <div
-                    key={dateKeys.keys[index] ?? index}
-                    className="admin-nested-card"
-                  >
-                    <div className="admin-field-header">
-                      <span className="admin-label">
-                        {batch.dates.trim() || `Date batch ${index + 1}`}
-                      </span>
+                <div className="admin-date-batch-list">
+                  {(modules.pricing.batches ?? []).map((batch, index) => (
+                    <div
+                      key={dateKeys.keys[index] ?? index}
+                      className="admin-date-batch-row"
+                    >
+                      <input
+                        className="admin-input admin-input--compact"
+                        value={batch.dates}
+                        aria-label={`Dates ${index + 1}`}
+                        placeholder="Dates"
+                        onChange={(event) => {
+                          const dates = event.target.value;
+                          const batches = [...(modules.pricing.batches ?? [])];
+                          batches[index] = { ...batch, dates };
+                          setModules({
+                            ...modules,
+                            pricing: { ...modules.pricing, batches },
+                          });
+                          const retreatDates = [...retreat.dates];
+                          if (retreatDates[index]) {
+                            retreatDates[index] = {
+                              ...retreatDates[index],
+                              range: dates,
+                            };
+                            setRetreat({ ...retreat, dates: retreatDates });
+                          }
+                        }}
+                      />
+                      <input
+                        className="admin-input admin-input--compact"
+                        value={batch.spaces}
+                        aria-label={`Seat availability ${index + 1}`}
+                        placeholder="Seats"
+                        onChange={(event) => {
+                          const spaces = event.target.value;
+                          const batches = [...(modules.pricing.batches ?? [])];
+                          batches[index] = { ...batch, spaces };
+                          setModules({
+                            ...modules,
+                            pricing: { ...modules.pricing, batches },
+                          });
+                          const retreatDates = [...retreat.dates];
+                          if (retreatDates[index]) {
+                            retreatDates[index] = {
+                              ...retreatDates[index],
+                              availability: spaces,
+                            };
+                            setRetreat({ ...retreat, dates: retreatDates });
+                          }
+                        }}
+                      />
                       <ListRowActions
                         onRemove={() => {
                           dateKeys.removeKey(index);
@@ -996,50 +1039,8 @@ export function RetreatEditor({
                         }}
                       />
                     </div>
-                    <div className="admin-grid-2">
-                      <TextField
-                        label="Dates"
-                        value={batch.dates}
-                        onChange={(dates) => {
-                          const batches = [...(modules.pricing.batches ?? [])];
-                          batches[index] = { ...batch, dates };
-                          setModules({
-                            ...modules,
-                            pricing: { ...modules.pricing, batches },
-                          });
-                          const retreatDates = [...retreat.dates];
-                          if (retreatDates[index]) {
-                            retreatDates[index] = {
-                              ...retreatDates[index],
-                              range: dates,
-                            };
-                            setRetreat({ ...retreat, dates: retreatDates });
-                          }
-                        }}
-                      />
-                      <TextField
-                        label="Seats / availability"
-                        value={batch.spaces}
-                        onChange={(spaces) => {
-                          const batches = [...(modules.pricing.batches ?? [])];
-                          batches[index] = { ...batch, spaces };
-                          setModules({
-                            ...modules,
-                            pricing: { ...modules.pricing, batches },
-                          });
-                          const retreatDates = [...retreat.dates];
-                          if (retreatDates[index]) {
-                            retreatDates[index] = {
-                              ...retreatDates[index],
-                              availability: spaces,
-                            };
-                            setRetreat({ ...retreat, dates: retreatDates });
-                          }
-                        }}
-                      />
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </CollapsiblePanel>
           </div>
