@@ -152,31 +152,6 @@ export function HomeSectionsEditor({
         }))
       : DEFAULT_GALLERY_CATEGORY_OPTIONS;
 
-  /**
-   * Renames one gallery filter. Writes the full list when names were still defaults.
-   *
-   * @param id - Category id stored on each image
-   * @param label - Name shown in the filter and this editor
-   */
-  function renameGalleryCategory(id: string, label: string) {
-    const stored =
-      doc.gallery.categories && doc.gallery.categories.length > 0
-        ? doc.gallery.categories
-        : DEFAULT_GALLERY_CATEGORY_OPTIONS.map((category) => ({
-            id: category.value,
-            label: category.label,
-          }));
-    const next = stored.some((category) => category.id === id)
-      ? stored.map((category) =>
-          category.id === id ? { ...category, label } : category,
-        )
-      : [...stored, { id, label }];
-    setDoc({
-      ...doc,
-      gallery: { ...doc.gallery, categories: next },
-    });
-  }
-
   const getSection = useCallback(
     (slug: string) => {
       const def = HOME_JUMP_DEFS.find((item) => item.slug === slug);
@@ -840,7 +815,6 @@ export function HomeSectionsEditor({
               onChange={(items) =>
                 setDoc({ ...doc, gallery: { ...doc.gallery, items } })
               }
-              onCategoryLabelChange={renameGalleryCategory}
             />
           </CollapsiblePanel>
 

@@ -29,8 +29,6 @@ type HomeGalleryItemsEditorProps = {
   categories: GalleryCategoryOption[];
   /** Replaces the full item list */
   onChange: (items: HomeGalleryItem[]) => void;
-  /** Updates the display name of one category */
-  onCategoryLabelChange: (id: string, label: string) => void;
 };
 
 /**
@@ -51,7 +49,6 @@ export function HomeGalleryItemsEditor({
   items,
   categories,
   onChange,
-  onCategoryLabelChange,
 }: HomeGalleryItemsEditorProps) {
   const listKeys = useStableListKeys(items.length);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -233,19 +230,11 @@ export function HomeGalleryItemsEditor({
           const selectedKeyForGroup = selected
             ? listKeys.keys[selected.index]
             : undefined;
-          const imageCountLabel = `${group.rows.length} image${group.rows.length === 1 ? "" : "s"}`;
-
           return (
             <div key={group.id} className="admin-stack">
-              <div className="admin-gallery-group-name">
-                <TextField
-                  id={`gallery-category-${group.id}`}
-                  label="Category name"
-                  value={group.label}
-                  hint={imageCountLabel}
-                  onChange={(label) => onCategoryLabelChange(group.id, label)}
-                />
-              </div>
+              <p className="admin-hint" style={{ margin: 0 }}>
+                {`${group.label} · ${group.rows.length} image${group.rows.length === 1 ? "" : "s"}`}
+              </p>
               <div className="admin-gallery-image-grid">
                 {group.rows.map(({ item, index }) => {
                   const rowKey =
@@ -269,18 +258,19 @@ export function HomeGalleryItemsEditor({
                     compact
                     onChange={(src) => patchItem(selected.index, { src })}
                   />
-                  <div className="admin-grid-3">
+                  <TextField
+                    id={`${selectedKeyForGroup}-title`}
+                    label="Gallery title"
+                    value={selected.item.title}
+                    hint="Shown under this photo on the homepage gallery."
+                    onChange={(title) => patchItem(selected.index, { title })}
+                  />
+                  <div className="admin-grid-2">
                     <TextField
                       id={`${selectedKeyForGroup}-alt`}
                       label="Alt"
                       value={selected.item.alt}
                       onChange={(alt) => patchItem(selected.index, { alt })}
-                    />
-                    <TextField
-                      id={`${selectedKeyForGroup}-title`}
-                      label="Title"
-                      value={selected.item.title}
-                      onChange={(title) => patchItem(selected.index, { title })}
                     />
                     <SelectField
                       id={`${selectedKeyForGroup}-category`}
