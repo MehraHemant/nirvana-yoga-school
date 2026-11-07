@@ -11,10 +11,8 @@ import {
   buildBulkUploadDrafts,
   revokeBulkUploadPreviews,
 } from "./BulkMediaUploadModal";
-import { ImageField } from "./ImageField";
 import { MediaMultiPicker } from "./MediaMultiPicker";
 import { SelectField } from "./SelectField";
-import { TextField } from "./TextField";
 import { useStableListKeys } from "./useStableListKeys";
 
 type GalleryCategoryOption = {
@@ -62,7 +60,6 @@ export function HomeGalleryItemsEditor({
   const [defaultAlt, setDefaultAlt] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [error, setError] = useState("");
-  const [selectedKey, setSelectedKey] = useState<string | null>(null);
 
   const categoryValue = categories.some(
     (category) => category.value === targetCategory,
@@ -106,7 +103,6 @@ export function HomeGalleryItemsEditor({
    * @param index - Row index in the flat list
    */
   function removeItem(index: number) {
-    if (listKeys.keys[index] === selectedKey) setSelectedKey(null);
     listKeys.removeKey(index);
     onChange(items.filter((_, itemIndex) => itemIndex !== index));
   }
@@ -223,72 +219,28 @@ export function HomeGalleryItemsEditor({
       </div>
 
       <div className="admin-gallery-groups">
-        {groups.map((group) => {
-          const selected = group.rows.find(
-            ({ index }) => listKeys.keys[index] === selectedKey,
-          );
-          const selectedKeyForGroup = selected
-            ? listKeys.keys[selected.index]
-            : undefined;
-          return (
-            <div key={group.id} className="admin-stack">
-              <p className="admin-hint" style={{ margin: 0 }}>
-                {`${group.label} · ${group.rows.length} image${group.rows.length === 1 ? "" : "s"}`}
-              </p>
-              <div className="admin-gallery-image-grid">
-                {group.rows.map(({ item, index }) => {
-                  const rowKey =
-                    listKeys.keys[index] ?? `gallery-${group.id}-${index}`;
-                  return (
-                    <GalleryImageTile
-                      key={rowKey}
-                      item={item}
-                      selected={rowKey === selectedKey}
-                      onSelect={() => setSelectedKey(rowKey)}
-                      onRemove={() => removeItem(index)}
-                    />
-                  );
-                })}
-              </div>
-              {selected && selectedKeyForGroup ? (
-                <div className="admin-nested-card">
-                  <ImageField
-                    label="Image"
-                    value={selected.item.src}
-                    compact
-                    onChange={(src) => patchItem(selected.index, { src })}
+        {groups.map((group) => (
+          <div key={group.id} className="admin-stack">
+            <p className="admin-hint" style={{ margin: 0 }}>
+              {`${group.label} · ${group.rows.length} image${group.rows.length === 1 ? "" : "s"}`}
+            </p>
+            <div className="admin-gallery-image-grid">
+              {group.rows.map(({ item, index }) => {
+                const rowKey =
+                  listKeys.keys[index] ?? `gallery-${group.id}-${index}`;
+                return (
+                  <GalleryImageTile
+                    key={rowKey}
+                    item={item}
+                    onTitleChange={(title) => patchItem(index, { title })}
+                    onAltChange={(alt) => patchItem(index, { alt })}
+                    onRemove={() => removeItem(index)}
                   />
-                  <TextField
-                    id={`${selectedKeyForGroup}-title`}
-                    label="Gallery title"
-                    value={selected.item.title}
-                    hint="Shown under this photo on the homepage gallery."
-                    onChange={(title) => patchItem(selected.index, { title })}
-                  />
-                  <div className="admin-grid-2">
-                    <TextField
-                      id={`${selectedKeyForGroup}-alt`}
-                      label="Alt"
-                      value={selected.item.alt}
-                      onChange={(alt) => patchItem(selected.index, { alt })}
-                    />
-                    <SelectField
-                      id={`${selectedKeyForGroup}-category`}
-                      label="Category"
-                      value={selected.item.category}
-                      options={categories}
-                      onChange={(category) =>
-                        patchItem(selected.index, {
-                          category: asGalleryCategory(category),
-                        })
-                      }
-                    />
-                  </div>
-                </div>
-              ) : null}
+                );
+              })}
             </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
 
       <button type="button" className="admin-btn-sm" onClick={addBlank}>
@@ -357,38 +309,28 @@ export function HomeGalleryItemsEditor({
 type GalleryImageTileProps = {
   /** Gallery row shown in the grid */
   item: HomeGalleryItem;
-  /** Whether this tile’s fields are open */
-  selected: boolean;
-  /** Opens this image’s alt, title, and category fields */
-  onSelect: () => void;
+  /** Writes the caption shown under the photo */
+  onTitleChange: (title: string) => void;
+  /** Writes the image alt text */
+  onAltChange: (alt: string) => void;
   /** Removes this image from the gallery */
   onRemove: () => void;
 };
 
 /**
- * Square gallery preview with a select target and remove control.
+ * Square gallery preview with inline title and alt, plus remove.
  *
- * @param props - Image, selection state, and actions
+ * @param props - Image, caption handlers, and remove action
  */
 function GalleryImageTile({
   item,
-  selected,
-  onSelect,
+  onTitleChange,
+  onAltChange,
   onRemove,
 }: GalleryImageTileProps) {
-  const label = item.title || item.alt || "Untitled";
-
   return (
-    <div
-      className={`admin-gallery-tile${selected ? " admin-gallery-tile--selected" : ""}`}
-    >
-      <button
-        type="button"
-        className="admin-gallery-tile-pick"
-        aria-pressed={selected}
-        aria-label={`Edit ${label}`}
-        onClick={onSelect}
-      >
+    <div className="admin-gallery-tile">
+      <div className="admin-gallery-tile-pick">
         {item.src ? (
           // biome-ignore lint/performance/noImgElement: admin preview of a CMS url
           <img
@@ -399,11 +341,24 @@ function GalleryImageTile({
         ) : (
           <span className="admin-gallery-tile-placeholder">No image</span>
         )}
-      </button>
+      </div>
       <div className="admin-gallery-tile-bar">
-        <span className="admin-gallery-tile-name" title={label}>
-          {label}
-        </span>
+        <div className="admin-gallery-tile-copy">
+          <input
+            className="admin-gallery-tile-title"
+            value={item.title}
+            aria-label="Gallery title"
+            placeholder="Title"
+            onChange={(event) => onTitleChange(event.target.value)}
+          />
+          <input
+            className="admin-gallery-tile-alt"
+            value={item.alt}
+            aria-label="Alt text"
+            placeholder="Alt"
+            onChange={(event) => onAltChange(event.target.value)}
+          />
+        </div>
         <button
           type="button"
           className="admin-btn-xs admin-btn-xs--danger"

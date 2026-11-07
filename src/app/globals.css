@@ -700,6 +700,36 @@ body {
   filter: drop-shadow(0 2px 10px rgb(0 0 0 / 0.35));
 }
 
+/*
+ * First paint over a dark hero. The header SSR markup is dark text until
+ * hydration reads the hero marker, so these rules follow the marker itself.
+ * They only apply while the bar is still the transparent overlay.
+ */
+body:has([data-transparent-header="true"]) .header-shell--overlay .nav-link,
+body:has([data-transparent-header="true"]) .header-shell--overlay .header-menu-btn,
+body:has([data-transparent-header="true"]) .header-shell--overlay a[href="/login"] {
+  color: rgb(255 255 255 / 0.9);
+  text-shadow: 0 1px 12px rgb(0 0 0 / 0.4);
+}
+
+body:has([data-transparent-header="true"]) .header-shell--overlay .nav-link:hover,
+body:has([data-transparent-header="true"]) .header-shell--overlay .nav-link:focus-visible {
+  /* color: var(--color-primary); */
+  text-shadow: none;
+}
+
+body:has([data-transparent-header="true"]) .header-shell--overlay .header-logo-mark {
+  filter: drop-shadow(0 2px 10px rgb(0 0 0 / 0.35));
+}
+
+body:has([data-transparent-header="true"]) .header-shell--overlay .header-logo-mark img:first-child {
+  opacity: 1;
+}
+
+body:has([data-transparent-header="true"]) .header-shell--overlay .header-logo-mark img:last-child {
+  opacity: 0;
+}
+
 .header-shell--solid {
   background: #ffffff;
   border-bottom: 1px solid rgb(26 20 16 / 0.06);
