@@ -1,36 +1,23 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { type FormEvent, useEffect, useRef, useState } from "react";
 import { AdminSaveBar } from "@/components/admin/AdminSaveBar";
-import { CollapsiblePanel } from "@/components/admin/CollapsiblePanel";
 import { ListRowActions } from "@/components/admin/ListRowActions";
 import { SectionLiveField } from "@/components/admin/SectionLiveField";
 import {
-  DragHandle,
   type DragHandleProps,
   reorderItems,
   SortableList,
   SortableRow,
 } from "@/components/admin/SortableList";
-import { TextField } from "@/components/admin/TextField";
-import { useStableListKeys } from "@/components/admin/useStableListKeys";
 import type {
   BookingAddon,
-  BookingAddonKind,
   BookingAddonsContent,
   BookingType,
 } from "@/content/types/booking";
-import type { ResidentialCourseDocument } from "@/content/types/course";
-import { getAddonKind } from "@/lib/booking/addons";
-import { parseUsdAmount } from "@/lib/booking/pricing";
 import { createEmptyBookingAddons } from "@/lib/cms/structural-defaults";
 import { parseApiJson } from "@/lib/types/api";
-
-const APPLIES_OPTIONS: { value: BookingType; label: string }[] = [
-  { value: "course", label: "Courses" },
-  { value: "retreat", label: "Retreats" },
-];
 
 type ProgramOption = {
   slug: string;
@@ -45,9 +32,24 @@ type CourseOption = {
   published: boolean;
 };
 
-type RoomPreview = {
-  roomType: string;
-  priceUsd: number;
+type AddKind = "manual" | "course";
+
+type AddonDraft = {
+  kind: AddKind;
+  label: string;
+  price: string;
+  description: string;
+  courseSlug: string;
+  where: string;
+};
+
+const EMPTY_DRAFT: AddonDraft = {
+  kind: "manual",
+  label: "",
+  price: "",
+  description: "",
+  courseSlug: "",
+  where: "all",
 };
 
 /**
@@ -61,24 +63,157 @@ function addonIdFromLabel(label: string): string {
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-|-$/g, "")
-      .slice(0, 48) || `addon-${Date.now()}`
+      .slice(0, 48) || "addon"
   );
 }
 
 /**
- * Loads room pricing for a residential course (admin preview).
+ * Returns an id that does not collide with add-ons already in the list.
  *
- * @param slug - Course page slug
+ * @param label - Source text
+ * @param ids - Ids already used
  */
-async function loadCourseRooms(slug: string): Promise<RoomPreview[]> {
-  if (!slug.trim()) return [];
-  const res = await fetch(`/api/admin/courses/${encodeURIComponent(slug)}`);
-  const body = await parseApiJson<{ course: ResidentialCourseDocument }>(res);
-  const pricing = body.course?.pricing ?? [];
-  return pricing.map((option) => ({
-    roomType: option.roomType,
-    priceUsd: parseUsdAmount(option.price),
-  }));
+function uniqueAddonId(label: string, ids: string[]): string {
+  const base = addonIdFromLabel(label);
+  if (!ids.includes(base)) return base;
+  let n = 2;
+  while (ids.includes(`${base}-${n}`)) n += 1;
+  return `${base}-${n}`;
+}
+
+/**
+ * Parses a USD amount, rounding to a whole dollar.
+ *
+ * @param value - Raw input
+ */
+function parsePrice(value: string): number {
+  const price = Number.parseFloat(value);
+  if (!Number.isFinite(price)) return 0;
+  return Math.max(0, Math.round(price));
+}
+
+/**
+ * Select value for where an add-on is offered.
+ *
+ * @param item - Add-on row
+ */
+function whereKey(item: BookingAddon): string {
+  const slugs = (item.programSlugs ?? []).filter(Boolean);
+  if (slugs.length > 1) return "multi";
+  if (slugs.length === 1) return `program:${slugs[0]}`;
+  if (item.appliesTo?.length === 1) return item.appliesTo[0];
+  return "all";
+}
+
+/**
+ * Label for an add-on limited to several programs.
+ *
+ * @param item - Add-on row
+ * @param programs - Bookable programs
+ */
+function multiWhereLabel(
+  item: BookingAddon,
+  programs: ProgramOption[],
+): string {
+  const titles = (item.programSlugs ?? [])
+    .filter(Boolean)
+    .map(
+      (slug) =>
+        programs.find((program) => program.slug === slug)?.title ?? slug,
+    );
+  if (titles.length <= 2) return titles.join(", ");
+  return `${titles.length} programs`;
+}
+
+/**
+ * Maps the "shown on" select to stored scope fields.
+ *
+ * @param where - Select value
+ * @param programs - Bookable programs
+ */
+function whereFields(
+  where: string,
+  programs: ProgramOption[],
+): Pick<BookingAddon, "appliesTo" | "programSlugs"> {
+  if (where === "course" || where === "retreat") {
+    return { appliesTo: [where], programSlugs: [] };
+  }
+  if (where.startsWith("program:")) {
+    const slug = where.slice("program:".length);
+    const program = programs.find((entry) => entry.slug === slug);
+    const type: BookingType =
+      program?.type === "retreat" ? "retreat" : "course";
+    return { appliesTo: [type], programSlugs: slug ? [slug] : [] };
+  }
+  return { appliesTo: ["course", "retreat"], programSlugs: [] };
+}
+
+type WhereSelectProps = {
+  id: string;
+  value: string;
+  programs: ProgramOption[];
+  multiLabel?: string;
+  compact?: boolean;
+  onChange: (value: string) => void;
+};
+
+/**
+ * Where an add-on appears: every booking, one type, or one program.
+ *
+ * @param props - Current scope and program list
+ */
+function WhereSelect({
+  id,
+  value,
+  programs,
+  multiLabel,
+  compact = false,
+  onChange,
+}: WhereSelectProps) {
+  const programSlug = value.startsWith("program:")
+    ? value.slice("program:".length)
+    : "";
+  const known = programs.some((program) => program.slug === programSlug);
+  const courses = programs.filter((program) => program.type === "course");
+  const retreats = programs.filter((program) => program.type === "retreat");
+
+  return (
+    <select
+      id={id}
+      className={`admin-input admin-select${compact ? " admin-input--compact" : ""}`}
+      aria-label="Shown on"
+      value={value}
+      onChange={(event) => onChange(event.target.value)}
+    >
+      {value === "multi" ? (
+        <option value="multi">{multiLabel || "Several programs"}</option>
+      ) : null}
+      <option value="all">All bookings</option>
+      <option value="course">All courses</option>
+      <option value="retreat">All retreats</option>
+      {programSlug && !known ? (
+        <option value={value}>{programSlug}</option>
+      ) : null}
+      {courses.length > 0 ? (
+        <optgroup label="Only one course">
+          {courses.map((program) => (
+            <option key={program.slug} value={`program:${program.slug}`}>
+              {program.title}
+            </option>
+          ))}
+        </optgroup>
+      ) : null}
+      {retreats.length > 0 ? (
+        <optgroup label="Only one retreat">
+          {retreats.map((program) => (
+            <option key={program.slug} value={`program:${program.slug}`}>
+              {program.title}
+            </option>
+          ))}
+        </optgroup>
+      ) : null}
+    </select>
+  );
 }
 
 /**
@@ -93,11 +228,10 @@ export function BookingAddonsEditor() {
   const [error, setError] = useState("");
   const [courses, setCourses] = useState<CourseOption[]>([]);
   const [programs, setPrograms] = useState<ProgramOption[]>([]);
-  const [roomPreviews, setRoomPreviews] = useState<
-    Record<string, RoomPreview[]>
-  >({});
+  const [draft, setDraft] = useState<AddonDraft>(EMPTY_DRAFT);
+  const nameRef = useRef<HTMLInputElement>(null);
+  const courseRef = useRef<HTMLSelectElement>(null);
   const items = doc?.items ?? [];
-  const keys = useStableListKeys(items.length);
 
   useEffect(() => {
     let cancelled = false;
@@ -116,7 +250,6 @@ export function BookingAddonsEditor() {
       .then(([addonsBody, coursesBody, pagesBody]) => {
         if (cancelled) return;
         const next = addonsBody.settings ?? createEmptyBookingAddons();
-        // Migrate legacy rows (no type) to explicit manual.
         next.items = (next.items ?? []).map((item) =>
           item.type === "course"
             ? item
@@ -129,14 +262,14 @@ export function BookingAddonsEditor() {
         setDoc(next);
         setBaseline(JSON.stringify(next));
         setCourses(
-          (coursesBody.courses ?? []).filter(
-            (course) => course.type === "course",
-          ),
+          (coursesBody.courses ?? [])
+            .filter((course) => course.type === "course")
+            .sort((a, b) => a.title.localeCompare(b.title)),
         );
         setPrograms(
-          (pagesBody.pages ?? []).filter(
-            (page) => page.type === "course" || page.type === "retreat",
-          ),
+          (pagesBody.pages ?? [])
+            .filter((page) => page.type === "course" || page.type === "retreat")
+            .sort((a, b) => a.title.localeCompare(b.title)),
         );
       })
       .catch((err: Error) => {
@@ -154,136 +287,112 @@ export function BookingAddonsEditor() {
     };
   }, []);
 
-  // Preview rooms for each course add-on row.
-  useEffect(() => {
-    const courseSlugs = items
-      .filter(
-        (item): item is Extract<BookingAddon, { type: "course" }> =>
-          item.type === "course",
-      )
-      .map((item) => item.courseSlug.trim())
-      .filter(Boolean);
-
-    const unique = [...new Set(courseSlugs)];
-    let cancelled = false;
-
-    void Promise.all(
-      unique.map(async (slug) => {
-        if (roomPreviews[slug]) return;
-        try {
-          const rooms = await loadCourseRooms(slug);
-          if (!cancelled) {
-            setRoomPreviews((prev) =>
-              prev[slug] ? prev : { ...prev, [slug]: rooms },
-            );
-          }
-        } catch {
-          if (!cancelled) {
-            setRoomPreviews((prev) =>
-              prev[slug] ? prev : { ...prev, [slug]: [] },
-            );
-          }
-        }
-      }),
-    );
-
-    return () => {
-      cancelled = true;
-    };
-    // roomPreviews intentionally omitted — only refetch when items/slugs change
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- preview cache
-  }, [items]);
-
-  const dirty = useMemo(
-    () => Boolean(doc) && JSON.stringify(doc) !== baseline,
-    [doc, baseline],
-  );
-
-  const programsByType = useMemo(() => {
-    return {
-      course: programs.filter((program) => program.type === "course"),
-      retreat: programs.filter((program) => program.type === "retreat"),
-    };
-  }, [programs]);
+  const dirty = Boolean(doc) && JSON.stringify(doc) !== baseline;
+  const canAdd =
+    draft.kind === "manual"
+      ? draft.label.trim().length > 0
+      : draft.courseSlug.trim().length > 0;
 
   /**
-   * Updates one add-on row.
+   * Patches one add-on row.
    *
    * @param index - Row index
    * @param patch - Partial fields
    */
   function updateItem(index: number, patch: Partial<BookingAddon>) {
-    if (!doc) return;
-    const nextItems = items.map((item, i) => {
-      if (i !== index) return item;
-      return { ...item, ...patch } as BookingAddon;
-    });
-    setDoc({ ...doc, items: nextItems });
-  }
-
-  /**
-   * Appends a custom (manual) add-on.
-   */
-  function addCustomItem() {
-    if (!doc) return;
-    keys.addKey();
-    const label = "New custom add-on";
-    setDoc({
-      ...doc,
-      items: [
-        ...items,
-        {
-          type: "manual",
-          id: addonIdFromLabel(`${label}-${items.length + 1}`),
-          label,
-          priceUsd: 0,
-          description: "",
-          appliesTo: ["course", "retreat"],
-          programSlugs: [],
-          active: true,
-        },
-      ],
+    setDoc((current) => {
+      if (!current) return current;
+      return {
+        ...current,
+        items: current.items.map((item, i) =>
+          i === index ? ({ ...item, ...patch } as BookingAddon) : item,
+        ),
+      };
     });
   }
 
   /**
-   * Appends a course add-on (rooms come from the linked course).
+   * Appends the draft as a new add-on and clears the name fields.
+   *
+   * @param event - Form submit
    */
-  function addCourseItem() {
-    if (!doc) return;
-    keys.addKey();
-    const first = courses[0];
-    setDoc({
-      ...doc,
-      items: [
-        ...items,
-        {
-          type: "course",
-          id: addonIdFromLabel(`course-${first?.slug || items.length + 1}`),
-          label: "",
-          courseSlug: first?.slug ?? "",
-          description: "",
-          appliesTo: ["course", "retreat"],
-          programSlugs: [],
-          active: true,
-        },
-      ],
+  function addItem(event: FormEvent) {
+    event.preventDefault();
+    if (!canAdd) return;
+
+    const label = draft.label.trim();
+    const description = draft.description.trim();
+    const scope = whereFields(draft.where, programs);
+    const kind = draft.kind;
+
+    setDoc((current) => {
+      if (!current) return current;
+      const ids = current.items.map((item) => item.id);
+      const next: BookingAddon =
+        kind === "manual"
+          ? {
+              type: "manual",
+              id: uniqueAddonId(label, ids),
+              label,
+              priceUsd: parsePrice(draft.price),
+              description,
+              ...scope,
+              active: true,
+            }
+          : {
+              type: "course",
+              id: uniqueAddonId(label || draft.courseSlug, ids),
+              label,
+              courseSlug: draft.courseSlug,
+              description,
+              ...scope,
+              active: true,
+            };
+      return { ...current, items: [...current.items, next] };
+    });
+
+    setDraft((prev) => ({
+      ...prev,
+      label: "",
+      price: "",
+      description: "",
+      courseSlug: "",
+    }));
+    window.requestAnimationFrame(() => {
+      if (kind === "manual") nameRef.current?.focus();
+      else courseRef.current?.focus();
     });
   }
 
+  /**
+   * Removes one add-on row.
+   *
+   * @param index - Row index
+   */
   function removeItem(index: number) {
-    if (!doc) return;
-    keys.removeKey(index);
-    setDoc({
-      ...doc,
-      items: items.filter((_, i) => i !== index),
+    setDoc((current) => {
+      if (!current) return current;
+      return {
+        ...current,
+        items: current.items.filter((_, i) => i !== index),
+      };
     });
   }
 
+  /**
+   * Reorders add-on rows after a drag.
+   *
+   * @param fromIndex - Drag source
+   * @param toIndex - Drop target
+   */
   function reorder(fromIndex: number, toIndex: number) {
-    if (!doc) return;
-    keys.reorderKeys(fromIndex, toIndex);
-    setDoc({ ...doc, items: reorderItems(items, fromIndex, toIndex) });
+    setDoc((current) => {
+      if (!current) return current;
+      return {
+        ...current,
+        items: reorderItems(current.items, fromIndex, toIndex),
+      };
+    });
   }
 
   async function handleSave() {
@@ -292,7 +401,6 @@ export function BookingAddonsEditor() {
     setSaved(false);
     setError("");
     try {
-      // Persist course add-ons without enriched options (resolved at checkout).
       const value: BookingAddonsContent = {
         ...doc,
         items: doc.items.map((item) => {
@@ -332,132 +440,230 @@ export function BookingAddonsEditor() {
         <div className="admin-editor-title-row">
           <div>
             <h1 className="admin-title">Booking add-ons</h1>
-            <p className="admin-subtitle">
-              Optional extras on /booking and /retreat-booking. Course add-ons
-              expose that course&apos;s rooms at checkout.
+            <p className="admin-subtitle admin-subtitle--flush">
+              Type a name and price, then Add. Guests see these on the booking
+              page.
             </p>
           </div>
+          <SectionLiveField
+            id="booking-addons-live"
+            value={doc.live}
+            onChange={(live) => setDoc({ ...doc, live })}
+            liveLabel="Shown"
+            hiddenLabel="Hidden"
+          />
         </div>
       </div>
 
-      <div className="admin-tip-banner">
-        <strong>Quick guide:</strong> Use <em>Add custom</em> for a fixed-price
-        extra, or <em>Add course</em> to upsell another course (guest picks a
-        room/package). Scope each row to specific programs when needed. Prices
-        are added to the program fee before deposit and PayPal fee.
-      </div>
-
-      <div className="admin-editor-layout">
-        <div className="admin-editor-sections">
-          <CollapsiblePanel
-            id="booking-addons"
-            step={1}
-            title="Add-on catalog"
-            subtitle={`${items.length} item${items.length === 1 ? "" : "s"}`}
-            description="Drag to reorder. Inactive items stay in CMS but are hidden from checkout."
-            open
-            actions={
-              <SectionLiveField
-                id="booking-addons-live"
-                value={doc.live}
-                onChange={(live) => setDoc({ ...doc, live })}
-              />
-            }
+      <form className="admin-addon-composer" onSubmit={addItem}>
+        <div className="admin-addon-composer__kinds">
+          <button
+            type="button"
+            className={`admin-chip${draft.kind === "manual" ? " admin-chip--active" : ""}`}
+            onClick={() => {
+              setDraft((prev) => ({ ...prev, kind: "manual" }));
+              window.requestAnimationFrame(() => nameRef.current?.focus());
+            }}
           >
-            <TextField
-              label="Intro copy"
-              value={doc.intro ?? ""}
-              onChange={(intro) => setDoc({ ...doc, intro })}
-              multiline
-              hint="Shown above the checklist on the booking page."
-            />
-
-            <div className="admin-field-header" style={{ marginTop: "1rem" }}>
-              <span className="admin-label">Add-ons</span>
-              <div className="admin-actions">
-                <button
-                  type="button"
-                  className="admin-btn-sm"
-                  onClick={addCustomItem}
-                >
-                  Add custom
-                </button>
-                <button
-                  type="button"
-                  className="admin-btn-sm"
-                  onClick={addCourseItem}
-                >
-                  Add course
-                </button>
-              </div>
-            </div>
-
-            {items.length === 0 ? (
-              <div className="admin-empty-card">
-                <p>No add-ons yet.</p>
-                <div className="admin-empty-card-actions">
-                  <button
-                    type="button"
-                    className="admin-btn-sm"
-                    onClick={addCustomItem}
-                  >
-                    Add custom
-                  </button>
-                  <button
-                    type="button"
-                    className="admin-btn-sm"
-                    onClick={addCourseItem}
-                  >
-                    Add course
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <SortableList
-                ids={keys.keys}
-                onReorder={reorder}
-                className="admin-stack"
-              >
-                {items.map((item, index) => {
-                  const kind = getAddonKind(item);
-                  return (
-                    <SortableRow key={keys.keys[index]} id={keys.keys[index]}>
-                      {({ dragHandleProps }) => (
-                        <AddonRow
-                          item={item}
-                          kind={kind}
-                          courses={courses}
-                          programsByType={programsByType}
-                          roomPreview={
-                            item.type === "course"
-                              ? roomPreviews[item.courseSlug.trim()]
-                              : undefined
-                          }
-                          dragHandleProps={dragHandleProps}
-                          onRemove={() => removeItem(index)}
-                          onChange={(patch) => updateItem(index, patch)}
-                          onCourseSlugChange={(courseSlug) => {
-                            updateItem(index, {
-                              courseSlug,
-                            } as Partial<BookingAddon>);
-                            if (courseSlug && !roomPreviews[courseSlug]) {
-                              void loadCourseRooms(courseSlug).then((rooms) => {
-                                setRoomPreviews((prev) => ({
-                                  ...prev,
-                                  [courseSlug]: rooms,
-                                }));
-                              });
-                            }
-                          }}
-                        />
-                      )}
-                    </SortableRow>
-                  );
-                })}
-              </SortableList>
-            )}
-          </CollapsiblePanel>
+            Fixed price
+          </button>
+          <button
+            type="button"
+            className={`admin-chip${draft.kind === "course" ? " admin-chip--active" : ""}`}
+            onClick={() => {
+              setDraft((prev) => ({ ...prev, kind: "course" }));
+              window.requestAnimationFrame(() => courseRef.current?.focus());
+            }}
+          >
+            Course rooms
+          </button>
         </div>
+
+        <div
+          className={`admin-addon-composer__fields${
+            draft.kind === "course"
+              ? " admin-addon-composer__fields--course"
+              : ""
+          }`}
+        >
+          {draft.kind === "manual" ? (
+            <>
+              <div className="admin-addon-field">
+                <label className="admin-label" htmlFor="addon-add-name">
+                  Name
+                </label>
+                <input
+                  ref={nameRef}
+                  id="addon-add-name"
+                  className="admin-input"
+                  value={draft.label}
+                  placeholder="Airport pickup"
+                  autoComplete="off"
+                  onChange={(event) =>
+                    setDraft((prev) => ({ ...prev, label: event.target.value }))
+                  }
+                />
+              </div>
+              <div className="admin-addon-field">
+                <label className="admin-label" htmlFor="addon-add-price">
+                  USD
+                </label>
+                <input
+                  id="addon-add-price"
+                  className="admin-input"
+                  type="number"
+                  min={0}
+                  step={1}
+                  inputMode="numeric"
+                  value={draft.price}
+                  placeholder="40"
+                  onChange={(event) =>
+                    setDraft((prev) => ({ ...prev, price: event.target.value }))
+                  }
+                />
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="admin-addon-field">
+                <label className="admin-label" htmlFor="addon-add-course">
+                  Course
+                </label>
+                <select
+                  ref={courseRef}
+                  id="addon-add-course"
+                  className="admin-input admin-select"
+                  value={draft.courseSlug}
+                  onChange={(event) =>
+                    setDraft((prev) => ({
+                      ...prev,
+                      courseSlug: event.target.value,
+                    }))
+                  }
+                >
+                  <option value="">Choose a course…</option>
+                  {courses.map((course) => (
+                    <option key={course.slug} value={course.slug}>
+                      {course.title}
+                      {!course.published ? " (draft)" : ""}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="admin-addon-field">
+                <label className="admin-label" htmlFor="addon-add-name">
+                  Name
+                </label>
+                <input
+                  id="addon-add-name"
+                  className="admin-input"
+                  value={draft.label}
+                  placeholder="Optional"
+                  autoComplete="off"
+                  onChange={(event) =>
+                    setDraft((prev) => ({ ...prev, label: event.target.value }))
+                  }
+                />
+              </div>
+            </>
+          )}
+
+          <div className="admin-addon-field">
+            <label className="admin-label" htmlFor="addon-add-where">
+              Shown on
+            </label>
+            <WhereSelect
+              id="addon-add-where"
+              value={draft.where}
+              programs={programs}
+              onChange={(where) => setDraft((prev) => ({ ...prev, where }))}
+            />
+          </div>
+
+          <div className="admin-addon-composer__submit">
+            <button type="submit" className="admin-btn" disabled={!canAdd}>
+              Add
+            </button>
+          </div>
+        </div>
+
+        <div className="admin-addon-composer__note">
+          <input
+            className="admin-input"
+            value={draft.description}
+            placeholder="Optional note guests will see"
+            aria-label="Note"
+            autoComplete="off"
+            onChange={(event) =>
+              setDraft((prev) => ({ ...prev, description: event.target.value }))
+            }
+          />
+        </div>
+        <p className="admin-hint admin-hint--tight">
+          {draft.kind === "manual"
+            ? "A set amount, added to the program fee."
+            : "The guest picks a room. Hidden when they are already booking that course."}
+          {draft.kind === "course" && courses.length === 0
+            ? " No courses found yet."
+            : ""}
+        </p>
+      </form>
+
+      {items.length === 0 ? (
+        <p className="admin-hint">No add-ons yet.</p>
+      ) : (
+        <div className="admin-compact-table-scroll">
+          <div className="admin-compact-table admin-addon-table">
+            <div className="admin-compact-table-head admin-compact-table-row">
+              <span>Name</span>
+              <span>USD / course</span>
+              <span>Shown on</span>
+              <span>Visible</span>
+              <span />
+            </div>
+            <SortableList
+              ids={items.map((item) => item.id)}
+              onReorder={reorder}
+            >
+              {items.map((item, index) => (
+                <SortableRow
+                  key={item.id}
+                  id={item.id}
+                  className={`admin-compact-table-row${
+                    item.active === false
+                      ? " admin-compact-table-row--muted"
+                      : ""
+                  }`}
+                >
+                  {({ dragHandleProps }) => (
+                    <AddonRowFields
+                      item={item}
+                      index={index}
+                      courses={courses}
+                      programs={programs}
+                      dragHandleProps={dragHandleProps}
+                      onChange={(patch) => updateItem(index, patch)}
+                      onRemove={() => removeItem(index)}
+                    />
+                  )}
+                </SortableRow>
+              ))}
+            </SortableList>
+          </div>
+        </div>
+      )}
+
+      <div className="admin-addon-intro">
+        <label className="admin-label" htmlFor="addon-intro">
+          Text above the list
+        </label>
+        <input
+          id="addon-intro"
+          className="admin-input"
+          value={doc.intro ?? ""}
+          placeholder="Optional. Shown above the extras on the booking page."
+          onChange={(event) => setDoc({ ...doc, intro: event.target.value })}
+        />
       </div>
 
       <AdminSaveBar
@@ -474,245 +680,117 @@ export function BookingAddonsEditor() {
   );
 }
 
-type AddonRowProps = {
+type AddonRowFieldsProps = {
   item: BookingAddon;
-  kind: BookingAddonKind;
+  index: number;
   courses: CourseOption[];
-  programsByType: {
-    course: ProgramOption[];
-    retreat: ProgramOption[];
-  };
-  roomPreview?: RoomPreview[];
+  programs: ProgramOption[];
   dragHandleProps: DragHandleProps;
-  onRemove: () => void;
   onChange: (patch: Partial<BookingAddon>) => void;
-  onCourseSlugChange: (slug: string) => void;
+  onRemove: () => void;
 };
 
 /**
- * One editable add-on row (custom or course).
+ * Inline fields for one saved add-on.
  *
  * @param props - Row data and handlers
  */
-function AddonRow({
+function AddonRowFields({
   item,
-  kind,
+  index,
   courses,
-  programsByType,
-  roomPreview,
+  programs,
   dragHandleProps,
-  onRemove,
   onChange,
-  onCourseSlugChange,
-}: AddonRowProps) {
-  const title =
-    kind === "course"
-      ? item.label.trim() ||
-        courses.find(
-          (course) => item.type === "course" && course.slug === item.courseSlug,
-        )?.title ||
-        "Course add-on"
-      : item.label || "Untitled";
-
-  const appliesTo: BookingType[] = item.appliesTo?.length
-    ? item.appliesTo
-    : ["course", "retreat"];
-
-  const scopePrograms = [
-    ...(appliesTo.includes("course") ? programsByType.course : []),
-    ...(appliesTo.includes("retreat") ? programsByType.retreat : []),
-  ];
+  onRemove,
+}: AddonRowFieldsProps) {
+  const where = whereKey(item);
+  const courseSlug = item.type === "course" ? item.courseSlug : "";
+  const courseKnown = courses.some((course) => course.slug === courseSlug);
 
   return (
-    <div className="admin-nested-card">
-      <div className="admin-row-between">
-        <div className="admin-actions">
-          <DragHandle dragHandleProps={dragHandleProps} />
-          <strong>{title}</strong>
-          <span className="admin-hint" style={{ margin: 0 }}>
-            {kind === "course" ? "Course" : "Custom"}
-          </span>
-        </div>
-        <ListRowActions onRemove={onRemove} />
-      </div>
-
-      {kind === "manual" ? (
-        <>
-          <div className="admin-grid-2">
-            <TextField
-              label="Label"
-              value={item.label}
-              onChange={(label) => onChange({ label })}
-            />
-            <TextField
-              label="Price (USD)"
-              value={String(item.priceUsd ?? 0)}
-              onChange={(value) => {
-                const priceUsd = Number.parseFloat(value);
-                onChange({
-                  priceUsd: Number.isFinite(priceUsd)
-                    ? Math.max(0, Math.round(priceUsd))
-                    : 0,
-                });
-              }}
-            />
-          </div>
-          <TextField
-            label="Description"
-            value={item.description ?? ""}
-            onChange={(description) => onChange({ description })}
-            multiline
-          />
-        </>
-      ) : (
-        <>
-          <div className="admin-field">
-            <label className="admin-label" htmlFor={`addon-course-${item.id}`}>
-              Linked course
-            </label>
-            <select
-              id={`addon-course-${item.id}`}
-              className="admin-input"
-              value={item.type === "course" ? item.courseSlug : ""}
-              onChange={(event) => onCourseSlugChange(event.target.value)}
-            >
-              <option value="">Select a course…</option>
-              {courses.map((course) => (
-                <option key={course.slug} value={course.slug}>
-                  {course.title}
-                  {!course.published ? " (draft)" : ""}
-                </option>
-              ))}
-            </select>
-          </div>
-          <TextField
-            label="Label override (optional)"
-            value={item.label}
-            onChange={(label) => onChange({ label })}
-            hint="Leave blank to use the course title at checkout."
-          />
-          <TextField
-            label="Description"
-            value={item.description ?? ""}
-            onChange={(description) => onChange({ description })}
-            multiline
-          />
-          <div className="admin-field">
-            <span className="admin-label">Rooms from course (preview)</span>
-            {!item.type || item.type !== "course" || !item.courseSlug ? (
-              <p className="admin-hint">Select a course to preview rooms.</p>
-            ) : roomPreview === undefined ? (
-              <p className="admin-hint">Loading rooms…</p>
-            ) : roomPreview.length === 0 ? (
-              <p className="admin-hint">
-                No pricing rooms found on this course.
-              </p>
-            ) : (
-              <ul
-                className="admin-hint"
-                style={{ margin: 0, paddingLeft: "1.1rem" }}
-              >
-                {roomPreview.map((room) => (
-                  <li key={room.roomType}>
-                    {room.roomType} — {Math.round(room.priceUsd)} USD
-                  </li>
-                ))}
-              </ul>
-            )}
-            <p className="admin-hint">
-              Guests pick one of these rooms when they opt into this add-on.
-              Prices come from the course catalog at booking time.
-            </p>
-          </div>
-        </>
-      )}
-
-      <div className="admin-field">
-        <span className="admin-label">Applies to</span>
-        <div className="flex flex-wrap gap-2 mt-2">
-          {APPLIES_OPTIONS.map((option) => {
-            const selected = appliesTo.includes(option.value);
-            return (
-              <button
-                key={option.value}
-                type="button"
-                className={`admin-chip ${selected ? "admin-chip--active" : ""}`}
-                onClick={() => {
-                  const next = selected
-                    ? appliesTo.filter((value) => value !== option.value)
-                    : [...appliesTo, option.value];
-                  onChange({
-                    appliesTo: next.length === 0 ? [option.value] : next,
-                  });
-                }}
-              >
-                {option.label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      <div className="admin-field">
-        <span className="admin-label">Show on programs</span>
-        <p className="admin-hint">
-          Leave all unselected to show on every program in the types above.
-        </p>
-        <div className="flex flex-wrap gap-2 mt-2">
-          {scopePrograms.length === 0 ? (
-            <span className="admin-hint">No programs found.</span>
-          ) : (
-            scopePrograms.map((program) => {
-              const selected =
-                !item.programSlugs?.length ||
-                item.programSlugs.includes(program.slug);
-              const explicit = Boolean(item.programSlugs?.length);
-              return (
-                <button
-                  key={program.slug}
-                  type="button"
-                  className={`admin-chip ${!explicit || selected ? "admin-chip--active" : ""}`}
-                  onClick={() => {
-                    const current = item.programSlugs?.length
-                      ? [...item.programSlugs]
-                      : scopePrograms.map((entry) => entry.slug);
-                    const next = current.includes(program.slug)
-                      ? current.filter((slug) => slug !== program.slug)
-                      : [...current, program.slug];
-                    // All selected → store empty (means all).
-                    const allSelected =
-                      next.length === scopePrograms.length &&
-                      scopePrograms.every((entry) => next.includes(entry.slug));
-                    onChange({
-                      programSlugs:
-                        allSelected || next.length === 0 ? [] : next,
-                    });
-                  }}
-                >
-                  {program.title}
-                </button>
-              );
-            })
-          )}
-        </div>
-      </div>
-
-      <label
-        className={`admin-live-switch ${item.active === false ? "admin-live-switch--off" : "admin-live-switch--on"}`}
-      >
-        <span className="admin-live-switch__label">
-          {item.active === false ? "Hidden" : "Active"}
-        </span>
-        <span className="admin-live-switch__track">
-          <span className="admin-live-switch__thumb" />
-        </span>
+    <>
+      <span className="admin-addon-name">
         <input
-          className="admin-live-switch__input"
-          type="checkbox"
-          checked={item.active !== false}
-          onChange={(event) => onChange({ active: event.target.checked })}
+          className="admin-input admin-input--compact"
+          value={item.label}
+          aria-label={`Add-on ${index + 1} name`}
+          placeholder={
+            item.type === "course" ? "Uses the course title" : "Name"
+          }
+          onChange={(event) => onChange({ label: event.target.value })}
         />
-      </label>
-    </div>
+        <input
+          className="admin-input admin-input--compact admin-addon-note"
+          value={item.description ?? ""}
+          aria-label={`Add-on ${index + 1} note`}
+          placeholder="Note (optional)"
+          onChange={(event) => onChange({ description: event.target.value })}
+        />
+      </span>
+      <span>
+        {item.type === "course" ? (
+          <select
+            className="admin-input admin-select admin-input--compact"
+            aria-label={`Add-on ${index + 1} course`}
+            value={courseSlug}
+            onChange={(event) =>
+              onChange({
+                courseSlug: event.target.value,
+              } as Partial<BookingAddon>)
+            }
+          >
+            <option value="">Choose a course…</option>
+            {courseSlug && !courseKnown ? (
+              <option value={courseSlug}>{courseSlug}</option>
+            ) : null}
+            {courses.map((course) => (
+              <option key={course.slug} value={course.slug}>
+                {course.title}
+                {!course.published ? " (draft)" : ""}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <input
+            className="admin-input admin-input--compact"
+            type="number"
+            min={0}
+            step={1}
+            inputMode="numeric"
+            aria-label={`Add-on ${index + 1} price in USD`}
+            value={String(item.priceUsd ?? 0)}
+            onChange={(event) =>
+              onChange({ priceUsd: parsePrice(event.target.value) })
+            }
+          />
+        )}
+      </span>
+      <span>
+        <WhereSelect
+          id={`addon-where-${item.id}`}
+          value={where}
+          programs={programs}
+          multiLabel={multiWhereLabel(item, programs)}
+          compact
+          onChange={(next) => {
+            if (next === "multi") return;
+            onChange(whereFields(next, programs));
+          }}
+        />
+      </span>
+      <span className="admin-addon-switch">
+        <SectionLiveField
+          id={`addon-on-${item.id}`}
+          value={item.active}
+          onChange={(active) => onChange({ active })}
+          liveLabel="On"
+          hiddenLabel="Off"
+        />
+      </span>
+      <span className="admin-compact-col admin-compact-col--actions">
+        <ListRowActions dragHandleProps={dragHandleProps} onRemove={onRemove} />
+      </span>
+    </>
   );
 }

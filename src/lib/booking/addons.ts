@@ -60,6 +60,7 @@ export function getAddonOptions(item: BookingAddon): BookingAddonOption[] {
 
 /**
  * Active add-ons for a booking type and (optionally) selected program.
+ * A course add-on is hidden when the guest is already booking that course.
  *
  * @param type - Course or retreat booking
  * @param doc - Add-ons CMS document
@@ -71,13 +72,22 @@ export function filterBookingAddonsForType(
   programSlug?: string,
 ): BookingAddon[] {
   if (!doc || doc.live === false) return [];
-  const slug = programSlug?.trim() ?? "";
+  const slug = programSlug?.trim().toLowerCase() ?? "";
 
   return (doc.items ?? []).filter((item) => {
     if (item.active === false) return false;
+    if (
+      item.type === "course" &&
+      slug &&
+      item.courseSlug.trim().toLowerCase() === slug
+    ) {
+      return false;
+    }
     if (item.appliesTo?.length && !item.appliesTo.includes(type)) return false;
 
-    const scoped = item.programSlugs?.filter(Boolean) ?? [];
+    const scoped = (item.programSlugs ?? [])
+      .map((value) => value.trim().toLowerCase())
+      .filter(Boolean);
     if (scoped.length > 0) {
       if (!slug) return false;
       return scoped.includes(slug);

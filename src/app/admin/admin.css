@@ -7250,3 +7250,92 @@
 .admin-quiz-option .admin-field:last-child {
   margin-bottom: 0;
 }
+
+/* Booking add-ons — one-line add form */
+.admin-addon-composer {
+  background: #fff;
+  border: 1px solid rgb(26 20 16 / 8%);
+  border-radius: 1rem;
+  padding: 1rem 1.1rem 1.05rem;
+  margin-bottom: 1.5rem;
+}
+
+.admin-addon-composer__kinds {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.85rem;
+}
+
+.admin-addon-composer__fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(6.5rem, 0.45fr) minmax(
+      11rem,
+      0.95fr
+    ) auto;
+  gap: 0.6rem;
+  align-items: end;
+}
+
+.admin-addon-composer__fields--course {
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr) minmax(11rem, 0.95fr) auto;
+}
+
+.admin-addon-composer__note {
+  margin-top: 0.6rem;
+}
+
+.admin-addon-composer__submit .admin-btn {
+  min-width: 5.5rem;
+}
+
+.admin-addon-table {
+  --admin-addon-cols: minmax(12rem, 1.4fr) minmax(12rem, 1.1fr)
+    minmax(11rem, 1fr) 6.75rem 4.75rem;
+  min-width: 48rem;
+}
+
+.admin-addon-table .admin-compact-table-row > span {
+  min-width: 0;
+}
+
+.admin-addon-table .admin-compact-table-row {
+  grid-template-columns: var(--admin-addon-cols);
+  align-items: start;
+}
+
+.admin-addon-table .admin-compact-table-head {
+  align-items: center;
+}
+
+.admin-addon-name {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.admin-addon-note {
+  padding-top: 0.28rem;
+  padding-bottom: 0.28rem;
+  font-size: 0.8rem;
+}
+
+.admin-addon-switch {
+  padding-top: 0.15rem;
+}
+
+.admin-addon-intro {
+  margin-top: 1.25rem;
+}
+
+@media (max-width: 720px) {
+  .admin-addon-composer__fields,
+  .admin-addon-composer__fields--course {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-addon-composer__submit .admin-btn {
+    width: 100%;
+  }
+}
