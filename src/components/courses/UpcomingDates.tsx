@@ -155,13 +155,13 @@ export default function UpcomingDates({
     <div
       className={`grid items-start gap-8 lg:grid-cols-2 lg:items-stretch lg:gap-8 ${embedded ? "" : "mt-10"}`}
     >
-      {/* Dates column (left) — matches right column height; list scrolls */}
-      <div className="flex min-h-0 flex-col lg:h-0 lg:min-h-full lg:overflow-hidden">
+      {/* Dates column — page scrolls the list below lg; desktop locks it to the lodging column */}
+      <div className="flex flex-col lg:h-0 lg:min-h-full lg:overflow-hidden">
         <Heading as="h3" size="h4" className="mb-4 h-8 shrink-0">
           {datesTitle}
         </Heading>
 
-        <div className="scrollbar-thin-primary min-h-0 flex-1 overflow-y-auto overscroll-y-contain touch-pan-y pr-1">
+        <div className="scrollbar-thin-primary pr-1 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:overscroll-y-contain">
           <ol className="space-y-2.5">
             {batches.map((batch) => {
               const selected = selectedBatch === batch.dates;

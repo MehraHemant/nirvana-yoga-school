@@ -54,9 +54,10 @@ function firstName(name: string): string {
 }
 
 /**
- * Floating quiz button. Logged-out visitors get a login/signup modal,
- * signed-in visitors go straight to the quiz, and once both monthly chances
- * are used the modal shows when the next one opens.
+ * Floating quiz button. Below the `md` breakpoint it is icon-only so the
+ * pill does not cover the paragraph on a narrow screen. Logged-out visitors
+ * get a login/signup modal, signed-in visitors go straight to the quiz, and
+ * once both monthly chances are used the modal shows when the next one opens.
  *
  * @param props - Session name, monthly chances, and the next open date
  */
@@ -146,6 +147,11 @@ export default function QuizLauncher({
   }
 
   const spring = reducedTransition(reduced, { duration: 0.35, ease: EASE_OUT });
+  const statusLine = limitReached
+    ? "See next date"
+    : signedIn && eligibility.remaining !== null
+      ? `${eligibility.remaining} of ${monthlyLimit} left`
+      : tagline;
 
   return (
     <>
@@ -159,7 +165,8 @@ export default function QuizLauncher({
           delay: 0.6,
           ease: EASE_OUT,
         })}
-        className="group fixed bottom-[calc(1.25rem+var(--mobile-cta-height,0px))] right-5 z-[45] flex items-center gap-2.5 rounded-full border border-white/15 bg-linear-to-br from-primary to-primary-dark py-1.5 pl-1.5 pr-4 text-white shadow-[0_18px_40px_-14px_rgb(163_36_50/0.75)] transition-[transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:shadow-[0_22px_48px_-14px_rgb(163_36_50/0.85)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 md:bottom-40"
+        className="group fixed bottom-[calc(1.25rem+var(--mobile-cta-height,0px))] right-3.5 z-45 flex items-center rounded-full border border-white/15 bg-linear-to-br from-primary to-primary-dark p-1.5 text-white shadow-[0_18px_40px_-14px_rgb(163_36_50/0.75)] transition-[transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:shadow-[0_22px_48px_-14px_rgb(163_36_50/0.85)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 md:right-5 md:bottom-40 md:gap-2.5 md:py-1.5 md:pl-1.5 md:pr-4"
+        aria-label={`${label}. ${statusLine}`}
         aria-haspopup={signedIn && !limitReached ? undefined : "dialog"}
       >
         <span className="relative flex h-9 w-9 items-center justify-center rounded-full bg-white text-primary">
@@ -171,17 +178,11 @@ export default function QuizLauncher({
           ) : null}
           <Lotus size={18} className="relative" />
         </span>
-        <span className="flex flex-col items-start leading-tight">
+        <span className="hidden flex-col items-start leading-tight md:flex">
           <span className="text-[0.8125rem] font-semibold tracking-wide">
             {label}
           </span>
-          <span className="text-[0.6875rem] text-white/75">
-            {limitReached
-              ? "See next date"
-              : signedIn && eligibility.remaining !== null
-                ? `${eligibility.remaining} of ${monthlyLimit} left`
-                : tagline}
-          </span>
+          <span className="text-[0.6875rem] text-white/75">{statusLine}</span>
         </span>
       </motion.button>
 

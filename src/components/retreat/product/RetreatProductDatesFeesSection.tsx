@@ -77,11 +77,11 @@ export default function RetreatProductDatesFeesSection({
       description={content.description}
     >
       <div className="grid gap-8 lg:grid-cols-2 lg:items-stretch lg:gap-10">
-        {/* Dates column — min 4 rows visible; grows with packages column, then scrolls */}
-        <div className="flex min-h-0 flex-col lg:h-0 lg:min-h-full">
+        {/* Dates column — page scrolls the list below lg; desktop locks it to the packages column */}
+        <div className="flex flex-col lg:h-0 lg:min-h-full">
           <h3 className="type-h4 mb-4 h-8 shrink-0 text-ink">Retreat dates</h3>
           <div
-            className="scrollbar-thin-primary min-h-0 flex-1 overflow-y-auto overscroll-y-contain touch-pan-y pr-1"
+            className="scrollbar-thin-primary pr-1 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:overscroll-y-contain"
             style={{ minHeight: DATES_LIST_MIN_HEIGHT }}
           >
             <ol className="space-y-2.5">
