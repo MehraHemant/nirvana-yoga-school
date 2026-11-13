@@ -9,7 +9,7 @@ import { getQuizSettings } from "@/lib/quiz/settings";
 
 export const metadata: Metadata = {
   title: "My profile",
-  robots: { index: false },
+  robots: { index: false, follow: false },
 };
 
 const TABS = new Set<AccountTab>(["overview", "quiz", "bookings", "settings"]);

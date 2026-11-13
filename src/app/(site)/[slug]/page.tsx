@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import PageStructuredData from "@/components/seo/PageStructuredData";
 import { getSitePage, getSitePageSlugs } from "@/content";
 import { isDedicatedRouteSlug, ONLINE_HUB_SLUG } from "@/content/pages";
 import { getPageModules } from "@/content/repositories/page-modules";
@@ -73,5 +74,10 @@ export default async function Page({ params }: PageProps) {
   const result = await getSitePage(slug);
   if (!result.data) notFound();
 
-  return renderSitePage(result.data);
+  return (
+    <>
+      <PageStructuredData slug={slug} />
+      {renderSitePage(result.data)}
+    </>
+  );
 }

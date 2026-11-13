@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import PageStructuredData from "@/components/seo/PageStructuredData";
 import { getRetreat, getRetreatSlugs, getSitePage } from "@/content";
 import { getPageModules } from "@/content/repositories/page-modules";
 import { metadataForSlug } from "../../_shared/metadata";
@@ -47,7 +48,12 @@ export default async function Page({ params }: PageProps) {
 
   if (retreatResult.data) {
     const data = await loadRetreatPageData(retreatResult.data);
-    return <RetreatClient {...data} />;
+    return (
+      <>
+        <PageStructuredData slug={slug} />
+        <RetreatClient {...data} />
+      </>
+    );
   }
 
   const result = await getSitePage(slug);
@@ -55,18 +61,21 @@ export default async function Page({ params }: PageProps) {
 
   const data = await loadSitePageDataAsync(result.data);
   return (
-    <LegacyRetreatClient
-      page={data.page}
-      mapped={data.mapped}
-      teachers={data.teachers}
-      modules={data.modules}
-      residentialLife={data.residentialLife}
-      whyNirvana={data.whyNirvana}
-      reviews={data.reviews}
-      siteMap={data.siteMap}
-      instagram={data.instagram}
-      travel={data.travel}
-      examCertification={data.examCertification}
-    />
+    <>
+      <PageStructuredData slug={slug} />
+      <LegacyRetreatClient
+        page={data.page}
+        mapped={data.mapped}
+        teachers={data.teachers}
+        modules={data.modules}
+        residentialLife={data.residentialLife}
+        whyNirvana={data.whyNirvana}
+        reviews={data.reviews}
+        siteMap={data.siteMap}
+        instagram={data.instagram}
+        travel={data.travel}
+        examCertification={data.examCertification}
+      />
+    </>
   );
 }

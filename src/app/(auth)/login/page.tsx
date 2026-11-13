@@ -6,6 +6,7 @@ import { getSiteServerSession } from "@/lib/auth/site-session";
 
 export const metadata: Metadata = {
   title: "Log in",
+  robots: { index: false, follow: true },
 };
 
 type LoginPageProps = {

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { HeroPosterPreloads } from "@/components/hero/ResponsiveImagePreload";
+import PageStructuredData from "@/components/seo/PageStructuredData";
 import { getSitePage } from "@/content";
 import { normalizeVenueHero } from "@/content/mappers/venue-hero";
 import {
@@ -64,6 +65,7 @@ export default async function Page({ params }: PageProps) {
 
   return (
     <>
+      <PageStructuredData slug={slug} />
       {showHero ? (
         <HeroPosterPreloads
           mobileSrc={heroVideo.mobilePoster || heroVideo.desktopPoster}

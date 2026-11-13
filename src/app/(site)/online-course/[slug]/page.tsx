@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import PageStructuredData from "@/components/seo/PageStructuredData";
 import { getOnlineCourse, getOnlineCourseSlugs } from "@/content";
 import { getPageModules } from "@/content/repositories/page-modules";
 import { metadataForSlug } from "../../_shared/metadata";
@@ -39,5 +40,10 @@ export default async function Page({ params }: PageProps) {
   if (!result.data) notFound();
 
   const data = await loadOnlineCoursePageData(slug, result.data);
-  return <OnlineCourseClient {...data} />;
+  return (
+    <>
+      <PageStructuredData slug={slug} />
+      <OnlineCourseClient {...data} />
+    </>
+  );
 }

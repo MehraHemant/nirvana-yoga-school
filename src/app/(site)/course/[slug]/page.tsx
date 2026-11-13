@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { heroStageImageProps } from "@/components/courses/hero-elegant/hero-image";
+import PageStructuredData from "@/components/seo/PageStructuredData";
 import { getResidentialCourse, getResidentialCourseSlugs } from "@/content";
 import { getPageModules } from "@/content/repositories/page-modules";
 import { cmsImageUrl } from "@/content/types/cms-image";
 import { isSectionLive } from "@/lib/cms/section-visibility";
-import { metadataFromPageSeo } from "../../_shared/metadata";
+import { metadataForSlug } from "../../_shared/metadata";
 import CourseClient from "./CourseClient";
 import { loadCoursePageData } from "./data";
 import type { CoursePageData } from "./types";
@@ -35,7 +36,7 @@ export async function generateMetadata({
 }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const modulesResult = await getPageModules(slug).catch(() => null);
-  return metadataFromPageSeo(modulesResult?.data?.meta);
+  return metadataForSlug(slug, modulesResult?.data?.meta);
 }
 
 /**
@@ -71,6 +72,7 @@ export default async function Page({ params }: PageProps) {
 
   return (
     <>
+      <PageStructuredData slug={slug} />
       {heroLcp ? (
         <link
           rel="preload"

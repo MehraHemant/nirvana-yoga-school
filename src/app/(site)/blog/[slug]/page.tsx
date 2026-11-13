@@ -4,6 +4,7 @@ import { BlogCourseRail } from "@/components/blog/BlogCourseRail";
 import { BlogPostContent } from "@/components/blog/BlogPostContent";
 import { BlogPostHero } from "@/components/blog/BlogPostHero";
 import { Container } from "@/components/ui";
+import JsonLd from "@/components/ui/JsonLd";
 import {
   type BlogRailCourse,
   resolveBlogRailCourses,
@@ -11,6 +12,13 @@ import {
 import { getYttHub } from "@/content/repositories/shared-sections";
 import { resolveBlogBodyHtml } from "@/lib/cms/blog-html";
 import { fetchBlogPost, getAllBlogSlugs } from "@/lib/content";
+import {
+  absoluteUrl,
+  clampDescription,
+  htmlToText,
+  socialImageUrl,
+} from "@/lib/seo/site";
+import { breadcrumbNode, ORG_ID, WEBSITE_ID } from "@/lib/seo/structured-data";
 import { metadataForSlug } from "../../_shared/metadata";
 
 interface PageProps {
@@ -39,11 +47,23 @@ export async function generateMetadata({
   const post = await fetchBlogPost(slug);
   if (!post) return {};
 
-  return metadataForSlug(slug, {
-    title: post.title,
-    description: post.excerpt,
-    ogImage: post.image,
-  });
+  const description =
+    post.excerpt?.trim() ||
+    clampDescription(
+      htmlToText(resolveBlogBodyHtml(post.bodyHtml, post.content)),
+    );
+
+  return metadataForSlug(
+    slug,
+    { title: post.title, description, ogImage: post.image },
+    {
+      path: `/blog/${slug}`,
+      ogType: "article",
+      publishedTime: post.publishedAt ?? null,
+      section: post.category || undefined,
+      standalone: true,
+    },
+  );
 }
 
 /**
@@ -76,9 +96,38 @@ export default async function BlogPostPage({ params }: PageProps) {
   }
 
   const bodyHtml = resolveBlogBodyHtml(post.bodyHtml, post.content);
+  const url = absoluteUrl(`/blog/${slug}`);
+  const plainBody = htmlToText(bodyHtml);
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "BlogPosting",
+        "@id": `${url}#article`,
+        mainEntityOfPage: url,
+        headline: post.title,
+        description: post.excerpt?.trim() || clampDescription(plainBody),
+        ...(post.image ? { image: socialImageUrl(post.image) } : {}),
+        ...(post.publishedAt
+          ? { datePublished: post.publishedAt, dateModified: post.publishedAt }
+          : {}),
+        ...(post.category ? { articleSection: post.category } : {}),
+        wordCount: plainBody ? plainBody.split(" ").length : undefined,
+        inLanguage: "en",
+        author: { "@id": ORG_ID },
+        publisher: { "@id": ORG_ID },
+        isPartOf: { "@id": WEBSITE_ID },
+      },
+      breadcrumbNode([
+        { name: "Blog", path: "/blog" },
+        { name: post.title, path: `/blog/${slug}` },
+      ]),
+    ],
+  };
 
   return (
     <>
+      <JsonLd data={articleJsonLd} />
       <BlogPostHero post={post} />
 
       <section className="relative bg-white section-padding-y">

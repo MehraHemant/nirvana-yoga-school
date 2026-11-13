@@ -13,6 +13,8 @@ import { shouldRenderHomeSection } from "@/lib/cms/home-section-visibility";
 import { shouldRenderSection } from "@/lib/cms/section-visibility";
 import { createEmptyHomePageContent } from "@/lib/cms/structural-defaults";
 import { resolveSectionHtmlId } from "@/lib/html-id";
+import { SITE_LOGO_URL, SITE_NAME, SITE_URL } from "@/lib/seo/site";
+import { ORG_ID } from "@/lib/seo/structured-data";
 import { metadataForSlug } from "./_shared/metadata";
 
 /** Align Full Route Cache with content `unstable_cache` TTL */
@@ -81,18 +83,13 @@ function buildHomeJsonLd(home: ReturnType<typeof createEmptyHomePageContent>) {
     "@context": "https://schema.org",
     "@graph": [
       {
-        "@type": "Organization",
-        "@id": "https://www.nirvanayogaschoolindia.com/#org",
-        name: "Nirvana Yoga School",
-        url: "https://www.nirvanayogaschoolindia.com",
-        logo: "https://www.nirvanayogaschoolindia.com/logo.png",
-        sameAs,
-      },
-      {
         "@type": "LocalBusiness",
-        "@id": "https://www.nirvanayogaschoolindia.com/#school",
-        name: "Nirvana Yoga School",
-        image: "https://www.nirvanayogaschoolindia.com/logo.png",
+        "@id": `${SITE_URL}/#school`,
+        name: SITE_NAME,
+        url: `${SITE_URL}/`,
+        image: SITE_LOGO_URL,
+        parentOrganization: { "@id": ORG_ID },
+        ...(sameAs.length ? { sameAs } : {}),
         priceRange: lb.priceRange,
         address: {
           "@type": "PostalAddress",

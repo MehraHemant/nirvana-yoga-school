@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { MapSection } from "@/components/home";
+import PageStructuredData from "@/components/seo/PageStructuredData";
 import TeachersPageClient from "@/components/teachers/TeachersPageClient";
 import { getSiteMap } from "@/content/repositories/shared-sections";
 import { getTeachersPage } from "@/content/repositories/teachers";
@@ -36,6 +37,7 @@ export default async function TeachersPage() {
 
   return (
     <>
+      <PageStructuredData slug="teacher" />
       <TeachersPageClient
         teachers={teachers}
         sectionEyebrow={presentation.sectionEyebrow ?? "Faculty profiles"}

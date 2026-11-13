@@ -2,6 +2,7 @@ import { SiteSessionProvider } from "@/components/auth/SiteSessionProvider";
 import QuizLauncher from "@/components/quiz/QuizLauncher";
 import DeferredChatWidget from "@/components/ui/DeferredChatWidget";
 import Header from "@/components/ui/Header";
+import JsonLd from "@/components/ui/JsonLd";
 import WhatsAppFab from "@/components/ui/WhatsAppFab";
 import {
   getGlobalFooter,
@@ -10,6 +11,7 @@ import {
 } from "@/content/repositories/global-settings";
 import { hasActiveQuizQuestions } from "@/lib/quiz/questions";
 import { getQuizSettings } from "@/lib/quiz/settings";
+import { organizationGraph } from "@/lib/seo/structured-data";
 import HideOnImmersive from "./HideOnImmersive";
 import SiteFooterGate from "./SiteFooterGate";
 import SiteMain from "./SiteMain";
@@ -29,6 +31,16 @@ async function loadSiteChrome() {
     return {
       header: header.data,
       footer: footer.data,
+      identity: {
+        // WhatsApp links are contact channels, not profiles.
+        sameAs: (footer.data?.social ?? [])
+          .filter((s) => s.icon !== "whatsapp")
+          .map((s) => s.href)
+          .filter((href) => /^https?:\/\//.test(href)),
+        email: siteConfig.data.contactEmail?.trim() || undefined,
+        description:
+          siteConfig.data.defaultSeo?.description?.trim() || undefined,
+      },
       whatsappNumber:
         siteConfig.data.whatsappNumber?.replace(/\D/g, "") || FALLBACK_WHATSAPP,
     };
@@ -36,6 +48,7 @@ async function loadSiteChrome() {
     return {
       header: null,
       footer: null,
+      identity: {},
       whatsappNumber: FALLBACK_WHATSAPP,
     };
   }
@@ -51,15 +64,19 @@ async function loadSiteChrome() {
 export default async function SiteLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const [{ header, footer, whatsappNumber }, quizSettings] = await Promise.all([
-    loadSiteChrome(),
-    getQuizSettings(),
-  ]);
+  const [{ header, footer, identity, whatsappNumber }, quizSettings] =
+    await Promise.all([loadSiteChrome(), getQuizSettings()]);
   const quizOpen =
     quizSettings.live && (await hasActiveQuizQuestions().catch(() => false));
 
   return (
     <SiteSessionProvider>
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@graph": organizationGraph(identity),
+        }}
+      />
       <Header initialData={header} />
       <SiteMain>{children}</SiteMain>
       <SiteFooterGate initialData={footer} />
