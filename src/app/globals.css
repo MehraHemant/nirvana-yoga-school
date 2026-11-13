@@ -565,11 +565,6 @@ body {
   );
 }
 
-/* Keep dark hero washes below the overlay header so the photo shows through. */
-.hero-overlay-below-header {
-  mask-image: linear-gradient(to bottom, transparent 0, black 7.5rem);
-}
-
 /* Marquee edge fade */
 .marquee-mask {
   mask-image: linear-gradient(
@@ -706,27 +701,43 @@ body {
  * They only apply while the bar is still the transparent overlay.
  */
 body:has([data-transparent-header="true"]) .header-shell--overlay .nav-link,
-body:has([data-transparent-header="true"]) .header-shell--overlay .header-menu-btn,
-body:has([data-transparent-header="true"]) .header-shell--overlay a[href="/login"] {
+body:has([data-transparent-header="true"])
+  .header-shell--overlay
+  .header-menu-btn,
+body:has([data-transparent-header="true"])
+  .header-shell--overlay
+  a[href="/login"] {
   color: rgb(255 255 255 / 0.9);
   text-shadow: 0 1px 12px rgb(0 0 0 / 0.4);
 }
 
-body:has([data-transparent-header="true"]) .header-shell--overlay .nav-link:hover,
-body:has([data-transparent-header="true"]) .header-shell--overlay .nav-link:focus-visible {
+body:has([data-transparent-header="true"])
+  .header-shell--overlay
+  .nav-link:hover,
+body:has([data-transparent-header="true"])
+  .header-shell--overlay
+  .nav-link:focus-visible {
   /* color: var(--color-primary); */
   text-shadow: none;
 }
 
-body:has([data-transparent-header="true"]) .header-shell--overlay .header-logo-mark {
+body:has([data-transparent-header="true"])
+  .header-shell--overlay
+  .header-logo-mark {
   filter: drop-shadow(0 2px 10px rgb(0 0 0 / 0.35));
 }
 
-body:has([data-transparent-header="true"]) .header-shell--overlay .header-logo-mark img:first-child {
+body:has([data-transparent-header="true"])
+  .header-shell--overlay
+  .header-logo-mark
+  img:first-child {
   opacity: 1;
 }
 
-body:has([data-transparent-header="true"]) .header-shell--overlay .header-logo-mark img:last-child {
+body:has([data-transparent-header="true"])
+  .header-shell--overlay
+  .header-logo-mark
+  img:last-child {
   opacity: 0;
 }
 

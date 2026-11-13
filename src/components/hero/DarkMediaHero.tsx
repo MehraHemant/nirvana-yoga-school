@@ -36,15 +36,18 @@ export function DarkMediaHero({
         src={image}
         alt={imageAlt}
         priority
+        quality={85}
         sizes="100vw"
         className="object-cover object-center"
       />
+      {/* Reading scrim: holds dark across the text column, eases off toward the photo. */}
       <div
-        className="hero-overlay-below-header absolute inset-0 bg-linear-to-r from-ink/90 via-ink/55 to-ink/20"
+        className="absolute inset-0 bg-linear-to-r from-ink/80 via-ink/45 via-40% to-transparent"
         aria-hidden="true"
       />
+      {/* Header scrim keeps the transparent nav legible over bright photos. */}
       <div
-        className="pointer-events-none absolute -right-16 top-1/4 h-72 w-72 rounded-full bg-primary/20 blur-[100px]"
+        className="absolute inset-x-0 top-0 h-40 bg-linear-to-b from-ink/55 via-ink/20 via-50% to-transparent"
         aria-hidden="true"
       />
       {children}

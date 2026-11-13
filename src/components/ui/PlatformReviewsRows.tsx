@@ -1,8 +1,8 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useInView } from "framer-motion";
+import { useEffect, useId, useRef, useState } from "react";
 import Image from "@/components/ui/CdnImage";
-import { useEffect, useId, useState } from "react";
 import type {
   ReviewsContent,
   SharedReview,
@@ -68,9 +68,7 @@ function TestimonialCard({ review }: { review: Testimonial }) {
       <div className="flex w-full flex-col select-text md:w-2/3">
         <div className="mb-2 flex items-start justify-between">
           <div>
-            <h4 className="type-h4 text-ink">
-              {review.name}
-            </h4>
+            <h4 className="type-h4 text-ink">{review.name}</h4>
             <div className="mt-1 flex gap-0.5" role="img" aria-label="5 stars">
               {[0, 1, 2, 3, 4].map((num) => (
                 <Star
@@ -132,6 +130,8 @@ function TestimonialSlider({
 }) {
   const [[page, direction], setPage] = useState([0, 0]);
   const [isHovered, setIsHovered] = useState(false);
+  const sliderRef = useRef<HTMLElement>(null);
+  const isInView = useInView(sliderRef, { amount: 0.5 });
 
   const activeIndex = Math.abs(page % reviews.length);
 
@@ -140,18 +140,19 @@ function TestimonialSlider({
   };
 
   useEffect(() => {
-    if (isHovered || reviews.length <= 1) return;
+    if (!isInView || isHovered || reviews.length <= 1) return;
     const interval = setInterval(() => {
       setPage(([prevPage]) => [prevPage + 1, 1]);
     }, autoplayInterval);
     return () => clearInterval(interval);
-  }, [isHovered, autoplayInterval, reviews.length]);
+  }, [isInView, isHovered, autoplayInterval, reviews.length]);
 
   const activeReview = reviews[activeIndex];
   if (!activeReview) return null;
 
   return (
     <section
+      ref={sliderRef}
       aria-label="Testimonial slider"
       className="relative h-full w-full"
       onMouseEnter={() => setIsHovered(true)}

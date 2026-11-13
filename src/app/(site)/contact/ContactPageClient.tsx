@@ -132,7 +132,7 @@ export default function ContactPageClient({
       <DarkMediaHero id={heroHtmlId} image={content.hero.image} imageAlt="">
         <Container
           size="2xl"
-          className="relative z-10 flex min-h-[52svh] flex-col justify-center pb-12 pt-[calc(var(--site-header-height,4.75rem)+3rem)] sm:pb-14 sm:pt-[calc(var(--site-header-height,4.75rem)+3.5rem)] lg:min-h-[58svh] lg:pb-16 lg:pt-[calc(var(--site-header-height,4.75rem)+4rem)]"
+          className="relative z-10 flex min-h-[60svh] flex-col justify-center pb-12 pt-[calc(var(--site-header-height,4.75rem)+3rem)] sm:pb-14 sm:pt-[calc(var(--site-header-height,4.75rem)+3.5rem)] lg:min-h-[66svh] lg:pb-16 lg:pt-[calc(var(--site-header-height,4.75rem)+4rem)]"
         >
           <motion.div
             initial="hidden"
