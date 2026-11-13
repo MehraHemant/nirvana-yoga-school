@@ -30,9 +30,19 @@ type Pg = {
 // long as another URL does not start right after it. A bad match only fails
 // to download and is left untouched.
 const OLD_HOST_RE =
-  /https?:\/\/(?:www\.)?nirvanayogaschoolindia\.com\/(?:[^"'\s)\\<>]|\s(?!https?:))+?\.(?:webp|jpe?g|png|gif|avif|svg)(?![a-z0-9])/gi;
+  /https?:\/\/(?:www\.)?nirvanayogaschoolindia\.com\/(?:[^"'\s\\<>]|\s(?!https?:))+?\.(?:webp|jpe?g|png|gif|avif|svg)(?![a-z0-9])/gi;
+// Site-relative paths ("/img/gallery/1.jpg") stored as a whole value or a
+// quoted JSON/HTML string. They are fetched from the old site's origin.
+const RELATIVE_RE =
+  /(?:^|")(\/(?:img|admin\/uploads)\/[^"\\<>]+?\.(?:webp|jpe?g|png|gif|avif|svg))(?="|$)/gi;
+const OLD_ORIGIN = "https://www.nirvanayogaschoolindia.com";
 const MIGRATED_PREFIX = "Migrated from ";
 const FOLDER = process.env.CLOUDINARY_UPLOAD_FOLDER ?? "nirvana-cms";
+
+/** SQL predicate: column holds an absolute or site-relative old-site image. */
+const OLD_REF_SQL = (column: string) =>
+  `(strpos("${column}"::text, 'nirvanayogaschoolindia.com/') > 0
+    OR "${column}"::text ~ '(^|")/(img|admin/uploads)/')`;
 
 /** Reads `--flag value` from argv. */
 function arg(name: string): string | undefined {
@@ -88,10 +98,12 @@ async function collectAllUrls(
   for (const c of columns) {
     const { rows } = await pool.query<{ v: string }>(
       `SELECT "${c.column_name}"::text AS v FROM "${c.table_name}"
-        WHERE strpos("${c.column_name}"::text, 'nirvanayogaschoolindia.com/') > 0`,
+        WHERE ${OLD_REF_SQL(c.column_name)}`,
     );
     for (const row of rows) {
-      for (const url of new Set(row.v.match(OLD_HOST_RE) ?? [])) {
+      const found = new Set<string>(row.v.match(OLD_HOST_RE) ?? []);
+      for (const m of row.v.matchAll(RELATIVE_RE)) found.add(m[1]);
+      for (const url of found) {
         const where = `${c.table_name}.${c.column_name}`;
         const list = urls.get(url) ?? [];
         if (!list.includes(where)) list.push(where);
@@ -105,7 +117,10 @@ async function collectAllUrls(
 /** Readable title from a file URL ("25-hour-pranayama.webp" → "25 hour pranayama"). */
 function titleFromUrl(url: string): string {
   const file = decodeURIComponent(url.split("/").pop() ?? "image");
-  return file.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ").trim();
+  return file
+    .replace(/\.[^.]+$/, "")
+    .replace(/[-_]+/g, " ")
+    .trim();
 }
 
 /**
@@ -114,14 +129,21 @@ function titleFromUrl(url: string): string {
  * @param url - Old image URL
  */
 async function uploadFromUrl(url: string) {
-  const res = await fetch(url.replace(/ /g, "%20"), { headers: { "User-Agent": "nirvana-cms-migration" } });
+  const source = url.startsWith("/") ? OLD_ORIGIN + url : url;
+  const res = await fetch(source.replace(/ /g, "%20"), {
+    headers: { "User-Agent": "nirvana-cms-migration" },
+  });
   if (!res.ok) throw new Error(`download failed: HTTP ${res.status}`);
   const mime = (res.headers.get("content-type") ?? "").split(";")[0].trim();
-  if (!mime.startsWith("image/")) throw new Error(`not an image (${mime || "no type"})`);
+  if (!mime.startsWith("image/"))
+    throw new Error(`not an image (${mime || "no type"})`);
   const buffer = Buffer.from(await res.arrayBuffer());
-  if (buffer.length < 200) throw new Error(`file too small (${buffer.length} bytes)`);
+  if (buffer.length < 200)
+    throw new Error(`file too small (${buffer.length} bytes)`);
 
-  const safeName = titleFromUrl(url).replace(/[^a-zA-Z0-9_-]/g, "-").slice(0, 48);
+  const safeName = titleFromUrl(url)
+    .replace(/[^a-zA-Z0-9_-]/g, "-")
+    .slice(0, 48);
   const result = await new Promise<{
     secure_url: string;
     public_id: string;
@@ -137,7 +159,10 @@ async function uploadFromUrl(url: string) {
           resource_type: "image",
           overwrite: false,
         },
-        (error, out) => (error || !out ? reject(error ?? new Error("upload failed")) : resolve(out)),
+        (error, out) =>
+          error || !out
+            ? reject(error ?? new Error("upload failed"))
+            : resolve(out),
       )
       .end(buffer);
   });
@@ -159,8 +184,37 @@ async function replaceEverywhere(
   to: string,
 ): Promise<number> {
   let changed = 0;
+  const relative = from.startsWith("/");
   for (const c of columns) {
-    const cast = c.data_type === "jsonb" ? "::jsonb" : c.data_type === "json" ? "::json" : "";
+    if (relative) {
+      // Exact whole values (text columns), then quoted occurrences in JSON/HTML.
+      if (c.data_type === "text" || c.data_type === "character varying") {
+        const whole = await pool.query(
+          `UPDATE "${c.table_name}" SET "${c.column_name}" = $2 WHERE "${c.column_name}" = $1`,
+          [from, to],
+        );
+        changed += whole.rowCount ?? 0;
+      }
+      const castQ =
+        c.data_type === "jsonb"
+          ? "::jsonb"
+          : c.data_type === "json"
+            ? "::json"
+            : "";
+      const quoted = await pool.query(
+        `UPDATE "${c.table_name}" SET "${c.column_name}" = replace("${c.column_name}"::text, $1, $2)${castQ}
+          WHERE strpos("${c.column_name}"::text, $1) > 0`,
+        [`"${from}"`, `"${to}"`],
+      );
+      changed += quoted.rowCount ?? 0;
+      continue;
+    }
+    const cast =
+      c.data_type === "jsonb"
+        ? "::jsonb"
+        : c.data_type === "json"
+          ? "::json"
+          : "";
     const res = await pool.query(
       `UPDATE "${c.table_name}" SET "${c.column_name}" = replace("${c.column_name}"::text, $1, $2)${cast}
         WHERE strpos("${c.column_name}"::text, $1) > 0`,
@@ -187,7 +241,6 @@ async function main(): Promise<void> {
   });
   const pool = getPool() as unknown as Pg;
 
-
   const { rows: allColumns } = await pool.query<{
     table_name: string;
     column_name: string;
@@ -207,8 +260,7 @@ async function main(): Promise<void> {
   const columns: typeof allColumns = [];
   for (const c of allColumns) {
     const hit = await pool.query(
-      `SELECT 1 FROM "${c.table_name}"
-        WHERE strpos("${c.column_name}"::text, 'nirvanayogaschoolindia.com/') > 0 LIMIT 1`,
+      `SELECT 1 FROM "${c.table_name}" WHERE ${OLD_REF_SQL(c.column_name)} LIMIT 1`,
     );
     if (hit.rows.length) columns.push(c);
   }
@@ -270,7 +322,9 @@ async function main(): Promise<void> {
       }
 
       const rows = await replaceEverywhere(pool, columns, oldUrl, newUrl);
-      console.log(`  ok     ${label} → ${newUrl.split("/").pop()} (${rows} row${rows === 1 ? "" : "s"} updated)`);
+      console.log(
+        `  ok     ${label} → ${newUrl.split("/").pop()} (${rows} row${rows === 1 ? "" : "s"} updated)`,
+      );
     } catch (error) {
       failures.push(`${oldUrl}: ${(error as Error).message}`);
       console.log(`  FAILED ${label}: ${(error as Error).message}`);
@@ -283,7 +337,10 @@ async function main(): Promise<void> {
       : `\nUploaded ${uploaded}, reused ${reused}, failed ${failures.length}.`,
   );
   if (failures.length) {
-    console.log("Failed images keep their old URL:\n" + failures.map((f) => `  - ${f}`).join("\n"));
+    console.log(
+      "Failed images keep their old URL:\n" +
+        failures.map((f) => `  - ${f}`).join("\n"),
+    );
     process.exitCode = 1;
   }
 }

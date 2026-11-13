@@ -3,11 +3,12 @@ import { requireDb } from "@/content/repositories/db-fallback";
 import type { CourseDocument } from "@/content/types/course";
 import type { ResolvedYttHubCourse } from "@/content/types/shared-sections";
 import { db } from "@/lib/db";
-import { liveImage } from "@/lib/live-site";
 import { mapCourseDocumentToYttHubCard } from "./ytt-hub-courses";
 
-const FALLBACK_IMAGE = liveImage("/img/home/banner_3.webp");
-const FALLBACK_CERT_BADGE = liveImage("/img/rys200.png");
+const FALLBACK_IMAGE =
+  "https://res.cloudinary.com/dyccxskji/image/upload/v1794559191/nirvana-cms/banner-3-1794559190408.webp";
+const FALLBACK_CERT_BADGE =
+  "https://res.cloudinary.com/dyccxskji/image/upload/v1794558982/nirvana-cms/rys200-1794558979349.png";
 
 const NAV_ORDER = new Map<string, number>(
   ONLINE_COURSE_SLUGS.map((slug, index) => [slug, index]),

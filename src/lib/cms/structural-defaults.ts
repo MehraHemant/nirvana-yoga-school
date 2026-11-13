@@ -349,13 +349,13 @@ export function createDefaultExamCertification(): ExamCertificationContent {
         title: "Hatha Ashtanga Vinyasa YTTC Certificate",
         subtitle: "Yoga Alliance USA Accredited Course Certificate",
         image:
-          "https://www.nirvanayogaschoolindia.com/img/certificate/200h-hatha-ashtanga-yttc-certificate.webp",
+          "https://res.cloudinary.com/dyccxskji/image/upload/v1794564209/nirvana-cms/200h-hatha-ashtanga-yttc-certificate-1794564206969.webp",
       },
       {
         title: "Nirvana Yoga School Certificate",
         subtitle: "Official Institutional Graduation Certificate",
         image:
-          "https://www.nirvanayogaschoolindia.com/img/certificate/200-nirvana-yttc-certificate.webp",
+          "https://res.cloudinary.com/dyccxskji/image/upload/v1794564211/nirvana-cms/200-nirvana-yttc-certificate-1794564210833.webp",
       },
     ],
   };

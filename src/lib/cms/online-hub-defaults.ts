@@ -4,9 +4,9 @@ import {
 } from "@/content/page-modules-defaults";
 import type { PageModulesDocument } from "@/content/types";
 import type { HomeHeroVideoContent } from "@/content/types/dedicated-pages";
-import { liveImage } from "@/lib/live-site";
 
-const HERO_IMAGE = liveImage("/img/home/banner_3.webp");
+const HERO_IMAGE =
+  "https://res.cloudinary.com/dyccxskji/image/upload/v1794559191/nirvana-cms/banner-3-1794559190408.webp";
 
 /**
  * Seed video for newly created hub modules only. Public render never falls

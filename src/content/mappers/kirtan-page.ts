@@ -46,7 +46,7 @@ const HIGHLIGHT_PREFIXES = [
 const KIRTAN_ROOM_LABELS = COURSE_PACKAGE_LABELS;
 
 const FALLBACK_HERO_IMAGE =
-  "https://www.nirvanayogaschoolindia.com/admin/uploads/yoga/yoga-11-06-2026-1781120152-yoga-03-07-2023-1688377619-3.png";
+  "https://res.cloudinary.com/dyccxskji/image/upload/v1794560995/nirvana-cms/yoga-11-06-2026-1781120152-yoga-03-07-2023-16883-1794560995218.png";
 
 export type KirtanEligibilityItem = {
   title: string;
