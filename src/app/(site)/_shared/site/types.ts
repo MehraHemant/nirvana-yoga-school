@@ -11,7 +11,7 @@ import type {
   WhyNirvanaContent,
 } from "@/content/types/shared-sections";
 
-export type SitePageVariant = "teacher" | "hub" | "editorial";
+export type SitePageVariant = "hub" | "editorial";
 
 export type SitePageData = {
   page: SitePageDocument;

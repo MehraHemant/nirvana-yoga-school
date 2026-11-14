@@ -248,20 +248,21 @@ export default function OfferPopup({
             </button>
 
             {/* Image side */}
-            <div className="relative h-44 overflow-hidden bg-surface-muted sm:h-56 md:h-auto md:min-h-[30rem]">
+            <div className="relative h-52 overflow-hidden bg-surface-muted sm:h-60 md:h-auto md:min-h-[30rem]">
               {content.image ? (
                 <Image
                   src={content.image}
                   alt={content.imageAlt}
                   fill
-                  sizes="(max-width: 768px) 100vw, 430px"
-                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, 440px"
+                  quality={85}
+                  className="object-cover object-[center_62%] md:object-[center_35%]"
                   priority
                 />
               ) : null}
               <div
                 aria-hidden
-                className="absolute inset-0 bg-gradient-to-t from-ink/70 via-ink/10 to-transparent"
+                className="absolute inset-0 bg-gradient-to-t from-ink/65 via-transparent via-30% to-transparent"
               />
               {content.discountLabel ? (
                 <motion.div

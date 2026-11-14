@@ -19,16 +19,12 @@ export { TEACHER_PAGE_SLUG, teacherSlug };
 
 /** Presentation copy stored on the teacher page `content_data` JSON. */
 export type TeachersPagePresentation = {
-  heroQuote?: string;
-  heroLead?: string;
   sectionEyebrow?: string;
   sectionTitle?: string;
   sectionDescription?: string;
   homeEyebrow?: string;
   homeTitle?: string;
   homeDescription?: string;
-  /** Optional HTML id for the hero band */
-  heroId?: string;
   /** Optional HTML id for the faculty section */
   facultyId?: string;
   /** Optional HTML id for the homepage teachers teaser (admin jump target) */
@@ -85,15 +81,12 @@ export function parseTeachersPresentation(
   const pick = (key: string) =>
     typeof record[key] === "string" ? (record[key] as string) : undefined;
   return {
-    heroQuote: pick("heroQuote"),
-    heroLead: pick("heroLead"),
     sectionEyebrow: pick("sectionEyebrow"),
     sectionTitle: pick("sectionTitle"),
     sectionDescription: pick("sectionDescription"),
     homeEyebrow: pick("homeEyebrow"),
     homeTitle: pick("homeTitle"),
     homeDescription: pick("homeDescription"),
-    heroId: pick("heroId"),
     facultyId: pick("facultyId"),
     homeTeaserId: pick("homeTeaserId"),
   };
@@ -103,8 +96,6 @@ export function parseTeachersPresentation(
  * Default presentation copy used when seeding / ensuring the teacher page.
  */
 export const DEFAULT_TEACHERS_PRESENTATION: TeachersPagePresentation = {
-  heroQuote:
-    "Yoga Is A Light, Which Once Lit Will Never Dim. The Better Your Practice, The Brighter Your Flame.",
   sectionEyebrow: "Faculty profiles",
   sectionTitle: "Meet our gurus",
   sectionDescription:

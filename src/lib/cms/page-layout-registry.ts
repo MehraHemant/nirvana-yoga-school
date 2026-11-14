@@ -134,7 +134,6 @@ export const PAGE_LAYOUTS: Record<PageLayoutId, PageLayoutDefinition> = {
     layoutId: "teachers",
     label: "Teachers",
     sections: [
-      { id: "hero", label: "Hero band", source: "contentData" },
       { id: "faculty", label: "Faculty profiles", source: "contentData" },
       { id: "home-teaser", label: "Home teaser", source: "contentData" },
     ],

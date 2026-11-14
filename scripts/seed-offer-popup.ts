@@ -14,19 +14,30 @@ import type { OfferPopupContent } from "../src/content/types/offer-popup";
 import { uploadToCloudinary } from "../src/lib/cdn/cloudinary";
 import { createId, db, getPool } from "../src/lib/db/node";
 
-const IMAGE_ALT = "Yoga teacher training graduates at Nirvana Yoga School";
+const IMAGE_ALT =
+  "Teacher adjusting a student's bow pose during yoga teacher training";
+/** Media-library asset (2324×3480 portrait) used as the popup photo. */
+const PORTRAIT_ALT = "Yoga Pose Astanga Portrait";
 const LOCAL_IMAGE = path.join(
   process.cwd(),
   "public/images/home/banner_1.webp",
 );
 
 /**
- * Returns the Cloudinary URL for the popup photo, uploading it once.
+ * Returns the Cloudinary URL for the popup photo: the high-res teaching
+ * portrait already in the media library (sharp in the tall image panel),
+ * falling back to uploading the local banner once.
  */
 async function ensureImage(): Promise<string> {
+  const portrait = await getPool().query<{ url: string }>(
+    "select url from media_assets where alt = $1 and url like 'https://res.cloudinary.com/%' limit 1",
+    [PORTRAIT_ALT],
+  );
+  if (portrait.rows[0]) return portrait.rows[0].url;
+
   const existing = await getPool().query<{ url: string }>(
     "select url from media_assets where alt = $1 and url like 'https://res.cloudinary.com/%' limit 1",
-    [IMAGE_ALT],
+    ["Yoga teacher training graduates at Nirvana Yoga School"],
   );
   if (existing.rows[0]) return existing.rows[0].url;
 
@@ -44,7 +55,7 @@ async function ensureImage(): Promise<string> {
       sizeBytes: uploaded.sizeBytes,
       width: uploaded.width,
       height: uploaded.height,
-      alt: IMAGE_ALT,
+      alt: "Yoga teacher training graduates at Nirvana Yoga School",
       tags: ["offer"],
     },
   });
@@ -72,7 +83,7 @@ async function main() {
     secondaryCta: { label: "Enquire Now", href: "/enquire-now" },
     image,
     imageAlt: IMAGE_ALT,
-    delaySeconds: 2,
+    delaySeconds: 5,
     frequency: "session",
   };
 

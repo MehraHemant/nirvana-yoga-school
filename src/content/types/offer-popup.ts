@@ -48,7 +48,7 @@ export function createEmptyOfferPopup(): OfferPopupContent {
     secondaryCta: { label: "", href: "" },
     image: "",
     imageAlt: "",
-    delaySeconds: 2,
+    delaySeconds: 5,
     frequency: "session",
   };
 }
@@ -70,7 +70,7 @@ export function normalizeOfferPopup(value: unknown): OfferPopupContent {
     perks: Array.isArray(raw.perks) ? raw.perks.filter(Boolean) : [],
     primaryCta: { ...base.primaryCta, ...raw.primaryCta },
     secondaryCta: { ...base.secondaryCta, ...raw.secondaryCta },
-    delaySeconds: Number.isFinite(delay) ? Math.min(60, Math.max(0, delay)) : 2,
+    delaySeconds: Number.isFinite(delay) ? Math.min(60, Math.max(0, delay)) : 5,
     frequency:
       raw.frequency === "day" || raw.frequency === "week"
         ? raw.frequency

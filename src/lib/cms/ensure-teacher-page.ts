@@ -37,7 +37,6 @@ export async function ensureTeacherPage(): Promise<{
     title: existing?.title || raw.title || "Faculty of Nirvana",
     presentation: {
       ...DEFAULT_TEACHERS_PRESENTATION,
-      heroLead: raw.description,
       ...(typeof existing?.contentData === "object" &&
       existing.contentData &&
       !Array.isArray(existing.contentData)

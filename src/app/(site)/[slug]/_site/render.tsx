@@ -8,7 +8,6 @@ import HubClient from "./HubClient";
 import KirtanClient from "./KirtanClient";
 import OnlineHubPage from "./OnlineHubPage";
 import SiteClient from "./SiteClient";
-import TeachersClient from "./TeachersClient";
 import YttHubPage from "./YttHubPage";
 
 const YTT_HUB_SLUG = "yoga-teacher-training-in-rishikesh-india";
@@ -43,7 +42,6 @@ export async function renderSitePage(page: SitePageDocument) {
   };
 
   let client = <SiteClient {...props} />;
-  if (data.variant === "teacher") client = <TeachersClient {...props} />;
   if (data.variant === "hub") client = <HubClient {...props} />;
   if (isKirtanPage(page.slug)) client = <KirtanClient {...props} />;
 

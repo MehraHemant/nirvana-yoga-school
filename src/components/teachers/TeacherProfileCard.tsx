@@ -1,11 +1,11 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import Image from "@/components/ui/CdnImage";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { TeacherProfile } from "@/components/home/TeachersSection";
 import { Heading } from "@/components/ui";
+import Image from "@/components/ui/CdnImage";
 import { teacherSlug } from "@/content/teachers-slug";
 
 /** Collapsed preview limits for faculty profile cards. */
@@ -119,9 +119,7 @@ export default function TeacherProfileCard({
     (estimateListLines(teacher.education) > COMPACT_LIST_CLAMP_LINES ||
       estimateListLines(teacher.detailedExperience) >
         COMPACT_LIST_CLAMP_LINES ||
-      estimateListLines(
-        teacher.expertise.length > 0 ? [teacher.expertise.join(", ")] : [],
-      ) > COMPACT_LIST_CLAMP_LINES);
+      estimateListLines(teacher.expertise) > COMPACT_LIST_CLAMP_LINES);
 
   const canExpand =
     bioNeedsMore || listsNeedMoreByCount || listsNeedMoreByClamp;
@@ -244,7 +242,7 @@ export default function TeacherProfileCard({
     ) : null;
 
   /**
-   * Education / Experience list — bullets always; homepage/hub clamps to 4 lines.
+   * Education / Experience / Expertise list — bullets always; homepage/hub clamps to 4 lines.
    *
    * @param items - Visible list items (may be sliced by preview limits)
    * @param bulletClass - Dot / marker color class
@@ -280,12 +278,15 @@ export default function TeacherProfileCard({
               ) : null}
             </li>
           ) : (
-            <li key={item} className="flex items-start gap-2.5">
+            <li key={item} className="type-body flex items-start gap-2.5">
+              {/* One line tall, so the dot centres on the first line of text. */}
               <span
-                className={`mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full ${bulletClass}`}
+                className="flex h-[1lh] shrink-0 items-center"
                 aria-hidden="true"
-              />
-              <span className="type-body text-ink">{item}</span>
+              >
+                <span className={`size-1.5 rounded-full ${bulletClass}`} />
+              </span>
+              <span className="min-w-0 text-ink">{item}</span>
             </li>
           );
         })}
@@ -332,34 +333,10 @@ export default function TeacherProfileCard({
         >
           Expertise
         </p>
-        {clampListBlock ? (
-          <p className="type-body line-clamp-4 text-ink">
-            {expertiseItems.join(", ")}
-            {expertiseHasMore ? (
-              <span className="text-muted" aria-hidden="true">
-                {" "}
-                …
-              </span>
-            ) : null}
-          </p>
-        ) : (
-          <>
-            <div className="flex flex-wrap gap-2">
-              {expertiseItems.map((item) => (
-                <span
-                  key={item}
-                  className="type-ui inline-flex items-center rounded-full border border-accent/35 bg-white px-3 py-1 text-ink transition-all duration-150 hover:border-primary/35 hover:bg-white hover:shadow-2xs"
-                >
-                  {item}
-                </span>
-              ))}
-            </div>
-            {expertiseHasMore ? (
-              <p className="type-body mt-1 text-muted" aria-hidden="true">
-                …
-              </p>
-            ) : null}
-          </>
+        {detailList(
+          expertiseItems,
+          clampListBlock ? "marker:text-primary/40" : "bg-primary/40",
+          expertiseHasMore,
         )}
       </div>
     </div>

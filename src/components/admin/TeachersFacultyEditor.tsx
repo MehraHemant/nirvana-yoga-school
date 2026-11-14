@@ -35,7 +35,6 @@ type TeachersFacultyEditorProps = {
 
 const TEACHERS_JUMP_DEFS = [
   { slug: "meta", label: "Page metadata" },
-  { slug: "hero", label: "Hero band" },
   { slug: "faculty", label: "Faculty section" },
   { slug: "home-teaser", label: "Home teaser" },
   { slug: "profiles", label: "Faculty profiles" },
@@ -43,7 +42,7 @@ const TEACHERS_JUMP_DEFS = [
 
 /**
  * Admin editor shaped like the public `/teacher` UI:
- * hero band + faculty profiles (bio, education, experience, expertise).
+ * faculty section copy + faculty profiles (bio, education, experience, expertise).
  * Not the generic course module editor.
  *
  * @param props - Initial document and save handler
@@ -72,24 +71,17 @@ export function TeachersFacultyEditor({
       const section =
         def.slug === "meta"
           ? doc.meta
-          : def.slug === "hero"
-            ? { _id: presentation.heroId }
-            : def.slug === "faculty"
-              ? { _id: presentation.facultyId }
-              : def.slug === "home-teaser"
-                ? { _id: presentation.homeTeaserId }
-                : undefined;
+          : def.slug === "faculty"
+            ? { _id: presentation.facultyId }
+            : def.slug === "home-teaser"
+              ? { _id: presentation.homeTeaserId }
+              : undefined;
       return {
         id: toSectionDomId(def.slug, section),
         label: def.label,
       };
     });
-  }, [
-    doc.meta,
-    presentation.facultyId,
-    presentation.heroId,
-    presentation.homeTeaserId,
-  ]);
+  }, [doc.meta, presentation.facultyId, presentation.homeTeaserId]);
 
   const sectionIds = useMemo(
     () => jumpItems.map((item) => item.id),
@@ -102,13 +94,11 @@ export function TeachersFacultyEditor({
     const section =
       slug === "meta"
         ? doc.meta
-        : slug === "hero"
-          ? { _id: presentation.heroId }
-          : slug === "faculty"
-            ? { _id: presentation.facultyId }
-            : slug === "home-teaser"
-              ? { _id: presentation.homeTeaserId }
-              : undefined;
+        : slug === "faculty"
+          ? { _id: presentation.facultyId }
+          : slug === "home-teaser"
+            ? { _id: presentation.homeTeaserId }
+            : undefined;
     return toSectionDomId(slug, section);
   }
 
@@ -165,8 +155,8 @@ export function TeachersFacultyEditor({
           </Link>
           <h1 className="admin-title">Faculty</h1>
           <p className="admin-subtitle">
-            Matches the public teachers page — hero + profile cards with
-            education, experience, and expertise.
+            Matches the public teachers page — profile cards with education,
+            experience, and expertise.
           </p>
         </div>
         <a
@@ -192,62 +182,6 @@ export function TeachersFacultyEditor({
             <PageSeoFields
               value={doc.meta}
               onChange={(meta) => setDoc({ ...doc, meta })}
-            />
-          </CollapsiblePanel>
-
-          <CollapsiblePanel
-            id={panelId("hero")}
-            title="Hero band"
-            subtitle="Background image, eyebrow, title, lead, quote"
-            defaultOpen
-          >
-            <SectionIdField
-              fieldId="teachers-hero-id"
-              value={presentation.heroId}
-              onChange={(heroId) => updatePresentation({ heroId })}
-            />
-            <ImageField
-              label="Hero background image"
-              value={doc.image}
-              onChange={(image) => setDoc({ ...doc, image })}
-            />
-            <TextField
-              label="Eyebrow"
-              value={doc.eyebrow}
-              onChange={(eyebrow) => setDoc({ ...doc, eyebrow })}
-              hint='e.g. "Our Spiritual Indian Gurus"'
-            />
-            <TextField
-              label="Title"
-              value={doc.title}
-              onChange={(title) => setDoc({ ...doc, title })}
-              hint='Shown as the main H1 (e.g. "Faculty of Nirvana")'
-            />
-            <TextField
-              label="Hero lead"
-              value={presentation.heroLead ?? doc.description}
-              onChange={(heroLead) =>
-                setDoc({
-                  ...doc,
-                  description: heroLead,
-                  presentation: { ...presentation, heroLead },
-                })
-              }
-              multiline
-              rows={3}
-            />
-            <TextField
-              label="Hero quote"
-              value={presentation.heroQuote ?? ""}
-              onChange={(heroQuote) =>
-                setDoc({
-                  ...doc,
-                  presentation: { ...presentation, heroQuote },
-                })
-              }
-              multiline
-              rows={2}
-              hint="Italic quote under the lead on desktop"
             />
           </CollapsiblePanel>
 

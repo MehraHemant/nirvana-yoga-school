@@ -8,7 +8,6 @@ import type { SharedFaq } from "@/content/types/shared-sections";
 import type { SitePageData, SitePageVariant } from "./types";
 
 export function sitePageVariant(slug: string): SitePageVariant {
-  if (slug === "teacher") return "teacher";
   if (
     slug === "yoga-teacher-training-in-rishikesh-india" ||
     slug === "online-yoga-teacher-training-courses" ||

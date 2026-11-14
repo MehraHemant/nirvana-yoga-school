@@ -108,20 +108,16 @@ export type SitePageDocument = {
   /** Optional CMS blocks from content items / content_data */
   cms?: import("@/content/types/page-cms").SitePageCmsContent;
   /**
-   * Teacher-page presentation copy (hero quote, section headers).
+   * Teacher-page presentation copy (section headers).
    * Persisted in `pages.content_data`.
    */
   presentation?: {
-    heroQuote?: string;
-    heroLead?: string;
     sectionEyebrow?: string;
     sectionTitle?: string;
     sectionDescription?: string;
     homeEyebrow?: string;
     homeTitle?: string;
     homeDescription?: string;
-    /** Optional HTML id for the hero band */
-    heroId?: string;
     /** Optional HTML id for the faculty section */
     facultyId?: string;
     /** Optional HTML id for the homepage teachers teaser copy band (admin only) */

@@ -287,15 +287,12 @@ function parseContentData(value: unknown): {
   const pick = (key: string) =>
     typeof record[key] === "string" ? (record[key] as string) : undefined;
   const presentation = {
-    heroQuote: pick("heroQuote"),
-    heroLead: pick("heroLead"),
     sectionEyebrow: pick("sectionEyebrow"),
     sectionTitle: pick("sectionTitle"),
     sectionDescription: pick("sectionDescription"),
     homeEyebrow: pick("homeEyebrow"),
     homeTitle: pick("homeTitle"),
     homeDescription: pick("homeDescription"),
-    heroId: pick("heroId"),
     facultyId: pick("facultyId"),
     homeTeaserId: pick("homeTeaserId"),
   };
