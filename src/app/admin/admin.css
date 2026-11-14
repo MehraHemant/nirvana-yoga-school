@@ -930,7 +930,8 @@
 }
 
 .admin-bookings-table {
-  min-width: 64rem;
+  min-width: 72rem;
+  table-layout: fixed;
 }
 
 .admin-bookings-table th {
@@ -942,6 +943,31 @@
 
 .admin-bookings-table td {
   vertical-align: top;
+  overflow: hidden;
+}
+
+.admin-bookings-col-guest {
+  width: 14rem;
+}
+
+.admin-bookings-col-program {
+  width: 16rem;
+}
+
+.admin-bookings-col-addons {
+  width: 15rem;
+}
+
+.admin-bookings-col-amount {
+  width: 8.5rem;
+}
+
+.admin-bookings-col-status {
+  width: 8.5rem;
+}
+
+.admin-bookings-col-booked {
+  width: 8rem;
 }
 
 .admin-bookings-table .admin-table-title,
@@ -951,6 +977,215 @@
 
 .admin-bookings-table .admin-table-slug + .admin-table-slug {
   margin-top: 0.15rem;
+}
+
+.admin-bookings-header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.admin-bookings-row--open > td {
+  background: #fdfbf7;
+}
+
+.admin-bookings-guest-count {
+  display: inline-flex;
+  margin-left: 0.4rem;
+  padding: 0 0.4rem;
+  border-radius: 999px;
+  background: rgb(14 73 86 / 10%);
+  color: #0e4956;
+  font-size: 0.68rem;
+  font-weight: 700;
+  vertical-align: middle;
+}
+
+.admin-bookings-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.admin-bookings-link:hover {
+  color: #a32432;
+  text-decoration: underline;
+}
+
+.admin-bookings-addons {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.35rem;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.admin-bookings-addons li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 0.5rem 0.65rem;
+  min-width: 0;
+  max-width: 100%;
+  padding: 0.35rem 0.55rem;
+  border-radius: 0.5rem;
+  background: rgb(163 36 50 / 5%);
+  font-size: 0.75rem;
+  color: #1c1917;
+  box-sizing: border-box;
+}
+
+.admin-bookings-addon-label {
+  min-width: 0;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.admin-bookings-addon-price {
+  flex-shrink: 0;
+  font-weight: 600;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  color: #a32432;
+}
+
+.admin-bookings-col-amount .admin-table-title,
+.admin-bookings-col-amount .admin-table-slug {
+  white-space: nowrap;
+}
+
+.admin-bookings-muted {
+  color: rgb(107 94 87 / 60%);
+}
+
+.admin-bookings-table .admin-row-actions {
+  white-space: nowrap;
+}
+
+.admin-bookings-table .admin-row-actions .admin-btn-sm + .admin-btn-sm {
+  margin-left: 0.4rem;
+}
+
+.admin-bookings-detail-row > td {
+  background: #fdfbf7;
+  border-top: 0;
+  padding: 0.85rem 1rem 1.1rem;
+}
+
+.admin-bookings-detail {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(14rem, 1fr));
+  gap: 0.85rem;
+}
+
+.admin-bookings-detail-card {
+  min-width: 0;
+  padding: 0.9rem 1rem;
+  border: 1px solid rgb(26 20 16 / 8%);
+  border-radius: 0.9rem;
+  background: #fff;
+}
+
+.admin-bookings-detail-title {
+  margin: 0 0 0.75rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgb(107 94 87);
+}
+
+.admin-bookings-detail-list {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.admin-bookings-detail-row-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 0.75rem 1rem;
+  font-size: 0.8rem;
+}
+
+.admin-bookings-detail-row-item--total {
+  margin-top: 0.15rem;
+  padding-top: 0.55rem;
+  border-top: 1px solid rgb(26 20 16 / 10%);
+}
+
+.admin-bookings-detail-label {
+  min-width: 0;
+  color: rgb(107 94 87);
+  line-height: 1.4;
+  overflow-wrap: break-word;
+}
+
+.admin-bookings-detail-value {
+  min-width: 0;
+  color: #1c1917;
+  line-height: 1.4;
+  overflow-wrap: break-word;
+}
+
+.admin-bookings-detail-value--money,
+.admin-bookings-detail-row-item--money .admin-bookings-detail-value {
+  justify-self: end;
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: #1c1917;
+}
+
+.admin-bookings-detail-row-item--total .admin-bookings-detail-label,
+.admin-bookings-detail-row-item--total .admin-bookings-detail-value {
+  font-weight: 700;
+  color: #1c1917;
+}
+
+.admin-bookings-detail-list--stack .admin-bookings-detail-row-item {
+  grid-template-columns: 1fr;
+  gap: 0.2rem;
+}
+
+.admin-bookings-detail-list--stack .admin-bookings-detail-label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.admin-bookings-mono {
+  display: block;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.72rem;
+  line-height: 1.45;
+  word-break: break-all;
+}
+
+@media (max-width: 1100px) {
+  .admin-bookings-detail {
+    grid-template-columns: repeat(2, minmax(14rem, 1fr));
+  }
+
+  .admin-bookings-detail-card:last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 720px) {
+  .admin-bookings-detail {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-bookings-detail-card:last-child {
+    grid-column: auto;
+  }
 }
 
 .admin-bookings-program {
@@ -7251,7 +7486,7 @@
   margin-bottom: 0;
 }
 
-/* Booking add-ons — one-line add form */
+/* Booking add-ons — composer + cards with room options */
 .admin-addon-composer {
   background: #fff;
   border: 1px solid rgb(26 20 16 / 8%);
@@ -7260,59 +7495,96 @@
   margin-bottom: 1.5rem;
 }
 
-.admin-addon-composer__kinds {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  margin-bottom: 0.85rem;
+.admin-addon-composer__title {
+  margin: 0 0 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgb(107 94 87);
 }
 
 .admin-addon-composer__fields {
   display: grid;
-  grid-template-columns: minmax(0, 1.5fr) minmax(6.5rem, 0.45fr) minmax(
-      11rem,
-      0.95fr
-    ) auto;
+  grid-template-columns: minmax(0, 1.6fr) minmax(11rem, 0.8fr);
   gap: 0.6rem;
   align-items: end;
-}
-
-.admin-addon-composer__fields--course {
-  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr) minmax(11rem, 0.95fr) auto;
+  margin-bottom: 0.75rem;
 }
 
 .admin-addon-composer__note {
   margin-top: 0.6rem;
 }
 
-.admin-addon-composer__submit .admin-btn {
-  min-width: 5.5rem;
+.admin-addon-composer__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.85rem;
 }
 
-.admin-addon-table {
-  --admin-addon-cols: minmax(12rem, 1.4fr) minmax(12rem, 1.1fr)
-    minmax(11rem, 1fr) 6.75rem 4.75rem;
-  min-width: 48rem;
+.admin-addon-composer__footer .admin-hint {
+  margin: 0;
 }
 
-.admin-addon-table .admin-compact-table-row > span {
-  min-width: 0;
+.admin-addon-options {
+  display: grid;
+  gap: 0.4rem;
+  justify-items: start;
 }
 
-.admin-addon-table .admin-compact-table-row {
-  grid-template-columns: var(--admin-addon-cols);
-  align-items: start;
-}
-
-.admin-addon-table .admin-compact-table-head {
+.admin-addon-options__head,
+.admin-addon-options__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 7.5rem 2.25rem;
+  gap: 0.5rem;
+  width: 100%;
   align-items: center;
 }
 
-.admin-addon-name {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  min-width: 0;
+.admin-addon-options__head {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgb(107 94 87);
+}
+
+.admin-addon-options__row .admin-btn-sm {
+  justify-content: center;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.admin-addon-cards {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.admin-addon-card {
+  display: grid;
+  gap: 0.6rem;
+  background: #fff;
+  border: 1px solid rgb(26 20 16 / 8%);
+  border-radius: 1rem;
+  padding: 0.85rem 1rem 1rem;
+}
+
+.admin-addon-card--off {
+  opacity: 0.6;
+}
+
+.admin-addon-card__top {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) minmax(10rem, 14rem) auto auto;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.admin-addon-card__name {
+  font-weight: 600;
 }
 
 .admin-addon-note {
@@ -7321,21 +7593,101 @@
   font-size: 0.8rem;
 }
 
-.admin-addon-switch {
-  padding-top: 0.15rem;
+.admin-addon-legacy {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.75rem;
+  background: #faf7f2;
+}
+
+.admin-addon-legacy .admin-hint {
+  margin: 0;
+  flex: 1 1 16rem;
+}
+
+.admin-addon-flat {
+  display: grid;
+  gap: 0.25rem;
+  width: 9rem;
 }
 
 .admin-addon-intro {
   margin-top: 1.25rem;
 }
 
+.admin-addon-exclude {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.6rem;
+}
+
+.admin-addon-card .admin-addon-exclude {
+  margin-bottom: 0;
+}
+
+.admin-addon-exclude__label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgb(107 94 87);
+  margin-right: 0.2rem;
+}
+
+.admin-addon-exclude__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.3rem 0.2rem 0.6rem;
+  border-radius: 999px;
+  background: rgb(163 36 50 / 8%);
+  color: #a32432;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.admin-addon-exclude__chip button {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-size: 0.7rem;
+  line-height: 1;
+  padding: 0.15rem 0.3rem;
+  border-radius: 999px;
+}
+
+.admin-addon-exclude__chip button:hover {
+  background: rgb(163 36 50 / 15%);
+}
+
+.admin-addon-exclude__select {
+  width: auto;
+  min-width: 13rem;
+  max-width: 100%;
+}
+
 @media (max-width: 720px) {
-  .admin-addon-composer__fields,
-  .admin-addon-composer__fields--course {
+  .admin-addon-composer__fields {
     grid-template-columns: 1fr;
   }
 
-  .admin-addon-composer__submit .admin-btn {
-    width: 100%;
+  .admin-addon-card__top {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .admin-addon-card__top > select,
+  .admin-addon-card__top > :nth-child(n + 4) {
+    grid-column: 2;
+  }
+
+  .admin-addon-options__head,
+  .admin-addon-options__row {
+    grid-template-columns: minmax(0, 1fr) 5.5rem 2.25rem;
   }
 }

@@ -44,6 +44,7 @@ import {
   createEmptyTravelGuide,
   normalizeExamCertification,
 } from "@/lib/cms/structural-defaults";
+import { db } from "@/lib/db";
 import { requireDb } from "./db-fallback";
 import { getHomePageContent } from "./dedicated-pages";
 import type { ContentResult, RepositoryOptions } from "./fetch";
@@ -586,6 +587,9 @@ export async function getYttHub(
 
 /**
  * Optional booking add-ons from `global_settings.bookingAddons`.
+ * Read uncached: checkout pages are dynamic, and admin edits must show (and
+ * be priced server-side) immediately rather than after a stale-while-revalidate
+ * cycle.
  *
  * @param options - Optional repository options
  */
@@ -593,7 +597,10 @@ export async function getBookingAddons(
   options?: RepositoryOptions,
 ): Promise<ContentResult<BookingAddonsContent>> {
   return requireDb(async () => {
-    const stored = await fetchGlobalSettingsFromDb("bookingAddons");
+    const record = await db.globalSettings.findUnique({
+      where: { key: "bookingAddons" },
+    });
+    const stored = record?.value ?? null;
     if (stored && typeof stored === "object") {
       const doc = stored as BookingAddonsContent;
       if (Array.isArray(doc.items)) {

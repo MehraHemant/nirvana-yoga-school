@@ -19,9 +19,9 @@ import type { BookingPageContent } from "@/content/types/dedicated-pages";
 import {
   enrichBookingAddons,
   filterBookingAddonsForType,
-  getAddonKind,
   getAddonOptions,
   getSelectedOptionIdForGroup,
+  isOptionAddon,
   resolveSelectedAddons,
   setAddonGroupSelection,
 } from "@/lib/booking/addons";
@@ -71,7 +71,8 @@ type FormState = {
   secondGuestName: string;
   secondGuestGender: string;
   email: string;
-  paymentMode: PaymentMode;
+  /** Empty until the guest chooses full payment or deposit */
+  paymentMode: PaymentMode | "";
   referenceCode: string;
   hearAbout: string;
   selectedAddonIds: string[];
@@ -145,7 +146,7 @@ export function BookingFlow({
     secondGuestName: "",
     secondGuestGender: "",
     email: "",
-    paymentMode: "deposit_20",
+    paymentMode: "",
     referenceCode: "",
     hearAbout: "",
     selectedAddonIds: [],
@@ -159,6 +160,10 @@ export function BookingFlow({
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  /** Expanded add-on accordion; undefined = first one open by default */
+  const [openAddonId, setOpenAddonId] = useState<string | null | undefined>(
+    undefined,
+  );
 
   const selectedProgram = useMemo(
     () => programs.find((program) => program.slug === form.programSlug) ?? null,
@@ -195,11 +200,14 @@ export function BookingFlow({
     0,
   );
 
+  const paymentChosen = form.paymentMode !== "";
+
   const pricing = useMemo(() => {
     if (!selectedRoom) return null;
+    // Before a choice, price as full so the total is still shown.
     return calculateBookingPricing(
       roomPriceUsd + addonsTotalUsd,
-      form.paymentMode,
+      form.paymentMode || "full",
     );
   }, [selectedRoom, roomPriceUsd, addonsTotalUsd, form.paymentMode]);
 
@@ -281,6 +289,12 @@ export function BookingFlow({
 
     if (!phoneNational.trim()) {
       setPhoneError("Please enter your phone number.");
+      return;
+    }
+
+    if (!paymentChosen) {
+      setError("Please choose a payment option.");
+      setStep(2);
       return;
     }
 
@@ -372,9 +386,7 @@ export function BookingFlow({
               <span className="type-eyebrow text-white/80">
                 {content.hero.eyebrow}
               </span>
-              <h1 className="type-h1 text-white">
-                {content.hero.title}
-              </h1>
+              <h1 className="type-h1 text-white">{content.hero.title}</h1>
               <p className="type-body max-w-xl pt-1 text-white/85">
                 {content.hero.lead}
               </p>
@@ -401,9 +413,7 @@ export function BookingFlow({
                   <span className="type-eyebrow text-secondary">
                     {item.step}
                   </span>
-                  <h2 className="type-h4 mt-1 text-ink">
-                    {item.title}
-                  </h2>
+                  <h2 className="type-h4 mt-1 text-ink">{item.title}</h2>
                   <p className="mt-1.5 text-sm leading-relaxed text-ink">
                     {item.body}
                   </p>
@@ -639,9 +649,7 @@ export function BookingFlow({
                     {needsSecondGuest ? (
                       <>
                         <div className="sm:col-span-2 border-t border-ink/8 pt-4">
-                          <p className="type-eyebrow text-primary">
-                            Guest 2
-                          </p>
+                          <p className="type-eyebrow text-primary">Guest 2</p>
                         </div>
                         <div className="space-y-2 sm:col-span-2">
                           <label
@@ -701,7 +709,7 @@ export function BookingFlow({
                           })
                         }
                         options={PAYMENT_MODE_OPTIONS}
-                        placeholder="Select payment option…"
+                        placeholder="Choose payment option"
                       />
                     </div>
                     <div className="space-y-2">
@@ -758,6 +766,7 @@ export function BookingFlow({
                         !form.gender ||
                         !form.email ||
                         !phoneNational.trim() ||
+                        !paymentChosen ||
                         (needsSecondGuest &&
                           (!form.secondGuestName.trim() ||
                             !form.secondGuestGender))
@@ -785,70 +794,80 @@ export function BookingFlow({
 
                   {availableAddons.length > 0 ? (
                     <ul className="space-y-3">
-                      {availableAddons.map((item) => {
-                        const kind = getAddonKind(item);
-                        if (kind === "course") {
+                      {availableAddons.map((item, index) => {
+                        if (isOptionAddon(item)) {
                           const options = getAddonOptions(item);
                           const selectedOptionId = getSelectedOptionIdForGroup(
                             item,
                             form.selectedAddonIds,
                           );
+                          const selectedOption = options.find(
+                            (option) => option.id === selectedOptionId,
+                          );
+                          const open =
+                            openAddonId === undefined
+                              ? index === 0
+                              : openAddonId === item.id;
+                          const panelId = `addon-panel-${item.id}`;
                           return (
                             <li
                               key={item.id}
-                              className={`rounded-2xl border p-4 transition-colors ${selectedOptionId ? "border-primary/40 bg-primary/5" : "border-ink/10 bg-sand/30"}`}
+                              className={`overflow-hidden rounded-xl border transition-colors ${selectedOptionId ? "border-primary/40" : "border-ink/12"}`}
                             >
-                              <div className="flex flex-wrap items-baseline justify-between gap-2">
-                                <span className="text-sm font-semibold text-ink">
-                                  {item.label}
+                              <button
+                                type="button"
+                                aria-expanded={open}
+                                aria-controls={panelId}
+                                className={`flex w-full items-start justify-between gap-3 px-4 py-3 text-left transition-colors ${open ? "bg-ink/[0.07]" : "bg-ink/[0.035] hover:bg-ink/[0.06]"}`}
+                                onClick={() =>
+                                  setOpenAddonId(open ? null : item.id)
+                                }
+                              >
+                                <span className="min-w-0">
+                                  <span className="block text-sm font-semibold text-ink">
+                                    {item.label}
+                                  </span>
+                                  {selectedOption ? (
+                                    <span className="mt-0.5 block text-xs font-medium text-primary">
+                                      Selected: {selectedOption.label} (+
+                                      {formatUsd(selectedOption.priceUsd)})
+                                    </span>
+                                  ) : null}
                                 </span>
-                                {typeof item.priceUsd === "number" &&
-                                item.priceUsd > 0 &&
-                                !selectedOptionId ? (
-                                  <span className="text-xs text-ink">
-                                    from {formatUsd(item.priceUsd)}
-                                  </span>
-                                ) : null}
-                              </div>
-                              {item.description ? (
-                                <p className="mt-1 text-sm text-ink">
-                                  {item.description}
-                                </p>
-                              ) : null}
-                              <fieldset className="mt-3 space-y-2">
-                                <legend className="sr-only">
-                                  Room options for {item.label}
-                                </legend>
-                                <label className="flex cursor-pointer items-center gap-3 rounded-xl px-2 py-1.5 hover:bg-white/60">
-                                  <input
-                                    type="radio"
-                                    name={`addon-${item.id}`}
-                                    className="h-4 w-4 accent-[var(--color-primary,#a32432)]"
-                                    checked={!selectedOptionId}
-                                    onChange={() =>
-                                      selectCourseAddonRoom(item, null)
-                                    }
-                                  />
-                                  <span className="text-sm text-ink">
-                                    None — skip
-                                  </span>
-                                </label>
-                                {options.length === 0 ? (
-                                  <p className="px-2 text-xs text-ink">
-                                    No rooms available for this course right
-                                    now.
-                                  </p>
-                                ) : (
-                                  options.map((option) => (
-                                    <label
-                                      key={option.id}
-                                      className="flex cursor-pointer items-center justify-between gap-3 rounded-xl px-2 py-1.5 hover:bg-white/60"
-                                    >
-                                      <span className="flex items-center gap-3">
+                                <span
+                                  aria-hidden
+                                  className={`mt-1 shrink-0 text-xs text-ink transition-transform ${open ? "rotate-180" : ""}`}
+                                >
+                                  ▼
+                                </span>
+                              </button>
+                              {open ? (
+                                <fieldset
+                                  id={panelId}
+                                  className="space-y-1 bg-white px-4 py-3"
+                                >
+                                  <legend className="sr-only">
+                                    Options for {item.label}
+                                  </legend>
+                                  {item.description ? (
+                                    <p className="pb-1 text-sm text-ink">
+                                      {item.description}
+                                    </p>
+                                  ) : null}
+                                  {options.length === 0 ? (
+                                    <p className="text-xs text-ink">
+                                      No options available right now.
+                                    </p>
+                                  ) : (
+                                    options.map((option) => (
+                                      <label
+                                        key={option.id}
+                                        className="flex cursor-pointer items-center gap-2.5 rounded-lg px-1 py-1 hover:bg-sand/40"
+                                      >
                                         <input
                                           type="radio"
                                           name={`addon-${item.id}`}
-                                          className="h-4 w-4 accent-[var(--color-primary,#a32432)]"
+                                          className="h-4 w-4 shrink-0 accent-[var(--color-primary,#a32432)]"
                                           checked={
                                             selectedOptionId === option.id
                                           }
@@ -860,16 +879,27 @@ export function BookingFlow({
                                           }
                                         />
                                         <span className="text-sm text-ink">
-                                          {option.label}
+                                          {option.label}{" "}
+                                          <span className="text-ink/70">
+                                            (+{formatUsd(option.priceUsd)})
+                                          </span>
                                         </span>
-                                      </span>
-                                      <span className="text-sm text-primary">
-                                        {formatUsd(option.priceUsd)}
-                                      </span>
-                                    </label>
-                                  ))
-                                )}
-                              </fieldset>
+                                      </label>
+                                    ))
+                                  )}
+                                  {selectedOptionId ? (
+                                    <button
+                                      type="button"
+                                      className="mt-1 px-1 text-xs font-medium text-primary underline-offset-2 hover:underline"
+                                      onClick={() =>
+                                        selectCourseAddonRoom(item, null)
+                                      }
+                                    >
+                                      Remove this add-on
+                                    </button>
+                                  ) : null}
+                                </fieldset>
+                              ) : null}
                             </li>
                           );
                         }
@@ -883,7 +913,7 @@ export function BookingFlow({
                         return (
                           <li key={item.id}>
                             <label
-                              className={`flex cursor-pointer gap-4 rounded-2xl border p-4 transition-colors ${checked ? "border-primary/40 bg-primary/5" : "border-ink/10 bg-sand/30 hover:border-ink/20"}`}
+                              className={`flex cursor-pointer gap-4 rounded-xl border p-4 transition-colors ${checked ? "border-primary/40 bg-primary/5" : "border-ink/12 bg-ink/[0.035] hover:border-ink/20"}`}
                             >
                               <input
                                 type="checkbox"
@@ -896,8 +926,8 @@ export function BookingFlow({
                                   <span className="text-sm font-semibold text-ink">
                                     {item.label}
                                   </span>
-                                  <span className="text-base text-primary">
-                                    {formatUsd(item.priceUsd ?? 0)}
+                                  <span className="text-sm text-primary">
+                                    +{formatUsd(item.priceUsd ?? 0)}
                                   </span>
                                 </span>
                                 {item.description ? (
@@ -985,71 +1015,91 @@ export function BookingFlow({
               <h3 className="type-h4 text-ink">Fee breakdown</h3>
               {pricing && selectedProgram ? (
                 <dl className="mt-4 space-y-3 text-sm">
-                  <div className="flex justify-between gap-4">
-                    <dt className="text-ink">Program</dt>
-                    <dd className="text-right text-ink">
+                  <div className="flex items-start justify-between gap-4">
+                    <dt className="shrink-0 text-ink">Program</dt>
+                    <dd className="min-w-0 text-right text-ink">
                       {selectedProgram.title}
                     </dd>
                   </div>
-                  <div className="flex justify-between gap-4">
-                    <dt className="text-ink">Room</dt>
-                    <dd className="text-right text-ink">
+                  <div className="flex items-start justify-between gap-4">
+                    <dt className="shrink-0 text-ink">Room</dt>
+                    <dd className="min-w-0 text-right text-ink">
                       {form.roomType || "—"}
                     </dd>
                   </div>
-                  <div className="flex justify-between gap-4">
-                    <dt className="text-ink">Date</dt>
-                    <dd className="text-right text-ink">
+                  <div className="flex items-start justify-between gap-4">
+                    <dt className="shrink-0 text-ink">Date</dt>
+                    <dd className="min-w-0 whitespace-nowrap text-right text-ink">
                       {form.batchDate || "—"}
                     </dd>
                   </div>
-                  <div className="flex justify-between gap-4 border-t border-ink/8 pt-3">
-                    <dt className="text-ink">
+                  <div className="flex items-start justify-between gap-4 border-t border-ink/8 pt-3">
+                    <dt className="min-w-0 text-ink">
                       {type === "course" ? "Course price" : "Package price"}
                     </dt>
-                    <dd className="font-semibold text-ink">
+                    <dd className="shrink-0 whitespace-nowrap font-semibold tabular-nums text-ink">
                       {formatUsd(roomPriceUsd)}
                     </dd>
                   </div>
                   {selectedAddons.map((item) => (
-                    <div key={item.id} className="flex justify-between gap-4">
-                      <dt className="text-ink">{item.label}</dt>
-                      <dd className="text-ink">{formatUsd(item.priceUsd)}</dd>
+                    <div
+                      key={item.id}
+                      className="flex items-start justify-between gap-4"
+                    >
+                      <dt className="min-w-0 text-ink">{item.label}</dt>
+                      <dd className="shrink-0 whitespace-nowrap tabular-nums text-ink">
+                        {formatUsd(item.priceUsd)}
+                      </dd>
                     </div>
                   ))}
-                  {selectedAddons.length > 0 ? (
-                    <div className="flex justify-between gap-4">
-                      <dt className="text-ink">Subtotal</dt>
-                      <dd className="font-semibold text-ink">
+                  {selectedAddons.length > 0 || !paymentChosen ? (
+                    <div className="flex items-start justify-between gap-4">
+                      <dt className="min-w-0 text-ink">
+                        {paymentChosen ? "Subtotal" : "Total"}
+                      </dt>
+                      <dd className="shrink-0 whitespace-nowrap font-semibold tabular-nums text-ink">
                         {formatUsd(pricing.fullAmountUsd)}
                       </dd>
                     </div>
                   ) : null}
-                  <div className="flex justify-between gap-4">
-                    <dt className="text-ink">
-                      {form.paymentMode === "deposit_20"
-                        ? "20% deposit"
-                        : "Pay now"}
-                    </dt>
-                    <dd className="text-ink">{formatUsd(pricing.payNowUsd)}</dd>
-                  </div>
-                  <div className="flex justify-between gap-4">
-                    <dt className="text-ink">PayPal fee (6%)</dt>
-                    <dd className="text-ink">
-                      {formatUsd(pricing.paypalFeeUsd)}
-                    </dd>
-                  </div>
-                  <div className="flex justify-between gap-4 border-t border-ink/8 pt-3">
-                    <dt className="font-semibold text-ink">Total to pay now</dt>
-                    <dd className="text-xl font-semibold text-primary">
-                      {formatUsd(pricing.totalPayNowUsd)}
-                    </dd>
-                  </div>
-                  {pricing.remainingUsd > 0 ? (
-                    <p className="text-xs text-ink">
-                      Remaining {formatUsd(pricing.remainingUsd)} due on
-                      arrival.
+                  {!paymentChosen ? (
+                    <p className="border-t border-ink/8 pt-3 text-xs text-ink">
+                      Choose a payment option to see the amount due now.
                     </p>
+                  ) : null}
+                  {paymentChosen ? (
+                    <>
+                      <div className="flex items-start justify-between gap-4">
+                        <dt className="min-w-0 text-ink">
+                          {form.paymentMode === "deposit_20"
+                            ? "20% deposit"
+                            : "Pay now"}
+                        </dt>
+                        <dd className="shrink-0 whitespace-nowrap tabular-nums text-ink">
+                          {formatUsd(pricing.payNowUsd)}
+                        </dd>
+                      </div>
+                      <div className="flex items-start justify-between gap-4">
+                        <dt className="min-w-0 text-ink">PayPal fee (6%)</dt>
+                        <dd className="shrink-0 whitespace-nowrap tabular-nums text-ink">
+                          {formatUsd(pricing.paypalFeeUsd)}
+                        </dd>
+                      </div>
+                      <div className="flex items-start justify-between gap-4 border-t border-ink/8 pt-3">
+                        <dt className="min-w-0 font-semibold text-ink">
+                          Total to pay now
+                        </dt>
+                        <dd className="shrink-0 whitespace-nowrap text-xl font-semibold tabular-nums text-primary">
+                          {formatUsd(pricing.totalPayNowUsd)}
+                        </dd>
+                      </div>
+                      {pricing.remainingUsd > 0 ? (
+                        <p className="text-xs text-ink">
+                          Remaining {formatUsd(pricing.remainingUsd)} due on
+                          arrival.
+                        </p>
+                      ) : null}
+                    </>
                   ) : null}
                 </dl>
               ) : (

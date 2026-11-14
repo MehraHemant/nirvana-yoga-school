@@ -14,7 +14,34 @@ import type {
  * @param item - CMS add-on
  */
 export function getAddonKind(item: BookingAddon): BookingAddonKind {
-  return item.type === "course" ? "course" : "manual";
+  if (item.type === "course" || item.type === "rooms") return item.type;
+  return "manual";
+}
+
+/**
+ * Whether the guest picks one option (room) rather than ticking a flat extra.
+ *
+ * @param item - CMS add-on
+ */
+export function isOptionAddon(item: BookingAddon): boolean {
+  return getAddonKind(item) !== "manual";
+}
+
+/**
+ * Normalizes admin-entered options: trims labels, rounds prices, drops blanks.
+ *
+ * @param options - Raw options
+ */
+function cleanOptions(
+  options: BookingAddonOption[] | undefined,
+): BookingAddonOption[] {
+  return (options ?? [])
+    .filter((option) => option?.id && option.label?.trim())
+    .map((option) => ({
+      id: option.id,
+      label: option.label.trim(),
+      priceUsd: Math.max(0, Math.round(Number(option.priceUsd) || 0)),
+    }));
 }
 
 /**
@@ -37,6 +64,7 @@ export function courseAddonRoomOptionId(
  * @param item - Add-on from CMS (preferably enriched)
  */
 export function getAddonOptions(item: BookingAddon): BookingAddonOption[] {
+  if (item.type === "rooms") return cleanOptions(item.options);
   if (item.type === "course" && item.options && item.options.length > 0) {
     return item.options.map((option) => ({
       id: option.id,
@@ -85,6 +113,11 @@ export function filterBookingAddonsForType(
     }
     if (item.appliesTo?.length && !item.appliesTo.includes(type)) return false;
 
+    const excluded = (item.excludeProgramSlugs ?? []).map((value) =>
+      value.trim().toLowerCase(),
+    );
+    if (slug && excluded.includes(slug)) return false;
+
     const scoped = (item.programSlugs ?? [])
       .map((value) => value.trim().toLowerCase())
       .filter(Boolean);
@@ -112,6 +145,18 @@ export function enrichBookingAddons(
   );
 
   return items.map((item) => {
+    if (item.type === "rooms") {
+      const options = cleanOptions(item.options);
+      return {
+        ...item,
+        options,
+        priceUsd:
+          options.length > 0
+            ? Math.min(...options.map((option) => option.priceUsd))
+            : 0,
+      };
+    }
+
     if (item.type === "course") {
       const linked = bySlug.get(item.courseSlug.trim());
       const label = item.label.trim() || linked?.title || item.courseSlug;
@@ -170,17 +215,18 @@ export function resolveSelectedAddons(
 
     const kind = getAddonKind(group);
     const isCourse = kind === "course";
+    const hasRooms = kind !== "manual";
 
     result.push({
       id: picked.id,
-      label: isCourse ? `${group.label} — ${picked.label}` : group.label,
+      label: hasRooms ? `${group.label} — ${picked.label}` : group.label,
       priceUsd: Math.max(0, Math.round(picked.priceUsd)),
       groupId: group.id,
       groupLabel: group.label,
       type: kind,
       courseSlug:
         isCourse && group.type === "course" ? group.courseSlug : undefined,
-      roomType: isCourse ? picked.label : undefined,
+      roomType: hasRooms ? picked.label : undefined,
     });
   }
 

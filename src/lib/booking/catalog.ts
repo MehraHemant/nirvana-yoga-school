@@ -156,9 +156,11 @@ export async function getCourseBookingCatalog(): Promise<BookingProgram[]> {
     }
     const course = doc as ResidentialCourseDocument;
     const fromOffers = await loadOfferRoomsAndBatches(page.id);
-    programs.push(
-      courseToBookingProgram(course, fromOffers.rooms, fromOffers.batches),
-    );
+    programs.push({
+      ...courseToBookingProgram(course, fromOffers.rooms, fromOffers.batches),
+      // Page slug is canonical (booking links, add-on scoping use it).
+      slug: page.slug,
+    });
   }
   return programs;
 }
@@ -201,9 +203,10 @@ export async function getRetreatBookingCatalog(): Promise<BookingProgram[]> {
     }
     const retreat = doc as RetreatDocument;
     const fromOffers = await loadOfferRoomsAndBatches(page.id);
-    programs.push(
-      retreatToBookingProgram(retreat, fromOffers.rooms, fromOffers.batches),
-    );
+    programs.push({
+      ...retreatToBookingProgram(retreat, fromOffers.rooms, fromOffers.batches),
+      slug: page.slug,
+    });
   }
   return programs;
 }

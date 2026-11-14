@@ -24,8 +24,13 @@ export type BookingProgram = {
   batches: string[];
 };
 
-/** Add-on kind in CMS: freeform custom, or a linked course (rooms from catalog). */
-export type BookingAddonKind = "manual" | "course";
+/**
+ * Add-on kind in CMS:
+ * - `rooms`: custom add-on with its own room / package options and prices
+ * - `manual`: flat-price extra (legacy, single price)
+ * - `course`: linked course, rooms pulled from the catalog (legacy)
+ */
+export type BookingAddonKind = "manual" | "course" | "rooms";
 
 /** One room / package choice under a course add-on (usually enriched from catalog). */
 export type BookingAddonOption = {
@@ -47,6 +52,8 @@ type BookingAddonCommon = {
    * Empty / omitted = all programs for the applicable booking type(s).
    */
   programSlugs?: string[];
+  /** Never shown when booking one of these program slugs (wins over scope). */
+  excludeProgramSlugs?: string[];
   /** When false, hidden from checkout. Default true. */
   active?: boolean;
 };
@@ -60,6 +67,14 @@ export type BookingAddon =
       /** Custom label / price / description */
       type?: "manual";
       priceUsd: number;
+    })
+  | (BookingAddonCommon & {
+      /** Custom add-on; guest picks one of the admin-defined room options */
+      type: "rooms";
+      /** Room / package choices with their own prices */
+      options: BookingAddonOption[];
+      /** Optional display hint (min option price after enrich) */
+      priceUsd?: number;
     })
   | (BookingAddonCommon & {
       /** Upsell another bookable course; guest picks a room from that course */
