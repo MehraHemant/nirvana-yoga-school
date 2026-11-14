@@ -38,4 +38,5 @@ export const RESIDENTIAL_COURSE_SLUGS = [
   "500-hour-yoga-teacher-training-in-rishikesh-india",
   "yin-yoga-teacher-training-in-rishikesh-india",
   "sound-healing-course-in-rishikesh-india",
+  "kirtan-vocal-and-instrumental-music-training",
 ] as const;

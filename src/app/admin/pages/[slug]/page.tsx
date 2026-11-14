@@ -111,7 +111,8 @@ function TypedLayoutEditor({ slug }: { slug: string }) {
     (slug === "home" ||
       slug === "contact" ||
       slug === "enquire-now" ||
-      slug === "booking") &&
+      slug === "booking" ||
+      slug === "become-an-affiliate") &&
     content
   ) {
     return (

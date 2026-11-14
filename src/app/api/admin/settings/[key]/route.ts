@@ -1,10 +1,17 @@
 import { revalidatePath } from "next/cache";
 import { upsertPageSeo, YTT_HUB_SLUG } from "@/content/repositories/page-seo";
+import {
+  createEmptyOfferPopup,
+  normalizeOfferPopup,
+} from "@/content/types/offer-popup";
 import type { PageSeoMeta } from "@/content/types/page-seo";
 import type { ExamCertificationContent } from "@/content/types/shared-sections";
 import { jsonError, jsonForbidden, jsonOk } from "@/lib/cms/api-response";
 import { getServerSession } from "@/lib/cms/auth";
-import { invalidateGlobalSettingsCache, revalidateSharedSettingsConsumers } from "@/lib/cms/cache";
+import {
+  invalidateGlobalSettingsCache,
+  revalidateSharedSettingsConsumers,
+} from "@/lib/cms/cache";
 import { hasExamCertificationContent } from "@/lib/cms/section-visibility";
 import {
   createDefaultCourseFood,
@@ -36,6 +43,7 @@ const ALLOWED_KEYS = [
   "retreatFood",
   "yttHub",
   "bookingAddons",
+  "offerPopup",
 ] as const;
 
 /**
@@ -112,6 +120,11 @@ export async function GET(
     return jsonOk({ settings: value });
   }
 
+  if (key === "offerPopup") {
+    const value = await ensureSharedSettings(key, createEmptyOfferPopup());
+    return jsonOk({ settings: normalizeOfferPopup(value) });
+  }
+
   if (key === "courseFood") {
     const value = await ensureSharedSettings(key, createDefaultCourseFood());
     return jsonOk({ settings: value });
@@ -153,6 +166,10 @@ export async function PUT(
 
   const body = await request.json();
   let value = body.value;
+
+  if (key === "offerPopup") {
+    value = normalizeOfferPopup(value);
+  }
 
   if (key === "examCertification") {
     value = normalizeExamCertification(

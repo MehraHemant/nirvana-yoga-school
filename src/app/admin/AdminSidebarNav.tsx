@@ -88,6 +88,7 @@ const NAV_SECTIONS: NavSection[] = [
         href: "/admin/bookings/addons",
         Icon: Layers,
       },
+      { label: "Offer popup", href: "/admin/offer-popup", Icon: Certificate },
       { label: "Quiz", href: "/admin/quiz", Icon: Lotus },
       { label: "Quiz results", href: "/admin/quiz/results", Icon: Certificate },
       { label: "Users", href: "/admin/users", Icon: Users },

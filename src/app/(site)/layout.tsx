@@ -3,12 +3,14 @@ import QuizLauncher from "@/components/quiz/QuizLauncher";
 import DeferredChatWidget from "@/components/ui/DeferredChatWidget";
 import Header from "@/components/ui/Header";
 import JsonLd from "@/components/ui/JsonLd";
+import OfferPopup from "@/components/ui/OfferPopup";
 import WhatsAppFab from "@/components/ui/WhatsAppFab";
 import {
   getGlobalFooter,
   getGlobalHeader,
   getSiteConfig,
 } from "@/content/repositories/global-settings";
+import { getOfferPopup } from "@/lib/cms/offer-popup";
 import { hasActiveQuizQuestions } from "@/lib/quiz/questions";
 import { getQuizSettings } from "@/lib/quiz/settings";
 import { organizationGraph } from "@/lib/seo/structured-data";
@@ -64,8 +66,11 @@ async function loadSiteChrome() {
 export default async function SiteLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const [{ header, footer, identity, whatsappNumber }, quizSettings] =
-    await Promise.all([loadSiteChrome(), getQuizSettings()]);
+  const [
+    { header, footer, identity, whatsappNumber },
+    quizSettings,
+    offerPopup,
+  ] = await Promise.all([loadSiteChrome(), getQuizSettings(), getOfferPopup()]);
   const quizOpen =
     quizSettings.live && (await hasActiveQuizQuestions().catch(() => false));
 
@@ -81,6 +86,7 @@ export default async function SiteLayout({
       <SiteMain>{children}</SiteMain>
       <SiteFooterGate initialData={footer} />
       <HideOnImmersive>
+        <OfferPopup content={offerPopup} />
         <WhatsAppFab phone={whatsappNumber} />
         <DeferredChatWidget />
       </HideOnImmersive>

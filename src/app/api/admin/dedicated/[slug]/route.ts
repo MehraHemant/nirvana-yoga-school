@@ -53,8 +53,14 @@ export async function PUT(
     return jsonBadRequest("Invalid dedicated page document");
   }
 
-  const expectedKind =
-    slug === "home" ? "home" : slug === "contact" ? "contact" : "enquire";
+  const EXPECTED_KIND: Record<typeof slug, DedicatedPageContent["kind"]> = {
+    home: "home",
+    contact: "contact",
+    "enquire-now": "enquire",
+    booking: "booking",
+    "become-an-affiliate": "affiliate",
+  };
+  const expectedKind = EXPECTED_KIND[slug];
   if (body.kind !== expectedKind) {
     return jsonBadRequest(`Expected kind "${expectedKind}" for slug ${slug}`);
   }

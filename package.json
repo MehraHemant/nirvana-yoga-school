@@ -13,7 +13,10 @@
     "db:migrate:images": "tsx --env-file=.env scripts/migrate-images-to-cloudinary.ts",
     "db:dedupe:faqs": "tsx --env-file=.env scripts/dedupe-faqs.ts",
     "db:index:chat": "tsx --env-file=.env scripts/index-chat-qdrant.ts",
-    "db:import:online-courses": "tsx --env-file=.env scripts/import-online-courses-from-live.ts"
+    "db:import:online-courses": "tsx --env-file=.env scripts/import-online-courses-from-live.ts",
+    "db:import:kirtan": "tsx --env-file=.env scripts/import-kirtan-course.ts",
+    "db:seed:affiliate": "tsx --env-file=.env scripts/seed-affiliate-page.ts",
+    "db:seed:offer-popup": "tsx --env-file=.env scripts/seed-offer-popup.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1106.0",

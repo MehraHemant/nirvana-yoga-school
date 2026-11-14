@@ -7691,3 +7691,90 @@
     grid-template-columns: minmax(0, 1fr) 5.5rem 2.25rem;
   }
 }
+
+/* Affiliate page editor */
+.admin-affiliate-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.admin-affiliate-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  justify-content: flex-end;
+}
+
+.admin-affiliate-step {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+  border-top: 1px solid rgb(26 20 16 / 8%);
+}
+
+.admin-affiliate-step__num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  background: #a32432;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.admin-affiliate-step__fields {
+  display: grid;
+  gap: 0.25rem;
+}
+
+@media (max-width: 640px) {
+  .admin-affiliate-pair {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Offer popup editor */
+.admin-offer-head-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.admin-offer-status {
+  margin: 0.6rem 0 0;
+}
+
+.admin-offer-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: start;
+}
+
+.admin-offer-card__title {
+  margin: 0 0 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgb(107 94 87);
+}
+
+.admin-offer-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+@media (max-width: 900px) {
+  .admin-offer-grid,
+  .admin-offer-pair {
+    grid-template-columns: 1fr;
+  }
+}

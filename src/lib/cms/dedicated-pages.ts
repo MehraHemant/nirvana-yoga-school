@@ -1,4 +1,5 @@
 import {
+  normalizeAffiliateContent,
   normalizeBookingContent,
   normalizeContactContent,
   normalizeEnquireContent,
@@ -15,6 +16,7 @@ import type {
 } from "@/content/types/shared-sections";
 import { invalidateAndRevalidatePage } from "@/lib/cms/cache";
 import {
+  createEmptyAffiliatePageContent,
   createEmptyBookingPageContent,
   createEmptyContactPageContent,
   createEmptyEnquirePageContent,
@@ -22,7 +24,13 @@ import {
 } from "@/lib/cms/structural-defaults";
 import { db } from "@/lib/db";
 
-const DEDICATED_SLUGS = ["home", "contact", "enquire-now", "booking"] as const;
+const DEDICATED_SLUGS = [
+  "home",
+  "contact",
+  "enquire-now",
+  "booking",
+  "become-an-affiliate",
+] as const;
 export type DedicatedPageSlug = (typeof DEDICATED_SLUGS)[number];
 
 /**
@@ -51,6 +59,8 @@ export function defaultDedicatedContent(
       return structuredClone(createEmptyContactPageContent());
     case "enquire-now":
       return structuredClone(createEmptyEnquirePageContent());
+    case "become-an-affiliate":
+      return structuredClone(createEmptyAffiliatePageContent());
   }
 }
 
@@ -67,6 +77,7 @@ export function parseDedicatedContent(
   if (slug === "home") return normalizeHomeContent(raw);
   if (slug === "contact") return normalizeContactContent(raw);
   if (slug === "booking") return normalizeBookingContent(raw);
+  if (slug === "become-an-affiliate") return normalizeAffiliateContent(raw);
   return normalizeEnquireContent(raw);
 }
 
@@ -162,7 +173,9 @@ export async function saveDedicatedPageContent(
         ? "Contact"
         : slug === "booking"
           ? "Booking"
-          : "Enquire Now";
+          : slug === "become-an-affiliate"
+            ? "Become an Affiliate"
+            : "Enquire Now";
 
   const page = await db.page.upsert({
     where: { slug },

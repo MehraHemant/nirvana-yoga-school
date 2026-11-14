@@ -174,6 +174,10 @@ export function revalidateSharedSettingsConsumers(key: string): void {
     case "retreatAccommodation":
       revalidateProductHubLayouts();
       return;
+    case "offerPopup":
+      // Popup is rendered by the site layout on every public page.
+      revalidatePath("/", "layout");
+      return;
     case "bookingAddons":
       revalidatePath("/booking");
       revalidatePath("/retreat-booking");

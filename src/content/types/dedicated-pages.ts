@@ -386,11 +386,107 @@ export type BookingPageContent = Omit<EnquirePageContent, "kind"> & {
   steps: BookingStep[];
 };
 
+/** Icon shown on an affiliate "how it works" step. */
+export type AffiliateStepIconKey =
+  | "user"
+  | "link"
+  | "code"
+  | "share"
+  | "users"
+  | "wallet";
+
+export type AffiliateStep = {
+  title: string;
+  body: string;
+  iconKey: AffiliateStepIconKey;
+};
+
+/** One referral flow (e.g. online links vs in-person codes). */
+export type AffiliateTrack = {
+  id: string;
+  /** Tab label, e.g. "Online courses" */
+  label: string;
+  title: string;
+  description: string;
+  steps: AffiliateStep[];
+};
+
+export type AffiliateBenefit = {
+  title: string;
+  body: string;
+};
+
+/** Course option in the earnings calculator. */
+export type AffiliateCalculatorProgram = {
+  label: string;
+  feeUsd: number;
+};
+
+/** Become-an-affiliate CMS document (`slug=become-an-affiliate`). */
+export type AffiliatePageContent = {
+  kind: "affiliate";
+  meta?: PageSeoMeta;
+  /** Commission percent used in copy and the calculator */
+  commissionRate: number;
+  hero: SectionIdFields & {
+    image: string;
+    eyebrow: string;
+    title: string;
+    lead: string;
+    primaryCtaLabel: string;
+    secondaryCtaLabel: string;
+    chips: string[];
+  };
+  /** Highlight figures under the hero (e.g. "10%" / "Commission") */
+  stats: Array<{ value: string; label: string }>;
+  tracksSection: SectionIdFields & {
+    eyebrow: string;
+    title: string;
+    lead: string;
+  };
+  tracks: AffiliateTrack[];
+  calculator: SectionIdFields & {
+    eyebrow: string;
+    title: string;
+    lead: string;
+    note: string;
+    programs: AffiliateCalculatorProgram[];
+  };
+  benefitsSection: SectionIdFields & {
+    eyebrow: string;
+    title: string;
+    lead: string;
+  };
+  benefits: AffiliateBenefit[];
+  /** Shared site reviews band (content comes from Reviews settings) */
+  reviews: SectionIdFields & {
+    eyebrow: string;
+    title: string;
+    description: string;
+  };
+  faqsSection: SectionIdFields & {
+    eyebrow: string;
+    title: string;
+  };
+  faqs: Array<{ question: string; answer: string }>;
+  form: SectionIdFields & {
+    eyebrow: string;
+    title: string;
+    lead: string;
+    submitLabel: string;
+    successTitle: string;
+    successBody: string;
+    /** Options for "Where will you promote us?" */
+    platforms: string[];
+  };
+};
+
 export type DedicatedPageContent =
   | HomePageContent
   | ContactPageContent
   | EnquirePageContent
-  | BookingPageContent;
+  | BookingPageContent
+  | AffiliatePageContent;
 
 /**
  * Type guard for home content documents.
@@ -447,5 +543,20 @@ export function isBookingPageContent(
     typeof value === "object" &&
     value !== null &&
     (value as BookingPageContent).kind === "booking"
+  );
+}
+
+/**
+ * Type guard for affiliate content documents.
+ *
+ * @param value - Unknown content_data payload
+ */
+export function isAffiliatePageContent(
+  value: unknown,
+): value is AffiliatePageContent {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    (value as AffiliatePageContent).kind === "affiliate"
   );
 }

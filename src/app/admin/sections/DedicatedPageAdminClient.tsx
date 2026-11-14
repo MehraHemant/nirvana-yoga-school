@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { AffiliatePageEditor } from "@/components/admin/AffiliatePageEditor";
 import { ContactPageEditor } from "@/components/admin/ContactPageEditor";
 import { EnquirePageEditor } from "@/components/admin/EnquirePageEditor";
 import { HomeSectionsEditor } from "@/components/admin/HomeSectionsEditor";
 import type {
+  AffiliatePageContent,
   BookingPageContent,
   ContactPageContent,
   DedicatedPageContent,
@@ -16,7 +18,12 @@ import {
   saveAdminPageEditor,
 } from "@/lib/api/admin-client";
 
-type DedicatedPageSlug = "home" | "contact" | "enquire-now" | "booking";
+type DedicatedPageSlug =
+  | "home"
+  | "contact"
+  | "enquire-now"
+  | "booking"
+  | "become-an-affiliate";
 
 type DedicatedPageAdminClientProps = {
   /** Dedicated page slug */
@@ -69,6 +76,17 @@ export default function DedicatedPageAdminClient({
         onSave={onSave}
         backHref={backHref ?? "/admin/sections/home"}
         backLabel={backLabel ?? "Home"}
+      />
+    );
+  }
+
+  if (slug === "become-an-affiliate") {
+    return (
+      <AffiliatePageEditor
+        initial={content as AffiliatePageContent}
+        onSave={onSave}
+        backHref={backHref ?? "/admin/sections/other"}
+        backLabel={backLabel ?? "Other pages"}
       />
     );
   }

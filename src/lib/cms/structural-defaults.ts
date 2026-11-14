@@ -1,5 +1,6 @@
 import type { BookingAddonsContent } from "@/content/types/booking";
 import type {
+  AffiliatePageContent,
   BookingPageContent,
   ContactPageContent,
   EnquirePageContent,
@@ -171,6 +172,41 @@ export function createEmptyContactPageContent(): ContactPageContent {
       submitLabel: "",
     },
     map: { show: true },
+  };
+}
+
+/** Empty become-an-affiliate CMS scaffold (copy is seeded in the DB). */
+export function createEmptyAffiliatePageContent(): AffiliatePageContent {
+  return {
+    kind: "affiliate",
+    commissionRate: 10,
+    hero: {
+      image: "",
+      eyebrow: "",
+      title: "",
+      lead: "",
+      primaryCtaLabel: "",
+      secondaryCtaLabel: "",
+      chips: [],
+    },
+    stats: [],
+    tracksSection: { eyebrow: "", title: "", lead: "" },
+    tracks: [],
+    calculator: { eyebrow: "", title: "", lead: "", note: "", programs: [] },
+    benefitsSection: { eyebrow: "", title: "", lead: "" },
+    benefits: [],
+    reviews: { eyebrow: "", title: "", description: "" },
+    faqsSection: { eyebrow: "", title: "" },
+    faqs: [],
+    form: {
+      eyebrow: "",
+      title: "",
+      lead: "",
+      submitLabel: "",
+      successTitle: "",
+      successBody: "",
+      platforms: [],
+    },
   };
 }
 

@@ -1,15 +1,19 @@
+import { normalizeHomeCourseRefs } from "@/content/mappers/home-courses";
 import { requireDb } from "@/content/repositories/db-fallback";
+import { resolveGlobalFaqs } from "@/content/repositories/faqs";
 import type {
   ContentResult,
   RepositoryOptions,
 } from "@/content/repositories/fetch";
 import type {
+  AffiliatePageContent,
   BookingPageContent,
   ContactPageContent,
   EnquirePageContent,
   HomePageContent,
 } from "@/content/types/dedicated-pages";
 import {
+  isAffiliatePageContent,
   isBookingPageContent,
   isContactPageContent,
   isEnquirePageContent,
@@ -20,14 +24,13 @@ import type {
   ReviewsContent,
 } from "@/content/types/shared-sections";
 import {
+  createEmptyAffiliatePageContent,
   createEmptyBookingPageContent,
   createEmptyContactPageContent,
   createEmptyEnquirePageContent,
   createEmptyHomePageContent,
 } from "@/lib/cms/structural-defaults";
-import { resolveGlobalFaqs } from "@/content/repositories/faqs";
 import { db } from "@/lib/db";
-import { normalizeHomeCourseRefs } from "@/content/mappers/home-courses";
 
 /**
  * Merges partial home content with defaults so public UI never regresses.
@@ -133,8 +136,7 @@ export function normalizeHomeContent(value: unknown): HomePageContent {
       ...base.courses,
       ...value.courses,
       placements:
-        value.courses?.placements?.length ||
-        value.courses?.cards?.length
+        value.courses?.placements?.length || value.courses?.cards?.length
           ? normalizeHomeCourseRefs({
               ...base.courses,
               ...value.courses,
@@ -213,6 +215,72 @@ export function normalizeContactContent(value: unknown): ContactPageContent {
     details: value.details?.length > 0 ? value.details : base.details,
   };
 }
+
+/**
+ * Merges partial affiliate content with defaults.
+ *
+ * @param value - Raw content_data
+ */
+export function normalizeAffiliateContent(
+  value: unknown,
+): AffiliatePageContent {
+  const base = createEmptyAffiliatePageContent();
+  if (!isAffiliatePageContent(value)) return structuredClone(base);
+  const rate = Number(value.commissionRate);
+  return {
+    ...base,
+    ...value,
+    commissionRate: Number.isFinite(rate) && rate > 0 ? rate : 10,
+    hero: {
+      ...base.hero,
+      ...value.hero,
+      chips: value.hero?.chips ?? base.hero.chips,
+    },
+    stats: value.stats ?? base.stats,
+    tracksSection: { ...base.tracksSection, ...value.tracksSection },
+    tracks: (value.tracks ?? []).map((track) => ({
+      ...track,
+      steps: track.steps ?? [],
+    })),
+    calculator: {
+      ...base.calculator,
+      ...value.calculator,
+      programs: (value.calculator?.programs ?? []).filter(
+        (program) => program.label && Number(program.feeUsd) > 0,
+      ),
+    },
+    benefitsSection: { ...base.benefitsSection, ...value.benefitsSection },
+    benefits: value.benefits ?? base.benefits,
+    reviews: { ...base.reviews, ...value.reviews },
+    faqsSection: { ...base.faqsSection, ...value.faqsSection },
+    faqs: value.faqs ?? base.faqs,
+    form: {
+      ...base.form,
+      ...value.form,
+      platforms: value.form?.platforms ?? base.form.platforms,
+    },
+  };
+}
+
+/**
+ * Loads become-an-affiliate CMS content.
+ *
+ * @param options - Optional repository options
+ */
+export async function getAffiliatePageContent(
+  options?: RepositoryOptions,
+): Promise<ContentResult<AffiliatePageContent>> {
+  return requireDb(async () => {
+    const page = await db.page.findUnique({
+      where: { slug: AFFILIATE_SLUG },
+      select: { contentData: true },
+    });
+    return normalizeAffiliateContent(page?.contentData);
+  }, options);
+}
+
+/** Public slug of the affiliate programme page. */
+export const AFFILIATE_SLUG = "become-an-affiliate";
 
 /**
  * Merges partial enquire content with defaults.

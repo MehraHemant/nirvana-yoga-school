@@ -49,14 +49,7 @@ const courseItems: NavPageRef[] = RESIDENTIAL_COURSE_SLUGS.map(
 /** Dropdown item order — slugs + sort only; labels come from the database. */
 export const NAV_DROPDOWN_ENTRIES: Record<NavDropdownKey, NavDropdownConfig> = {
   courses: {
-    items: [
-      ...courseItems,
-      {
-        sort: courseItems.length + 1,
-        type: "site",
-        slug: "kirtan-vocal-and-instrumental-music-training",
-      },
-    ],
+    items: [...courseItems],
     seeAll: {
       sort: 999,
       type: "site",
